@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-import logging
 from dataclasses import dataclass
-from typing import Optional
-
+import io
 from pypdf import PdfReader
-
-log = logging.getLogger("argus.pdf_text")
 
 
 @dataclass
@@ -23,17 +19,11 @@ def extract_text_from_pdf_bytes(
     max_pages: int = 8,
     max_chars: int = 7000,
 ) -> PDFExtractResult:
-    """
-    비용 0 + GitHub Actions 환경 안정성을 최우선으로 하는 PDF 텍스트 추출기.
-    - OCR 없음: 텍스트 레이어가 있는 PDF만 추출 가능
-    - max_pages로 처리 비용 제한
-    - max_chars로 Evidence Bundle 폭발 방지
-    """
     if not pdf_bytes:
         return PDFExtractResult(ok=False, text="", pages=0, reason="empty_pdf_bytes")
 
     try:
-        reader = PdfReader(io_bytes(pdf_bytes))
+        reader = PdfReader(io.BytesIO(pdf_bytes))
     except Exception as e:
         return PDFExtractResult(ok=False, text="", pages=0, reason=f"pdf_open_failed: {e}")
 
@@ -46,17 +36,14 @@ def extract_text_from_pdf_bytes(
     for i in range(n):
         try:
             page = reader.pages[i]
-            t = page.extract_text() or ""
-            t = t.strip()
+            t = (page.extract_text() or "").strip()
             if t:
                 extracted_any = True
-                # 페이지 구분을 명확히 남김(감사/재현성)
                 chunks.append(f"[Page {i+1}]\n{t}\n")
         except Exception:
             continue
 
     if not extracted_any:
-        # 스캔 이미지 기반일 확률이 높음
         return PDFExtractResult(
             ok=False,
             text="",
@@ -69,9 +56,3 @@ def extract_text_from_pdf_bytes(
         full = full[:max_chars] + "\n...(truncated)"
 
     return PDFExtractResult(ok=True, text=full, pages=n, reason="ok")
-
-
-def io_bytes(b: bytes):
-    # pypdf가 file-like object를 받으므로 최소 래퍼 제공
-    import io
-    return io.BytesIO(b)

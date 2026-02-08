@@ -9,6 +9,8 @@ from .config import load_config
 from .supabase_db import SupabaseDB
 from .slack import post_slack
 
+from .runtime_overrides import apply_runtime_overrides
+
 from .cve_sources import fetch_cveorg_published_since
 from .kev_epss import enrich_with_kev_epss
 from .dedup import should_notify, classify_change, compute_payload_hash
@@ -98,38 +100,55 @@ CVE: {cve_id}
 - rules/yara/<source>/...
 - rules/<engine>/AI/... (AI-generated, validated PASS only)
 
-## Validation commands (same policy used by Argus)
-- Suricata:
-  - suricata -T -c /etc/suricata/suricata.yaml -S <rulefile>
-- Snort2:
-  - snort -T -c snort.conf
-- Snort3:
-  - snort3 -T -c snort.lua -R <rulefile>
-- Sigma (sigma-cli):
-  - sigma validate <rule.yml>
-- YARA:
-  - yara -C <rule.yar>
-
 ## Notes
 - Only rules that PASS engine validation are included in this ZIP.
-- Full context and Evidence Bundle are in the Report link delivered to Slack.
+- Full Evidence Bundle (LLM input basis) is in the Report link delivered to Slack.
 """
+
+
+def _get_int_env(name: str, default: int) -> int:
+    try:
+        v = int(os.getenv(name, str(default)).strip())
+        return max(0, v)
+    except Exception:
+        return default
 
 
 def main() -> None:
     setup_logging()
+
     cfg = load_config()
+
+    # ✅ DB settings를 런타임에 cfg로 주입 (웹 UI 변경이 즉시 반영되는 핵심)
+    apply_runtime_overrides(cfg)
+
     db = SupabaseDB(cfg.SUPABASE_URL, cfg.SUPABASE_KEY)
 
     selftest = os.getenv("ARGUS_SELFTEST", "").strip().lower() in ("1", "true", "yes", "y", "on")
     run_ok = False
+
+    # 운영 파라미터: cfg 우선, 없으면 env 기본
+    gh_snippet_max = getattr(cfg, "ARGUS_GH_SNIPPET_FETCH_MAX", None)
+    if gh_snippet_max is None:
+        gh_snippet_max = _get_int_env("ARGUS_GH_SNIPPET_FETCH_MAX", 2)
+
+    gh_rule_candidates_max = getattr(cfg, "ARGUS_GH_RULE_CANDIDATES_MAX", None)
+    if gh_rule_candidates_max is None:
+        gh_rule_candidates_max = _get_int_env("ARGUS_GH_RULE_CANDIDATES_MAX", 4)
+
+    slack_rule_blocks_max = getattr(cfg, "ARGUS_SLACK_RULE_BLOCKS_MAX", None)
+    if slack_rule_blocks_max is None:
+        slack_rule_blocks_max = _get_int_env("ARGUS_SLACK_RULE_BLOCKS_MAX", 3)
 
     try:
         since = db.get_last_poll_time(default_minutes=60)
         now = _utcnow()
 
         if selftest:
-            post_slack(cfg.SLACK_WEBHOOK_URL, "🧪 Argus 셀프테스트: CVE→KEV/EPSS→OSINT(snippet)→공개룰편입→룰검증→Report/Slack")
+            post_slack(
+                cfg.SLACK_WEBHOOK_URL,
+                f"🧪 Argus 셀프테스트: GH_snippet_max={gh_snippet_max}, GH_rule_candidates_max={gh_rule_candidates_max}, slack_rule_blocks_max={slack_rule_blocks_max}, EPSS_IMM={getattr(cfg,'EPSS_IMMEDIATE',None)}, EPSS_COND={getattr(cfg,'EPSS_CONDITIONAL',None)}",
+            )
 
         cves = fetch_cveorg_published_since(since, until=now)
         if not cves:
@@ -153,22 +172,22 @@ def main() -> None:
             notify, reason = should_notify(cfg, cve, prev_cmp)
             change_kind = classify_change(prev_cmp, cve) if prev_cmp else "NO_PREV"
 
-            # 1) OSINT(먼저) — GitHub snippet을 official 룰 후보로 편입하기 위함
             vulncheck_findings = fetch_vulncheck_findings(cfg, cve_id)
 
             github_findings = []
             github_findings.extend(search_repos_by_cve(cfg, cve_id, max_items=4))
-            github_findings.extend(search_code_by_cve(cfg, cve_id, max_items=6))
-            github_findings = enrich_code_findings_with_snippets(cfg, github_findings, max_fetch=2, snippet_max_chars=3500)
+            github_findings.extend(search_code_by_cve(cfg, cve_id, max_items=8))
+            github_findings = enrich_code_findings_with_snippets(
+                cfg, github_findings, max_fetch=int(gh_snippet_max), snippet_max_chars=3500
+            )
 
-            # ✅ 신뢰 GitHub 룰 후보(검증 PASS만) -> official hits로 편입
-            github_rule_hits = fetch_trusted_github_rule_candidates(cfg, cve_id=cve_id, github_findings=github_findings, max_rules=4)
+            github_rule_hits = fetch_trusted_github_rule_candidates(
+                cfg, cve_id=cve_id, github_findings=github_findings, max_rules=int(gh_rule_candidates_max)
+            )
 
-            # 2) 공식 룰 수집 + GitHub 룰 편입
             official_hits_base = fetch_official_rules(cfg, cve_id)
             official_hits = list(official_hits_base) + list(github_rule_hits)
 
-            # 3) 공식 룰 검증/번들링(라우팅 포함)
             artifacts, _, official_fp, rules_section_md = validate_and_build_bundle(
                 cfg=cfg,
                 cve=cve,
@@ -180,7 +199,6 @@ def main() -> None:
             prev_rule_status = (prev.get("last_rule_status") if prev else None) or "NONE"
             prev_official_fp = (prev.get("last_official_rule_fingerprint") if prev else None) or ""
 
-            # ✅ 공식/공개 룰 변경 재알림 강화
             forced_rule_update = False
             if had_official_now:
                 if prev_rule_status in ("AI_ONLY", "NONE"):
@@ -206,11 +224,9 @@ def main() -> None:
             else:
                 alert_type = "HIGH_RISK"
 
-            # 4) 패치/권고 텍스트(PDF 포함)
             patch_findings = fetch_patch_findings_from_references(cve.get("references") or [], max_pages=4)
             patch_section_md = build_patch_section_md(patch_findings)
 
-            # 5) Evidence Bundle
             official_summary_lines = _summarize_official_hits(official_hits)
             evidence_text = build_evidence_bundle_text(
                 cfg=cfg,
@@ -222,7 +238,6 @@ def main() -> None:
                 ai_rule_generation_notes=None,
             )
 
-            # 6) AI 룰 생성(공식 Sigma 없으면 Sigma는 반드시 생성)
             has_sigma_official = any(a.validated and a.engine == "sigma" for a in official_pass)
             need_ai = (not had_official_now) or (not has_sigma_official)
 
@@ -230,7 +245,6 @@ def main() -> None:
             if need_ai:
                 ai_rules = generate_ai_rules(cfg=cfg, cve=cve, evidence_bundle_text=evidence_text, prefer_snort3=False)
 
-            # 7) rules.zip 구성(README + 공식PASS + AIPASS)
             zip_files: List[Tuple[str, bytes]] = []
             zip_files.append(("README.md", _rules_zip_readme(cve_id).encode("utf-8")))
 
@@ -245,7 +259,6 @@ def main() -> None:
 
             rules_zip_bytes = write_zip(zip_files) if zip_files else None
 
-            # rule status
             if official_pass and ai_pass:
                 rule_status = "OFFICIAL_AND_AI"
             elif official_pass and (not ai_pass):
@@ -258,7 +271,6 @@ def main() -> None:
             ai_bundle_fp = sha256_hex(("\n".join(sorted([r.fingerprint for r in ai_pass]))).encode("utf-8")) if ai_pass else ""
             ai_rules_section_md = _build_ai_rules_section_md(ai_rules)
 
-            # 8) Report 저장(+rules.zip)
             report_md = build_report_markdown(
                 cve=cve,
                 alert_type=alert_type,
@@ -281,16 +293,11 @@ def main() -> None:
                 rules_zip_bytes=rules_zip_bytes,
             )
 
-            # 9) Slack: PASS 룰 상위 3개 복붙
             pass_rules_for_slack = []
             for a in official_pass:
-                pass_rules_for_slack.append(
-                    {"engine": a.engine, "source": a.source, "rule_path": a.rule_path, "rule_text": a.rule_text}
-                )
+                pass_rules_for_slack.append({"engine": a.engine, "source": a.source, "rule_path": a.rule_path, "rule_text": a.rule_text})
             for r in ai_pass:
-                pass_rules_for_slack.append(
-                    {"engine": r.engine, "source": "AI", "rule_path": f"generated_{r.fingerprint[:12]}", "rule_text": r.rule_text}
-                )
+                pass_rules_for_slack.append({"engine": r.engine, "source": "AI", "rule_path": f"generated_{r.fingerprint[:12]}", "rule_text": r.rule_text})
 
             slack_text = format_slack_message(
                 cve=cve,
@@ -299,12 +306,11 @@ def main() -> None:
                 change_kind=change_kind,
                 report_link=report_link,
                 top_validated_rules=pass_rules_for_slack,
-                include_rule_blocks_max=3,
+                include_rule_blocks_max=int(slack_rule_blocks_max),
                 rules_zip_present=bool(rules_zip_path),
             )
             post_slack(cfg.SLACK_WEBHOOK_URL, slack_text)
 
-            # 10) 상태 저장
             payload = {
                 "cve_id": cve_id,
                 "alert_type": alert_type,
@@ -346,10 +352,7 @@ def main() -> None:
         raise
 
     finally:
-        if run_ok:
-            log.info("Run OK")
-        else:
-            log.error("Run FAILED")
+        log.info("Run %s", "OK" if run_ok else "FAILED")
 
 
 if __name__ == "__main__":
