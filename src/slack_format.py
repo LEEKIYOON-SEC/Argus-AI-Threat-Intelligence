@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Optional
+from typing import Optional, Sequence
 
 from .i18n_ko import ko_severity, ko_attack_vector, ko_yesno
 
@@ -19,6 +18,17 @@ def _shorten(text: str, max_len: int = 900) -> str:
     return t[:max_len] + "…(생략)"
 
 
+def _rule_snippet(rule_text: str, max_chars: int = 1200) -> str:
+    """
+    Slack에서 바로 복붙 가능한 수준을 유지하되,
+    과도한 길이 폭발을 막기 위해 상한을 둔다.
+    """
+    t = (rule_text or "").strip()
+    if len(t) <= max_chars:
+        return t
+    return t[:max_chars] + "\n…(truncated)"
+
+
 def format_slack_message(
     *,
     cve: dict,
@@ -26,12 +36,14 @@ def format_slack_message(
     notify_reason: str,
     change_kind: str,
     report_link: str,
+    top_validated_rules: Optional[Sequence[dict]] = None,
+    include_rule_blocks_max: int = 3,
 ) -> str:
     """
-    Slack 길이 과다 방지:
+    Slack 길이 폭발 방지:
     - 핵심 필드/판정/링크 중심
-    - 설명은 과도하면 shorten
-    - 룰은 다음 단계에서 '필요 시'만 포함(지금은 report 중심)
+    - 룰은 (검증 PASS) 상위 N개만 “복붙 가능 블록”으로 포함
+    - 나머지 룰 전체는 Report + rules.zip로 제공
     """
     cve_id = cve["cve_id"]
     cvss_score = cve.get("cvss_score")
@@ -48,12 +60,11 @@ def format_slack_message(
     cwe = cve.get("cwe_ids") or []
     cwe_str = ", ".join(cwe[:20]) + (f" (+{len(cwe)-20} more)" if len(cwe) > 20 else "")
     refs = cve.get("references") or []
-    refs_str = "\n".join([f"- {r}" for r in refs[:10]]) + (f"\n- ...(총 {len(refs)}개)" if len(refs) > 10 else "")
+    refs_str = "\n".join([f"- {r}" for r in refs[:8]]) + (f"\n- ...(총 {len(refs)}개)" if len(refs) > 8 else "")
 
     desc_en = cve.get("description_en") or ""
-    desc = _shorten(desc_en, 900)
+    desc = _shorten(desc_en, 700)
 
-    # 분류 타이틀(신규/고위험/승격)
     if alert_type == "NEW_CVE_PUBLISHED":
         title = "🆕 신규 CVE(PUBLISHED)"
     elif alert_type == "UPDATE_ESCALATION":
@@ -79,8 +90,24 @@ def format_slack_message(
         lines.append(desc)
 
     if refs:
-        lines.append("\n*참고(상위 10개)*")
+        lines.append("\n*참고(상위 일부)*")
         lines.append(refs_str)
+
+    # 룰 블록(복붙 가능) — 검증 PASS 상위 N개만
+    rule_items = list(top_validated_rules or [])
+    if rule_items:
+        lines.append(f"\n*검증 통과 룰(복붙 가능, 상위 {min(include_rule_blocks_max, len(rule_items))}개)*")
+        for r in rule_items[:include_rule_blocks_max]:
+            eng = r.get("engine", "unknown")
+            src = r.get("source", "unknown")
+            path = r.get("rule_path", "unknown")
+            lines.append(f"- `{eng}` / {src} :: {path}")
+            lines.append("```")
+            lines.append(_rule_snippet(r.get("rule_text", ""), 1200))
+            lines.append("```")
+
+        if len(rule_items) > include_rule_blocks_max:
+            lines.append(f"_나머지 {len(rule_items)-include_rule_blocks_max}개 검증 통과 룰은 Report 및 rules.zip에서 확인하세요._")
 
     lines.append("\n*상세 리포트(30일 링크)*")
     lines.append(report_link)
