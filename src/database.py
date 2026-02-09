@@ -17,20 +17,13 @@ class ArgusDB:
     def upload_report(self, cve_id, content):
         file_path = f"{cve_id}.md"
         bucket = "reports"
-        
-        # [수정] UTF-8 인코딩을 명시적으로 처리
         encoded_content = content.encode('utf-8')
-        
         try:
             self.client.storage.from_(bucket).upload(
                 file_path, 
                 encoded_content, 
-                {
-                    "content-type": "text/markdown; charset=utf-8", 
-                    "x-upsert": "true"
-                }
+                {"content-type": "text/markdown; charset=utf-8", "x-upsert": "true"}
             )
         except:
-            pass # 이미 있는 경우 upsert 처리
-            
+            pass
         return self.client.storage.from_(bucket).create_signed_url(file_path, 60 * 60 * 24 * 30)

@@ -6,7 +6,6 @@ class SlackNotifier:
         self.webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
 
     def send_alert(self, cve_data, reason, report_url=None):
-        # 헤더에서 중복되는 (All Assets (*)) 제거를 위해 정리
         clean_reason = reason.split(' (')[0] if ' (' in reason else reason
         emoji = "🚨" if "KEV" in reason else "🆕"
         
@@ -25,7 +24,7 @@ class SlackNotifier:
             }
         ]
 
-        # Target Matched가 '*'인 경우 노이즈이므로 생략, 특정 자산일 때만 표시
+        # 특정 타겟 매칭 시 표시
         if "(" in reason and "*" not in reason:
             target_info = reason.split('(')[-1].replace(')', '')
             blocks.append({
@@ -33,7 +32,7 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": f"🎯 *Target Asset:* {target_info}"}]
             })
 
-        # Description 제한 해제 (최대 2000자까지 허용)
+        # 설명 (최대 2000자)
         blocks.append({
             "type": "section",
             "text": {"type": "mrkdwn", "text": f"*Description:*\n{cve_data['description'][:2000]}"}
@@ -45,15 +44,11 @@ class SlackNotifier:
                 "elements": [
                     {
                         "type": "button",
-                        "text": {
-                            "type": "plain_text", 
-                            "text": "📄 상세 분석 리포트 확인(30일 유효)" 
-                        },
+                        "text": {"type": "plain_text", "text": "📄 상세 분석 리포트 확인(30일 유효)"},
                         "url": report_url,
                         "style": "primary"
                     }
                 ]
             })
 
-        payload = {"blocks": blocks}
-        requests.post(self.webhook_url, json=payload)
+        requests.post(self.webhook_url, json={"blocks": blocks})
