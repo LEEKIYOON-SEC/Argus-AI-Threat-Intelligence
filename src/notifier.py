@@ -17,6 +17,12 @@ class SlackNotifier:
             {
                 "type": "section",
                 "fields": [
+                    {"type": "mrkdwn", "text": f"*Title:*\n{cve_data.get('title', 'N/A')}"}
+                ]
+            },
+            {
+                "type": "section",
+                "fields": [
                     {"type": "mrkdwn", "text": f"*CVSS Score:*\n{cve_data['cvss']}"},
                     {"type": "mrkdwn", "text": f"*EPSS Prob:*\n{cve_data['epss']*100:.2f}%"},
                     {"type": "mrkdwn", "text": f"*KEV Listed:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
@@ -24,7 +30,7 @@ class SlackNotifier:
             }
         ]
 
-        # 특정 타겟 매칭 시 표시
+        # Target Matched 표시 (전체 * 일때는 생략)
         if "(" in reason and "*" not in reason:
             target_info = reason.split('(')[-1].replace(')', '')
             blocks.append({
@@ -32,10 +38,12 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": f"🎯 *Target Asset:* {target_info}"}]
             })
 
-        # 설명 (최대 2000자)
+        # [변경] 한글 요약본 출력 (없으면 원문 사용)
+        description_text = cve_data.get('summary_ko', cve_data['description'])
+        
         blocks.append({
             "type": "section",
-            "text": {"type": "mrkdwn", "text": f"*Description:*\n{cve_data['description'][:2000]}"}
+            "text": {"type": "mrkdwn", "text": f"*Description:*\n{description_text}"}
         })
 
         if report_url:
@@ -44,7 +52,7 @@ class SlackNotifier:
                 "elements": [
                     {
                         "type": "button",
-                        "text": {"type": "plain_text", "text": "📄 상세 분석 리포트 확인(30일 유효)"},
+                        "text": {"type": "plain_text", "text": "📄 상세 분석 리포트 확인 (30일 유효)"},
                         "url": report_url,
                         "style": "primary"
                     }

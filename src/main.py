@@ -19,8 +19,21 @@ def is_target_asset(cve_description, cve_id):
             return True, f"Matched: {vendor}/{product}"
     return False, None
 
+def generate_korean_summary(cve_data):
+    """슬랙 메시지용 짧은 한글 요약 생성"""
+    prompt = f"""
+    Translate and summarize this CVE description into KOREAN (Max 3 lines).
+    Title: {cve_data['title']}
+    Description: {cve_data['description']}
+    """
+    try:
+        response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
+        return response.text.strip()
+    except:
+        return cve_data['description'][:200]
+
 def generate_report_content(cve_data, reason):
-    prompt = f"보안 분석가로서 다음 CVE 정보를 한국어로 분석하여 리포트를 작성하세요.\nID: {cve_data['id']}\n정보: {cve_data['description']}\n사유: {reason}\n\n작성 규칙: 전문적인 한국어를 사용하고 기술 용어는 원문을 유지하며 Markdown 형식으로 작성하세요."
+    prompt = f"보안 분석가로서 다음 CVE 정보를 한국어로 분석하여 리포트를 작성하세요.\nID: {cve_data['id']}\nTitle: {cve_data['title']}\n정보: {cve_data['description']}\n사유: {reason}\n\n작성 규칙: 전문적인 한국어를 사용하고 기술 용어는 원문을 유지하며 Markdown 형식으로 작성하세요."
     try:
         response = client.models.generate_content(model=config.MODEL_PHASE_0, contents=prompt)
         return f"# 🛡️ Argus Intelligence Report\n**Target:** `{cve_data['id']}`\n**Alert:** {reason}\n\n--- \n## 🤖 AI 보안 분석 (Korean)\n**Engine:** `{config.MODEL_PHASE_0}`\n\n{response.text}\n\n--- \n## 📊 Risk Stats\n- **CVSS Score:** {cve_data['cvss']}\n- **EPSS Prob:** {cve_data['epss']*100:.2f}%\n- **KEV Listed:** {'🚨 YES' if cve_data['is_kev'] else 'No'}"
@@ -39,7 +52,7 @@ def main():
 
     for cve_id in target_cve_ids:
         try:
-            time.sleep(20)
+            time.sleep(20) # RPM 방어
             raw_data = collector.enrich_cve(cve_id)
             
             # [필터 1] PUBLISHED 상태 확인 (REJECTED 제외)
@@ -52,8 +65,9 @@ def main():
             if not is_target: continue
 
             current_state = {
-                "id": cve_id, "cvss": raw_data['cvss'], "is_kev": cve_id in collector.kev_set,
-                "epss": collector.epss_cache.get(cve_id, 0.0), "description": raw_data['description']
+                "id": cve_id, "title": raw_data['title'], "cvss": raw_data['cvss'],
+                "is_kev": cve_id in collector.kev_set, "epss": collector.epss_cache.get(cve_id, 0.0),
+                "description": raw_data['description']
             }
             
             last_record = db.get_cve(cve_id)
@@ -70,9 +84,14 @@ def main():
 
             if should_alert:
                 print(f"[!] 알림 발송: {cve_id}")
+                
+                # [추가] 슬랙용 한글 요약 생성
+                current_state['summary_ko'] = generate_korean_summary(current_state)
+                
                 report_content = generate_report_content(current_state, alert_reason)
                 report_url = db.upload_report(cve_id, report_content)
                 notifier.send_alert(current_state, alert_reason, report_url['signedURL'])
+                
                 db.upsert_cve({
                     "id": cve_id, "cvss_score": current_state['cvss'], "epss_score": current_state['epss'],
                     "is_kev": current_state['is_kev'], "last_alert_at": datetime.datetime.now().isoformat(),

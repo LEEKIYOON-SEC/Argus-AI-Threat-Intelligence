@@ -56,7 +56,7 @@ class Collector:
         except: return []
 
     def enrich_cve(self, cve_id):
-        """CVE 상세 정보 및 상태(PUBLISHED 여부) 조회"""
+        """CVE 상세 정보 조회 (Title 및 CVSS 강화)"""
         try:
             parts = cve_id.split('-')
             year, id_num = parts[1], parts[2]
@@ -64,24 +64,44 @@ class Collector:
             raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
             
             res = requests.get(raw_url, timeout=5)
-            data = {"id": cve_id, "cvss": 0.0, "description": "N/A", "state": "UNKNOWN"}
+            # 기본 데이터 구조 (Title 추가됨)
+            data = {
+                "id": cve_id, 
+                "title": "N/A", 
+                "cvss": 0.0, 
+                "description": "N/A", 
+                "state": "UNKNOWN"
+            }
             
             if res.status_code == 200:
                 json_data = res.json()
+                cna = json_data.get('containers', {}).get('cna', {})
+                
                 data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
+                data['title'] = cna.get('title', 'N/A')
+                
+                # Description 추출
                 try:
-                    descriptions = json_data.get('containers', {}).get('cna', {}).get('descriptions', [])
-                    for d in descriptions:
+                    for d in cna.get('descriptions', []):
                         if d.get('lang') == 'en':
                             data['description'] = d.get('value')
                             break
                 except: pass
+                
+                # CVSS 점수 추출 (V4 -> V3.1 -> V3.0 순서)
                 try:
-                    metrics = json_data.get('containers', {}).get('cna', {}).get('metrics', [])
+                    metrics = cna.get('metrics', [])
                     for m in metrics:
-                        if 'cvssV3_1' in m:
+                        if 'cvssV4_0' in m:
+                            data['cvss'] = m['cvssV4_0'].get('baseScore', 0.0)
+                            break
+                        elif 'cvssV3_1' in m:
                             data['cvss'] = m['cvssV3_1'].get('baseScore', 0.0)
                             break
+                        elif 'cvssV3_0' in m:
+                            data['cvss'] = m['cvssV3_0'].get('baseScore', 0.0)
+                            break
                 except: pass
+                
             return data
-        except: return {"id": cve_id, "cvss": 0.0, "description": "Error", "state": "ERROR"}
+        except: return {"id": cve_id, "title": "Error", "cvss": 0.0, "description": "Error", "state": "ERROR"}
