@@ -38,26 +38,29 @@ class Collector:
         """cve.org에서 최근 변경된 PUBLISHED CVE 조회"""
         now = datetime.datetime.now(pytz.UTC)
         start_time = now - datetime.timedelta(hours=hours)
-        time_str = start_time.strftime("%Y-%m-%dT%H:%M:%S.000Z")
         
-        # [수정 포인트] change_type=PUBLISHED를 잠시 제거하거나, URL을 출력해서 확인
+        # [수정 1] 밀리초(.000) 제거 -> API가 가장 좋아하는 표준 포맷
+        # 기존: "%Y-%m-%dT%H:%M:%S.000Z"
+        time_str = start_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        
         url = f"https://cveawg.mitre.org/api/cve/history?time_start={time_str}&change_type=PUBLISHED"
         
-        # [DEBUG 코드 추가] --------------------------
-        print(f"\n[DEBUG] Request URL: {url}") # <-- 이 URL을 로그에서 클릭해보세요!
-        # ----------------------------------------
+        print(f"\n[DEBUG] Request URL: {url}")
 
         try:
             res = requests.get(url, timeout=10)
             
-            # [DEBUG 코드 추가] --------------------------
             print(f"[DEBUG] Status Code: {res.status_code}")
-            print(f"[DEBUG] Response Count: {len(res.json().get('cveRecords', []))}")
-            # ----------------------------------------
             
             if res.status_code == 200:
                 records = res.json().get('cveRecords', [])
+                print(f"[DEBUG] Found {len(records)} records")
                 return [r['cveMetadata']['cveId'] for r in records]
+            else:
+                # [수정 2] 200 OK가 아니면 API가 뱉은 에러 메시지를 출력 (원인 파악용)
+                print(f"[DEBUG] Error Response: {res.text}")
+                return []
+                
         except Exception as e:
             print(f"[ERR] Failed to fetch CVE history: {e}")
             return []
