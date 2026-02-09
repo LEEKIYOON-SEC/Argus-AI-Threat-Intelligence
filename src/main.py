@@ -89,7 +89,7 @@ def main():
     
     collector.fetch_kev()
     # 평소엔 hours=1 또는 2 권장, 테스트 시 hours=24
-    target_cve_ids = collector.fetch_recent_cves(hours=24) 
+    target_cve_ids = collector.fetch_recent_cves(hours=2) 
     
     if not target_cve_ids:
         print("[*] No new CVEs.")
