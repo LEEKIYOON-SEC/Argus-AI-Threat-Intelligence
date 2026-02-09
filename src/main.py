@@ -38,7 +38,7 @@ def main():
     
     # 3. 대상 식별 (최근 변경된 CVE)
     # GitHub Scheduler가 1시간마다 돈다면 2시간 전부터 조회하여 누락 방지
-    target_cve_ids = collector.fetch_recent_cves(hours=24) 
+    target_cve_ids = collector.fetch_recent_cves(hours=36) 
     
     if not target_cve_ids:
         print("[*] No new CVEs found.")
