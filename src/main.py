@@ -8,7 +8,7 @@ from notifier import SlackNotifier
 import config
 
 # 1. Google AI Studio 설정 (GEMINI_API_KEY 환경변수 사용)
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+gemma_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # 2. Groq 설정 (Phase 1용)
 groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
