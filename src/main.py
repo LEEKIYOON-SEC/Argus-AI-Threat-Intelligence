@@ -38,17 +38,7 @@ def main():
     
     # 3. 대상 식별 (최근 변경된 CVE)
     # GitHub Scheduler가 1시간마다 돈다면 2시간 전부터 조회하여 누락 방지
-    #target_cve_ids = collector.fetch_recent_cves(hours=2) 
-    print("[TEST MODE] 강제로 테스트 CVE를 주입합니다.")
-    target_cve_ids = [
-        "CVE-2021-44228",  # Log4Shell (KEV + Critical) -> 알림 100% 발생해야 함
-        "CVE-2023-34362",  # MOVEit Transfer (KEV) -> 알림 발생해야 함
-        "CVE-2024-3094"    # XZ Utils (Backdoor)
-    ]
-    
-    if not target_cve_ids:
-        print("[*] No new CVEs found.")
-        return
+    target_cve_ids = collector.fetch_recent_cves(hours=2) 
     
     if not target_cve_ids:
         print("[*] No new CVEs found.")
