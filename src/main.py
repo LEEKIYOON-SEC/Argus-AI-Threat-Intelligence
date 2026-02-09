@@ -1,6 +1,6 @@
 import os
 import datetime
-import google.genai as genai
+from google import genai
 from groq import Groq
 from collector import Collector
 from database import ArgusDB
