@@ -119,7 +119,7 @@ def create_github_issue(cve_data, reason):
     if score >= 9.0: color = "FF0000" # 9.0 이상 빨강
     elif score >= 7.0: color = "orange"
     elif score >= 4.0: color = "yellow"
-    elif score > 0: color = "green"
+    elif score > 0: color = "brightgreen"
     
     # [수정] 뱃지 URL 공백 제거 및 인코딩 방지
     badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{'red' if cve_data['is_kev'] else 'lightgrey'})"
