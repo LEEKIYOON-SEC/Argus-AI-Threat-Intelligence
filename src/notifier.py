@@ -55,7 +55,7 @@ class SlackNotifier:
         if report_url:
             blocks.append({
                 "type": "actions",
-                "elements": [{"type": "button", "text": {"type": "plain_text", "text": "📄 상세 분석 리포트 확인"}, "url": report_url, "style": "primary"}]
+                "elements": [{"type": "button", "text": {"type": "plain_text", "text": "📄 AI 상세 분석 리포트 확인"}, "url": report_url, "style": "primary"}]
             })
 
         requests.post(self.webhook_url, json={"blocks": blocks})
