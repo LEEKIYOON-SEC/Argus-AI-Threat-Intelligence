@@ -3,7 +3,7 @@ import datetime
 import time
 import json
 import requests
-import textwrap # 들여쓰기 제거용
+import textwrap
 from google import genai
 from google.genai import types
 from collector import Collector
@@ -35,7 +35,6 @@ def is_target_asset(cve_description, cve_id):
     return False, None
 
 def generate_korean_summary(cve_data):
-    """슬랙용 한글 요약"""
     prompt = f"""
     Task: Translate Title and Summarize Description into Korean.
     [Input] Title: {cve_data['title']} / Desc: {cve_data['description']}
@@ -58,32 +57,25 @@ def generate_korean_summary(cve_data):
     except: return cve_data['title'], cve_data['description'][:200]
 
 def parse_cvss_vector(vector_str):
-    """CVSS 벡터 문자열을 한글 설명으로 변환"""
     if not vector_str or vector_str == "N/A": return "정보 없음"
-    
-    # 예: CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H
     parts = vector_str.split('/')
     mapped_parts = []
-    
     mapping_labels = {
         "AV": "공격 경로 (Vector)", "AC": "복잡성 (Complexity)", "PR": "필요 권한 (Privileges)",
         "UI": "사용자 관여 (User Interaction)", "S": "범위 (Scope)", 
         "C": "기밀성 (Confidentiality)", "I": "무결성 (Integrity)", "A": "가용성 (Availability)"
     }
-
     for part in parts:
         if ':' in part:
             key, val = part.split(':')
             full_key = f"{key}:{val}"
             label = mapping_labels.get(key, key)
             desc = CVSS_MAP.get(full_key, val)
-            if key in mapping_labels: # 주요 지표만 표시
+            if key in mapping_labels:
                 mapped_parts.append(f"• **{label}:** {desc}")
-    
     return "<br>".join(mapped_parts)
 
 def create_github_issue(cve_data, reason):
-    """고위험군 리포트 생성 (Github Issue)"""
     token = os.environ.get("GH_TOKEN")
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo: return None
@@ -122,14 +114,14 @@ def create_github_issue(cve_data, reason):
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     cce_str = ", ".join(cve_data['cce']) if cve_data['cce'] else "N/A"
     
-    # 뱃지 색상 수정 (9.0+ -> red)
     score = cve_data['cvss']
     color = "lightgrey"
-    if score >= 9.0: color = "red" # 주황과 확실히 구분
+    if score >= 9.0: color = "red" # 9.0 이상 빨강
     elif score >= 7.0: color = "orange"
     elif score >= 4.0: color = "yellow"
     elif score > 0: color = "green"
     
+    # [수정] 뱃지 URL 공백 제거 및 인코딩 방지
     badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{'red' if cve_data['is_kev'] else 'lightgrey'})"
 
     affected_rows = ""
@@ -139,44 +131,42 @@ def create_github_issue(cve_data, reason):
 
     mitigation_list = "\n".join([f"- {m}" for m in ai_mitigation])
     ref_list = "\n".join([f"- {r}" for r in cve_data['references']])
-    
-    # 공격 벡터 상세 매핑
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
 
-    # Markdown 본문 (들여쓰기 주의)
-    body = textwrap.dedent(f"""
-    # 🛡️ {cve_data['title_ko']}
+    # [핵심 수정] textwrap.dedent를 사용하여 들여쓰기 문제를 원천 차단
+    # 마크다운 본문을 맨 앞으로 당겨서 작성
+    body = f"""# 🛡️ {cve_data['title_ko']}
 
-    > **Detected:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}  
-    > **Reason:** {reason}
+> **Detected:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
+> **Reason:** {reason}
 
-    {badges}
-    **CWE:** {cwe_str} | **CCE:** {cce_str}
+{badges}
+**CWE:** {cwe_str} | **CCE:** {cce_str}
 
-    ## 📦 영향 받는 자산 (Affected Assets)
-    | Vendor | Product | Versions |
-    | :--- | :--- | :--- |
-    {affected_rows}
+## 📦 영향 받는 자산 (Affected Assets)
+| Vendor | Product | Versions |
+| :--- | :--- | :--- |
+{affected_rows}
 
-    ## 🔍 취약점 분석 (Analysis)
-    | 항목 | 내용 |
-    | :--- | :--- |
-    | **요약** | {ai_summary} |
-    | **영향도** | {ai_impact} |
+## 🔍 취약점 분석 (Analysis)
+| 항목 | 내용 |
+| :--- | :--- |
+| **요약** | {ai_summary} |
+| **영향도** | {ai_impact} |
 
-    ### 🏹 공격 벡터 (Attack Vector)
-    | 항목 | 내용 |
-    | :--- | :--- |
-    | **공식 벡터** | `{cve_data.get('cvss_vector', 'N/A')}` |
-    | **상세 분석** | {vector_details} |
-    | **AI 시나리오** | {ai_vector_analysis} |
+### 🏹 공격 벡터 (Attack Vector)
+| 항목 | 내용 |
+| :--- | :--- |
+| **공식 벡터** | `{cve_data.get('cvss_vector', 'N/A')}` |
+| **상세 분석** | {vector_details} |
+| **AI 시나리오** | {ai_vector_analysis} |
 
-    ## 🛡️ 대응 방안 (Mitigation)
-    {mitigation_list}
+## 🛡️ 대응 방안 (Mitigation)
+{mitigation_list}
 
-    ## 🔗 참고 자료 (References)
-    {ref_list}
-    """).strip()
+## 🔗 참고 자료 (References)
+{ref_list}
+"""
 
     url = f"https://api.github.com/repos/{repo}/issues"
     headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
@@ -203,7 +193,6 @@ def main():
             is_target, match_info = is_target_asset(raw_data['description'], cve_id)
             if not is_target: continue
 
-            # [수정] Reason 텍스트 정리
             clean_match_info = match_info.replace("All Assets (*)", "Global").replace("(*)", "").strip()
 
             current_state = {
@@ -218,7 +207,6 @@ def main():
             last_state = last_record['last_alert_state'] if last_record else None
             should_alert, alert_reason = False, ""
             
-            # [조건] 고위험 판단 (CVSS 7.0+ or KEV or EPSS Spike)
             is_high_risk = False
             if current_state['cvss'] >= 7.0 or current_state['is_kev']: is_high_risk = True
             
@@ -236,7 +224,6 @@ def main():
                 current_state['title_ko'] = title_ko
                 current_state['desc_ko'] = desc_ko
                 
-                # [수정] 고위험일 때만 리포트 생성
                 report_url = None
                 if is_high_risk:
                     report_url = create_github_issue(current_state, alert_reason)
