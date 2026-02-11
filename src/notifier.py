@@ -25,7 +25,6 @@ class SlackNotifier:
             {"type": "mrkdwn", "text": f"*KEV:*\n{'✅ YES' if cve_data['is_kev'] else '❌ No'}"},
             {"type": "mrkdwn", "text": f"*CWE:*\n{cwe_info}"},
         ]
-        if cce_text: stats_fields.append({"type": "mrkdwn", "text": f"*CCE:*\n{cce_text}"})
 
         # [수정] 레퍼런스 링크 추가
         ref_text = ""
