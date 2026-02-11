@@ -19,9 +19,6 @@ class SlackNotifier:
             affected_text = f"• *Vendor:* {first['vendor']}\n• *Product:* {first['product']}\n• *Versions:* {first['versions']}"
             if len(cve_data['affected']) > 1: affected_text += f"\n(외 {len(cve_data['affected'])-1}건)"
 
-        cce_list = cve_data.get('cce', [])
-        cce_text = ", ".join(cce_list) if cce_list else None
-
         stats_fields = [
             {"type": "mrkdwn", "text": f"*CVSS:*\n{cve_data['cvss']}"},
             {"type": "mrkdwn", "text": f"*EPSS:*\n{cve_data['epss']*100:.2f}%"},

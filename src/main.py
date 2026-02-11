@@ -145,7 +145,7 @@ def create_github_issue(cve_data, reason):
 > **Reason:** {reason}
 
 {badges}
-**CWE:** {cwe_str} | **CCE:** {cce_str}
+**CWE:** {cwe_str}
 
 ## 📦 영향 받는 자산 (Affected Assets)
 | Vendor | Product | Versions |
@@ -204,7 +204,7 @@ def main():
                 "is_kev": cve_id in collector.kev_set, "epss": collector.epss_cache.get(cve_id, 0.0),
                 "description": raw_data['description'],
                 "cwe": raw_data['cwe'], "references": raw_data['references'],
-                "affected": raw_data['affected'], "cce": raw_data['cce']
+                "affected": raw_data['affected']
             }
             
             last_record = db.get_cve(cve_id)
