@@ -236,7 +236,7 @@ def main():
 
     for cve_id in target_cve_ids:
         try:
-            time.sleep(20)
+            time.sleep(30)
             raw_data = collector.enrich_cve(cve_id)
             if raw_data.get('state') != 'PUBLISHED': continue
             is_target, match_info = is_target_asset(raw_data['description'], cve_id)
