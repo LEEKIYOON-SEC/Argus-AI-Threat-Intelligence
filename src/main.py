@@ -179,6 +179,9 @@ def create_github_issue(cve_data, reason):
         if rules['yara']:
             rules_section += f"### Yara Rule ({rules['yara']['source']})\n```yara\n{rules['yara']['code']}\n```\n"
 
+    # [수정] KST 적용
+    now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
+
     body = f"""# 🛡️ {cve_data['title_ko']}
 
 > **탐지 일시:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
@@ -284,13 +287,16 @@ def main():
                 
                 notifier.send_alert(current_state, alert_reason, report_url)
                 
+                # [수정] KST 시간 저장
                 db.upsert_cve({
                     "id": cve_id, "cvss_score": current_state['cvss'], "epss_score": current_state['epss'],
-                    "is_kev": current_state['is_kev'], "last_alert_at": datetime.datetime.now().isoformat(),
-                    "last_alert_state": current_state, "updated_at": datetime.datetime.now().isoformat()
+                    "is_kev": current_state['is_kev'], 
+                    "last_alert_at": datetime.datetime.now(KST).isoformat(),
+                    "last_alert_state": current_state, 
+                    "updated_at": datetime.datetime.now(KST).isoformat()
                 })
             else:
-                db.upsert_cve({"id": cve_id, "updated_at": datetime.datetime.now().isoformat()})
+                db.upsert_cve({"id": cve_id, "updated_at": datetime.datetime.now(KST).isoformat()})
         except Exception as e:
             print(f"[ERR] {cve_id}: {e}")
 
