@@ -11,34 +11,30 @@ class RuleManager:
         self.gh_token = os.environ.get("GH_TOKEN")
         self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         self.model = config.MODEL_PHASE_1
-        self.snort_cache = []  # 메모리 캐시
+        self.snort_cache = []
 
     def _search_github(self, repo, query):
-        """GitHub Code Search API"""
-        print(f"[🔍 검증 로그] GitHub 검색 시작: repo:{repo} {query}") # 로그 추가
+        print(f"[🔍 검증 로그] GitHub 검색 시작: repo:{repo} {query}")
         url = f"https://api.github.com/search/code?q=repo:{repo} {query}"
         headers = {"Authorization": f"token {self.gh_token}", "Accept": "application/vnd.github.v3+json"}
         try:
             res = requests.get(url, headers=headers, timeout=5)
             if res.status_code == 200 and res.json().get('total_count', 0) > 0:
                 item = res.json()['items'][0]
-                print(f"[✅ 검증 로그] GitHub 룰 발견! URL: {item['html_url']}") # 로그 추가
+                print(f"[✅ 검증 로그] GitHub 룰 발견! URL: {item['html_url']}")
                 raw_url = item['html_url'].replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
                 return requests.get(raw_url).text
-            print(f"[❌ 검증 로그] GitHub 룰 없음 ({repo})") # 로그 추가
+            print(f"[❌ 검증 로그] GitHub 룰 없음 ({repo})")
             return None
         except Exception as e: 
             print(f"[ERR] GitHub Search Err: {e}")
             return None
 
     def _fetch_snort_rules(self, cve_id):
-        """Snort Community & ET Open 직접 다운로드 및 메모리 검색"""
-        print(f"[🔍 검증 로그] Snort/ET Open 룰셋 메모리 검색 시작: {cve_id}") # 로그 추가
-        
-        # 1. Snort Community Rules (.tar.gz)
+        print(f"[🔍 검증 로그] Snort/ET Open 룰셋 메모리 검색 시작: {cve_id}")
         if not self.snort_cache:
             try:
-                print("[INFO] Snort Community Rules 다운로드 중...")
+                # print("[INFO] Snort Community Rules 다운로드 중...")
                 res = requests.get("https://www.snort.org/downloads/community/community-rules.tar.gz", timeout=15)
                 if res.status_code == 200:
                     with tarfile.open(fileobj=io.BytesIO(res.content), mode="r:gz") as tar:
@@ -51,28 +47,25 @@ class RuleManager:
             except Exception as e:
                 print(f"[WARN] Failed to fetch Snort Community: {e}")
 
-            # 2. ET Open Rules (.rules text)
             try:
-                print("[INFO] ET Open Rules 다운로드 중...")
+                # print("[INFO] ET Open Rules 다운로드 중...")
                 res = requests.get("https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules", timeout=15)
                 if res.status_code == 200:
                     self.snort_cache.append(res.text)
             except Exception as e:
                 print(f"[WARN] Failed to fetch ET Open: {e}")
 
-        # 캐시된 룰에서 검색
         for i, ruleset in enumerate(self.snort_cache):
             source_name = "Snort Community" if i == 0 else "ET Open"
             for line in ruleset.splitlines():
                 if cve_id in line and "alert" in line and not line.strip().startswith("#"):
-                    print(f"[✅ 검증 로그] {source_name}에서 룰 발견!") # 로그 추가
+                    print(f"[✅ 검증 로그] {source_name}에서 룰 발견!")
                     return line.strip()
         
-        print("[❌ 검증 로그] Snort/ET Open에서 룰을 찾지 못함.") # 로그 추가
+        print("[❌ 검증 로그] Snort/ET Open에서 룰을 찾지 못함.")
         return None
 
     def _validate_syntax(self, rule_type, code):
-        """AI 생성 룰 문법 검증 (Safety First)"""
         if not code: return False
         try:
             if rule_type == "Snort":
@@ -94,8 +87,7 @@ class RuleManager:
         return False
 
     def _generate_ai_rule(self, rule_type, cve_data):
-        """Groq High Reasoning 룰 생성"""
-        print(f"[🧠 검증 로그] AI({rule_type}) 생성 시도 중...") # 로그 추가
+        print(f"[🧠 검증 로그] AI({rule_type}) 생성 시도 중...")
         prompt = f"""
         You are a Senior Security Engineer. Write a valid {rule_type} detection rule for {cve_data['id']}.
         
@@ -118,11 +110,9 @@ class RuleManager:
                 temperature=config.GROQ_PARAMS["temperature"],
                 top_p=config.GROQ_PARAMS["top_p"],
                 max_completion_tokens=config.GROQ_PARAMS["max_completion_tokens"],
-                response_format=config.GROQ_PARAMS["response_format"] # JSON 포맷이 아닌 텍스트로 받을 경우 제거 필요 (현재 프롬프트는 코드 블록만 요청하므로 텍스트 모드가 나을 수 있음. 에러 시 확인)
+                # [수정] 고추론 모델 사용 (사용자 요청 고정)
+                reasoning_effort=config.GROQ_PARAMS["reasoning_effort"] 
             )
-            # JSON 포맷 강제시 코드만 리턴받기 어려울 수 있으므로 response_format 제거를 추천하나, 
-            # 일단 config 설정을 따르되, 만약 JSON 에러가 나면 response_format을 빼야 함.
-            # 여기서는 안전하게 text content를 파싱
             
             content = response.choices[0].message.content.strip()
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
@@ -145,7 +135,6 @@ class RuleManager:
         rules = {"sigma": None, "snort": None, "yara": None}
         cve_id = cve_data['id']
 
-        # 1. Sigma (Always)
         public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
         if public_sigma:
             rules['sigma'] = {"code": public_sigma, "source": "Public (SigmaHQ)"}
@@ -154,7 +143,6 @@ class RuleManager:
             if ai_sigma:
                 rules['sigma'] = {"code": ai_sigma, "source": "AI Generated (Verified)"}
 
-        # 2. Snort (Conditional)
         public_snort = self._fetch_snort_rules(cve_id)
         if public_snort:
             rules['snort'] = {"code": public_snort, "source": "Public (Snort/ET)"}
@@ -165,7 +153,6 @@ class RuleManager:
         else:
              print(f"[ℹ️ 검증 로그] Snort 생성 생략 (Feasibility: False)")
 
-        # 3. Yara (Conditional)
         public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
         if public_yara:
             rules['yara'] = {"code": public_yara, "source": "Public (Yara-Rules)"}

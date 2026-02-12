@@ -14,16 +14,78 @@ import config
 
 client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-# CVSS 매핑 (기존 유지)
+# [수정] NVD CVSS v3.1 및 v4.0 표준 전체 매핑 (Environmental 포함)
 CVSS_MAP = {
-    "AV:N": "네트워크 (Network)", "AV:A": "인접 (Adjacent)", "AV:L": "로컬 (Local)", "AV:P": "물리적 (Physical)",
-    "AC:L": "낮음 (Low)", "AC:H": "높음 (High)",
-    "PR:N": "없음 (None)", "PR:L": "낮음 (Low)", "PR:H": "높음 (High)",
-    "UI:N": "없음 (None)", "UI:R": "필수 (Required)",
-    "S:U": "변경 없음 (Unchanged)", "S:C": "변경됨 (Changed)",
-    "C:H": "높음 (High)", "C:L": "낮음 (Low)", "C:N": "없음 (None)",
-    "I:H": "높음 (High)", "I:L": "낮음 (Low)", "I:N": "없음 (None)",
-    "A:H": "높음 (High)", "A:L": "낮음 (Low)", "A:N": "없음 (None)"
+    # ==========================================
+    # [CVSS 3.1 Base Metrics]
+    # ==========================================
+    "AV:N": "공격 경로: 네트워크 (Network)", "AV:A": "공격 경로: 인접 (Adjacent)", "AV:L": "공격 경로: 로컬 (Local)", "AV:P": "공격 경로: 물리적 (Physical)",
+    "AC:L": "복잡성: 낮음", "AC:H": "복잡성: 높음",
+    "PR:N": "필요 권한: 없음", "PR:L": "필요 권한: 낮음", "PR:H": "필요 권한: 높음",
+    "UI:N": "사용자 관여: 없음", "UI:R": "사용자 관여: 필수",
+    "S:U": "범위: 변경 없음", "S:C": "범위: 변경됨 (Changed)",
+    "C:H": "기밀성: 높음", "C:L": "기밀성: 낮음", "C:N": "기밀성: 없음",
+    "I:H": "무결성: 높음", "I:L": "무결성: 낮음", "I:N": "무결성: 없음",
+    "A:H": "가용성: 높음", "A:L": "가용성: 낮음", "A:N": "가용성: 없음",
+
+    # ==========================================
+    # [CVSS 3.1 Temporal / Threat Metrics]
+    # ==========================================
+    "E:X": "악용 가능성: 미정의", "E:U": "악용 가능성: 입증 안됨", "E:P": "악용 가능성: 개념 증명(PoC)", "E:F": "악용 가능성: 기능적", "E:H": "악용 가능성: 높음",
+    "RL:X": "대응 수준: 미정의", "RL:O": "대응 수준: 공식 패치", "RL:T": "대응 수준: 임시 수정", "RL:W": "대응 수준: 우회 가능", "RL:U": "대응 수준: 사용 불가",
+    "RC:X": "보고 신뢰도: 미정의", "RC:U": "보고 신뢰도: 미확인", "RC:R": "보고 신뢰도: 합리적", "RC:C": "보고 신뢰도: 확인됨",
+
+    # ==========================================
+    # [CVSS 3.1 Environmental Metrics]
+    # ==========================================
+    "MAV:N": "수정된 경로: 네트워크", "MAV:A": "수정된 경로: 인접", "MAV:L": "수정된 경로: 로컬", "MAV:P": "수정된 경로: 물리적",
+    "MAC:L": "수정된 복잡성: 낮음", "MAC:H": "수정된 복잡성: 높음",
+    "MPR:N": "수정된 권한: 없음", "MPR:L": "수정된 권한: 낮음", "MPR:H": "수정된 권한: 높음",
+    "MUI:N": "수정된 관여: 없음", "MUI:R": "수정된 관여: 필수",
+    "MS:U": "수정된 범위: 변경 없음", "MS:C": "수정된 범위: 변경됨",
+    "MC:H": "수정된 기밀성: 높음", "MC:L": "수정된 기밀성: 낮음", "MC:N": "수정된 기밀성: 없음",
+    "MI:H": "수정된 무결성: 높음", "MI:L": "수정된 무결성: 낮음", "MI:N": "수정된 무결성: 없음",
+    "MA:H": "수정된 가용성: 높음", "MA:L": "수정된 가용성: 낮음", "MA:N": "수정된 가용성: 없음",
+    "CR:X": "기밀성 요구: 미정의", "CR:L": "기밀성 요구: 낮음", "CR:M": "기밀성 요구: 보통", "CR:H": "기밀성 요구: 높음",
+    "IR:X": "무결성 요구: 미정의", "IR:L": "무결성 요구: 낮음", "IR:M": "무결성 요구: 보통", "IR:H": "무결성 요구: 높음",
+    "AR:X": "가용성 요구: 미정의", "AR:L": "가용성 요구: 낮음", "AR:M": "가용성 요구: 보통", "AR:H": "가용성 요구: 높음",
+
+    # ==========================================
+    # [CVSS 4.0 Base Metrics]
+    # ==========================================
+    "AT:N": "공격 기술: 없음", "AT:P": "공격 기술: 존재(Present)",
+    "VC:H": "취약시스템 기밀성: 높음", "VC:L": "취약시스템 기밀성: 낮음", "VC:N": "취약시스템 기밀성: 없음",
+    "VI:H": "취약시스템 무결성: 높음", "VI:L": "취약시스템 무결성: 낮음", "VI:N": "취약시스템 무결성: 없음",
+    "VA:H": "취약시스템 가용성: 높음", "VA:L": "취약시스템 가용성: 낮음", "VA:N": "취약시스템 가용성: 없음",
+    "SC:H": "후속시스템 기밀성: 높음", "SC:L": "후속시스템 기밀성: 낮음", "SC:N": "후속시스템 기밀성: 없음",
+    "SI:H": "후속시스템 무결성: 높음", "SI:L": "후속시스템 무결성: 낮음", "SI:N": "후속시스템 무결성: 없음",
+    "SA:H": "후속시스템 가용성: 높음", "SA:L": "후속시스템 가용성: 낮음", "SA:N": "후속시스템 가용성: 없음",
+
+    # ==========================================
+    # [CVSS 4.0 Environmental (Modified Base) Metrics] - 사용자 요청 반영
+    # ==========================================
+    # Modified Attack Requirements (MAT)
+    "MAT:N": "수정된 공격 기술: 없음", "MAT:P": "수정된 공격 기술: 존재",
+    
+    # Modified Vuln System Impact (MVC, MVI, MVA)
+    "MVC:H": "수정된 취약시스템 기밀성: 높음", "MVC:L": "수정된 취약시스템 기밀성: 낮음", "MVC:N": "수정된 취약시스템 기밀성: 없음",
+    "MVI:H": "수정된 취약시스템 무결성: 높음", "MVI:L": "수정된 취약시스템 무결성: 낮음", "MVI:N": "수정된 취약시스템 무결성: 없음",
+    "MVA:H": "수정된 취약시스템 가용성: 높음", "MVA:L": "수정된 취약시스템 가용성: 낮음", "MVA:N": "수정된 취약시스템 가용성: 없음",
+
+    # Modified Subsequent System Impact (MSC, MSI, MSA)
+    "MSC:H": "수정된 후속시스템 기밀성: 높음", "MSC:L": "수정된 후속시스템 기밀성: 낮음", "MSC:N": "수정된 후속시스템 기밀성: 없음", "MSC:S": "수정된 후속시스템 기밀성: 안전(Safety)",
+    "MSI:H": "수정된 후속시스템 무결성: 높음", "MSI:L": "수정된 후속시스템 무결성: 낮음", "MSI:N": "수정된 후속시스템 무결성: 없음", "MSI:S": "수정된 후속시스템 무결성: 안전(Safety)",
+    "MSA:H": "수정된 후속시스템 가용성: 높음", "MSA:L": "수정된 후속시스템 가용성: 낮음", "MSA:N": "수정된 후속시스템 가용성: 없음", "MSA:S": "수정된 후속시스템 가용성: 안전(Safety)",
+
+    # ==========================================
+    # [CVSS 4.0 Supplemental Metrics]
+    # ==========================================
+    "S:X": "안전(Safety): 미정의", "S:N": "안전(Safety): 무시 가능", "S:P": "안전(Safety): 존재(Present)",
+    "AU:X": "자동화 가능성: 미정의", "AU:N": "자동화 가능성: 아니오", "AU:Y": "자동화 가능성: 예",
+    "R:X": "복구(Recovery): 미정의", "R:A": "복구: 자동", "R:U": "복구: 사용자", "R:I": "복구: 복구 불가",
+    "V:X": "가치 밀도: 미정의", "V:D": "가치 밀도: 분산(Diffuse)", "V:C": "가치 밀도: 집중(Concentrated)",
+    "RE:X": "대응 노력: 미정의", "RE:L": "대응 노력: 낮음", "RE:M": "대응 노력: 보통", "RE:H": "대응 노력: 높음",
+    "U:X": "긴급성: 미정의", "U:Clear": "긴급성: 명확함", "U:Green": "긴급성: 낮음(Green)", "U:Amber": "긴급성: 주의(Amber)", "U:Red": "긴급성: 높음(Red)"
 }
 
 def is_target_asset(cve_description, cve_id):
@@ -61,19 +123,21 @@ def parse_cvss_vector(vector_str):
     if not vector_str or vector_str == "N/A": return "정보 없음"
     parts = vector_str.split('/')
     mapped_parts = []
-    mapping_labels = {
-        "AV": "공격 경로 (Vector)", "AC": "복잡성 (Complexity)", "PR": "필요 권한 (Privileges)",
-        "UI": "사용자 관여 (User Interaction)", "S": "범위 (Scope)", 
-        "C": "기밀성 (Confidentiality)", "I": "무결성 (Integrity)", "A": "가용성 (Availability)"
-    }
+    
     for part in parts:
         if ':' in part:
             key, val = part.split(':')
             full_key = f"{key}:{val}"
-            label = mapping_labels.get(key, key)
-            desc = CVSS_MAP.get(full_key, val)
-            if key in mapping_labels:
-                mapped_parts.append(f"• **{label}:** {desc}")
+            # 매핑 테이블에 전체 키(예: AV:N)가 있으면 그거 쓰고, 없으면 값만 영문으로 표시
+            desc = CVSS_MAP.get(full_key, f"{key}:{val}")
+            
+            # 매핑된 텍스트가 있으면 그대로 사용
+            if full_key in CVSS_MAP:
+                mapped_parts.append(f"• {desc}")
+            else:
+                # 굵은 글씨 효과를 위해 키와 값 분리 (매핑 안 된 경우)
+                mapped_parts.append(f"• **{key}**: {val}")
+    
     return "<br>".join(mapped_parts)
 
 def create_github_issue(cve_data, reason):
@@ -81,12 +145,12 @@ def create_github_issue(cve_data, reason):
     repo = os.environ.get("GITHUB_REPOSITORY")
     if not repo: return None
 
-    # [Phase 1] Analyzer 호출 (Groq 심층 분석)
+    # [Phase 1] Analyzer 호출
     print(f"[*] Analyzing {cve_data['id']} with Groq...")
     analyzer = Analyzer()
     analysis_result = analyzer.analyze_cve(cve_data)
 
-    # [Phase 1] RuleManager 호출 (룰 생성)
+    # [Phase 1] RuleManager 호출
     print(f"[*] Generating rules for {cve_data['id']}...")
     rule_manager = RuleManager()
     rules = rule_manager.get_rules(cve_data, analysis_result.get('rule_feasibility', False))
@@ -112,7 +176,7 @@ def create_github_issue(cve_data, reason):
     ref_list = "\n".join([f"- {r}" for r in cve_data['references']])
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
 
-    # 룰 섹션 구성 (한글화)
+    # 룰 섹션 구성
     rules_section = ""
     if rules['sigma'] or rules['snort'] or rules['yara']:
         rules_section = "## 🛡️ 탐지 룰 (Detection Rules)\n"
@@ -123,7 +187,6 @@ def create_github_issue(cve_data, reason):
         if rules['yara']:
             rules_section += f"### Yara Rule ({rules['yara']['source']})\n```yara\n{rules['yara']['code']}\n```\n"
 
-    # [중요] 마크다운 포맷팅 깨짐 방지를 위해 들여쓰기 제거
     body = f"""# 🛡️ {cve_data['title_ko']}
 
 > **탐지 일시:** {datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
@@ -160,7 +223,6 @@ def create_github_issue(cve_data, reason):
 ## 🔗 참고 자료
 {ref_list}
 """
-    # 양쪽 공백 제거하여 포맷팅 안전 확보
     body = body.strip()
 
     url = f"https://api.github.com/repos/{repo}/issues"
@@ -219,7 +281,6 @@ def main():
                 
                 report_url = None
                 if is_high_risk:
-                    # [Phase 1] 고위험군: Rule 생성 및 심층 리포트
                     report_url = create_github_issue(current_state, alert_reason)
                 
                 notifier.send_alert(current_state, alert_reason, report_url)
