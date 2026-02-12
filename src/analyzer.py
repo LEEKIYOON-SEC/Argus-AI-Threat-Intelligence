@@ -10,9 +10,9 @@ class Analyzer:
 
     def analyze_cve(self, cve_data):
         """
-        CVE 심층 분석 (High Reasoning 적용)
+        CVE 심층 분석 (High Reasoning 적용 + 상세 지침 복구 + 한글 출력)
         """
-        # [중요] System Prompt 배제 -> User Prompt에 통합
+        # [수정] 상세 지침(Constraints)을 기존의 구체적인 버전으로 원복 및 강화
         prompt = f"""
         You are a Senior Security Analyst. Analyze the following CVE deeply.
         
@@ -24,28 +24,34 @@ class Analyzer:
         Affected Info: {json.dumps(cve_data.get('affected', []))}
 
         [Tasks]
-        1. **Root Cause**: Identify the technical root cause (e.g., buffer overflow in parser X).
-        2. **Kill Chain Scenario**: Describe the attack flow based on MITRE ATT&CK standards (Initial Access -> Execution -> Impact).
-        3. **Business Impact**: Assess the impact on CIA (Confidentiality, Integrity, Availability) in business terms.
-        4. **Mitigation**: Suggest specific remediation steps. If a version is mentioned like "less than 1.2.3", infer the fixed version (e.g., "Update to 1.2.3 or later").
+        1. **Root Cause**: Identify the technical root cause (e.g., buffer overflow in parser X, missing input validation in API Y).
+        2. **Kill Chain Scenario**: Describe the attack flow based on MITRE ATT&CK standards (Initial Access -> Execution -> Impact). Be specific.
+        3. **Business Impact**: Assess the impact on CIA (Confidentiality, Integrity, Availability) in business terms (e.g., data breach liability, service outage, reputation loss).
+        4. **Mitigation**: Suggest specific remediation steps. If a version is mentioned like "less than 1.2.3", infer the fixed version explicitly (e.g., "Update to 1.2.3 or later").
         5. **Rule Feasibility**: Determine if we can create a specific Snort/Yara rule. 
-           - Set to true ONLY IF specific indicators (file paths, parameters, magic bytes, specific function names) are present in the description.
-           - Set to false if the description is generic (e.g., "unspecified vulnerability").
+           - Set to **true** ONLY IF specific indicators (specific file paths, URL parameters, magic bytes, specific function names) are present in the description.
+           - Set to **false** if the description is generic (e.g., "unspecified vulnerability", "generic RCE"). **This is crucial to prevent false positives.**
+
+        [Language Restriction]
+        - **Translate ALL output values into Korean (한국어).**
+        - Keep JSON keys in English (root_cause, etc.).
+        - Use professional Korean security terminology (e.g., 'Arbitrary Code Execution' -> '임의 코드 실행').
 
         [Output Format]
-        Return ONLY a raw JSON object with these keys: "root_cause", "scenario", "impact", "mitigation" (list), "rule_feasibility" (boolean).
+        Return ONLY a raw JSON object with these keys: "root_cause", "scenario", "impact", "mitigation" (list of strings), "rule_feasibility" (boolean).
         """
 
         try:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "user", "content": prompt} # [지침 준수] User 메시지만 사용
+                    {"role": "user", "content": prompt}
                 ],
                 temperature=config.GROQ_PARAMS["temperature"],
                 top_p=config.GROQ_PARAMS["top_p"],
                 max_completion_tokens=config.GROQ_PARAMS["max_completion_tokens"],
-                # reasoning_effort=config.GROQ_PARAMS["reasoning_effort"], # 라이브러리 지원 시 주석 해제 (현재 Groq SDK 버전에 따라 다를 수 있음)
+                # [수정] 스펙 문서에 따라 주석 해제 (GPT-OSS 120B 지원)
+                reasoning_effort=config.GROQ_PARAMS["reasoning_effort"], 
                 response_format=config.GROQ_PARAMS["response_format"]
             )
             return json.loads(response.choices[0].message.content)
