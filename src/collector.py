@@ -108,7 +108,7 @@ class Collector:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    def fetch_recent_cves(self, hours: int = 2) -> List[str]:
+    def fetch_recent_cves(self, hours: int = 24) -> List[str]:
         """GitHub CVEProject에서 최근 CVE 수집"""
         now = datetime.datetime.now(pytz.UTC)
         since_str = (now - datetime.timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
