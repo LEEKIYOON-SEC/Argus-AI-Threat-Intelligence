@@ -28,6 +28,12 @@ gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 # ==============================================================================
 # [1] CVSS 벡터 해석 매핑
 # ==============================================================================
+# CVSS 벡터 문자열을 한국어로 변환하는 사전입니다.
+# 예: "AV:N" → "공격 경로: 네트워크"
+# 
+# 왜 필요한가요?
+# - "AV:N/AC:L/PR:N" 같은 암호 같은 문자열은 보안 전문가만 이해할 수 있어요
+# - 이것을 "공격 경로: 네트워크, 복잡성: 낮음" 같이 읽기 쉽게 바꿔줍니다
 CVSS_MAP = {
     # ==========================================
     # [CVSS 3.1 Base Metrics]
@@ -101,7 +107,20 @@ CVSS_MAP = {
 # ==============================================================================
 
 def parse_cvss_vector(vector_str: str) -> str:
-    """CVSS 벡터 문자열을 한국어로 변환"""
+    """
+    CVSS 벡터 문자열을 한국어로 변환
+    
+    작동 원리:
+    1. 벡터를 '/'로 분리 (예: AV:N/AC:L → ['AV:N', 'AC:L'])
+    2. 각 부분을 사전에서 찾아 한국어로 변환
+    3. HTML 줄바꿈(<br>)으로 연결
+    
+    Args:
+        vector_str: "CVSS:3.1/AV:N/AC:L/..." 형식
+    
+    Returns:
+        "• 공격 경로: 네트워크<br>• 복잡성: 낮음<br>..." 형식
+    """
     if not vector_str or vector_str == "N/A":
         return "정보 없음"
     
@@ -120,23 +139,54 @@ def parse_cvss_vector(vector_str: str) -> str:
     return "<br>".join(mapped_parts)
 
 def is_target_asset(cve_description: str, cve_id: str) -> Tuple[bool, Optional[str]]:
-    """자산 필터링 (감시 대상인지 확인)"""
+    """
+    자산 필터링 (감시 대상인지 확인)
+    
+    config의 TARGET_ASSETS와 CVE 설명을 비교해서
+    우리가 관심있는 제품인지 판단합니다.
+    
+    작동 원리:
+    1. assets.json에서 감시 대상 로드
+    2. CVE 설명에 벤더명과 제품명이 있는지 확인
+    3. 와일드카드(*) 지원
+    
+    Args:
+        cve_description: CVE 설명 텍스트
+        cve_id: CVE ID
+    
+    Returns:
+        (매칭 여부, 매칭 정보)
+    
+    예시:
+    - assets.json에 "apache/struts" 등록
+    - CVE 설명에 "apache struts" 포함
+    - → (True, "Matched: apache/struts")
+    """
     desc_lower = cve_description.lower()
     
     for target in config.get_target_assets():
         vendor = target.get('vendor', '').lower()
         product = target.get('product', '').lower()
         
+        # 전체 감시 모드
         if vendor == "*" and product == "*":
             return True, "All Assets (*)"
         
+        # 벤더/제품 매칭
         if vendor in desc_lower and (product == "*" or product in desc_lower):
             return True, f"Matched: {vendor}/{product}"
     
     return False, None
 
 def generate_korean_summary(cve_data: Dict) -> Tuple[str, str]:
-    """Gemini를 사용한 한국어 번역"""
+    """
+    Gemini를 사용한 한국어 번역 (v3.0 - 429 재시도 대응)
+    
+    v3.0 변경사항:
+    - rate_limit_manager.check_and_wait("gemini") 사전 대기
+    - 429 수신 시 Retry-After 파싱 후 대기 → 재시도 (최대 2회)
+    - 재시도 실패 시 원본 사용
+    """
     prompt = f"""
 Task: Translate Title and Summarize Description into Korean.
 [Input] Title: {cve_data['title']} / Desc: {cve_data['description']}
@@ -146,36 +196,59 @@ Task: Translate Title and Summarize Description into Korean.
 Do NOT add intro/outro.
 """
     
-    try:
-        rate_limit_manager.check_and_wait("gemini")
-        
-        response = gemini_client.models.generate_content(
-            model=config.MODEL_PHASE_0,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                safety_settings=[types.SafetySetting(
-                    category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold="BLOCK_NONE"
-                )]
+    max_retries = 2
+    
+    for attempt in range(max_retries + 1):
+        try:
+            # ✅ rate_limit_manager로 호출 간격 조절 (Lock 내부에서 처리)
+            rate_limit_manager.check_and_wait("gemini")
+            
+            response = gemini_client.models.generate_content(
+                model=config.MODEL_PHASE_0,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    safety_settings=[types.SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold="BLOCK_NONE"
+                    )]
+                )
             )
-        )
-        
-        rate_limit_manager.record_call("gemini")
-        
-        text = response.text.strip()
-        title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
-        
-        for line in text.split('\n'):
-            if line.startswith("제목:"):
-                title_ko = line.replace("제목:", "").strip()
-            if line.startswith("내용:"):
-                desc_ko = line.replace("내용:", "").strip()
-        
-        return title_ko, desc_ko
-        
-    except Exception as e:
-        logger.warning(f"번역 실패: {e}, 원본 사용")
-        return cve_data['title'], cve_data['description'][:200]
+            
+            # ✅ 호출 성공 기록
+            rate_limit_manager.record_call("gemini")
+            
+            text = response.text.strip()
+            title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
+            
+            for line in text.split('\n'):
+                if line.startswith("제목:"):
+                    title_ko = line.replace("제목:", "").strip()
+                if line.startswith("내용:"):
+                    desc_ko = line.replace("내용:", "").strip()
+            
+            return title_ko, desc_ko
+            
+        except Exception as e:
+            error_str = str(e)
+            
+            # ✅ 429 전용 처리: Retry-After 파싱 후 대기 → 재시도
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+                retry_after = rate_limit_manager.parse_retry_after(error_str)
+                wait_time = retry_after if retry_after else 60
+                
+                if attempt < max_retries:
+                    logger.warning(
+                        f"Gemini 429 수신 (시도 {attempt + 1}/{max_retries + 1}), "
+                        f"{wait_time:.0f}초 대기 후 재시도..."
+                    )
+                    rate_limit_manager.handle_429("gemini", wait_time)
+                    continue
+                else:
+                    logger.warning(f"Gemini 429 재시도 소진, 원본 사용: {cve_data['id']}")
+            else:
+                logger.warning(f"번역 실패: {e}, 원본 사용")
+            
+            return cve_data['title'], cve_data['description'][:200]
 
 # ==============================================================================
 # [3] GitHub Issue 생성/업데이트
@@ -186,6 +259,25 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
     GitHub Issue 생성
     
     High Risk CVE에 대해 상세한 분석 리포트를 GitHub Issue로 생성합니다.
+    
+    왜 GitHub Issue?
+    - Slack 메시지는 금방 묻혀버려요
+    - GitHub Issue는 영구 보존되고, 검색 가능하고, 추적 가능합니다
+    - 팀원들이 댓글로 토론하고 작업을 할당할 수 있어요
+    
+    작동 과정:
+    1. Analyzer로 CVE 심층 분석
+    2. RuleManager로 탐지 룰 생성/수집
+    3. 마크다운 리포트 작성
+    4. GitHub API로 Issue 생성
+    5. 룰 정보 반환 (DB 저장용)
+    
+    Args:
+        cve_data: CVE 정보
+        reason: 알림 사유
+    
+    Returns:
+        (Issue URL, 룰 정보)
     """
     token = os.environ.get("GH_TOKEN")
     repo = os.environ.get("GITHUB_REPOSITORY")
@@ -208,7 +300,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         # Step 3: 공식 룰 존재 여부 확인
         has_official = any([
             rules.get('sigma') and rules['sigma'].get('verified'),
-            any(r.get('verified') for r in rules.get('network', [])),
+            any(r.get('verified') for r in rules.get('network', [])),  # network는 리스트!
             rules.get('yara') and rules['yara'].get('verified')
         ])
         
@@ -216,8 +308,6 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         body = _build_issue_body(cve_data, reason, analysis, rules, has_official)
         
         # Step 5: GitHub API 호출
-        rate_limit_manager.check_and_wait("github")
-        
         url = f"https://api.github.com/repos/{repo}/issues"
         headers = {
             "Authorization": f"token {token}",
@@ -231,7 +321,6 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         
         response = requests.post(url, headers=headers, json=payload, timeout=15)
         response.raise_for_status()
-        rate_limit_manager.record_call("github")
         
         issue_url = response.json().get("html_url")
         logger.info(f"GitHub Issue 생성 성공: {issue_url}")
@@ -243,7 +332,21 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         return None, None
 
 def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, has_official: bool) -> str:
-    """GitHub Issue 본문 구성"""
+    """
+    GitHub Issue 본문 구성
+    
+    마크다운 형식의 상세한 보안 리포트를 만듭니다.
+    
+    구성:
+    - 헤더 (제목, 배지, CWE)
+    - 영향받는 자산 테이블
+    - AI 심층 분석 (원인, 시나리오, 영향)
+    - CVSS 벡터 상세 분석
+    - 대응 방안
+    - 탐지 룰 (공식/AI 구분)
+    - 참고 자료
+    """
+    # CVSS 배지 색상
     score = cve_data['cvss']
     if score >= 9.0: color = "FF0000"
     elif score >= 7.0: color = "FD7E14"
@@ -288,6 +391,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             is_verified = rules['sigma'].get('verified')
             badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
             
+            # AI 생성 룰이면 지표 정보 표시
             indicator_info = ""
             if not is_verified and rules['sigma'].get('indicators'):
                 indicators = rules['sigma']['indicators']
@@ -296,13 +400,14 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             
             rules_section += f"### Sigma Rule ({rules['sigma']['source']}) {badge}\n{indicator_info}```yaml\n{rules['sigma']['code']}\n```\n\n"
         
-        # 네트워크 룰 (여러 개 가능)
+        # 네트워크 룰 (Snort/Suricata - 여러 개 가능)
         if rules.get('network'):
             for idx, net_rule in enumerate(rules['network'], 1):
                 is_verified = net_rule.get('verified')
                 badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
                 engine_name = net_rule.get('engine', 'unknown').upper()
                 
+                # AI 생성 룰이면 지표 정보 표시
                 indicator_info = ""
                 if not is_verified and net_rule.get('indicators'):
                     indicators = net_rule['indicators']
@@ -316,6 +421,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
             is_verified = rules['yara'].get('verified')
             badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
             
+            # AI 생성 룰이면 지표 정보 표시
             indicator_info = ""
             if not is_verified and rules['yara'].get('indicators'):
                 indicators = rules['yara']['indicators']
@@ -365,22 +471,38 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     return body.strip()
 
 def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
-    """GitHub Issue에 공식 룰 발견 댓글 추가"""
+    """
+    GitHub Issue에 공식 룰 발견 댓글 추가
+    
+    이전에 AI 룰로 보고된 Issue에 공식 룰이 발견되면
+    댓글을 추가해서 팀원들에게 알립니다.
+    
+    Args:
+        issue_url: GitHub Issue URL
+        cve_id: CVE ID
+        rules: 룰 정보
+    
+    Returns:
+        성공 여부
+    """
     comment = f"""## ✅ 공식 탐지 룰 발견
 
 {cve_id}에 대한 **공식 검증된 탐지 룰**이 발견되었습니다. AI 생성 룰을 이것으로 교체하시기 바랍니다.
 
 """
     
+    # Sigma
     if rules.get('sigma') and rules['sigma'].get('verified'):
         comment += f"### Sigma Rule ({rules['sigma']['source']})\n```yaml\n{rules['sigma']['code']}\n```\n\n"
     
+    # Network (여러 개 가능)
     if rules.get('network'):
         for idx, net_rule in enumerate(rules['network'], 1):
             if net_rule.get('verified'):
                 engine = net_rule.get('engine', 'unknown').upper()
                 comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n```bash\n{net_rule['code']}\n```\n\n"
     
+    # Yara
     if rules.get('yara') and rules['yara'].get('verified'):
         comment += f"### Yara Rule ({rules['yara']['source']})\n```yara\n{rules['yara']['code']}\n```\n\n"
     
@@ -395,13 +517,29 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
     """
     단일 CVE 처리
     
+    이 함수는 병렬 처리에서 각 워커가 실행합니다.
+    하나의 CVE를 처음부터 끝까지 처리해요.
+    
     과정:
     1. CVE 상세 정보 수집
-    2. 자산 필터링
-    3. 알림 필요성 판단
+    2. 자산 필터링 (감시 대상인지 확인)
+    3. 알림 필요성 판단 (신규 또는 상태 변화)
     4. High Risk면 GitHub Issue 생성
     5. Slack 알림 전송
     6. DB에 저장
+    
+    Args:
+        cve_id: CVE ID
+        collector: Collector 인스턴스
+        db: Database 인스턴스
+        notifier: Notifier 인스턴스
+    
+    Returns:
+        처리 결과 또는 None
+    
+    왜 try-except로 감싸나요?
+    - 한 CVE가 실패해도 다른 CVE 처리는 계속되어야 해요
+    - 에러는 로깅하고, None을 반환해서 "이 CVE는 건너뛰기"를 표시
     """
     try:
         # Step 1: CVE 상세 정보 수집
@@ -440,6 +578,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         )
         
         if not should_alert:
+            # 알림 불필요, DB만 업데이트
             db.upsert_cve({
                 "id": cve_id,
                 "updated_at": datetime.datetime.now(KST).isoformat()
@@ -487,18 +626,33 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         return None
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
-    """알림 필요성 판단"""
+    """
+    알림 필요성 판단
+    
+    상태 변화 기반 트리거:
+    1. 신규 CVE
+    2. KEV 등재 (최우선)
+    3. EPSS 급증 (>10% AND 이전 대비 +5%p)
+    4. CVSS 점수 상향 (7.0+ 진입)
+    
+    Returns:
+        (알림 필요 여부, 알림 사유, High Risk 여부)
+    """
     is_high_risk = current['cvss'] >= 7.0 or current['is_kev']
     
+    # 신규 CVE
     if last is None:
         return True, "신규 취약점", is_high_risk
     
+    # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
         return True, "🚨 KEV 등재", True
     
+    # EPSS 급증
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
         return True, "📈 EPSS 급증", True
     
+    # CVSS 상향
     if current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
         return True, "🔺 CVSS 위험도 상향", True
     
@@ -512,10 +666,21 @@ def check_for_official_rules() -> None:
     """
     AI 생성 룰 CVE의 공식 룰 재발견
     
-    v2.0 변경사항:
-    - RuleManager 인스턴스를 공유하여 룰셋 캐시 재활용
-    - rate_limit_manager가 GitHub Search 간격을 자동 관리
-    - 개별 CVE 실패 시에도 계속 진행
+    이전에 AI 룰로 보고된 CVE들을 다시 확인해서
+    공식 룰이 나왔는지 체크합니다.
+    
+    작동 원리:
+    1. DB에서 has_official_rules=False인 CVE 조회
+    2. 각 CVE에 대해 다시 룰 검색
+    3. 공식 룰 발견 시:
+       - Slack 알림
+       - GitHub Issue에 댓글 추가
+       - DB 업데이트
+    
+    왜 필요한가요?
+    - 공개 커뮤니티에서 새로운 룰이 계속 추가돼요
+    - 오늘 없던 룰이 내일 추가될 수 있습니다
+    - 공식 룰은 AI 룰보다 훨씬 신뢰할 수 있어요
     """
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
@@ -523,8 +688,6 @@ def check_for_official_rules() -> None:
         db = ArgusDB()
         notifier = SlackNotifier()
         collector = Collector()
-        
-        # ✅ RuleManager를 한 번만 생성하여 룰셋 캐시 공유
         rule_manager = RuleManager()
         
         ai_cves = db.get_ai_generated_cves()
@@ -535,51 +698,36 @@ def check_for_official_rules() -> None:
         
         logger.info(f"재확인 대상: {len(ai_cves)}건")
         
-        # ✅ GitHub Search API 현재 상태 로깅
-        search_status = rate_limit_manager.get_status("github_search")
-        logger.info(
-            f"GitHub Search API 상태: "
-            f"{search_status.get('used', 0)}/{search_status.get('limit', 0)} "
-            f"(잔여: {search_status.get('remaining', 0)})"
-        )
-        
-        for idx, record in enumerate(ai_cves, 1):
+        for record in ai_cves:
             cve_id = record['id']
             
             try:
-                logger.info(f"[{idx}/{len(ai_cves)}] {cve_id} 공식 룰 재확인 중...")
-                
                 # CVE 정보 재수집
                 raw_data = collector.enrich_cve(cve_id)
                 if raw_data.get('state') != 'PUBLISHED':
-                    logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
                     continue
                 
                 cve_temp = {
                     "id": cve_id,
                     "description": raw_data['description'],
                     "cvss_vector": raw_data['cvss_vector'],
-                    "cwe": raw_data['cwe'],
-                    "references": raw_data.get('references', []),
-                    "affected": raw_data.get('affected', [])
+                    "cwe": raw_data['cwe']
                 }
                 
-                # ✅ 공개 룰만 검색 (analysis=None이면 AI 생성 시도 안 함? 아님!)
-                #    get_rules는 공개 룰 없으면 AI 생성을 시도하지만,
-                #    재발견 목적이므로 공식 룰만 체크하면 됨.
-                #    하지만 현재 구조상 get_rules를 그대로 사용.
+                # 룰 재검색 (analysis 없이 공개 룰만 검색)
                 rules = rule_manager.get_rules(cve_temp, feasibility=True, analysis=None)
                 
                 # 공식 룰 존재 확인
                 has_official = any([
                     rules.get('sigma') and rules['sigma'].get('verified'),
-                    any(r.get('verified') for r in rules.get('network', [])),
+                    any(r.get('verified') for r in rules.get('network', [])),  # network는 리스트!
                     rules.get('yara') and rules['yara'].get('verified')
                 ])
                 
                 if has_official:
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
                     
+                    # Slack 알림
                     title_ko = record.get('last_alert_state', {}).get('title_ko', cve_id)
                     notifier.send_official_rule_update(
                         cve_id=cve_id,
@@ -588,6 +736,7 @@ def check_for_official_rules() -> None:
                         original_report_url=record.get('report_url')
                     )
                     
+                    # GitHub Issue 업데이트
                     if record.get('report_url'):
                         update_github_issue_with_official_rules(
                             record['report_url'],
@@ -595,6 +744,7 @@ def check_for_official_rules() -> None:
                             rules
                         )
                     
+                    # DB 업데이트
                     db.upsert_cve({
                         "id": cve_id,
                         "has_official_rules": True,
@@ -602,11 +752,9 @@ def check_for_official_rules() -> None:
                         "last_rule_check_at": datetime.datetime.now(KST).isoformat(),
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
-                else:
-                    logger.debug(f"{cve_id}: 공식 룰 아직 없음")
                 
             except Exception as e:
-                logger.warning(f"{cve_id} 공식 룰 체크 실패: {e}")
+                logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
                 continue
         
         logger.info("=== 공식 룰 재발견 체크 완료 ===")
@@ -622,9 +770,22 @@ def main():
     """
     Argus 메인 실행 함수
     
-    v2.0 변경사항:
-    - rate_limit_manager.print_summary() 추가 (종료 시 API 사용량 출력)
-    - 로그 통일성 개선
+    전체 흐름:
+    1. 헬스체크 (시스템 상태 확인)
+    2. 공식 룰 재발견 체크
+    3. 최신 CVE 수집
+    4. 병렬 처리로 CVE 분석
+    5. 결과 요약
+    
+    왜 병렬 처리?
+    - 순차 처리: CVE 100개 × 30초 = 50분
+    - 병렬 처리: CVE 100개 / 3 워커 = 약 17분
+    - 3배 빠름!
+    
+    ThreadPoolExecutor란?
+    - 여러 작업을 동시에 실행하는 도구예요
+    - max_workers=3이면 3개 CVE를 동시에 처리
+    - 마치 3명의 직원이 동시에 일하는 것과 같아요
     """
     start_time = time.time()
     logger.info("=" * 60)
@@ -652,8 +813,6 @@ def main():
     
     if not target_cve_ids:
         logger.info("처리할 CVE 없음")
-        # ✅ CVE 없어도 rate limit 요약은 출력
-        _print_final_summary(start_time, 0, 0)
         return
     
     # Step 5: EPSS 수집
@@ -668,11 +827,13 @@ def main():
     logger.info(f"병렬 처리 시작 (워커: {max_workers}명)")
     
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # 각 CVE에 대해 process_single_cve 함수를 비동기 실행
         future_to_cve = {
             executor.submit(process_single_cve, cve_id, collector, db, notifier): cve_id
             for cve_id in target_cve_ids
         }
         
+        # 완료된 작업부터 결과 수집
         for future in as_completed(future_to_cve):
             cve_id = future_to_cve[future]
             try:
@@ -683,25 +844,13 @@ def main():
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
     
     # Step 7: 결과 요약
-    _print_final_summary(start_time, len(results), len(target_cve_ids))
-
-def _print_final_summary(start_time: float, success_count: int, total_count: int):
-    """
-    최종 결과 요약 출력
-    
-    처리 결과 + Rate Limit 사용량을 함께 보여줍니다.
-    """
     elapsed = time.time() - start_time
-    
-    logger.info("")
     logger.info("=" * 60)
-    logger.info("📋 Argus 실행 결과 요약")
-    logger.info("=" * 60)
-    logger.info(f"  처리 완료: {success_count}/{total_count}건 성공")
-    logger.info(f"  소요 시간: {elapsed:.1f}초")
+    logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
+    logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
     
-    # ✅ Rate Limit 사용 요약
+    # ✅ Rate Limit 사용량 요약
     rate_limit_manager.print_summary()
 
 if __name__ == "__main__":
