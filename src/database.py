@@ -1,4 +1,5 @@
 import os
+import datetime
 from supabase import create_client, Client
 from typing import Dict, List, Optional
 from logger import logger
@@ -107,20 +108,15 @@ class ArgusDB:
     
     def get_ai_generated_cves(self, days: int = 7) -> List[Dict]:
         """
-        AI 생성 룰을 사용한 CVE 목록 조회
+        공식 룰 재확인 대상 CVE 조회 (v2.1 - KEV/EPSS 무기한)
         
-        공식 룰 재발견을 위해, AI 룰만 있고 공식 룰이 없는
-        CVE들을 찾아줍니다. 최근 N일 이내에 체크한 것만 대상으로 해요.
+        보존 기간:
+        - KEV 등재 또는 EPSS > 0: 무기한 (공식 룰 발견까지 계속 확인)
+        - CVSS 9.0+: 6개월간 재확인
+        - CVSS 7.0~8.9: 3개월간 재확인
+        - CVSS 7.0 미만: 재확인 안 함
         
-        Args:
-            days: 최근 N일 이내
-        
-        Returns:
-            CVE 레코드 리스트
-        
-        왜 최근 N일만?
-        - 매번 모든 CVE를 체크하면 너무 느려요
-        - 1주일 정도면 새 공식 룰이 나올 충분한 시간이에요
+        쿨다운: 전체 공통 7일 (마지막 체크 후 7일 미만이면 스킵)
         """
         try:
             response = self.client.table("cves") \
@@ -129,8 +125,53 @@ class ArgusDB:
                 .not_.is_("rules_snapshot", "null") \
                 .execute()
             
-            logger.info(f"AI 생성 룰 CVE: {len(response.data)}건")
-            return response.data if response.data else []
+            if not response.data:
+                logger.info("AI 생성 룰 CVE: 0건")
+                return []
+            
+            now = datetime.datetime.now(datetime.timezone.utc)
+            eligible = []
+            
+            for record in response.data:
+                cvss = record.get('cvss_score', 0) or 0
+                is_kev = record.get('is_kev', False)
+                epss = record.get('epss_score', 0) or 0
+                
+                # 최근 7일 이내에 이미 체크했으면 스킵 (공통 쿨다운)
+                last_check = record.get('last_rule_check_at', '')
+                if last_check:
+                    try:
+                        last_check_dt = datetime.datetime.fromisoformat(last_check.replace('Z', '+00:00'))
+                        if (now - last_check_dt).days < 7:
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+                
+                # KEV 등재 또는 EPSS > 0 → 무기한 (보존 기간 제한 없음)
+                if is_kev or epss > 0:
+                    eligible.append(record)
+                    continue
+                
+                # CVSS 7.0 미만 → 재확인 안 함
+                if cvss < 7.0:
+                    continue
+                
+                # CVSS 기반 보존 기간
+                max_age_days = 180 if cvss >= 9.0 else 90
+                
+                created_at = record.get('last_alert_at', record.get('created_at', ''))
+                if created_at:
+                    try:
+                        created_dt = datetime.datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        if (now - created_dt).days > max_age_days:
+                            continue
+                    except (ValueError, TypeError):
+                        pass
+                
+                eligible.append(record)
+            
+            logger.info(f"AI 생성 룰 CVE: {len(response.data)}건 중 재확인 대상: {len(eligible)}건")
+            return eligible
             
         except Exception as e:
             logger.error(f"AI 생성 CVE 조회 실패: {e}")

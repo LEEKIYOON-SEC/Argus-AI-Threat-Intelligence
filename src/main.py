@@ -724,30 +724,18 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
 
 def check_for_official_rules() -> None:
     """
-    AI 생성 룰 CVE의 공식 룰 재발견
+    AI 생성 룰 CVE의 공식 룰 재발견 (v2.0)
     
-    이전에 AI 룰로 보고된 CVE들을 다시 확인해서
-    공식 룰이 나왔는지 체크합니다.
-    
-    작동 원리:
-    1. DB에서 has_official_rules=False인 CVE 조회
-    2. 각 CVE에 대해 다시 룰 검색
-    3. 공식 룰 발견 시:
-       - Slack 알림
-       - GitHub Issue에 댓글 추가
-       - DB 업데이트
-    
-    왜 필요한가요?
-    - 공개 커뮤니티에서 새로운 룰이 계속 추가돼요
-    - 오늘 없던 룰이 내일 추가될 수 있습니다
-    - 공식 룰은 AI 룰보다 훨씬 신뢰할 수 있어요
+    v2.0 변경사항:
+    - search_public_only() 사용 → Groq API 소모 없음
+    - CVSS 기반 재확인 주기 (DB에서 필터링)
+    - 체크 후 last_rule_check_at 항상 갱신 (중복 체크 방지)
     """
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
         
         db = ArgusDB()
         notifier = SlackNotifier()
-        collector = Collector()
         rule_manager = RuleManager()
         
         ai_cves = db.get_ai_generated_cves()
@@ -762,27 +750,18 @@ def check_for_official_rules() -> None:
             cve_id = record['id']
             
             try:
-                # CVE 정보 재수집
-                raw_data = collector.enrich_cve(cve_id)
-                if raw_data.get('state') != 'PUBLISHED':
-                    continue
-                
-                cve_temp = {
-                    "id": cve_id,
-                    "description": raw_data['description'],
-                    "cvss_vector": raw_data['cvss_vector'],
-                    "cwe": raw_data['cwe']
-                }
-                
-                # 룰 재검색 (analysis 없이 공개 룰만 검색)
-                rules = rule_manager.get_rules(cve_temp, feasibility=True, analysis=None)
+                # 공개 룰만 검색 (AI 생성 없음 → Groq API 소모 0)
+                rules = rule_manager.search_public_only(cve_id)
                 
                 # 공식 룰 존재 확인
                 has_official = any([
                     rules.get('sigma') and rules['sigma'].get('verified'),
-                    any(r.get('verified') for r in rules.get('network', [])),  # network는 리스트!
-                    rules.get('yara') and rules['yara'].get('verified')
+                    any(r.get('verified') for r in rules.get('network', [])),
+                    rules.get('yara') and rules['yara'].get('verified'),
+                    rules.get('nuclei') and rules['nuclei'].get('verified')
                 ])
+                
+                now_iso = datetime.datetime.now(KST).isoformat()
                 
                 if has_official:
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
@@ -804,13 +783,20 @@ def check_for_official_rules() -> None:
                             rules
                         )
                     
-                    # DB 업데이트
+                    # DB 업데이트 — 공식 룰 발견
                     db.upsert_cve({
                         "id": cve_id,
                         "has_official_rules": True,
                         "rules_snapshot": rules,
-                        "last_rule_check_at": datetime.datetime.now(KST).isoformat(),
-                        "updated_at": datetime.datetime.now(KST).isoformat()
+                        "last_rule_check_at": now_iso,
+                        "updated_at": now_iso
+                    })
+                else:
+                    # 공식 룰 미발견 — last_rule_check_at만 갱신 (다음 7일간 스킵)
+                    db.upsert_cve({
+                        "id": cve_id,
+                        "last_rule_check_at": now_iso,
+                        "updated_at": now_iso
                     })
                 
             except Exception as e:

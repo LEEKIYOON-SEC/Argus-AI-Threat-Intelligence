@@ -772,6 +772,79 @@ level: high
         
         return base_prompt
     
+    def search_public_only(self, cve_id: str) -> Dict:
+        """
+        공개 룰만 검색 (AI 생성 없음)
+        
+        check_for_official_rules()에서 사용.
+        Groq API를 소모하지 않고 공개 저장소만 확인합니다.
+        
+        Returns:
+            {"sigma": {...}, "network": [...], "yara": {...}, "nuclei": {...}}
+            각 값은 발견 시 {"code", "source", "verified": True}, 없으면 None
+        """
+        rules = {"sigma": None, "network": [], "yara": None, "nuclei": None}
+        
+        logger.info(f"공개 룰 검색 (AI 미사용): {cve_id}")
+        
+        # Sigma
+        public_sigma = self._search_github("SigmaHQ/sigma", f"{cve_id} filename:.yml")
+        if public_sigma:
+            rules['sigma'] = {
+                "code": public_sigma,
+                "source": "Public (SigmaHQ)",
+                "verified": True,
+                "indicators": None
+            }
+        
+        # Snort/Suricata (룰셋 파일 검색 — API 소모 없음)
+        network_rules = self._fetch_network_rules(cve_id)
+        if network_rules:
+            for rule_info in network_rules:
+                rules['network'].append({
+                    "code": rule_info["code"],
+                    "source": f"Public ({rule_info['source']})",
+                    "engine": rule_info["engine"],
+                    "verified": True,
+                    "indicators": None
+                })
+        
+        # Yara
+        public_yara = self._search_github("Yara-Rules/rules", f"{cve_id} filename:.yar")
+        if public_yara:
+            rules['yara'] = {
+                "code": public_yara,
+                "source": "Public (Yara-Rules)",
+                "verified": True,
+                "indicators": None
+            }
+        
+        # Nuclei
+        nuclei_template = self._search_github(
+            "projectdiscovery/nuclei-templates", f"{cve_id} filename:.yaml"
+        )
+        if nuclei_template:
+            rules['nuclei'] = {
+                "code": nuclei_template,
+                "source": "Public (Nuclei Templates)",
+                "verified": True,
+                "indicators": None
+            }
+        
+        # 결과 요약
+        found = []
+        if rules['sigma']: found.append("Sigma")
+        if rules['network']: found.append(f"Network({len(rules['network'])})")
+        if rules['yara']: found.append("Yara")
+        if rules['nuclei']: found.append("Nuclei")
+        
+        if found:
+            logger.info(f"  ✅ 공개 룰 발견: {', '.join(found)}")
+        else:
+            logger.debug(f"  공개 룰 없음: {cve_id}")
+        
+        return rules
+    
     # ====================================================================
     # [4] 메인 인터페이스
     # ====================================================================
