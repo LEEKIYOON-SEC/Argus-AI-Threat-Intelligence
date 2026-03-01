@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Argus - Blacklist IP Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="cve.html" class="logo">
+        <span class="logo-icon">&#128737;</span>
+        <span>Argus Dashboard</span>
+      </a>
+      <nav class="nav">
+        <a href="cve.html">CVE</a>
+        <a href="blacklist.html" class="active">Blacklist IP</a>
+      </nav>
+      <span class="updated-at" id="updated-time">-</span>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Stat Cards -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="label">Total Indicators</div>
+        <div class="value info" id="stat-total">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Critical</div>
+        <div class="value critical" id="stat-critical">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">High</div>
+        <div class="value high" id="stat-high">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Recovered</div>
+        <div class="value" style="color:var(--success, #28A745)" id="stat-recovered">-</div>
+      </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;">
+      <div class="chart-section">
+        <h3>Daily Trend (Last 7 Days)</h3>
+        <div class="chart-container">
+          <canvas id="trend-chart"></canvas>
+        </div>
+      </div>
+      <div class="chart-section">
+        <h3>Risk Distribution</h3>
+        <div id="risk-dist" style="padding-top:16px;"></div>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <input type="text" class="search-input" id="search-input" placeholder="Search IP address...">
+      <select class="filter-select" id="category-filter">
+        <option value="">All Categories</option>
+      </select>
+      <div class="severity-filters">
+        <button class="severity-btn active" data-severity="Critical">Critical</button>
+        <button class="severity-btn active" data-severity="High">High</button>
+        <button class="severity-btn active" data-severity="Medium">Medium</button>
+        <button class="severity-btn active" data-severity="Low">Low</button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading">Loading...</div>
+
+    <!-- Table -->
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortBy('indicator')">IP / CIDR</th>
+            <th onclick="sortBy('score')">Score</th>
+            <th onclick="sortBy('risk')">Risk</th>
+            <th>Category</th>
+            <th>Sources</th>
+            <th>AbuseIPDB</th>
+            <th>Reports</th>
+          </tr>
+        </thead>
+        <tbody id="bl-table-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button id="prev-btn" onclick="changePage(-1)">&laquo; Prev</button>
+      <span class="page-info" id="page-info">-</span>
+      <button id="next-btn" onclick="changePage(1)">Next &raquo;</button>
+    </div>
+
+    <!-- Recovered IPs Section -->
+    <div id="recovered-section" style="display:none;margin-top:32px;">
+      <h3 style="color:var(--success, #28A745);margin-bottom:12px;">&#x2705; Recovered IPs (Firewall Review)</h3>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">
+        Yesterday high-risk IPs that were removed from feeds or degraded to Medium/Low today.
+      </p>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Status</th>
+              <th>Yesterday</th>
+              <th>Today</th>
+              <th>Category</th>
+            </tr>
+          </thead>
+          <tbody id="recovered-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Report Date -->
+    <div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;">
+      Report Date: <span id="stat-date">-</span>
+    </div>
+  </main>
+
+  <script src="js/chart.js"></script>
+  <script src="js/blacklist-dashboard.js"></script>
+</body>
+</html>

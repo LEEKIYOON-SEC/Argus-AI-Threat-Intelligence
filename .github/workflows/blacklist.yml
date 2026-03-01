@@ -1,0 +1,51 @@
+name: Argus Blacklist IP Monitor
+ 
+on:
+  schedule:
+    # 매일 09:00 KST (00:00 UTC) 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+ 
+permissions:
+  contents: write
+ 
+jobs:
+  blacklist-run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+ 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+ 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+ 
+      - name: Run Blacklist IP pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          ABUSEIPDB_API_KEY: ${{ secrets.ABUSEIPDB_API_KEY }}
+        run: python -m src.blacklist_ip.main
+ 
+      - name: Export dashboard data
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python src/export_dashboard_data.py
+ 
+      - name: Commit and push dashboard data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update dashboard data [skip ci]"
+            git push
+          fi
