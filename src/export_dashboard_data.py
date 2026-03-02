@@ -351,8 +351,12 @@ def _collect_malwarebazaar() -> list:
 
 
 def _collect_phishtank() -> list:
-    """PhishTank 온라인 피싱 URL 수집 (CSV)"""
-    url = "http://data.phishtank.com/data/online-valid.csv"
+    """PhishTank 온라인 피싱 URL 수집 (CSV) — API 키 필요"""
+    api_key = os.environ.get("PHISHTANK_API_KEY", "").strip()
+    if api_key:
+        url = f"http://data.phishtank.com/data/{api_key}/online-valid.csv"
+    else:
+        url = "http://data.phishtank.com/data/online-valid.csv"
     r = requests.get(url, timeout=_FEED_TIMEOUT, headers={"User-Agent": "Argus-TI/1.0"})
     r.raise_for_status()
 
@@ -392,8 +396,36 @@ def _collect_phishtank() -> list:
     return items
 
 
+def _collect_openphish() -> list:
+    """OpenPhish 커뮤니티 피싱 URL 피드 (plain text, 12시간 갱신)"""
+    url = "https://raw.githubusercontent.com/openphish/public_feed/refs/heads/main/feed.txt"
+    r = requests.get(url, timeout=_FEED_TIMEOUT)
+    r.raise_for_status()
+
+    items = []
+    now_str = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    for line in r.text.splitlines():
+        line = line.strip()
+        if not line or not line.startswith(("http://", "https://")):
+            continue
+        items.append({
+            "ioc_type": "url",
+            "indicator": line,
+            "title": "OpenPhish - Phishing URL",
+            "risk": "Medium",
+            "score": 60,
+            "date": now_str,
+            "detail": {
+                "source": "OpenPhish",
+            },
+            "tags": ["OpenPhish", "phishing"],
+        })
+
+    return items
+
+
 def collect_external_ioc_feeds() -> list:
-    """URLhaus, MalwareBazaar, PhishTank 피드에서 IOC 수집"""
+    """URLhaus, MalwareBazaar, PhishTank/OpenPhish 피드에서 IOC 수집"""
     all_items = []
 
     feeds = [
@@ -402,13 +434,25 @@ def collect_external_ioc_feeds() -> list:
         ("PhishTank", _collect_phishtank),
     ]
 
+    phishtank_ok = False
     for name, collector_fn in feeds:
         try:
             items = collector_fn()
             all_items.extend(items)
             print(f"  {name}: {len(items)}건 수집", flush=True)
+            if name == "PhishTank":
+                phishtank_ok = True
         except Exception as e:
-            print(f"  [!] {name} 수집 실패 (무시): {e}", flush=True)
+            print(f"  [!] {name} 수집 실패: {e}", flush=True)
+
+    # PhishTank 실패 시 OpenPhish fallback
+    if not phishtank_ok:
+        try:
+            items = _collect_openphish()
+            all_items.extend(items)
+            print(f"  OpenPhish (fallback): {len(items)}건 수집", flush=True)
+        except Exception as e:
+            print(f"  [!] OpenPhish fallback 수집 실패: {e}", flush=True)
 
     return all_items
 
