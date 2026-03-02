@@ -1,5 +1,58 @@
 [
   {
+    "id": "CVE-2026-3401",
+    "title": "SourceCodester 웹 기반 약국 제품 관리 시스템 세션 만료 취약점",
+    "description": "SourceCodester 웹 기반 약국 제품 관리 시스템 1.0에서 세션 만료를 유발하는 취약점이 발견되었습니다. 원격 공격 가능성이 있으며, 공격 복잡도는 높지만 공개된 익스플로잇을 통해 공격에 악용될 수 있습니다. 익스플로잇 활용 난이도는 어려운 것으로 판단됩니다.",
+    "cvss": 2.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "SourceCodester",
+        "product": "Web-based Pharmacy Product Management System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T01:30:08.527284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-3402",
+    "title": "PHPGurukul 학생 기록 관리 시스템 edit-course.php 크로스 사이트 스크립팅",
+    "description": "PHPGurukul 학생 기록 관리 시스템 1.0 버전 이하에서 /edit-course.php 파일의 미확인 코드에서 크로스 사이트 스크립팅 취약점이 발견되었습니다. 'Course Short Name' 인수를 조작하여 공격이 가능하며, 원격으로 실행될 수 있습니다. 해당 익스플로이트는 공개되어 악용될 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "PHPGurukul",
+        "product": "Student Record Management System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T01:30:06.019561+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-3400",
     "title": "Tenda AC15 TextEditingConversion 스택 기반 버퍼 오버플로우",
     "description": "Tenda AC15 펌웨어 15.13.07.13 버전 이하에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. /goform/TextEditingConversion 파일의 wpapsk_crypto2_4g 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 공격에 악용될 수 있습니다.",
@@ -19,7 +72,56 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/40",
     "date": "2026-03-01T23:56:10.403211+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3400_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3400 (Tenda AC15 stack buffer overflow in /goform/TextEditingConversion via wpapsk_crypto2_4g parameter)\"\n        author = \"Argus-AI\"\n        reference = \"https://vuldb.com/?id.348295\"\n        cve = \"CVE-2026-3400\"\n        product = \"Tenda AC15\"\n    strings:\n        $s1 = \"/goform/TextEditingConversion\" ascii\n        $s2 = \"wpapsk_crypto2_4g\" ascii\n        $s3 = \"Tenda AC15\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로 (/goform/TextEditingConversion.)"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/TextEditingConversion.))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3403",
+    "title": "PHPGurukul 학생 기록 관리 시스템 edit-subject.php 크로스 사이트 스크립팅",
+    "description": "PHPGurukul 학생 기록 관리 시스템 1.0 버전에서 /edit-subject.php 파일의 Subject 1 인자 조작을 통해 크로스 사이트 스크립팅 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "PHPGurukul",
+        "product": "Student Record Management System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T01:30:01.93999+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
   },
   {
     "id": "CVE-2026-3399",
@@ -41,6 +143,20 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/39",
     "date": "2026-03-01T23:55:28.344023+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "High"
   },
   {
@@ -63,6 +179,28 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/38",
     "date": "2026-03-01T22:57:35.215175+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3398_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3398 exploitation attempts targeting Tenda F453\"\n        author = \"Argus-AI\"\n        cve = \"CVE-2026-3398\"\n        product = \"Tenda F453\"\n        version = \"1.0.0.3\"\n    strings:\n        $s1 = \"/goform/AdvSetWan\" ascii\n        $s2 = \"wanmode\" ascii\n        $s3 = \"PPPOEPassword\" ascii\n        $s4 = \"https://vuldb.com/?id.348293\" ascii\n        $s5 = \"https://vuldb.com/?ctiid.348293\" ascii\n        $s6 = \"https://vuldb.com/?submit.759630\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로 (/goform/AdvSetWan)"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/AdvSetWan))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "High"
   },
   {
@@ -85,6 +223,11 @@
     ],
     "report_url": null,
     "date": "2026-03-01T14:56:28.739897+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "Medium"
   },
   {
@@ -106,6 +249,11 @@
     ],
     "report_url": null,
     "date": "2026-03-01T13:52:42.298005+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "Medium"
   },
   {
@@ -128,6 +276,11 @@
     ],
     "report_url": null,
     "date": "2026-03-01T13:52:41.864464+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "Medium"
   },
   {
@@ -150,6 +303,11 @@
     ],
     "report_url": null,
     "date": "2026-03-01T12:10:57.216386+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "Medium"
   },
   {
@@ -172,6 +330,11 @@
     ],
     "report_url": null,
     "date": "2026-03-01T12:10:56.977351+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
     "severity": "Medium"
   }
 ]
