@@ -1,5 +1,1599 @@
 [
   {
+    "id": "CVE-2026-0007",
+    "title": "WindowInfo.cpp의 권한 허용 유도 가능성 (Tapjacking/오버레이 공격)",
+    "description": "WindowInfo.cpp의 writeToParcel 함수에서 tapjacking/오버레이 공격을 통해 사용자가 권한을 허용하도록 유도할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:46.166179+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-0006",
+    "title": "힙 버퍼 오버플로우 취약점",
+    "description": "여러 위치에서 힙 버퍼 오버플로우로 인해 경계 외 읽기/쓰기가 발생할 수 있습니다. 이를 통해 추가 권한 없이 원격 코드 실행이 가능하며, 사용자 상호 작용 없이도 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Remote code execution"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:45.124243+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/aydin5245/cve-2026-0006"
+    ],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-0008",
+    "title": "혼동된 대리자 권한 상승 취약점",
+    "description": "여러 위치에서 혼동된 대리자 문제로 인해 권한 상승이 가능합니다. 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:44.133287+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-0005",
+    "title": "KeyguardServiceDelegate.java의 앱 고정 우회 가능성",
+    "description": "KeyguardServiceDelegate.java의 onServiceDisconnected에서 권한 확인 누락으로 인해 LSKF를 모르는 상태에서 다른 앱과의 제한적인 상호작용이 가능한 앱 고정 우회 가능성이 존재합니다. 이는 앱에 따라 정보 유출로 이어질 수 있으며, 추가적인 실행 권한이나 사용자 상호작용은 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:37.466246+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48654",
+    "title": "CompanionDeviceManagerService.java 잠재적 권한 상승 취약점",
+    "description": "CompanionDeviceManagerService.java의 onStart 함수 내 로직 오류로 인해 confused deputy 문제가 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:37.451748+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48653",
+    "title": "코드 로직 오류로 인한 권한 사용 은폐 가능성",
+    "description": "여러 파일의 loadDataAndPostValue 함수에서 코드 로직 오류로 인해 권한 사용이 숨겨질 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:34.599008+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48646",
+    "title": "ActivityStarter.java의 권한 상승 취약점",
+    "description": "ActivityStarter.java의 executeRequest 함수에서 혼동된 대리자 문제로 인해 임의의 앱 실행이 가능할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 발생할 수 있으며, 공격을 위해서는 사용자 상호 작용이 필요합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:27.955703+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48645",
+    "title": "DeviceAdminInfo.java의 지속적인 패키지 가능성",
+    "description": "DeviceAdminInfo.java의 loadDescription에서 부적절한 입력 검증으로 인해 지속적인 패키지가 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:25.45295+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48650",
+    "title": "N/A",
+    "description": "In multiple locations, there is a possible information disclosure due to SQL injection. This could lead to local escalation of privilege with no additional execution privileges needed. User interactio",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:24.502021+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48644",
+    "title": "입력 유효성 검사 미흡으로 인한 서비스 거부 가능성",
+    "description": "여러 위치에서 부적절한 입력 유효성 검사로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다. 즉, 악용이 용이합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:21.93412+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48642",
+    "title": "payload.rs의 정보 유출 가능성",
+    "description": "payload.rs 파일의 jump_to_payload 함수 내 로직 오류로 인해 정보 유출이 발생할 수 있습니다. 추가적인 권한 없이 로컬 정보 유출이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:17.731749+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48641",
+    "title": "Nfc.h의 use-after-free 취약점",
+    "description": "Nfc.h의 여러 함수에서 경쟁 조건으로 인해 use-after-free 취약점이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:15.230449+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48635",
+    "title": "TaskFragmentOrganizerController.java의 활동 토큰 유출 가능성",
+    "description": "TaskFragmentOrganizerController.java 파일의 여러 함수에서 코드 로직 오류로 인해 활동 토큰이 유출될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:12.729045+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48634",
+    "title": "WindowManagerService.java의 tapjack 공격 가능성",
+    "description": "WindowManagerService.java의 relayoutWindow 함수에서 권한 검사 누락으로 tapjack 공격이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:08.644+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48631",
+    "title": "LocalImageResolver.java의 서비스 거부 취약점",
+    "description": "LocalImageResolver.java의 onHeaderDecoded 함수에서 자원 고갈로 인한 지속적인 서비스 거부(DoS) 공격 가능성이 있습니다. 추가적인 권한 없이 원격 DoS 공격으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 0,
+    "epss": 0.00182,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:06.142628+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48544",
+    "title": "SQL Injection을 통한 다른 앱 파일 접근 가능성",
+    "description": "여러 위치에서 SQL Injection 취약점을 통해 다른 앱의 파일에 접근할 수 있습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호작용 없이 공격이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:03.553849+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48630",
+    "title": "SkiaRenderEngine.cpp의 GPU 캐시 접근 가능성",
+    "description": "SkiaRenderEngine.cpp의 drawLayersInternal 함수에서 부가 채널 정보 유출을 통해 GPU 캐시에 접근할 수 있는 취약점이 발견되었습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:58.983929+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48619",
+    "title": "ContentProvider.java 파일 잘림 취약점",
+    "description": "ContentProvider.java의 여러 함수에서 읽기 전용 권한을 가진 앱이 코드 로직 오류로 인해 파일을 자를 수 있는 가능성이 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:58.711502+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48613",
+    "title": "VBMeta 재서명 취약점",
+    "description": "VBMeta는 동일한 테스트 키로 서명된 원본 이미지를 사용하여 테스트 키로 VBMeta를 수정하고 재서명할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Unknown"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "Android SoC (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:49.491762+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48609",
+    "title": "MmsProvider.java의 임의 파일 삭제 취약점",
+    "description": "MmsProvider.java의 여러 함수에서 경로 탐색 오류로 인해 전화, SMS, MMS 기능에 영향을 주는 파일을 임의로 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 서비스 거부(DoS)를 유발할 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:48.616237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48602",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java의 exitKeyguardAndFinishSurfaceBehindRemoteAnimation 함수 내 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:39.516112+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48605",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java 파일 내 여러 함수에서 코드 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:38.283601+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48587",
+    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
+    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:29.288372+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48585",
+    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
+    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:29.235655+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48579",
+    "title": "MediaProvider.java 외부 저장소 쓰기 권한 우회 가능성",
+    "description": "MediaProvider.java의 여러 함수에서 혼동된 대리자 문제로 인해 외부 저장소 쓰기 권한이 우회될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:20.05064+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48582",
+    "title": "외부 저장소 관리 권한 없이 미디어 삭제 가능성",
+    "description": "특정 상황에서 intent 리디렉션을 통해 MANAGE_EXTERNAL_STORAGE 권한 없이 미디어를 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다. 여러 위치에서 해당 문제가 발생합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:19.960565+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48578",
+    "title": "MediaProvider.java의 WRITE_EXTERNAL_STORAGE 권한 우회 가능성",
+    "description": "MediaProvider.java 파일 내 여러 함수에서 권한 확인 누락으로 인해 WRITE_EXTERNAL_STORAGE 권한을 우회할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 악용을 위해서는 사용자 상호 작용이 필요합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:11.686839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48577",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java 파일의 여러 함수에서 경쟁 조건으로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용이 필요하지 않습니다. 악용이 용이합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:11.569543+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2023-26323",
+    "title": "Xiaomi 앱 마켓 코드 실행 취약점",
+    "description": "Xiaomi 앱 마켓 제품에 코드 실행 취약점이 존재합니다. 이 취약점은 안전하지 않은 설정으로 인해 발생하며, 공격자가 임의 코드를 실행하는 데 악용될 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0.00172,
+    "is_kev": false,
+    "cwe": [
+      "a code execution vulnerability in Xiaomi App Store"
+    ],
+    "affected": [
+      {
+        "vendor": "Xiaomi",
+        "product": "App Market",
+        "versions": "1.0.0 부터 4.57.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:02.96924+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48574",
+    "title": "DisplayPolicy.java의 드래그 앤 드롭 이벤트 가로채기 가능성",
+    "description": "DisplayPolicy.java의 validateAddingWindowLw 함수에서 권한 확인 누락으로 인해 앱이 드래그 앤 드롭 이벤트를 가로챌 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:02.968296+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48568",
+    "title": "잠금 화면 우회 가능성 (경쟁 조건)",
+    "description": "여러 위치에서 경쟁 조건으로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:17:01.965717+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48567",
+    "title": "유니코드 정규화 오류로 인한 파일 경로 필터 우회 가능성",
+    "description": "여러 위치에서 유니코드 정규화 오류로 인해 민감한 디렉터리에 대한 접근을 막는 파일 경로 필터를 우회할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 공격을 위해서는 사용자 상호 작용이 필요합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:16:00.964301+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-32313",
+    "title": "UsageEvents.java의 범위 초과 쓰기 가능성",
+    "description": "UsageEvents.java 파일 내 UsageEvents에서 잘못된 범위 검사로 인해 범위 초과 쓰기 취약점이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:15:11.665429+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2024-43766",
+    "title": "btm_ble_sec.cc 잠재적 암호화되지 않은 통신 취약점",
+    "description": "btm_ble_sec.cc 파일의 여러 함수에서 잘못된 오류 처리로 인해 암호화되지 않은 통신이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 근거리 정보 유출로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:15:05.904652+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2024-42056",
+    "title": "Retool 자체 호스팅 엔터프라이즈 버전의 정보 노출 취약점 (3.40.0 이하)",
+    "description": "Retool 3.40.0 이하 버전에서 전송되는 데이터에 리소스 인증 자격 증명이 포함되어 삽입됩니다. \"사용\" 권한이 있는 사용자의 자격 증명은 인증된 공격자에 의해 /api/resources 엔드포인트를 통해 발견될 수 있습니다. 영향을 받는 가장 오래된 버전은 3.18.1입니다.",
+    "cvss": 6.5,
+    "epss": 0.0032,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:15:02.327084+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-22021",
+    "title": "Veeam Recovery Orchestrator 권한 부족으로 인한 계획 접근 취약점 (CVE-2024-22021)",
+    "description": "CVE-2024-22021 취약점을 통해, Veeam Recovery Orchestrator에서 낮은 권한(계획 작성자)을 가진 사용자가 자신이 할당되지 않은 범위의 계획을 검색할 수 있습니다. 이는 권한 부족으로 인한 정보 노출로 이어질 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.0039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Recovery Orchestrator ",
+        "versions": "6 부터 6 이전"
+      },
+      {
+        "vendor": "Veeam",
+        "product": "Disaster Recovery Orchestrator",
+        "versions": "5 부터 5 이전"
+      },
+      {
+        "vendor": "Veeam",
+        "product": "Availability Orchestrator",
+        "versions": "4 부터 4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:14:59.514714+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-3331",
+    "title": "Spotfire: NTLM 토큰 유출",
+    "description": "Spotfire Enterprise Runtime, Statistics Services, Analyst, Desktop, Server 제품에서 NTLM 토큰 유출 취약점이 발견되었습니다. 이 취약점의 영향은 영향을 받는 소프트웨어를 실행하는 사용자의 권한에 따라 달라집니다. 특정 버전(1.12.7~1.20.0, 12.0.7~12.3.1, 14.0.0~14.3.0 등)에 해당되는지 확인해야 합니다.",
+    "cvss": 6.8,
+    "epss": 0.00124,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Spotfire",
+        "product": "Spotfire Enterprise Runtime for R - Server Edition",
+        "versions": "1.12.7 부터 1.20.0 이하"
+      },
+      {
+        "vendor": "Spotfire",
+        "product": "Spotfire Statistics Services",
+        "versions": "12.0.7 부터 12.3.1 이하, 14.0.0 부터 14.3.0 이하"
+      },
+      {
+        "vendor": "Spotfire",
+        "product": "Spotfire Analyst",
+        "versions": "12.0.9 부터 12.5.0 이하, 14.0.0 부터 14.3.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:14:53.07182+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25085",
+    "title": "Copeland XWEB 및 XWEB Pro 예상치 못한 상태 코드 또는 반환 값",
+    "description": "Copeland XWEB Pro 1.12.1 버전 이하에서 인증 루틴의 예상치 못한 반환 값이 유효한 값으로 처리되어 인증 우회 취약점이 발생합니다.",
+    "cvss": 8.6,
+    "epss": 0.00066,
+    "is_kev": false,
+    "cwe": [
+      "CWE-394"
+    ],
+    "affected": [
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 300D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500B PRO",
+        "versions": "1.12.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:14:47.921665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3273",
+    "title": "Tenda F453 httpd AdvSetWrlsafeset 폼 버퍼 오버플로우",
+    "description": "Tenda F453 1.0.0.3 버전에서 httpd 컴포넌트의 /goform/AdvSetWrlsafeset 파일 내 formWrlsafeset 함수에 버퍼 오버플로우 취약점이 발견되었습니다. mit_ssid_index 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:14:47.920691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3422",
+    "title": "e-Excellence｜U-Office Force - 안전하지 않은 역직렬화",
+    "description": "e-Excellence의 U-Office Force 제품에서 안전하지 않은 역직렬화 취약점이 발견되었습니다. 인증되지 않은 원격 공격자가 악의적으로 조작된 직렬화된 데이터를 전송하여 서버에서 임의 코드를 실행할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "e-Excellence",
+        "product": "U-Office Force",
+        "versions": "29.50 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/44",
+    "date": "2026-03-02T07:56:19.984117+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3403",
+    "title": "PHPGurukul 학생 기록 관리 시스템 edit-subject.php 크로스 사이트 스크립팅",
+    "description": "PHPGurukul 학생 기록 관리 시스템 1.0 버전에서 /edit-subject.php 파일의 Subject 1 인자 조작을 통해 크로스 사이트 스크립팅 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "PHPGurukul",
+        "product": "Student Record Management System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T01:30:01.93999+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-24663",
+    "title": "Copeland XWEB 및 XWEB Pro OS 명령어 삽입 취약점",
+    "description": "Copeland XWEB Pro 1.12.1 버전 및 이전 버전에서 OS 명령어 삽입 취약점이 발견되었습니다. 인증되지 않은 공격자가 특수 제작된 요청을 libraries 설치 경로로 전송하여 요청 본문에 악성 입력을 삽입함으로써 시스템에서 원격 코드 실행을 달성할 수 있습니다.",
+    "cvss": 9,
+    "epss": 0.01355,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 300D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500B PRO",
+        "versions": "1.12.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:13:47.087928+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21853",
+    "title": "AFFiNE: 사용자 지정 URL 처리 방식을 통한 원클릭 원격 코드 실행",
+    "description": "AFFiNE은 올인원 워크스페이스 및 운영체제이며, 0.25.4 버전 이전에는 원클릭 원격 코드 실행 취약점이 존재합니다. 공격자는 악성 웹사이트에 특수 제작된 affine: URL을 포함시키거나, 정상 웹사이트의 링크를 통해 이 취약점을 악용할 수 있습니다. 이를 통해 피해자의 시스템에서 추가적인 상호작용 없이 임의 코드 실행이 가능하며, 현재 0.25.4 버전에서 패치되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "toeverything",
+        "product": "AFFiNE",
+        "versions": "< 0.25.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:09:05.930919+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21389",
+    "title": "Copeland XWEB 및 XWEB Pro OS 명령어 삽입 취약점",
+    "description": "Copeland XWEB Pro 1.12.1 버전 이하에서 OS 명령어 삽입 취약점이 발견되었습니다. 인증된 공격자는 연락처 가져오기 경로로 전송되는 요청 본문에 악성 입력을 삽입하여 시스템에서 원격 코드 실행을 달성할 수 있습니다.",
+    "cvss": 8,
+    "epss": 0.00197,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 300D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500B PRO",
+        "versions": "1.12.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:09:05.919616+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21718",
+    "title": "Copeland XWEB 및 XWEB Pro의 손상되거나 취약한 암호화 알고리즘 사용",
+    "description": "Copeland XWEB Pro 1.12.1 버전 이하에서 인증 우회 취약점이 발견되었습니다.",
+    "cvss": 10,
+    "epss": 0.00068,
+    "is_kev": false,
+    "cwe": [
+      "CWE-327"
+    ],
+    "affected": [
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 300D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500D PRO",
+        "versions": "1.12.1 이하"
+      },
+      {
+        "vendor": "Copeland",
+        "product": "Copeland XWEB 500B PRO",
+        "versions": "1.12.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:09:04.023676+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-48636",
+    "title": "BugreportContentProvider.java의 경로 탐색 취약점",
+    "description": "BugreportContentProvider.java의 openFile 함수에서 경로 탐색 오류로 인해 권한 없는 파일에 접근 및 쓰기가 가능할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:08:39.3771+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2024-31328",
+    "title": "BroadcastController.java의 임의 액티비티 실행 가능성",
+    "description": "BroadcastController.java의 broadcastIntentLockedTraced 함수 내 로직 오류로 인해 페어링된 동반 기기에서 백그라운드로 임의의 액티비티를 실행할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:08:38.402088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-20423",
+    "title": "WLAN STA 드라이버의 경계 외 쓰기 취약점",
+    "description": "WLAN STA 드라이버에서 경계 검사 누락으로 인해 경계 외 쓰기 취약점이 발생할 수 있습니다. 이를 통해 사용자 권한으로 로컬 권한 상승이 가능하며, 공격에 사용자의 상호 작용은 필요하지 않습니다. 패치 ID: WCNCR00465314; 이슈 ID: MSV-4956.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-749"
+    ],
+    "affected": [
+      {
+        "vendor": "MediaTek, Inc.",
+        "product": "MT7902, MT7920, MT7921, MT7922, MT7925, MT7927",
+        "versions": "NB SDK release 3.8 and before (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T10:33:29.099207+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-47376",
+    "title": "자동차 오디오의 Use-After-Free 취약점",
+    "description": "IOCTL 호출 중 공유 버퍼에 대한 동시 접근 시 메모리 손상 발생.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:15:49.057653+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47377",
+    "title": "자동차 오디오의 Use-After-Free 취약점",
+    "description": "IOCTL 호출 처리 중 해제된 버퍼에 접근하여 메모리 손상 발생.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "AR8035 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM6125 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165N (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), WCD9340 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:18:52.064963+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-37186",
+    "title": "HPE Aruba VIA 클라이언트 for Linux 로컬 권한 상승 취약점",
+    "description": "HPE Aruba Networking VIA 클라이언트에서 로컬 권한 상승 취약점이 발견되었습니다. 공격자는 이 취약점을 악용하여 루트 권한으로 임의 코드 실행이 가능할 수 있습니다. Linux 환경에서 VIA 클라이언트를 사용하는 경우 주의가 필요합니다.",
+    "cvss": 7.8,
+    "epss": 8e-05,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Hewlett Packard Enterprise (HPE)",
+        "product": "Virtual Intranet Access (VIA)",
+        "versions": "4.0.0 부터 4.7.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:01:57.586461+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27752",
+    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 평문 자격 증명 전송",
+    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에서 인증 자격 증명이 암호화되지 않은 HTTP를 통해 전송되어 공격자가 자격 증명을 탈취할 수 있습니다. 네트워크 트래픽을 감청하는 공격자는 자격 증명을 가로채 게이트웨이 관리자 권한을 획득할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-319"
+    ],
+    "affected": [
+      {
+        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
+        "product": "SODOLA SL902-SWTGW124AS",
+        "versions": "200.1.20 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:08:29.566819+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-3727",
+    "title": "Containers/image: 다이제스트 유형이 유효한 유형을 보장하지 않음",
+    "description": "github.com/containers/image 라이브러리의 취약점이 발견되었습니다. 이 취약점을 통해 공격자는 피해 사용자를 대신하여 예상치 못한 인증된 레지스트리 접근을 유발하여 리소스 고갈, 로컬 경로 탐색 및 기타 공격을 수행할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0.00559,
+    "is_kev": false,
+    "cwe": [
+      "CWE-354"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "5.29.3 이전, 5.30.0 부터 5.30.1 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "OADP-1.3-RHEL-9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Advanced Cluster Security 4.4",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:15:40.716824+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0654",
+    "title": "TP-Link Deco BE25 명령어 삽입 취약점",
+    "description": "TP-Link Deco BE25 v1.0 관리 웹 인터페이스의 입력값 처리 미흡으로 인해, 조작된 입력이 OS 명령어로 실행될 수 있습니다. 인증된 인접 공격자가 조작된 설정 파일을 통해 임의 명령어를 실행하여 기밀성, 무결성 및 가용성에 영향을 줄 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "TP-Link Systems Inc.",
+        "product": "Deco BE25 v1.0",
+        "versions": "1.1.1 Build 20250822 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:03:00.727593+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22229",
+    "title": "TP-Link Archer BE230 v1.2 및 Deco BE25 v1.0 명령어 삽입 취약점",
+    "description": "TP-Link Archer BE230 v1.2 및 Deco BE25 v1.0에서 조작된 VPN 클라이언트 설정 파일을 통해 관리자 인증 후 명령어 삽입 취약점이 발생할 수 있습니다. 성공적인 공격 시 공격자는 장치에 대한 완전한 관리자 제어 권한을 획득하여 설정 무결성, 네트워크 보안 및 서비스 가용성에 심각한 영향을 줄 수 있습니다. 해당 취약점은 여러 코드 경로에서 발견되었으며, 각 사례는 고유한 CVE ID로 추적됩니다.",
+    "cvss": 8.6,
+    "epss": 0.0019,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "TP-Link Systems Inc.",
+        "product": "Archer BE230 v1.2",
+        "versions": "1.2.4 Build 20251218 rel.70420 이전"
+      },
+      {
+        "vendor": "TP-Link Systems Inc.",
+        "product": "Deco BE25 v1.0",
+        "versions": "1.1.1 Build 20250822 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:03:12.185929+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3132",
+    "title": "Elementor 프리미엄용 Master Addons <= 2.1.3 - 인증된(Subscriber+) 원격 코드 실행 취약점",
+    "description": "WordPress 플러그인 Elementor 프리미엄용 Master Addons 2.1.3 버전 이하에서 'JLTMA_Widget_Admin::render_preview'를 통해 원격 코드 실행 취약점이 발견되었습니다. 권한 확인 누락으로 인해 Subscriber 레벨 이상의 권한을 가진 공격자가 서버에서 코드를 실행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Jewel Theme",
+        "product": "Master Addons for Elementor Premium",
+        "versions": "* 부터 2.1.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:16:41.719674+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27751",
+    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 기본 자격 증명 사용 취약점",
+    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에서 기본 자격 증명 취약점이 발견되었습니다. 공격자는 암호 변경 강제 기능 없이 하드코딩된 기본 자격 증명을 사용하여 관리 인터페이스에 대한 관리자 권한을 획득할 수 있습니다. 이를 통해 장치를 완전히 제어할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1392"
+    ],
+    "affected": [
+      {
+        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
+        "product": "SODOLA SL902-SWTGW124AS",
+        "versions": "200.1.20 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:08:17.287833+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27755",
+    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 예측 가능한 세션 ID",
+    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에는 예측 가능한 MD5 기반 쿠키를 사용하여 인증된 세션을 위조할 수 있는 취약점이 존재합니다. 공격자는 유효한 자격 증명을 알고 있거나 추측하여 세션 ID를 오프라인에서 계산하고 로그인 절차 없이 인증을 우회하여 장치에 무단으로 접근할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00107,
+    "is_kev": false,
+    "cwe": [
+      "CWE-330"
+    ],
+    "affected": [
+      {
+        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
+        "product": "SODOLA SL902-SWTGW124AS",
+        "versions": "200.1.20 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:09:30.684939+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-26720",
     "title": "Twenty CRM v1.15.0 이하 버전 원격 코드 실행 취약점",
     "description": "Twenty CRM v1.15.0 버전 및 이전 버전에서 local.driver.ts 모듈을 통해 원격 공격자가 임의 코드를 실행할 수 있는 취약점이 발견되었습니다.",
@@ -210,32 +1804,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-47377",
-    "title": "자동차 오디오의 Use-After-Free 취약점",
-    "description": "IOCTL 호출 처리 중 해제된 버퍼에 접근하여 메모리 손상 발생.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "AR8035 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM6125 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165N (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), WCD9340 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:18:52.064963+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-47375",
     "title": "자동차 오디오 시스템의 Use-After-Free 취약점",
     "description": "사용자 공간에서 동시에 여러 IOCTL 호출을 처리하는 과정에서 메모리 손상 발생.",
@@ -254,32 +1822,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T17:13:47.150705+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47376",
-    "title": "자동차 오디오의 Use-After-Free 취약점",
-    "description": "IOCTL 호출 중 공유 버퍼에 대한 동시 접근 시 메모리 손상 발생.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:15:49.057653+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -418,32 +1960,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3132",
-    "title": "Elementor 프리미엄용 Master Addons <= 2.1.3 - 인증된(Subscriber+) 원격 코드 실행 취약점",
-    "description": "WordPress 플러그인 Elementor 프리미엄용 Master Addons 2.1.3 버전 이하에서 'JLTMA_Widget_Admin::render_preview'를 통해 원격 코드 실행 취약점이 발견되었습니다. 권한 확인 누락으로 인해 Subscriber 레벨 이상의 권한을 가진 공격자가 서버에서 코드를 실행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Jewel Theme",
-        "product": "Master Addons for Elementor Premium",
-        "versions": "* 부터 2.1.3 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:16:41.719674+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-14831",
     "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
     "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
@@ -478,42 +1994,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2024-3727",
-    "title": "Containers/image: 다이제스트 유형이 유효한 유형을 보장하지 않음",
-    "description": "github.com/containers/image 라이브러리의 취약점이 발견되었습니다. 이 취약점을 통해 공격자는 피해 사용자를 대신하여 예상치 못한 인증된 레지스트리 접근을 유발하여 리소스 고갈, 로컬 경로 탐색 및 기타 공격을 수행할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0.00559,
-    "is_kev": false,
-    "cwe": [
-      "CWE-354"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "5.29.3 이전, 5.30.0 부터 5.30.1 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "OADP-1.3-RHEL-9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Advanced Cluster Security 4.4",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:15:40.716824+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-27757",
@@ -604,32 +2084,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-27755",
-    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 예측 가능한 세션 ID",
-    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에는 예측 가능한 MD5 기반 쿠키를 사용하여 인증된 세션을 위조할 수 있는 취약점이 존재합니다. 공격자는 유효한 자격 증명을 알고 있거나 추측하여 세션 ID를 오프라인에서 계산하고 로그인 절차 없이 인증을 우회하여 장치에 무단으로 접근할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00107,
-    "is_kev": false,
-    "cwe": [
-      "CWE-330"
-    ],
-    "affected": [
-      {
-        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
-        "product": "SODOLA SL902-SWTGW124AS",
-        "versions": "200.1.20 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:09:30.684939+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-27758",
     "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 CSRF 보호 기능 부재",
     "description": "SODOLA SL902-SWTGW124AS 펌웨어 200.1.20 버전 이하에서 관리 인터페이스에 CSRF(교차 사이트 요청 위조) 취약점이 발견되었습니다. 공격자는 악성 웹페이지를 통해 인증된 사용자가 위조된 요청을 제출하도록 유도할 수 있습니다. 이를 통해 피해 사용자의 권한으로 무단 설정 변경 또는 관리 작업을 수행할 수 있습니다.",
@@ -656,32 +2110,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-27752",
-    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 평문 자격 증명 전송",
-    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에서 인증 자격 증명이 암호화되지 않은 HTTP를 통해 전송되어 공격자가 자격 증명을 탈취할 수 있습니다. 네트워크 트래픽을 감청하는 공격자는 자격 증명을 가로채 게이트웨이 관리자 권한을 획득할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0.00013,
-    "is_kev": false,
-    "cwe": [
-      "CWE-319"
-    ],
-    "affected": [
-      {
-        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
-        "product": "SODOLA SL902-SWTGW124AS",
-        "versions": "200.1.20 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:08:29.566819+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-27756",
     "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 관리 인터페이스의 XSS 취약점",
     "description": "SODOLA SL902-SWTGW124AS 펌웨어 200.1.20 버전 이하에서 관리 인터페이스에 반사형 XSS 취약점이 존재합니다. 사용자 입력 값이 출력 전에 적절히 인코딩되지 않아 악성 URL을 통해 인증된 사용자의 웹 인터페이스에서 임의의 JavaScript 코드를 실행할 수 있습니다.",
@@ -706,32 +2134,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27751",
-    "title": "SODOLA SL902-SWTGW124AS <= 200.1.20 기본 자격 증명 사용 취약점",
-    "description": "SODOLA SL902-SWTGW124AS 펌웨어 버전 200.1.20 이하에서 기본 자격 증명 취약점이 발견되었습니다. 공격자는 암호 변경 강제 기능 없이 하드코딩된 기본 자격 증명을 사용하여 관리 인터페이스에 대한 관리자 권한을 획득할 수 있습니다. 이를 통해 장치를 완전히 제어할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00038,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1392"
-    ],
-    "affected": [
-      {
-        "vendor": "Shenzhen Hongyavision Technology Co., Ltd. (Sodola Networks)",
-        "product": "SODOLA SL902-SWTGW124AS",
-        "versions": "200.1.20 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:08:17.287833+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-27754",
@@ -946,37 +2348,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-22229",
-    "title": "TP-Link Archer BE230 v1.2 및 Deco BE25 v1.0 명령어 삽입 취약점",
-    "description": "TP-Link Archer BE230 v1.2 및 Deco BE25 v1.0에서 조작된 VPN 클라이언트 설정 파일을 통해 관리자 인증 후 명령어 삽입 취약점이 발생할 수 있습니다. 성공적인 공격 시 공격자는 장치에 대한 완전한 관리자 제어 권한을 획득하여 설정 무결성, 네트워크 보안 및 서비스 가용성에 심각한 영향을 줄 수 있습니다. 해당 취약점은 여러 코드 경로에서 발견되었으며, 각 사례는 고유한 CVE ID로 추적됩니다.",
-    "cvss": 8.6,
-    "epss": 0.0019,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "TP-Link Systems Inc.",
-        "product": "Archer BE230 v1.2",
-        "versions": "1.2.4 Build 20251218 rel.70420 이전"
-      },
-      {
-        "vendor": "TP-Link Systems Inc.",
-        "product": "Deco BE25 v1.0",
-        "versions": "1.1.1 Build 20250822 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:03:12.185929+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2018-12653",
     "title": "Adrenalin HRMS 5.4.0 리플렉티드 XSS 취약점",
     "description": "Adrenalin HRMS 5.4.0 버전에서 리플렉티드 XSS 취약점이 발견되었습니다. 공격자는 '/RPT/SSRSDynamicEditReports.aspx' 페이지의 'ReportId' 파라미터를 통해 악성 JavaScript 코드를 삽입할 수 있습니다. 이를 통해 공격이 가능합니다.",
@@ -1001,32 +2372,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-0654",
-    "title": "TP-Link Deco BE25 명령어 삽입 취약점",
-    "description": "TP-Link Deco BE25 v1.0 관리 웹 인터페이스의 입력값 처리 미흡으로 인해, 조작된 입력이 OS 명령어로 실행될 수 있습니다. 인증된 인접 공격자가 조작된 설정 파일을 통해 임의 명령어를 실행하여 기밀성, 무결성 및 가용성에 영향을 줄 수 있습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "TP-Link Systems Inc.",
-        "product": "Deco BE25 v1.0",
-        "versions": "1.1.1 Build 20250822 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:03:00.727593+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3398",
@@ -1257,30 +2602,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2025-37186",
-    "title": "HPE Aruba VIA 클라이언트 for Linux 로컬 권한 상승 취약점",
-    "description": "HPE Aruba Networking VIA 클라이언트에서 로컬 권한 상승 취약점이 발견되었습니다. 공격자는 이 취약점을 악용하여 루트 권한으로 임의 코드 실행이 가능할 수 있습니다. Linux 환경에서 VIA 클라이언트를 사용하는 경우 주의가 필요합니다.",
-    "cvss": 7.8,
-    "epss": 8e-05,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Hewlett Packard Enterprise (HPE)",
-        "product": "Virtual Intranet Access (VIA)",
-        "versions": "4.0.0 부터 4.7.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:01:57.586461+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-37165",
@@ -5662,32 +6983,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-20423",
-    "title": "WLAN STA 드라이버의 경계 외 쓰기 취약점",
-    "description": "WLAN STA 드라이버에서 경계 검사 누락으로 인해 경계 외 쓰기 취약점이 발생할 수 있습니다. 이를 통해 사용자 권한으로 로컬 권한 상승이 가능하며, 공격에 사용자의 상호 작용은 필요하지 않습니다. 패치 ID: WCNCR00465314; 이슈 ID: MSV-4956.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-749"
-    ],
-    "affected": [
-      {
-        "vendor": "MediaTek, Inc.",
-        "product": "MT7902, MT7920, MT7921, MT7922, MT7925, MT7927",
-        "versions": "NB SDK release 3.8 and before (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T10:33:29.099207+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2024-1753",
     "title": "Buildah: 빌드 시 완전한 컨테이너 탈출 가능성",
     "description": "Buildah(및 Podman Build)에서 빌드 컨테이너가 호스트 파일 시스템의 임의 위치를 마운트하도록 허용하는 취약점이 발견되었습니다. 악성 Containerfile은 루트 파일 시스템에 대한 심볼릭 링크를 포함하는 더미 이미지를 마운트 소스로 사용하여 RUN 단계에서 호스트 루트 파일 시스템을 마운트할 수 있습니다. RUN 단계 내의 명령어는 호스트 파일 시스템에 대한 읽기/쓰기 권한을 얻어 빌드 시 완전한 컨테이너 탈출을 가능하게 합니다.",
@@ -5838,41 +7133,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3422",
-    "title": "e-Excellence｜U-Office Force - 안전하지 않은 역직렬화",
-    "description": "e-Excellence의 U-Office Force 제품에서 안전하지 않은 역직렬화 취약점이 발견되었습니다. 인증되지 않은 원격 공격자가 악의적으로 조작된 직렬화된 데이터를 전송하여 서버에서 임의 코드를 실행할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "e-Excellence",
-        "product": "U-Office Force",
-        "versions": "29.50 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/44",
-    "date": "2026-03-02T07:56:19.984117+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-14905",
@@ -6034,33 +7294,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-3403",
-    "title": "PHPGurukul 학생 기록 관리 시스템 edit-subject.php 크로스 사이트 스크립팅",
-    "description": "PHPGurukul 학생 기록 관리 시스템 1.0 버전에서 /edit-subject.php 파일의 Subject 1 인자 조작을 통해 크로스 사이트 스크립팅 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79",
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "PHPGurukul",
-        "product": "Student Record Management System",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T01:30:01.93999+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-3400",
