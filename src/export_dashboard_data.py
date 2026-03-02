@@ -182,28 +182,42 @@ def export_blacklist(client, days: int = 7) -> dict:
 def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
     """어제 고위험이었으나 오늘 제거되거나 등급이 하락한 IP 목록"""
     try:
-        # 어제 Critical/High IP 조회
-        yesterday_res = client.table("shield_indicators") \
-            .select("indicator, final_score, risk, category") \
-            .eq("date", yesterday_date) \
-            .in_("risk", ["Critical", "High"]) \
-            .order("final_score", desc=True) \
-            .limit(200) \
-            .execute()
+        # 어제 Critical/High IP 전체 조회 (페이지네이션)
+        yesterday_highrisk: dict = {}
+        page_size = 1000
+        offset = 0
+        while True:
+            yesterday_res = client.table("shield_indicators") \
+                .select("indicator, final_score, risk, category") \
+                .eq("date", yesterday_date) \
+                .in_("risk", ["Critical", "High"]) \
+                .order("final_score", desc=True) \
+                .range(offset, offset + page_size - 1) \
+                .execute()
 
-        yesterday_highrisk = {r["indicator"]: r for r in (yesterday_res.data or [])}
+            rows = yesterday_res.data or []
+            for r in rows:
+                yesterday_highrisk[r["indicator"]] = r
+            if len(rows) < page_size:
+                break
+            offset += page_size
+
         if not yesterday_highrisk:
             return []
 
-        # 오늘 데이터에서 해당 IP들 조회
+        # 오늘 데이터에서 해당 IP들 조회 (IN 쿼리 100개씩 분할)
         today_ips = list(yesterday_highrisk.keys())
-        today_res = client.table("shield_indicators") \
-            .select("indicator, final_score, risk") \
-            .eq("date", today_date) \
-            .in_("indicator", today_ips[:100]) \
-            .execute()
-
-        today_map = {r["indicator"]: r for r in (today_res.data or [])}
+        today_map: dict = {}
+        chunk_size = 100
+        for i in range(0, len(today_ips), chunk_size):
+            chunk = today_ips[i:i + chunk_size]
+            today_res = client.table("shield_indicators") \
+                .select("indicator, final_score, risk") \
+                .eq("date", today_date) \
+                .in_("indicator", chunk) \
+                .execute()
+            for r in (today_res.data or []):
+                today_map[r["indicator"]] = r
 
         recovered = []
         for ip, y_data in yesterday_highrisk.items():
@@ -243,10 +257,9 @@ def _get_recovered_ips(client, yesterday_date: str, today_date: str) -> list:
 # External IOC Feed Collection (URL / Hash)
 # ─────────────────────────────────────────────
 _FEED_TIMEOUT = 30
-_MAX_ITEMS_PER_FEED = 500
 
 
-def _collect_urlhaus(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+def _collect_urlhaus() -> list:
     """URLhaus 온라인 악성 URL 수집 (CSV)"""
     url = "https://urlhaus.abuse.ch/downloads/csv_online/"
     r = requests.get(url, timeout=_FEED_TIMEOUT)
@@ -281,15 +294,12 @@ def _collect_urlhaus(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "tags": tag_list,
             },
             "tags": ["URLhaus"] + ([threat] if threat else []),
-            "related_rules": [],
         })
-        if len(items) >= max_items:
-            break
 
     return items
 
 
-def _collect_malwarebazaar(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+def _collect_malwarebazaar() -> list:
     """MalwareBazaar 최근 악성코드 해시 수집 (CSV)"""
     url = "https://bazaar.abuse.ch/export/csv/recent/"
     r = requests.get(url, timeout=_FEED_TIMEOUT)
@@ -335,15 +345,12 @@ def _collect_malwarebazaar(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "signature": signature,
             },
             "tags": tag_list,
-            "related_rules": [],
         })
-        if len(items) >= max_items:
-            break
 
     return items
 
 
-def _collect_phishtank(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
+def _collect_phishtank() -> list:
     """PhishTank 온라인 피싱 URL 수집 (CSV)"""
     url = "http://data.phishtank.com/data/online-valid.csv"
     r = requests.get(url, timeout=_FEED_TIMEOUT, headers={"User-Agent": "Argus-TI/1.0"})
@@ -380,10 +387,7 @@ def _collect_phishtank(max_items: int = _MAX_ITEMS_PER_FEED) -> list:
                 "target": target,
             },
             "tags": ["PhishTank", "phishing"] + ([target] if target else []),
-            "related_rules": [],
         })
-        if len(items) >= max_items:
-            break
 
     return items
 
@@ -410,9 +414,11 @@ def collect_external_ioc_feeds() -> list:
 
 
 def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None) -> dict:
-    """CVE + IP + 탐지 룰을 통합 IOC 데이터로 변환"""
+    """CVE + IP + 탐지 룰을 통합 IOC 데이터로 변환 (타입별 분리)"""
     now = dt.datetime.now(dt.timezone.utc)
-    ioc_items = []
+
+    # 타입별 버킷
+    buckets: dict[str, list] = {"cve": [], "ip": [], "rule": [], "url": [], "hash": []}
 
     # 1) CVE → IOC
     for cve in cve_data:
@@ -420,7 +426,7 @@ def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None)
         if risk == "None":
             risk = "Low"
 
-        ioc_items.append({
+        buckets["cve"].append({
             "ioc_type": "cve",
             "indicator": cve["id"],
             "title": cve.get("title", "N/A"),
@@ -442,7 +448,7 @@ def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None)
 
     # 2) IP → IOC
     for ind in blacklist_data.get("indicators", []):
-        ioc_items.append({
+        buckets["ip"].append({
             "ioc_type": "ip",
             "indicator": ind["indicator"],
             "title": f"{ind.get('category', 'unknown')} ({', '.join(ind.get('sources', [])[:2])})",
@@ -456,19 +462,19 @@ def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None)
                 "abuse_reports": ind.get("abuse_reports"),
             },
             "tags": _build_ip_tags(ind),
-            "related_rules": [],
         })
 
     # 3) 탐지 룰 → IOC (CVE에 연결된 룰을 독립 IOC로도 등록)
+    _KNOWN_ENGINES = {"sigma", "snort", "suricata", "yara"}
     for cve in cve_data:
         rules = cve.get("rules", {})
         if not rules:
             continue
         for engine, rule_content in rules.items():
-            if not rule_content:
+            if engine not in _KNOWN_ENGINES or not rule_content:
                 continue
             is_official = cve.get("has_official_rules", False)
-            ioc_items.append({
+            buckets["rule"].append({
                 "ioc_type": "rule",
                 "indicator": f"{cve['id']}:{engine}",
                 "title": f"{engine.upper()} rule for {cve['id']}",
@@ -483,30 +489,39 @@ def export_ioc(cve_data: list, blacklist_data: dict, external_iocs: list = None)
                     "report_url": cve.get("report_url"),
                 },
                 "tags": ["official" if is_official else "ai-generated", engine],
-                "related_rules": [],
             })
 
     # 4) 외부 IOC 피드 (URLhaus, MalwareBazaar, PhishTank)
     if external_iocs:
-        ioc_items.extend(external_iocs)
+        for item in external_iocs:
+            t = item.get("ioc_type", "url")
+            if t in buckets:
+                buckets[t].append(item)
+            else:
+                buckets.setdefault(t, []).append(item)
 
-    # 날짜 기준 정렬 (최신 우선)
-    ioc_items.sort(key=lambda x: x.get("date", ""), reverse=True)
+    # 각 버킷 정렬 (최신 우선)
+    for items in buckets.values():
+        items.sort(key=lambda x: x.get("date", ""), reverse=True)
 
     # 통계 집계
-    type_counts = defaultdict(int)
+    type_counts = {}
     risk_counts = defaultdict(int)
-    for item in ioc_items:
-        type_counts[item["ioc_type"]] += 1
-        risk_counts[item["risk"]] += 1
+    total = 0
+    for t, items in buckets.items():
+        type_counts[t] = len(items)
+        total += len(items)
+        for item in items:
+            risk_counts[item.get("risk", "Low")] += 1
 
-    return {
+    meta = {
         "generated_at": now.isoformat(),
-        "total": len(ioc_items),
-        "by_type": dict(type_counts),
+        "total": total,
+        "by_type": type_counts,
         "by_risk": dict(risk_counts),
-        "items": ioc_items,
     }
+
+    return {"meta": meta, "buckets": buckets}
 
 
 def _build_cve_tags(cve: dict) -> list:
@@ -621,6 +636,26 @@ def export_stats(cve_data: list, blacklist_data: dict) -> dict:
     }
 
 
+def _write_ioc_files(data_dir: str, ioc_result: dict):
+    """IOC 데이터를 타입별 분리 파일로 출력"""
+    meta = ioc_result["meta"]
+    buckets = ioc_result["buckets"]
+
+    # ioc-meta.json (경량 — 통계만, 대시보드 초기 로드용)
+    meta_path = os.path.join(data_dir, "ioc-meta.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, separators=(",", ":"))
+    print(f"  ioc-meta.json → {meta_path}", flush=True)
+
+    # 타입별 파일 (ioc-cve.json, ioc-ip.json, ...)
+    for ioc_type, items in buckets.items():
+        filename = f"ioc-{ioc_type}.json"
+        path = os.path.join(data_dir, filename)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(items, f, ensure_ascii=False, separators=(",", ":"))
+        print(f"  {filename}: {len(items)}건 → {path}", flush=True)
+
+
 def _generate_sample_data(data_dir: str):
     """Supabase 자격증명 없을 때 빈 샘플 데이터 생성 (대시보드가 에러 없이 로드되도록)"""
     print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
@@ -628,13 +663,15 @@ def _generate_sample_data(data_dir: str):
     cve_data = []
     bl_data = {"date": dt.date.today().isoformat(), "snapshots": [], "indicators": [], "recovered": []}
     stats = export_stats(cve_data, bl_data)
-    ioc_data = export_ioc(cve_data, bl_data)
+    ioc_result = export_ioc(cve_data, bl_data)
 
-    for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats), ("ioc.json", ioc_data)]:
+    for filename, data in [("cves.json", cve_data), ("blacklist.json", bl_data), ("stats.json", stats)]:
         path = os.path.join(data_dir, filename)
         with open(path, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         print(f"  {filename} → {path}", flush=True)
+
+    _write_ioc_files(data_dir, ioc_result)
 
 
 def main():
@@ -672,13 +709,11 @@ def main():
     external_iocs = collect_external_ioc_feeds()
     print(f"  외부 IOC 합계: {len(external_iocs)}건", flush=True)
 
-    # IOC 통합 데이터
-    print("[4/5] IOC 통합 데이터 export...", flush=True)
-    ioc_data = export_ioc(cve_data, bl_data, external_iocs=external_iocs)
-    ioc_path = os.path.join(data_dir, "ioc.json")
-    with open(ioc_path, "w", encoding="utf-8") as f:
-        json.dump(ioc_data, f, ensure_ascii=False, indent=2)
-    print(f"  IOC: {ioc_data['total']}건 → {ioc_path}", flush=True)
+    # IOC 통합 데이터 (타입별 분리 파일)
+    print("[4/5] IOC 통합 데이터 export (타입별 분리)...", flush=True)
+    ioc_result = export_ioc(cve_data, bl_data, external_iocs=external_iocs)
+    _write_ioc_files(data_dir, ioc_result)
+    print(f"  IOC 합계: {ioc_result['meta']['total']}건", flush=True)
 
     # 통계
     print("[5/5] 통계 집계...", flush=True)

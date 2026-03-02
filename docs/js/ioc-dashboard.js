@@ -1,35 +1,52 @@
 /**
  * Argus IOC Integrated Dashboard
- * CVE + IP + Detection Rule 통합 IOC 뷰
+ * CVE + IP + Detection Rule + URL + Hash 통합 IOC 뷰
+ * 타입별 lazy-load 아키텍처
  */
 
-let allIocs = [];
-let filteredIocs = [];
-let iocMeta = {};
-let currentPage = 1;
-const PAGE_SIZE = 50;
-let sortField = 'date';
-let sortDir = -1;
-let activeFilters = { risk: new Set(['Critical', 'High', 'Medium', 'Low']), search: '', type: '' };
+// ===== State =====
+var iocMeta = {};                  // ioc-meta.json (통계)
+var typeCache = {};                // { cve: [...], ip: [...], ... } 로드된 타입 캐시
+var typeLoading = {};              // { cve: true, ... } 로딩 중 여부
+var filteredIocs = [];
+var currentPage = 1;
+var PAGE_SIZE = 50;
+var sortField = 'date';
+var sortDir = -1;
+var activeFilters = { risk: new Set(['Critical', 'High', 'Medium', 'Low']), search: '', type: '' };
 
-// ===== Type Icons =====
-const TYPE_ICONS = { cve: '\u{1F6E1}', ip: '\u{1F310}', rule: '\u{1F50D}', url: '\u{1F517}', hash: '\u{1F9EC}' };
-const TYPE_LABELS = { cve: 'CVE', ip: 'IP', rule: 'Rule', url: 'URL', hash: 'Hash' };
+// ===== Constants =====
+var IOC_TYPES = ['cve', 'ip', 'rule', 'url', 'hash'];
+var TYPE_ICONS = { cve: '\u{1F6E1}', ip: '\u{1F310}', rule: '\u{1F50D}', url: '\u{1F517}', hash: '\u{1F9EC}' };
+var TYPE_LABELS = { cve: 'CVE', ip: 'IP', rule: 'Rule', url: 'URL', hash: 'Hash' };
 
 // ===== Init =====
 async function init() {
   showLoading(true);
   try {
-    const res = await fetch('data/ioc.json').then(r => r.json());
-    allIocs = res.items || [];
-    iocMeta = { total: res.total, by_type: res.by_type || {}, by_risk: res.by_risk || {}, generated_at: res.generated_at };
+    // 1) 메타 로드 (경량 — 통계만)
+    iocMeta = await fetch('data/ioc-meta.json').then(function(r) { return r.json(); });
     renderStats();
     renderCharts();
+    renderTypeTabCounts();
+
+    // 2) 초기 데이터 로드 — 타입 필터 없으면 소규모 타입(cve, ip, rule)부터
+    await loadTypes(['cve', 'ip', 'rule']);
     applyFilters();
+
+    // 3) 대용량 타입(url, hash) 백그라운드 로드
+    loadTypes(['url', 'hash']).then(function() {
+      // 현재 해당 타입 필터 중이면 새로고침
+      if (!activeFilters.type || activeFilters.type === 'url' || activeFilters.type === 'hash') {
+        applyFilters();
+      }
+      renderTypeTabCounts();
+    });
+
   } catch (e) {
-    console.error('IOC data load failed:', e);
+    console.error('IOC meta load failed:', e);
     document.getElementById('ioc-table-body').innerHTML =
-      '<tr><td colspan="7" class="empty-state"><div class="icon">&#128268;</div><p>IOC \ub370\uc774\ud130\ub97c \ubd88\ub7ec\uc62c \uc218 \uc5c6\uc2b5\ub2c8\ub2e4.</p></td></tr>';
+      '<tr><td colspan="7" class="empty-state"><div class="icon">&#128268;</div><p>IOC 데이터를 불러올 수 없습니다.</p></td></tr>';
   }
   showLoading(false);
 }
@@ -39,14 +56,58 @@ function showLoading(show) {
   if (el) el.style.display = show ? 'block' : 'none';
 }
 
+// ===== Lazy Load =====
+function loadTypes(types) {
+  var promises = [];
+  for (var i = 0; i < types.length; i++) {
+    var t = types[i];
+    if (typeCache[t] || typeLoading[t]) continue;
+    promises.push(loadSingleType(t));
+  }
+  return Promise.all(promises);
+}
+
+function loadSingleType(t) {
+  typeLoading[t] = true;
+  return fetch('data/ioc-' + t + '.json')
+    .then(function(r) {
+      if (!r.ok) throw new Error(r.status + ' ' + r.statusText);
+      return r.json();
+    })
+    .then(function(items) {
+      typeCache[t] = items;
+      typeLoading[t] = false;
+      // 탭 카운트 실제 값으로 업데이트
+      var el = document.getElementById('tab-count-' + t);
+      if (el) el.textContent = items.length.toLocaleString();
+    })
+    .catch(function(e) {
+      console.warn('ioc-' + t + '.json load failed:', e);
+      typeCache[t] = [];
+      typeLoading[t] = false;
+    });
+}
+
+function getAllLoadedIocs() {
+  var all = [];
+  for (var i = 0; i < IOC_TYPES.length; i++) {
+    var t = IOC_TYPES[i];
+    if (typeCache[t]) {
+      all = all.concat(typeCache[t]);
+    }
+  }
+  return all;
+}
+
 // ===== Stats =====
 function renderStats() {
-  setText('stat-total', iocMeta.total || allIocs.length);
-  setText('stat-cve', iocMeta.by_type.cve || 0);
-  setText('stat-ip', iocMeta.by_type.ip || 0);
-  setText('stat-rule', iocMeta.by_type.rule || 0);
-  setText('stat-url', (iocMeta.by_type.url || 0));
-  setText('stat-hash', (iocMeta.by_type.hash || 0));
+  setText('stat-total', iocMeta.total || 0);
+  var bt = iocMeta.by_type || {};
+  setText('stat-cve', bt.cve || 0);
+  setText('stat-ip', bt.ip || 0);
+  setText('stat-rule', bt.rule || 0);
+  setText('stat-url', bt.url || 0);
+  setText('stat-hash', bt.hash || 0);
 
   if (iocMeta.generated_at) {
     var d = new Date(iocMeta.generated_at);
@@ -61,14 +122,10 @@ function setText(id, val) {
 
 // ===== Charts =====
 function renderCharts() {
-  // Type distribution
   renderTypeBars();
-  // Risk distribution
   if (iocMeta.by_risk) {
     drawSeverityBars('risk-dist', iocMeta.by_risk);
   }
-  // Tag cloud
-  renderTagCloud();
 }
 
 function renderTypeBars() {
@@ -83,15 +140,16 @@ function renderTypeBars() {
     { key: 'hash', label: 'Malware Hash', color: '#FF5252', icon: TYPE_ICONS.hash },
   ];
 
+  var bt = iocMeta.by_type || {};
   var maxCount = 1;
   types.forEach(function(t) {
-    var c = iocMeta.by_type[t.key] || 0;
+    var c = bt[t.key] || 0;
     if (c > maxCount) maxCount = c;
   });
 
   var html = '';
   types.forEach(function(t) {
-    var count = iocMeta.by_type[t.key] || 0;
+    var count = bt[t.key] || 0;
     var pct = ((count / maxCount) * 100).toFixed(1);
     html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
       '<span style="width:24px;font-size:16px;">' + t.icon + '</span>' +
@@ -109,6 +167,7 @@ function renderTagCloud() {
   var container = document.getElementById('tag-cloud');
   if (!container) return;
 
+  var allIocs = getAllLoadedIocs();
   var tagCounts = {};
   allIocs.forEach(function(item) {
     (item.tags || []).forEach(function(tag) {
@@ -136,14 +195,58 @@ function renderTagCloud() {
   container.innerHTML = html;
 }
 
+// ===== Type Tabs =====
+function renderTypeTabCounts() {
+  var bt = iocMeta.by_type || {};
+  IOC_TYPES.forEach(function(t) {
+    var el = document.getElementById('tab-count-' + t);
+    if (el) {
+      var loaded = typeCache[t];
+      el.textContent = (loaded ? loaded.length : (bt[t] || 0)).toLocaleString();
+    }
+  });
+  var totalEl = document.getElementById('tab-count-all');
+  if (totalEl) totalEl.textContent = (iocMeta.total || 0).toLocaleString();
+}
+
+function selectTypeTab(type) {
+  activeFilters.type = type;
+
+  // 탭 active 상태 업데이트
+  document.querySelectorAll('.type-tab').forEach(function(el) {
+    el.classList.toggle('active', el.dataset.type === type);
+  });
+
+  // 선택 타입이 아직 로드 안 됐으면 로드
+  if (type && !typeCache[type] && !typeLoading[type]) {
+    showLoading(true);
+    loadSingleType(type).then(function() {
+      showLoading(false);
+      applyFilters();
+    });
+    return;
+  }
+
+  applyFilters();
+}
+
 // ===== Filtering =====
 function applyFilters() {
   var search = activeFilters.search.toLowerCase();
   var typeFilter = activeFilters.type;
 
-  filteredIocs = allIocs.filter(function(item) {
+  // 소스 데이터 결정
+  var source;
+  if (typeFilter && typeCache[typeFilter]) {
+    source = typeCache[typeFilter];
+  } else if (typeFilter && !typeCache[typeFilter]) {
+    source = []; // 아직 로드 안됨
+  } else {
+    source = getAllLoadedIocs();
+  }
+
+  filteredIocs = source.filter(function(item) {
     if (!activeFilters.risk.has(item.risk || 'Low')) return false;
-    if (typeFilter && item.ioc_type !== typeFilter) return false;
     if (search) {
       var haystack = (item.indicator + ' ' + item.title + ' ' + (item.tags || []).join(' ')).toLowerCase();
       if (haystack.indexOf(search) === -1) return false;
@@ -168,6 +271,7 @@ function applyFilters() {
   currentPage = 1;
   renderTable();
   renderPagination();
+  renderTagCloud();
 }
 
 function riskOrder(risk) {
@@ -184,7 +288,11 @@ function renderTable() {
   var page = filteredIocs.slice(start, start + PAGE_SIZE);
 
   if (page.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="icon">&#128269;</div><p>\uc870\uac74\uc5d0 \ub9de\ub294 IOC\uac00 \uc5c6\uc2b5\ub2c8\ub2e4.</p></td></tr>';
+    var isLoading = false;
+    for (var k in typeLoading) { if (typeLoading[k]) isLoading = true; }
+    tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="icon">' +
+      (isLoading ? '&#9203;' : '&#128269;') + '</div><p>' +
+      (isLoading ? '데이터 로딩 중...' : '조건에 맞는 IOC가 없습니다.') + '</p></td></tr>';
     return;
   }
 
@@ -212,7 +320,7 @@ function renderTable() {
       indicatorDisplay = '<span class="cve-id">' + escapeHtml(item.indicator) + '</span>';
     }
 
-    return '<tr data-severity="' + (item.risk || 'Low') + '" onclick="showDetail(\'' + escapeAttr(item.indicator) + '\')">' +
+    return '<tr data-severity="' + (item.risk || 'Low') + '" onclick="showDetail(\'' + escapeAttr(item.indicator) + '\',\'' + (item.ioc_type || '') + '\')">' +
       '<td><span class="ioc-type-badge ioc-type-' + item.ioc_type + '">' + typeIcon + ' ' + typeLabel + '</span></td>' +
       '<td>' + indicatorDisplay + '</td>' +
       '<td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(item.title || '-') + '</td>' +
@@ -231,7 +339,7 @@ function renderPagination() {
   var prevBtn = document.getElementById('prev-btn');
   var nextBtn = document.getElementById('next-btn');
 
-  if (info) info.textContent = currentPage + ' / ' + totalPages + ' (' + filteredIocs.length + '\uac74)';
+  if (info) info.textContent = currentPage + ' / ' + totalPages + ' (' + filteredIocs.length.toLocaleString() + '건)';
   if (prevBtn) prevBtn.disabled = currentPage <= 1;
   if (nextBtn) nextBtn.disabled = currentPage >= totalPages;
 }
@@ -257,8 +365,13 @@ function sortBy(field) {
 }
 
 // ===== Detail Modal =====
-function showDetail(indicator) {
-  var item = allIocs.find(function(i) { return i.indicator === indicator; });
+function showDetail(indicator, iocType) {
+  // 해당 타입 캐시에서 검색 (성능: 전체 스캔 대신 타입 한정)
+  var items = iocType && typeCache[iocType] ? typeCache[iocType] : getAllLoadedIocs();
+  var item = null;
+  for (var i = 0; i < items.length; i++) {
+    if (items[i].indicator === indicator) { item = items[i]; break; }
+  }
   if (!item) return;
 
   document.getElementById('modal-title').textContent = item.indicator;
@@ -475,11 +588,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Type filter
-  var typeEl = document.getElementById('type-filter');
-  if (typeEl) typeEl.addEventListener('change', function() {
-    activeFilters.type = typeEl.value;
-    applyFilters();
+  // Type tabs
+  document.querySelectorAll('.type-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      selectTypeTab(tab.dataset.type);
+    });
   });
 
   // Risk filter buttons
