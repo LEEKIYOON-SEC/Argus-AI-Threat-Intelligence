@@ -1,5 +1,1407 @@
 [
   {
+    "id": "CVE-2024-31328",
+    "title": "BroadcastController.java의 임의 액티비티 실행 가능성",
+    "description": "BroadcastController.java의 broadcastIntentLockedTraced 함수 내 로직 오류로 인해 페어링된 동반 기기에서 백그라운드로 임의의 액티비티를 실행할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:11:26.916853+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48636",
+    "title": "BugreportContentProvider.java의 경로 탐색 취약점",
+    "description": "BugreportContentProvider.java의 openFile 함수에서 경로 탐색 오류로 인해 권한 없는 파일에 접근 및 쓰기가 가능할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:11:19.009154+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28426",
+    "title": "Statamic, 저장된 XSS를 통한 권한 상승 취약점",
+    "description": "Statamic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 5.73.11 및 6.4.0 이전 버전에서 SVG 및 아이콘 관련 구성 요소에 저장된 XSS 취약점이 존재하여, 적절한 권한을 가진 인증된 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이 스크립트는 더 높은 권한을 가진 사용자가 볼 때 실행됩니다. 해당 문제는 5.73.11 및 6.4.0에서 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0.00025,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "statamic",
+        "product": "cms",
+        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:59:42.43413+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28425",
+    "title": "Statamic의 Antlers 활성화된 컨트롤 패널 입력값을 통한 원격 코드 실행 취약점",
+    "description": "Statamic 5.73.11 및 6.4.0 이전 버전에서 인증된 사용자가 Antlers 활성화된 입력에 접근할 경우, 애플리케이션 내에서 원격 코드 실행이 가능할 수 있습니다. 이는 민감한 설정 접근, 데이터 유출 및 시스템 가용성 저하로 이어질 수 있습니다. 해당 취약점은 5.73.11 및 6.4.0 버전을 통해 해결되었으며, Statamic에 의존하는 애드온 사용자도 업데이트 후 패치된 버전을 사용해야 합니다.",
+    "cvss": 8,
+    "epss": 0.00138,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "statamic",
+        "product": "cms",
+        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:59:30.373894+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28424",
+    "title": "Statamic의 권한 부족으로 이메일 주소 접근 가능",
+    "description": "Statamic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 5.73.11 및 6.4.0 버전 이전에는 \"사용자 보기\" 권한이 없는 관리자 패널 사용자의 경우 사용자 필드타입의 데이터 엔드포인트 응답에 이메일 주소가 포함되었습니다. 해당 문제는 5.73.11 및 6.4.0에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0.00027,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "statamic",
+        "product": "cms",
+        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:54:25.364204+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28403",
+    "title": "Textream 크로스 사이트 WebSocket 하이재킹 (CSWSH) 취약점",
+    "description": "Textream은 macOS용 무료 텔레프롬프터 앱입니다. 1.5.1 버전 이전에는 `DirectorServer` WebSocket 서버가 WebSocket 핸드셰이크 시 HTTP `Origin` 헤더를 검증하지 않아 모든 오리진으로부터의 연결을 허용합니다. 악성 웹 페이지가 동일 브라우저 세션에서 WebSocket 서버에 연결하여 임의의 `DirectorCommand` 페이로드를 전송, 텔레프롬프터 콘텐츠를 완전히 제어할 수 있습니다. 1.5.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-346"
+    ],
+    "affected": [
+      {
+        "vendor": "f",
+        "product": "textream",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:58:29.371603+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-66880",
+    "title": "Wethink Technology 720yun pano-sdk 0.5.877 크로스 사이트 스크립팅 취약점",
+    "description": "Wethink Technology의 720yun pano-sdk 0.5.877 버전에서 원격 공격자가 LoginComp (모듈 2093) 및 SignupComp (모듈 2094) 모듈을 통해 임의 코드를 실행할 수 있는 크로스 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 악성 스크립트를 삽입하여 사용자 계정 탈취 및 시스템 제어 등의 공격을 수행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:07:11.27274+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-65465",
+    "title": "Skrol29 TbsZip 2.17 이하 버전의 XSS 취약점",
+    "description": "Skrol29 TbsZip 버전 2.17 및 이전 버전의 RaiseError 함수에 래플렉티드 XSS 취약점이 존재합니다. 공격자는 파일 이름 파라미터(예: FileRead 함수)를 통해 악성 페이로드를 전송하여 임의의 웹 스크립트 또는 HTML을 실행할 수 있습니다. 이는 오류 메시지가 사용자에게 출력되기 전에 적절하게 삭제되지 않기 때문에 발생합니다. 2.18 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T15:05:22.466823+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-50190",
+    "title": "Chamilo: GET 파라미터 'openid.assoc_handle'을 이용한 오류 기반 SQL Injection 취약점 (/index.php)",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /index.php 스크립트의 GET 파라미터 'openid.assoc_handle'을 통해 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:53:42.44253+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50186",
+    "title": "Chamilo: user_import.php에서 악성 CSV 파일 이름으로 인한 저장형 XSS",
+    "description": "Chamilo 학습 관리 시스템 1.11.30 이전 버전에서 CSV 파일 이름에 대한 불충분한 검증으로 저장형 XSS 취약점이 존재합니다. 공격자는 악성 이름을 가진 CSV 파일을 업로드하여 관리자 또는 가져오기 로그/파일 보기 접근 권한이 있는 사용자가 볼 때 JavaScript 코드가 실행되도록 할 수 있습니다. 1.11.30 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T15:00:00.57302+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-50198",
+    "title": "Chamilo: /plugin/vchamilo/views/import.php에서 신뢰할 수 없는 데이터 역직렬화 취약점 (POST configuration_file, course_path, home_path 파라미터)",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/import.php의 POST 파라미터(configuration_file, course_path, home_path)를 통해 신뢰할 수 없는 데이터 역직렬화 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:08:14.288339+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47378",
+    "title": "HLOS에서 무단 제어 영역에 민감한 시스템 정보 노출",
+    "description": "공유 VM 참조를 통해 HLOS가 부트 로더 및 인증 체인에 접근할 수 있는 암호화 문제 발생.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-497"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "Cologne (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6391 (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SD865 5G (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:19:53.066455+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-50337",
+    "title": "Chamilo: OpenID 기능의 인증되지 않은 블라인드 SSRF 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.28 버전 이전에서 OpenID 기능은 서버를 통해 임의의 URL로 요청을 보낼 수 있어 인증되지 않은 블라인드 SSRF가 발생합니다. 해당 문제는 1.11.28 버전에 패치되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.28 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T14:59:57.95912+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-47886",
+    "title": "Chamilo: 인증 후 원격 코드 실행",
+    "description": "Chamilo는 학습 관리 시스템으로, 1.11.12~1.11.26 버전에 인증 후 phar unserialize 취약점이 존재합니다. vchamilo 가상화 플러그인의 기능을 악용하여 관리자가 서버에서 임의 코드를 실행할 수 있습니다. 해당 문제는 1.11.26 버전에서 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": ">= 1.11.12, < 1.11.28 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/61",
+    "date": "2026-03-02T15:05:33.227808+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0047",
+    "title": "ActivityManagerService.java의 권한 확인 누락으로 인한 정보 접근 가능성",
+    "description": "ActivityManagerService.java의 dumpBitmapsProto 함수에서 권한 확인이 누락되어 앱이 개인 정보에 접근할 수 있는 취약점이 발견되었습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 악용될 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:07:13.285841+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28554",
+    "title": "wpForo 포럼 2.4.14 게시물 승인 AJAX 핸들러 권한 확인 누락 취약점",
+    "description": "wpForo 포럼 2.4.14 버전에서 인증된 사용자가 AJAX 핸들러를 통해 모든 게시물을 승인/반려할 수 있는 권한 확인 누락 취약점이 발견되었습니다. 공격자는 유효한 nonce 값과 임의의 게시물 ID를 사용하여 관리자 제어를 우회할 수 있습니다. 이는 nonce 값만 확인하는 방식으로 인해 발생합니다.",
+    "cvss": 5.3,
+    "epss": 0.00025,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors Team",
+        "product": "wpForo Forum",
+        "versions": "2.4 부터 2.4.16 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:04:13.792666+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22878",
+    "title": "Mobility46 자격 증명 부족",
+    "description": "Mobility46의 충전소 인증 정보가 웹 기반 지도 플랫폼을 통해 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 노출로 인해 무단 접근 및 악용의 위험이 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobility46",
+        "product": "mobility46.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:03:12.320302+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21882",
+    "title": "theshit의 부적절한 권한 강하로 인한 명령 재실행을 통한 로컬 권한 상승",
+    "description": "theshit은 셸 명령어의 일반적인 오류를 자동으로 감지하고 수정하는 명령줄 유틸리티입니다. 0.2.0 버전 이전에는 부적절한 권한 강하로 인해 명령 재실행을 통해 로컬 권한 상승이 가능했습니다. 이 문제는 0.2.0 버전에서 패치되었습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-273",
+      "CWE-269",
+      "CWE-250"
+    ],
+    "affected": [
+      {
+        "vendor": "AsfhtgkDavid",
+        "product": "theshit",
+        "versions": "< 0.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:12:24.116895+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-59603",
+    "title": "컴퓨터 비전의 경계 외 쓰기",
+    "description": "유효하지 않은 사용자 주소와 비표준 버퍼 주소를 처리할 때 메모리 손상이 발생합니다. 이는 컴퓨터 비전 시스템에서 보안 취약점으로 이어질 수 있습니다. 외부에서 조작된 주소로 인해 메모리 영역을 벗어난 쓰기가 발생할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "Cologne (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), QCA0000 (단일 버전), SC8380XP (단일 버전), SD865 5G (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:22:47.73295+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-59600",
+    "title": "그래픽스 버퍼 오버리드",
+    "description": "사용자 제공 데이터를 사용 가능한 버퍼 공간을 확인하지 않고 추가할 때 메모리 손상이 발생하는 취약점입니다. 버퍼의 범위를 벗어난 읽기 시도가 발생할 수 있습니다. 이는 보안 문제를 야기할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-126"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), G1 Gen 1 (단일 버전), G2 Gen 1 (단일 버전), IQ6 Series Platform (단일 버전), IQ8 Series Platform (단일 버전), IQ9 Series Platform (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), Monaco_IOT (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SC8380XP (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDX61 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7435 (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), Themisto (단일 버전), WCD9335 (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:21:46.730963+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47386",
+    "title": "자동차 오디오의 Use-After-Free 취약점",
+    "description": "공유 버퍼에 동시 접근 시 IOCTL 호출 과정에서 메모리 손상 발생.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:27:45.432709+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47385",
+    "title": "SCE-Mink 등록 인터페이스의 부적절한 접근 제어",
+    "description": "신뢰 실행 환경에 접근 시 적절한 권한 검사 없이 메모리 손상 발생 가능.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1262"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), G2 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Milos (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2230P (단일 버전), SM7435 (단일 버전), SM8750P (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:27:00.084016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47384",
+    "title": "FW에서 도달 가능한 어설션",
+    "description": "MAC 구성 시 지원되는 최대값보다 큰 config id를 설정할 때 일시적인 서비스 거부(DoS) 발생.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-617"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "5G Fixed Wireless Access Platform (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), QCA6391 (단일 버전), QCA6574A (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCM5430 (단일 버전), QCM6490 (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), SDX57M (단일 버전), SM7325P (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCN3988 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8835 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:22:02.391165+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-47383",
+    "title": "데이터 모뎀의 누락된 암호화 단계",
+    "description": "UE에서 VoWiFi 통화가 시작될 때, 취약한 설정으로 인해 암호화 문제가 발생할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-325"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "5G Fixed Wireless Access Platform (단일 버전), 9206 LTE Modem (단일 버전), 9207 LTE Modem (단일 버전), APQ8098 (단일 버전), AQT1000 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), CSRB31024 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), FSM100 Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), MDM8207 (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), MDM9640 (단일 버전), Milos (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6420 (단일 버전), QCA6430 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584 (단일 버전), QCA6584AU (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QMP1000 (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Robotics RB2 Platform (단일 버전), SD 8 Gen1 5G (단일 버전), SD626 (단일 버전), SD662 (단일 버전), SDA660 (단일 버전), SDM429W (단일 버전), SDX57M (단일 버전), SDX61 (단일 버전), SDX71M (단일 버전), SM6225P (단일 버전), SM6250 (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7435 (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8475P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Display 200 Platform (단일 버전), Snapdragon 1100 Wearable Platform (단일 버전), Snapdragon 1200 Wearable Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 429 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 625 Mobile Platform (단일 버전), Snapdragon 626 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7 Gen 1 Mobile Platform (단일 버전), Snapdragon 7+ Gen 2 Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c Compute Platform (단일 버전), Snapdragon 7c Gen 2 Compute Platform \"Rennell Pro\" (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Gen 1 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 1 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 820 Automotive Platform (단일 버전), Snapdragon 820Am (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon 8c Compute Platform \"Poipu Lite\" (단일 버전), Snapdragon 8c Compute Platform (SC8180XP-AD) \"Poipu Lite\" (단일 버전), Snapdragon 8cx Compute Platform (단일 버전), Snapdragon 8cx Compute Platform \"Poipu Pro\" (단일 버전), Snapdragon 8cx Gen 2 5G Compute Platform (단일 버전), Snapdragon 8cx Gen 2 5G Compute Platform \"Poipu Pro\" (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X5 LTE Modem (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon X70 Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon X80 5G Modem-RF System (단일 버전), SnapdragonAuto 4GModem (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), Themisto (단일 버전), Vision Intelligence 100 Platform (단일 버전), Vision Intelligence 200 Platform (단일 버전), Vision Intelligence 400 Platform (단일 버전), WCD9306 (단일 버전), WCD9326 (단일 버전), WCD9330 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3620 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:24:58.079212+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47381",
+    "title": "자동차 오디오의 Use-After-Free 취약점",
+    "description": "공유 버퍼에 대한 동시 접근 시 발생하는 IOCTL 호출 처리 중 메모리 손상 취약점입니다. Use-After-Free 오류로 인해 보안 문제가 발생할 수 있습니다. 자동차 오디오 시스템의 안정성에 영향을 줄 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:25:59.161175+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47379",
+    "title": "자동차 오디오 시스템의 Use-After-Free 취약점",
+    "description": "버퍼 자원 할당 및 해제 동기화 오류로 인해 공유 버퍼에 대한 동시 접근 시 메모리 손상 발생.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "5G Fixed Wireless Access Platform (단일 버전), AR8031 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA2150P (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155 (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SnapdragonAuto 4GModem (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:21:55.071338+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-52470",
+    "title": "Chamilo: 세션 카테고리 이름 저장형 XSS 취약점",
+    "description": "Chamilo 학습 관리 시스템 1.11.30 이전 버전에서 `session_category_add.php` 스크립트에 저장형 XSS 취약점이 존재합니다. 카테고리 이름 필드에 대한 부적절한 입력값 검증으로 인해 권한 있는 사용자가 지속적인 JavaScript 코드를 삽입할 수 있습니다. 삽입된 스크립트는 `add_many_sessions_to_category.php` 접근 시 실행되어 관리자 세션을 손상시킬 수 있으며, 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:15.289288+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-52476",
+    "title": "Chamilo: keyword_active 파라미터의 XSS 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 admin/user_list.php의 keyword_active 파라미터의 부적절한 입력값 검증으로 인해 반사형 XSS 취약점이 존재합니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:14.495212+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27772",
+    "title": "EV Energy ev.energy의 중요 기능 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:12.975991+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27767",
+    "title": "SWITCH EV swtchenergy.com 중요 기능의 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:08.397829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2256",
+    "title": "ModelScope ms-agent 명령어 삽입 취약점",
+    "description": "ModelScope의 ms-agent v1.6.0rc1 버전 이하에서 명령어 삽입 취약점이 발견되었습니다. 공격자는 조작된 프롬프트 입력을 통해 임의의 운영체제 명령어를 실행할 수 있습니다. 이는 시스템 보안에 심각한 위협이 될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94 Improper Control of Generation of Code ('Code Injection')"
+    ],
+    "affected": [
+      {
+        "vendor": "ModelScope",
+        "product": "ms-agent",
+        "versions": "v1.6.0rc1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:08.274838+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Itamar-Yochpaz/CVE-2026-2256-PoC"
+    ],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-52469",
+    "title": "Chamilo: 친구 요청 워크플로우 우회 - 무단 친구 추가 및 ID 유효성 검사 우회",
+    "description": "Chamilo LMS의 소셜 네트워크 모듈에서 인증된 사용자가 AJAX 엔드포인트를 직접 호출하여 모든 사용자를 강제로 친구로 추가할 수 있는 로직 취약점이 발견되었습니다. 정상적인 친구 요청 절차를 우회하고 존재하지 않는 사용자까지 추가할 수 있으며, 접근 제어 및 소셜 상호 작용 로직을 손상시켜 개인 정보 침해를 야기할 수 있습니다. 1.11.30 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-841"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:01.377494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25884",
+    "title": "Exiv2: CrwMap::decode0x0805 함수 경계 외 읽기 취약점",
+    "description": "Exiv2는 Exif, IPTC, XMP 및 ICC 이미지 메타데이터를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서 CRW 이미지 파서에 경계 외 읽기 취약점이 발견되었습니다. 해당 문제는 0.28.8 버전에 패치되었습니다.",
+    "cvss": 2.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Exiv2",
+        "product": "exiv2",
+        "versions": "< 0.28.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:53:27.957187+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-0038",
+    "title": "mem_protect.c의 임의 코드 실행 취약점",
+    "description": "mem_protect.c의 여러 함수에서 코드 로직 오류로 인해 임의 코드 실행이 가능할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "Android kernel (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:00:04.28607+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-25113",
+    "title": "SWITCH EV swtchenergy.com 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 정상적인 충전기 통신 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 접근을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:59:03.283685+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-1394",
+    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
+    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
+    "cvss": 7.5,
+    "epss": 0.01021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-401"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Developer Tools",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:32:50.443708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27773",
+    "title": "SWITCH EV swtchenergy.com 취약한 자격 증명",
+    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다.",
+    "cvss": 6.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:57:01.279608+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27631",
+    "title": "Exiv2: 처리되지 않은 예외 - max_size()보다 큰 std::vector 생성 불가",
+    "description": "Exiv2는 이미지 메타데이터(Exif, IPTC, XMP, ICC)를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서, Exiv2의 preview 컴포넌트에서 정수 오버플로우로 인해 매우 큰 std::vector를 생성하려 시도하여 예외가 발생하고 프로그램이 중단되는 취약점이 발견되었습니다. 이 문제는 0.28.8 버전에서 수정되었습니다.",
+    "cvss": 2.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248"
+    ],
+    "affected": [
+      {
+        "vendor": "Exiv2",
+        "product": "exiv2",
+        "versions": "< 0.28.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:53:37.858569+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-27596",
+    "title": "Exiv2: LoaderNative::getData() 정수 오버플로우로 인한 힙 버퍼 오버플로우",
+    "description": "Exiv2는 Exif, IPTC, XMP 및 ICC 이미지 메타데이터를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서 Exiv2의 경계 외부 읽기 취약점이 발견되었습니다. 이 취약점은 `-pp`와 같은 추가 명령줄 인수로 Exiv2를 실행할 때만 발생하는 미리보기 구성 요소에서 발생하며, 0.28.8 버전에 패치되었습니다.",
+    "cvss": 2.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-191"
+    ],
+    "affected": [
+      {
+        "vendor": "Exiv2",
+        "product": "exiv2",
+        "versions": "< 0.28.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:53:32.662083+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-25477",
+    "title": "AFFiNE: 정규식 우회 Open Redirect 취약점",
+    "description": "AFFiNE은 올인원 워크스페이스 및 운영체제입니다. 0.26.0 버전 이전에는 `/redirect-proxy` 엔드포인트에 Open Redirect 취약점이 존재했습니다. 도메인 검증 로직의 잘못된 정규식 앵커링으로 인해 신뢰할 수 있는 문자열로 끝나는 악성 도메인을 사용하여 화이트리스트를 우회할 수 있습니다. 해당 문제는 0.26.0 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "toeverything",
+        "product": "AFFiNE",
+        "versions": "< 0.26.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:07:19.105503+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-20781",
+    "title": "CloudCharge 인증 부족으로 인한 중요 기능 악용 가능성",
+    "description": "CloudCharge WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 충전소 식별자를 이용하여 OCPP WebSocket에 연결하고, 정상적인 충전소처럼 명령을 실행하거나 데이터를 수신할 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "CloudCharge",
+        "product": "cloudcharge.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:56:00.370186+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-20895",
+    "title": "EV2GO ev2go.io 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00036,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "EV2GO",
+        "product": "ev2go.io",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:56:00.265557+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22890",
+    "title": "EV2GO ev2go.io 취약한 자격 증명",
+    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다.",
+    "cvss": 6.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "EV2GO",
+        "product": "ev2go.io",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:55:38.010477+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-52468",
+    "title": "Chamilo: CSV 사용자 가져오기를 통한 저장 XSS 취약점",
+    "description": "Chamilo LMS에서 CSV 파일로 사용자 데이터를 가져오는 과정에서 입력값 검증 미흡으로 인해 XSS 취약점이 발생합니다. 특히 \"성\", \"이름\", \"사용자 이름\" 필드에서 데이터 정제가 제대로 이루어지지 않아 악성 스크립트 삽입이 가능합니다. 사용자 프로필 조회 시 스크립트가 실행되어 인증된 사용자의 권한으로 악성 행위가 발생할 수 있으며, 1.11.30 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:55:30.246166+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20791",
+    "title": "Chargemap chargemap.com Insufficiently Protected Credentials",
+    "description": "Charging station authentication identifiers are publicly accessible via web-based mapping platforms.",
+    "cvss": 6.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "Chargemap",
+        "product": "chargemap.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:54:34.159255+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0037",
+    "title": "ffa.c의 메모리 손상 취약점",
+    "description": "ffa.c 파일 내 여러 함수에서 코드 로직 오류로 인해 메모리 손상이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "Android kernel (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:54:31.100177+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-0035",
+    "title": "MediaProvider.java의 권한 상승 취약점",
+    "description": "MediaProvider.java의 createRequest 함수 내 로직 오류로 인해 앱이 존재하지 않는 파일에 대한 읽기/쓰기 권한을 획득할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:54:28.464038+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-69873",
+    "title": "N/A",
+    "description": "ajv (Another JSON Schema Validator) before 8.18.0 is vulnerable to Regular Expression Denial of Service (ReDoS) when the $data option is enabled. The pattern keyword accepts runtime data via JSON Poin",
+    "cvss": 2.9,
+    "epss": 0.00069,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1333"
+    ],
+    "affected": [
+      {
+        "vendor": "ajv.js",
+        "product": "ajv",
+        "versions": "6.14.0 이전, 7.0.0 부터 8.17.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:54:18.711231+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-32313",
+    "title": "UsageEvents.java의 범위 초과 쓰기 가능성",
+    "description": "UsageEvents.java 파일 내 UsageEvents에서 잘못된 범위 검사로 인해 범위 초과 쓰기 취약점이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:15:11.665429+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2024-43766",
+    "title": "btm_ble_sec.cc 잠재적 암호화되지 않은 통신 취약점",
+    "description": "btm_ble_sec.cc 파일의 여러 함수에서 잘못된 오류 처리로 인해 암호화되지 않은 통신이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 근거리 정보 유출로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:15:05.904652+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-21385",
+    "title": "그래픽스에서의 정수 오버플로우 또는 래퍼라운드",
+    "description": "메모리 할당 시 얼라인먼트를 사용하면서 메모리 손상이 발생할 수 있습니다. 정수 오버플로우 또는 래퍼라운드 취약점으로 인해 예상치 못한 메모리 접근이 발생합니다. 이는 보안 문제를 야기할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "5G Fixed Wireless Access Platform (단일 버전), APQ8098 (단일 버전), AR8031 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FSM100 Platform (단일 버전), G1 Gen 1 (단일 버전), G2 Gen 1 (단일 버전), IQ6 Series Platform (단일 버전), IQ8 Series Platform (단일 버전), IQ9 Series Platform (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), Monaco_IOT (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155 (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SC8380XP (단일 버전), SD 8 Gen1 5G (단일 버전), SD626 (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SDM429W (단일 버전), SDX61 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7435 (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8475P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Audio 400 Platform (단일 버전), Smart Display 200 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 429 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 625 Mobile Platform (단일 버전), Snapdragon 626 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7 Gen 1 Mobile Platform (단일 버전), Snapdragon 7+ Gen 2 Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 8 Gen 1 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 1 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 820 Automotive Platform (단일 버전), Snapdragon 820Am (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X5 LTE Modem (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), Themisto (단일 버전), Vision Intelligence 100 Platform (단일 버전), Vision Intelligence 200 Platform (단일 버전), Vision Intelligence 400 Platform (단일 버전), WCD9326 (단일 버전), WCD9330 (단일 버전), WCD9335 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3620 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:22:47.731942+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50192",
+    "title": "Chamilo: /main/webservices/registration.soap.php에서 발견된 시간 기반 SQL Injection",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/webservices/registration.soap.php 파일에 시간 기반 SQL Injection 취약점이 존재했습니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:07:19.10654+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25896",
+    "title": "fast-xml-parser의 정규 표현식 삽입을 통한 개체 인코딩 우회 취약점",
+    "description": "fast-xml-parser 4.1.3부터 5.3.5 이전 버전에서 DOCTYPE 개체 이름에 점(.)이 포함될 경우, 개체 대체 시 정규 표현식 와일드카드로 처리됩니다. 이를 악용하여 공격자가 내장 XML 개체(&lt;, &gt;, &amp;, &quot;, &apos;)를 임의 값으로 덮어쓰고, 개체 인코딩을 우회하여 XSS 공격을 유발할 수 있습니다. 5.3.5 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0.00038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-185"
+    ],
+    "affected": [
+      {
+        "vendor": "NaturalIntelligence",
+        "product": "fast-xml-parser",
+        "versions": ">= 5.0.0, < 5.3.5 (단일 버전), >= 4.1.3, < 4.5.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:12:36.385578+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-28412",
     "title": "Textream, 제어되지 않는 리소스 소비(서비스 거부) 취약점",
     "description": "Textream은 macOS용 무료 텔레프롬프터 앱입니다. 1.5.1 버전 이전에는 `DirectorServer` WebSocket 서버가 동시 연결 수에 제한이 없어 공격자가 연결을 과도하게 유입시켜 CPU와 메모리를 고갈시킬 수 있습니다. 이로 인해 Textream 앱이 라이브 세션 중 멈추거나 충돌할 수 있으며, 1.5.1 버전에서 해당 문제가 해결되었습니다.",
@@ -50,32 +1452,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-25896",
-    "title": "fast-xml-parser의 정규 표현식 삽입을 통한 개체 인코딩 우회 취약점",
-    "description": "fast-xml-parser 4.1.3부터 5.3.5 이전 버전에서 DOCTYPE 개체 이름에 점(.)이 포함될 경우, 개체 대체 시 정규 표현식 와일드카드로 처리됩니다. 이를 악용하여 공격자가 내장 XML 개체(&lt;, &gt;, &amp;, &quot;, &apos;)를 임의 값으로 덮어쓰고, 개체 인코딩을 우회하여 XSS 공격을 유발할 수 있습니다. 5.3.5 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0.00038,
-    "is_kev": false,
-    "cwe": [
-      "CWE-185"
-    ],
-    "affected": [
-      {
-        "vendor": "NaturalIntelligence",
-        "product": "fast-xml-parser",
-        "versions": ">= 5.0.0, < 5.3.5 (단일 버전), >= 4.1.3, < 4.5.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:12:36.385578+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-26278",
@@ -130,86 +1506,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-21882",
-    "title": "theshit의 부적절한 권한 강하로 인한 명령 재실행을 통한 로컬 권한 상승",
-    "description": "theshit은 셸 명령어의 일반적인 오류를 자동으로 감지하고 수정하는 명령줄 유틸리티입니다. 0.2.0 버전 이전에는 부적절한 권한 강하로 인해 명령 재실행을 통해 로컬 권한 상승이 가능했습니다. 이 문제는 0.2.0 버전에서 패치되었습니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-273",
-      "CWE-269",
-      "CWE-250"
-    ],
-    "affected": [
-      {
-        "vendor": "AsfhtgkDavid",
-        "product": "theshit",
-        "versions": "< 0.2.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:12:24.116895+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50192",
-    "title": "Chamilo: /main/webservices/registration.soap.php에서 발견된 시간 기반 SQL Injection",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/webservices/registration.soap.php 파일에 시간 기반 SQL Injection 취약점이 존재했습니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:07:19.10654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25477",
-    "title": "AFFiNE: 정규식 우회 Open Redirect 취약점",
-    "description": "AFFiNE은 올인원 워크스페이스 및 운영체제입니다. 0.26.0 버전 이전에는 `/redirect-proxy` 엔드포인트에 Open Redirect 취약점이 존재했습니다. 도메인 검증 로직의 잘못된 정규식 앵커링으로 인해 신뢰할 수 있는 문자열로 끝나는 악성 도메인을 사용하여 화이트리스트를 우회할 수 있습니다. 해당 문제는 0.26.0 버전에서 수정되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-601"
-    ],
-    "affected": [
-      {
-        "vendor": "toeverything",
-        "product": "AFFiNE",
-        "versions": "< 0.26.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:07:19.105503+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-21853",
     "title": "AFFiNE: 사용자 지정 URL 처리 방식을 통한 원클릭 원격 코드 실행",
     "description": "AFFiNE은 올인원 워크스페이스 및 운영체제이며, 0.25.4 버전 이전에는 원클릭 원격 코드 실행 취약점이 존재합니다. 공격자는 악성 웹사이트에 특수 제작된 affine: URL을 포함시키거나, 정상 웹사이트의 링크를 통해 이 취약점을 악용할 수 있습니다. 이를 통해 피해자의 시스템에서 추가적인 상호작용 없이 임의 코드 실행이 가능하며, 현재 0.25.4 버전에서 패치되었습니다.",
@@ -228,32 +1524,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T19:09:05.930919+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21385",
-    "title": "그래픽스에서의 정수 오버플로우 또는 래퍼라운드",
-    "description": "메모리 할당 시 얼라인먼트를 사용하면서 메모리 손상이 발생할 수 있습니다. 정수 오버플로우 또는 래퍼라운드 취약점으로 인해 예상치 못한 메모리 접근이 발생합니다. 이는 보안 문제를 야기할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "5G Fixed Wireless Access Platform (단일 버전), APQ8098 (단일 버전), AR8031 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FSM100 Platform (단일 버전), G1 Gen 1 (단일 버전), G2 Gen 1 (단일 버전), IQ6 Series Platform (단일 버전), IQ8 Series Platform (단일 버전), IQ9 Series Platform (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), Monaco_IOT (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155 (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SC8380XP (단일 버전), SD 8 Gen1 5G (단일 버전), SD626 (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SDM429W (단일 버전), SDX61 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7435 (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8475P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Audio 400 Platform (단일 버전), Smart Display 200 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 429 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 625 Mobile Platform (단일 버전), Snapdragon 626 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7 Gen 1 Mobile Platform (단일 버전), Snapdragon 7+ Gen 2 Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 8 Gen 1 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 1 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 820 Automotive Platform (단일 버전), Snapdragon 820Am (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X5 LTE Modem (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), Themisto (단일 버전), Vision Intelligence 100 Platform (단일 버전), Vision Intelligence 200 Platform (단일 버전), Vision Intelligence 400 Platform (단일 버전), WCD9326 (단일 버전), WCD9330 (단일 버전), WCD9335 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3620 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:22:47.731942+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -857,32 +2127,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28426",
-    "title": "Statamic, 저장된 XSS를 통한 권한 상승 취약점",
-    "description": "Statamic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 5.73.11 및 6.4.0 이전 버전에서 SVG 및 아이콘 관련 구성 요소에 저장된 XSS 취약점이 존재하여, 적절한 권한을 가진 인증된 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이 스크립트는 더 높은 권한을 가진 사용자가 볼 때 실행됩니다. 해당 문제는 5.73.11 및 6.4.0에서 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0.00025,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "statamic",
-        "product": "cms",
-        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:59:42.43413+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3180",
     "title": "Contest Gallery <= 28.1.4 - 인증되지 않은 SQL Injection",
     "description": "Contest Gallery 워드프레스 플러그인 버전 28.1.4 이하에서 ‘cgLostPasswordEmail’ 및 ‘cgl_mail’ 파라미터를 통해 Blind SQL Injection 취약점이 발견되었습니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. ‘cgLostPasswordEmail’ 파라미터는 28.1.4 버전, ‘cgl_mail’ 파라미터는 28.1.5 버전에서 패치되었습니다.",
@@ -927,484 +2171,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T18:16:41.719674+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28425",
-    "title": "Statamic의 Antlers 활성화된 컨트롤 패널 입력값을 통한 원격 코드 실행 취약점",
-    "description": "Statamic 5.73.11 및 6.4.0 이전 버전에서 인증된 사용자가 Antlers 활성화된 입력에 접근할 경우, 애플리케이션 내에서 원격 코드 실행이 가능할 수 있습니다. 이는 민감한 설정 접근, 데이터 유출 및 시스템 가용성 저하로 이어질 수 있습니다. 해당 취약점은 5.73.11 및 6.4.0 버전을 통해 해결되었으며, Statamic에 의존하는 애드온 사용자도 업데이트 후 패치된 버전을 사용해야 합니다.",
-    "cvss": 8,
-    "epss": 0.00138,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "statamic",
-        "product": "cms",
-        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:59:30.373894+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28403",
-    "title": "Textream 크로스 사이트 WebSocket 하이재킹 (CSWSH) 취약점",
-    "description": "Textream은 macOS용 무료 텔레프롬프터 앱입니다. 1.5.1 버전 이전에는 `DirectorServer` WebSocket 서버가 WebSocket 핸드셰이크 시 HTTP `Origin` 헤더를 검증하지 않아 모든 오리진으로부터의 연결을 허용합니다. 악성 웹 페이지가 동일 브라우저 세션에서 WebSocket 서버에 연결하여 임의의 `DirectorCommand` 페이로드를 전송, 텔레프롬프터 콘텐츠를 완전히 제어할 수 있습니다. 1.5.1 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-346"
-    ],
-    "affected": [
-      {
-        "vendor": "f",
-        "product": "textream",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:58:29.371603+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28424",
-    "title": "Statamic의 권한 부족으로 이메일 주소 접근 가능",
-    "description": "Statamic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 5.73.11 및 6.4.0 버전 이전에는 \"사용자 보기\" 권한이 없는 관리자 패널 사용자의 경우 사용자 필드타입의 데이터 엔드포인트 응답에 이메일 주소가 포함되었습니다. 해당 문제는 5.73.11 및 6.4.0에서 수정되었습니다.",
-    "cvss": 6.5,
-    "epss": 0.00027,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "statamic",
-        "product": "cms",
-        "versions": "< 5.73.11 (단일 버전), >= 6.0.0, < 6.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:54:25.364204+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-50190",
-    "title": "Chamilo: GET 파라미터 'openid.assoc_handle'을 이용한 오류 기반 SQL Injection 취약점 (/index.php)",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /index.php 스크립트의 GET 파라미터 'openid.assoc_handle'을 통해 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:53:42.44253+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27631",
-    "title": "Exiv2: 처리되지 않은 예외 - max_size()보다 큰 std::vector 생성 불가",
-    "description": "Exiv2는 이미지 메타데이터(Exif, IPTC, XMP, ICC)를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서, Exiv2의 preview 컴포넌트에서 정수 오버플로우로 인해 매우 큰 std::vector를 생성하려 시도하여 예외가 발생하고 프로그램이 중단되는 취약점이 발견되었습니다. 이 문제는 0.28.8 버전에서 수정되었습니다.",
-    "cvss": 2.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248"
-    ],
-    "affected": [
-      {
-        "vendor": "Exiv2",
-        "product": "exiv2",
-        "versions": "< 0.28.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:53:37.858569+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-27596",
-    "title": "Exiv2: LoaderNative::getData() 정수 오버플로우로 인한 힙 버퍼 오버플로우",
-    "description": "Exiv2는 Exif, IPTC, XMP 및 ICC 이미지 메타데이터를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서 Exiv2의 경계 외부 읽기 취약점이 발견되었습니다. 이 취약점은 `-pp`와 같은 추가 명령줄 인수로 Exiv2를 실행할 때만 발생하는 미리보기 구성 요소에서 발생하며, 0.28.8 버전에 패치되었습니다.",
-    "cvss": 2.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125",
-      "CWE-191"
-    ],
-    "affected": [
-      {
-        "vendor": "Exiv2",
-        "product": "exiv2",
-        "versions": "< 0.28.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:53:32.662083+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-25884",
-    "title": "Exiv2: CrwMap::decode0x0805 함수 경계 외 읽기 취약점",
-    "description": "Exiv2는 Exif, IPTC, XMP 및 ICC 이미지 메타데이터를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서 CRW 이미지 파서에 경계 외 읽기 취약점이 발견되었습니다. 해당 문제는 0.28.8 버전에 패치되었습니다.",
-    "cvss": 2.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Exiv2",
-        "product": "exiv2",
-        "versions": "< 0.28.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:53:27.957187+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-65465",
-    "title": "Skrol29 TbsZip 2.17 이하 버전의 XSS 취약점",
-    "description": "Skrol29 TbsZip 버전 2.17 및 이전 버전의 RaiseError 함수에 래플렉티드 XSS 취약점이 존재합니다. 공격자는 파일 이름 파라미터(예: FileRead 함수)를 통해 악성 페이로드를 전송하여 임의의 웹 스크립트 또는 HTML을 실행할 수 있습니다. 이는 오류 메시지가 사용자에게 출력되기 전에 적절하게 삭제되지 않기 때문에 발생합니다. 2.18 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 6.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T15:05:22.466823+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-66880",
-    "title": "Wethink Technology 720yun pano-sdk 0.5.877 크로스 사이트 스크립팅 취약점",
-    "description": "Wethink Technology의 720yun pano-sdk 0.5.877 버전에서 원격 공격자가 LoginComp (모듈 2093) 및 SignupComp (모듈 2094) 모듈을 통해 임의 코드를 실행할 수 있는 크로스 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 악성 스크립트를 삽입하여 사용자 계정 탈취 및 시스템 제어 등의 공격을 수행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:07:11.27274+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-50186",
-    "title": "Chamilo: user_import.php에서 악성 CSV 파일 이름으로 인한 저장형 XSS",
-    "description": "Chamilo 학습 관리 시스템 1.11.30 이전 버전에서 CSV 파일 이름에 대한 불충분한 검증으로 저장형 XSS 취약점이 존재합니다. 공격자는 악성 이름을 가진 CSV 파일을 업로드하여 관리자 또는 가져오기 로그/파일 보기 접근 권한이 있는 사용자가 볼 때 JavaScript 코드가 실행되도록 할 수 있습니다. 1.11.30 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T15:00:00.57302+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-48636",
-    "title": "BugreportContentProvider.java의 경로 탐색 취약점",
-    "description": "BugreportContentProvider.java의 openFile 함수에서 경로 탐색 오류로 인해 권한 없는 파일에 접근 및 쓰기가 가능할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:08:39.3771+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-47378",
-    "title": "HLOS에서 무단 제어 영역에 민감한 시스템 정보 노출",
-    "description": "공유 VM 참조를 통해 HLOS가 부트 로더 및 인증 체인에 접근할 수 있는 암호화 문제 발생.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-497"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "Cologne (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6391 (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SD865 5G (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:19:53.066455+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2024-50337",
-    "title": "Chamilo: OpenID 기능의 인증되지 않은 블라인드 SSRF 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.28 버전 이전에서 OpenID 기능은 서버를 통해 임의의 URL로 요청을 보낼 수 있어 인증되지 않은 블라인드 SSRF가 발생합니다. 해당 문제는 1.11.28 버전에 패치되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.28 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T14:59:57.95912+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2024-31328",
-    "title": "BroadcastController.java의 임의 액티비티 실행 가능성",
-    "description": "BroadcastController.java의 broadcastIntentLockedTraced 함수 내 로직 오류로 인해 페어링된 동반 기기에서 백그라운드로 임의의 액티비티를 실행할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:08:38.402088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2024-47886",
-    "title": "Chamilo: 인증 후 원격 코드 실행",
-    "description": "Chamilo는 학습 관리 시스템으로, 1.11.12~1.11.26 버전에 인증 후 phar unserialize 취약점이 존재합니다. vchamilo 가상화 플러그인의 기능을 악용하여 관리자가 서버에서 임의 코드를 실행할 수 있습니다. 해당 문제는 1.11.26 버전에서 패치되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": ">= 1.11.12, < 1.11.28 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/61",
-    "date": "2026-03-02T15:05:33.227808+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-59600",
-    "title": "그래픽스 버퍼 오버리드",
-    "description": "사용자 제공 데이터를 사용 가능한 버퍼 공간을 확인하지 않고 추가할 때 메모리 손상이 발생하는 취약점입니다. 버퍼의 범위를 벗어난 읽기 시도가 발생할 수 있습니다. 이는 보안 문제를 야기할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-126"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), G1 Gen 1 (단일 버전), G2 Gen 1 (단일 버전), IQ6 Series Platform (단일 버전), IQ8 Series Platform (단일 버전), IQ9 Series Platform (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), Monaco_IOT (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SC8380XP (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDX61 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7435 (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), Themisto (단일 버전), WCD9335 (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:21:46.730963+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47386",
-    "title": "자동차 오디오의 Use-After-Free 취약점",
-    "description": "공유 버퍼에 동시 접근 시 IOCTL 호출 과정에서 메모리 손상 발생.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "AR8031 (단일 버전), AR8035 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:27:45.432709+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47379",
-    "title": "자동차 오디오 시스템의 Use-After-Free 취약점",
-    "description": "버퍼 자원 할당 및 해제 동기화 오류로 인해 공유 버퍼에 대한 동시 접근 시 메모리 손상 발생.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "5G Fixed Wireless Access Platform (단일 버전), AR8031 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), Flight RB5 5G Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), Milos (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA2066 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6564 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QRB5165M (단일 버전), QRB5165N (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Qualcomm Video Collaboration VC5 Platform (단일 버전), Robotics RB2 Platform (단일 버전), Robotics RB5 Platform (단일 버전), SA2150P (단일 버전), SA4150P (단일 버전), SA4155P (단일 버전), SA6145P (단일 버전), SA6150P (단일 버전), SA6155 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8145P (단일 버전), SA8150P (단일 버전), SA8155 (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SD662 (단일 버전), SD865 5G (단일 버전), SDA660 (단일 버전), SM6225P (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), Smart Audio 400 Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SnapdragonAuto 4GModem (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), WCD9326 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6450 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:21:55.071338+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -2418,58 +3184,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-32313",
-    "title": "UsageEvents.java의 범위 초과 쓰기 가능성",
-    "description": "UsageEvents.java 파일 내 UsageEvents에서 잘못된 범위 검사로 인해 범위 초과 쓰기 취약점이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:15:11.665429+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2024-43766",
-    "title": "btm_ble_sec.cc 잠재적 암호화되지 않은 통신 취약점",
-    "description": "btm_ble_sec.cc 파일의 여러 함수에서 잘못된 오류 처리로 인해 암호화되지 않은 통신이 발생할 수 있습니다. 이는 추가적인 실행 권한 없이 근거리 정보 유출로 이어질 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Information disclosure"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:15:05.904652+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2024-42056",
     "title": "Retool 자체 호스팅 엔터프라이즈 버전의 정보 노출 취약점 (3.40.0 이하)",
     "description": "Retool 3.40.0 이하 버전에서 전송되는 데이터에 리소스 인증 자격 증명이 포함되어 삽입됩니다. \"사용\" 권한이 있는 사용자의 자격 증명은 인증된 공격자에 의해 /api/resources 엔드포인트를 통해 발견될 수 있습니다. 영향을 받는 가장 오래된 버전은 3.18.1입니다.",
@@ -2905,136 +3619,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-47385",
-    "title": "SCE-Mink 등록 인터페이스의 부적절한 접근 제어",
-    "description": "신뢰 실행 환경에 접근 시 적절한 권한 검사 없이 메모리 손상 발생 가능.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1262"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), G2 Gen 1 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Milos (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAM8295P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QCA8695AU (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QMP1000 (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8295P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2230P (단일 버전), SM7435 (단일 버전), SM8750P (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SXR2330P (단일 버전), SXR2350P (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN3988 (단일 버전), WCN6450 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:27:00.084016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47383",
-    "title": "데이터 모뎀의 누락된 암호화 단계",
-    "description": "UE에서 VoWiFi 통화가 시작될 때, 취약한 설정으로 인해 암호화 문제가 발생할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-325"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "5G Fixed Wireless Access Platform (단일 버전), 9206 LTE Modem (단일 버전), 9207 LTE Modem (단일 버전), APQ8098 (단일 버전), AQT1000 (단일 버전), AR8035 (단일 버전), C-V2X 9150 (단일 버전), CSRA6620 (단일 버전), CSRA6640 (단일 버전), CSRB31024 (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), FSM100 Platform (단일 버전), FWA Gen 3 Ultra Platform (단일 버전), G1 Gen 1 (단일 버전), MDM8207 (단일 버전), MDM9250 (단일 버전), MDM9628 (단일 버전), MDM9640 (단일 버전), Milos (단일 버전), Netrani (단일 버전), Orne (단일 버전), Palawan25 (단일 버전), QCA6174A (단일 버전), QCA6391 (단일 버전), QCA6420 (단일 버전), QCA6430 (단일 버전), QCA6564A (단일 버전), QCA6564AU (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6584 (단일 버전), QCA6584AU (단일 버전), QCA6595AU (단일 버전), QCA6678AQ (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6698AU (단일 버전), QCA6797AQ (단일 버전), QCA8081 (단일 버전), QCA8337 (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), QCC710 (단일 버전), QCM2290 (단일 버전), QCM4325 (단일 버전), QCM4490 (단일 버전), QCM5430 (단일 버전), QCM6125 (단일 버전), QCM6490 (단일 버전), QCN6024 (단일 버전), QCN6224 (단일 버전), QCN6274 (단일 버전), QCN9011 (단일 버전), QCN9012 (단일 버전), QCN9024 (단일 버전), QCS2290 (단일 버전), QCS4290 (단일 버전), QCS4490 (단일 버전), QCS8550 (단일 버전), QEP8111 (단일 버전), QFW7114 (단일 버전), QFW7124 (단일 버전), QMP1000 (단일 버전), Qualcomm 215 Mobile Platform (단일 버전), Qualcomm Video Collaboration VC1 Platform (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), Robotics RB2 Platform (단일 버전), SD 8 Gen1 5G (단일 버전), SD626 (단일 버전), SD662 (단일 버전), SDA660 (단일 버전), SDM429W (단일 버전), SDX57M (단일 버전), SDX61 (단일 버전), SDX71M (단일 버전), SM6225P (단일 버전), SM6250 (단일 버전), SM6650P (단일 버전), SM7325P (단일 버전), SM7435 (단일 버전), SM7550 (단일 버전), SM7550P (단일 버전), SM7635P (단일 버전), SM7675 (단일 버전), SM7675P (단일 버전), SM8475P (단일 버전), SM8550P (단일 버전), SM8635 (단일 버전), SM8635P (단일 버전), SM8650Q (단일 버전), SM8750P (단일 버전), Smart Display 200 Platform (단일 버전), Snapdragon 1100 Wearable Platform (단일 버전), Snapdragon 1200 Wearable Platform (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 4 Gen 2 Mobile Platform (단일 버전), Snapdragon 429 Mobile Platform (단일 버전), Snapdragon 460 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 6 Gen 1 Mobile Platform (단일 버전), Snapdragon 6 Gen 3 Mobile Platform (단일 버전), Snapdragon 6 Gen 4 Mobile Platform (단일 버전), Snapdragon 625 Mobile Platform (단일 버전), Snapdragon 626 Mobile Platform (단일 버전), Snapdragon 660 Mobile Platform (단일 버전), Snapdragon 662 Mobile Platform (단일 버전), Snapdragon 680 4G Mobile Platform (단일 버전), Snapdragon 685 4G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 7 Gen 1 Mobile Platform (단일 버전), Snapdragon 7+ Gen 2 Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c Compute Platform (단일 버전), Snapdragon 7c Gen 2 Compute Platform \"Rennell Pro\" (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 7s Gen 3 Mobile Platform (단일 버전), Snapdragon 8 Elite (단일 버전), Snapdragon 8 Gen 1 Mobile Platform (단일 버전), Snapdragon 8 Gen 2 Mobile Platform (단일 버전), Snapdragon 8 Gen 3 Mobile Platform (단일 버전), Snapdragon 8+ Gen 1 Mobile Platform (단일 버전), Snapdragon 8+ Gen 2 Mobile Platform (단일 버전), Snapdragon 820 Automotive Platform (단일 버전), Snapdragon 820Am (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon 8c Compute Platform \"Poipu Lite\" (단일 버전), Snapdragon 8c Compute Platform (SC8180XP-AD) \"Poipu Lite\" (단일 버전), Snapdragon 8cx Compute Platform (단일 버전), Snapdragon 8cx Compute Platform \"Poipu Pro\" (단일 버전), Snapdragon 8cx Gen 2 5G Compute Platform (단일 버전), Snapdragon 8cx Gen 2 5G Compute Platform \"Poipu Pro\" (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon Auto 5G Modem-RF Gen 2 (단일 버전), Snapdragon W5+ Gen 1 Wearable Platform (단일 버전), Snapdragon X12 LTE Modem (단일 버전), Snapdragon X32 5G Modem-RF System (단일 버전), Snapdragon X35 5G Modem-RF System (단일 버전), Snapdragon X5 LTE Modem (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon X65 5G Modem-RF System (단일 버전), Snapdragon X70 Modem-RF System (단일 버전), Snapdragon X72 5G Modem-RF System (단일 버전), Snapdragon X75 5G Modem-RF System (단일 버전), Snapdragon X80 5G Modem-RF System (단일 버전), SnapdragonAuto 4GModem (단일 버전), SW5100 (단일 버전), SW5100P (단일 버전), SW6100 (단일 버전), SW6100P (단일 버전), Themisto (단일 버전), Vision Intelligence 100 Platform (단일 버전), Vision Intelligence 200 Platform (단일 버전), Vision Intelligence 400 Platform (단일 버전), WCD9306 (단일 버전), WCD9326 (단일 버전), WCD9330 (단일 버전), WCD9335 (단일 버전), WCD9340 (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9371 (단일 버전), WCD9375 (단일 버전), WCD9378 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9390 (단일 버전), WCD9395 (단일 버전), WCN3615 (단일 버전), WCN3620 (단일 버전), WCN3660B (단일 버전), WCN3680B (단일 버전), WCN3910 (단일 버전), WCN3950 (단일 버전), WCN3980 (단일 버전), WCN3988 (단일 버전), WCN3990 (단일 버전), WCN6650 (단일 버전), WCN6755 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WCN7880 (단일 버전), WCN7881 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:24:58.079212+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47384",
-    "title": "FW에서 도달 가능한 어설션",
-    "description": "MAC 구성 시 지원되는 최대값보다 큰 config id를 설정할 때 일시적인 서비스 거부(DoS) 발생.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-617"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "5G Fixed Wireless Access Platform (단일 버전), FastConnect 6200 (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), QCA6391 (단일 버전), QCA6574A (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCM5430 (단일 버전), QCM6490 (단일 버전), Qualcomm Video Collaboration VC3 Platform (단일 버전), SDX57M (단일 버전), SM7325P (단일 버전), Snapdragon 4 Gen 1 Mobile Platform (단일 버전), Snapdragon 480 5G Mobile Platform (단일 버전), Snapdragon 480+ 5G Mobile Platform (단일 버전), Snapdragon 690 5G Mobile Platform (단일 버전), Snapdragon 695 5G Mobile Platform (단일 버전), Snapdragon 778G 5G Mobile Platform (단일 버전), Snapdragon 778G+ 5G Mobile Platform (단일 버전), Snapdragon 782G Mobile Platform (단일 버전), Snapdragon 7c+ Gen 3 Compute (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon 888 5G Mobile Platform (단일 버전), Snapdragon 888+ 5G Mobile Platform (단일 버전), Snapdragon Auto 5G Modem-RF (단일 버전), Snapdragon X53 5G Modem-RF System (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), WCD9341 (단일 버전), WCD9360 (단일 버전), WCD9370 (단일 버전), WCD9375 (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCN3988 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8835 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:22:02.391165+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-47381",
-    "title": "자동차 오디오의 Use-After-Free 취약점",
-    "description": "공유 버퍼에 대한 동시 접근 시 발생하는 IOCTL 호출 처리 중 메모리 손상 취약점입니다. Use-After-Free 오류로 인해 보안 문제가 발생할 수 있습니다. 자동차 오디오 시스템의 안정성에 영향을 줄 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6574 (단일 버전), QCA6574A (단일 버전), QCA6574AU (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6688AQ (단일 버전), QCA6696 (단일 버전), QCA9367 (단일 버전), QCA9377 (단일 버전), SA6155P (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8155P (단일 버전), SA8195P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:25:59.161175+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-59603",
-    "title": "컴퓨터 비전의 경계 외 쓰기",
-    "description": "유효하지 않은 사용자 주소와 비표준 버퍼 주소를 처리할 때 메모리 손상이 발생합니다. 이는 컴퓨터 비전 시스템에서 보안 취약점으로 이어질 수 있습니다. 외부에서 조작된 주소로 인해 메모리 영역을 벗어난 쓰기가 발생할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "Cologne (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), QCA0000 (단일 버전), SC8380XP (단일 버전), SD865 5G (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:22:47.73295+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-14831",
     "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
     "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
@@ -3333,42 +3917,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2024-1394",
-    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
-    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
-    "cvss": 7.5,
-    "epss": 0.01021,
-    "is_kev": false,
-    "cwe": [
-      "CWE-401"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Developer Tools",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:32:50.443708+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2018-12652",
