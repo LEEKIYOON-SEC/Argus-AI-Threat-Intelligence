@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Argus - CVE Dashboard</title>
+  <title>Argus - IOC Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <!-- Header -->
   <header class="header">
     <div class="container header-inner">
-      <a href="cve.html" class="logo">
+      <a href="ioc.html" class="logo">
         <span class="logo-icon">&#128737;</span>
         <span>Argus Dashboard</span>
       </a>
       <nav class="nav">
-        <a href="ioc.html">IOC</a>
-        <a href="cve.html" class="active">CVE</a>
+        <a href="ioc.html" class="active">IOC</a>
+        <a href="cve.html">CVE</a>
         <a href="blacklist.html">Blacklist IP</a>
       </nav>
       <span class="updated-at" id="updated-time">-</span>
@@ -27,44 +27,57 @@
     <!-- Stat Cards -->
     <div class="stat-cards">
       <div class="stat-card">
-        <div class="label">Total CVEs</div>
+        <div class="label">Total IOCs</div>
         <div class="value info" id="stat-total">-</div>
       </div>
       <div class="stat-card">
-        <div class="label">High Risk (CVSS 7+)</div>
-        <div class="value high" id="stat-high">-</div>
+        <div class="label">CVE</div>
+        <div class="value" style="color:var(--info)" id="stat-cve">-</div>
       </div>
       <div class="stat-card">
-        <div class="label">KEV Listed</div>
-        <div class="value kev" id="stat-kev">-</div>
+        <div class="label">Malicious IP</div>
+        <div class="value" style="color:var(--high)" id="stat-ip">-</div>
       </div>
       <div class="stat-card">
-        <div class="label">Last 24h</div>
-        <div class="value info" id="stat-24h">-</div>
+        <div class="label">Detection Rules</div>
+        <div class="value" style="color:var(--low)" id="stat-rule">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Malicious URL</div>
+        <div class="value" style="color:#E040FB" id="stat-url">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Malware Hash</div>
+        <div class="value" style="color:#FF5252" id="stat-hash">-</div>
       </div>
     </div>
 
     <!-- Charts Row -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:24px;">
       <div class="chart-section">
-        <h3>CVE Daily Trend (Last 30 Days)</h3>
-        <div class="chart-container">
-          <canvas id="trend-chart"></canvas>
-        </div>
+        <h3>IOC by Type</h3>
+        <div id="type-dist" style="padding-top:16px;"></div>
       </div>
       <div class="chart-section">
-        <h3>Severity Distribution</h3>
-        <div id="severity-dist" style="padding-top:16px;"></div>
-        <h3 style="margin-top:20px;">Top Vendors</h3>
-        <div id="vendor-dist" style="padding-top:8px;"></div>
+        <h3>Risk Distribution</h3>
+        <div id="risk-dist" style="padding-top:16px;"></div>
+      </div>
+      <div class="chart-section">
+        <h3>Tags</h3>
+        <div id="tag-cloud" style="padding-top:12px;"></div>
       </div>
     </div>
 
     <!-- Filter Bar -->
     <div class="filter-bar">
-      <input type="text" class="search-input" id="search-input" placeholder="CVE ID or keyword...">
-      <select class="filter-select" id="vendor-filter">
-        <option value="">All Vendors</option>
+      <input type="text" class="search-input" id="search-input" placeholder="Search IOC (CVE ID, IP, keyword...)">
+      <select class="filter-select" id="type-filter">
+        <option value="">All Types</option>
+        <option value="cve">CVE</option>
+        <option value="ip">IP</option>
+        <option value="rule">Rule</option>
+        <option value="url">URL</option>
+        <option value="hash">Hash</option>
       </select>
       <div class="severity-filters">
         <button class="severity-btn active" data-severity="Critical">Critical</button>
@@ -72,6 +85,8 @@
         <button class="severity-btn active" data-severity="Medium">Medium</button>
         <button class="severity-btn active" data-severity="Low">Low</button>
       </div>
+      <button class="export-btn" id="export-csv-btn" title="Export filtered IOCs as CSV">CSV</button>
+      <button class="export-btn" id="export-json-btn" title="Export filtered IOCs as JSON">JSON</button>
     </div>
 
     <!-- Loading -->
@@ -82,17 +97,16 @@
       <table>
         <thead>
           <tr>
-            <th onclick="sortBy('id')">CVE ID</th>
+            <th>Type</th>
+            <th onclick="sortBy('indicator')">Indicator</th>
             <th>Title</th>
-            <th>Severity</th>
-            <th onclick="sortBy('cvss')">CVSS</th>
-            <th onclick="sortBy('epss')">EPSS</th>
-            <th>KEV</th>
-            <th>Vendor / Product</th>
+            <th onclick="sortBy('risk')">Risk</th>
+            <th onclick="sortBy('score')">Score</th>
+            <th>Tags</th>
             <th onclick="sortBy('date')">Date</th>
           </tr>
         </thead>
-        <tbody id="cve-table-body"></tbody>
+        <tbody id="ioc-table-body"></tbody>
       </table>
     </div>
 
@@ -108,7 +122,7 @@
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-header">
-        <h2 id="modal-title">CVE Detail</h2>
+        <h2 id="modal-title">IOC Detail</h2>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body" id="modal-body"></div>
@@ -116,6 +130,6 @@
   </div>
 
   <script src="js/chart.js"></script>
-  <script src="js/cve-dashboard.js"></script>
+  <script src="js/ioc-dashboard.js"></script>
 </body>
 </html>

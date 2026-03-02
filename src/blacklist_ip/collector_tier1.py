@@ -1,4 +1,5 @@
 import ipaddress
+import json
 import re
 import requests
 import yaml
@@ -114,6 +115,29 @@ def parse_feed(feed: FeedDef, raw_text: str) -> List[str]:
                 continue
             first = line.split(",")[0].strip()
             ip = _normalize_ip(first)
+            if ip:
+                indicators.append(ip)
+
+    elif fmt == "threatfox_json":
+        # ThreatFox IP:port JSON export
+        # {"query_status":"ok","data":[{"ioc":"1.2.3.4:443",...},...]}"
+        try:
+            data = json.loads(raw_text)
+        except (json.JSONDecodeError, ValueError):
+            return indicators
+        items = data.get("data", [])
+        if not isinstance(items, list):
+            return indicators
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            ioc_value = str(item.get("ioc", ""))
+            # "1.2.3.4:443" → extract IP part
+            if ":" in ioc_value:
+                ip_part = ioc_value.rsplit(":", 1)[0]
+            else:
+                ip_part = ioc_value
+            ip = _normalize_ip(ip_part)
             if ip:
                 indicators.append(ip)
 

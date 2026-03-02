@@ -50,7 +50,8 @@ class Enricher:
         timeouts,
         ratelimit,
         max_enrich: int = 500,
-        workers: int = 10,
+        max_enrich_internetdb: int = 5000,
+        workers: int = 20,
     ):
         self.abuseipdb_key = abuseipdb_key
         self.store = store
@@ -59,6 +60,7 @@ class Enricher:
         self.timeouts = timeouts
         self.ratelimit = ratelimit
         self.max_enrich = max_enrich
+        self.max_enrich_internetdb = max_enrich_internetdb
         self.workers = workers
 
         self.usage = APIUsage()
@@ -81,29 +83,33 @@ class Enricher:
             ...
           }
         """
-        # 하드캡 적용
-        target_ips = ips[:self.max_enrich]
-        skipped = len(ips) - len(target_ips)
-        total = len(target_ips)
+        # 하드캡 적용 (AbuseIPDB / InternetDB 별도)
+        abuse_target_ips = ips[:self.max_enrich]
+        inetdb_target_ips = ips[:self.max_enrich_internetdb]
 
+        # result는 두 목록의 합집합 (InternetDB가 더 크므로 superset)
+        all_target_ips = inetdb_target_ips if self.max_enrich_internetdb >= self.max_enrich else list(dict.fromkeys(inetdb_target_ips + abuse_target_ips))
+        total = len(all_target_ips)
+        skipped = len(ips) - total
+
+        print(f"  [Enricher] 전체 대상: {total}개 (AbuseIPDB: {len(abuse_target_ips)}개, InternetDB: {len(inetdb_target_ips)}개)", flush=True)
         if skipped > 0:
-            print(f"  [Enricher] 대상: {total}개 (하드캡 {self.max_enrich}), 스킵: {skipped}개", flush=True)
-        else:
-            print(f"  [Enricher] 대상: {total}개", flush=True)
+            print(f"  [Enricher] 스킵: {skipped}개", flush=True)
 
         if total == 0:
             return {}
 
-        result: Dict[str, Dict[str, Any]] = {ip: {} for ip in target_ips}
+        result: Dict[str, Dict[str, Any]] = {ip: {} for ip in all_target_ips}
 
         # ── Phase 1: AbuseIPDB (순차 - rate limit 1req/s) ──
         if self.abuseipdb_key:
             abuse_quota = int(self.quotas.abuseipdb_daily_max)
-            abuse_target = min(total, abuse_quota)
-            print(f"  [AbuseIPDB] 순차 enrichment 시작 (quota: {abuse_quota})", flush=True)
+            abuse_count = len(abuse_target_ips)
+            abuse_target = min(abuse_count, abuse_quota)
+            print(f"  [AbuseIPDB] 순차 enrichment 시작 (대상: {abuse_count}개, quota: {abuse_quota})", flush=True)
             start = time.time()
 
-            for i, ip in enumerate(target_ips, 1):
+            for i, ip in enumerate(abuse_target_ips, 1):
                 if self.usage.abuseipdb >= abuse_quota:
                     print(f"  [AbuseIPDB] quota 소진 ({abuse_quota}), 중단", flush=True)
                     break
@@ -121,7 +127,7 @@ class Enricher:
 
         # ── Phase 2: InternetDB (병렬 - ThreadPoolExecutor) ──
         inetdb_quota = int(self.quotas.internetdb_daily_max)
-        inetdb_targets = target_ips[:inetdb_quota]
+        inetdb_targets = inetdb_target_ips[:inetdb_quota]
 
         if inetdb_targets:
             print(f"  [InternetDB] 병렬 enrichment 시작 (workers: {self.workers}, 대상: {len(inetdb_targets)}개)", flush=True)

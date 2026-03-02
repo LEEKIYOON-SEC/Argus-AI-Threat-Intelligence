@@ -112,6 +112,7 @@ def main():
         timeouts=settings.timeouts,
         ratelimit=settings.ratelimit,
         max_enrich=settings.max_enrich_count,
+        max_enrich_internetdb=settings.max_enrich_internetdb,
         workers=settings.enrich_workers,
     )
 
