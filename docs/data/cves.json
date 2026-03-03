@@ -26,6 +26,287 @@
     "severity": "High"
   },
   {
+    "id": "CVE-2024-1394",
+    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
+    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
+    "cvss": 7.5,
+    "epss": 0.01021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-401"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Developer Tools",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:32:50.443708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50195",
+    "title": "Chamilo: /plugin/vchamilo/views/manage.controller.php에서 OS 명령어 삽입 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/manage.controller.php에 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:07:05.999566+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50193",
+    "title": "Chamilo: /plugin/vchamilo/views/import.php의 POST to_main_database 파라미터를 이용한 OS 명령어 삽입 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/import.php 파일의 POST to_main_database 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:03:01.991618+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-64427",
+    "title": "ZimaOS, 서버 측 요청 위조(SSRF) 취약점 발견",
+    "description": "ZimaOS 1.5.0 버전 이하에서 대상 URL 검증 부족으로 인해 인증된 로컬 사용자가 내부 IP 주소(예: 127.0.0.1, localhost, 사설 네트워크 범위)를 대상으로 요청을 생성할 수 있습니다. 이를 통해 공격자는 외부 또는 로컬 사용자에게 노출되지 않아야 하는 내부 HTTP/HTTPS 서비스와 상호 작용할 수 있습니다. 현재 공개된 패치는 없습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918",
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "IceWhaleTech",
+        "product": "ZimaOS",
+        "versions": "< 1.5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:33:55.587769+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-52469",
+    "title": "Chamilo: 친구 요청 워크플로우 우회 - 무단 친구 추가 및 ID 유효성 검사 우회",
+    "description": "Chamilo LMS의 소셜 네트워크 모듈에서 인증된 사용자가 AJAX 엔드포인트를 직접 호출하여 모든 사용자를 강제로 친구로 추가할 수 있는 로직 취약점이 발견되었습니다. 정상적인 친구 요청 절차를 우회하고 존재하지 않는 사용자까지 추가할 수 있으며, 접근 제어 및 소셜 상호 작용 로직을 손상시켜 개인 정보 침해를 야기할 수 있습니다. 1.11.30 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-841"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:01.377494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50196",
+    "title": "Chamilo: /plugin/vchamilo/views/editinstance.php의 POST main_database 파라미터를 통한 OS 명령어 삽입 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/editinstance.php의 POST main_database 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:07:22.057326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50194",
+    "title": "Chamilo: /main/cron/lang/check_parse_lang.php의 OS 명령어 삽입 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/cron/lang/check_parse_lang.php 파일에 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:04:02.993673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-47378",
+    "title": "HLOS에서 무단 제어 영역에 민감한 시스템 정보 노출",
+    "description": "공유 VM 참조를 통해 HLOS가 부트 로더 및 인증 체인에 접근할 수 있는 암호화 문제 발생.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-497"
+    ],
+    "affected": [
+      {
+        "vendor": "Qualcomm, Inc.",
+        "product": "Snapdragon",
+        "versions": "Cologne (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6391 (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SD865 5G (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:19:53.066455+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0810",
+    "title": "Gix-date: 유효하지 않은 문자열 생성으로 인한 정의되지 않은 동작",
+    "description": "Gix-date에서 `gix_date::parse::TimeBuf::as_str` 함수가 유효하지 않은 비-UTF8 문자를 포함하는 문자열을 생성할 수 있는 취약점이 발견되었습니다. 이는 `TimeBuf` 구성 요소의 내부 안전 불변 조건을 위반하여, 손상된 문자열이 처리될 때 정의되지 않은 동작을 유발합니다. 이로 인해 애플리케이션 불안정 또는 예기치 않은 결과가 발생할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-135"
+    ],
+    "affected": [
+      {
+        "vendor": "GitoxideLabs",
+        "product": "gitoxide",
+        "versions": "0.12.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Logging Subsystem for Red Hat OpenShift",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Logging Subsystem for Red Hat OpenShift",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T22:55:18.224823+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25565",
+    "title": "WeKan < 8.19 읽기 전용 보드 역할의 카드 업데이트 가능",
+    "description": "WeKan 8.19 이전 버전에서 특정 카드 업데이트 API 경로는 쓰기 권한이 아닌 읽기 권한만 확인하는 권한 부여 취약점이 존재합니다.",
+    "cvss": 7.1,
+    "epss": 9e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "WeKan",
+        "product": "WeKan",
+        "versions": "8.19 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T23:56:39.82653+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2025-15595",
     "title": "Inno Setup의 DLL 하이재킹을 통한 권한 상승",
     "description": "Inno Setup 6.2.1 버전 이하에서 DLL 하이재킹을 통해 권한 상승이 가능합니다. 공격자는 악성 DLL을 사용하여 더 높은 권한을 획득할 수 있습니다. 해당 취약점을 악용하면 시스템 보안에 심각한 위협이 될 수 있습니다.",
@@ -97,42 +378,6 @@
     ],
     "report_url": null,
     "date": "2026-03-03T07:13:12.929873+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2024-1394",
-    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
-    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
-    "cvss": 7.5,
-    "epss": 0.01021,
-    "is_kev": false,
-    "cwe": [
-      "CWE-401"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Developer Tools",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:32:50.443708+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1605,32 +1850,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T17:25:59.161175+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-47378",
-    "title": "HLOS에서 무단 제어 영역에 민감한 시스템 정보 노출",
-    "description": "공유 VM 참조를 통해 HLOS가 부트 로더 및 인증 체인에 접근할 수 있는 암호화 문제 발생.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-497"
-    ],
-    "affected": [
-      {
-        "vendor": "Qualcomm, Inc.",
-        "product": "Snapdragon",
-        "versions": "Cologne (단일 버전), FastConnect 6700 (단일 버전), FastConnect 6800 (단일 버전), FastConnect 6900 (단일 버전), FastConnect 7800 (단일 버전), LeMans_AU_LGIT (단일 버전), LeMansAU (단일 버전), Pandeiro (단일 버전), QAM8255P (단일 버전), QAMSRV1H (단일 버전), QAMSRV1M (단일 버전), QCA6391 (단일 버전), QCA6595 (단일 버전), QCA6595AU (단일 버전), QCA6696 (단일 버전), QCA6698AQ (단일 버전), QCA6797AQ (단일 버전), QLN1083BD (단일 버전), QLN1086BD (단일 버전), QPA1083BD (단일 버전), QPA1086BD (단일 버전), QXM1083 (단일 버전), QXM1086 (단일 버전), QXM1093 (단일 버전), QXM1094 (단일 버전), QXM1095 (단일 버전), QXM1096 (단일 버전), SA7255P (단일 버전), SA7775P (단일 버전), SA8255P (단일 버전), SA8620P (단일 버전), SA8770P (단일 버전), SA9000P (단일 버전), SAR1165P (단일 버전), SAR1250P (단일 버전), SAR2130P (단일 버전), SAR2230P (단일 버전), SD865 5G (단일 버전), Snapdragon 8 Elite Gen 5 (단일 버전), Snapdragon 865 5G Mobile Platform (단일 버전), Snapdragon 865+ 5G Mobile Platform (단일 버전), Snapdragon 870 5G Mobile Platform (단일 버전), Snapdragon AR1 Gen 1 Platform (단일 버전), Snapdragon AR1+ Gen 1 Platform (단일 버전), Snapdragon X55 5G Modem-RF System (단일 버전), Snapdragon XR2 5G Platform (단일 버전), Snapdragon XR2+ Gen 1 Platform (단일 버전), SRV1H (단일 버전), SRV1M (단일 버전), SXR2230P (단일 버전), SXR2250P (단일 버전), WCD9378C (단일 버전), WCD9380 (단일 버전), WCD9385 (단일 버전), WCD9395 (단일 버전), WCN3950 (단일 버전), WCN7860 (단일 버전), WCN7861 (단일 버전), WSA8810 (단일 버전), WSA8815 (단일 버전), WSA8830 (단일 버전), WSA8832 (단일 버전), WSA8835 (단일 버전), WSA8840 (단일 버전), WSA8845 (단일 버전), WSA8845H (단일 버전), X2000077 (단일 버전), X2000086 (단일 버전), X2000090 (단일 버전), X2000092 (단일 버전), X2000094 (단일 버전), XG101002 (단일 버전), XG101032 (단일 버전), XG101039 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:19:53.066455+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3615,42 +3834,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-0810",
-    "title": "Gix-date: 유효하지 않은 문자열 생성으로 인한 정의되지 않은 동작",
-    "description": "Gix-date에서 `gix_date::parse::TimeBuf::as_str` 함수가 유효하지 않은 비-UTF8 문자를 포함하는 문자열을 생성할 수 있는 취약점이 발견되었습니다. 이는 `TimeBuf` 구성 요소의 내부 안전 불변 조건을 위반하여, 손상된 문자열이 처리될 때 정의되지 않은 동작을 유발합니다. 이로 인해 애플리케이션 불안정 또는 예기치 않은 결과가 발생할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-135"
-    ],
-    "affected": [
-      {
-        "vendor": "GitoxideLabs",
-        "product": "gitoxide",
-        "versions": "0.12.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Logging Subsystem for Red Hat OpenShift",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Logging Subsystem for Red Hat OpenShift",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T22:55:18.224823+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2024-9676",
     "title": "Podman, Buildah, CRI-O: containers/storage 라이브러리의 심볼릭 링크 traversal 취약점",
     "description": "Podman, Buildah, CRI-O에서 containers/storage 라이브러리의 심볼릭 링크 traversal 취약점이 발견되었습니다. 악성 이미지를 사용할 때 자동으로 할당된 사용자 네임스페이스(`--userns=auto`)를 통해 컨테이너가 멈추고 OOM kill로 인한 서비스 거부(DoS)가 발생할 수 있습니다. 해당 라이브러리는 컨테이너 내부의 `/etc/passwd` 파일을 읽는 과정에서 심볼릭 링크 여부를 제대로 검증하지 않아 호스트의 임의 파일을 읽을 수 있습니다.",
@@ -3830,32 +4013,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-25565",
-    "title": "WeKan < 8.19 읽기 전용 보드 역할의 카드 업데이트 가능",
-    "description": "WeKan 8.19 이전 버전에서 특정 카드 업데이트 API 경로는 쓰기 권한이 아닌 읽기 권한만 확인하는 권한 부여 취약점이 존재합니다.",
-    "cvss": 7.1,
-    "epss": 9e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "WeKan",
-        "product": "WeKan",
-        "versions": "8.19 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T23:56:39.82653+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-25567",
@@ -5611,32 +5768,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-52469",
-    "title": "Chamilo: 친구 요청 워크플로우 우회 - 무단 친구 추가 및 ID 유효성 검사 우회",
-    "description": "Chamilo LMS의 소셜 네트워크 모듈에서 인증된 사용자가 AJAX 엔드포인트를 직접 호출하여 모든 사용자를 강제로 친구로 추가할 수 있는 로직 취약점이 발견되었습니다. 정상적인 친구 요청 절차를 우회하고 존재하지 않는 사용자까지 추가할 수 있으며, 접근 제어 및 소셜 상호 작용 로직을 손상시켜 개인 정보 침해를 야기할 수 있습니다. 1.11.30 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-841"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:02:01.377494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25884",
     "title": "Exiv2: CrwMap::decode0x0805 함수 경계 외 읽기 취약점",
     "description": "Exiv2는 Exif, IPTC, XMP 및 ICC 이미지 메타데이터를 읽고, 쓰고, 삭제하고 수정하는 C++ 라이브러리 및 명령줄 유틸리티입니다. 0.28.8 버전 이전에서 CRW 이미지 파서에 경계 외 읽기 취약점이 발견되었습니다. 해당 문제는 0.28.8 버전에 패치되었습니다.",
@@ -6185,110 +6316,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T16:11:26.066526+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50196",
-    "title": "Chamilo: /plugin/vchamilo/views/editinstance.php의 POST main_database 파라미터를 통한 OS 명령어 삽입 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/editinstance.php의 POST main_database 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:07:22.057326+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50195",
-    "title": "Chamilo: /plugin/vchamilo/views/manage.controller.php에서 OS 명령어 삽입 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/manage.controller.php에 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:07:05.999566+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50194",
-    "title": "Chamilo: /main/cron/lang/check_parse_lang.php의 OS 명령어 삽입 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/cron/lang/check_parse_lang.php 파일에 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전을 통해 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:04:02.993673+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50193",
-    "title": "Chamilo: /plugin/vchamilo/views/import.php의 POST to_main_database 파라미터를 이용한 OS 명령어 삽입 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/import.php 파일의 POST to_main_database 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:03:01.991618+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -8481,33 +8508,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-64427",
-    "title": "ZimaOS, 서버 측 요청 위조(SSRF) 취약점 발견",
-    "description": "ZimaOS 1.5.0 버전 이하에서 대상 URL 검증 부족으로 인해 인증된 로컬 사용자가 내부 IP 주소(예: 127.0.0.1, localhost, 사설 네트워크 범위)를 대상으로 요청을 생성할 수 있습니다. 이를 통해 공격자는 외부 또는 로컬 사용자에게 노출되지 않아야 하는 내부 HTTP/HTTPS 서비스와 상호 작용할 수 있습니다. 현재 공개된 패치는 없습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918",
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "IceWhaleTech",
-        "product": "ZimaOS",
-        "versions": "< 1.5.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:33:55.587769+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-52998",
