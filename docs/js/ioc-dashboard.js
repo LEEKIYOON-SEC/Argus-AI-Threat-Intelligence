@@ -419,7 +419,7 @@ function showDetail(indicator, iocType) {
       }).join(' '));
     }
     if (isSafeUrl(detail.report_url)) {
-      html += '<a href="' + escapeHtml(detail.report_url) + '" target="_blank" rel="noopener noreferrer" class="report-link">AI Analysis Report</a>';
+      html += '<a href="' + escapeHtml(detail.report_url) + '" target="_blank" rel="noopener noreferrer" class="report-link">AI 상세 분석 리포트 보기</a>';
     }
   } else if (item.ioc_type === 'ip') {
     html += '<hr style="border-color:var(--border);margin:16px 0;">';

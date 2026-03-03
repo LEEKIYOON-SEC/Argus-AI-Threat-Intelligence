@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Argus - AI Threat Intelligence Platform</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a2e;
+    --heading: #0f0f23;
+    --accent: #2563eb;
+    --accent-light: #eff6ff;
+    --border: #e2e8f0;
+    --code-bg: #f8fafc;
+    --table-head: #f1f5f9;
+    --table-stripe: #f8fafc;
+    --tag-bg: #e0e7ff;
+    --tag-text: #3730a3;
+    --success: #059669;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #0284c7;
+    --pre-bg: #1e293b;
+    --pre-text: #e2e8f0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.7;
+    font-size: 15px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 48px 32px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding-bottom: 40px;
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 40px;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--heading);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 17px;
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .header .description {
+    font-size: 14.5px;
+    color: #475569;
+    max-width: 720px;
+    margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* Tech badges */
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-purple { background: #e9d5ff; color: #6b21a8; }
+  .badge-orange { background: #ffedd5; color: #9a3412; }
+  .badge-red { background: #fee2e2; color: #991b1b; }
+  .badge-gray { background: #f1f5f9; color: #475569; }
+
+  /* TOC */
+  .toc {
+    background: var(--accent-light);
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 20px 28px;
+    margin-bottom: 40px;
+  }
+  .toc-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+  }
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px 16px;
+  }
+  .toc a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 2px 0;
+    display: block;
+  }
+  .toc a:hover { text-decoration: underline; }
+
+  /* Sections */
+  h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--heading);
+    margin: 48px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--heading);
+    margin: 28px 0 12px;
+  }
+  h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+    margin: 20px 0 8px;
+  }
+
+  p { margin: 8px 0; }
+
+  strong { font-weight: 700; color: var(--heading); }
+
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 24px;
+  }
+  li { margin: 3px 0; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0 20px;
+    font-size: 13.5px;
+  }
+  th {
+    background: var(--table-head);
+    font-weight: 700;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    color: var(--heading);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  td {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: var(--table-stripe); }
+
+  /* Code */
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+    font-size: 12.5px;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    padding: 1px 5px;
+    border-radius: 4px;
+    color: #be185d;
+  }
+  pre {
+    background: var(--pre-bg);
+    color: var(--pre-text);
+    border-radius: 8px;
+    padding: 18px 20px;
+    overflow-x: auto;
+    margin: 12px 0 20px;
+    font-size: 12.5px;
+    line-height: 1.6;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+
+  /* Architecture diagram */
+  .arch {
+    margin: 20px 0 28px;
+  }
+  .arch-scheduler {
+    text-align: center;
+    margin-bottom: 0;
+  }
+  .arch-scheduler-box {
+    display: inline-block;
+    background: #1e293b;
+    color: #f8fafc;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 24px;
+    border-radius: 8px;
+  }
+  .arch-connector {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+  }
+  .arch-connector .line {
+    width: 2px;
+    height: 24px;
+    background: #cbd5e1;
+  }
+  .arch-connector-h {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+    height: 24px;
+    margin: 0 60px;
+  }
+  .arch-connector-h::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 2px;
+    height: 12px;
+    background: #cbd5e1;
+  }
+  .arch-connector-h::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 16.66%;
+    right: 16.66%;
+    height: 2px;
+    background: #cbd5e1;
+  }
+  .arch-branches {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 14px;
+    margin: 0 60px;
+  }
+  .arch-branches .branch-line {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    height: 14px;
+    background: #cbd5e1;
+  }
+  .arch-branches .branch-line:nth-child(1) { left: 16.66%; }
+  .arch-branches .branch-line:nth-child(2) { left: 50%; }
+  .arch-branches .branch-line:nth-child(3) { left: 83.33%; }
+
+  .arch-phases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .arch-phase {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .arch-phase.p1 { border-color: #93c5fd; }
+  .arch-phase.p2 { border-color: #6ee7b7; }
+  .arch-phase.p3 { border-color: #c4b5fd; }
+
+  .arch-phase-header {
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 13px;
+    text-align: center;
+  }
+  .arch-phase.p1 .arch-phase-header { background: #dbeafe; color: #1e40af; }
+  .arch-phase.p2 .arch-phase-header { background: #dcfce7; color: #166534; }
+  .arch-phase.p3 .arch-phase-header { background: #ede9fe; color: #5b21b6; }
+
+  .arch-phase-sub {
+    font-size: 11px;
+    font-weight: 500;
+    opacity: 0.8;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .arch-step {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .arch-step-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 4px;
+  }
+  .arch-step-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .arch-step-items li {
+    font-size: 12px;
+    color: #475569;
+    padding: 1px 0;
+    padding-left: 14px;
+    position: relative;
+    margin: 0;
+  }
+  .arch-step-items li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    font-weight: 700;
+    color: #94a3b8;
+  }
+
+  /* Blockquote / Note */
+  blockquote {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-light);
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: 0 6px 6px 0;
+    font-size: 13.5px;
+    color: #1e40af;
+  }
+  blockquote p { margin: 0; }
+
+  /* Slack examples */
+  .slack-example {
+    background: #1a1d21;
+    color: #d1d2d3;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0 20px;
+    font-family: 'Lato', 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .slack-example .s-title { color: #ffffff; font-weight: 700; }
+  .slack-example .s-sep { color: #4a4d51; }
+  .slack-example .s-label { color: #9b9d9f; }
+  .slack-example .s-value { color: #e8912d; font-weight: 700; }
+  .slack-example .s-green { color: #2eb67d; }
+  .slack-example .s-red { color: #e01e5a; }
+  .slack-example .s-blue { color: #36c5f0; }
+  .slack-example .s-link { color: #1d9bd1; text-decoration: underline; }
+
+  /* SQL */
+  .sql-block {
+    background: #1e293b;
+    color: #e2e8f0;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0 20px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+  }
+  .sql-block .kw { color: #93c5fd; font-weight: 700; }
+  .sql-block .type { color: #86efac; }
+  .sql-block .val { color: #fbbf24; }
+  .sql-block .comment { color: #64748b; font-style: italic; }
+
+  /* Scoring formula */
+  .formula-box {
+    background: linear-gradient(135deg, #f0f9ff, #eff6ff);
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: #1e3a5f;
+    white-space: pre-wrap;
+  }
+
+  /* Pipeline flow */
+  .pipeline {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin: 12px 0 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre;
+    overflow-x: auto;
+    color: #334155;
+  }
+
+  /* Section divider */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* Phase cards */
+  .phase-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  .phase-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .phase-card.p1 { border-top: 3px solid #2563eb; }
+  .phase-card.p2 { border-top: 3px solid #059669; }
+  .phase-card.p3 { border-top: 3px solid #7c3aed; }
+  .phase-card .phase-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 4px;
+  }
+  .phase-card .phase-desc {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+  }
+  .phase-card .phase-schedule {
+    margin-top: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* License */
+  .license {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-size: 12.5px;
+    color: #64748b;
+    line-height: 1.7;
+    margin-top: 12px;
+  }
+
+  /* Print */
+  @media print {
+    body { padding: 24px 16px; font-size: 13px; max-width: 100%; }
+    .header { padding-bottom: 24px; margin-bottom: 24px; }
+    .header h1 { font-size: 26px; }
+    h2 { font-size: 18px; margin-top: 28px; }
+    h3 { font-size: 15px; }
+    pre, .slack-example, .sql-block, .formula-box, .pipeline {
+      font-size: 11px;
+      padding: 12px;
+    }
+    table { font-size: 12px; }
+    th, td { padding: 6px 8px; }
+    .toc-grid { grid-template-columns: repeat(4, 1fr); }
+    .phase-grid { gap: 8px; }
+    .arch-phases { gap: 8px; }
+    .arch-connector-h { margin: 0 40px; }
+    .arch-branches { margin: 0 40px; }
+    .arch-step { padding: 6px 10px; }
+    .arch-step-title { font-size: 11px; }
+    .arch-step-items li { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>Argus - AI Threat Intelligence Platform</h1>
+  <div class="subtitle">AI 기반 위협 인텔리전스 자동화 플랫폼</div>
+  <div class="description">
+    CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리, IOC 통합까지 보안 운영에 필요한 위협 인텔리전스를 자동으로 수집·분석하여 Slack으로 전달하고, GitHub Pages 대시보드로 시각화합니다.
+  </div>
+  <div class="badges">
+    <span class="badge badge-blue">Python</span>
+    <span class="badge badge-blue">GitHub Actions</span>
+    <span class="badge badge-green">Groq LLM</span>
+    <span class="badge badge-green">Google Gemini</span>
+    <span class="badge badge-purple">Supabase</span>
+    <span class="badge badge-orange">Slack</span>
+    <span class="badge badge-red">Sigma</span>
+    <span class="badge badge-red">Snort</span>
+    <span class="badge badge-red">Suricata</span>
+    <span class="badge badge-red">YARA</span>
+    <span class="badge badge-gray">GitHub Pages</span>
+  </div>
+</div>
+
+<!-- TOC -->
+<div class="toc">
+  <div class="toc-title">Table of Contents</div>
+  <div class="toc-grid">
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#features">Features</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#project-structure">Project Structure</a>
+    <a href="#setup">Setup</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#usage">Usage</a>
+    <a href="#slack-alert-examples">Slack Alert Examples</a>
+    <a href="#pipeline-details">Pipeline Details</a>
+    <a href="#supabase-schema">Supabase Schema</a>
+    <a href="#license">License</a>
+  </div>
+</div>
+
+<!-- Overview -->
+<h2 id="overview">Overview</h2>
+
+<p>Argus는 세 개의 독립 파이프라인으로 구성됩니다.</p>
+
+<div class="phase-grid">
+  <div class="phase-card p1">
+    <div class="phase-name">Phase 1 - CVE Scanner</div>
+    <div class="phase-desc">CVE 수집 → AI 분석 → 탐지 룰 생성 → Slack/GitHub Issue</div>
+    <div class="phase-schedule">매 시 정각 자동 실행</div>
+  </div>
+  <div class="phase-card p2">
+    <div class="phase-name">Phase 2 - The Shield</div>
+    <div class="phase-desc">IP 위협 피드 수집 → 평판 조회 → 스코어링 → 일일 리포트</div>
+    <div class="phase-schedule">매일 00:00 UTC = 09:00 KST</div>
+  </div>
+  <div class="phase-card p3">
+    <div class="phase-name">Phase 3 - IOC Dashboard</div>
+    <div class="phase-desc">CVE + IP + URL + Hash + Rule → 통합 IOC 시각화</div>
+    <div class="phase-schedule">Phase 1/2 실행 시 자동 export</div>
+  </div>
+</div>
+
+<h3>핵심 가치</h3>
+<ul>
+  <li><strong>자동화</strong>: CVE 발표 → 분석 → 탐지 룰 → 보안 담당자 알림까지 사람 개입 없이 동작</li>
+  <li><strong>AI 분석</strong>: LLM 기반 근본 원인 분석, 공격 시나리오 생성, 맞춤형 탐지 룰 자동 생성</li>
+  <li><strong>다중 엔진 룰</strong>: Sigma, Snort 2.9/3, Suricata 5/7, YARA 등 실무 보안 장비에 바로 적용 가능</li>
+  <li><strong>IP 위험도 관리</strong>: 8개 위협 피드 통합, AbuseIPDB/InternetDB 보강, 기간 기반 가중치, 카테고리별 임계값, 방화벽 정책 자동 권고</li>
+  <li><strong>IOC 통합</strong>: URLhaus, MalwareBazaar, PhishTank/OpenPhish 피드 연동, 타입별 Lazy-Load 대시보드</li>
+  <li><strong>스마트 필터링</strong>: 콘텐츠 해시 기반 벌크 커밋 감지로 메타데이터 패치 무시, 실제 변경된 CVE만 처리</li>
+  <li><strong>Thread-Safe Rate Limiting</strong>: 10개 API 엔드포인트별 속도 제어, 429 자동 대응, 사용률 요약 리포트</li>
+</ul>
+
+<hr>
+
+<!-- Architecture -->
+<h2 id="architecture">Architecture</h2>
+
+<div class="arch">
+  <!-- Scheduler -->
+  <div class="arch-scheduler">
+    <div class="arch-scheduler-box">GitHub Actions (Scheduler)</div>
+  </div>
+  <div class="arch-connector"><div class="line"></div></div>
+  <div class="arch-connector-h"></div>
+  <div class="arch-branches">
+    <div class="branch-line"></div>
+    <div class="branch-line"></div>
+    <div class="branch-line"></div>
+  </div>
+
+  <!-- 3 Phases -->
+  <div class="arch-phases">
+
+    <!-- Phase 1 -->
+    <div class="arch-phase p1">
+      <div class="arch-phase-header">
+        Phase 1: CVE Scanner
+        <span class="arch-phase-sub">매 시 정각</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">1. 데이터 수집</div>
+        <ul class="arch-step-items">
+          <li>CISA KEV</li>
+          <li>CVE Project</li>
+          <li>EPSS / NVD</li>
+          <li>스마트 필터링</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">2. AI 분석</div>
+        <ul class="arch-step-items">
+          <li>Groq LLM</li>
+          <li>번역 (Gemini)</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">3. 룰 생성</div>
+        <ul class="arch-step-items">
+          <li>Sigma / Snort</li>
+          <li>YARA</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">4. 알림 &amp; 저장</div>
+        <ul class="arch-step-items">
+          <li>Slack</li>
+          <li>GitHub Issue</li>
+          <li>Supabase</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="arch-phase p2">
+      <div class="arch-phase-header">
+        Phase 2: The Shield
+        <span class="arch-phase-sub">매일 09:00 KST</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">1. 피드 수집</div>
+        <ul class="arch-step-items">
+          <li>ET, Spamhaus</li>
+          <li>abuse.ch</li>
+          <li>Tor (이중화)</li>
+          <li>ThreatFox</li>
+          <li>Blocklist.de</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">2. Delta 계산</div>
+        <ul class="arch-step-items">
+          <li>신규/제거 비교</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">3. Enrichment</div>
+        <ul class="arch-step-items">
+          <li>AbuseIPDB</li>
+          <li>InternetDB</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">4. Scoring</div>
+        <ul class="arch-step-items">
+          <li>카테고리별 임계값</li>
+          <li>기간 기반 가중치</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">5. 리포트 &amp; 저장</div>
+        <ul class="arch-step-items">
+          <li>Slack 리포트</li>
+          <li>Supabase 저장</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="arch-phase p3">
+      <div class="arch-phase-header">
+        Phase 3: IOC Export
+        <span class="arch-phase-sub">자동 연동</span>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">IOC 통합</div>
+        <ul class="arch-step-items">
+          <li>CVE → IOC</li>
+          <li>IP → IOC</li>
+          <li>Rule → IOC</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">외부 피드</div>
+        <ul class="arch-step-items">
+          <li>URLhaus</li>
+          <li>MalwareBazaar</li>
+          <li>PhishTank / OpenPhish</li>
+        </ul>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-title">GitHub Pages 대시보드</div>
+        <ul class="arch-step-items">
+          <li>CVE 대시보드</li>
+          <li>IP 대시보드</li>
+          <li>IOC 통합</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<h3>외부 서비스 연동</h3>
+<table>
+  <tr><th>서비스</th><th>용도</th><th>인증</th></tr>
+  <tr><td><strong>CISA KEV</strong></td><td>알려진 익스플로잇 취약점 목록</td><td>공개 API</td></tr>
+  <tr><td><strong>CVE Project</strong></td><td>최신 CVE 메타데이터</td><td>GitHub Token</td></tr>
+  <tr><td><strong>EPSS (FIRST.org)</strong></td><td>익스플로잇 예측 점수</td><td>공개 API</td></tr>
+  <tr><td><strong>NVD</strong></td><td>CVSS, CWE 상세 정보</td><td>API Key (선택)</td></tr>
+  <tr><td><strong>Groq</strong></td><td>LLM 기반 AI 분석/룰 생성</td><td>API Key</td></tr>
+  <tr><td><strong>Google Gemini</strong></td><td>한국어 번역</td><td>API Key</td></tr>
+  <tr><td><strong>Supabase</strong></td><td>PostgreSQL 데이터베이스</td><td>URL + Key</td></tr>
+  <tr><td><strong>Slack</strong></td><td>알림 및 리포트 전송</td><td>Webhook URL</td></tr>
+  <tr><td><strong>GitHub API</strong></td><td>Issue 생성, 룰 검색</td><td>Token</td></tr>
+  <tr><td><strong>AbuseIPDB</strong></td><td>IP 평판 조회 (Shield 선택)</td><td>API Key</td></tr>
+  <tr><td><strong>InternetDB (Shodan)</strong></td><td>포트/취약점 열거</td><td>공개 API</td></tr>
+  <tr><td><strong>SigmaHQ / ET Open</strong></td><td>공개 탐지 룰 검색</td><td>공개</td></tr>
+  <tr><td><strong>URLhaus</strong></td><td>악성 URL 피드</td><td>공개 API</td></tr>
+  <tr><td><strong>MalwareBazaar</strong></td><td>악성코드 해시 피드</td><td>공개 API</td></tr>
+  <tr><td><strong>PhishTank</strong></td><td>피싱 URL 피드</td><td>API Key (선택)</td></tr>
+  <tr><td><strong>OpenPhish</strong></td><td>피싱 URL 피드 (PhishTank fallback)</td><td>공개</td></tr>
+  <tr><td><strong>ThreatFox</strong></td><td>C2/Malware IP 피드</td><td>공개 API</td></tr>
+</table>
+
+<hr>
+
+<!-- Features -->
+<h2 id="features">Features</h2>
+
+<h3>Phase 1 - CVE Scanner</h3>
+
+<h4>데이터 수집</h4>
+<ul>
+  <li>CISA KEV 실시간 추적</li>
+  <li>최근 2시간 내 발표된 CVE 자동 수집 (스마트 필터링 적용)</li>
+  <li>콘텐츠 해시 기반 벌크 커밋 감지 → 메타데이터 패치 무시</li>
+  <li>EPSS 점수 배치 조회</li>
+  <li>NVD CVSS/CWE 보강 (선택)</li>
+  <li>PoC(Proof-of-Concept) 공개 여부 감지</li>
+  <li>VulnCheck KEV 추가 소스 (선택)</li>
+  <li>GitHub Advisory DB 패키지 정보 조회</li>
+</ul>
+
+<h4>AI 분석 (Groq LLM)</h4>
+<ul>
+  <li>취약점 근본 원인 분석</li>
+  <li>MITRE ATT&amp;CK 기반 공격 시나리오 생성</li>
+  <li>비즈니스 영향도 평가</li>
+  <li>대응 방안 권고</li>
+  <li>탐지 룰 생성 가능성 판단 (Observable Gate)</li>
+</ul>
+
+<h4>탐지 룰 자동 생성</h4>
+<table>
+  <tr><th>엔진</th><th>공개 룰 소스</th><th>AI 생성</th></tr>
+  <tr><td><strong>Sigma</strong></td><td>SigmaHQ</td><td>O</td></tr>
+  <tr><td><strong>Snort 2.9</strong></td><td>ET Open, Community</td><td>O</td></tr>
+  <tr><td><strong>Snort 3</strong></td><td>Community</td><td>O</td></tr>
+  <tr><td><strong>Suricata 5</strong></td><td>ET Open</td><td>O</td></tr>
+  <tr><td><strong>Suricata 7</strong></td><td>ET Open</td><td>O</td></tr>
+  <tr><td><strong>YARA</strong></td><td>Yara-Rules</td><td>O</td></tr>
+</table>
+<ul>
+  <li>공개 룰 우선 사용, 없을 경우 AI가 생성</li>
+  <li>AI 생성 룰은 정규식 기반 구문 검증 + 환각 방지 가드 적용</li>
+  <li>공식 룰 발견 시 기존 AI 룰을 대체하고 Slack으로 재알림</li>
+</ul>
+
+<h4>알림 트리거 조건</h4>
+<table>
+  <tr><th>트리거</th><th>조건</th><th>설명</th></tr>
+  <tr><td><code>신규 취약점</code></td><td>최초 발견된 CVE</td><td>DB에 없는 새 CVE</td></tr>
+  <tr><td><code>KEV 등재</code></td><td>CISA KEV 등록</td><td>기존 CVE가 KEV 등재</td></tr>
+  <tr><td><code>EPSS 급증</code></td><td>EPSS &gt;= 10% 이고 증가폭 &gt; 5%p</td><td>익스플로잇 가능성 급증</td></tr>
+  <tr><td><code>CVSS 위험도 상향</code></td><td>CVSS 점수가 7.0 이상으로 상승</td><td>위험도 재평가</td></tr>
+</table>
+
+<h4>자산 매칭 (assets.json)</h4>
+<ul>
+  <li>1차: CVE <code>affected</code> 필드의 구조화된 vendor/product 매칭</li>
+  <li>2차: description 텍스트 검색 (fallback)</li>
+  <li>와일드카드(<code>*</code>) 지원으로 전체 모니터링 가능</li>
+</ul>
+
+<h3>Phase 2 - The Shield (IP Blacklist)</h3>
+
+<h4>위협 피드 수집 (8개 소스)</h4>
+<table>
+  <tr><th>피드</th><th>제공자</th><th>기본 점수</th><th>설명</th></tr>
+  <tr><td>ET Compromised IPs</td><td>Emerging Threats</td><td>60</td><td>침해된 IP</td></tr>
+  <tr><td>ET Block IPs</td><td>Emerging Threats</td><td>70</td><td>차단 권고 IP</td></tr>
+  <tr><td>Spamhaus DROP</td><td>Spamhaus</td><td>80</td><td>스팸/봇넷 CIDR</td></tr>
+  <tr><td>Feodo C2</td><td>abuse.ch</td><td>90</td><td>C&amp;C 서버 IP</td></tr>
+  <tr><td>Tor Exit Nodes (공식)</td><td>TorProject</td><td>40</td><td>Tor 출구 노드</td></tr>
+  <tr><td>Tor Exit Nodes (dan.me.uk)</td><td>dan.me.uk</td><td>40</td><td>Tor 출구 노드 (이중화)</td></tr>
+  <tr><td>Blocklist.de</td><td>Blocklist.de</td><td>50</td><td>공격 IP 통합</td></tr>
+  <tr><td>ThreatFox C2/Malware</td><td>abuse.ch</td><td>85</td><td>C2/악성코드 IP</td></tr>
+</table>
+
+<h4>위험도 스코어링 (0~100점)</h4>
+<div class="formula-box">최종 점수 = clamp(기본 점수 + 소스 보너스 + AbuseIPDB 조정
+                  + InternetDB 조정 + 기간 가중치, 0, 100)
+
+- 기본 점수: 피드별 40~90점
+- 소스 보너스: 추가 피드당 +5점 (최대 +15)
+- AbuseIPDB 조정 (키 없으면 생략):
+    confidence &lt; 10 → -10
+    confidence &gt;= 10 → int(confidence * 0.25) + min(8, reports // 5)
+    reports &lt; 3이면 위 결과를 50% 감쇠
+    (범위: -10 ~ +33)
+- InternetDB 조정:
+    위험 포트 수 * 3 (최대 +15) + 알려진 취약점 수 * 2 (최대 +10)
+    (범위: 0 ~ +25)
+- 기간 기반 가중치 (연속 등장 일수):
+    1일(신규): 0, 2일: +2, 3일: +4, ... 7일+: +12 (cap)
+    (범위: 0 ~ +12)</div>
+
+<h4>카테고리별 임계값 오버라이드</h4>
+<p>카테고리에 따라 동일한 점수라도 위험 등급이 달라집니다:</p>
+<table>
+  <tr><th>카테고리</th><th>Critical</th><th>High</th><th>Medium</th><th>비고</th></tr>
+  <tr><td>기본 (글로벌)</td><td>80+</td><td>60+</td><td>40+</td><td>대부분의 카테고리</td></tr>
+  <tr><td>botnet/C2/malware/exploit</td><td>70+</td><td>50+</td><td>30+</td><td>즉각 차단 필요</td></tr>
+  <tr><td>scanner/bruteforce/compromised</td><td>75+</td><td>55+</td><td>35+</td><td>탐색/무차별 공격/침해</td></tr>
+  <tr><td>tor</td><td>90+</td><td>75+</td><td>50+</td><td>단독으로는 위험 낮음</td></tr>
+</table>
+
+<h4>방화벽 관리 자동 권고</h4>
+<ul>
+  <li>매일 신규 고위험 IP TOP 10 알림 (방화벽 등록 대상)</li>
+  <li>피드 제거 감지: 어제 Critical/High → 오늘 모든 피드에서 사라진 IP → 차단 해제 대상</li>
+  <li>등급 하락 감지: 어제 Critical/High → 오늘 Medium/Low로 하락 → 차단 해제 검토</li>
+</ul>
+
+<h3>Phase 3 - IOC Dashboard &amp; External Feeds</h3>
+
+<h4>외부 IOC 피드 연동</h4>
+<table>
+  <tr><th>피드</th><th>유형</th><th>설명</th></tr>
+  <tr><td>URLhaus</td><td>URL</td><td>abuse.ch 악성 URL (온라인 상태)</td></tr>
+  <tr><td>MalwareBazaar</td><td>Hash</td><td>abuse.ch 악성코드 SHA256 해시</td></tr>
+  <tr><td>PhishTank</td><td>URL</td><td>검증된 피싱 URL</td></tr>
+  <tr><td>OpenPhish</td><td>URL</td><td>피싱 URL (PhishTank 실패 시 fallback)</td></tr>
+</table>
+
+<h4>IOC 통합 데이터 구조 (타입별 Lazy-Load)</h4>
+<p>대시보드는 전체 IOC를 한 번에 로드하지 않고, 타입별 분리 파일로 필요할 때만 로드합니다:</p>
+<table>
+  <tr><th>파일</th><th>내용</th></tr>
+  <tr><td><code>ioc-meta.json</code></td><td>통계만 포함 (초기 로드용, 경량)</td></tr>
+  <tr><td><code>ioc-cve.json</code></td><td>CVE IOC 데이터</td></tr>
+  <tr><td><code>ioc-ip.json</code></td><td>IP 블랙리스트 IOC 데이터</td></tr>
+  <tr><td><code>ioc-url.json</code></td><td>악성/피싱 URL IOC 데이터</td></tr>
+  <tr><td><code>ioc-hash.json</code></td><td>악성코드 해시 IOC 데이터</td></tr>
+  <tr><td><code>ioc-rule.json</code></td><td>탐지 룰 IOC 데이터</td></tr>
+</table>
+
+<hr>
+
+<!-- Dashboard -->
+<h2 id="dashboard">Dashboard</h2>
+
+<p>GitHub Pages 기반 정적 대시보드로, Supabase 직접 호출 없이 <code>docs/data/*.json</code> 파일을 로드합니다.</p>
+<table>
+  <tr><th>페이지</th><th>URL</th><th>설명</th></tr>
+  <tr><td><strong>IOC 통합</strong> (메인)</td><td><code>/</code> → <code>/ioc.html</code></td><td>CVE, IP, URL, Hash, Rule 통합 뷰</td></tr>
+  <tr><td><strong>CVE 대시보드</strong></td><td><code>/cve.html</code></td><td>CVE 심각도 분포, 벤더 TOP 10, 일별 추이</td></tr>
+  <tr><td><strong>Blacklist IP</strong></td><td><code>/blacklist.html</code></td><td>IP 위험도 분포, 카테고리별 통계, 평판 회복 IP</td></tr>
+</table>
+<blockquote><p><code>index.html</code>은 <code>ioc.html</code>로 자동 리디렉트됩니다.</p></blockquote>
+
+<hr>
+
+<!-- Project Structure -->
+<h2 id="project-structure">Project Structure</h2>
+
+<pre><code>Argus-AI-Threat-Intelligence/
+├── .github/workflows/
+│   ├── argus.yml                     # Phase 1: CVE 스캔 워크플로우
+│   └── blacklist.yml                 # Phase 2: 일일 IP 블랙리스트
+│
+├── src/
+│   ├── main.py                       # Phase 1 메인 파이프라인
+│   ├── collector.py                  # CVE 데이터 수집기 (스마트 필터링)
+│   ├── analyzer.py                   # AI 분석 엔진 (Groq LLM)
+│   ├── rule_manager.py               # 탐지 룰 수집/생성 관리
+│   ├── notifier.py                   # Slack 알림 (CVE 알림, 공식 룰 알림)
+│   ├── database.py                   # Supabase 인터페이스
+│   ├── config.py                     # 설정 관리 (ArgusConfig 클래스)
+│   ├── logger.py                     # 로깅
+│   ├── rate_limiter.py               # Thread-Safe API 속도 제한 (v3.0)
+│   ├── export_dashboard_data.py      # 대시보드 데이터 Export + 외부 IOC 수집
+│   │
+│   └── blacklist_ip/                 # Phase 2: The Shield
+│       ├── main.py                   # Shield 메인 파이프라인
+│       ├── config.py                 # Shield 설정 (Settings dataclass)
+│       ├── collector_tier1.py        # 피드 수집기 (8개 소스, ThreatFox JSON 파서)
+│       ├── enricher_tier2.py         # IP 보강 (AbuseIPDB, InternetDB, 분리 캡)
+│       ├── scoring.py                # 위험도 스코어링 (카테고리별 임계값, 기간 가중치)
+│       ├── delta.py                  # 일일 변동 계산
+│       ├── store_supabase.py         # Supabase 저장소
+│       ├── blacklist_ip_notifier.py  # Shield Slack 리포트
+│       └── feeds.yml                 # 위협 피드 설정 (8개)
+│
+├── docs/                             # GitHub Pages 대시보드
+│   ├── index.html                    # → ioc.html 리디렉트
+│   ├── ioc.html                      # IOC 통합 대시보드 (메인)
+│   ├── cve.html                      # CVE 대시보드
+│   ├── blacklist.html                # IP 블랙리스트 대시보드
+│   ├── css/style.css                 # 공통 스타일
+│   ├── js/
+│   │   ├── chart.js                  # 차트 유틸리티
+│   │   ├── cve-dashboard.js          # CVE 대시보드 로직
+│   │   ├── blacklist-dashboard.js    # IP 대시보드 로직
+│   │   └── ioc-dashboard.js          # IOC 통합 대시보드 로직
+│   └── data/                         # Export된 JSON 데이터 (자동 생성)
+│       ├── cves.json / blacklist.json / stats.json
+│       └── ioc-meta/cve/ip/url/hash/rule.json
+│
+├── assets.json                       # 모니터링 대상 자산 정의
+├── requirements.txt                  # Python 의존성
+└── README.md</code></pre>
+
+<hr>
+
+<!-- Setup -->
+<h2 id="setup">Setup</h2>
+
+<h3>1. 저장소 클론</h3>
+<pre><code>git clone https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence.git
+cd Argus-AI-Threat-Intelligence</code></pre>
+
+<h3>2. 의존성 설치</h3>
+<pre><code>pip install -r requirements.txt</code></pre>
+
+<table>
+  <tr><th>패키지</th><th>용도</th></tr>
+  <tr><td><code>requests</code></td><td>HTTP API 호출</td></tr>
+  <tr><td><code>groq</code></td><td>Groq LLM API 클라이언트</td></tr>
+  <tr><td><code>google-genai</code></td><td>Google Gemini 번역</td></tr>
+  <tr><td><code>supabase</code></td><td>Supabase 데이터베이스</td></tr>
+  <tr><td><code>slack_sdk</code></td><td>Slack 메시지 빌드</td></tr>
+  <tr><td><code>PyYAML</code></td><td>YAML 설정 파싱</td></tr>
+  <tr><td><code>yara-python</code></td><td>YARA 룰 컴파일 검증</td></tr>
+  <tr><td><code>tenacity</code></td><td>API 재시도 로직</td></tr>
+  <tr><td><code>pytz</code></td><td>시간대 관리</td></tr>
+</table>
+
+<h3>3. GitHub Secrets 설정</h3>
+<p>GitHub 저장소 Settings &gt; Secrets and variables &gt; Actions에 다음 시크릿을 등록합니다.</p>
+
+<h4>필수 (Phase 1 - CVE Scanner)</h4>
+<table>
+  <tr><th>Secret</th><th>설명</th></tr>
+  <tr><td><code>GH_TOKEN</code></td><td>GitHub Personal Access Token (Issue 생성, 룰 검색)</td></tr>
+  <tr><td><code>SUPABASE_URL</code></td><td>Supabase 프로젝트 URL</td></tr>
+  <tr><td><code>SUPABASE_KEY</code></td><td>Supabase anon/service key</td></tr>
+  <tr><td><code>SLACK_WEBHOOK_URL</code></td><td>Slack Incoming Webhook URL</td></tr>
+  <tr><td><code>GROQ_API_KEY</code></td><td>Groq API 키</td></tr>
+  <tr><td><code>GEMINI_API_KEY</code></td><td>Google Gemini API 키</td></tr>
+</table>
+<blockquote><p><code>GITHUB_REPOSITORY</code>: GitHub Actions 환경에서 자동 제공됩니다. 로컬 실행 시 미설정하면 GitHub Issue 생성만 스킵됩니다.</p></blockquote>
+
+<h4>필수 (Phase 2 - The Shield)</h4>
+<p>Phase 1과 공유하는 3개만 필수입니다:</p>
+<table>
+  <tr><th>Secret</th><th>설명</th></tr>
+  <tr><td><code>SUPABASE_URL</code></td><td>Supabase 프로젝트 URL</td></tr>
+  <tr><td><code>SUPABASE_KEY</code></td><td>Supabase anon/service key</td></tr>
+  <tr><td><code>SLACK_WEBHOOK_URL</code></td><td>Slack Incoming Webhook URL</td></tr>
+</table>
+
+<h4>선택</h4>
+<table>
+  <tr><th>Secret</th><th>용도</th><th>미설정 시 동작</th></tr>
+  <tr><td><code>ABUSEIPDB_API_KEY</code></td><td>AbuseIPDB IP 평판 조회 (Free tier: 1,000 조회/일)</td><td>AbuseIPDB enrichment 스킵, InternetDB만 사용</td></tr>
+  <tr><td><code>NVD_API_KEY</code></td><td>NVD API (Phase 1: CVSS/CWE 상세 조회)</td><td>NVD 보강 없이 진행</td></tr>
+  <tr><td><code>VULNCHECK_API_KEY</code></td><td>VulnCheck API (Phase 1: 확장 KEV 소스)</td><td>VulnCheck 소스 없이 진행</td></tr>
+  <tr><td><code>PHISHTANK_API_KEY</code></td><td>PhishTank API (IOC 피싱 URL 수집)</td><td>공개 엔드포인트 사용 (실패 시 OpenPhish fallback)</td></tr>
+</table>
+
+<hr>
+
+<!-- Configuration -->
+<h2 id="configuration">Configuration</h2>
+
+<h3>Phase 1 설정 (<code>src/config.py</code> ArgusConfig 클래스)</h3>
+<table>
+  <tr><th>설정</th><th>현재 값</th><th>설명</th></tr>
+  <tr><td><code>MODEL_PHASE_0</code></td><td><code>gemma-3-27b-it</code></td><td>번역/요약용 모델</td></tr>
+  <tr><td><code>MODEL_PHASE_1</code></td><td><code>openai/gpt-oss-120b</code></td><td>심층 분석용 모델</td></tr>
+  <tr><td><code>max_workers</code></td><td>3</td><td>병렬 CVE 처리 워커 수</td></tr>
+  <tr><td><code>cve_fetch_hours</code></td><td>2</td><td>최근 N시간 내 CVE 수집</td></tr>
+  <tr><td><code>max_cves_per_run</code></td><td>50</td><td>한 실행당 최대 처리 CVE 수</td></tr>
+  <tr><td><code>max_rule_recheck</code></td><td>10</td><td>공식 룰 재확인 배치 크기</td></tr>
+  <tr><td><code>rule_check_interval_days</code></td><td>7</td><td>공식 룰 재확인 주기</td></tr>
+  <tr><td><code>bulk_commit_threshold</code></td><td>100</td><td>벌크 커밋 판단 기준 (파일 수)</td></tr>
+</table>
+
+<h3>Phase 1 Rate Limiter (<code>src/rate_limiter.py</code>)</h3>
+<p>Thread-Safe Rate Limiter v3.0이 10개 API 엔드포인트를 관리합니다:</p>
+<table>
+  <tr><th>API</th><th>한도</th><th>윈도우</th><th>최소 간격</th></tr>
+  <tr><td><code>github</code></td><td>5,000/h</td><td>3,600s</td><td>0.5s</td></tr>
+  <tr><td><code>github_search</code></td><td>8/min</td><td>60s</td><td>7.0s</td></tr>
+  <tr><td><code>groq</code></td><td>15/min</td><td>60s</td><td>5.0s</td></tr>
+  <tr><td><code>gemini</code></td><td>25/min</td><td>60s</td><td>2.5s</td></tr>
+  <tr><td><code>epss</code></td><td>60/min</td><td>60s</td><td>1.0s</td></tr>
+  <tr><td><code>kev</code></td><td>10/h</td><td>3,600s</td><td>2.0s</td></tr>
+  <tr><td><code>nvd</code></td><td>40/30s</td><td>30s</td><td>1.0s</td></tr>
+  <tr><td><code>vulncheck</code></td><td>40/min</td><td>60s</td><td>1.5s</td></tr>
+  <tr><td><code>github_advisory</code></td><td>100/h</td><td>3,600s</td><td>0.5s</td></tr>
+  <tr><td><code>ruleset_download</code></td><td>20/h</td><td>3,600s</td><td>2.0s</td></tr>
+</table>
+<ul>
+  <li>사용률 80% 이상 시 속도 조절, 90% 이상 시 추가 대기</li>
+  <li>429 응답 시 <code>Retry-After</code> 헤더 파싱 후 자동 대기</li>
+  <li>실행 종료 시 API별 사용량 요약 출력</li>
+</ul>
+
+<h3>Phase 2 설정 (<code>src/blacklist_ip/config.py</code> Settings dataclass)</h3>
+<table>
+  <tr><th>설정</th><th>기본값</th><th>설명</th></tr>
+  <tr><td><code>critical_threshold</code></td><td>80</td><td>Critical 등급 기준 (글로벌)</td></tr>
+  <tr><td><code>high_threshold</code></td><td>60</td><td>High 등급 기준 (글로벌)</td></tr>
+  <tr><td><code>medium_threshold</code></td><td>40</td><td>Medium 등급 기준 (글로벌)</td></tr>
+  <tr><td><code>source_bonus_step</code></td><td>5</td><td>추가 피드당 보너스 점수</td></tr>
+  <tr><td><code>source_bonus_cap</code></td><td>15</td><td>소스 보너스 최대값</td></tr>
+  <tr><td><code>max_enrich_count</code></td><td>500</td><td>AbuseIPDB 최대 enrichment 대상 수</td></tr>
+  <tr><td><code>max_enrich_internetdb</code></td><td>5,000</td><td>InternetDB 최대 enrichment 대상 수</td></tr>
+  <tr><td><code>enrich_workers</code></td><td>20</td><td>InternetDB 병렬 워커 수</td></tr>
+  <tr><td><code>topn_report</code></td><td>10</td><td>Slack TOP N 리포트 수</td></tr>
+  <tr><td><code>abuseipdb_daily_max</code></td><td>1,000</td><td>AbuseIPDB 일일 쿼터</td></tr>
+  <tr><td><code>cache_ttl (AbuseIPDB)</code></td><td>24시간</td><td>AbuseIPDB 캐시 TTL</td></tr>
+  <tr><td><code>cache_ttl (InternetDB)</code></td><td>72시간</td><td>InternetDB 캐시 TTL</td></tr>
+</table>
+
+<hr>
+
+<!-- Usage -->
+<h2 id="usage">Usage</h2>
+
+<h3>Phase 1 - CVE Scanner</h3>
+<p><strong>GitHub Actions:</strong> 매 시 정각 자동 실행 (수동 실행도 가능: Actions 탭 &gt; <code>Argus CVE Monitor</code> &gt; Run workflow)</p>
+<p><strong>로컬 실행:</strong></p>
+<pre><code>export GH_TOKEN="..."
+export SUPABASE_URL="..."
+export SUPABASE_KEY="..."
+export SLACK_WEBHOOK_URL="..."
+export GROQ_API_KEY="..."
+export GEMINI_API_KEY="..."
+
+python src/main.py</code></pre>
+
+<h3>Phase 2 - The Shield</h3>
+<p><strong>GitHub Actions:</strong> 매일 00:00 UTC = 09:00 KST 자동 실행</p>
+<p><strong>로컬 실행:</strong></p>
+<pre><code>export SLACK_WEBHOOK_URL="..."
+export SUPABASE_URL="..."
+export SUPABASE_KEY="..."
+export ABUSEIPDB_API_KEY="..."  # 선택
+
+python -m src.blacklist_ip.main --mode daily --tz Asia/Seoul</code></pre>
+
+<h3>Dashboard Data Export</h3>
+<pre><code>export SUPABASE_URL="..."
+export SUPABASE_KEY="..."
+
+python src/export_dashboard_data.py</code></pre>
+<blockquote><p>Supabase 자격증명이 없으면 빈 샘플 데이터가 생성되어 대시보드가 에러 없이 로드됩니다.</p></blockquote>
+
+<hr>
+
+<!-- Slack Alert Examples -->
+<h2 id="slack-alert-examples">Slack Alert Examples</h2>
+
+<h3>1. 신규 CVE 알림</h3>
+<div class="slack-example"><span class="s-title">[NEW] 신규 CVE: CVE-2024-12345</span>
+<span class="s-sep">───────────────────────────────</span>
+Apache Struts OGNL 인젝션을 통한 원격 코드 실행
+
+영향받는 제품:
+  Vendor: Apache
+  Product: Struts
+  Versions: 2.3.5 ~ 2.5.30
+  Patch: 2.5.31
+<span class="s-sep">───────────────────────────────</span>
+  <span class="s-label">CVSS</span>        <span class="s-label">EPSS</span>       <span class="s-label">KEV</span>       <span class="s-label">CWE</span>
+  <span class="s-red">9.8</span>         <span class="s-value">85.2%</span>      <span class="s-red">YES</span>       <span class="s-blue">CWE-917</span>
+<span class="s-sep">───────────────────────────────</span>
+Apache Struts의 Content-Type 헤더를 통한 OGNL
+인젝션으로 원격 코드 실행이 가능합니다...
+
+  <span class="s-link">[AI 상세 분석 리포트 →]</span>  (GitHub Issue 링크)</div>
+
+<h3>2. CVE 배치 요약 알림</h3>
+<div class="slack-example"><span class="s-title">  Argus CVE 배치 요약</span>
+<span class="s-sep">───────────────────────────────</span>
+총 탐지: <span class="s-value">12건</span>
+
+  <span class="s-red">Critical</span>  <span class="s-value">High</span>     <span class="s-blue">Medium</span>   <span class="s-label">Low</span>
+     3          5          3         1
+<span class="s-sep">───────────────────────────────</span>
+고위험 CVE:
+  1. CVE-2024-12345 (<span class="s-red">CVSS 9.8</span>) - Apache Struts RCE
+  2. CVE-2024-67890 (<span class="s-red">CVSS 9.1</span>) - OpenSSL Buffer Overflow
+  3. CVE-2024-11111 (<span class="s-red">CVSS 8.8</span>) - Linux Kernel LPE
+
+  <span class="s-link">[📊 대시보드에서 전체 확인 →]</span>  (GitHub Pages 링크)</div>
+
+<h3>3. 공식 룰 발견 알림</h3>
+<div class="slack-example"><span class="s-title">  공식 룰 발견: CVE-2021-44228</span>
+<span class="s-sep">───────────────────────────────</span>
+이전에 AI 생성 룰로 보고된 취약점에 대한
+공식 검증된 룰이 발견되었습니다.
+<span class="s-sep">───────────────────────────────</span>
+
+  <span class="s-green">Sigma</span> (Public SigmaHQ)
+  ┌─────────────────────────────┐
+  │ title: Log4Shell Detection  │
+  │ status: stable              │
+  └─────────────────────────────┘
+
+  <span class="s-green">SNORT2</span> (Public Snort 2.9 ET Open)
+  ┌─────────────────────────────┐
+  │ alert tcp $EXTERNAL_NET ... │
+  └─────────────────────────────┘
+
+총 <span class="s-value">6개 엔진</span>의 공식 룰 발견.
+위 룰을 복사하여 보안 장비에 등록하세요.
+
+  <span class="s-link">[전체 룰 + 상세 리포트 보기 →]</span></div>
+
+<h3>4. The Shield 일일 리포트</h3>
+<div class="slack-example"><span class="s-title">  The Shield 일일 위협 IP 리포트 (2025-02-17)</span>
+<span class="s-sep">───────────────────────────────</span>
+총 수집: <span class="s-value">4,521</span>개
+  - 신규: <span class="s-green">287개 (+6.3%)</span>
+  - 제거: 143개
+<span class="s-sep">───────────────────────────────</span>
+  <span class="s-red">Critical (80+)</span>    <span class="s-value">High (60-79)</span>
+       42              318
+  <span class="s-blue">Medium (40-59)</span>    <span class="s-label">Low (&lt;40)</span>
+     1,892            2,269
+<span class="s-sep">───────────────────────────────</span>
+
+  신규 고위험 IP TOP 10:
+  1. 45.xx.xx.xx (<span class="s-red">92점</span>) - abuse.ch Feodo C2
+     AbuseIPDB 98% (reports=247), Ports [22, 80, 443]
+  2. 91.xx.xx.xx (<span class="s-red">87점</span>) - ET Block-IPs
+     AbuseIPDB 85% (reports=52), Ports [22, 8080]
+  ...
+<span class="s-sep">───────────────────────────────</span>
+  <span class="s-title">방화벽 블랙리스트 관리</span>
+
+  <span class="s-green">제거 대상 (2건):</span>
+  - 1.2.3.4 (어제 92점/Critical) - botnet
+  - 5.6.7.8 (어제 78점/High) - scanner
+
+  <span class="s-blue">등급 하락 검토 (3건):</span>
+  - 9.10.11.12 (Critical 85점 -&gt; Medium 45점) - spam
+  - 13.14.15.16 (High 72점 -&gt; Low 28점) - scanner
+<span class="s-sep">───────────────────────────────</span>
+<span class="s-label">API usage - AbuseIPDB: 287, InternetDB: 287</span></div>
+
+<hr>
+
+<!-- Pipeline Details -->
+<h2 id="pipeline-details">Pipeline Details</h2>
+
+<h3>Phase 1 실행 흐름</h3>
+<div class="pipeline">1. Health Check
+   └─ 환경 변수 검증 (6개 필수), assets.json 로드
+
+2. 공식 룰 재탐색 (Official Rule Re-discovery)
+   ├─ AI 룰만 있는 CVE → 공식 룰 교체
+   ├─ 룰 없는 고위험 CVE → 새 공식 룰 적용
+   ├─ 배치 제한: 10건/실행
+   └─ 쿨다운: 성공 7일 / 실패 1일 (빠른 재시도)
+
+3. 데이터 수집 (스마트 필터링)
+   ├─ CISA KEV + VulnCheck KEV
+   ├─ 최근 2시간 CVE 수집 (GitHub Commits API)
+   │   ├─ Phase 1: 커밋별 CVE ID 추출 + 벌크 감지
+   │   ├─ Phase 2: 일반 커밋 CVE → 전부 처리
+   │   └─ Phase 3: 벌크 커밋 CVE → 콘텐츠 해시 비교 → 스킵
+   └─ EPSS 점수 배치 조회
+
+4. 우선순위 정렬 + 배치 제한
+   ├─ 신규 CVE 우선 처리
+   └─ 최대 50건/실행
+
+5. 병렬 CVE 처리 (3 workers)
+   ├─ 추가 위협 인텔리전스 (NVD, PoC, Advisory)
+   ├─ 자산 매칭 (affected → description fallback)
+   ├─ 알림 트리거 판정 (신규/KEV/EPSS/CVSS)
+   ├─ 한국어 번역 (Google Gemini)
+   ├─ 고위험 시 GitHub Issue + AI 분석 + 룰 생성
+   ├─ Slack 알림
+   └─ Supabase DB 업데이트
+
+6. Slack 배치 요약 전송
+   └─ 대시보드 바로가기 버튼 포함 (GitHub Pages)
+
+7. Rate Limit 사용 요약 출력</div>
+
+<h3>Phase 2 실행 흐름</h3>
+<div class="pipeline">Step 1/5: Tier 1 피드 수집
+   └─ 8개 위협 피드 다운로드 (개별 실패 허용, ThreatFox JSON 파서)
+
+Step 2/5: Delta 계산
+   ├─ 어제 vs 오늘 indicator 세트 비교 (Supabase 기반)
+   ├─ 신규/제거 IP 식별
+   └─ 어제 고위험 중 제거된 IP 식별
+
+Step 3/5: Tier 2 Enrichment
+   ├─ 신규 IP만 대상 (CIDR 제외)
+   ├─ base_score 기준 우선순위 정렬 (높은 점수 우선)
+   ├─ AbuseIPDB 최대 500개 (분리 캡), 순차 조회 (1초 간격)
+   ├─ InternetDB 최대 5,000개 (분리 캡), 병렬 조회 (20 workers)
+   └─ 캐시 활용 (AbuseIPDB 24h, InternetDB 72h TTL)
+
+Step 4/5: Scoring
+   ├─ 기본 점수 + 소스 보너스 + AbuseIPDB + InternetDB + 기간 가중치
+   ├─ 카테고리별 임계값 오버라이드 적용
+   └─ 등급 하락 IP 감지 (어제 고위험 → 오늘 중/저위험)
+
+Step 5/5: 저장 + 리포트
+   ├─ Supabase에 일별 스냅샷 저장
+   └─ Slack 일일 리포트 전송 (방화벽 관리 권고 포함)</div>
+
+<h3>Dashboard Export 흐름</h3>
+<div class="pipeline">Step 1/5: CVE 데이터 export (Supabase → cves.json, 페이지네이션)
+Step 2/5: 블랙리스트 IP export (Supabase → blacklist.json, 평판 회복 IP 포함)
+Step 3/5: 외부 IOC 피드 수집 (URLhaus → MalwareBazaar → PhishTank/OpenPhish)
+Step 4/5: IOC 통합 데이터 export (타입별 분리 파일 생성)
+Step 5/5: 통계 집계 (stats.json)</div>
+
+<hr>
+
+<!-- Supabase Schema -->
+<h2 id="supabase-schema">Supabase Schema</h2>
+
+<h3>Phase 1 테이블</h3>
+<div class="sql-block"><span class="comment">-- CVE 이력</span>
+<span class="kw">CREATE TABLE</span> cves (
+  id              <span class="type">TEXT</span> <span class="kw">PRIMARY KEY</span>,
+  cvss_score      <span class="type">REAL</span>,
+  epss_score      <span class="type">REAL</span>,
+  is_kev          <span class="type">BOOLEAN</span>,
+  has_official_rules <span class="type">BOOLEAN</span> <span class="kw">DEFAULT</span> <span class="val">FALSE</span>,
+  last_alert_at   <span class="type">TIMESTAMPTZ</span>,
+  last_alert_state <span class="type">JSONB</span>,
+  rules_snapshot  <span class="type">JSONB</span>,
+  report_url      <span class="type">TEXT</span>,
+  last_rule_check_at <span class="type">TIMESTAMPTZ</span>,
+  content_hash    <span class="type">TEXT</span>,
+  updated_at      <span class="type">TIMESTAMPTZ</span>
+);</div>
+
+<h3>Phase 2 테이블</h3>
+<div class="sql-block"><span class="comment">-- 일별 스냅샷 메타</span>
+<span class="kw">CREATE TABLE</span> shield_daily_snapshots (
+  date           <span class="type">DATE</span> <span class="kw">PRIMARY KEY</span>,
+  total_count    <span class="type">INTEGER</span>,
+  new_count      <span class="type">INTEGER</span>,
+  removed_count  <span class="type">INTEGER</span>,
+  api_usage      <span class="type">JSONB</span>
+);
+
+<span class="comment">-- 일별 indicator 상세</span>
+<span class="kw">CREATE TABLE</span> shield_indicators (
+  date           <span class="type">DATE</span>,
+  indicator      <span class="type">TEXT</span>,
+  type           <span class="type">TEXT</span>,
+  category       <span class="type">TEXT</span>,
+  sources        <span class="type">TEXT[]</span>,
+  base_score     <span class="type">INTEGER</span>,
+  final_score    <span class="type">INTEGER</span>,
+  risk           <span class="type">TEXT</span>,
+  enrichment     <span class="type">JSONB</span>,
+  <span class="kw">PRIMARY KEY</span> (date, indicator)
+);
+
+<span class="comment">-- Enrichment 캐시</span>
+<span class="kw">CREATE TABLE</span> shield_enrichment_cache (
+  indicator      <span class="type">TEXT</span>,
+  provider       <span class="type">TEXT</span>,
+  data           <span class="type">JSONB</span>,
+  ttl_until      <span class="type">TIMESTAMPTZ</span>,
+  <span class="kw">PRIMARY KEY</span> (indicator, provider)
+);</div>
+
+<hr>
+
+<!-- License -->
+<h2 id="license">License</h2>
+<div class="license">
+<strong>MIT License</strong><br><br>
+Copyright (c) 2025 LEEKIYOON-SEC<br><br>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:<br><br>
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.<br><br>
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+</div>
+
+</body>
+</html>
