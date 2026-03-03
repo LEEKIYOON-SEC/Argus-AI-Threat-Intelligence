@@ -1,29 +1,101 @@
 [
   {
-    "id": "CVE-2026-1876",
-    "title": "MELSEC iQ-F 시리즈 이더넷 모듈의 서비스 거부(DoS) 취약점",
-    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 이더넷 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
-    "cvss": 8.7,
+    "id": "CVE-2026-2568",
+    "title": "WP Zendesk for Contact Form 7, WPForms, Elementor, Formidable 및 Ninja Forms <= 1.1.5 - 인증되지 않은 저장형 XSS 취약점",
+    "description": "WP Zendesk 플러그인은 버전 1.1.5까지 폼 제출 데이터의 입력값 검증 및 출력 이스케이핑 부족으로 인해 저장형 XSS 취약점에 노출됩니다. 이를 통해 인증되지 않은 공격자가 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행될 수 있습니다.",
+    "cvss": 7.2,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-404"
+      "CWE-79"
     ],
     "affected": [
       {
-        "vendor": "Mitsubishi Electric Corporation",
-        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
-        "versions": "All versions (단일 버전)"
+        "vendor": "crmperks",
+        "product": "WP Zendesk for Contact Form 7, WPForms, Elementor, Formidable and Ninja Forms",
+        "versions": "* 부터 1.1.5 이하"
       }
     ],
     "report_url": null,
-    "date": "2026-03-03T07:57:28.759945+00:00",
+    "date": "2026-03-03T10:03:46.197502+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22886",
+    "title": "OpenMQ 기본 관리자 계정의 취약점",
+    "description": "OpenMQ는 기본적으로 인증이 필요한 TCP 기반 관리 서비스를 제공하며, 기본 관리자 계정(admin/admin)을 포함합니다. 최초 사용 시 비밀번호 변경을 강제하지 않아, 로그인 후에도 기본 비밀번호를 무기한 허용합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1392",
+      "CWE-1393",
+      "CWE-1391"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse OpenMQ",
+        "versions": "0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/70",
+    "date": "2026-03-03T10:03:26.854412+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_22886_Indicator {\n    meta:\n        description = \"Detects CVE-2026-22886\"\n        author = \"Argus-AI\"\n    strings:\n        $s1 = \"admin/admin\" ascii\n        $s2 = \"imqbrokerd\" ascii\n        $s3 = \"OpenMQ\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-15598",
+    "title": "Dataease SQLBot JWT 토큰 auth.py 임베디드 서명 검증 취약점",
+    "description": "Dataease SQLBot 1.5.1 버전 이하에서 JWT 토큰 처리기의 auth.py 파일 내 validateEmbedded 함수에 암호화 서명 검증 오류 취약점이 발견되었습니다. 원격에서 조작을 통해 발생하며, 난이도가 높지만 공개된 익스플로잇을 통해 악용될 수 있습니다. 소스 코드에 해당 기능 사용에 대한 경고가 포함되어 있습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347",
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "Dataease",
+        "product": "SQLBot",
+        "versions": "1.5.0 (단일 버전), 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T10:02:39.089192+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
   },
   {
     "id": "CVE-2024-1394",
@@ -54,6 +126,136 @@
     ],
     "report_url": null,
     "date": "2026-03-02T17:32:50.443708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50188",
+    "title": "Chamilo LMS의 오류 기반 SQL Injection 취약점",
+    "description": "Chamilo LMS 1.11.30 이전 버전에서 GET 파라미터 값에 대한 유효성 검증이 미흡하여, /plugin/vchamilo/views/syncparams.php 및 /plugin/vchamilo/ajax/service.php 스크립트를 통해 임의의 SQL 구문을 삽입하여 데이터베이스 쿼리 로직을 변경하는 공격이 가능합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:06:05.926898+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50191",
+    "title": "Chamilo: POST userFile을 통한 오류 기반 SQL Injection 취약점 (/main/exercise/hotpotatoes.php 스크립트)",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/exercise/hotpotatoes.php 스크립트를 통해 POST userFile 파라미터에 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:03:29.603172+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-52998",
+    "title": "Chamilo: PHAR 역직렬화 우회",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 데이터 역직렬화 과정에서 위변조가 가능했습니다. 공격자는 임의의 클래스 객체를 생성하고 속성을 완전히 제어하여 웹 애플리케이션의 동작 방식을 변경할 수 있습니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:33:51.446358+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50197",
+    "title": "Chamilo: /main/admin/sub_language_ajax.inc.php의 POST new_language 파라미터를 통한 OS 명령어 삽입 취약점",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/admin/sub_language_ajax.inc.php의 POST new_language 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:11:26.066526+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1876",
+    "title": "MELSEC iQ-F 시리즈 이더넷 모듈의 서비스 거부(DoS) 취약점",
+    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 이더넷 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T07:57:28.759945+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -6298,84 +6500,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-50197",
-    "title": "Chamilo: /main/admin/sub_language_ajax.inc.php의 POST new_language 파라미터를 통한 OS 명령어 삽입 취약점",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/admin/sub_language_ajax.inc.php의 POST new_language 파라미터를 통해 OS 명령어 삽입 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:11:26.066526+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50188",
-    "title": "Chamilo LMS의 오류 기반 SQL Injection 취약점",
-    "description": "Chamilo LMS 1.11.30 이전 버전에서 GET 파라미터 값에 대한 유효성 검증이 미흡하여, /plugin/vchamilo/views/syncparams.php 및 /plugin/vchamilo/ajax/service.php 스크립트를 통해 임의의 SQL 구문을 삽입하여 데이터베이스 쿼리 로직을 변경하는 공격이 가능합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:06:05.926898+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50191",
-    "title": "Chamilo: POST userFile을 통한 오류 기반 SQL Injection 취약점 (/main/exercise/hotpotatoes.php 스크립트)",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/exercise/hotpotatoes.php 스크립트를 통해 POST userFile 파라미터에 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:03:29.603172+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-50187",
     "title": "Chamilo: 신뢰할 수 없는 사용자 입력 평가로 인한 원격 코드 실행",
     "description": "Chamilo는 학습 관리 시스템입니다. 1.11.28 버전 이전에는 SOAP 요청의 파라미터가 필터링 없이 평가되어 원격 코드 실행으로 이어질 수 있습니다. 해당 문제는 1.11.28 버전에 패치되었습니다.",
@@ -8508,32 +8632,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-52998",
-    "title": "Chamilo: PHAR 역직렬화 우회",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 데이터 역직렬화 과정에서 위변조가 가능했습니다. 공격자는 임의의 클래스 객체를 생성하고 속성을 완전히 제어하여 웹 애플리케이션의 동작 방식을 변경할 수 있습니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:33:51.446358+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-23865",
