@@ -34,6 +34,20 @@ class RuleManager:
         self.rules_cache: Dict[str, str] = {}
 
         logger.info("✅ RuleManager 초기화 완료 (정규식 검증 모드)")
+
+    @staticmethod
+    def _parse_attack_vector(cvss_vector: str) -> str:
+        """
+        CVSS 벡터에서 Attack Vector(AV) 추출.
+        Returns: 'NETWORK', 'LOCAL', 'ADJACENT', 'PHYSICAL', 또는 'UNKNOWN'
+        """
+        if not cvss_vector:
+            return "UNKNOWN"
+        match = re.search(r'AV:([NALP])', cvss_vector)
+        if not match:
+            return "UNKNOWN"
+        av_map = {"N": "NETWORK", "A": "ADJACENT", "L": "LOCAL", "P": "PHYSICAL"}
+        return av_map.get(match.group(1), "UNKNOWN")
     
     # ====================================================================
     # [1] 공개 룰 검색
@@ -579,6 +593,29 @@ class RuleManager:
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
             
             if content == "SKIP" or not content:
+                # Sigma는 필수 생성 — SKIP 시 관대한 프롬프트로 1회 재시도
+                if rule_type in ["Sigma", "sigma"] and not getattr(self, '_sigma_retry_done', False):
+                    self._sigma_retry_done = True
+                    logger.info(f"⚠️ Sigma SKIP → 필수 생성이므로 관대한 프롬프트로 재시도")
+                    retry_prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
+                    retry_prompt += "\n\n[OVERRIDE] Sigma is MANDATORY. Generate a best-effort Sigma rule using whatever information is available. Do NOT return SKIP."
+                    rate_limit_manager.check_and_wait("groq")
+                    retry_resp = self.groq_client.chat.completions.create(
+                        model=self.model,
+                        messages=[{"role": "user", "content": retry_prompt}],
+                        temperature=config.GROQ_RULE_PARAMS["temperature"],
+                        top_p=config.GROQ_RULE_PARAMS["top_p"],
+                        max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
+                        reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
+                    )
+                    rate_limit_manager.record_call("groq")
+                    retry_content = retry_resp.choices[0].message.content.strip()
+                    retry_content = re.sub(r"```[a-z]*\n|```", "", retry_content).strip()
+                    if retry_content and retry_content != "SKIP" and self._validate_sigma(retry_content):
+                        logger.info("✅ Sigma 필수 재시도 성공")
+                        self._sigma_retry_done = False
+                        return (retry_content, indicator_details)
+                    self._sigma_retry_done = False
                 logger.info(f"⛔ AI가 {rule_type} 생성 거부 (근거 부족)")
                 return None
             
@@ -813,7 +850,9 @@ tags:
         rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
         cve_id = cve_data['id']
 
-        logger.info(f"룰 수집 시작: {cve_id}")
+        # 공격벡터 분석 — 룰 타입 우선순위 결정에 사용
+        attack_vector = self._parse_attack_vector(cve_data.get('cvss_vector', ''))
+        logger.info(f"룰 수집 시작: {cve_id} (Attack Vector: {attack_vector})")
 
         # ===== Exploit-DB 참고 데이터 (AI 룰 생성 품질 향상용) =====
         # AI 룰 생성 전에 먼저 수집하여 프롬프트에 포함
@@ -822,7 +861,7 @@ tags:
             cve_data['_exploit_db_snippet'] = exploit_code[:3000]
             logger.info(f"  📄 Exploit-DB PoC 발견: {cve_id}")
 
-        # ===== Sigma (tarball 로컬 검색) =====
+        # ===== Sigma (필수 — 항상 생성 시도) =====
         public_sigma = self._search_local_sigma(cve_id)
         if public_sigma:
             rules['sigma'] = {
@@ -856,7 +895,8 @@ tags:
                     "verified": True,
                     "indicators": None
                 })
-        else:
+        elif attack_vector in ("NETWORK", "ADJACENT", "UNKNOWN"):
+            # 네트워크 공격벡터 → AI Snort/Suricata 생성 (우선)
             ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
             if ai_result:
                 ai_network, indicators = ai_result
@@ -869,6 +909,10 @@ tags:
                 })
             else:
                 rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
+        else:
+            # 로컬/물리적 공격벡터 → AI 네트워크 룰 생성 생략
+            logger.info(f"⏭️ Snort/Suricata AI 생성 SKIP: 공격벡터가 {attack_vector}이므로 네트워크 룰 부적합")
+            rules['skip_reasons']['network'] = f"공격벡터 {attack_vector} — 네트워크 룰 부적합"
 
         # ===== Yara (tarball 로컬 검색) =====
         public_yara = self._search_local_yara(cve_id)
@@ -879,7 +923,8 @@ tags:
                 "verified": True,
                 "indicators": None
             }
-        else:
+        elif attack_vector in ("LOCAL", "PHYSICAL"):
+            # 로컬/물리적 공격벡터 → AI YARA 생성 (파일/바이너리 분석에 적합)
             ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
             if ai_result:
                 ai_yara, indicators = ai_result
@@ -891,6 +936,10 @@ tags:
                 }
             else:
                 rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
+        else:
+            # 네트워크 공격벡터 → AI YARA 생성 생략 (Snort/Suricata가 더 적합)
+            logger.info(f"⏭️ YARA AI 생성 SKIP: 공격벡터가 {attack_vector}이므로 파일 룰 부적합")
+            rules['skip_reasons']['yara'] = f"공격벡터 {attack_vector} — YARA 룰 부적합 (Snort/Suricata 우선)"
 
         # 결과 요약
         sigma_found = "✅" if rules['sigma'] else "❌"
