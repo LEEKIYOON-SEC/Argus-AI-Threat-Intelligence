@@ -1,5 +1,425 @@
 [
   {
+    "id": "CVE-2024-0193",
+    "title": "커널: netfilter: nft_trans_gc_catchall_sync 사용 후 해제 취약점으로 인한 권한 상승",
+    "description": "리눅스 커널의 netfilter 서브시스템에서 사용 후 해제 취약점이 발견되었습니다. pipapo 세트가 제거될 때 catchall 요소가 가비지 컬렉션되면 해당 요소가 두 번 비활성화될 수 있습니다. 이는 NFT_CHAIN 또는 NFT_OBJECT 객체에서 사용 후 해제 문제를 발생시켜, CAP_NET_ADMIN 권한을 가진 로컬 비특권 사용자가 시스템 권한을 상승시킬 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00113,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:57.529877+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2025",
+    "title": "Mail Mint < 1.19.5 - 인증되지 않은 이메일 주소 노출",
+    "description": "Mail Mint 워드프레스 플러그인의 1.19.5 미만 버전에서 REST API 엔드포인트에 대한 인증이 없어, 인증되지 않은 사용자가 해당 엔드포인트를 호출하여 블로그 사용자들의 이메일 주소를 탈취할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200 Information Exposure"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Mail Mint",
+        "versions": "1.19.5 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:08:30.098726+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-2732",
+    "title": "Enable Media Replace <= 4.1.7 - 인증된 사용자의 임의 첨부 파일 변경 취약점",
+    "description": "Enable Media Replace 워드프레스 플러그인은 4.1.7 버전 이하에서 'RemoveBackGroundViewController::load' 함수 내의 부적절한 권한 검사로 인해 데이터 무단 수정이 가능합니다. 인증된 Author 레벨 이상의 공격자가 제거된 배경 첨부 파일로 모든 첨부 파일을 교체할 수 있습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "shortpixel",
+        "product": "Enable Media Replace",
+        "versions": "* 부터 4.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:08:21.12151+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2363",
+    "title": "WP-Members 멤버십 플러그인 <= 3.5.5.1 - 인증된 사용자의 SQL Injection 취약점 (Contributor+ 권한)",
+    "description": "WP-Members 멤버십 플러그인은 'order_by' 쇼트코드 속성을 통해 SQL Injection에 취약합니다. 이는 사용자 입력값에 대한 적절한 이스케이핑 및 기존 SQL 쿼리의 준비 부족으로 인해 발생합니다. 인증된 공격자(Contributor 권한 이상)는 데이터베이스에서 민감한 정보를 추출하는 데 악용할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "cbutlerjr",
+        "product": "WP-Members Membership Plugin",
+        "versions": "* 부터 3.5.5.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:08:15.954701+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-9675",
+    "title": "Buildah: 임의 디렉터리 마운트 허용",
+    "description": "Buildah에서 취약점이 발견되었습니다. 캐시 마운트 기능이 사용자가 지정한 캐시 경로가 Buildah의 캐시 디렉터리 내에 있는지 제대로 검증하지 않아, Container 파일의 `RUN` 명령어를 통해 호스트의 임의 디렉터리를 컨테이너에 읽기/쓰기 권한으로 마운트할 수 있습니다. Buildah를 실행하는 사용자가 해당 파일에 접근할 수 있다면 공격이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 0.00134,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "1.38.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8.6 Advanced Mission Critical Update Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:08:37.197401+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28770",
+    "title": "IDC SFX SuperFlex 위성 수신기 웹 관리 인터페이스 XML 삽입 취약점",
+    "description": "International Datacasting Corporation의 SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 `/IDC_Logging/checkifdone.cgi` 스크립트에서 특수 요소 중성화 오류로 인해 XML 삽입 공격이 가능합니다. `file` 파라미터의 사용자 입력을 CDATA 블록에 그대로 반영하여 인증된 공격자가 태그를 벗어나 임의의 XML 요소를 삽입할 수 있습니다. 이 취약점을 이용한 XSS 공격이 확인되었으며, XXE 공격 등 추가적인 악용 가능성도 존재합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-91"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex Satellite Receiver Web management interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:25.023128+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28775",
+    "title": "기본 쓰기 커뮤니티 문자열을 통한 인증되지 않은 SNMP RCE",
+    "description": "International Datacasting Corporation SFX 시리즈 SuperFlex 위성 수신기 SNMP 서비스에서 인증되지 않은 원격 코드 실행(RCE) 취약점이 발견되었습니다. 기본적으로 읽기/쓰기 접근 권한으로 안전하지 않은 `private` SNMP 커뮤니티 문자열이 프로비저닝되어 있습니다. 공격자는 net-snmp 5.8 이전 버전을 악용하여 root 권한으로 임의의 운영체제 명령을 실행할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1188"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:24.953778+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28769",
+    "title": "IDC SFX 시리즈 SuperFlex 위성 수신기 웹 관리 포털 경로 탐색 취약점",
+    "description": "International Datacasting Corporation의 SFX 시리즈 SuperFlex 위성 수신기 웹 관리 포털 버전 101의 `/IDC_Logging/checkifdone.cgi` 스크립트에 경로 탐색 취약점이 존재합니다. 인증된 공격자는 `file` 파라미터를 조작하여 디렉터리를 탐색하고 임의의 파일을 열람할 수 있습니다. 불안전한 perl 파일 경로 처리 함수 사용으로 인해 발생하며, 백업 엔드포인트를 통해 파일 존재 여부를 확인할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex Satellite Receiver Web management interface",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:19.090436+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28774",
+    "title": "Traceroute 유틸리티를 통한 인증된 OS 명령어 삽입 취약점 - Root 권한 획득 가능",
+    "description": "International Datacasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Traceroute 진단 유틸리티에서 OS 명령어 삽입 취약점이 발견되었습니다. 인증된 공격자는 flags 파라미터에 임의의 쉘 메타 문자를 삽입하여 root 권한으로 임의의 OS 명령을 실행할 수 있습니다. 파이프(`|`) 연산자 등이 악용될 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:12.822874+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28773",
+    "title": "인증된 OS 명령어 삽입 취약점 - Ping 유틸리티를 통한 Root 권한 획득",
+    "description": "International Dataccasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Ping 진단 유틸리티(/IDC_Ping/main.cgi)에서 OS 명령어 삽입 취약점이 발견되었습니다. `IPaddr` 파라미터를 안전하지 않게 파싱하여, 인증된 공격자가 쉘 메타 문자를 사용하여 임의의 쉘 명령어를 Root 권한으로 실행할 수 있습니다. 서버 측 세미콜론 검사를 우회하여 공격이 가능합니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:59:11.818657+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28776",
+    "title": "\"monitor\" 계정의 하드코딩된 취약한 SSH 자격 증명",
+    "description": "International Datacasting Corporation (IDC) SFX Series SuperFlex 위성 수신기에서 `monitor` 계정에 대한 하드코딩된 자격 증명이 발견되었습니다. 인증되지 않은 원격 공격자는 이러한 간단하고 문서화되지 않은 자격 증명을 사용하여 SSH를 통해 시스템에 접근할 수 있습니다. 제한된 셸로 초기 접근은 가능하지만, 공격자는 쉽게 일반 셸 기능을 확보할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
+        "versions": "SFX2100 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:55:07.629709+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28777",
+    "title": "\"User\" 로컬 계정의 하드코딩된 취약한 SSH 접근 자격 증명",
+    "description": "IDC SFX2100 위성 수신기의 `user` 계정에 쉬운 비밀번호가 설정되어 있습니다. 인증되지 않은 원격 공격자가 이를 이용하여 시스템에 무단 SSH 접근이 가능하며, 제한된 쉘로 초기 접속되지만 쉽게 완전한 pty를 생성하여 대화형 쉘을 얻을 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX2100 Satellite Receiver",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:54:25.651844+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28772",
+    "title": "로깅 인덱스 엔드포인트의 반사형 XSS",
+    "description": "International Datacasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 `/IDC_Logging/index.cgi` 엔드포인트에서 반사형 XSS 취약점이 발견되었습니다. 공격자는 `submitType` 파라미터를 통해 악성 페이로드를 전송하여 임의의 웹 스크립트 또는 HTML을 실행할 수 있습니다. 이 취약점은 적절한 이스케이핑 없이 입력값이 DOM에 직접 반영되어 발생합니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:54:13.37339+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28771",
+    "title": "IDC SFX 시리즈 SuperFlex 위성 수신기 웹 관리 인터페이스 XSS 취약점",
+    "description": "IDC SFX 시리즈 SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 `/index.cgi` 엔드포인트에 XSS 취약점이 존재합니다. `cat` 파라미터를 통해 전달되는 사용자 입력을 적절히 검증하지 않아 HTTP 응답에 반영될 때 임의의 HTML 또는 JavaScript 코드가 실행될 수 있습니다. 원격 공격자는 이를 이용하여 피해자의 브라우저 컨텍스트에서 악성 코드를 실행할 수 있습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex Satellite Receiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:54:07.770349+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-11218",
+    "title": "Podman/Buildah: 악성 Containerfile 빌드 시 `--jobs=2` 옵션 및 경쟁 조건으로 인한 컨테이너 탈출",
+    "description": "Podman build 및 Buildah에서 `--jobs=2` 옵션과 악성 Containerfile 빌드 시 발생하는 경쟁 조건으로 컨테이너 탈출 취약점이 발견되었습니다. SELinux가 일부 완화할 수 있지만, 활성화되어 있어도 호스트 파일 및 디렉터리 열거가 가능합니다.",
+    "cvss": 8.6,
+    "epss": 0.00167,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "1.33.12 이전, 1.35.0 부터 1.35.5 이전, 1.37.0 부터 1.37.6 이전, 1.38.0 부터 1.38.1 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8.6 Advanced Mission Critical Update Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:08:39.584295+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-3342",
     "title": "WatchGuard Firebox 경계 외 쓰기 취약점",
     "description": "WatchGuard Fireware OS의 경계 외 쓰기 취약점을 통해 인증된 권한 있는 관리자가 노출된 관리 인터페이스를 통해 루트 권한으로 임의 코드를 실행할 수 있습니다.",
@@ -774,42 +1194,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-11218",
-    "title": "Podman/Buildah: 악성 Containerfile 빌드 시 `--jobs=2` 옵션 및 경쟁 조건으로 인한 컨테이너 탈출",
-    "description": "Podman build 및 Buildah에서 `--jobs=2` 옵션과 악성 Containerfile 빌드 시 발생하는 경쟁 조건으로 컨테이너 탈출 취약점이 발견되었습니다. SELinux가 일부 완화할 수 있지만, 활성화되어 있어도 호스트 파일 및 디렉터리 열거가 가능합니다.",
-    "cvss": 8.6,
-    "epss": 0.00167,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "1.33.12 이전, 1.35.0 부터 1.35.5 이전, 1.37.0 부터 1.37.6 이전, 1.38.0 부터 1.38.1 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8.6 Advanced Mission Critical Update Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:08:39.584295+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-14604",
     "title": "IBM Storage Scale 특정 ACL 구성 취약점 해결 (5.2.3.6 및 6.0.0.2)",
     "description": "IBM Storage Scale 5.2.3.0-5.2.3.5 및 6.0.0.0-6.0.0.1 버전에서 특정 ACL 구성 시 권한이 잘못 부여되어 의도치 않은 실행이 발생할 수 있는 취약점이 발견되었습니다. 5.2.3.6 및 6.0.0.2 버전에서 해당 문제가 해결되었습니다. 로컬 사용자가 자원 실행 권한을 의도치 않게 확장시키는 것을 방지합니다.",
@@ -834,42 +1218,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2024-9675",
-    "title": "Buildah: 임의 디렉터리 마운트 허용",
-    "description": "Buildah에서 취약점이 발견되었습니다. 캐시 마운트 기능이 사용자가 지정한 캐시 경로가 Buildah의 캐시 디렉터리 내에 있는지 제대로 검증하지 않아, Container 파일의 `RUN` 명령어를 통해 호스트의 임의 디렉터리를 컨테이너에 읽기/쓰기 권한으로 마운트할 수 있습니다. Buildah를 실행하는 사용자가 해당 파일에 접근할 수 있다면 공격이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 0.00134,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "1.38.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8.6 Advanced Mission Critical Update Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:08:37.197401+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2024-1394",
@@ -906,84 +1254,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2025",
-    "title": "Mail Mint < 1.19.5 - 인증되지 않은 이메일 주소 노출",
-    "description": "Mail Mint 워드프레스 플러그인의 1.19.5 미만 버전에서 REST API 엔드포인트에 대한 인증이 없어, 인증되지 않은 사용자가 해당 엔드포인트를 호출하여 블로그 사용자들의 이메일 주소를 탈취할 수 있는 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200 Information Exposure"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Mail Mint",
-        "versions": "1.19.5 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:08:30.098726+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-2732",
-    "title": "Enable Media Replace <= 4.1.7 - 인증된 사용자의 임의 첨부 파일 변경 취약점",
-    "description": "Enable Media Replace 워드프레스 플러그인은 4.1.7 버전 이하에서 'RemoveBackGroundViewController::load' 함수 내의 부적절한 권한 검사로 인해 데이터 무단 수정이 가능합니다. 인증된 Author 레벨 이상의 공격자가 제거된 배경 첨부 파일로 모든 첨부 파일을 교체할 수 있습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "shortpixel",
-        "product": "Enable Media Replace",
-        "versions": "* 부터 4.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:08:21.12151+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2363",
-    "title": "WP-Members 멤버십 플러그인 <= 3.5.5.1 - 인증된 사용자의 SQL Injection 취약점 (Contributor+ 권한)",
-    "description": "WP-Members 멤버십 플러그인은 'order_by' 쇼트코드 속성을 통해 SQL Injection에 취약합니다. 이는 사용자 입력값에 대한 적절한 이스케이핑 및 기존 SQL 쿼리의 준비 부족으로 인해 발생합니다. 인증된 공격자(Contributor 권한 이상)는 데이터베이스에서 민감한 정보를 추출하는 데 악용할 수 있습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "cbutlerjr",
-        "product": "WP-Members Membership Plugin",
-        "versions": "* 부터 3.5.5.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:08:15.954701+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2024-1753",
