@@ -1,5 +1,1578 @@
 [
   {
+    "id": "CVE-2026-28442",
+    "title": "ZimaOS: API 경로 조작을 통한 내부 시스템 파일 임의 삭제",
+    "description": "ZimaOS 1.5.2-beta3 버전에서 애플리케이션 인터페이스를 통해 내부 시스템 파일 삭제는 제한되지만, API 직접 호출 시 경로 파라미터 조작을 통해 우회 가능합니다. 백엔드에서 대상 경로의 유효성 검사 없이 삭제 요청을 처리하여 민감한 파일 시스템 작업에 대한 입력 검증 및 접근 제어 오류가 발생합니다. 현재 공개된 패치는 없습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "IceWhaleTech",
+        "product": "ZimaOS",
+        "versions": "= 1.5.2-beta3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:13:16.71228+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0848",
+    "title": "NLTK StanfordSegmenter의 신뢰할 수 없는 JAR 파일 로딩을 통한 임의 코드 실행",
+    "description": "NLTK 3.9.2 이하 버전의 StanfordSegmenter 모듈은 입력 유효성 검사 미흡으로 인해 임의 코드 실행에 취약합니다. 이 모듈은 외부 Java .jar 파일을 검증이나 샌드박스 없이 동적으로 로드합니다. 공격자는 JAR 파일을 조작하여 JVM 로드 시 임의의 Java 바이트코드를 실행할 수 있으며, 모델 포이즈닝, MITM 공격, 의존성 포이즈닝 등을 통해 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "nltk",
+        "product": "nltk/nltk",
+        "versions": "unspecified 부터 latest 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:12:54.865963+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29081",
+    "title": "Frappe: 부적절한 필드명 소독으로 인한 SQL Injection 가능성",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 14.100.1 및 15.100.0 버전 이전에는 특수 제작된 요청을 통해 SQL Injection에 취약하여 악의적인 공격자가 민감한 정보를 유출할 수 있었습니다. 해당 문제는 14.100.1 및 15.100.0 버전에 패치되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 15.100.0 (단일 버전), < 14.100.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:59:58.020713+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29077",
+    "title": "Frappe: DocShare의 권한 관리 취약점",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.98.0 및 14.100.0 버전 이전에는 문서 공유 시 유효성 검사 부족으로 인해 사용자가 자신이 가지지 않은 권한으로 문서를 공유할 수 있었습니다. 해당 문제는 15.98.0 및 14.100.0 버전에 패치되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-602"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 15.98.0 (단일 버전), < 14.100.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:59:51.797554+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28436",
+    "title": "Frappe: avatar_macro.html에 저장된 XSS 취약점",
+    "description": "Frappe 풀스택 웹 애플리케이션 프레임워크에서 버전 16.11.0 및 15.102.0 이전 버전에 아바타 표시 시 XSS가 발생할 수 있는 취약점이 발견되었습니다. 공격자는 악성 이미지 URL을 설정하여 다른 사용자를 공격할 수 있으며, 웹사이트 페이지 댓글을 통해 유발될 수 있습니다. 해당 문제는 16.11.0 및 15.102.0 버전에 패치되었습니다.",
+    "cvss": 1.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 16.11.0 (단일 버전), < 15.102.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:57:29.583473+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-28059",
+    "title": "WordPress Dermatology Clinic 테마 <= 1.4.3 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Dermatology Clinic 테마의 dermatology-clinic에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문의 파일 이름 제어 미흡으로 발생합니다. Dermatology Clinic 버전 n/a부터 <= 1.4.3까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Dermatology Clinic",
+        "versions": "<= 1.4.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:56:28.580368+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26305",
+    "title": "Mobility46 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
+    "cvss": 7.5,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobility46",
+        "product": "mobility46.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:58:37.002256+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26290",
+    "title": "EV Energy ev.energy 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00036,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:58:37.003512+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25945",
+    "title": "EV2GO ev2go.io 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "EV2GO",
+        "product": "ev2go.io",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:55:33.975469+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25851",
+    "title": "Chargemap chargemap.com의 중요 기능 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 보내거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00098,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Chargemap",
+        "product": "chargemap.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:00:32.790298+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-25778",
+    "title": "SWITCH EV swtchenergy.com 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00046,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:00:32.590217+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25774",
+    "title": "EV Energy ev.energy 자격 증명 보호 부족",
+    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 보호 강화가 필요합니다.",
+    "cvss": 6.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:54:38.400323+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28443",
+    "title": "OpenReplay: cards/search에서 유효성 검사되지 않은 정렬 필드 파라미터로 인한 SQL Injection",
+    "description": "OpenReplay는 자체 호스팅 세션 리플레이 도구입니다. 1.20.0 버전 이전에는 POST /{projectId}/cards/search 엔드포인트의 sort.field 파라미터에서 SQL Injection 취약점이 발견되었습니다. 해당 문제는 1.20.0 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "openreplay",
+        "product": "openreplay",
+        "versions": "< 1.20.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:12:15.519724+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28074",
+    "title": "WordPress Pizza House 테마 <= 1.4.0 - PHP 객체 주입 취약점",
+    "description": "ThemeREX Pizza House 테마의 pizzahouse에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다.",
+    "cvss": 9.8,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Pizza House",
+        "versions": "<= 1.4.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:12:11.437916+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28071",
+    "title": "WordPress pixfort Core 플러그인 <= 3.2.22 - 권한 제어 취약점",
+    "description": "PixFort pixfort Core 플러그인의 잘못 구성된 접근 제어 보안 수준으로 인해 권한 없는 접근이 가능한 취약점이 존재합니다. 해당 문제는 pixfort Core 버전 n/a부터 3.2.22까지 영향을 받습니다. 인증되지 않은 사용자가 시스템에 접근할 수 있습니다.",
+    "cvss": 6.3,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "PixFort",
+        "product": "pixfort Core",
+        "versions": "<= 3.2.22 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:11:33.789024+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28036",
+    "title": "WordPress Ratatouille 테마 <= 1.2.6 - 서버 측 요청 위조 (SSRF) 취약점",
+    "description": "SkatDesign Ratatouille 테마에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 이 취약점은 Ratatouille 테마 버전 n/a부터 <= 1.2.6까지 영향을 미칩니다. 공격자는 이를 통해 서버 측 요청을 위조할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "SkatDesign",
+        "product": "Ratatouille",
+        "versions": "<= 1.2.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:11:27.678243+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28038",
+    "title": "WordPress WPBakery Page Builder 플러그인 Ultimate Addons <= 3.21.1 - 권한 제어 취약점",
+    "description": "Brainstorm Force Ultimate Addons for WPBakery Page Builder의 ultimate_vc_addons에서 잘못 구성된 접근 제어 보안 수준으로 인해 인증되지 않은 접근이 가능한 취약점이 발견되었습니다.",
+    "cvss": 6.5,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Brainstorm_Force",
+        "product": "Ultimate Addons for WPBakery Page Builder",
+        "versions": "<= 3.21.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:11:24.31472+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27773",
+    "title": "SWITCH EV swtchenergy.com 취약한 자격 증명",
+    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다.",
+    "cvss": 6.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:57:01.279608+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27772",
+    "title": "EV Energy ev.energy의 중요 기능 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:12.975991+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27767",
+    "title": "SWITCH EV swtchenergy.com 중요 기능의 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:08.397829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27652",
+    "title": "CloudCharge 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00036,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "CloudCharge",
+        "product": "cloudcharge.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T03:06:00.49223+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27647",
+    "title": "Mobility46 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있습니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 명령을 받습니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00036,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobility46",
+        "product": "mobility46.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T03:05:56.211395+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-4404",
+    "title": "FreeIPA: idm: FreeIPA에서 호스트에서 도메인 관리자로 권한 상승",
+    "description": "FreeIPA 프로젝트에서 호스트에서 도메인 관리자로 권한 상승 취약점이 발견되었습니다. FreeIPA 패키지는 기본적으로 관리 계정의 `krbCanonicalName` 고유성을 검증하지 않아, 사용자가 REALM 관리자와 동일한 canonical name을 가진 서비스를 생성할 수 있습니다. 공격에 성공하면 공격자는 admin@REALM 자격 증명을 포함하는 서비스 이름으로 Kerberos 티켓을 획득하여 REALM에 대한 관리 작업을 수행하고 민감한 데이터에 접근 및 유출할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00073,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1220"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "4.12.4 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:11:12.646554+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Im10n/CVE-2025-4404-POC"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27028",
+    "title": "Mobility46 mobility46.se의 중요 기능 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00177,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobility46",
+        "product": "mobility46.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:59:50.295709+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-22723",
+    "title": "UAA 사용자 토큰 해지 로직 오류",
+    "description": "Cloudfoundry UAA v77.30.0 ~ v78.7.0 및 Cloudfoundry Deployment v48.7.0 ~ v54.10.0에서 토큰 해지 엔드포인트 구현의 로직 오류로 인해 사용자 토큰이 부적절하게 해지되는 문제 발생.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Cloudfoundry Foundation",
+        "product": "UAA",
+        "versions": "77.30.0 부터 v78.7.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:10:18.224206+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29188",
+    "title": "파일 브라우저: TUS 삭제 엔드포인트 권한 검사 우회 취약점",
+    "description": "파일 브라우저는 파일 관리 인터페이스를 제공하며, 파일 업로드, 삭제, 미리보기, 이름 변경 및 편집 기능을 지원합니다. 2.61.1 버전 이전에는 TUS 프로토콜의 삭제 엔드포인트에서 접근 제어 취약점이 발견되어, 생성 권한만 있는 인증된 사용자가 권한 제한을 우회하여 임의의 파일 및 디렉터리를 삭제할 수 있습니다. 다중 사용자 환경에서 파일 삭제 권한을 제한하는 경우 영향을 받을 수 있으며, 2.61.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732",
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "filebrowser",
+        "product": "filebrowser",
+        "versions": "< 2.61.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:10:11.6579+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28492",
+    "title": "파일 브라우저: 공개 공유 링크의 경로 탐색 취약점으로 공유 디렉터리 외부 파일 노출",
+    "description": "파일 브라우저는 지정된 디렉터리 내에서 파일을 관리하는 인터페이스를 제공하며, 업로드, 삭제, 미리보기, 이름 변경 및 편집 기능을 지원합니다. 2.61.0 버전 이전에는 공개 공유 링크 생성 시 `http/public.go`의 `withHashFile` 미들웨어가 `filepath.Dir(link.Path)`를 사용하여 BasePathFs 루트를 계산했습니다. 이로 인해 파일 시스템 루트가 공유 디렉터리 자체가 아닌 상위 디렉터리로 설정되어 공유 링크를 가진 누구나 모든 형제 디렉터리의 파일을 탐색하고 다운로드할 수 있었습니다. 해당 문제는 2.61.0 버전에서 수정되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "filebrowser",
+        "product": "filebrowser",
+        "versions": "< 2.61.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:10:11.443455+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28068",
+    "title": "WordPress Rhythmo 테마 <= 1.3.4 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Rhythmo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Rhythmo",
+        "versions": "<= 1.3.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:05:06.432097+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28066",
+    "title": "WordPress Legrand 테마 <= 2.17 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Legrand 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Legrand",
+        "versions": "<= 2.17 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:04:05.496034+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28064",
+    "title": "WordPress Edge Decor 테마 <= 2.2 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Edge Decor edge-decor 테마에서 PHP include/require 구문의 파일 이름 제어 미흡으로 인한 로컬 파일 포함 취약점이 발견되었습니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Edge Decor",
+        "versions": "<= 2.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:04:05.429981+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28062",
+    "title": "WordPress Happy Baby 테마 <= 1.2.12 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Happy Baby 테마의 happy-baby에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문의 파일 이름 제어 미흡으로 발생합니다. Happy Baby 테마 버전 n/a부터 <= 1.2.12까지 영향을 받습니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Happy Baby",
+        "versions": "<= 1.2.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:02:03.426776+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28060",
+    "title": "WordPress S.King 테마 <= 1.5.3 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX S.King 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "S.King",
+        "versions": "<= 1.5.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:01:02.423839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-55208",
+    "title": "Chamilo LMS 소셜 네트워크 업로드 파일에 저장된 XSS 취약점",
+    "description": "Chamilo LMS 1.11.34 이전 버전에서 `소셜 네트워크` 기능의 안전하지 않은 파일 업로드를 통해 저장된 XSS 취약점이 발견되었습니다. 이를 통해 권한이 낮은 사용자가 관리자 계정의 받은 편지함에서 임의 코드를 실행하여 계정 탈취가 가능합니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:59:00.641146+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-70949",
+    "title": "@perfood/couch-auth v0.26.0의 시간차 공격 취약점",
+    "description": "@perfood/couch-auth v0.26.0에서 관찰 가능한 시간차 불일치가 존재합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:55:53.291284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-70995",
+    "title": "Aranda Service Desk Web Edition 원격 코드 실행 취약점 (ASDK API 8.6)",
+    "description": "Aranda Service Desk Web Edition (ASDK API 8.6)에서 인증된 공격자가 파일 업로드 시 적절하지 않은 검증으로 인해 원격 코드 실행이 가능합니다. 악성 web.config 파일을 업로드하여 서버에서 임의 코드를 실행(webshell 생성 등)할 수 있으며, On-Premise 및 SaaS 환경 모두에 영향을 미칩니다. 인증만으로 사용자 상호작용 없이 서버 명령 실행이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:55:52.090235+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/0xcronos/CVE"
+    ],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-21622",
+    "title": "비밀번호 재설정 토큰의 만료되지 않는 문제",
+    "description": "hexpm의 'Elixir.Hexpm.Accounts.PasswordReset' 모듈에서 세션 만료 기능이 부족하여 계정 탈취가 가능합니다. 비밀번호 재설정 링크의 토큰이 만료되지 않아, 과거에 유출된 이메일에서 토큰을 사용하여 비밀번호를 재설정할 수 있습니다. 이는 lib/hexpm/accounts/password_reset.ex 파일 및 'Elixir.Hexpm.Accounts.PasswordReset':can_reset?/3 루틴과 관련이 있습니다.",
+    "cvss": 9.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "hexpm",
+        "product": "hexpm",
+        "versions": "617e44c71f1dd9043870205f371d375c5c4d886d 부터 bb0e42091995945deef10556f58d046a52eb7884 이전, pkg:github/hexpm/hexpm@617e44c71f1dd9043870205f371d375c5c4d886d 부터 pkg:github/hexpm/hexpm@bb0e42091995945deef10556f58d046a52eb7884 이전"
+      },
+      {
+        "vendor": "hexpm",
+        "product": "hex.pm",
+        "versions": "2025-08-01 부터 2026-03-05 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:55:45.564406+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-70948",
+    "title": "@perfood/couch-auth v0.26.0 호스트 헤더 삽입 취약점",
+    "description": "@perfood/couch-auth v0.26.0 메일러 컴포넌트의 호스트 헤더 삽입 취약점을 통해 공격자가 리셋 토큰을 탈취하고 HTTP Host 헤더 위조를 통해 계정 탈취를 수행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:55:45.363009+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28058",
+    "title": "WordPress Dixon 테마 <= 1.4.2.1 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Dixon 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Dixon",
+        "versions": "<= 1.4.2.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:46.544356+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28289",
+    "title": "FreeScout 1.8.206 패치 우회 (CVE-2026-27636)를 통한 제로 폭 공간 문자 사용 원격 코드 실행",
+    "description": "FreeScout 1.8.206 및 이전 버전에서 인증된 사용자가 파일 업로드 권한을 이용하여 악성 .htaccess 파일을 업로드함으로써 서버에서 원격 코드 실행(RCE)을 달성할 수 있는 패치 우회 취약점이 발견되었습니다. 제로 폭 공간 문자를 사용하여 보안 검사를 우회하며, app/Http/Helper.php의 sanitizeUploadedFileName() 함수 내 TOCTOU 취약점으로 발생합니다. 1.8.207 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "freescout-help-desk",
+        "product": "freescout",
+        "versions": "< 1.8.207 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T23:45:30.849691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28057",
+    "title": "WordPress Mandala 테마 <= 2.8 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Mandala 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Mandala 테마 버전 n/a부터 2.8 이하에서 영향을 받습니다. 공격자는 이 취약점을 이용하여 임의의 로컬 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Mandala",
+        "versions": "<= 2.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:41.857471+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28056",
+    "title": "WordPress MCKinney's Politics 테마 <= 1.2.8 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX MCKinney's Politics 테마의 mckinney-politics에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 파일 이름 제어 미흡으로 인해 발생하며, 1.2.8 버전 이하에서 영향을 받습니다. PHP 원격 파일 포함(RFI)과 유사한 방식으로 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "MCKinney's Politics",
+        "versions": "<= 1.2.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:40.453876+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28054",
+    "title": "WordPress Legal Stone 테마 <= 1.2.11 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Legal Stone legal-stone 테마에서 PHP include/require 문에 대한 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Legal Stone",
+        "versions": "<= 1.2.11 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:36.746775+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28053",
+    "title": "WordPress Miller 테마 <= 1.3.3 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Miller christine-miller 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Miller",
+        "versions": "<= 1.3.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:33.072124+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-1709",
+    "title": "Keylime: 클라이언트 측 TLS 인증 누락으로 인한 권한 우회 취약점",
+    "description": "Keylime 등록기는 7.12.0 버전부터 클라이언트 측 TLS 인증을 적용하지 않아, 인증되지 않은 클라이언트가 네트워크 접근 권한만으로 관리자 작업을 수행할 수 있습니다. 여기에는 에이전트 목록 확인, TPM 데이터 검색, 에이전트 삭제 등이 포함됩니다. 클라이언트 인증서 없이 연결하여 이러한 취약점을 악용할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00025,
+    "is_kev": false,
+    "cwe": [
+      "CWE-322"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:29.668154+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28052",
+    "title": "WordPress Peter Mason 테마 <= 1.4.5 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Peter Mason 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Peter Mason 테마 버전 n/a부터 <= 1.4.5까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 임의의 로컬 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Peter Mason",
+        "versions": "<= 1.4.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:26.93478+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28051",
+    "title": "WordPress Yacht Rental 테마 <= 2.6 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Yacht Rental 테마의 yacht-rental에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문 내 파일 이름 제어 미흡으로 발생합니다. Yacht Rental 2.6 버전 이하에서 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Yacht Rental",
+        "versions": "<= 2.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:53:44.842669+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-2593",
+    "title": "Greenshift – 애니메이션 및 페이지 빌더 블록 <= 12.8.5 - 인증된(Contributor+) 저장형 XSS 취약점",
+    "description": "Greenshift 플러그인은 입력값 검증 및 출력 이스케이핑 부족으로 인해 12.8.5 버전 이하에서 저장형 XSS 취약점에 노출됩니다. 인증된 Contributor 이상의 권한을 가진 공격자는 악성 스크립트를 삽입하여 페이지 방문 시 실행되도록 할 수 있습니다. `_gspb_post_css` 포스트 메타 값 및 `dynamicAttributes` 블록 속성을 통해 공격이 가능합니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "wpsoul",
+        "product": "Greenshift – animation and page builder blocks",
+        "versions": "* 부터 12.8.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:53:36.366873+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28049",
+    "title": "WordPress Police Department 테마 <= 2.17 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Police Department 테마의 police-department에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문의 파일 이름 제어 미흡으로 발생하며, Police Department 버전 n/a부터 <= 2.17까지 영향을 받습니다. PHP 원격 파일 포함과 유사한 방식으로 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Police Department",
+        "versions": "<= 2.17 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:53:33.355785+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28047",
+    "title": "WordPress Victo 테마 <= 1.4.16 - 로컬 파일 포함 취약점",
+    "description": "magentech Victo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "magentech",
+        "product": "Victo",
+        "versions": "<= 1.4.16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:53:27.079715+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28045",
+    "title": "WordPress N7 | 골프 클럽 스포츠 & 이벤트 테마 <= 2.16.0 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX N7 | 골프 클럽 스포츠 & 이벤트 테마 n7-golf-club에서 PHP 로컬 파일 포함 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "N7 | Golf Club Sports & Events",
+        "versions": "<= 2.16.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:53:26.208326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-20101",
+    "title": "Cisco Secure Firewall ASA/FTD 소프트웨어 SAML 2.0 SSO 기능 취약점",
+    "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 SAML 2.0 SSO 기능에서 인증되지 않은 원격 공격자가 악성 SAML 메시지를 전송하여 장치 재부팅을 유발할 수 있는 취약점이 발견되었습니다. 이는 SAML 메시지 처리 시 오류 검사 부족으로 발생하며, 서비스 거부(DoS) 상태를 초래할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00105,
+    "is_kev": false,
+    "cwe": [
+      "CWE-330"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Secure Firewall Adaptive Security Appliance (ASA) Software",
+        "versions": "9.12.1 (단일 버전), 9.12.1.2 (단일 버전), 9.12.1.3 (단일 버전), 9.12.2 (단일 버전), 9.12.2.4 (단일 버전), 9.12.2.5 (단일 버전), 9.12.2.9 (단일 버전), 9.12.3 (단일 버전), 9.12.3.2 (단일 버전), 9.12.3.7 (단일 버전), 9.12.4 (단일 버전), 9.12.3.12 (단일 버전), 9.12.3.9 (단일 버전), 9.12.2.1 (단일 버전), 9.12.4.2 (단일 버전), 9.12.4.4 (단일 버전), 9.12.4.7 (단일 버전), 9.12.4.10 (단일 버전), 9.12.4.13 (단일 버전), 9.12.4.8 (단일 버전), 9.12.4.18 (단일 버전), 9.12.4.24 (단일 버전), 9.12.4.26 (단일 버전), 9.12.4.29 (단일 버전), 9.12.4.30 (단일 버전), 9.12.4.35 (단일 버전), 9.12.4.37 (단일 버전), 9.12.4.38 (단일 버전), 9.12.4.39 (단일 버전), 9.12.4.40 (단일 버전), 9.12.4.41 (단일 버전), 9.12.4.47 (단일 버전), 9.12.4.48 (단일 버전), 9.12.4.50 (단일 버전), 9.12.4.52 (단일 버전), 9.12.4.54 (단일 버전), 9.12.4.55 (단일 버전), 9.12.4.56 (단일 버전), 9.12.4.58 (단일 버전), 9.12.4.62 (단일 버전), 9.12.4.65 (단일 버전), 9.12.4.67 (단일 버전), 9.16.1 (단일 버전), 9.16.1.28 (단일 버전), 9.16.2 (단일 버전), 9.16.2.3 (단일 버전), 9.16.2.7 (단일 버전), 9.16.2.11 (단일 버전), 9.16.2.13 (단일 버전), 9.16.2.14 (단일 버전), 9.16.3 (단일 버전), 9.16.3.3 (단일 버전), 9.16.3.14 (단일 버전), 9.16.3.15 (단일 버전), 9.16.3.19 (단일 버전), 9.16.3.23 (단일 버전), 9.16.4 (단일 버전), 9.16.4.9 (단일 버전), 9.16.4.14 (단일 버전), 9.16.4.19 (단일 버전), 9.16.4.27 (단일 버전), 9.16.4.38 (단일 버전), 9.16.4.39 (단일 버전), 9.16.4.42 (단일 버전), 9.16.4.48 (단일 버전), 9.16.4.55 (단일 버전), 9.16.4.57 (단일 버전), 9.16.4.61 (단일 버전), 9.16.4.62 (단일 버전), 9.16.4.67 (단일 버전), 9.16.4.70 (단일 버전), 9.16.4.71 (단일 버전), 9.16.4.76 (단일 버전), 9.16.4.82 (단일 버전), 9.16.4.84 (단일 버전), 9.17.1 (단일 버전), 9.17.1.7 (단일 버전), 9.17.1.9 (단일 버전), 9.17.1.10 (단일 버전), 9.17.1.11 (단일 버전), 9.17.1.13 (단일 버전), 9.17.1.15 (단일 버전), 9.17.1.20 (단일 버전), 9.17.1.30 (단일 버전), 9.17.1.33 (단일 버전), 9.17.1.39 (단일 버전), 9.17.1.45 (단일 버전), 9.17.1.46 (단일 버전), 9.18.1 (단일 버전), 9.18.1.3 (단일 버전), 9.18.2 (단일 버전), 9.18.2.5 (단일 버전), 9.18.2.7 (단일 버전), 9.18.2.8 (단일 버전), 9.18.3 (단일 버전), 9.18.3.39 (단일 버전), 9.18.3.46 (단일 버전), 9.18.3.53 (단일 버전), 9.18.3.55 (단일 버전), 9.18.3.56 (단일 버전), 9.18.4 (단일 버전), 9.18.4.5 (단일 버전), 9.18.4.8 (단일 버전), 9.18.4.22 (단일 버전), 9.18.4.24 (단일 버전), 9.18.4.29 (단일 버전), 9.18.4.34 (단일 버전), 9.18.4.40 (단일 버전), 9.18.4.47 (단일 버전), 9.18.4.50 (단일 버전), 9.18.4.52 (단일 버전), 9.18.4.53 (단일 버전), 9.18.4.57 (단일 버전), 9.19.1 (단일 버전), 9.19.1.5 (단일 버전), 9.19.1.9 (단일 버전), 9.19.1.12 (단일 버전), 9.19.1.18 (단일 버전), 9.19.1.22 (단일 버전), 9.19.1.24 (단일 버전), 9.19.1.27 (단일 버전), 9.19.1.28 (단일 버전), 9.19.1.31 (단일 버전), 9.19.1.37 (단일 버전), 9.19.1.38 (단일 버전), 9.19.1.42 (단일 버전), 9.20.1 (단일 버전), 9.20.1.5 (단일 버전), 9.20.2 (단일 버전), 9.20.2.10 (단일 버전), 9.20.2.21 (단일 버전), 9.20.2.22 (단일 버전), 9.20.3 (단일 버전), 9.20.3.4 (단일 버전), 9.20.3.7 (단일 버전), 9.20.3.9 (단일 버전), 9.20.3.10 (단일 버전), 9.20.3.13 (단일 버전), 9.20.3.16 (단일 버전), 9.20.3.20 (단일 버전), 9.22.1.1 (단일 버전), 9.22.1.3 (단일 버전), 9.22.1.2 (단일 버전), 9.22.1.6 (단일 버전), 9.22.2 (단일 버전), 9.23.1 (단일 버전), 9.23.1.3 (단일 버전)"
+      },
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Secure Firewall Threat Defense (FTD) Software",
+        "versions": "6.4.0 (단일 버전), 6.4.0.1 (단일 버전), 6.4.0.3 (단일 버전), 6.4.0.2 (단일 버전), 6.4.0.4 (단일 버전), 6.4.0.5 (단일 버전), 6.4.0.6 (단일 버전), 6.4.0.7 (단일 버전), 6.4.0.8 (단일 버전), 6.4.0.9 (단일 버전), 6.4.0.10 (단일 버전), 6.4.0.11 (단일 버전), 6.4.0.12 (단일 버전), 6.4.0.13 (단일 버전), 6.4.0.14 (단일 버전), 6.4.0.15 (단일 버전), 6.4.0.16 (단일 버전), 6.4.0.17 (단일 버전), 6.4.0.18 (단일 버전), 7.0.0 (단일 버전), 7.0.0.1 (단일 버전), 7.0.1 (단일 버전), 7.0.1.1 (단일 버전), 7.0.2 (단일 버전), 7.0.2.1 (단일 버전), 7.0.3 (단일 버전), 7.0.4 (단일 버전), 7.0.5 (단일 버전), 7.0.6 (단일 버전), 7.0.6.1 (단일 버전), 7.0.6.2 (단일 버전), 7.0.6.3 (단일 버전), 7.0.7 (단일 버전), 7.0.8 (단일 버전), 7.0.8.1 (단일 버전), 7.1.0 (단일 버전), 7.1.0.1 (단일 버전), 7.1.0.2 (단일 버전), 7.1.0.3 (단일 버전), 7.2.0 (단일 버전), 7.2.0.1 (단일 버전), 7.2.1 (단일 버전), 7.2.2 (단일 버전), 7.2.3 (단일 버전), 7.2.4 (단일 버전), 7.2.4.1 (단일 버전), 7.2.5 (단일 버전), 7.2.5.1 (단일 버전), 7.2.6 (단일 버전), 7.2.7 (단일 버전), 7.2.5.2 (단일 버전), 7.2.8 (단일 버전), 7.2.8.1 (단일 버전), 7.2.9 (단일 버전), 7.2.10 (단일 버전), 7.2.10.2 (단일 버전), 7.3.0 (단일 버전), 7.3.1 (단일 버전), 7.3.1.1 (단일 버전), 7.3.1.2 (단일 버전), 7.4.0 (단일 버전), 7.4.1 (단일 버전), 7.4.1.1 (단일 버전), 7.4.2 (단일 버전), 7.4.2.1 (단일 버전), 7.4.2.2 (단일 버전), 7.4.2.3 (단일 버전), 7.4.2.4 (단일 버전), 7.6.0 (단일 버전), 7.6.1 (단일 버전), 7.6.2 (단일 버전), 7.6.2.1 (단일 버전), 7.7.0 (단일 버전), 7.7.10 (단일 버전), 7.7.10.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:13:49.172595+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-47734",
+    "title": "CMSimple 5.4 인증된 로컬 파일 포함 원격 코드 실행",
+    "description": "CMSimple 5.4는 인증된 사용자가 로컬 파일을 포함하는 취약점을 가지고 있어, 원격 공격자가 PHP 세션 파일을 조작하고 임의 코드를 실행할 수 있습니다. 공격자는 함수 파일 경로를 변경하고 세션 파일 업로드 기능을 통해 악성 PHP 코드를 업로드하여 이를 악용할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00106,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "Cmsimple",
+        "product": "CMSimple",
+        "versions": "CMSimple 5.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:29:06.951646+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20039",
+    "title": "Cisco ASA 및 Firepower Threat Defense 소프트웨어 SSL VPN 인증 거부 서비스 거부 취약점",
+    "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 VPN 웹 서버에서 인증되지 않은 원격 공격자가 DoS 공격을 유발할 수 있는 취약점이 발견되었습니다. VPN 웹 서버의 비효율적인 메모리 관리로 인해 발생하며, 조작된 HTTP 요청을 대량으로 전송하여 장치를 재시작시켜 DoS 상태를 초래할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00117,
+    "is_kev": false,
+    "cwe": [
+      "CWE-244"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Secure Firewall Adaptive Security Appliance (ASA) Software",
+        "versions": "9.12.3 (단일 버전), 9.12.1 (단일 버전), 9.12.2 (단일 버전), 9.12.4 (단일 버전), 9.12.3.2 (단일 버전), 9.12.3.7 (단일 버전), 9.12.2.5 (단일 버전), 9.12.3.12 (단일 버전), 9.12.1.3 (단일 버전), 9.12.2.4 (단일 버전), 9.12.1.2 (단일 버전), 9.12.2.9 (단일 버전), 9.12.3.9 (단일 버전), 9.12.2.1 (단일 버전), 9.12.4.2 (단일 버전), 9.12.4.4 (단일 버전), 9.12.4.7 (단일 버전), 9.12.4.8 (단일 버전), 9.12.4.10 (단일 버전), 9.12.4.13 (단일 버전), 9.12.4.18 (단일 버전), 9.12.4.24 (단일 버전), 9.16.1 (단일 버전), 9.12.4.26 (단일 버전), 9.16.1.28 (단일 버전), 9.12.4.29 (단일 버전), 9.16.2 (단일 버전), 9.12.4.30 (단일 버전), 9.16.2.3 (단일 버전), 9.12.4.35 (단일 버전), 9.16.2.7 (단일 버전), 9.12.4.37 (단일 버전), 9.17.1 (단일 버전), 9.16.2.11 (단일 버전), 9.16.2.13 (단일 버전), 9.12.4.39 (단일 버전), 9.12.4.38 (단일 버전), 9.16.2.14 (단일 버전), 9.17.1.7 (단일 버전), 9.12.4.40 (단일 버전), 9.16.3.3 (단일 버전), 9.16.3 (단일 버전), 9.16.3.14 (단일 버전), 9.17.1.9 (단일 버전), 9.12.4.41 (단일 버전), 9.17.1.10 (단일 버전), 9.18.1 (단일 버전), 9.12.4.47 (단일 버전), 9.16.3.15 (단일 버전), 9.18.1.3 (단일 버전), 9.17.1.11 (단일 버전), 9.12.4.48 (단일 버전), 9.18.2 (단일 버전), 9.16.3.19 (단일 버전), 9.17.1.13 (단일 버전), 9.12.4.50 (단일 버전), 9.17.1.15 (단일 버전), 9.12.4.52 (단일 버전), 9.16.3.23 (단일 버전), 9.18.2.5 (단일 버전), 9.16.4 (단일 버전), 9.12.4.54 (단일 버전), 9.17.1.20 (단일 버전), 9.18.2.7 (단일 버전), 9.19.1 (단일 버전), 9.16.4.9 (단일 버전), 9.12.4.55 (단일 버전), 9.18.2.8 (단일 버전), 9.16.4.14 (단일 버전), 9.18.3 (단일 버전), 9.19.1.5 (단일 버전), 9.12.4.56 (단일 버전), 9.17.1.30 (단일 버전), 9.19.1.9 (단일 버전), 9.18.3.39 (단일 버전), 9.16.4.19 (단일 버전), 9.12.4.58 (단일 버전), 9.19.1.12 (단일 버전), 9.18.3.46 (단일 버전), 9.16.4.27 (단일 버전), 9.19.1.18 (단일 버전), 9.18.3.53 (단일 버전), 9.18.3.55 (단일 버전), 9.16.4.38 (단일 버전), 9.17.1.33 (단일 버전), 9.12.4.62 (단일 버전), 9.16.4.39 (단일 버전), 9.18.3.56 (단일 버전), 9.20.1 (단일 버전), 9.16.4.42 (단일 버전), 9.19.1.22 (단일 버전), 9.18.4 (단일 버전), 9.20.1.5 (단일 버전), 9.18.4.5 (단일 버전), 9.19.1.24 (단일 버전), 9.16.4.48 (단일 버전), 9.18.4.8 (단일 버전), 9.20.2 (단일 버전), 9.19.1.27 (단일 버전), 9.12.4.65 (단일 버전), 9.16.4.55 (단일 버전), 9.18.4.22 (단일 버전), 9.20.2.10 (단일 버전), 9.16.4.57 (단일 버전), 9.19.1.28 (단일 버전), 9.17.1.39 (단일 버전), 9.12.4.67 (단일 버전), 9.18.4.24 (단일 버전), 9.20.2.21 (단일 버전), 9.16.4.61 (단일 버전), 9.19.1.31 (단일 버전), 9.18.4.29 (단일 버전), 9.20.2.22 (단일 버전), 9.16.4.62 (단일 버전), 9.18.4.34 (단일 버전), 9.20.3 (단일 버전), 9.16.4.67 (단일 버전), 9.16.4.70 (단일 버전), 9.18.4.40 (단일 버전), 9.23.1 (단일 버전), 9.22.1.1 (단일 버전), 9.16.4.71 (단일 버전), 9.20.3.4 (단일 버전), 9.18.4.47 (단일 버전), 9.20.3.7 (단일 버전), 9.17.1.45 (단일 버전), 9.19.1.37 (단일 버전), 9.17.1.46 (단일 버전), 9.16.4.76 (단일 버전), 9.20.3.9 (단일 버전), 9.19.1.38 (단일 버전), 9.18.4.50 (단일 버전), 9.22.1.3 (단일 버전), 9.20.3.10 (단일 버전), 9.22.1.2 (단일 버전), 9.18.4.52 (단일 버전), 9.20.3.13 (단일 버전), 9.22.1.6 (단일 버전), 9.18.4.53 (단일 버전), 9.16.4.82 (단일 버전), 9.22.2 (단일 버전), 9.19.1.42 (단일 버전)"
+      },
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Secure Firewall Threat Defense (FTD) Software",
+        "versions": "6.4.0.1 (단일 버전), 6.4.0.2 (단일 버전), 6.4.0.5 (단일 버전), 6.4.0 (단일 버전), 6.4.0.3 (단일 버전), 6.4.0.4 (단일 버전), 6.4.0.6 (단일 버전), 6.4.0.7 (단일 버전), 6.4.0.8 (단일 버전), 6.4.0.9 (단일 버전), 6.4.0.10 (단일 버전), 6.4.0.11 (단일 버전), 6.4.0.12 (단일 버전), 7.0.0 (단일 버전), 7.0.0.1 (단일 버전), 7.0.1 (단일 버전), 7.1.0 (단일 버전), 6.4.0.13 (단일 버전), 7.0.1.1 (단일 버전), 6.4.0.14 (단일 버전), 7.1.0.1 (단일 버전), 7.0.2 (단일 버전), 6.4.0.15 (단일 버전), 7.2.0 (단일 버전), 7.0.2.1 (단일 버전), 7.0.3 (단일 버전), 7.1.0.2 (단일 버전), 7.2.0.1 (단일 버전), 7.0.4 (단일 버전), 7.2.1 (단일 버전), 7.0.5 (단일 버전), 6.4.0.16 (단일 버전), 7.3.0 (단일 버전), 7.2.2 (단일 버전), 7.2.3 (단일 버전), 7.3.1 (단일 버전), 7.1.0.3 (단일 버전), 7.2.4 (단일 버전), 7.0.6 (단일 버전), 7.2.5 (단일 버전), 7.2.4.1 (단일 버전), 7.3.1.1 (단일 버전), 7.4.0 (단일 버전), 6.4.0.17 (단일 버전), 7.0.6.1 (단일 버전), 7.2.5.1 (단일 버전), 7.4.1 (단일 버전), 7.2.6 (단일 버전), 7.0.6.2 (단일 버전), 7.4.1.1 (단일 버전), 6.4.0.18 (단일 버전), 7.2.7 (단일 버전), 7.2.5.2 (단일 버전), 7.3.1.2 (단일 버전), 7.2.8 (단일 버전), 7.6.0 (단일 버전), 7.4.2 (단일 버전), 7.2.8.1 (단일 버전), 7.0.6.3 (단일 버전), 7.4.2.1 (단일 버전), 7.2.9 (단일 버전), 7.0.7 (단일 버전), 7.7.0 (단일 버전), 7.4.2.2 (단일 버전), 7.4.2.3 (단일 버전), 7.0.8 (단일 버전), 7.0.8.1 (단일 버전), 7.4.2.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:11:47.169001+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-47745",
+    "title": "Cypress Solutions CTM-200 2.7.1 펌웨어 업그레이드 원격 OS 명령어 삽입 취약점",
+    "description": "Cypress Solutions CTM-200 2.7.1에서 펌웨어 업그레이드 스크립트의 인증된 명령어 삽입 취약점이 발견되었습니다. 공격자는 `ctm-config-upgrade.sh` 스크립트의 `fw_url` 파라미터를 이용하여 임의 명령어를 삽입하고 root 권한으로 실행할 수 있습니다. 이를 통해 원격에서 시스템을 제어할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00227,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Cypress",
+        "product": "200",
+        "versions": "2.7.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:26:57.168784+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-47735",
+    "title": "CMSimple 5.4 인증된 원격 코드 실행 취약점 / 템플릿 편집",
+    "description": "CMSimple 5.4는 로그인된 공격자가 템플릿 파일에 악성 PHP 코드를 삽입할 수 있는 원격 코드 실행 취약점을 포함하고 있습니다. 공격자는 유효한 CSRF 토큰과 함께 템플릿 편집 기능을 악용하여 리버스 셸 페이로드를 제작하고 저장할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00381,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Cmsimple",
+        "product": "Cmsimple",
+        "versions": "5.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:29:06.950818+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26022",
+    "title": "Gogs: 이슈 댓글의 data URI를 통한 저장형 XSS 취약점",
+    "description": "Gogs는 자체 호스팅 Git 서비스 오픈소스입니다. 0.14.2 버전 이전에서 댓글 및 이슈 설명 기능에 저장형 XSS 취약점이 존재합니다. HTML sanitizer가 data: URI scheme을 허용하여 인증된 사용자가 악성 링크를 통해 임의의 JavaScript 실행을 삽입할 수 있습니다. 0.14.2 버전에서 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gogs",
+        "product": "gogs",
+        "versions": "< 0.14.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:38:29.744533+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30796",
+    "title": "RustDesk Server Pro API, 주소록 암호 평문 요구 문제",
+    "description": "RustDesk Server Pro의 주소록 동기화 API 모듈에서 암호가 평문으로 전송되어 스니핑 공격에 취약합니다. 특히 heartbeat sync API 엔드포인트가 주소록 암호를 평문으로 허용하는 것이 문제입니다. 1.7.5 버전 이하에서 발생합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-319"
+    ],
+    "affected": [
+      {
+        "vendor": "rustdesk-server-pro",
+        "product": "RustDesk Server Pro",
+        "versions": "1.7.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:19:55.186366+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25048",
+    "title": "xgrammar: 다중 계층 중첩으로 인한 DoS",
+    "description": "xgrammar는 효율적이고 유연하며 이식 가능한 구조적 생성을 위한 오픈 소스 라이브러리입니다. 0.1.32 버전 이전에는 다중 레벨 중첩 구문으로 인해 세그멘테이션 오류가 발생했습니다. 이 문제는 0.1.32 버전에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674"
+    ],
+    "affected": [
+      {
+        "vendor": "mlc-ai",
+        "product": "xgrammar",
+        "versions": "< 0.1.32 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:14:12.882325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28353",
+    "title": "Trivy 취약점 스캐너: OpenVSX 확장 배포판에 권한 없는 AI 에이전트 실행 코드 포함",
+    "description": "Trivy 취약점 스캐너 VS Code 확장 프로그램의 1.8.12 버전이 OpenVSX 마켓플레이스를 통해 배포되면서 악성 코드가 포함되어 로컬 AI 코딩 에이전트를 활용해 민감 정보를 수집 및 유출하려 시도했습니다. 영향을 받은 버전 사용자들은 즉시 제거하고 환경 비밀번호를 변경해야 합니다. 해당 악성 배포판은 현재 마켓플레이스에서 삭제되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-506"
+    ],
+    "affected": [
+      {
+        "vendor": "aquasecurity",
+        "product": "trivy-vscode-extension",
+        "versions": "= 1.8.12 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:17:13.186268+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-28081",
     "title": "WordPress Windsor 테마 <= 2.5.0 - 로컬 파일 포함 취약점",
     "description": "ThemeREX Windsor 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
@@ -251,32 +1824,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28353",
-    "title": "Trivy 취약점 스캐너: OpenVSX 확장 배포판에 권한 없는 AI 에이전트 실행 코드 포함",
-    "description": "Trivy 취약점 스캐너 VS Code 확장 프로그램의 1.8.12 버전이 OpenVSX 마켓플레이스를 통해 배포되면서 악성 코드가 포함되어 로컬 AI 코딩 에이전트를 활용해 민감 정보를 수집 및 유출하려 시도했습니다. 영향을 받은 버전 사용자들은 즉시 제거하고 환경 비밀번호를 변경해야 합니다. 해당 악성 배포판은 현재 마켓플레이스에서 삭제되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-506"
-    ],
-    "affected": [
-      {
-        "vendor": "aquasecurity",
-        "product": "trivy-vscode-extension",
-        "versions": "= 1.8.12 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:17:13.186268+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28061",
@@ -1063,58 +2610,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25851",
-    "title": "Chargemap chargemap.com의 중요 기능 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 보내거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00098,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Chargemap",
-        "product": "chargemap.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:00:32.790298+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-25778",
-    "title": "SWITCH EV swtchenergy.com 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00046,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:00:32.590217+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2024-11831",
     "title": "npm-serialize-javascript: serialize-javascript에서의 교차 사이트 스크립팅 (xss) 취약점",
     "description": "npm-serialize-javascript 모듈에서 정규 표현식 등 특정 입력값에 대한 적절한 삭제(sanitize)가 이루어지지 않아 악성 코드 삽입이 가능한 취약점이 발견되었습니다. 이 코드는 웹 브라우저에서 역직렬화될 때 실행되어 교차 사이트 스크립팅(XSS) 공격을 유발할 수 있습니다. 특히, 직렬화된 데이터가 웹 클라이언트로 전송되는 환경에서 심각한 보안 문제를 야기할 수 있습니다.",
@@ -1143,215 +2638,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T20:32:32.451006+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29081",
-    "title": "Frappe: 부적절한 필드명 소독으로 인한 SQL Injection 가능성",
-    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 14.100.1 및 15.100.0 버전 이전에는 특수 제작된 요청을 통해 SQL Injection에 취약하여 악의적인 공격자가 민감한 정보를 유출할 수 있었습니다. 해당 문제는 14.100.1 및 15.100.0 버전에 패치되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "frappe",
-        "product": "frappe",
-        "versions": "< 15.100.0 (단일 버전), < 14.100.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:59:58.020713+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29077",
-    "title": "Frappe: DocShare의 권한 관리 취약점",
-    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.98.0 및 14.100.0 버전 이전에는 문서 공유 시 유효성 검사 부족으로 인해 사용자가 자신이 가지지 않은 권한으로 문서를 공유할 수 있었습니다. 해당 문제는 15.98.0 및 14.100.0 버전에 패치되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-602"
-    ],
-    "affected": [
-      {
-        "vendor": "frappe",
-        "product": "frappe",
-        "versions": "< 15.98.0 (단일 버전), < 14.100.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:59:51.797554+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28436",
-    "title": "Frappe: avatar_macro.html에 저장된 XSS 취약점",
-    "description": "Frappe 풀스택 웹 애플리케이션 프레임워크에서 버전 16.11.0 및 15.102.0 이전 버전에 아바타 표시 시 XSS가 발생할 수 있는 취약점이 발견되었습니다. 공격자는 악성 이미지 URL을 설정하여 다른 사용자를 공격할 수 있으며, 웹사이트 페이지 댓글을 통해 유발될 수 있습니다. 해당 문제는 16.11.0 및 15.102.0 버전에 패치되었습니다.",
-    "cvss": 1.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "frappe",
-        "product": "frappe",
-        "versions": "< 16.11.0 (단일 버전), < 15.102.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:57:29.583473+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-28059",
-    "title": "WordPress Dermatology Clinic 테마 <= 1.4.3 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Dermatology Clinic 테마의 dermatology-clinic에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문의 파일 이름 제어 미흡으로 발생합니다. Dermatology Clinic 버전 n/a부터 <= 1.4.3까지 영향을 받습니다.",
-    "cvss": 0,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Dermatology Clinic",
-        "versions": "<= 1.4.3 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:56:28.580368+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-26305",
-    "title": "Mobility46 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
-    "cvss": 7.5,
-    "epss": 0.00076,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobility46",
-        "product": "mobility46.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:58:37.002256+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26290",
-    "title": "EV Energy ev.energy 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00036,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "EV Energy",
-        "product": "ev.energy",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:58:37.003512+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25945",
-    "title": "EV2GO ev2go.io 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 이어질 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00057,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "EV2GO",
-        "product": "ev2go.io",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:55:33.975469+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25774",
-    "title": "EV Energy ev.energy 자격 증명 보호 부족",
-    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 보호 강화가 필요합니다.",
-    "cvss": 6.5,
-    "epss": 0.00043,
-    "is_kev": false,
-    "cwe": [
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "EV Energy",
-        "product": "ev.energy",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:54:38.400323+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1785,32 +3071,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26022",
-    "title": "Gogs: 이슈 댓글의 data URI를 통한 저장형 XSS 취약점",
-    "description": "Gogs는 자체 호스팅 Git 서비스 오픈소스입니다. 0.14.2 버전 이전에서 댓글 및 이슈 설명 기능에 저장형 XSS 취약점이 존재합니다. HTML sanitizer가 data: URI scheme을 허용하여 인증된 사용자가 악성 링크를 통해 임의의 JavaScript 실행을 삽입할 수 있습니다. 0.14.2 버전에서 패치되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "gogs",
-        "product": "gogs",
-        "versions": "< 0.14.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:38:29.744533+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-70616",
@@ -3256,32 +4516,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25048",
-    "title": "xgrammar: 다중 계층 중첩으로 인한 DoS",
-    "description": "xgrammar는 효율적이고 유연하며 이식 가능한 구조적 생성을 위한 오픈 소스 라이브러리입니다. 0.1.32 버전 이전에는 다중 레벨 중첩 구문으로 인해 세그멘테이션 오류가 발생했습니다. 이 문제는 0.1.32 버전에서 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674"
-    ],
-    "affected": [
-      {
-        "vendor": "mlc-ai",
-        "product": "xgrammar",
-        "versions": "< 0.1.32 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:14:12.882325+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-7375",
     "title": "Omada EAP610 인증되지 않은 서비스 거부 취약점",
     "description": "Omada EAP610 v3에서 서비스 거부(DoS) 취약점이 발견되었습니다. 인접 네트워크 접근 권한을 가진 공격자는 특수 제작된 요청을 보내 HTTP 서비스를 중단시킬 수 있습니다. 장치를 재부팅할 때까지 일시적인 서비스 중단이 발생합니다. 1.6.0 이전 펌웨어 버전에 영향을 미칩니다.",
@@ -4075,32 +5309,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30796",
-    "title": "RustDesk Server Pro API, 주소록 암호 평문 요구 문제",
-    "description": "RustDesk Server Pro의 주소록 동기화 API 모듈에서 암호가 평문으로 전송되어 스니핑 공격에 취약합니다. 특히 heartbeat sync API 엔드포인트가 주소록 암호를 평문으로 허용하는 것이 문제입니다. 1.7.5 버전 이하에서 발생합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-319"
-    ],
-    "affected": [
-      {
-        "vendor": "rustdesk-server-pro",
-        "product": "RustDesk Server Pro",
-        "versions": "1.7.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:19:55.186366+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2899",
     "title": "Fluent Forms Pro Add On Pack <= 6.1.17 - 인증되지 않은 임의 파일 삭제 취약점",
     "description": "Fluent Forms Pro Add On Pack 플러그인의 6.1.17 버전 이하에서 인증되지 않은 사용자가 임의의 워드프레스 미디어 파일을 삭제할 수 있는 권한 확인 누락 취약점이 발견되었습니다. `deleteFile()` 메서드에서 nonce 검증 및 권한 확인이 부족하며, AJAX 액션이 `wp_ajax_nopriv_` 훅을 통해 등록되어 익명 사용자도 공격이 가능합니다. 파일 삭제는 `path` 파라미터가 아닌 `attachment_id` 파라미터를 통해 이루어집니다.",
@@ -4759,37 +5967,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-20101",
-    "title": "Cisco Secure Firewall ASA/FTD 소프트웨어 SAML 2.0 SSO 기능 취약점",
-    "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 SAML 2.0 SSO 기능에서 인증되지 않은 원격 공격자가 악성 SAML 메시지를 전송하여 장치 재부팅을 유발할 수 있는 취약점이 발견되었습니다. 이는 SAML 메시지 처리 시 오류 검사 부족으로 발생하며, 서비스 거부(DoS) 상태를 초래할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00105,
-    "is_kev": false,
-    "cwe": [
-      "CWE-330"
-    ],
-    "affected": [
-      {
-        "vendor": "Cisco",
-        "product": "Cisco Secure Firewall Adaptive Security Appliance (ASA) Software",
-        "versions": "9.12.1 (단일 버전), 9.12.1.2 (단일 버전), 9.12.1.3 (단일 버전), 9.12.2 (단일 버전), 9.12.2.4 (단일 버전), 9.12.2.5 (단일 버전), 9.12.2.9 (단일 버전), 9.12.3 (단일 버전), 9.12.3.2 (단일 버전), 9.12.3.7 (단일 버전), 9.12.4 (단일 버전), 9.12.3.12 (단일 버전), 9.12.3.9 (단일 버전), 9.12.2.1 (단일 버전), 9.12.4.2 (단일 버전), 9.12.4.4 (단일 버전), 9.12.4.7 (단일 버전), 9.12.4.10 (단일 버전), 9.12.4.13 (단일 버전), 9.12.4.8 (단일 버전), 9.12.4.18 (단일 버전), 9.12.4.24 (단일 버전), 9.12.4.26 (단일 버전), 9.12.4.29 (단일 버전), 9.12.4.30 (단일 버전), 9.12.4.35 (단일 버전), 9.12.4.37 (단일 버전), 9.12.4.38 (단일 버전), 9.12.4.39 (단일 버전), 9.12.4.40 (단일 버전), 9.12.4.41 (단일 버전), 9.12.4.47 (단일 버전), 9.12.4.48 (단일 버전), 9.12.4.50 (단일 버전), 9.12.4.52 (단일 버전), 9.12.4.54 (단일 버전), 9.12.4.55 (단일 버전), 9.12.4.56 (단일 버전), 9.12.4.58 (단일 버전), 9.12.4.62 (단일 버전), 9.12.4.65 (단일 버전), 9.12.4.67 (단일 버전), 9.16.1 (단일 버전), 9.16.1.28 (단일 버전), 9.16.2 (단일 버전), 9.16.2.3 (단일 버전), 9.16.2.7 (단일 버전), 9.16.2.11 (단일 버전), 9.16.2.13 (단일 버전), 9.16.2.14 (단일 버전), 9.16.3 (단일 버전), 9.16.3.3 (단일 버전), 9.16.3.14 (단일 버전), 9.16.3.15 (단일 버전), 9.16.3.19 (단일 버전), 9.16.3.23 (단일 버전), 9.16.4 (단일 버전), 9.16.4.9 (단일 버전), 9.16.4.14 (단일 버전), 9.16.4.19 (단일 버전), 9.16.4.27 (단일 버전), 9.16.4.38 (단일 버전), 9.16.4.39 (단일 버전), 9.16.4.42 (단일 버전), 9.16.4.48 (단일 버전), 9.16.4.55 (단일 버전), 9.16.4.57 (단일 버전), 9.16.4.61 (단일 버전), 9.16.4.62 (단일 버전), 9.16.4.67 (단일 버전), 9.16.4.70 (단일 버전), 9.16.4.71 (단일 버전), 9.16.4.76 (단일 버전), 9.16.4.82 (단일 버전), 9.16.4.84 (단일 버전), 9.17.1 (단일 버전), 9.17.1.7 (단일 버전), 9.17.1.9 (단일 버전), 9.17.1.10 (단일 버전), 9.17.1.11 (단일 버전), 9.17.1.13 (단일 버전), 9.17.1.15 (단일 버전), 9.17.1.20 (단일 버전), 9.17.1.30 (단일 버전), 9.17.1.33 (단일 버전), 9.17.1.39 (단일 버전), 9.17.1.45 (단일 버전), 9.17.1.46 (단일 버전), 9.18.1 (단일 버전), 9.18.1.3 (단일 버전), 9.18.2 (단일 버전), 9.18.2.5 (단일 버전), 9.18.2.7 (단일 버전), 9.18.2.8 (단일 버전), 9.18.3 (단일 버전), 9.18.3.39 (단일 버전), 9.18.3.46 (단일 버전), 9.18.3.53 (단일 버전), 9.18.3.55 (단일 버전), 9.18.3.56 (단일 버전), 9.18.4 (단일 버전), 9.18.4.5 (단일 버전), 9.18.4.8 (단일 버전), 9.18.4.22 (단일 버전), 9.18.4.24 (단일 버전), 9.18.4.29 (단일 버전), 9.18.4.34 (단일 버전), 9.18.4.40 (단일 버전), 9.18.4.47 (단일 버전), 9.18.4.50 (단일 버전), 9.18.4.52 (단일 버전), 9.18.4.53 (단일 버전), 9.18.4.57 (단일 버전), 9.19.1 (단일 버전), 9.19.1.5 (단일 버전), 9.19.1.9 (단일 버전), 9.19.1.12 (단일 버전), 9.19.1.18 (단일 버전), 9.19.1.22 (단일 버전), 9.19.1.24 (단일 버전), 9.19.1.27 (단일 버전), 9.19.1.28 (단일 버전), 9.19.1.31 (단일 버전), 9.19.1.37 (단일 버전), 9.19.1.38 (단일 버전), 9.19.1.42 (단일 버전), 9.20.1 (단일 버전), 9.20.1.5 (단일 버전), 9.20.2 (단일 버전), 9.20.2.10 (단일 버전), 9.20.2.21 (단일 버전), 9.20.2.22 (단일 버전), 9.20.3 (단일 버전), 9.20.3.4 (단일 버전), 9.20.3.7 (단일 버전), 9.20.3.9 (단일 버전), 9.20.3.10 (단일 버전), 9.20.3.13 (단일 버전), 9.20.3.16 (단일 버전), 9.20.3.20 (단일 버전), 9.22.1.1 (단일 버전), 9.22.1.3 (단일 버전), 9.22.1.2 (단일 버전), 9.22.1.6 (단일 버전), 9.22.2 (단일 버전), 9.23.1 (단일 버전), 9.23.1.3 (단일 버전)"
-      },
-      {
-        "vendor": "Cisco",
-        "product": "Cisco Secure Firewall Threat Defense (FTD) Software",
-        "versions": "6.4.0 (단일 버전), 6.4.0.1 (단일 버전), 6.4.0.3 (단일 버전), 6.4.0.2 (단일 버전), 6.4.0.4 (단일 버전), 6.4.0.5 (단일 버전), 6.4.0.6 (단일 버전), 6.4.0.7 (단일 버전), 6.4.0.8 (단일 버전), 6.4.0.9 (단일 버전), 6.4.0.10 (단일 버전), 6.4.0.11 (단일 버전), 6.4.0.12 (단일 버전), 6.4.0.13 (단일 버전), 6.4.0.14 (단일 버전), 6.4.0.15 (단일 버전), 6.4.0.16 (단일 버전), 6.4.0.17 (단일 버전), 6.4.0.18 (단일 버전), 7.0.0 (단일 버전), 7.0.0.1 (단일 버전), 7.0.1 (단일 버전), 7.0.1.1 (단일 버전), 7.0.2 (단일 버전), 7.0.2.1 (단일 버전), 7.0.3 (단일 버전), 7.0.4 (단일 버전), 7.0.5 (단일 버전), 7.0.6 (단일 버전), 7.0.6.1 (단일 버전), 7.0.6.2 (단일 버전), 7.0.6.3 (단일 버전), 7.0.7 (단일 버전), 7.0.8 (단일 버전), 7.0.8.1 (단일 버전), 7.1.0 (단일 버전), 7.1.0.1 (단일 버전), 7.1.0.2 (단일 버전), 7.1.0.3 (단일 버전), 7.2.0 (단일 버전), 7.2.0.1 (단일 버전), 7.2.1 (단일 버전), 7.2.2 (단일 버전), 7.2.3 (단일 버전), 7.2.4 (단일 버전), 7.2.4.1 (단일 버전), 7.2.5 (단일 버전), 7.2.5.1 (단일 버전), 7.2.6 (단일 버전), 7.2.7 (단일 버전), 7.2.5.2 (단일 버전), 7.2.8 (단일 버전), 7.2.8.1 (단일 버전), 7.2.9 (단일 버전), 7.2.10 (단일 버전), 7.2.10.2 (단일 버전), 7.3.0 (단일 버전), 7.3.1 (단일 버전), 7.3.1.1 (단일 버전), 7.3.1.2 (단일 버전), 7.4.0 (단일 버전), 7.4.1 (단일 버전), 7.4.1.1 (단일 버전), 7.4.2 (단일 버전), 7.4.2.1 (단일 버전), 7.4.2.2 (단일 버전), 7.4.2.3 (단일 버전), 7.4.2.4 (단일 버전), 7.6.0 (단일 버전), 7.6.1 (단일 버전), 7.6.2 (단일 버전), 7.6.2.1 (단일 버전), 7.7.0 (단일 버전), 7.7.10 (단일 버전), 7.7.10.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:13:49.172595+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-26002",
     "title": "OnDemand 디렉터리 탐색 시 악성 입력 취약점",
     "description": "OnDemand는 오픈 소스 고성능 컴퓨팅 포털입니다. OnDemand 4.0.9 및 4.1.3 이전 버전의 Files 애플리케이션은 디렉터리 탐색 중 악성 입력에 취약합니다. 해당 취약점은 4.0.9 및 4.1.3 버전에서 패치되었으며, 그 이전 버전은 여전히 취약합니다.",
@@ -4897,37 +6074,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-20039",
-    "title": "Cisco ASA 및 Firepower Threat Defense 소프트웨어 SSL VPN 인증 거부 서비스 거부 취약점",
-    "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 VPN 웹 서버에서 인증되지 않은 원격 공격자가 DoS 공격을 유발할 수 있는 취약점이 발견되었습니다. VPN 웹 서버의 비효율적인 메모리 관리로 인해 발생하며, 조작된 HTTP 요청을 대량으로 전송하여 장치를 재시작시켜 DoS 상태를 초래할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00117,
-    "is_kev": false,
-    "cwe": [
-      "CWE-244"
-    ],
-    "affected": [
-      {
-        "vendor": "Cisco",
-        "product": "Cisco Secure Firewall Adaptive Security Appliance (ASA) Software",
-        "versions": "9.12.3 (단일 버전), 9.12.1 (단일 버전), 9.12.2 (단일 버전), 9.12.4 (단일 버전), 9.12.3.2 (단일 버전), 9.12.3.7 (단일 버전), 9.12.2.5 (단일 버전), 9.12.3.12 (단일 버전), 9.12.1.3 (단일 버전), 9.12.2.4 (단일 버전), 9.12.1.2 (단일 버전), 9.12.2.9 (단일 버전), 9.12.3.9 (단일 버전), 9.12.2.1 (단일 버전), 9.12.4.2 (단일 버전), 9.12.4.4 (단일 버전), 9.12.4.7 (단일 버전), 9.12.4.8 (단일 버전), 9.12.4.10 (단일 버전), 9.12.4.13 (단일 버전), 9.12.4.18 (단일 버전), 9.12.4.24 (단일 버전), 9.16.1 (단일 버전), 9.12.4.26 (단일 버전), 9.16.1.28 (단일 버전), 9.12.4.29 (단일 버전), 9.16.2 (단일 버전), 9.12.4.30 (단일 버전), 9.16.2.3 (단일 버전), 9.12.4.35 (단일 버전), 9.16.2.7 (단일 버전), 9.12.4.37 (단일 버전), 9.17.1 (단일 버전), 9.16.2.11 (단일 버전), 9.16.2.13 (단일 버전), 9.12.4.39 (단일 버전), 9.12.4.38 (단일 버전), 9.16.2.14 (단일 버전), 9.17.1.7 (단일 버전), 9.12.4.40 (단일 버전), 9.16.3.3 (단일 버전), 9.16.3 (단일 버전), 9.16.3.14 (단일 버전), 9.17.1.9 (단일 버전), 9.12.4.41 (단일 버전), 9.17.1.10 (단일 버전), 9.18.1 (단일 버전), 9.12.4.47 (단일 버전), 9.16.3.15 (단일 버전), 9.18.1.3 (단일 버전), 9.17.1.11 (단일 버전), 9.12.4.48 (단일 버전), 9.18.2 (단일 버전), 9.16.3.19 (단일 버전), 9.17.1.13 (단일 버전), 9.12.4.50 (단일 버전), 9.17.1.15 (단일 버전), 9.12.4.52 (단일 버전), 9.16.3.23 (단일 버전), 9.18.2.5 (단일 버전), 9.16.4 (단일 버전), 9.12.4.54 (단일 버전), 9.17.1.20 (단일 버전), 9.18.2.7 (단일 버전), 9.19.1 (단일 버전), 9.16.4.9 (단일 버전), 9.12.4.55 (단일 버전), 9.18.2.8 (단일 버전), 9.16.4.14 (단일 버전), 9.18.3 (단일 버전), 9.19.1.5 (단일 버전), 9.12.4.56 (단일 버전), 9.17.1.30 (단일 버전), 9.19.1.9 (단일 버전), 9.18.3.39 (단일 버전), 9.16.4.19 (단일 버전), 9.12.4.58 (단일 버전), 9.19.1.12 (단일 버전), 9.18.3.46 (단일 버전), 9.16.4.27 (단일 버전), 9.19.1.18 (단일 버전), 9.18.3.53 (단일 버전), 9.18.3.55 (단일 버전), 9.16.4.38 (단일 버전), 9.17.1.33 (단일 버전), 9.12.4.62 (단일 버전), 9.16.4.39 (단일 버전), 9.18.3.56 (단일 버전), 9.20.1 (단일 버전), 9.16.4.42 (단일 버전), 9.19.1.22 (단일 버전), 9.18.4 (단일 버전), 9.20.1.5 (단일 버전), 9.18.4.5 (단일 버전), 9.19.1.24 (단일 버전), 9.16.4.48 (단일 버전), 9.18.4.8 (단일 버전), 9.20.2 (단일 버전), 9.19.1.27 (단일 버전), 9.12.4.65 (단일 버전), 9.16.4.55 (단일 버전), 9.18.4.22 (단일 버전), 9.20.2.10 (단일 버전), 9.16.4.57 (단일 버전), 9.19.1.28 (단일 버전), 9.17.1.39 (단일 버전), 9.12.4.67 (단일 버전), 9.18.4.24 (단일 버전), 9.20.2.21 (단일 버전), 9.16.4.61 (단일 버전), 9.19.1.31 (단일 버전), 9.18.4.29 (단일 버전), 9.20.2.22 (단일 버전), 9.16.4.62 (단일 버전), 9.18.4.34 (단일 버전), 9.20.3 (단일 버전), 9.16.4.67 (단일 버전), 9.16.4.70 (단일 버전), 9.18.4.40 (단일 버전), 9.23.1 (단일 버전), 9.22.1.1 (단일 버전), 9.16.4.71 (단일 버전), 9.20.3.4 (단일 버전), 9.18.4.47 (단일 버전), 9.20.3.7 (단일 버전), 9.17.1.45 (단일 버전), 9.19.1.37 (단일 버전), 9.17.1.46 (단일 버전), 9.16.4.76 (단일 버전), 9.20.3.9 (단일 버전), 9.19.1.38 (단일 버전), 9.18.4.50 (단일 버전), 9.22.1.3 (단일 버전), 9.20.3.10 (단일 버전), 9.22.1.2 (단일 버전), 9.18.4.52 (단일 버전), 9.20.3.13 (단일 버전), 9.22.1.6 (단일 버전), 9.18.4.53 (단일 버전), 9.16.4.82 (단일 버전), 9.22.2 (단일 버전), 9.19.1.42 (단일 버전)"
-      },
-      {
-        "vendor": "Cisco",
-        "product": "Cisco Secure Firewall Threat Defense (FTD) Software",
-        "versions": "6.4.0.1 (단일 버전), 6.4.0.2 (단일 버전), 6.4.0.5 (단일 버전), 6.4.0 (단일 버전), 6.4.0.3 (단일 버전), 6.4.0.4 (단일 버전), 6.4.0.6 (단일 버전), 6.4.0.7 (단일 버전), 6.4.0.8 (단일 버전), 6.4.0.9 (단일 버전), 6.4.0.10 (단일 버전), 6.4.0.11 (단일 버전), 6.4.0.12 (단일 버전), 7.0.0 (단일 버전), 7.0.0.1 (단일 버전), 7.0.1 (단일 버전), 7.1.0 (단일 버전), 6.4.0.13 (단일 버전), 7.0.1.1 (단일 버전), 6.4.0.14 (단일 버전), 7.1.0.1 (단일 버전), 7.0.2 (단일 버전), 6.4.0.15 (단일 버전), 7.2.0 (단일 버전), 7.0.2.1 (단일 버전), 7.0.3 (단일 버전), 7.1.0.2 (단일 버전), 7.2.0.1 (단일 버전), 7.0.4 (단일 버전), 7.2.1 (단일 버전), 7.0.5 (단일 버전), 6.4.0.16 (단일 버전), 7.3.0 (단일 버전), 7.2.2 (단일 버전), 7.2.3 (단일 버전), 7.3.1 (단일 버전), 7.1.0.3 (단일 버전), 7.2.4 (단일 버전), 7.0.6 (단일 버전), 7.2.5 (단일 버전), 7.2.4.1 (단일 버전), 7.3.1.1 (단일 버전), 7.4.0 (단일 버전), 6.4.0.17 (단일 버전), 7.0.6.1 (단일 버전), 7.2.5.1 (단일 버전), 7.4.1 (단일 버전), 7.2.6 (단일 버전), 7.0.6.2 (단일 버전), 7.4.1.1 (단일 버전), 6.4.0.18 (단일 버전), 7.2.7 (단일 버전), 7.2.5.2 (단일 버전), 7.3.1.2 (단일 버전), 7.2.8 (단일 버전), 7.6.0 (단일 버전), 7.4.2 (단일 버전), 7.2.8.1 (단일 버전), 7.0.6.3 (단일 버전), 7.4.2.1 (단일 버전), 7.2.9 (단일 버전), 7.0.7 (단일 버전), 7.7.0 (단일 버전), 7.4.2.2 (단일 버전), 7.4.2.3 (단일 버전), 7.0.8 (단일 버전), 7.0.8.1 (단일 버전), 7.4.2.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:11:47.169001+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-20001",
@@ -5824,32 +6970,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2021-47745",
-    "title": "Cypress Solutions CTM-200 2.7.1 펌웨어 업그레이드 원격 OS 명령어 삽입 취약점",
-    "description": "Cypress Solutions CTM-200 2.7.1에서 펌웨어 업그레이드 스크립트의 인증된 명령어 삽입 취약점이 발견되었습니다. 공격자는 `ctm-config-upgrade.sh` 스크립트의 `fw_url` 파라미터를 이용하여 임의 명령어를 삽입하고 root 권한으로 실행할 수 있습니다. 이를 통해 원격에서 시스템을 제어할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00227,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "Cypress",
-        "product": "200",
-        "versions": "2.7.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:26:57.168784+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25245",
     "title": "Ross Video DashBoard 8.5.1 권한 상승 취약점 / 안전하지 않은 권한 설정",
     "description": "Ross Video DashBoard 8.5.1에 인증된 사용자가 부적절한 권한 설정으로 인해 실행 파일을 수정할 수 있는 권한 상승 취약점이 존재합니다. 공격자는 'Authenticated Users' 그룹의 'M' 또는 'C' 플래그를 악용하여 DashBoard.exe 파일을 악성 실행 파일로 교체할 수 있습니다.",
@@ -6689,58 +7809,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2021-47734",
-    "title": "CMSimple 5.4 인증된 로컬 파일 포함 원격 코드 실행",
-    "description": "CMSimple 5.4는 인증된 사용자가 로컬 파일을 포함하는 취약점을 가지고 있어, 원격 공격자가 PHP 세션 파일을 조작하고 임의 코드를 실행할 수 있습니다. 공격자는 함수 파일 경로를 변경하고 세션 파일 업로드 기능을 통해 악성 PHP 코드를 업로드하여 이를 악용할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00106,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "Cmsimple",
-        "product": "CMSimple",
-        "versions": "CMSimple 5.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:29:06.951646+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-47735",
-    "title": "CMSimple 5.4 인증된 원격 코드 실행 취약점 / 템플릿 편집",
-    "description": "CMSimple 5.4는 로그인된 공격자가 템플릿 파일에 악성 PHP 코드를 삽입할 수 있는 원격 코드 실행 취약점을 포함하고 있습니다. 공격자는 유효한 CSRF 토큰과 함께 템플릿 편집 기능을 악용하여 리버스 셸 페이로드를 제작하고 저장할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00381,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Cmsimple",
-        "product": "Cmsimple",
-        "versions": "5.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:29:06.950818+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2022-50687",
@@ -19103,32 +20171,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-28289",
-    "title": "FreeScout 1.8.206 패치 우회 (CVE-2026-27636)를 통한 제로 폭 공간 문자 사용 원격 코드 실행",
-    "description": "FreeScout 1.8.206 및 이전 버전에서 인증된 사용자가 파일 업로드 권한을 이용하여 악성 .htaccess 파일을 업로드함으로써 서버에서 원격 코드 실행(RCE)을 달성할 수 있는 패치 우회 취약점이 발견되었습니다. 제로 폭 공간 문자를 사용하여 보안 검사를 우회하며, app/Http/Helper.php의 sanitizeUploadedFileName() 함수 내 TOCTOU 취약점으로 발생합니다. 1.8.207 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "freescout-help-desk",
-        "product": "freescout",
-        "versions": "< 1.8.207 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T23:45:30.849691+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-27622",
     "title": "OpenEXR CompositeDeepScanLine 정수 오버플로우로 인한 힙 OOB 쓰기",
     "description": "OpenEXR의 CompositeDeepScanLine::readPixels 함수에서, 공격자가 제어하는 큰 값을 누적하는 과정에서 `total_sizes` 벡터의 정수 오버플로우가 발생합니다.",
@@ -25352,58 +26394,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27652",
-    "title": "CloudCharge 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00036,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "CloudCharge",
-        "product": "cloudcharge.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T03:06:00.49223+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27647",
-    "title": "Mobility46 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있습니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 명령을 받습니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00036,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobility46",
-        "product": "mobility46.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T03:05:56.211395+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3338",
     "title": "AWS-LC의 PKCS7 서명 검증 우회 취약점",
     "description": "AWS-LC의 PKCS7_verify() 함수 내 부적절한 서명 검증으로 인해, 인증되지 않은 사용자가 Authenticated Attributes가 포함된 PKCS7 객체 처리 시 서명 검증을 우회할 수 있습니다.",
@@ -25831,32 +26821,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27028",
-    "title": "Mobility46 mobility46.se의 중요 기능 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00177,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobility46",
-        "product": "mobility46.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:59:50.295709+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-25109",
@@ -27972,58 +28936,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27772",
-    "title": "EV Energy ev.energy의 중요 기능 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00132,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "EV Energy",
-        "product": "ev.energy",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:02:12.975991+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-27767",
-    "title": "SWITCH EV swtchenergy.com 중요 기능의 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00132,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:02:08.397829+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28426",
     "title": "Statamic, 저장된 XSS를 통한 권한 상승 취약점",
     "description": "Statamic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 5.73.11 및 6.4.0 이전 버전에서 SVG 및 아이콘 관련 구성 요소에 저장된 XSS 취약점이 존재하여, 적절한 권한을 가진 인증된 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이 스크립트는 더 높은 권한을 가진 사용자가 볼 때 실행됩니다. 해당 문제는 5.73.11 및 6.4.0에서 해결되었습니다.",
@@ -28423,32 +29335,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-27773",
-    "title": "SWITCH EV swtchenergy.com 취약한 자격 증명",
-    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다.",
-    "cvss": 6.5,
-    "epss": 0.00043,
-    "is_kev": false,
-    "cwe": [
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:57:01.279608+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-27631",
