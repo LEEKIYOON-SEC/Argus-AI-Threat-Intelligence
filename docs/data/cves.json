@@ -1,5 +1,1503 @@
 [
   {
+    "id": "CVE-2026-30847",
+    "title": "Wekan 알림 사용자 공개를 통한 자격 증명 유출 - 비밀번호 해시 및 세션 토큰 노출",
+    "description": "Wekan 8.31.0~8.33 버전에서 `notificationUsers` 공개 기능이 필터링 없이 사용자 문서를 게시하여, bcrypt 비밀번호 해시, 활성 세션 토큰, 이메일 검증 토큰, 전체 이메일 주소, OAuth 토큰 등 민감한 정보가 노출됩니다. 인증된 사용자가 이 기능을 트리거하면 다른 사용자의 자격 증명 및 세션 토큰을 탈취하여 계정 탈취가 가능합니다. 8.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">= 8.31.0, < 8.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T21:02:28.728229+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2022-32148",
+    "title": "net/http에서 클라이언트 IP 주소 노출",
+    "description": "Go 1.17.12 및 1.18.4 이전 버전의 net/http에서 `httputil.ReverseProxy.ServeHTTP` 호출 시 `X-Forwarded-For` 헤더의 값이 nil일 경우 클라이언트 IP 주소가 `X-Forwarded-For` 헤더에 설정되어 노출될 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00056,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200: Information Exposure"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "net/http",
+        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:00:56.927709+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2022-30629",
+    "title": "crypto/tls 세션 티켓의 예측 가능한 ticket_age_add 값",
+    "description": "Go 1.17.11 및 1.18.3 이전 버전의 crypto/tls에서 세션 티켓의 ticket_age_add 값이 예측 가능하여, TLS 핸드셰이크를 관찰하는 공격자가 세션 재개 시 티켓 나이를 비교하여 연속적인 연결을 연관시킬 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 3.1,
+    "epss": 0.00068,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200: Information Exposure"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "crypto/tls",
+        "versions": "1.17.11 이전, 1.18.0-0 부터 1.18.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:59:52.625587+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2022-2719",
+    "title": "ImageMagick NULL 이미지 리스트 어설션 실패 취약점",
+    "description": "ImageMagick의 MagickWand/operation.c에서 WriteImages 호출 시 NULL 이미지 리스트로 인해 어설션 실패가 발생할 수 있습니다.",
+    "cvss": 5.5,
+    "epss": 0.00026,
+    "is_kev": false,
+    "cwe": [
+      "CWE-617"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "ImageMagick",
+        "versions": "ImageMagick versions before 7.1.0-30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:59:51.898299+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2022-1962",
+    "title": "go/parser의 깊이 중첩된 타입으로 인한 스택 오버플로우",
+    "description": "Go 1.17.12 및 1.18.4 이전 버전의 go/parser에서 파싱 함수 내 무제한 재귀 호출이 발생할 수 있습니다. 이를 악용하여 깊이 중첩된 타입이나 선언을 통해 스택 오버플로우를 유발하고 패닉을 일으킬 수 있습니다.",
+    "cvss": 5.5,
+    "epss": 5e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674: Uncontrolled Recursion"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "go/parser",
+        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:59:43.866431+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30846",
+    "title": "Wekan, 모든 글로벌 웹훅 통합 정보 노출 (globalwebhooks Publication)",
+    "description": "Wekan 오픈소스 칸반 도구의 8.31.0~8.33 버전에서 globalwebhooks Publication을 통해 민감한 URL 및 토큰 필드를 포함한 모든 글로벌 웹훅 통합 정보가 인증 확인 없이 노출됩니다. 비인증된 클라이언트도 데이터에 접근 가능하며, 이를 통해 공격자가 웹훅 URL 및 토큰을 탈취하여 외부 서비스에 무단 접근할 수 있습니다. 8.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306",
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">= 8.31.0, < 8.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:02:58.933017+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30845",
+    "title": "Wekan 보드 게시 시 필드 필터링 부족으로 민감 정보 노출",
+    "description": "Wekan은 Meteor 기반 오픈 소스 칸반 도구입니다. 8.31.0부터 8.33 버전까지 보드 구성 게시 기능에서 필드 필터링 없이 모든 통합 데이터를 게시하여 웹훅 URL 및 인증 토큰과 같은 민감한 정보가 구독자에게 노출됩니다. 보드 접근 권한이 있는 모든 사용자가 웹훅 자격 증명을 탈취할 수 있으며, 이를 통해 인증되지 않은 요청을 보내 외부 서비스에서 무단 작업을 수행할 수 있습니다. 8.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">= 8.31.0, < 8.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:58:54.248246+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30844",
+    "title": "Wekan, 첨부 URL 로딩 시 검증 및 필터링 부족으로 인한 SSRF 취약점",
+    "description": "Wekan은 Meteor 기반 오픈 소스 칸반 도구이며, 8.32 및 8.33 버전에서 첨부 URL 로딩을 통해 SSRF(Server-Side Request Forgery) 취약점이 발생합니다. 사용자 제공 JSON 데이터의 첨부 URL을 서버가 검증 없이 직접 가져오며, 이는 Wekan 및 Trello 가져오기 기능 모두에 영향을 미칩니다. 인증된 사용자는 이 취약점을 통해 서버가 임의의 HTTP 요청을 수행하도록 하여 내부 네트워크 서비스에 접근할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">=  8.32, < 8.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:59:44.075281+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30843",
+    "title": "Wekan의 사용자 지정 필드 업데이트 엔드포인트에서 교차 보드 IDOR 취약점 발견",
+    "description": "Wekan 오픈 소스 칸반 도구의 8.32 및 8.33 버전에서 심각한 IDOR 취약점이 발견되었습니다. 이를 통해 권한이 없는 사용자가 사용자 지정 필드 업데이트 엔드포인트를 통해 보드 간의 사용자 지정 필드를 수정할 수 있습니다. 공격자는 다른 보드의 사용자 지정 필드 ID를 사용하여 데이터를 조작할 수 있으며, 8.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">= 8.32, < 8.34 (단일 버전)"
+      },
+      {
+        "vendor": "Wekan",
+        "product": "Wekan",
+        "versions": ">= 8.32, < 8.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:56:41.068528+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29064",
+    "title": "Zarf: 아카이브 내 심볼릭 링크 대상 경로 검증 미흡",
+    "description": "Zarf는 Kubernetes용 에어갭 네이티브 패키지 관리자입니다. 0.54.0 버전부터 0.73.1 이전 버전까지, 아카이브 추출 시 경로 탐색 취약점이 존재하여 악의적인 Zarf 패키지가 대상 디렉토리 외부를 가리키는 심볼릭 링크를 생성할 수 있습니다. 이를 통해 패키지를 처리하는 시스템에서 임의의 파일 읽기/쓰기가 가능합니다. 0.73.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "zarf-dev",
+        "product": "zarf",
+        "versions": ">= 0.54.0, < 0.73.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:58:42.86388+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29063",
+    "title": "Immutable.js: 객체 프로토타입 속성 조작 취약점 ('프로토타입 오염')",
+    "description": "Immutable.js는 불변 데이터 구조를 제공합니다. 3.8.3, 4.3.7, 5.1.5 버전 이전에서 mergeDeep(), mergeDeepWith(), merge(), Map.toJS(), Map.toObject() API를 통해 프로토타입 오염이 발생할 수 있습니다. 해당 문제는 3.8.3, 4.3.7, 5.1.5 버전에 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "immutable-js",
+        "product": "immutable-js",
+        "versions": "< 3.8.3 (단일 버전), < 4.3.7 (단일 버전), < 5.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:16:38.790766+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28726",
+    "title": "부적절한 접근 제어로 인한 민감 정보 유출",
+    "description": "부적절한 접근 제어 설정으로 인해 민감 정보가 유출될 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0.00027,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:53:42.398515+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28725",
+    "title": "헤드리스 브라우저 설정 오류로 인한 민감 정보 유출",
+    "description": "헤드리스 브라우저의 부적절한 설정으로 인해 민감 정보가 유출될 수 있습니다.",
+    "cvss": 5.5,
+    "epss": 0.00012,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:52:41.396621+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28724",
+    "title": "Acronis Cyber Protect 17 접근 제어 취약점",
+    "description": "부적절한 접근 제어 검증으로 인해 무단 데이터 접근이 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0.00027,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:40.393973+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28713",
+    "title": "가상 어플라이언스 로컬 권한 사용자 기본 자격 증명 설정",
+    "description": "가상 어플라이언스 내 로컬 권한 사용자 계정에 기본 자격 증명이 설정되어 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.0004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1392"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 36943 이전"
+      },
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:58:42.922609+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28712",
+    "title": "DLL 하이재킹 취약점을 통한 로컬 권한 상승",
+    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 악용하면 로컬 권한 상승이 가능합니다. 해당 제품 사용자들은 최신 빌드로 업데이트해야 합니다.",
+    "cvss": 6.3,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:13.506673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28711",
+    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
+    "description": "DLL 하이재킹 취약점으로 인해 로컬 권한 상승이 가능합니다.",
+    "cvss": 6.3,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:10.841231+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28710",
+    "title": "부적절한 인증으로 인한 민감 정보 유출 및 조작",
+    "description": "부적절한 인증 문제로 인해 민감 정보가 유출되거나 조작될 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.00075,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1390"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:55:44.403224+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28709",
+    "title": "권한 확인 미흡으로 인한 무단 리소스 조작",
+    "description": "부적절한 권한 확인으로 인해 무단 리소스 조작이 발생할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:05.577822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28030",
+    "title": "WordPress Bonbon 테마 <= 1.6 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Bonbon 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Bonbon 테마 버전 n/a부터 <= 1.6까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Bonbon",
+        "versions": "<= 1.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:03.07505+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28028",
+    "title": "WordPress MoneyFlow 테마 <= 1.0 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX MoneyFlow 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. MoneyFlow 버전 n/a부터 <= 1.0까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "MoneyFlow",
+        "versions": "<= 1.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:51:02.108561+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28024",
+    "title": "WordPress Helion 테마 <= 1.1.12 - 로컬 파일 포함 취약점",
+    "description": "axiomthemes Helion 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "axiomthemes",
+        "product": "Helion",
+        "versions": "<= 1.1.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:56.888924+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28022",
+    "title": "WordPress Foodie 테마 <= 1.14 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Foodie 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Foodie 테마 버전 n/a부터 <= 1.14까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Foodie",
+        "versions": "<= 1.14 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:56.241313+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26125",
+    "title": "결제 오케스트레이터 서비스 권한 상승 취약점",
+    "description": "결제 오케스트레이터 서비스에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Payment Orchestrator Service",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:31:38.749378+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26124",
+    "title": "Microsoft ACI 기밀 컨테이너 권한 상승 취약점",
+    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 6.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-35"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft ACI Confidential Containers",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:30:41.328498+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-26122",
+    "title": "Microsoft ACI 기밀 컨테이너 정보 유출 취약점",
+    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너 기능에서 정보 유출 취약점이 발견되었습니다. 이 취약점을 악용하면 컨테이너 내의 민감한 정보가 노출될 수 있습니다. 현재 Microsoft에서 해당 문제 해결을 위한 패치를 제공 중입니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Information Disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft ACI Confidential Containers",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:30:36.027071+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23651",
+    "title": "Microsoft ACI 기밀 컨테이너 권한 상승 취약점",
+    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 6.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-625"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft ACI Confidential Containers",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:30:35.822119+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21536",
+    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
+    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Devices Pricing Program",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:31:38.894088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-11792",
+    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
+    "description": "Acronis Cyber Protect Cloud Agent (Windows) 41124 빌드 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 통해 로컬 권한 상승이 가능합니다. 영향을 받는 제품은 Acronis Cyber Protect Cloud Agent (Windows)입니다.",
+    "cvss": 7.3,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 41124 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:55.414905+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-30413",
+    "title": "Acronis 에이전트, 플랜 취소 후 자격 증명 삭제 문제",
+    "description": "플랜 취소 후 Acronis 에이전트에서 자격 증명이 삭제되지 않는 문제 발생.",
+    "cvss": 4.4,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 40497 이전"
+      },
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:44.382487+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11791",
+    "title": "권한 부족으로 인한 민감 정보 유출 및 조작",
+    "description": "부적절한 권한 검사로 인해 민감 정보 유출 및 조작이 발생할 수 있습니다. 영향을 받는 제품은 Acronis Cyber Protect 17 (Linux, macOS, Windows) build 41186 이전 버전, Acronis Cyber Protect Cloud Agent (Linux, macOS, Windows) build 41124 이전 버전입니다.",
+    "cvss": 5.5,
+    "epss": 0.00012,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      },
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 41124 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:39.214585+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11790",
+    "title": "Acronis Agent: 플랜 취소 후 자격 증명 삭제 문제",
+    "description": "플랜이 취소된 후에도 Acronis Agent에서 자격 증명이 삭제되지 않는 문제가 발생합니다.",
+    "cvss": 4.4,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 41124 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:39.194662+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28026",
+    "title": "WordPress Motorix 테마 <= 1.6 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Motorix 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Motorix 테마 버전 n/a부터 <= 1.6까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 민감한 파일에 접근할 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Motorix",
+        "versions": "<= 1.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T21:01:37.264707+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27998",
+    "title": "WordPress Vixus 테마 <= 1.0.16 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Vixus 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Vixus",
+        "versions": "<= 1.0.16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T21:01:37.216547+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27996",
+    "title": "WordPress Lingvico 테마 <= 1.0.14 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Lingvico 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Lingvico",
+        "versions": "<= 1.0.14 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T21:01:37.215606+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27994",
+    "title": "WordPress Tediss 테마 <= 1.2.4 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Tediss 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Tediss",
+        "versions": "<= 1.2.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:57:33.20805+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30229",
+    "title": "Parse Server: `/loginAs` 엔드포인트에서 `readOnlyMasterKey`가 모든 사용자의 완전한 읽기/쓰기 권한을 획득하는 문제",
+    "description": "Parse Server는 Node.js를 실행할 수 있는 인프라에 배포 가능한 오픈 소스 백엔드입니다. 8.6.6 버전 및 9.5.0-alpha.4 이전 버전에서는 `readOnlyMasterKey`를 사용하여 모든 사용자에 대한 유효한 세션 토큰을 얻을 수 있습니다. 이로 인해 읽기 전용 자격 증명이 임의의 사용자를 위장하여 데이터에 대한 완전한 읽기/쓰기 권한을 가질 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": "< 8.6.6 (단일 버전), < 9.5.0-alpha.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:56:32.205984+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-69654",
+    "title": "QuickJS 인터프리터의 메모리 부족 및 어설션 실패 취약점",
+    "description": "QuickJS 2025-09-13 릴리즈에서 `-m` 옵션과 낮은 메모리 제한으로 실행 시, JS_FreeRuntime 과정에서 메모리 해제 실패로 어설션 오류가 발생하고 SIGABRT 신호가 전송될 수 있습니다. 엔진은 OOM 오류를 보고하지만, GC 객체 목록이 완전히 해제되지 않아 서비스 거부(DoS)로 이어질 수 있습니다. 해당 문제는 fcd33c1afa7b3028531f53cd1190a3877454f6b3 커밋(2025-12-11)으로 수정되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:56:32.205044+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-29182",
+    "title": "Parse Server: Cloud Hooks 및 Cloud Jobs의 `readOnlyMasterKey` 쓰기 제한 우회",
+    "description": "Parse Server의 `readOnlyMasterKey` 옵션은 마스터 수준 읽기 권한은 허용하지만 쓰기 작업은 거부하도록 문서화되어 있습니다. 하지만 특정 엔드포인트에서 이 키를 사용하여 Cloud Hooks 및 Cloud Jobs를 생성, 수정, 삭제할 수 있는 취약점이 발견되었습니다. 이는 데이터 유출로 이어질 수 있으며, 8.6.4 및 9.4.1-alpha.3 버전에서 패치되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": "< 8.6.4 (단일 버전), < 9.4.1-alpha.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:55:31.202244+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30835",
+    "title": "Parse Server: 잘못된 `$regex` 쿼리로 인한 API 응답에서 데이터베이스 오류 세부 정보 유출",
+    "description": "Parse Server 8.6.7 및 9.5.0-alpha.6 이전 버전에서, 잘못된 `$regex` 쿼리 파라미터(예: [abc)는 데이터베이스 오류 객체를 API 응답으로 그대로 전달합니다. 이로 인해 오류 메시지, 코드, 클러스터 타임스탬프 등 데이터베이스 내부 정보가 유출될 수 있습니다. 쿼리 요청을 보낼 수 있는 모든 클라이언트에서 악용 가능하며, 관련 패치는 8.6.7 및 9.5.0-alpha.6 버전에 적용되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-209"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": "< 8.6.7 (단일 버전), < 9.5.0-alpha.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:51:27.192958+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30228",
+    "title": "Parse Server: 파일 생성 및 삭제 시 `readOnlyMasterKey` 쓰기 제한 우회",
+    "description": "Parse Server 8.6.5 및 9.5.0-alpha.3 이전 버전에서 `readOnlyMasterKey`를 사용하여 Files API를 통해 파일을 생성하고 삭제할 수 있습니다. 이는 `readOnlyMasterKey`의 읽기 전용 제한을 우회하여 접근 범위를 위반하는 문제입니다. `readOnlyMasterKey`를 사용하고 Files API를 노출하는 모든 Parse Server 배포에 영향을 미치며, 공격자는 임의 파일을 업로드하거나 기존 파일을 삭제할 수 있습니다. 해당 문제는 8.6.5 및 9.5.0-alpha.3 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": "< 8.6.5 (단일 버전), < 9.5.0-alpha.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:56.839992+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29795",
+    "title": "stellar-xdr: `StringM::from_str`의 최대 길이 검증 우회",
+    "description": "stellar-xdr 라이브러리의 25.0.1 버전 이전에서 `StringM::from_str`이 입력 문자열의 최대 길이(MAX) 검증을 수행하지 않습니다. 최대 길이 N 바이트를 초과하는 문자열로 `StringM::<N>::from_str(s)`를 호출하면 오류 대신 유효한 `StringM`을 반환하여 길이 불변 조건을 위반합니다. 이는 `FromStr`을 사용하는 `StringM` 생성 및 최대 길이 제약 조건에 의존하는 코드에 영향을 미칠 수 있습니다.",
+    "cvss": 4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "stellar",
+        "product": "rs-stellar-xdr",
+        "versions": "< 25.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:50.006841+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29789",
+    "title": "Vito: 워크플로우 사이트 생성 작업에서의 권한 상승 취약점 - 권한 없는 서버 수정 가능",
+    "description": "Vito는 서버 관리 및 PHP 애플리케이션 배포를 돕는 자체 호스팅 웹 애플리케이션입니다. 3.20.3 버전 이전에는 워크플로우 사이트 생성 작업 시 인증된 공격자가 다른 프로젝트의 서버에 대한 사이트를 생성/관리할 수 있는 권한 상승 취약점이 존재했습니다. 해당 문제는 3.20.3 버전에서 패치되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "vitodeploy",
+        "product": "vito",
+        "versions": "< 3.20.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:47.177155+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29788",
+    "title": "TSPortal: 모든 사용자의 삭제 요청 위조 가능",
+    "description": "TSPortal은 WikiTide 재단의 Trust and Safety 팀에서 보고서, 조사, 항소 및 투명성 관련 업무를 처리하는 내부 플랫폼입니다. 30 버전 이전에는 빈 문자열을 null로 변환하여 DPA 보고서를 실제 삭제 요청으로 위장할 수 있었습니다. 해당 문제는 30 버전에서 수정되었습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-283",
+      "CWE-1287"
+    ],
+    "affected": [
+      {
+        "vendor": "miraheze",
+        "product": "TSPortal",
+        "versions": "< 30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:47.002742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29791",
+    "title": "Agentgateway: MCP-OpenAPI 변환 시 파라미터 소독 누락",
+    "description": "Agentgateway는 에이전트 기반 AI 연결을 위한 오픈 소스 데이터 플레인입니다. 0.12.0 버전 이전에는 MCP 도구/요청을 OpenAPI 요청으로 변환할 때 입력 경로, 쿼리, 헤더 값이 소독되지 않는 취약점이 있었습니다. 해당 문제는 0.12.0 버전에서 수정되었습니다.",
+    "cvss": 4.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "agentgateway",
+        "product": "agentgateway",
+        "versions": "< 0.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:42.411135+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29790",
+    "title": "dbt-common: commonprefix() 함수를 통한 경로 탐색 취약점",
+    "description": "dbt-common은 dbt-core 및 어댑터 구현에 사용되는 공유 유틸리티입니다. 1.34.2 및 1.37.3 버전 이전에서는 tarball 아카이브 추출 시 사용되는 safe_extract() 함수에 경로 탐색 취약점이 존재합니다. commonprefix() 함수가 경로 구성 요소가 아닌 문자별로 경로를 비교하여 악성 tarball이 일치하는 이름 접두사를 가진 형제 디렉터리에 파일을 쓸 수 있도록 허용합니다. 해당 문제는 1.34.2 및 1.37.3 버전에서 수정되었습니다.",
+    "cvss": 2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "dbt-labs",
+        "product": "dbt-common",
+        "versions": "< 1.37.3 (단일 버전), < 1.34.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:29.428645+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-27990",
+    "title": "WordPress ConFix 테마 <= 1.013 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX ConFix confix 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. 해당 취약점은 ConFix 테마 버전 n/a부터 <= 1.013까지 영향을 받습니다. PHP 원격 파일 포함과 유사한 방식으로 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "ConFix",
+        "versions": "<= 1.013 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:19.813624+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27988",
+    "title": "WordPress Equadio 테마 <= 1.1.3 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Equadio equadio 테마에서 PHP include/require 문에 대한 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Equadio",
+        "versions": "<= 1.1.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:19.255071+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27992",
+    "title": "WordPress Meals & Wheels 테마 <= 1.1.12 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Meals & Wheels 테마의 meals-wheels에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 PHP include/require 문에서 파일 이름 제어가 미흡하여 발생합니다. 영향을 받는 버전은 n/a부터 <= 1.1.12까지입니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Meals & Wheels",
+        "versions": "<= 1.1.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:19.018012+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-29613",
+    "title": "OpenClaw < 2026.2.12 - 루프백 remoteAddress 신뢰를 통한 Webhook 인증 우회",
+    "description": "OpenClaw 2026.2.12 이전 버전은 BlueBubbles (선택적 플러그인) webhook 핸들러에서 포워딩 헤더 검증 없이 루프백 remoteAddress만으로 요청을 인증하여, 설정된 webhook 비밀번호를 우회할 수 있는 취약점을 가지고 있습니다. 리버스 프록시 뒤에서 게이트웨이가 작동하는 경우, 인증되지 않은 원격 공격자가 프록시 엔드포인트를 통해 임의의 BlueBubbles 메시지 및 반응 이벤트를 주입할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0.00026,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:02:25.86647+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29075",
+    "title": "Mesa: `benchmarks.yml` 워크플로우에서 신뢰할 수 없는 코드 체크아웃 시 권한 있는 러너에서 코드 실행 가능성",
+    "description": "Mesa는 에이전트 기반 모델링을 위한 오픈 소스 Python 라이브러리입니다. 3.5.0 버전 이하에서 `benchmarks.yml` 워크플로우에서 신뢰할 수 없는 코드를 체크아웃할 경우 권한 있는 러너에서 코드 실행이 발생할 수 있습니다. 해당 문제는 c35b8cd 커밋을 통해 수정되었습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "mesa",
+        "product": "mesa",
+        "versions": "<= 3.5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:07:17.225561+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2836",
+    "title": "기본 캐시 키 설정의 취약점을 이용한 캐시 포이즈닝",
+    "description": "Pingora HTTP 프록시 프레임워크의 기본 캐시 키 생성 방식에서 캐시 포이즈닝 취약점이 발견되었습니다. 호스트 헤더(authority)와 같은 중요한 요소를 제외하고 URI 경로만 사용하여 캐시 키를 생성하기 때문입니다. 기본 설정을 사용하는 경우, 악의적인 사용자가 캐시를 오염시켜 다른 테넌트의 응답을 제공하거나 악성 콘텐츠를 전송할 수 있습니다. Pingora v0.8.0 이상으로 업그레이드하거나, 호스트 헤더를 포함한 사용자 정의 캐시 키 구현을 권장합니다.",
+    "cvss": 8.4,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Cloudflare",
+        "product": "https://github.com/cloudflare/pingora",
+        "versions": "0.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:17:39.793227+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-65085",
+    "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share 힙 기반 버퍼 오버플로우 취약점",
+    "description": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium 및 Cobalt Share 12.6.1204.207 버전 이하에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 정보를 유출하거나 임의 코드를 실행할 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0.00084,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Ashlar-Vellum",
+        "product": "Cobalt",
+        "versions": "12.6.1204.207 이하"
+      },
+      {
+        "vendor": "Ashlar-Vellum",
+        "product": "Xenon",
+        "versions": "12.6.1204.207 이하"
+      },
+      {
+        "vendor": "Ashlar-Vellum",
+        "product": "Argon",
+        "versions": "12.6.1204.207 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:19:35.668572+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-12107",
+    "title": "잠재적인 인증된 서버 측 템플릿 주입 (SSTI) 취약점",
+    "description": "취약한 Velocity 템플릿 엔진 사용으로 인해 관리자 권한을 가진 공격자가 서버 측 템플릿 내에 임의의 템플릿 구문을 삽입하고 실행할 수 있습니다. 성공적인 공격 시 원격 코드 실행, 데이터 조작, 또는 민감 정보에 대한 무단 접근으로 이어질 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0.00363,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "WSO2",
+        "product": "WSO2 Identity Server",
+        "versions": "5.11.0.130 부터 5.11.0.299 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T15:56:16.151476+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-15602",
+    "title": "Snipe-IT < 8.3.7 대량 할당 취약점 - 권한 상승",
+    "description": "Snipe-IT 8.3.7 이전 버전은 계정 권한 관련 민감한 사용자 속성이 대량 할당 공격에 취약합니다. 인증된 저권한 사용자가 악성 API 요청을 통해 다른 사용자의 제한된 필드(슈퍼 관리자 계정 포함)를 수정할 수 있습니다. 슈퍼 관리자의 이메일 주소를 변경하고 비밀번호 재설정을 유발하여 계정을 완전히 탈취하고 Snipe-IT 인스턴스를 완전히 제어할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-915"
+    ],
+    "affected": [
+      {
+        "vendor": "Grokability, Inc.",
+        "product": "Snipe-IT",
+        "versions": "8.3.7 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:07:05.105168+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-1627",
     "title": "SSH 서비스의 취약한 MAC 알고리즘 악용 가능성",
     "description": "장치 SSH 서비스에 사용된 오래되고 취약한 MAC 알고리즘을 공격자가 악용하여 SSH 세션의 무결성을 손상시킬 수 있습니다.",
@@ -484,69 +1982,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30846",
-    "title": "Wekan, 모든 글로벌 웹훅 통합 정보 노출 (globalwebhooks Publication)",
-    "description": "Wekan 오픈소스 칸반 도구의 8.31.0~8.33 버전에서 globalwebhooks Publication을 통해 민감한 URL 및 토큰 필드를 포함한 모든 글로벌 웹훅 통합 정보가 인증 확인 없이 노출됩니다. 비인증된 클라이언트도 데이터에 접근 가능하며, 이를 통해 공격자가 웹훅 URL 및 토큰을 탈취하여 외부 서비스에 무단 접근할 수 있습니다. 8.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306",
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "Wekan",
-        "product": "Wekan",
-        "versions": ">= 8.31.0, < 8.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T20:02:58.933017+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-33101",
     "title": "IBM Concert 소프트웨어의 다중 취약점",
     "description": "IBM Concert 1.0.0부터 2.1.0 버전에서, 힙 메모리 정리 불량으로 인해 중간자 공격 기법을 사용하여 민감한 정보가 유출될 수 있습니다.",
@@ -591,807 +2026,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T20:01:57.930571+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2022-32148",
-    "title": "net/http에서 클라이언트 IP 주소 노출",
-    "description": "Go 1.17.12 및 1.18.4 이전 버전의 net/http에서 `httputil.ReverseProxy.ServeHTTP` 호출 시 `X-Forwarded-For` 헤더의 값이 nil일 경우 클라이언트 IP 주소가 `X-Forwarded-For` 헤더에 설정되어 노출될 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
-    "cvss": 6.5,
-    "epss": 0.00056,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200: Information Exposure"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "net/http",
-        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T20:00:56.927709+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2022-30629",
-    "title": "crypto/tls 세션 티켓의 예측 가능한 ticket_age_add 값",
-    "description": "Go 1.17.11 및 1.18.3 이전 버전의 crypto/tls에서 세션 티켓의 ticket_age_add 값이 예측 가능하여, TLS 핸드셰이크를 관찰하는 공격자가 세션 재개 시 티켓 나이를 비교하여 연속적인 연결을 연관시킬 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
-    "cvss": 3.1,
-    "epss": 0.00068,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200: Information Exposure"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "crypto/tls",
-        "versions": "1.17.11 이전, 1.18.0-0 부터 1.18.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:59:52.625587+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2022-2719",
-    "title": "ImageMagick NULL 이미지 리스트 어설션 실패 취약점",
-    "description": "ImageMagick의 MagickWand/operation.c에서 WriteImages 호출 시 NULL 이미지 리스트로 인해 어설션 실패가 발생할 수 있습니다.",
-    "cvss": 5.5,
-    "epss": 0.00026,
-    "is_kev": false,
-    "cwe": [
-      "CWE-617"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "ImageMagick",
-        "versions": "ImageMagick versions before 7.1.0-30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:59:51.898299+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30844",
-    "title": "Wekan, 첨부 URL 로딩 시 검증 및 필터링 부족으로 인한 SSRF 취약점",
-    "description": "Wekan은 Meteor 기반 오픈 소스 칸반 도구이며, 8.32 및 8.33 버전에서 첨부 URL 로딩을 통해 SSRF(Server-Side Request Forgery) 취약점이 발생합니다. 사용자 제공 JSON 데이터의 첨부 URL을 서버가 검증 없이 직접 가져오며, 이는 Wekan 및 Trello 가져오기 기능 모두에 영향을 미칩니다. 인증된 사용자는 이 취약점을 통해 서버가 임의의 HTTP 요청을 수행하도록 하여 내부 네트워크 서비스에 접근할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Wekan",
-        "product": "Wekan",
-        "versions": ">=  8.32, < 8.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:59:44.075281+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2022-1962",
-    "title": "go/parser의 깊이 중첩된 타입으로 인한 스택 오버플로우",
-    "description": "Go 1.17.12 및 1.18.4 이전 버전의 go/parser에서 파싱 함수 내 무제한 재귀 호출이 발생할 수 있습니다. 이를 악용하여 깊이 중첩된 타입이나 선언을 통해 스택 오버플로우를 유발하고 패닉을 일으킬 수 있습니다.",
-    "cvss": 5.5,
-    "epss": 5e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674: Uncontrolled Recursion"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "go/parser",
-        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:59:43.866431+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30845",
-    "title": "Wekan 보드 게시 시 필드 필터링 부족으로 민감 정보 노출",
-    "description": "Wekan은 Meteor 기반 오픈 소스 칸반 도구입니다. 8.31.0부터 8.33 버전까지 보드 구성 게시 기능에서 필드 필터링 없이 모든 통합 데이터를 게시하여 웹훅 URL 및 인증 토큰과 같은 민감한 정보가 구독자에게 노출됩니다. 보드 접근 권한이 있는 모든 사용자가 웹훅 자격 증명을 탈취할 수 있으며, 이를 통해 인증되지 않은 요청을 보내 외부 서비스에서 무단 작업을 수행할 수 있습니다. 8.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200",
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "Wekan",
-        "product": "Wekan",
-        "versions": ">= 8.31.0, < 8.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:58:54.248246+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28713",
-    "title": "가상 어플라이언스 로컬 권한 사용자 기본 자격 증명 설정",
-    "description": "가상 어플라이언스 내 로컬 권한 사용자 계정에 기본 자격 증명이 설정되어 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.0004,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1392"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 36943 이전"
-      },
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:58:42.922609+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29064",
-    "title": "Zarf: 아카이브 내 심볼릭 링크 대상 경로 검증 미흡",
-    "description": "Zarf는 Kubernetes용 에어갭 네이티브 패키지 관리자입니다. 0.54.0 버전부터 0.73.1 이전 버전까지, 아카이브 추출 시 경로 탐색 취약점이 존재하여 악의적인 Zarf 패키지가 대상 디렉토리 외부를 가리키는 심볼릭 링크를 생성할 수 있습니다. 이를 통해 패키지를 처리하는 시스템에서 임의의 파일 읽기/쓰기가 가능합니다. 0.73.1 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "zarf-dev",
-        "product": "zarf",
-        "versions": ">= 0.54.0, < 0.73.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:58:42.86388+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30843",
-    "title": "Wekan의 사용자 지정 필드 업데이트 엔드포인트에서 교차 보드 IDOR 취약점 발견",
-    "description": "Wekan 오픈 소스 칸반 도구의 8.32 및 8.33 버전에서 심각한 IDOR 취약점이 발견되었습니다. 이를 통해 권한이 없는 사용자가 사용자 지정 필드 업데이트 엔드포인트를 통해 보드 간의 사용자 지정 필드를 수정할 수 있습니다. 공격자는 다른 보드의 사용자 지정 필드 ID를 사용하여 데이터를 조작할 수 있으며, 8.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "Wekan",
-        "product": "Wekan",
-        "versions": ">= 8.32, < 8.34 (단일 버전)"
-      },
-      {
-        "vendor": "Wekan",
-        "product": "Wekan",
-        "versions": ">= 8.32, < 8.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:56:41.068528+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28710",
-    "title": "부적절한 인증으로 인한 민감 정보 유출 및 조작",
-    "description": "부적절한 인증 문제로 인해 민감 정보가 유출되거나 조작될 수 있습니다.",
-    "cvss": 8.1,
-    "epss": 0.00075,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1390"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:55:44.403224+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29063",
-    "title": "Immutable.js: 객체 프로토타입 속성 조작 취약점 ('프로토타입 오염')",
-    "description": "Immutable.js는 불변 데이터 구조를 제공합니다. 3.8.3, 4.3.7, 5.1.5 버전 이전에서 mergeDeep(), mergeDeepWith(), merge(), Map.toJS(), Map.toObject() API를 통해 프로토타입 오염이 발생할 수 있습니다. 해당 문제는 3.8.3, 4.3.7, 5.1.5 버전에 패치되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1321"
-    ],
-    "affected": [
-      {
-        "vendor": "immutable-js",
-        "product": "immutable-js",
-        "versions": "< 3.8.3 (단일 버전), < 4.3.7 (단일 버전), < 5.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:16:38.790766+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28726",
-    "title": "부적절한 접근 제어로 인한 민감 정보 유출",
-    "description": "부적절한 접근 제어 설정으로 인해 민감 정보가 유출될 수 있습니다.",
-    "cvss": 4.3,
-    "epss": 0.00027,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:53:42.398515+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28725",
-    "title": "헤드리스 브라우저 설정 오류로 인한 민감 정보 유출",
-    "description": "헤드리스 브라우저의 부적절한 설정으로 인해 민감 정보가 유출될 수 있습니다.",
-    "cvss": 5.5,
-    "epss": 0.00012,
-    "is_kev": false,
-    "cwe": [
-      "CWE-732"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:52:41.396621+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28724",
-    "title": "Acronis Cyber Protect 17 접근 제어 취약점",
-    "description": "부적절한 접근 제어 검증으로 인해 무단 데이터 접근이 가능합니다.",
-    "cvss": 4.3,
-    "epss": 0.00027,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:40.393973+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28712",
-    "title": "DLL 하이재킹 취약점을 통한 로컬 권한 상승",
-    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 악용하면 로컬 권한 상승이 가능합니다. 해당 제품 사용자들은 최신 빌드로 업데이트해야 합니다.",
-    "cvss": 6.3,
-    "epss": 0.00013,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:13.506673+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28711",
-    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
-    "description": "DLL 하이재킹 취약점으로 인해 로컬 권한 상승이 가능합니다.",
-    "cvss": 6.3,
-    "epss": 0.00013,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:10.841231+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28709",
-    "title": "권한 확인 미흡으로 인한 무단 리소스 조작",
-    "description": "부적절한 권한 확인으로 인해 무단 리소스 조작이 발생할 수 있습니다.",
-    "cvss": 4.3,
-    "epss": 0.00029,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:05.577822+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28030",
-    "title": "WordPress Bonbon 테마 <= 1.6 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Bonbon 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Bonbon 테마 버전 n/a부터 <= 1.6까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Bonbon",
-        "versions": "<= 1.6 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:03.07505+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-28028",
-    "title": "WordPress MoneyFlow 테마 <= 1.0 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX MoneyFlow 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. MoneyFlow 버전 n/a부터 <= 1.0까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "MoneyFlow",
-        "versions": "<= 1.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:51:02.108561+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-28024",
-    "title": "WordPress Helion 테마 <= 1.1.12 - 로컬 파일 포함 취약점",
-    "description": "axiomthemes Helion 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 0,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "axiomthemes",
-        "product": "Helion",
-        "versions": "<= 1.1.12 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:56.888924+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-28022",
-    "title": "WordPress Foodie 테마 <= 1.14 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Foodie 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Foodie 테마 버전 n/a부터 <= 1.14까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Foodie",
-        "versions": "<= 1.14 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:56.241313+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-11792",
-    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
-    "description": "Acronis Cyber Protect Cloud Agent (Windows) 41124 빌드 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 통해 로컬 권한 상승이 가능합니다. 영향을 받는 제품은 Acronis Cyber Protect Cloud Agent (Windows)입니다.",
-    "cvss": 7.3,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 41124 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:55.414905+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26125",
-    "title": "결제 오케스트레이터 서비스 권한 상승 취약점",
-    "description": "결제 오케스트레이터 서비스에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Payment Orchestrator Service",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:31:38.749378+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26124",
-    "title": "Microsoft ACI 기밀 컨테이너 권한 상승 취약점",
-    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 6.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-35"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft ACI Confidential Containers",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:30:41.328498+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26122",
-    "title": "Microsoft ACI 기밀 컨테이너 정보 유출 취약점",
-    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너 기능에서 정보 유출 취약점이 발견되었습니다. 이 취약점을 악용하면 컨테이너 내의 민감한 정보가 노출될 수 있습니다. 현재 Microsoft에서 해당 문제 해결을 위한 패치를 제공 중입니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Information Disclosure"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft ACI Confidential Containers",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:30:36.027071+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-30413",
-    "title": "Acronis 에이전트, 플랜 취소 후 자격 증명 삭제 문제",
-    "description": "플랜 취소 후 Acronis 에이전트에서 자격 증명이 삭제되지 않는 문제 발생.",
-    "cvss": 4.4,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-732"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 40497 이전"
-      },
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:44.382487+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-23651",
-    "title": "Microsoft ACI 기밀 컨테이너 권한 상승 취약점",
-    "description": "Microsoft Azure Container Instances(ACI)의 기밀 컨테이너에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 6.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-625"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft ACI Confidential Containers",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:30:35.822119+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-21536",
-    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
-    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Devices Pricing Program",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:31:38.894088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-11791",
-    "title": "권한 부족으로 인한 민감 정보 유출 및 조작",
-    "description": "부적절한 권한 검사로 인해 민감 정보 유출 및 조작이 발생할 수 있습니다. 영향을 받는 제품은 Acronis Cyber Protect 17 (Linux, macOS, Windows) build 41186 이전 버전, Acronis Cyber Protect Cloud Agent (Linux, macOS, Windows) build 41124 이전 버전입니다.",
-    "cvss": 5.5,
-    "epss": 0.00012,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      },
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 41124 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:39.214585+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-11790",
-    "title": "Acronis Agent: 플랜 취소 후 자격 증명 삭제 문제",
-    "description": "플랜이 취소된 후에도 Acronis Agent에서 자격 증명이 삭제되지 않는 문제가 발생합니다.",
-    "cvss": 4.4,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-732"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 41124 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:39.194662+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1652,30 +2286,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T19:17:43.984693+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2836",
-    "title": "기본 캐시 키 설정의 취약점을 이용한 캐시 포이즈닝",
-    "description": "Pingora HTTP 프록시 프레임워크의 기본 캐시 키 생성 방식에서 캐시 포이즈닝 취약점이 발견되었습니다. 호스트 헤더(authority)와 같은 중요한 요소를 제외하고 URI 경로만 사용하여 캐시 키를 생성하기 때문입니다. 기본 설정을 사용하는 경우, 악의적인 사용자가 캐시를 오염시켜 다른 테넌트의 응답을 제공하거나 악성 콘텐츠를 전송할 수 있습니다. Pingora v0.8.0 이상으로 업그레이드하거나, 호스트 헤더를 포함한 사용자 정의 캐시 키 구현을 권장합니다.",
-    "cvss": 8.4,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Cloudflare",
-        "product": "https://github.com/cloudflare/pingora",
-        "versions": "0.8.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:17:39.793227+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3072,42 +3682,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-65085",
-    "title": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium, Cobalt Share 힙 기반 버퍼 오버플로우 취약점",
-    "description": "Ashlar-Vellum Cobalt, Xenon, Argon, Lithium 및 Cobalt Share 12.6.1204.207 버전 이하에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 정보를 유출하거나 임의 코드를 실행할 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0.00084,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Ashlar-Vellum",
-        "product": "Cobalt",
-        "versions": "12.6.1204.207 이하"
-      },
-      {
-        "vendor": "Ashlar-Vellum",
-        "product": "Xenon",
-        "versions": "12.6.1204.207 이하"
-      },
-      {
-        "vendor": "Ashlar-Vellum",
-        "product": "Argon",
-        "versions": "12.6.1204.207 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:19:35.668572+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29081",
     "title": "Frappe: 부적절한 필드명 소독으로 인한 SQL Injection 가능성",
     "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 14.100.1 및 15.100.0 버전 이전에는 특수 제작된 요청을 통해 SQL Injection에 취약하여 악의적인 공격자가 민감한 정보를 유출할 수 있었습니다. 해당 문제는 14.100.1 및 15.100.0 버전에 패치되었습니다.",
@@ -4246,32 +4820,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29075",
-    "title": "Mesa: `benchmarks.yml` 워크플로우에서 신뢰할 수 없는 코드 체크아웃 시 권한 있는 러너에서 코드 실행 가능성",
-    "description": "Mesa는 에이전트 기반 모델링을 위한 오픈 소스 Python 라이브러리입니다. 3.5.0 버전 이하에서 `benchmarks.yml` 워크플로우에서 신뢰할 수 없는 코드를 체크아웃할 경우 권한 있는 러너에서 코드 실행이 발생할 수 있습니다. 해당 문제는 c35b8cd 커밋을 통해 수정되었습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "mesa",
-        "product": "mesa",
-        "versions": "<= 3.5.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:07:17.225561+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-59542",
     "title": "Chamilo: 학습 경로 저장 XSS를 통한 계정 탈취",
     "description": "Chamilo LMS 1.11.34 이전 버전에서 저장 XSS 취약점이 발견되었습니다. 공격자는 학습 경로 설정 필드에 악성 JavaScript를 삽입하여 다른 사용자의 브라우저에서 임의의 코드를 실행할 수 있습니다. 이를 통해 관리자를 포함한 다른 사용자의 세션 쿠키나 토큰을 탈취하여 계정을 탈취할 수 있습니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
@@ -4369,32 +4917,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T05:25:16.870016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-15602",
-    "title": "Snipe-IT < 8.3.7 대량 할당 취약점 - 권한 상승",
-    "description": "Snipe-IT 8.3.7 이전 버전은 계정 권한 관련 민감한 사용자 속성이 대량 할당 공격에 취약합니다. 인증된 저권한 사용자가 악성 API 요청을 통해 다른 사용자의 제한된 필드(슈퍼 관리자 계정 포함)를 수정할 수 있습니다. 슈퍼 관리자의 이메일 주소를 변경하고 비밀번호 재설정을 유발하여 계정을 완전히 탈취하고 Snipe-IT 인스턴스를 완전히 제어할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-915"
-    ],
-    "affected": [
-      {
-        "vendor": "Grokability, Inc.",
-        "product": "Snipe-IT",
-        "versions": "8.3.7 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:07:05.105168+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4603,32 +5125,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T23:53:23.884686+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29613",
-    "title": "OpenClaw < 2026.2.12 - 루프백 remoteAddress 신뢰를 통한 Webhook 인증 우회",
-    "description": "OpenClaw 2026.2.12 이전 버전은 BlueBubbles (선택적 플러그인) webhook 핸들러에서 포워딩 헤더 검증 없이 루프백 remoteAddress만으로 요청을 인증하여, 설정된 webhook 비밀번호를 우회할 수 있는 취약점을 가지고 있습니다. 리버스 프록시 뒤에서 게이트웨이가 작동하는 경우, 인증되지 않은 원격 공격자가 프록시 엔드포인트를 통해 임의의 BlueBubbles 메시지 및 반응 이벤트를 주입할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0.00026,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.12 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:02:25.86647+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -6243,32 +6739,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-12107",
-    "title": "잠재적인 인증된 서버 측 템플릿 주입 (SSTI) 취약점",
-    "description": "취약한 Velocity 템플릿 엔진 사용으로 인해 관리자 권한을 가진 공격자가 서버 측 템플릿 내에 임의의 템플릿 구문을 삽입하고 실행할 수 있습니다. 성공적인 공격 시 원격 코드 실행, 데이터 조작, 또는 민감 정보에 대한 무단 접근으로 이어질 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0.00363,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1336"
-    ],
-    "affected": [
-      {
-        "vendor": "WSO2",
-        "product": "WSO2 Identity Server",
-        "versions": "5.11.0.130 부터 5.11.0.299 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T15:56:16.151476+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-36018",
