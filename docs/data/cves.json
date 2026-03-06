@@ -1,5 +1,328 @@
 [
   {
+    "id": "CVE-2026-3613",
+    "title": "Wavlink WL-NU516U1 login.cgi sub_401A0C 스택 기반 오버플로우",
+    "description": "Wavlink WL-NU516U1 V240425 버전에서 /cgi-bin/login.cgi 파일의 sub_401A0C 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ipaddr 인수를 조작하여 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다. 해당 내용은 이미 제조사에 보고되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Wavlink",
+        "product": "WL-NU516U1",
+        "versions": "V240425 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/85",
+    "date": "2026-03-06T03:11:06.129866+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/cgi-bin/login.cgi.), 웹 파일 (.cgi))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3616",
+    "title": "DefaultFuction Jeson CRM 시스템 edit.php SQL Injection 취약점",
+    "description": "DefaultFuction Jeson CRM 시스템 1.0.0 버전에서 /modules/customers/edit.php 파일의 ID 파라미터 조작을 통해 SQL Injection 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. f0e991870e9d33701cca3a1d0fd4eec135af01a6 패치를 적용하여 문제를 해결하는 것이 좋습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "DefaultFuction",
+        "product": "Jeson Customer Relationship Management System",
+        "versions": "1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T03:10:15.955852+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28478",
+    "title": "OpenClaw < 2026.2.13 - 무제한 웹훅 요청 본문 버퍼링을 통한 서비스 거부",
+    "description": "OpenClaw 2026.2.13 이전 버전은 웹훅 핸들러에서 요청 본문을 엄격한 제한 없이 버퍼링하여 서비스 거부 취약점을 포함합니다. 인증되지 않은 공격자가 과도한 JSON 페이로드 또는 느린 업로드를 웹훅 엔드포인트로 전송하여 메모리 압박 및 가용성 저하를 유발할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.13 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:17:59.552385+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28462",
+    "title": "OpenClaw < 2026.2.13 - 경로 탐색 취약점 (Trace 및 다운로드 출력 경로)",
+    "description": "OpenClaw 2026.2.13 이전 버전은 Trace 및 다운로드 파일의 출력 경로를 사용자 입력에 따라 처리하면서 임시 디렉토리 내 쓰기 제한이 일관되지 않아 경로 탐색 취약점이 존재합니다. API 접근 권한을 가진 공격자는 `/trace/stop`, `/wait/download`, `/download` 엔드포인트를 통해 의도된 임시 루트 외부의 파일 쓰기를 수행할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.13 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:54:22.740285+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28472",
+    "title": "OpenClaw < 2026.2.2 - 게이트웨이 WebSocket 연결 핸드셰이크 장치 ID 확인 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전에서 auth.token 존재 여부만 확인하고 유효성 검사를 하지 않아 장치 ID 확인을 우회하는 취약점이 발견되었습니다. 공격자는 장치 ID 또는 페어링 없이 게이트웨이에 연결하여 취약한 환경에서 운영자 권한을 획득할 수 있습니다. 이는 유효성 검사 대신 존재 확인을 이용한 공격입니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:11:53.765367+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28470",
+    "title": "OpenClaw < 2026.2.2 - 큰따옴표 내 명령 치환을 통한 실행 허용 목록 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전에서 실행 승인 허용 목록 우회 취약점이 발견되었습니다. 공격자는 큰따옴표 문자열 내에 이스케이프되지 않은 `$()` 또는 백틱을 삽입하여 임의 명령을 실행할 수 있습니다. 이를 통해 허용 목록 보호를 우회하고 권한 없는 명령을 실행할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:08:50.781099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28446",
+    "title": "OpenClaw < 2026.2.1 - 음성 통화 확장 기능의 발신자 ID 및 접미사 매칭을 통한 인바운드 허용 목록 정책 우회",
+    "description": "OpenClaw 2026.2.1 이전 버전에서 음성 통화 확장 기능 활성화 시, 인바운드 허용 목록 정책 검증에 인증 우회 취약점이 존재합니다. 발신자 ID가 비어 있거나 허용된 숫자로 끝나는 번호를 사용하여 접근 제어를 우회하고 음성 통화 에이전트에 접근하여 도구를 실행할 수 있습니다. 이 취약점은 엄격한 동등성 비교 대신 접미사 기반 매칭을 사용한다는 점을 악용합니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-303"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:40:57.867019+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28391",
+    "title": "OpenClaw < 2026.2.2 - cmd.exe 파싱 우회를 통한 명령 주입 취약점 / 허용 목록 적용 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전은 허용 목록 기반 실행 요청 시 Windows cmd.exe 메타 문자를 제대로 검증하지 않습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-184"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:34:39.811205+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28484",
+    "title": "OpenClaw 2026.2.15 - 악성 파일명을 통한 pre-commit 훅 옵션 주입 취약점",
+    "description": "OpenClaw 2026.2.15 이전 버전은 git-hooks/pre-commit 훅에서 악성 파일명(대시로 시작)을 사용하여 무시된 파일을 스테이징할 수 있는 옵션 주입 취약점을 가지고 있습니다. xargs를 통해 git add로 파일명을 전달할 때 구분자(--)를 사용하지 않아 공격자가 git 플래그를 주입하고 .env와 같은 민감한 무시 파일을 git 히스토리에 추가할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.15 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:22:03.754822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28474",
+    "title": "OpenClaw Nextcloud Talk < 2026.2.6 - actor.name 표시 이름 위조를 통한 접근 제어 우회",
+    "description": "OpenClaw의 Nextcloud Talk 플러그인 2026.2.6 이전 버전은 변경 가능한 actor.name 표시 이름 필드에서 동일성 비교를 사용하여 접근 제어 목록(allowlist)을 검증합니다. 이를 통해 공격자는 접근 제어 목록을 우회할 수 있습니다. 공격자는 접근 허용된 사용자의 ID와 동일하게 Nextcloud 표시 이름을 변경하여 제한된 대화에 무단으로 접근할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "nextcloud-talk",
+        "versions": "2026.2.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:12:54.688762+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28466",
+    "title": "OpenClaw < 2026.2.14 - Node Invoke 승인 우회 원격 코드 실행 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전은 node.invoke 파라미터 내 내부 승인 필드 삭제에 실패하여 인증된 클라이언트가 system.run 명령어에 대한 실행 승인 검사를 우회할 수 있는 취약점을 가지고 있습니다. 유효한 게이트웨이 자격 증명을 가진 공격자는 승인 제어 필드를 삽입하여 연결된 노드 호스트에서 임의 명령어를 실행하고 개발 워크스테이션 및 CI 러너를 손상시킬 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:02:44.652911+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21536",
+    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
+    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Devices Pricing Program",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:31:38.894088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-29611",
     "title": "OpenClaw < 2026.2.14 - BlueBubbles 미디어 처리의 mediaPath 파라미터를 통한 로컬 파일 포함 취약점",
     "description": "OpenClaw 2026.2.14 이전 버전은 BlueBubbles 확장 기능(설치 및 활성화 필요)의 미디어 경로 처리에서 로컬 파일 포함 취약점을 가지고 있습니다. 공격자는 이를 통해 로컬 파일 시스템의 임의 파일을 읽을 수 있습니다. sendBlueBubblesMedia 함수가 mediaPath 파라미터를 허용 목록으로 검증하지 않아 /etc/passwd와 같은 민감한 파일을 요청하고 미디어 첨부 파일로 유출할 수 있습니다.",
@@ -102,32 +425,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28484",
-    "title": "OpenClaw 2026.2.15 - 악성 파일명을 통한 pre-commit 훅 옵션 주입 취약점",
-    "description": "OpenClaw 2026.2.15 이전 버전은 git-hooks/pre-commit 훅에서 악성 파일명(대시로 시작)을 사용하여 무시된 파일을 스테이징할 수 있는 옵션 주입 취약점을 가지고 있습니다. xargs를 통해 git add로 파일명을 전달할 때 구분자(--)를 사용하지 않아 공격자가 git 플래그를 주입하고 .env와 같은 민감한 무시 파일을 git 히스토리에 추가할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-77"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.15 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:22:03.754822+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28485",
@@ -234,32 +531,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28478",
-    "title": "OpenClaw < 2026.2.13 - 무제한 웹훅 요청 본문 버퍼링을 통한 서비스 거부",
-    "description": "OpenClaw 2026.2.13 이전 버전은 웹훅 핸들러에서 요청 본문을 엄격한 제한 없이 버퍼링하여 서비스 거부 취약점을 포함합니다. 인증되지 않은 공격자가 과도한 JSON 페이로드 또는 느린 업로드를 웹훅 엔드포인트로 전송하여 메모리 압박 및 가용성 저하를 유발할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.13 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:17:59.552385+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28481",
     "title": "OpenClaw < 2026.2.1 - MS Teams 첨부 파일 다운로더 접미사 매칭을 통한 Bearer 토큰 유출",
     "description": "OpenClaw 2026.1.30 버전 이하에서 MS Teams 첨부 파일 다운로더(선택적 확장 기능 활성화 필요)를 통해 허용된 접미사 도메인으로 Bearer 토큰이 유출되는 정보 유출 취약점이 발견되었습니다. 401 또는 403 응답 후 다운로드를 재시도할 때, 애플리케이션이 허용적인 접미사 기반 허용 목록과 일치하는 신뢰할 수 없는 호스트에 Authorization Bearer 토큰을 전송하여 토큰 탈취를 가능하게 합니다. 해당 취약점은 2026.2.1 버전에서 패치되었습니다.",
@@ -310,32 +581,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28474",
-    "title": "OpenClaw Nextcloud Talk < 2026.2.6 - actor.name 표시 이름 위조를 통한 접근 제어 우회",
-    "description": "OpenClaw의 Nextcloud Talk 플러그인 2026.2.6 이전 버전은 변경 가능한 actor.name 표시 이름 필드에서 동일성 비교를 사용하여 접근 제어 목록(allowlist)을 검증합니다. 이를 통해 공격자는 접근 제어 목록을 우회할 수 있습니다. 공격자는 접근 허용된 사용자의 ID와 동일하게 Nextcloud 표시 이름을 변경하여 제한된 대화에 무단으로 접근할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "nextcloud-talk",
-        "versions": "2026.2.6 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:12:54.688762+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28477",
@@ -416,32 +661,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28472",
-    "title": "OpenClaw < 2026.2.2 - 게이트웨이 WebSocket 연결 핸드셰이크 장치 ID 확인 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전에서 auth.token 존재 여부만 확인하고 유효성 검사를 하지 않아 장치 ID 확인을 우회하는 취약점이 발견되었습니다. 공격자는 장치 ID 또는 페어링 없이 게이트웨이에 연결하여 취약한 환경에서 운영자 권한을 획득할 수 있습니다. 이는 유효성 검사 대신 존재 확인을 이용한 공격입니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:11:53.765367+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28473",
     "title": "OpenClaw < 2026.2.2 - /approve 채팅 명령어 권한 우회",
     "description": "OpenClaw 2026.2.2 이전 버전은 `operator.write` 권한을 가진 클라이언트가 `/approve` 채팅 명령어를 통해 실행 승인 요청을 승인하거나 거부할 수 있는 권한 우회 취약점을 가지고 있습니다. 이 명령어는 내부 권한 게이트웨이를 통해 `exec.approval.resolve`를 호출하며, 직접 RPC 호출을 보호하는 `operator.approvals` 권한 검사를 우회합니다.",
@@ -466,32 +685,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28470",
-    "title": "OpenClaw < 2026.2.2 - 큰따옴표 내 명령 치환을 통한 실행 허용 목록 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전에서 실행 승인 허용 목록 우회 취약점이 발견되었습니다. 공격자는 큰따옴표 문자열 내에 이스케이프되지 않은 `$()` 또는 백틱을 삽입하여 임의 명령을 실행할 수 있습니다. 이를 통해 허용 목록 보호를 우회하고 권한 없는 명령을 실행할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-88"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:08:50.781099+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28469",
@@ -570,32 +763,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28466",
-    "title": "OpenClaw < 2026.2.14 - Node Invoke 승인 우회 원격 코드 실행 취약점",
-    "description": "OpenClaw 2026.2.14 이전 버전은 node.invoke 파라미터 내 내부 승인 필드 삭제에 실패하여 인증된 클라이언트가 system.run 명령어에 대한 실행 승인 검사를 우회할 수 있는 취약점을 가지고 있습니다. 유효한 게이트웨이 자격 증명을 가진 공격자는 승인 제어 필드를 삽입하여 연결된 노드 호스트에서 임의 명령어를 실행하고 개발 워크스테이션 및 CI 러너를 손상시킬 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:02:44.652911+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28465",
@@ -694,32 +861,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T23:59:27.750381+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28462",
-    "title": "OpenClaw < 2026.2.13 - 경로 탐색 취약점 (Trace 및 다운로드 출력 경로)",
-    "description": "OpenClaw 2026.2.13 이전 버전은 Trace 및 다운로드 파일의 출력 경로를 사용자 입력에 따라 처리하면서 임시 디렉토리 내 쓰기 제한이 일관되지 않아 경로 탐색 취약점이 존재합니다. API 접근 권한을 가진 공격자는 `/trace/stop`, `/wait/download`, `/download` 엔드포인트를 통해 의도된 임시 루트 외부의 파일 쓰기를 수행할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.13 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:54:22.740285+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -988,32 +1129,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28446",
-    "title": "OpenClaw < 2026.2.1 - 음성 통화 확장 기능의 발신자 ID 및 접미사 매칭을 통한 인바운드 허용 목록 정책 우회",
-    "description": "OpenClaw 2026.2.1 이전 버전에서 음성 통화 확장 기능 활성화 시, 인바운드 허용 목록 정책 검증에 인증 우회 취약점이 존재합니다. 발신자 ID가 비어 있거나 허용된 숫자로 끝나는 번호를 사용하여 접근 제어를 우회하고 음성 통화 에이전트에 접근하여 도구를 실행할 수 있습니다. 이 취약점은 엄격한 동등성 비교 대신 접미사 기반 매칭을 사용한다는 점을 악용합니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-303"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:40:57.867019+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28448",
     "title": "OpenClaw 2026.1.29 < 2026.2.1 - Twitch 플러그인 권한 우회 취약점",
     "description": "OpenClaw 2026.1.29 버전(2026.2.1 이전)에서 Twitch 플러그인 설정 오류로 인해 허용된 역할이 설정되지 않았을 때 접근 제어를 우회할 수 있습니다. 이를 통해 권한 없는 Twitch 사용자가 봇을 호출하여 의도치 않은 동작이나 리소스 고갈을 유발할 수 있습니다. Twitch 채팅에서 봇을 언급하여 공격이 가능합니다.",
@@ -1142,58 +1257,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28391",
-    "title": "OpenClaw < 2026.2.2 - cmd.exe 파싱 우회를 통한 명령 주입 취약점 / 허용 목록 적용 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전은 허용 목록 기반 실행 요청 시 Windows cmd.exe 메타 문자를 제대로 검증하지 않습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-184"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:34:39.811205+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-21536",
-    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
-    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Devices Pricing Program",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:31:38.894088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-26125",
