@@ -1,5 +1,1631 @@
 [
   {
+    "id": "CVE-2026-29178",
+    "title": "Lemmy: 이미지 엔드포인트의 file_type 쿼리 파라미터 삽입을 통한 미인증 SSRF 취약점",
+    "description": "Lemmy는 ActivityPub 연동 프레임워크인 activitypub_federation에 의존하여 SSRF 취약점을 갖습니다. 0.19.16 버전 이전의 /api/v4/image/{filename} 엔드포인트에서 file_type 쿼리 파라미터 삽입을 통해 미인증 SSRF가 발생할 수 있습니다. 공격자는 pict-rs에 대한 내부 요청에 임의의 쿼리 파라미터를 삽입하여 임의의 URL을 가져오도록 할 수 있습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "LemmyNet",
+        "product": "lemmy",
+        "versions": "< 0.19.16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:17:43.984693+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2836",
+    "title": "기본 캐시 키 설정의 취약점을 이용한 캐시 포이즈닝",
+    "description": "Pingora HTTP 프록시 프레임워크의 기본 캐시 키 생성 방식에서 캐시 포이즈닝 취약점이 발견되었습니다. 호스트 헤더(authority)와 같은 중요한 요소를 제외하고 URI 경로만 사용하여 캐시 키를 생성하기 때문입니다. 기본 설정을 사용하는 경우, 악의적인 사용자가 캐시를 오염시켜 다른 테넌트의 응답을 제공하거나 악성 콘텐츠를 전송할 수 있습니다. Pingora v0.8.0 이상으로 업그레이드하거나, 호스트 헤더를 포함한 사용자 정의 캐시 키 구현을 권장합니다.",
+    "cvss": 8.4,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Cloudflare",
+        "product": "https://github.com/cloudflare/pingora",
+        "versions": "0.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:17:39.793227+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29063",
+    "title": "Immutable.js: 객체 프로토타입 속성 조작 취약점 ('프로토타입 오염')",
+    "description": "Immutable.js는 불변 데이터 구조를 제공합니다. 3.8.3, 4.3.7, 5.1.5 버전 이전에서 mergeDeep(), mergeDeepWith(), merge(), Map.toJS(), Map.toObject() API를 통해 프로토타입 오염이 발생할 수 있습니다. 해당 문제는 3.8.3, 4.3.7, 5.1.5 버전에 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "immutable-js",
+        "product": "immutable-js",
+        "versions": "< 3.8.3 (단일 버전), < 4.3.7 (단일 버전), < 5.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:16:38.790766+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2835",
+    "title": "HTTP/1.0 및 Transfer-Encoding 오파싱을 통한 HTTP 요청 밀수",
+    "description": "Pingora의 HTTP/1.0 및 Transfer-Encoding 요청 파싱 방식에서 HTTP 요청 밀수(CWE-444) 취약점이 발견되었습니다. 이 문제는 HTTP/1.0 요청 본문에 close-delimited 방식을 잘못 허용하고, 여러 Transfer-Encoding 값을 부적절하게 처리하여 발생합니다. 공격자는 이를 이용하여 Pingora와 백엔드 서버 간의 요청 프레임 동기화를 붕괴시킬 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-444"
+    ],
+    "affected": [
+      {
+        "vendor": "Cloudflare",
+        "product": "https://github.com/cloudflare/pingora",
+        "versions": "0.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T23:47:23.01168+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2833",
+    "title": "조기 업그레이드를 통한 HTTP 요청 밀수",
+    "description": "Pingora의 HTTP/1.1 연결 업그레이드 처리 방식에서 HTTP 요청 밀수(CWE-444) 취약점이 발견되었습니다. 공격자는 업그레이드 헤더가 포함된 요청 후 악성 페이로드를 백엔드에 직접 전달하여 프록시 보안 제어를 우회하고 세션 하이재킹을 수행할 수 있습니다. Pingora v0.8.0 이상으로 업그레이드하거나 요청 필터 로직에서 업그레이드 헤더를 포함하는 요청에 대해 오류를 반환하여 완화할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-444"
+    ],
+    "affected": [
+      {
+        "vendor": "Cloudflare",
+        "product": "https://github.com/cloudflare/pingora",
+        "versions": "0.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T23:47:25.178534+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29110",
+    "title": "Cryptomator: 일반 모드에서 로그 파일에 평문 경로 유출",
+    "description": "Cryptomator는 클라우드 인프라에 저장된 데이터를 암호화합니다. 1.19.0 버전 이전에는 일반 모드에서 평문 경로가 로그 파일에 유출될 수 있었습니다. 이는 볼트가 닫힌 상태에서도 저장된 파일에 대한 메타 정보를 노출할 수 있으며, 암호화된 파일 손상 등의 오류 발생 시에만 로그 메시지가 생성됩니다. 해당 문제는 1.19.0 버전에서 수정되었습니다.",
+    "cvss": 2.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-209"
+    ],
+    "affected": [
+      {
+        "vendor": "cryptomator",
+        "product": "cryptomator",
+        "versions": "< 1.19.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:43.015952+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-29091",
+    "title": "Locutus: 코드 주입으로 인한 원격 코드 실행 (RCE) 취약점 (call_user_func_array)",
+    "description": "Locutus는 교육 목적으로 다른 프로그래밍 언어의 표준 라이브러리를 JavaScript로 제공합니다. 3.0.0 버전 이전에서 `call_user_func_array` 함수 구현의 코드 주입으로 인해 원격 코드 실행(RCE) 취약점이 발견되었습니다. 이 취약점은 콜백 배열의 구성 요소를 `eval()`에 전달하기 전에 적절하게 검증하지 않아 발생하며, 3.0.0 버전에서 패치되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-95"
+    ],
+    "affected": [
+      {
+        "vendor": "locutusjs",
+        "product": "locutus",
+        "versions": "< 3.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:18:22.669605+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21659",
+    "title": "Johnson Controls - Frick Quantum HD - 인증되지 않은 원격 코드 실행 및 로컬 파일 포함으로 인한 정보 유출",
+    "description": "Johnson Controls Frick Controls Quantum HD의 로컬 파일 포함(LFI) 취약점을 통해 인증되지 않은 공격자가 영향을 받는 장치에서 임의 코드를 실행하여 시스템 전체를 손상시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00283,
+    "is_kev": false,
+    "cwe": [
+      "CWE-23"
+    ],
+    "affected": [
+      {
+        "vendor": "Johnson Controls",
+        "product": "Frick Controls Quantum HD",
+        "versions": "Frick Controls Quantum HD version 10.22 and prior (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:33.781382+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28006",
+    "title": "WordPress Yungen 테마 <= 1.0.12 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Yungen 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Yungen",
+        "versions": "<= 1.0.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:31.279735+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27997",
+    "title": "WordPress Maxify 테마 <= 1.0.16 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Maxify maxify 테마에서 PHP include/require 문에 대한 파일 이름 제어 미흡으로 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Maxify",
+        "versions": "<= 1.0.16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:30.834512+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27995",
+    "title": "WordPress Justitia 테마 <= 1.1.0 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Justitia justitia 테마에서 PHP include/require 구문의 파일 이름 제어 미흡으로 인한 로컬 파일 포함 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Justitia",
+        "versions": "<= 1.1.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:23.939617+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27993",
+    "title": "WordPress Aldo 테마 <= 1.0.10 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Aldo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Aldo",
+        "versions": "<= 1.0.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:23.853057+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27989",
+    "title": "WordPress Quanzo 테마 <= 1.0.10 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Quanzo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Quanzo",
+        "versions": "<= 1.0.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:14.772664+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27991",
+    "title": "WordPress Avventure 테마 <= 1.1.12 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Avventure 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Avventure",
+        "versions": "<= 1.1.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:13.614979+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27776",
+    "title": "intra-mart Accel Platform IM-LogicDesigner 모듈의 보안 취약점",
+    "description": "intra-mart Accel Platform의 IM-LogicDesigner 모듈에서 안전하지 않은 역직렬화 문제가 발견되었습니다. 이 취약점은 IM-LogicDesigner가 시스템에 배포된 경우에만 악용 가능하며, 관리자 권한을 가진 사용자가 특정 조작된 파일을 가져올 때 임의 코드 실행이 가능합니다.",
+    "cvss": 7.2,
+    "epss": 0.00063,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "NTT DATA INTRAMART Corporation",
+        "product": "intra-mart Accel Platform",
+        "versions": "2017 Spring (8.0.4) through 2025 Autumn (8.0.27) (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:04.480042+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27987",
+    "title": "WordPress The Qlean 테마 <= 2.12 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX The Qlean 테마의 PHP include/require 문에서 파일 이름 제어 오류로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "The Qlean",
+        "versions": "<= 2.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:04.479217+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27985",
+    "title": "WordPress Humanum 테마 <= 1.1.4 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Humanum 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Humanum 테마 버전 n/a부터 <= 1.1.4까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함하여 실행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Humanum",
+        "versions": "<= 1.1.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:10:03.477416+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-22052",
+    "title": "ONTAP S3 NAS 버킷 정보 유출 취약점",
+    "description": "ONTAP 9.12.1 버전 이상에서 S3 NAS 버킷에 정보 유출 취약점이 존재합니다. 성공적인 공격 시, 권한이 없는 디렉토리의 내용 목록을 인증된 공격자가 확인할 수 있습니다. 이는 정보 노출로 이어질 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "209"
+    ],
+    "affected": [
+      {
+        "vendor": "NETAPP",
+        "product": "ONTAP 9",
+        "versions": "9.12.1 and higher (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T23:46:54.425421+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-69653",
+    "title": "QuickJS 2025-09-13 릴리스의 내부 어설션 실패 취약점",
+    "description": "특정 JavaScript 입력을 통해 QuickJS 2025-09-13 릴리스에서 `quickjs.c` 파일의 `gc_decref_child` 함수 내부에 어설션 실패를 유발할 수 있습니다. `-m` 옵션으로 qjs 인터프리터를 실행할 때 가비지 컬렉션 중 SIGABRT 신호가 발생하여 서비스 거부(DoS)로 이어집니다. 해당 문제는 1dbba8a88eaa40d15a8a9b70bb1a0b8fb5b552e6 커밋(2025-12-11)으로 수정되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:03.186073+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-69652",
+    "title": "GNU Binutils readelf 취약점 - 서비스 거부 (Denial of Service)",
+    "description": "GNU Binutils 2.46 이하 버전의 readelf 도구는 손상된 DWARF abbrev 또는 디버그 정보가 포함된 ELF 바이너리 처리 시 SIGABRT 신호로 인해 종료되는 취약점을 포함합니다. process_debug_info() 함수의 불완전한 상태 정리로 인해 잘못된 debug_info_p 상태가 DWARF 속성 파싱 루틴으로 전달될 수 있습니다. 특정 손상된 속성으로 인해 데이터 길이가 0이 되면 byte_get_little_endian() 함수가 치명적인 오류를 발생시켜 서비스 거부로 이어집니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:58.725197+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-2383",
+    "title": "Simple Download Monitor <= 4.0.5 - 인증된(Contributor+) 사용자를 통한 저장형 XSS 취약점 (커스텀 필드)",
+    "description": "WordPress용 Simple Download Monitor 플러그인은 4.0.5 버전 이하에서 입력값 검증 및 출력 이스케이핑 부족으로 저장형 XSS 취약점에 노출됩니다. 인증된 Contributor 레벨 이상의 공격자가 커스텀 필드를 통해 악성 스크립트를 삽입하여, 페이지 접근 시 실행될 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.00034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "mra13",
+        "product": "Simple Download Monitor",
+        "versions": "* 부터 4.0.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:56.223795+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2362",
+    "title": "WP Accessibility <= 2.3.1 - 인증된 사용자에 의한 저장된 DOM 기반 XSS 취약점 ('alt' 속성)",
+    "description": "WP Accessibility 플러그인은 2.3.1 버전 이하에서 이미지의 'alt' 속성을 처리하는 \"Long Description UI\" 기능에 저장된 DOM 기반 XSS 취약점이 존재합니다. 플러그인의 JavaScript가 'alt' 속성을 가져와 적절한 삭제 또는 이스케이프 처리 없이 innerHTML 및 insertAdjacentHTML에 연결하여 발생합니다. 인증된 Contributor 이상의 권한을 가진 공격자가 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.0004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "joedolson",
+        "product": "WP Accessibility",
+        "versions": "* 부터 2.3.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:52.627971+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27983",
+    "title": "WordPress LMS Elementor Pro 플러그인 <= 1.0.4 - 권한 상승 취약점",
+    "description": "designthemes LMS Elementor Pro lms-elementor-pro에서 잘못된 권한 할당으로 인해 권한 상승 취약점이 발생합니다. 이 문제는 LMS Elementor Pro 버전 n/a부터 <= 1.0.4까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "designthemes",
+        "product": "LMS Elementor Pro",
+        "versions": "<= 1.0.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:50.126765+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27439",
+    "title": "WordPress Dentario 테마 <= 1.5 - PHP 객체 주입 취약점",
+    "description": "ThemeREX Dentario 테마의 dentario에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Dentario",
+        "versions": "<= 1.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:46.610997+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26736",
+    "title": "TOTOLINK A3002RU_V3 스택 기반 버퍼 오버플로우 취약점",
+    "description": "TOTOLINK A3002RU_V3 V3.0.0-B20220304.1804 펌웨어에서 formIpv6Setup 함수 내 static_ipv6 파라미터를 통해 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00131,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:44.142259+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27437",
+    "title": "WordPress Tennis Club 테마 <= 1.2.3 - PHP 객체 주입 취약점",
+    "description": "ThemeREX Tennis Club 테니스 스포츠 클럽 테마에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다. 이 문제는 Tennis Club 테마 버전 n/a부터 <= 1.2.3까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Tennis Club",
+        "versions": "<= 1.2.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:44.071155+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27417",
+    "title": "WordPress Sweet Date 테마 < 4.0.1 - PHP 객체 주입 취약점",
+    "description": "SeventhQueen Sweet Date sweetdate 테마에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다. Sweet Date 테마 버전 4.0.1 미만에서 해당 문제가 발생합니다.",
+    "cvss": 0,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "SeventhQueen",
+        "product": "Sweet Date",
+        "versions": "< 4.0.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:41.569737+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27385",
+    "title": "WordPress DesignThemes Portfolio 플러그인 <= 1.3 - 반사형 XSS 취약점",
+    "description": "designthemes DesignThemes Portfolio 플러그인에서 반사형 XSS 취약점이 발견되었습니다. 웹 페이지 생성 중 입력값 검증이 미흡하여 발생합니다. 해당 취약점은 1.3 버전 이하에서 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "designthemes",
+        "product": "DesignThemes Portfolio",
+        "versions": "<= 1.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:38.672718+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27381",
+    "title": "WordPress Aora 테마 <= 1.3.15 - 로컬 파일 포함 취약점",
+    "description": "thembay Aora 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Aora 버전 n/a부터 <= 1.3.15까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 임의의 로컬 파일을 포함할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "thembay",
+        "product": "Aora",
+        "versions": "<= 1.3.15 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:35.34328+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27376",
+    "title": "WordPress Claue 테마 <= 2.2.7 - 반사형 XSS 취약점",
+    "description": "JanStudio Claue 테마에서 반사형 XSS 취약점이 발견되었습니다. 웹 페이지 생성 시 입력값 검증이 미흡하여 발생합니다. Claue 테마 버전 n/a부터 2.2.7 이하에서 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "JanStudio",
+        "product": "Claue - Clean, Minimal Elementor WooCommerce Theme",
+        "versions": "<= 2.2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:32.841889+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27374",
+    "title": "WordPress WooCommerce 주문 상세 정보 플러그인 <= 3.1 - 접근 제어 취약점",
+    "description": "vanquish WooCommerce 주문 상세 정보 플러그인(woocommerce-order-details)의 잘못 구성된 접근 제어 보안 수준으로 인해 인증되지 않은 사용자가 접근할 수 있는 취약점이 존재합니다. 해당 문제는 WooCommerce 주문 상세 정보 버전 n/a부터 <= 3.1까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "vanquish",
+        "product": "WooCommerce Order Details",
+        "versions": "<= 3.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:23.539895+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27370",
+    "title": "WordPress Chaty 플러그인 <= 3.5.1 - 민감 정보 노출 취약점",
+    "description": "Premio Chaty 플러그인의 전송된 데이터에 민감 정보 삽입 취약점을 통해 임베디드된 민감 정보를 탈취할 수 있습니다. 해당 문제는 Chaty 버전 n/a부터 <= 3.5.1까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00018,
+    "is_kev": false,
+    "cwe": [
+      "CWE-201"
+    ],
+    "affected": [
+      {
+        "vendor": "Premio",
+        "product": "Chaty",
+        "versions": "<= 3.5.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:22.990925+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27367",
+    "title": "WordPress Musico 테마 <= 3.2.4 - 반사형 XSS 취약점",
+    "description": "ThemeGoods Musico 테마에서 반사형 XSS 취약점이 발견되었습니다. 웹 페이지 생성 중 입력값 검증 미흡으로 인해 발생합니다. Musico 테마 버전 n/a부터 <= 3.2.4까지 영향을 받습니다.",
+    "cvss": 0,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeGoods",
+        "product": "Musico",
+        "versions": "<= 3.2.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:10.924567+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-27362",
+    "title": "WordPress WP Bakery Autoresponder Addon 플러그인 <= 1.0.6 - 손상된 접근 제어 취약점",
+    "description": "kamleshyadav의 WP Bakery Autoresponder Addon (vc-autoresponder-addon)에서 잘못 구성된 접근 제어 보안 수준으로 인해 인증되지 않은 접근이 가능한 취약점이 발견되었습니다. 이 문제는 n/a 버전부터 1.0.6 버전 이하의 WP Bakery Autoresponder Addon에 영향을 미칩니다.",
+    "cvss": 0,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "kamleshyadav",
+        "product": "WP Bakery Autoresponder Addon",
+        "versions": "<= 1.0.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:07.3918+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26357",
+    "title": "Dell Unisphere for PowerMax XSS 취약점 (9.2.4.x 버전)",
+    "description": "Dell Unisphere for PowerMax 9.2.4.x 버전에 웹 페이지 생성 시 입력값 검증 미흡으로 인한 XSS 취약점이 존재합니다. 원격에서 낮은 권한의 공격자가 악성 HTML 또는 JavaScript 코드를 실행하여 정보 유출, 세션 탈취, 또는 클라이언트 측 요청 위조를 유발할 수 있습니다.",
+    "cvss": 5.4,
+    "epss": 0.00033,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Dell",
+        "product": "Unisphere for PowerMax 9.2.4.18",
+        "versions": "N/A 부터 9.2.4.19 이전"
+      },
+      {
+        "vendor": "Dell",
+        "product": "Unisphere for PowerMax Virtual Appliance 9.2.4.17",
+        "versions": "N/A 부터 9.2.4.19 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:07:01.04691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27359",
+    "title": "WordPress Awa Plugins 플러그인 <= 1.4.4 - 반사형 XSS 취약점",
+    "description": "fox-themes Awa Plugins awa-plugins에서 웹 페이지 생성 중 입력값 검증 미흡으로 반사형 XSS 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "fox-themes",
+        "product": "Awa Plugins",
+        "versions": "<= 1.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:54.86567+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-21657",
+    "title": "Johnson Controls - Frick Quantum HD - 인증되지 않은 원격 코드 실행",
+    "description": "Johnson Controls Frick Controls Quantum HD 제품에서 코드 삽입 취약점이 발견되었습니다. 특정 파라미터 입력값 검증 미흡으로 인증 전에도 보안에 영향을 줄 수 있는 예기치 않은 동작이 발생할 수 있습니다. 해당 문제는 버전 10.22 이하에서 발생합니다.",
+    "cvss": 8.8,
+    "epss": 0.00091,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Johnson Controls",
+        "product": "Frick Controls Quantum HD",
+        "versions": "Frick Controls Quantum HD version 10.22 and prior (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:45.897469+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21656",
+    "title": "Johnson Controls - Frick Quantum HD - 인증되지 않은 원격 코드 실행",
+    "description": "Johnson Controls Frick Controls Quantum HD 제품에서 코드 삽입 취약점이 발견되었습니다. 특정 파라미터 입력값 검증 미흡으로 인증 전에도 보안에 영향을 줄 수 있는 예기치 않은 동작이 발생할 수 있습니다. 해당 문제는 버전 10.22 이하에서 발생합니다.",
+    "cvss": 8.8,
+    "epss": 0.00091,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Johnson Controls",
+        "product": "Frick Controls Quantum HD",
+        "versions": "Frick Controls Quantum HD version 10.22 and prior (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:45.895282+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21654",
+    "title": "Johnson Controls - Frick Quantum HD - 인증되지 않은 원격 코드 실행",
+    "description": "Johnson Controls Frick Controls Quantum HD 제품에서 OS 명령 삽입 취약점이 발견되었습니다. 특정 파라미터 입력값 검증 미흡으로 인증 없이도 시스템 명령을 실행할 수 있습니다. 해당 문제는 버전 10.22 이하에서 발생합니다.",
+    "cvss": 8.8,
+    "epss": 0.00151,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Johnson Controls",
+        "product": "Frick Controls Quantum HD",
+        "versions": "Frick Controls Quantum HD version 10.22 and prior (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:43.81063+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1627",
+    "title": "SSH 서비스의 취약한 MAC 알고리즘 악용 가능성",
+    "description": "장치 SSH 서비스에 사용된 오래되고 취약한 MAC 알고리즘을 공격자가 악용하여 SSH 세션의 무결성을 손상시킬 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-327"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK LMS1000",
+        "versions": "<=2.4.0 이하"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK MRS1000",
+        "versions": "<=2.4.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:18.115029+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1626",
+    "title": "취약한 CBC 기반 암호 스위트룸을 이용한 SSH 통신 공격 가능성",
+    "description": "공격자는 장치의 SSH 서비스에서 취약한 CBC 기반 암호 스위트룸 사용을 악용하여 암호화된 SSH 통신의 일부를 관찰하거나 조작할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-327"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK LMS1000",
+        "versions": "<=2.4.0 이하"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK MRS1000",
+        "versions": "<=2.4.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:15.613765+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0871",
+    "title": "Org.keycloak/keycloak-services: 관리자가 관리되지 않는 사용자 속성 무단 수정 /",
+    "description": "Keycloak에서 `manage-users` 권한을 가진 관리자가 관리되지 않는 속성에 대한 \"관리자만 보기\" 설정을 우회하여 해당 속성을 수정할 수 있는 취약점이 발견되었습니다. 이는 부적절한 접근 제어로 인해 시스템 설정과 관계없이 사용자 프로필이 무단으로 변경될 수 있음을 의미합니다.",
+    "cvss": 4.9,
+    "epss": 0.00032,
+    "is_kev": false,
+    "cwe": [
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Keycloak 26.4",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Keycloak 26.4",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Keycloak 26.4",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:05.992717+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0980",
+    "title": "Rubyipmi: 레드햇 위성: 악성 BMC 사용자 이름을 통한 원격 코드 실행",
+    "description": "Rubyipmi 젬(gem)의 취약점을 통해 레드햇 위성 BMC 구성 요소에서 악성 BMC 사용자 이름을 사용하여 원격 코드 실행(RCE)이 가능합니다. 호스트 생성 또는 업데이트 권한이 있는 인증된 공격자가 이 취약점을 악용할 수 있습니다. 시스템에 대한 원격 제어가 가능해질 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0.00217,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Satellite 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Satellite 6",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/83",
+    "date": "2026-03-05T03:12:23.014177+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-27900",
+    "title": "IBM Java SDK의 다중 취약점 - Db2 Recovery Expert (Linux, Unix, Windows) 영향",
+    "description": "IBM DB2 Recovery Expert for LUW 5.5 Interim Fix 002는 오픈 리다이렉트 공격을 통해 피싱 공격을 허용할 수 있습니다. 악의적으로 조작된 웹사이트를 방문하도록 유도하여, 사용자가 신뢰하는 것처럼 보이는 가짜 URL로 리다이렉션될 수 있습니다. 이를 통해 공격자는 민감한 정보를 탈취하거나 추가 공격을 수행할 수 있습니다.",
+    "cvss": 6.8,
+    "epss": 0.0003,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "IBM",
+        "product": "DB2 Recovery Expert for LUW",
+        "versions": "5.5 Interim Fix 002 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:03.83735+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0102",
+    "title": "Microsoft Edge (Chromium 기반) 심층 방어 취약점",
+    "description": "Chromium 기반 Microsoft Edge의 심층 방어 관련 취약점이 발견되었습니다. 상세 내용은 제공되지 않았습니다. 추가 정보가 확인되는 대로 업데이트될 예정입니다.",
+    "cvss": 3.1,
+    "epss": 0.00054,
+    "is_kev": false,
+    "cwe": [
+      "CWE-359"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Edge (Chromium-based)",
+        "versions": "1.0.0.0 부터 145.0.3800.58 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:06:02.944129+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-27898",
+    "title": "IBM Java SDK의 다중 취약점 - Db2 Recovery Expert (Linux, Unix, Windows) 영향",
+    "description": "IBM DB2 Recovery Expert for LUW 5.5 Interim Fix 002는 세션 타임아웃 후 세션을 무효화하지 않아, 인증된 사용자가 시스템 내 다른 사용자를 위장할 수 있는 취약점이 존재합니다.",
+    "cvss": 6.3,
+    "epss": 0.0004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "IBM",
+        "product": "DB2 Recovery Expert for LUW",
+        "versions": "5.5 Interim Fix 002 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:05:53.743068+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-27899",
+    "title": "IBM Java SDK의 다중 취약점 - Db2 Recovery Expert (Linux, Unix, Windows) 영향",
+    "description": "IBM DB2 Recovery Expert for LUW 5.5 임시 수정 002는 시스템에 대한 추가 공격에 악용될 수 있는 환경 변수에 민감한 정보를 노출합니다. 이는 보안 위험을 초래할 수 있습니다. 해당 취약점에 대한 조치가 필요합니다.",
+    "cvss": 5.3,
+    "epss": 0.00034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-526"
+    ],
+    "affected": [
+      {
+        "vendor": "IBM",
+        "product": "DB2 Recovery Expert for LUW",
+        "versions": "5.5 Interim Fix 002 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:05:51.241631+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2022-20338",
+    "title": "Uri.java의 HierarchicalUri.readFrom 취약점",
+    "description": "Uri.java의 HierarchicalUri.readFrom에서 부적절한 입력 검증으로 인해 잘못된 Uri 객체가 생성될 수 있습니다. 이는 로컬 권한 상승으로 이어질 수 있으며, 추가적인 실행 권한 없이 URI 검증을 우회할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 3.3,
+    "epss": 0.00085,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Android",
+        "versions": "Android-11 Android-12 Android-12L (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:05:50.061375+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Satheesh575555/frameworks_base_AOSP_06_r22_CVE-2022-20338",
+      "https://github.com/Trinadh465/frameworks_base_AOSP10_r33_CVE-2022-20338",
+      "https://github.com/Trinadh465/frameworks_base_AOSP_10_r33_CVE-2022-20338"
+    ],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-12150",
+    "title": "Org.keycloak/keycloak-services: WebAuthn 증명서명 검증 우회",
+    "description": "Keycloak의 WebAuthn 등록 구성 요소에서 취약점이 발견되었습니다. 공격자는 'fmt: \"none\"' 형식의 증명서명을 제출하여 설정된 증명 정책을 우회하고 신뢰할 수 없거나 위조된 인증기를 등록할 수 있습니다. 이는 인증 무결성을 약화시키고 권한 없는 인증기 등록으로 이어질 수 있습니다.",
+    "cvss": 3.1,
+    "epss": 0.00047,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "Keycloak",
+        "product": "keycloak",
+        "versions": "26.4.4 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Keycloak 26.2",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Keycloak 26.2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T03:11:19.582742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2018-25164",
+    "title": "EverSync 0.5 임의 파일 다운로드 취약점",
+    "description": "EverSync 0.5는 인증되지 않은 공격자가 `files` 디렉토리를 통해 민감한 파일에 접근할 수 있는 임의 파일 다운로드 취약점을 포함합니다. 공격자는 `files` 디렉토리에 GET 요청을 보내 애플리케이션 데이터 및 자격 증명이 포함된 `db.sq3`와 같은 데이터베이스 파일을 다운로드할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "Phpmassmail",
+        "product": "EverSync",
+        "versions": "0.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T13:37:38.427922+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3380",
+    "title": "Tenda F453 L7ImForm 버퍼 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3 버전에서 /goform/L7Im 파일의 frmL7ImForm 함수에 버퍼 오버플로우 취약점이 발견되었습니다. 'page' 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:38:27.475919+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3379",
+    "title": "Tenda F453 SetIpBind 버퍼 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3 버전에서 SetIpBind.goform 파일의 fromSetIpBind 함수에 버퍼 오버플로우 취약점이 발견되었습니다. page 인자 조작을 통해 공격이 가능하며, 원격에서 악용될 수 있습니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용 위험이 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:37:59.367156+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3378",
+    "title": "Tenda F453 qossetting 버퍼 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3 버전에서 /goform/qossetting 파일의 fromqossetting 함수에 버퍼 오버플로우 취약점이 발견되었습니다. qos 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:35:57.409568+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3377",
+    "title": "Tenda F453 SafeUrlFilter 버퍼 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3 버전에서 SafeUrlFilter.goform 파일의 fromSafeUrlFilter 함수에 버퍼 오버플로우 취약점이 발견되었습니다. page 인수를 조작하여 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00079,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:34:56.358971+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3376",
+    "title": "Tenda F453 SafeMacFilter 버퍼 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3 버전에서 SafeMacFilter 기능의 버퍼 오버플로우 취약점이 발견되었습니다. /goform/SafeMacFilter 파일 내 fromSafeMacFilter 함수에서 파라미터 조작을 통해 발생하며, 원격으로 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00079,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:21:43.334283+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-25199",
+    "title": "OOP CMS BLOG 1.0 SQL Injection 취약점",
+    "description": "OOP CMS BLOG 1.0은 인증되지 않은 공격자가 여러 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점을 포함합니다. search.php의 search 파라미터, page.php의 pageid 파라미터, posts.php의 id 파라미터를 통해 데이터베이스 정보(테이블 이름, 스키마 이름, 데이터베이스 자격 증명 등)를 유출할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Zsoft",
+        "product": "OOP CMS BLOG",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T14:19:36.707216+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-25197",
+    "title": "PlayJoom 0.10.1 catid 파라미터 SQL Injection 취약점",
+    "description": "PlayJoom 0.10.1 버전에서 catid 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있습니다. index.php?option=com_playjoom&view=genre&catid=[SQL] 형태로 GET 요청을 보내 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Playjoom",
+        "product": "PlayJoom",
+        "versions": "0.10.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T14:19:29.592951+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29089",
+    "title": "TimescaleDB 확장 업그레이드 중 신뢰할 수 없는 검색 경로 사용",
+    "description": "TimescaleDB는 고성능 실시간 분석을 위한 시계열 데이터베이스로, Postgres 확장 기능으로 제공됩니다. 2.23.0 버전부터 2.25.1 버전까지 Postgres는 `search_path` 설정을 사용하여 자격이 없는 데이터베이스 객체를 찾습니다. `search_path`에 사용자 쓰기 가능 스키마가 포함된 경우 악의적인 사용자가 내장 Postgres 함수를 가리는 함수를 생성하여 확장 업그레이드 중에 임의 코드 실행을 유발할 수 있습니다. 이 문제는 2.25.2 버전에서 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-426"
+    ],
+    "affected": [
+      {
+        "vendor": "timescale",
+        "product": "timescaledb",
+        "versions": ">= 2.23.0, < 2.25.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:24:40.677942+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28514",
+    "title": "Rocket.Chat: EE ddp-streamer-service를 통한 모든 비밀번호로 로그인 가능",
+    "description": "Rocket.Chat은 오픈 소스 커뮤니케이션 플랫폼입니다. 7.8.6, 7.9.8 등 특정 버전 이전에는 ddp-streamer 마이크로 서비스의 계정 서비스에서 심각한 인증 우회 취약점이 발견되었습니다. 이 취약점을 이용하면 공격자가 임의의 비밀번호를 사용하여 비밀번호가 설정된 모든 사용자로 로그인할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "RocketChat",
+        "product": "Rocket.Chat",
+        "versions": "< 7.8.6 (단일 버전), < 7.9.8 (단일 버전), < 7.10.7 (단일 버전), < 7.11.4 (단일 버전), < 7.12.4 (단일 버전), < 7.13.3 (단일 버전), < 8.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:13:17.793531+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-28041",
     "title": "WordPress Grit 테마 <= 1.0.1 - 로컬 파일 포함 취약점",
     "description": "AncoraThemes Grit 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
@@ -304,32 +1930,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T18:24:40.678883+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29089",
-    "title": "TimescaleDB 확장 업그레이드 중 신뢰할 수 없는 검색 경로 사용",
-    "description": "TimescaleDB는 고성능 실시간 분석을 위한 시계열 데이터베이스로, Postgres 확장 기능으로 제공됩니다. 2.23.0 버전부터 2.25.1 버전까지 Postgres는 `search_path` 설정을 사용하여 자격이 없는 데이터베이스 객체를 찾습니다. `search_path`에 사용자 쓰기 가능 스키마가 포함된 경우 악의적인 사용자가 내장 Postgres 함수를 가리는 함수를 생성하여 확장 업그레이드 중에 임의 코드 실행을 유발할 수 있습니다. 이 문제는 2.25.2 버전에서 수정되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-426"
-    ],
-    "affected": [
-      {
-        "vendor": "timescale",
-        "product": "timescaledb",
-        "versions": ">= 2.23.0, < 2.25.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:24:40.677942+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -664,32 +2264,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-29091",
-    "title": "Locutus: 코드 주입으로 인한 원격 코드 실행 (RCE) 취약점 (call_user_func_array)",
-    "description": "Locutus는 교육 목적으로 다른 프로그래밍 언어의 표준 라이브러리를 JavaScript로 제공합니다. 3.0.0 버전 이전에서 `call_user_func_array` 함수 구현의 코드 주입으로 인해 원격 코드 실행(RCE) 취약점이 발견되었습니다. 이 취약점은 콜백 배열의 구성 요소를 `eval()`에 전달하기 전에 적절하게 검증하지 않아 발생하며, 3.0.0 버전에서 패치되었습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-95"
-    ],
-    "affected": [
-      {
-        "vendor": "locutusjs",
-        "product": "locutus",
-        "versions": "< 3.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:18:22.669605+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30831",
     "title": "Rocket.Chat: 2FA 우회 및 비활성화된 사용자 로그인 취약점 (EE ddp-streamer)",
     "description": "Rocket.Chat의 엔터프라이즈 DDP Streamer 서비스에서 인증 취약점이 발견되었습니다. 7.10.8 이전 버전 등에서 2단계 인증(2FA)을 우회하거나 비활성화된 사용자가 로그인할 수 있는 문제가 있습니다. 해당 문제는 7.10.8, 7.11.5, 7.12.5, 7.13.4, 8.0.2, 8.1.1, 8.2.0 버전에 패치되었습니다.",
@@ -923,32 +2497,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-28514",
-    "title": "Rocket.Chat: EE ddp-streamer-service를 통한 모든 비밀번호로 로그인 가능",
-    "description": "Rocket.Chat은 오픈 소스 커뮤니케이션 플랫폼입니다. 7.8.6, 7.9.8 등 특정 버전 이전에는 ddp-streamer 마이크로 서비스의 계정 서비스에서 심각한 인증 우회 취약점이 발견되었습니다. 이 취약점을 이용하면 공격자가 임의의 비밀번호를 사용하여 비밀번호가 설정된 모든 사용자로 로그인할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "RocketChat",
-        "product": "Rocket.Chat",
-        "versions": "< 7.8.6 (단일 버전), < 7.9.8 (단일 버전), < 7.10.7 (단일 버전), < 7.11.4 (단일 버전), < 7.12.4 (단일 버전), < 7.13.3 (단일 버전), < 8.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:13:17.793531+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2022-37008",
@@ -2863,33 +4411,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3380",
-    "title": "Tenda F453 L7ImForm 버퍼 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3 버전에서 /goform/L7Im 파일의 frmL7ImForm 함수에 버퍼 오버플로우 취약점이 발견되었습니다. 'page' 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00076,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:38:27.475919+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28019",
     "title": "WordPress Manoir 테마 <= 1.11 - 로컬 파일 포함 취약점",
     "description": "ThemeREX Manoir 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
@@ -3004,33 +4525,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3379",
-    "title": "Tenda F453 SetIpBind 버퍼 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3 버전에서 SetIpBind.goform 파일의 fromSetIpBind 함수에 버퍼 오버플로우 취약점이 발견되었습니다. page 인자 조작을 통해 공격이 가능하며, 원격에서 악용될 수 있습니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용 위험이 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00076,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:37:59.367156+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3382",
     "title": "ChaiScript boxed_number.hpp get_as 메모리 손상 취약점",
     "description": "ChaiScript 6.1.0 이하 버전에서 `chaiscript::Boxed_Number::get_as` 함수를 조작하여 메모리 손상을 일으킬 수 있는 보안 취약점이 발견되었습니다. 로컬 공격 방식으로 악용 가능하며, 관련 익스플로이트가 공개되어 있습니다. 해당 문제는 이미 보고되었으나, 프로젝트 측의 대응은 없는 상태입니다.",
@@ -3055,60 +4549,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3378",
-    "title": "Tenda F453 qossetting 버퍼 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3 버전에서 /goform/qossetting 파일의 fromqossetting 함수에 버퍼 오버플로우 취약점이 발견되었습니다. qos 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00076,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:35:57.409568+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3377",
-    "title": "Tenda F453 SafeUrlFilter 버퍼 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3 버전에서 SafeUrlFilter.goform 파일의 fromSafeUrlFilter 함수에 버퍼 오버플로우 취약점이 발견되었습니다. page 인수를 조작하여 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00079,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:34:56.358971+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-2754",
@@ -3239,33 +4679,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3376",
-    "title": "Tenda F453 SafeMacFilter 버퍼 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3 버전에서 SafeMacFilter 기능의 버퍼 오버플로우 취약점이 발견되었습니다. /goform/SafeMacFilter 파일 내 fromSafeMacFilter 함수에서 파라미터 조작을 통해 발생하며, 원격으로 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00079,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:21:43.334283+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28557",
@@ -5059,58 +6472,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2018-25199",
-    "title": "OOP CMS BLOG 1.0 SQL Injection 취약점",
-    "description": "OOP CMS BLOG 1.0은 인증되지 않은 공격자가 여러 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점을 포함합니다. search.php의 search 파라미터, page.php의 pageid 파라미터, posts.php의 id 파라미터를 통해 데이터베이스 정보(테이블 이름, 스키마 이름, 데이터베이스 자격 증명 등)를 유출할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Zsoft",
-        "product": "OOP CMS BLOG",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T14:19:36.707216+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2018-25197",
-    "title": "PlayJoom 0.10.1 catid 파라미터 SQL Injection 취약점",
-    "description": "PlayJoom 0.10.1 버전에서 catid 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있습니다. index.php?option=com_playjoom&view=genre&catid=[SQL] 형태로 GET 요청을 보내 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Playjoom",
-        "product": "PlayJoom",
-        "versions": "0.10.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T14:19:29.592951+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2018-25200",
     "title": "OOP CMS BLOG 1.0 크로스 사이트 요청 위조 취약점",
     "description": "OOP CMS BLOG 1.0에서 인증되지 않은 공격자가 악성 POST 요청을 통해 관리자 계정을 생성할 수 있는 크로스 사이트 요청 위조(CSRF) 취약점이 발견되었습니다. 공격자는 `addUser.php` 엔드포인트에 관리자 권한을 설정한 userName, password, email 등의 파라미터를 포함하는 폼을 제출하여 무단 액세스를 얻을 수 있습니다.",
@@ -5473,32 +6834,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2018-25164",
-    "title": "EverSync 0.5 임의 파일 다운로드 취약점",
-    "description": "EverSync 0.5는 인증되지 않은 공격자가 `files` 디렉토리를 통해 민감한 파일에 접근할 수 있는 임의 파일 다운로드 취약점을 포함합니다. 공격자는 `files` 디렉토리에 GET 요청을 보내 애플리케이션 데이터 및 자격 증명이 포함된 `db.sq3`와 같은 데이터베이스 파일을 다운로드할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "Phpmassmail",
-        "product": "EverSync",
-        "versions": "0.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T13:37:38.427922+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2018-25165",
@@ -19725,82 +21060,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-0980",
-    "title": "Rubyipmi: 레드햇 위성: 악성 BMC 사용자 이름을 통한 원격 코드 실행",
-    "description": "Rubyipmi 젬(gem)의 취약점을 통해 레드햇 위성 BMC 구성 요소에서 악성 BMC 사용자 이름을 사용하여 원격 코드 실행(RCE)이 가능합니다. 호스트 생성 또는 업데이트 권한이 있는 인증된 공격자가 이 취약점을 악용할 수 있습니다. 시스템에 대한 원격 제어가 가능해질 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0.00217,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Satellite 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Satellite 6",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/83",
-    "date": "2026-03-05T03:12:23.014177+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-12150",
-    "title": "Org.keycloak/keycloak-services: WebAuthn 증명서명 검증 우회",
-    "description": "Keycloak의 WebAuthn 등록 구성 요소에서 취약점이 발견되었습니다. 공격자는 'fmt: \"none\"' 형식의 증명서명을 제출하여 설정된 증명 정책을 우회하고 신뢰할 수 없거나 위조된 인증기를 등록할 수 있습니다. 이는 인증 무결성을 약화시키고 권한 없는 인증기 등록으로 이어질 수 있습니다.",
-    "cvss": 3.1,
-    "epss": 0.00047,
-    "is_kev": false,
-    "cwe": [
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "Keycloak",
-        "product": "keycloak",
-        "versions": "26.4.4 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat build of Keycloak 26.2",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat build of Keycloak 26.2",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T03:11:19.582742+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
     "id": "CVE-2019-25305",
     "title": "JumpStart 0.6.0.0 - 'jswpbapi' 서비스 경로의 따옴표 누락",
     "description": "JumpStart 0.6.0.0 버전의 jswpbapi 서비스에 따옴표로 묶이지 않은 경로 취약점이 존재합니다.",
@@ -20659,58 +21918,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-2833",
-    "title": "조기 업그레이드를 통한 HTTP 요청 밀수",
-    "description": "Pingora의 HTTP/1.1 연결 업그레이드 처리 방식에서 HTTP 요청 밀수(CWE-444) 취약점이 발견되었습니다. 공격자는 업그레이드 헤더가 포함된 요청 후 악성 페이로드를 백엔드에 직접 전달하여 프록시 보안 제어를 우회하고 세션 하이재킹을 수행할 수 있습니다. Pingora v0.8.0 이상으로 업그레이드하거나 요청 필터 로직에서 업그레이드 헤더를 포함하는 요청에 대해 오류를 반환하여 완화할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-444"
-    ],
-    "affected": [
-      {
-        "vendor": "Cloudflare",
-        "product": "https://github.com/cloudflare/pingora",
-        "versions": "0.8.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T23:47:25.178534+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-2835",
-    "title": "HTTP/1.0 및 Transfer-Encoding 오파싱을 통한 HTTP 요청 밀수",
-    "description": "Pingora의 HTTP/1.0 및 Transfer-Encoding 요청 파싱 방식에서 HTTP 요청 밀수(CWE-444) 취약점이 발견되었습니다. 이 문제는 HTTP/1.0 요청 본문에 close-delimited 방식을 잘못 허용하고, 여러 Transfer-Encoding 값을 부적절하게 처리하여 발생합니다. 공격자는 이를 이용하여 Pingora와 백엔드 서버 간의 요청 프레임 동기화를 붕괴시킬 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-444"
-    ],
-    "affected": [
-      {
-        "vendor": "Cloudflare",
-        "product": "https://github.com/cloudflare/pingora",
-        "versions": "0.8.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T23:47:23.01168+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-20103",
     "title": "Cisco Secure Firewall ASA/FTD 소프트웨어 원격 액세스 SSL VPN 서비스 거부 취약점",
     "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 원격 액세스 SSL VPN 기능에 인증되지 않은 원격 공격자가 장치 메모리를 소진시켜 새로운 연결에 대한 서비스 거부(DoS)를 유발할 수 있는 취약점이 존재합니다. 이는 사용자 입력을 검증하지 않아 발생하며, 악성 패킷 전송을 통해 장치 웹 인터페이스 응답 중단을 초래할 수 있습니다. 관리 인터페이스는 영향을 받지 않지만 일시적으로 응답하지 않을 수 있습니다.",
@@ -21076,32 +22283,6 @@
     ],
     "report_url": null,
     "date": "2026-03-04T22:52:16.489483+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-22052",
-    "title": "ONTAP S3 NAS 버킷 정보 유출 취약점",
-    "description": "ONTAP 9.12.1 버전 이상에서 S3 NAS 버킷에 정보 유출 취약점이 존재합니다. 성공적인 공격 시, 권한이 없는 디렉토리의 내용 목록을 인증된 공격자가 확인할 수 있습니다. 이는 정보 노출로 이어질 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "209"
-    ],
-    "affected": [
-      {
-        "vendor": "NETAPP",
-        "product": "ONTAP 9",
-        "versions": "9.12.1 and higher (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T23:46:54.425421+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
