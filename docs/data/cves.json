@@ -26,6 +26,580 @@
     "severity": "High"
   },
   {
+    "id": "CVE-2026-29049",
+    "title": "melange: `melange update-cache`의 무제한 HTTP 다운로드가 CI 환경에서 디스크 공간 고갈을 유발할 수 있음",
+    "description": "melange는 선언적 파이프라인을 사용하여 apk 패키지를 빌드할 수 있는 도구입니다. 0.40.5 버전 이하에서 `melange update-cache`는 크기 제한이나 HTTP 클라이언트 타임아웃 없이 io.Copy를 통해 빌드 설정에서 URI를 다운로드합니다 (pkg/renovate/cache/cache.go). 악의적인 URI가 포함된 melange 설정은 무제한 디스크 쓰기를 유발하여 빌드 실행기의 디스크 공간을 고갈시킬 수 있습니다. 현재 공개적으로 사용 가능한 패치는 없습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "chainguard-dev",
+        "product": "melange",
+        "versions": "<= 0.40.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:56:17.398413+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29058",
+    "title": "AVideo: objects/getImage.php의 base64Url을 통한 인증되지 않은 OS 명령어 삽입",
+    "description": "AVideo는 비디오 공유 플랫폼 소프트웨어입니다. 7.0 버전 이전에서, 공격자는 base64Url GET 파라미터에 셸 명령어 치환을 삽입하여 서버에서 임의의 OS 명령어를 실행할 수 있습니다. 이는 서버 완전 장악, 데이터 유출, 서비스 중단으로 이어질 수 있으며, 7.0 버전에서 패치되었습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "WWBN",
+        "product": "AVideo-Encoder",
+        "versions": "< 7.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:02:23.503021+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29048",
+    "title": "HumHub: 버튼 컴포넌트의 XSS 취약점",
+    "description": "HumHub은 오픈 소스 엔터프라이즈 소셜 네트워크입니다. 1.18.0 버전에서 버튼 컴포넌트에 XSS 취약점이 발견되었습니다. 소프트웨어 내 여러 지점에서 일관성 없는 출력 인코딩으로 인해 악성 스크립트가 삽입 및 실행될 수 있습니다. 해당 문제는 1.18.1 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "humhub",
+        "product": "humhub",
+        "versions": "= 1.18.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:55:16.396678+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2331",
+    "title": "CVE-2026-2331",
+    "description": "AppEngine의 HTTP 파일 접근 기능에서 부적절한 접근 제한으로 인해 인증되지 않은 사용자가 민감한 파일 시스템 영역에 읽기/쓰기 작업을 수행할 수 있습니다. 특히, 고객 정의 비밀번호를 포함한 애플리케이션 설정을 읽고 수정할 수 있으며, 샌드박스 환경 내에서 임의의 Lua 코드 실행도 가능합니다. 중요한 파일 시스템 디렉터리가 HTTP를 통해 의도치 않게 노출된 것이 원인입니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:55.258793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29042",
+    "title": "Nuclio Shell Runtime 명령 주입을 통한 권한 상승",
+    "description": "Nuclio는 실시간 이벤트 및 데이터 처리를 위한 \"서버리스\" 프레임워크입니다. 1.15.20 버전 이전에서 사용자 제공 인수를 처리하는 방식에 명령 주입 취약점이 존재합니다. HTTP를 통해 함수가 호출될 때, 런타임은 X-Nuclio-Arguments 헤더 값을 검증 또는 삭제 없이 셸 명령에 직접 포함합니다. 해당 문제는 1.15.20 버전에서 수정되었습니다.",
+    "cvss": 8.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-75"
+    ],
+    "affected": [
+      {
+        "vendor": "nuclio",
+        "product": "nuclio",
+        "versions": "< 1.15.20 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:00:21.406133+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29039",
+    "title": "changedetection.io: XPath - unparsed-text()를 통한 임의 파일 읽기 취약점",
+    "description": "changedetection.io는 웹 페이지 변경 감지 오픈소스 도구입니다. 0.54.4 버전 이전에는 include_filters 필드를 통해 XPath 표현식을 콘텐츠 필터로 지정할 수 있습니다. 이 XPath 표현식은 임의 파일을 읽을 수 있는 unparsed-text() 함수를 포함하는 XPath 3.0/3.1을 사용하여 처리되며, 애플리케이션은 이러한 위험한 함수를 차단하기 위한 검증이나 필터링을 수행하지 않아 공격자가 애플리케이션 프로세스에 접근 가능한 모든 파일을 읽을 수 있습니다. 해당 문제는 0.54.4 버전에서 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "dgtlmoon",
+        "product": "changedetection.io",
+        "versions": "< 0.54.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:59:20.404643+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2330",
+    "title": "CVE-2026-2330",
+    "description": "CROWN REST 인터페이스의 미흡한 화이트리스트 적용으로 인해 공격자가 장치의 제한된 파일 시스템 영역에 접근할 수 있습니다. 내부 테스트용으로 의도된 특정 디렉터리가 화이트리스트에 포함되지 않아 인증 없이 접근 가능합니다. 인증되지 않은 공격자는 재부팅 후 활성화되는 조작된 파라미터 파일을 배치하여 네트워크 구성 및 애플리케이션 파라미터와 같은 중요한 장치 설정을 변경할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.8.0 이전"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:53.126326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29038",
+    "title": "changedetection.io: RSS 태그 오류 응답의 재귀적 XSS",
+    "description": "changedetection.io는 무료 오픈 소스 웹 페이지 변경 감지 도구입니다. 0.54.4 버전 이전에는 /rss/tag/ 엔드포인트에서 재귀적 XSS 취약점이 발견되었습니다. `tag_uuid` 경로 매개변수가 HTML 이스케이프 처리 없이 HTTP 응답 본문에 직접 반영되어, 브라우저가 삽입된 JavaScript를 파싱하고 실행합니다. 해당 문제는 0.54.4 버전에서 수정되었습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "dgtlmoon",
+        "product": "changedetection.io",
+        "versions": "< 0.54.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:48.019868+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2830",
+    "title": "WP All Import <= 4.0.0 - 'filepath'를 통한 반사형 XSS 취약점",
+    "description": "WP All Import 플러그(버전 4.0.0 이하)는 'filepath' 파라미터의 입력값 검증 및 출력 이스케이핑 부족으로 반사형 XSS 취약점에 노출됩니다. 인증되지 않은 공격자가 사용자를 속여 링크 클릭 등의 행위를 유도할 경우, 임의의 웹 스크립트를 삽입하여 실행할 수 있습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "wpallimport",
+        "product": "WP All Import – Drag & Drop Import for CSV, XML, Excel & Google Sheets",
+        "versions": "* 부터 4.0.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:45.309996+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29183",
+    "title": "SiYuan: 인증되지 않은 반사된 SVG XSS 취약점 - `/api/icon/getDynamicIcon` (`type=8`)을 통한 임의 JavaScript 실행",
+    "description": "SiYuan 개인 지식 관리 시스템 3.5.9 버전 이전에서, `type=8`로 설정된 동적 아이콘 API 엔드포인트(`/api/icon/getDynamicIcon`)에 인증되지 않은 반사된 XSS 취약점이 존재합니다. 입력값의 이스케이프 처리가 미흡하여 악성 JavaScript 코드를 삽입할 수 있습니다. 로그인된 사용자가 악성 링크를 열면 민감한 데이터 유출 및 인증된 API 작업 수행이 가능합니다. 해당 문제는 3.5.9 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.5.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:42.915959+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29074",
+    "title": "SVGO: DOCTYPE 내 엔티티 확장을 통한 DoS 공격 (Billion Laughs)",
+    "description": "SVGO는 SVG 파일 최적화 Node.js 라이브러리 및 명령줄 애플리케이션입니다. 2.1.0~2.8.1, 3.0.0~3.3.3, 4.0.1 이전 버전에서 엔티티 확장 및 재귀에 대한 보호 장치 없이 사용자 정의 엔티티를 포함하는 XML을 허용하여 애플리케이션 중단 및 Node.js 프로세스 충돌을 야기할 수 있습니다. 해당 문제는 2.8.1, 3.3.3, 4.0.1 버전에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-776"
+    ],
+    "affected": [
+      {
+        "vendor": "svg",
+        "product": "svgo",
+        "versions": ">= 2.1.0, < 2.8.1 (단일 버전), >= 3.0.0, < 3.3.3 (단일 버전), = 4.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:42.838072+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29073",
+    "title": "SiYuan: Reader 권한 사용자도 직접 SQL 쿼리 API에 접근하여 무단 데이터베이스 접근 가능",
+    "description": "SiYuan은 개인 지식 관리 시스템입니다. 3.6.0 버전 이전에는 /api/query/sql API를 통해 사용자가 직접 SQL 쿼리를 실행할 수 있었지만, 관리자 권한 확인 없이 기본적인 인증만 수행했습니다. 따라서 로그인한 모든 사용자, 심지어 Reader 권한 사용자조차 데이터베이스에 임의의 SQL 쿼리를 실행할 수 있었습니다. 해당 문제는 3.6.0 버전에서 수정되었습니다.",
+    "cvss": 5.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862",
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:15.858421+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29062",
+    "title": "jackson-core: `UTF8DataInputJsonParser`의 중첩 깊이 제한 우회로 인한 잠재적 리소스 고갈",
+    "description": "jackson-core 3.0.0 이전 버전에서 `UTF8DataInputJsonParser`가 `StreamReadConstraints`에 정의된 최대 중첩 깊이 제한(기본값: 500)을 우회합니다. 이는 과도한 중첩 구조의 JSON 문서를 처리 시 StackOverflowError를 발생시켜 서비스 거부(DoS) 공격으로 이어질 수 있습니다. 3.1.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "FasterXML",
+        "product": "jackson-core",
+        "versions": ">= 3.0.0, < 3.1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:40.768568+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29059",
+    "title": "Windmill: SUPERADMIN_SECRET (거의 사용되지 않음) 공개 접근 가능",
+    "description": "Windmill은 내부 코드를 위한 오픈 소스 개발 플랫폼입니다 (API, 백그라운드 작업, 워크플로우 및 UI). 1.603.3 버전 이전에는 `get_log_file` 엔드포인트에 인증되지 않은 경로 탐색 취약점이 존재하여 공격자가 `../` 시퀀스를 사용하여 서버의 임의 파일을 읽을 수 있었습니다. 해당 문제는 1.603.3 버전에서 패치되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "windmill-labs",
+        "product": "windmill",
+        "versions": "< 1.603.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T07:54:15.013983+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23925",
+    "title": "낮은 권한 사용자의 설정 가져오기 API를 통한 무단 호스트 생성",
+    "description": "템플릿/호스트 쓰기 권한을 가진 인증된 Zabbix 사용자(User 역할)가 configuration.import API를 통해 객체를 생성할 수 있습니다. 이는 무단 호스트 생성을 통해 기밀 정보 유출로 이어질 수 있습니다. 일반적으로 User 역할은 쓰기 권한이 있더라도 템플릿/호스트를 생성하고 편집하기에 충분하지 않습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Zabbix",
+        "product": "Zabbix",
+        "versions": "6.0.0 부터 6.0.40 이하, 7.0.0 부터 7.0.17 이하, 7.4.0 부터 7.4.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:25.906842+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-1394",
+    "title": "Zigbee 라이브러리의 서비스 거부(DoS) 취약점",
+    "description": "Ember ZNet 스택의 패킷 버퍼 관리자에서 경계 외 메모리 읽기 오류가 발생할 수 있습니다.",
+    "cvss": 5.9,
+    "epss": 0.00041,
+    "is_kev": false,
+    "cwe": [
+      "CWE-252"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "Zigbee Stack",
+        "versions": "4.4.4 이하"
+      },
+      {
+        "vendor": "silabs.com",
+        "product": "Zigbee Stack",
+        "versions": "2024.6.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:25.018833+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-12801",
+    "title": "Nfs-utils: rpc.mountd 권한 상승 취약점",
+    "description": "Linux의 nfs-utils 패키지 내 rpc.mountd 데몬에서 NFSv3 클라이언트가 마운트 시 /etc/exports 파일에 설정된 권한을 상승시킬 수 있는 취약점이 발견되었습니다. 특히, 설정된 파일 권한이나 'root_squash' 또는 'all_squash' 속성에 관계없이 내보낸 디렉토리의 모든 하위 디렉토리 또는 하위 트리에 접근할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-279"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T15:59:49.005443+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30798",
+    "title": "RustDesk 클라이언트, 인증되지 않은 stop-service 명령어 취약점",
+    "description": "RustDesk 클라이언트의 heartbeat sync 루프 및 strategy 처리 모듈에서 데이터 진위성 검증 부족 및 예외 처리 미흡으로 프로토콜 조작이 가능합니다. Windows, MacOS, Linux, iOS, Android에서 발생하며, 1.4.5 버전 이하에 영향을 미칩니다. src/hbbs_http/sync.Rs 파일 및 stop-service 핸들러에서 문제가 발생합니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345",
+      "CWE-755"
+    ],
+    "affected": [
+      {
+        "vendor": "rustdesk-client",
+        "product": "RustDesk Client",
+        "versions": "1.4.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:25:00.194896+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28677",
+    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
+    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSift",
+        "product": "OpenSift",
+        "versions": "< 1.6.3-alpha (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:04:06.77766+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29611",
+    "title": "OpenClaw < 2026.2.14 - BlueBubbles 미디어 처리의 mediaPath 파라미터를 통한 로컬 파일 포함 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전은 BlueBubbles 확장 기능(설치 및 활성화 필요)의 미디어 경로 처리에서 로컬 파일 포함 취약점을 가지고 있습니다. 공격자는 이를 통해 로컬 파일 시스템의 임의 파일을 읽을 수 있습니다. sendBlueBubblesMedia 함수가 mediaPath 파라미터를 허용 목록으로 검증하지 않아 /etc/passwd와 같은 민감한 파일을 요청하고 미디어 첨부 파일로 유출할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:28:21.635182+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28469",
+    "title": "OpenClaw < 2026.2.14 - 공유 웹훅 경로 모호성을 이용한 계정 간 정책 컨텍스트 오루팅",
+    "description": "OpenClaw 2026.2.14 이전 버전은 Google Chat 모니터링 구성 요소에서 웹훅 라우팅 취약점을 가지고 있습니다. 여러 웹훅 대상이 동일한 HTTP 경로를 공유할 경우, 계정 간 정책 컨텍스트 오루팅이 발생할 수 있습니다. 공격자는 첫 번째 일치 요청 검증 방식을 악용하여 잘못된 계정 컨텍스트에서 웹훅 이벤트를 처리하고, 허용 목록 및 세션 정책을 우회할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:07:49.534041+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-2446",
     "title": "LearnDash Powerpack 1.3.0 이전 버전 - 인증되지 않은 임의 옵션 업데이트",
     "description": "LearnDash Powerpack WordPress 플러그인 1.3.0 이전 버전은 AJAX 동작에 권한 및 CSRF 검사가 없어 인증되지 않은 사용자가 임의의 WordPress 옵션(예: 기본 역할 등)을 업데이트하고 임의의 관리자 사용자를 생성할 수 있습니다.",
@@ -182,32 +756,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29058",
-    "title": "AVideo: objects/getImage.php의 base64Url을 통한 인증되지 않은 OS 명령어 삽입",
-    "description": "AVideo는 비디오 공유 플랫폼 소프트웨어입니다. 7.0 버전 이전에서, 공격자는 base64Url GET 파라미터에 셸 명령어 치환을 삽입하여 서버에서 임의의 OS 명령어를 실행할 수 있습니다. 이는 서버 완전 장악, 데이터 유출, 서비스 중단으로 이어질 수 있으며, 7.0 버전에서 패치되었습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "WWBN",
-        "product": "AVideo-Encoder",
-        "versions": "< 7.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:02:23.503021+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28801",
     "title": "Natro Macro: 패턴/경로 파일 통한 코드 삽입 취약점",
     "description": "Natro Macro는 AutoHotkey로 작성된 Bee Swarm Simulator 매크로입니다. 1.1.0 버전 이전에는 패턴 또는 경로 파일 내의 AutoHotkey 코드가 실행되어 악성 코드가 포함된 파일을 공유받아 실행될 수 있었습니다. 이로 인해 공격자가 악성 코드를 숨겨 실행하는 것이 가능했습니다. 현재 1.1.0 버전에서 해당 취약점이 수정되었습니다.",
@@ -306,294 +854,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T07:10:24.185626+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29042",
-    "title": "Nuclio Shell Runtime 명령 주입을 통한 권한 상승",
-    "description": "Nuclio는 실시간 이벤트 및 데이터 처리를 위한 \"서버리스\" 프레임워크입니다. 1.15.20 버전 이전에서 사용자 제공 인수를 처리하는 방식에 명령 주입 취약점이 존재합니다. HTTP를 통해 함수가 호출될 때, 런타임은 X-Nuclio-Arguments 헤더 값을 검증 또는 삭제 없이 셸 명령에 직접 포함합니다. 해당 문제는 1.15.20 버전에서 수정되었습니다.",
-    "cvss": 8.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-75"
-    ],
-    "affected": [
-      {
-        "vendor": "nuclio",
-        "product": "nuclio",
-        "versions": "< 1.15.20 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:00:21.406133+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29039",
-    "title": "changedetection.io: XPath - unparsed-text()를 통한 임의 파일 읽기 취약점",
-    "description": "changedetection.io는 웹 페이지 변경 감지 오픈소스 도구입니다. 0.54.4 버전 이전에는 include_filters 필드를 통해 XPath 표현식을 콘텐츠 필터로 지정할 수 있습니다. 이 XPath 표현식은 임의 파일을 읽을 수 있는 unparsed-text() 함수를 포함하는 XPath 3.0/3.1을 사용하여 처리되며, 애플리케이션은 이러한 위험한 함수를 차단하기 위한 검증이나 필터링을 수행하지 않아 공격자가 애플리케이션 프로세스에 접근 가능한 모든 파일을 읽을 수 있습니다. 해당 문제는 0.54.4 버전에서 수정되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "dgtlmoon",
-        "product": "changedetection.io",
-        "versions": "< 0.54.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:59:20.404643+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29049",
-    "title": "melange: `melange update-cache`의 무제한 HTTP 다운로드가 CI 환경에서 디스크 공간 고갈을 유발할 수 있음",
-    "description": "melange는 선언적 파이프라인을 사용하여 apk 패키지를 빌드할 수 있는 도구입니다. 0.40.5 버전 이하에서 `melange update-cache`는 크기 제한이나 HTTP 클라이언트 타임아웃 없이 io.Copy를 통해 빌드 설정에서 URI를 다운로드합니다 (pkg/renovate/cache/cache.go). 악의적인 URI가 포함된 melange 설정은 무제한 디스크 쓰기를 유발하여 빌드 실행기의 디스크 공간을 고갈시킬 수 있습니다. 현재 공개적으로 사용 가능한 패치는 없습니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "chainguard-dev",
-        "product": "melange",
-        "versions": "<= 0.40.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:56:17.398413+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29048",
-    "title": "HumHub: 버튼 컴포넌트의 XSS 취약점",
-    "description": "HumHub은 오픈 소스 엔터프라이즈 소셜 네트워크입니다. 1.18.0 버전에서 버튼 컴포넌트에 XSS 취약점이 발견되었습니다. 소프트웨어 내 여러 지점에서 일관성 없는 출력 인코딩으로 인해 악성 스크립트가 삽입 및 실행될 수 있습니다. 해당 문제는 1.18.1 버전에서 수정되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "humhub",
-        "product": "humhub",
-        "versions": "= 1.18.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:55:16.396678+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29038",
-    "title": "changedetection.io: RSS 태그 오류 응답의 재귀적 XSS",
-    "description": "changedetection.io는 무료 오픈 소스 웹 페이지 변경 감지 도구입니다. 0.54.4 버전 이전에는 /rss/tag/ 엔드포인트에서 재귀적 XSS 취약점이 발견되었습니다. `tag_uuid` 경로 매개변수가 HTML 이스케이프 처리 없이 HTTP 응답 본문에 직접 반영되어, 브라우저가 삽입된 JavaScript를 파싱하고 실행합니다. 해당 문제는 0.54.4 버전에서 수정되었습니다.",
-    "cvss": 6.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "dgtlmoon",
-        "product": "changedetection.io",
-        "versions": "< 0.54.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:48.019868+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2830",
-    "title": "WP All Import <= 4.0.0 - 'filepath'를 통한 반사형 XSS 취약점",
-    "description": "WP All Import 플러그(버전 4.0.0 이하)는 'filepath' 파라미터의 입력값 검증 및 출력 이스케이핑 부족으로 반사형 XSS 취약점에 노출됩니다. 인증되지 않은 공격자가 사용자를 속여 링크 클릭 등의 행위를 유도할 경우, 임의의 웹 스크립트를 삽입하여 실행할 수 있습니다.",
-    "cvss": 6.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "wpallimport",
-        "product": "WP All Import – Drag & Drop Import for CSV, XML, Excel & Google Sheets",
-        "versions": "* 부터 4.0.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:45.309996+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29183",
-    "title": "SiYuan: 인증되지 않은 반사된 SVG XSS 취약점 - `/api/icon/getDynamicIcon` (`type=8`)을 통한 임의 JavaScript 실행",
-    "description": "SiYuan 개인 지식 관리 시스템 3.5.9 버전 이전에서, `type=8`로 설정된 동적 아이콘 API 엔드포인트(`/api/icon/getDynamicIcon`)에 인증되지 않은 반사된 XSS 취약점이 존재합니다. 입력값의 이스케이프 처리가 미흡하여 악성 JavaScript 코드를 삽입할 수 있습니다. 로그인된 사용자가 악성 링크를 열면 민감한 데이터 유출 및 인증된 API 작업 수행이 가능합니다. 해당 문제는 3.5.9 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "siyuan-note",
-        "product": "siyuan",
-        "versions": "< 3.5.9 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:42.915959+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-29074",
-    "title": "SVGO: DOCTYPE 내 엔티티 확장을 통한 DoS 공격 (Billion Laughs)",
-    "description": "SVGO는 SVG 파일 최적화 Node.js 라이브러리 및 명령줄 애플리케이션입니다. 2.1.0~2.8.1, 3.0.0~3.3.3, 4.0.1 이전 버전에서 엔티티 확장 및 재귀에 대한 보호 장치 없이 사용자 정의 엔티티를 포함하는 XML을 허용하여 애플리케이션 중단 및 Node.js 프로세스 충돌을 야기할 수 있습니다. 해당 문제는 2.8.1, 3.3.3, 4.0.1 버전에서 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-776"
-    ],
-    "affected": [
-      {
-        "vendor": "svg",
-        "product": "svgo",
-        "versions": ">= 2.1.0, < 2.8.1 (단일 버전), >= 3.0.0, < 3.3.3 (단일 버전), = 4.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:42.838072+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29062",
-    "title": "jackson-core: `UTF8DataInputJsonParser`의 중첩 깊이 제한 우회로 인한 잠재적 리소스 고갈",
-    "description": "jackson-core 3.0.0 이전 버전에서 `UTF8DataInputJsonParser`가 `StreamReadConstraints`에 정의된 최대 중첩 깊이 제한(기본값: 500)을 우회합니다. 이는 과도한 중첩 구조의 JSON 문서를 처리 시 StackOverflowError를 발생시켜 서비스 거부(DoS) 공격으로 이어질 수 있습니다. 3.1.0 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "FasterXML",
-        "product": "jackson-core",
-        "versions": ">= 3.0.0, < 3.1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:40.768568+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29073",
-    "title": "SiYuan: Reader 권한 사용자도 직접 SQL 쿼리 API에 접근하여 무단 데이터베이스 접근 가능",
-    "description": "SiYuan은 개인 지식 관리 시스템입니다. 3.6.0 버전 이전에는 /api/query/sql API를 통해 사용자가 직접 SQL 쿼리를 실행할 수 있었지만, 관리자 권한 확인 없이 기본적인 인증만 수행했습니다. 따라서 로그인한 모든 사용자, 심지어 Reader 권한 사용자조차 데이터베이스에 임의의 SQL 쿼리를 실행할 수 있었습니다. 해당 문제는 3.6.0 버전에서 수정되었습니다.",
-    "cvss": 5.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862",
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "siyuan-note",
-        "product": "siyuan",
-        "versions": "< 3.6.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:15.858421+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29059",
-    "title": "Windmill: SUPERADMIN_SECRET (거의 사용되지 않음) 공개 접근 가능",
-    "description": "Windmill은 내부 코드를 위한 오픈 소스 개발 플랫폼입니다 (API, 백그라운드 작업, 워크플로우 및 UI). 1.603.3 버전 이전에는 `get_log_file` 엔드포인트에 인증되지 않은 경로 탐색 취약점이 존재하여 공격자가 `../` 시퀀스를 사용하여 서버의 임의 파일을 읽을 수 있었습니다. 해당 문제는 1.603.3 버전에서 패치되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "windmill-labs",
-        "product": "windmill",
-        "versions": "< 1.603.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T07:54:15.013983+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1480,32 +1740,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28677",
-    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
-    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSift",
-        "product": "OpenSift",
-        "versions": "< 1.6.3-alpha (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:04:06.77766+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28676",
@@ -3362,32 +3596,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-29611",
-    "title": "OpenClaw < 2026.2.14 - BlueBubbles 미디어 처리의 mediaPath 파라미터를 통한 로컬 파일 포함 취약점",
-    "description": "OpenClaw 2026.2.14 이전 버전은 BlueBubbles 확장 기능(설치 및 활성화 필요)의 미디어 경로 처리에서 로컬 파일 포함 취약점을 가지고 있습니다. 공격자는 이를 통해 로컬 파일 시스템의 임의 파일을 읽을 수 있습니다. sendBlueBubblesMedia 함수가 mediaPath 파라미터를 허용 목록으로 검증하지 않아 /etc/passwd와 같은 민감한 파일을 요청하고 미디어 첨부 파일로 유출할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:28:21.635182+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29610",
     "title": "OpenClaw < 2026.2.14 - 안전하지 않은 PATH 처리로 인한 명령어 하이재킹",
     "description": "OpenClaw 2026.2.14 이전 버전은 PATH 환경 변수 조작을 통해 공격자가 의도하지 않은 바이너리를 실행할 수 있는 명령어 하이재킹 취약점을 가지고 있습니다. node-host 실행 또는 프로젝트 로컬 부트스트래핑을 통해 공격자는 PATH에 악성 실행 파일을 위치시켜 허용된 안전한 명령어를 덮어쓰고 임의의 명령어 실행을 달성할 수 있습니다. 인증된 접근 권한이 있는 공격자 또는 공격자가 제어하는 디렉터리에서 OpenClaw를 실행하는 경우에 악용 가능합니다.",
@@ -3640,32 +3848,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T00:11:53.620305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28469",
-    "title": "OpenClaw < 2026.2.14 - 공유 웹훅 경로 모호성을 이용한 계정 간 정책 컨텍스트 오루팅",
-    "description": "OpenClaw 2026.2.14 이전 버전은 Google Chat 모니터링 구성 요소에서 웹훅 라우팅 취약점을 가지고 있습니다. 여러 웹훅 대상이 동일한 HTTP 경로를 공유할 경우, 계정 간 정책 컨텍스트 오루팅이 발생할 수 있습니다. 공격자는 첫 번째 일치 요청 검증 방식을 악용하여 잘못된 계정 컨텍스트에서 웹훅 이벤트를 처리하고, 허용 목록 및 세션 정책을 우회할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:07:49.534041+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -7442,42 +7624,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-12801",
-    "title": "Nfs-utils: rpc.mountd 권한 상승 취약점",
-    "description": "Linux의 nfs-utils 패키지 내 rpc.mountd 데몬에서 NFSv3 클라이언트가 마운트 시 /etc/exports 파일에 설정된 권한을 상승시킬 수 있는 취약점이 발견되었습니다. 특히, 설정된 파일 권한이나 'root_squash' 또는 'all_squash' 속성에 관계없이 내보낸 디렉토리의 모든 하위 디렉토리 또는 하위 트리에 접근할 수 있습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-279"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T15:59:49.005443+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2025-12543",
     "title": "Undertow-core: 잘못된 Host 헤더 거부 실패로 인한 캐시 포이즈닝 및 SSRF 취약점",
     "description": "Undertow HTTP 서버 코어(WildFly, JBoss EAP 등 사용)에서 Host 헤더 유효성 검증이 제대로 이루어지지 않는 취약점이 발견되었습니다. 악의적인 Host 헤더를 포함한 요청이 거부되지 않아 캐시 포이즈닝, 내부 네트워크 스캔, 사용자 세션 탈취 등의 공격이 가능합니다.",
@@ -9173,33 +9319,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-30798",
-    "title": "RustDesk 클라이언트, 인증되지 않은 stop-service 명령어 취약점",
-    "description": "RustDesk 클라이언트의 heartbeat sync 루프 및 strategy 처리 모듈에서 데이터 진위성 검증 부족 및 예외 처리 미흡으로 프로토콜 조작이 가능합니다. Windows, MacOS, Linux, iOS, Android에서 발생하며, 1.4.5 버전 이하에 영향을 미칩니다. src/hbbs_http/sync.Rs 파일 및 stop-service 핸들러에서 문제가 발생합니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-345",
-      "CWE-755"
-    ],
-    "affected": [
-      {
-        "vendor": "rustdesk-client",
-        "product": "RustDesk Client",
-        "versions": "1.4.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:25:00.194896+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3523",
