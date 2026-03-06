@@ -1,5 +1,1381 @@
 [
   {
+    "id": "CVE-2026-28794",
+    "title": "oRPC: `@orpc/client`의 `StandardRPCJsonSerializer` 역직렬화를 통한 프로토타입 오염",
+    "description": "oRPC는 엔드투엔드 타입 안정성과 OpenAPI 표준 준수를 돕는 API 구축 도구입니다. 1.13.6 버전 이전의 `@orpc/client` 패키지 RPC JSON 역직렬화 과정에서 프로토타입 오염 취약점이 발견되었습니다. 이 취약점을 이용하면 인증되지 않은 원격 공격자가 `Object.prototype`에 임의의 속성을 주입하여 인증 우회, 서비스 거부, 잠재적인 원격 코드 실행 등의 심각한 보안 문제를 야기할 수 있습니다. 1.13.6 버전에 패치가 적용되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "middleapi",
+        "product": "orpc",
+        "versions": "< 1.13.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:13:01.958674+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-48634",
+    "title": "WindowManagerService.java의 tapjack 공격 가능성",
+    "description": "WindowManagerService.java의 relayoutWindow 함수에서 권한 검사 누락으로 tapjack 공격이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 공격이 이루어질 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 9e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/78",
+    "date": "2026-03-04T06:02:38.056722+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28787",
+    "title": "OneUptime WebAuthn 2FA 우회 취약점",
+    "description": "OneUptime 10.0.11 버전 이하에서 WebAuthn 인증 구현 시 서버 측에서 challenge 값을 저장하지 않고 클라이언트에 반환합니다. 이 challenge 값을 클라이언트 요청 본문에서 다시 받아 검증하여 WebAuthn 규격(W3C Web Authentication Level 2, §13.4.3)을 위반하며, 유효한 WebAuthn assertion을 탈취한 공격자가 이를 무한 반복하여 2차 인증을 우회할 수 있습니다. 현재 패치는 제공되지 않습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-294"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "<= 10.0.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:12:27.161079+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48631",
+    "title": "LocalImageResolver.java의 서비스 거부 취약점",
+    "description": "LocalImageResolver.java의 onHeaderDecoded 함수에서 자원 고갈로 인한 지속적인 서비스 거부(DoS) 공격 가능성이 있습니다. 추가적인 권한 없이 원격 DoS 공격으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 0,
+    "epss": 0.00182,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:19:06.142628+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48630",
+    "title": "SkiaRenderEngine.cpp의 GPU 캐시 접근 가능성",
+    "description": "SkiaRenderEngine.cpp의 drawLayersInternal 함수에서 부가 채널 정보 유출을 통해 GPU 캐시에 접근할 수 있는 취약점이 발견되었습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
+    "cvss": 7.4,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:22:13.86475+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48619",
+    "title": "ContentProvider.java 파일 잘림 취약점",
+    "description": "ContentProvider.java의 여러 함수에서 읽기 전용 권한을 가진 앱이 코드 로직 오류로 인해 파일을 자를 수 있는 가능성이 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:17:08.854832+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48613",
+    "title": "VBMeta 재서명 취약점",
+    "description": "VBMeta는 동일한 테스트 키로 서명된 원본 이미지를 사용하여 테스트 키로 VBMeta를 수정하고 재서명할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 5e-05,
+    "is_kev": false,
+    "cwe": [
+      "Unknown"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "Android SoC (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:12:48.160196+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48609",
+    "title": "MmsProvider.java의 임의 파일 삭제 취약점",
+    "description": "MmsProvider.java의 여러 함수에서 경로 탐색 오류로 인해 전화, SMS, MMS 기능에 영향을 주는 파일을 임의로 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 서비스 거부(DoS)를 유발할 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:19:10.986694+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-48605",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java 파일 내 여러 함수에서 코드 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용될 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 9e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T17:29:24.648586+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48602",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java의 exitKeyguardAndFinishSurfaceBehindRemoteAnimation 함수 내 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용될 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 9e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T17:29:24.64758+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48587",
+    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
+    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:29.288372+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48585",
+    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
+    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Denial of service"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:29.235655+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-48582",
+    "title": "외부 저장소 관리 권한 없이 미디어 삭제 가능성",
+    "description": "특정 상황에서 intent 리디렉션을 통해 MANAGE_EXTERNAL_STORAGE 권한 없이 미디어를 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다. 여러 위치에서 해당 문제가 발생합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T00:06:55.856188+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48579",
+    "title": "MediaProvider.java 외부 저장소 쓰기 권한 우회 가능성",
+    "description": "MediaProvider.java의 여러 함수에서 혼동된 대리자 문제로 인해 외부 저장소 쓰기 권한이 우회될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T00:05:55.027465+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-40931",
+    "title": "Perl의 Apache::Session::Generate::MD5 버전 1.94 이하의 안전하지 않은 세션 ID 생성",
+    "description": "Perl의 Apache::Session::Generate::MD5 모듈 1.94 버전 이하에서 안전하지 않은 세션 ID가 생성될 수 있습니다. 이 모듈은 예측 가능한 rand() 함수, epoch 시간, PID를 사용하여 MD5 해시를 생성하며, 이는 공격자가 시스템에 접근할 수 있는 취약점으로 이어질 수 있습니다. PID 값의 범위가 작고 epoch 시간도 추측 가능하기 때문입니다.",
+    "cvss": 9.1,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "CWE-340",
+      "CWE-338"
+    ],
+    "affected": [
+      {
+        "vendor": "CHORNY",
+        "product": "Apache::Session::Generate::MD5",
+        "versions": "1.94 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:16:07.969078+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28785",
+    "title": "Ghostfolio: 수동 자산 가져오기 시 시간 기반 블라인드 SQL Injection",
+    "description": "Ghostfolio는 오픈 소스 자산 관리 소프트웨어입니다. 2.244.0 버전 이전에는 심볼 유효성 검사를 우회하여 getHistorical() 메서드를 통해 임의의 SQL 명령을 실행할 수 있습니다. 이를 통해 공격자는 데이터베이스 내 모든 사용자의 민감한 금융 데이터를 읽고, 수정하거나 삭제할 수 있습니다. 해당 문제는 2.244.0 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "ghostfolio",
+        "product": "ghostfolio",
+        "versions": "< 2.244.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:11:13.905179+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28681",
+    "title": "IRRd: 웹 UI 호스트 헤더 삽입을 통한 공격자 제어 이메일 링크의 비밀번호 재설정 변조 취약점",
+    "description": "IRRd 버전 4.4.0~4.4.5 미만 및 4.5.0~4.5.1 미만에서 HTTP Host 헤더 조작을 통해 비밀번호 재설정 또는 계정 생성 요청을 변조할 수 있습니다. 이로 인해 생성된 이메일의 확인 링크가 공격자의 도메인으로 연결되어, 링크를 열면 공격자에게 토큰이 전달되어 계정을 탈취할 수 있습니다. 2단계 인증을 사용한 계정은 비밀번호 재설정 후에도 로그인할 수 없습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601",
+      "CWE-640"
+    ],
+    "affected": [
+      {
+        "vendor": "irrdnet",
+        "product": "irrd",
+        "versions": ">= 4.4.0, < 4.4.5 (단일 버전), >= 4.5.0, < 4.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:11:13.792638+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28680",
+    "title": "Ghostfolio: 수동 자산 가져오기 기능의 SSRF 취약점",
+    "description": "Ghostfolio는 오픈 소스 자산 관리 소프트웨어입니다. 2.245.0 버전 이전에는 수동 자산 가져오기 기능을 통해 SSRF 공격이 가능하며, 민감한 클라우드 메타데이터 유출 또는 내부 네트워크 서비스 탐색이 가능합니다. 해당 문제는 2.245.0 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "ghostfolio",
+        "product": "ghostfolio",
+        "versions": "< 2.245.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:10:12.914437+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28679",
+    "title": "HomeGallery: 경로 탐색 (임의 파일 읽기)",
+    "description": "Home-Gallery.org는 개인 사진 및 비디오를 탐색할 수 있는 자체 호스팅 오픈 소스 웹 갤러리입니다. 1.21.0 버전 이전에는 다운로드 요청 시 요청된 파일이 미디어 소스 디렉터리 내에 있는지 확인하지 않아 민감한 시스템 파일을 다운로드할 수 있었습니다. 이 문제는 1.21.0 버전에서 수정되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "xemle",
+        "product": "home-gallery",
+        "versions": "< 1.21.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:05:09.900413+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28677",
+    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
+    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSift",
+        "product": "OpenSift",
+        "versions": "< 1.6.3-alpha (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:04:06.77766+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28676",
+    "title": "OpenSift: 저장소 헬퍼의 불충분한 경로 포함 확인으로 인한 경로 탐색 취약점",
+    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 사용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 여러 저장소 헬퍼가 기본 디렉터리 포함을 일관되게 적용하지 않는 경로 구성 패턴을 사용했습니다. 악의적인 경로 값이 주입될 경우 파일 읽기/쓰기/삭제 과정에서 경로 주입 위험이 발생했으며, 1.6.3-alpha 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSift",
+        "product": "OpenSift",
+        "versions": "< 1.6.3-alpha (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:05:07.779678+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28675",
+    "title": "OpenSift: 원시 예외 메시지와 토큰 반환 엔드포인트를 통한 민감한 구현 세부 정보 노출",
+    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 사용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 일부 엔드포인트에서 클라이언트에 원시 예외 문자열을 반환하고, UI 응답 및 토큰 순환 출력에 로그인 토큰 정보가 노출되었습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-209"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSift",
+        "product": "OpenSift",
+        "versions": "< 1.6.3-alpha (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:58:59.264937+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28509",
+    "title": "LangBot의 크로스 사이트 스크립팅(XSS) 취약점",
+    "description": "LangBot은 LLM을 위한 글로벌 IM 봇 플랫폼입니다. 4.8.7 버전 이전에는 사용자 제공의 원시 HTML을 rehypeRaw를 사용하여 렌더링하여 XSS 취약점이 발생할 수 있습니다. 해당 문제는 4.8.7 버전에서 수정되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "langbot-app",
+        "product": "LangBot",
+        "versions": "< 4.8.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:58:53.731125+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28508",
+    "title": "Idno: 인증되지 않은 SSRF 취약점 - URL 언폴드 엔드포인트",
+    "description": "Idno 소셜 게시 플랫폼 1.6.4 버전 이전에서 URL 언폴드 서비스 엔드포인트의 CSRF 보호를 우회하여 인증되지 않은 공격자가 임의의 HTTP 요청을 서버에 보내도록 할 수 있습니다. 이를 통해 내부 네트워크 및 클라우드 메타데이터 서비스에 접근하여 응답 내용을 탈취할 수 있습니다. 1.6.4 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "idno",
+        "product": "idno",
+        "versions": "< 1.6.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:59:01.894537+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28507",
+    "title": "Idno: 연결된 파일 쓰기 및 템플릿 경로 탐색을 통한 원격 코드 실행",
+    "description": "Idno는 소셜 게시 플랫폼입니다. 1.6.4 버전 이전에서 연결된 파일 쓰기 및 템플릿 경로 탐색 취약점을 통해 원격 코드 실행이 가능합니다. 해당 문제는 1.6.4 버전에서 패치되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "idno",
+        "product": "idno",
+        "versions": "< 1.6.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:59:01.767742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27605",
+    "title": "Chartbrew: 파일 업로드 API를 통한 저장형 크로스 사이트 스크립팅 (XSS) 취약점",
+    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.4 버전 이전에는 파일 유형 또는 내용을 검증 없이 프로젝트 로고 파일을 업로드할 수 있어 악성 JavaScript가 포함된 HTML 파일을 업로드할 수 있습니다. 이를 통해 로컬 스토리지에 저장된 인증 토큰 탈취 및 계정 탈취가 가능합니다. 해당 문제는 4.8.4 버전에서 해결되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434",
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:54:42.410542+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27603",
+    "title": "Chartbrew: 인증되지 않은 차트 필터 엔드포인트 - POST /project/:project_id/chart/:chart_id/filter",
+    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.4 버전 이전에는 `/project/:project_id/chart/:chart_id/filter` 엔드포인트에 인증 및 권한 검사 미들웨어가 없어, 인증되지 않은 사용자가 모든 팀/프로젝트의 차트 데이터에 접근할 수 있었습니다. 해당 문제는 4.8.4 버전에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:58:49.299549+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27005",
+    "title": "Chartbrew: 날짜 유형 변수 처리의 SQL 삽입 취약점 (applyMysqlOrPostgresVariables)",
+    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈 소스 웹 애플리케이션입니다. 4.8.3 버전 이전에는 인증되지 않은 공격자가 Chartbrew에 연결된 데이터베이스(MySQL, PostgreSQL)에 임의의 SQL 코드를 삽입할 수 있습니다. 이를 통해 데이터베이스 사용자의 권한에 따라 데이터를 읽고, 수정하거나 삭제할 수 있으며, 4.8.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:54:28.620016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25888",
+    "title": "Chartbrew: 취약한 API를 통한 원격 코드 실행 (RCE)",
+    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈 소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 취약한 API를 통해 원격 코드 실행 취약점이 존재합니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/86",
+    "date": "2026-03-06T04:54:25.71438+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25887",
+    "title": "Chartbrew: MongoDB 데이터셋 쿼리를 통한 원격 코드 실행 (RCE) 취약점",
+    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 MongoDB 데이터셋 쿼리를 통해 원격 코드 실행 취약점이 존재했습니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:54:28.615559+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25877",
+    "title": "Chartbrew: 차트 작업 시 직접 객체 참조 (IDOR) 취약점",
+    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 차트 관련 작업 시 `project_id` 파라미터만을 기반으로 권한 검사를 수행하여 `chart_id` 자체에 대한 검사는 이루어지지 않았습니다. 인증된 사용자가 다른 사용자의 차트를 조작하거나 접근할 수 있는 취약점이며, 4.8.1 버전에서 패치되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:53:42.120024+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29084",
+    "title": "Gokapi: 로그인 엔드포인트의 CSRF 취약점",
+    "description": "Gokapi는 자동 만료 및 암호화 기능을 제공하는 자체 호스팅 파일 공유 서버입니다. 2.2.3 버전 이전에는 로그인 흐름에서 브라우저 세션 컨텍스트와 연결된 CSRF 보호 메커니즘 없이 자격 증명 기반 요청을 허용했습니다. 이 문제는 2.2.3 버전에서 패치되었습니다.",
+    "cvss": 4.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "Forceu",
+        "product": "Gokapi",
+        "versions": "< 2.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:11:38.491986+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29061",
+    "title": "Gokapi: 사용자 등급 강등 시 불완전한 API 키 권한 해지로 인한 권한 상승",
+    "description": "Gokapi는 자동 만료 및 암호화 기능을 제공하는 자체 호스팅 파일 공유 서버입니다. 2.2.3 버전 이전에는 사용자 등급 강등 로직의 취약점으로 인해 강등된 사용자의 기존 API 키가 ApiPermManageFileRequests 및 ApiPermManageLogs 권한을 유지하여, 권한이 박탈된 후에도 업로드 요청 관리 및 로그 보기 엔드포인트에 계속 접근할 수 있었습니다. 해당 문제는 2.2.3 버전에서 수정되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Forceu",
+        "product": "Gokapi",
+        "versions": "< 2.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:11:33.478099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29060",
+    "title": "Gokapi: 인증 토큰을 이용한 권한 상승",
+    "description": "Gokapi는 자동 만료 및 암호화 기능을 제공하는 자체 호스팅 파일 공유 서버입니다. 2.2.3 버전 이전에는 파일 요청 생성 또는 수정 권한이 없는 등록 사용자도 해당 권한을 가진 단기 API 키를 생성할 수 있었습니다. 이 문제는 2.2.3 버전에서 해결되었습니다.",
+    "cvss": 5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Forceu",
+        "product": "Gokapi",
+        "versions": "< 2.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:11:27.869493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28695",
+    "title": "Twig SSTI를 이용한 인증된 RCE - create() 함수 + Symfony Process 가젯",
+    "description": "Craft CMS 5.8.21에서 Twig create() 함수와 Symfony Process 가젯 체인을 이용한 인증된 관리자 권한의 원격 코드 실행(RCE) 취약점이 발견되었습니다. create() 함수는 임의의 PHP 클래스를 인스턴스화할 수 있으며, symfony/process 의존성과 결합하여 RCE를 가능하게 합니다. 이는 CVE-2025-57811에 대한 이전 패치를 우회하며, 5.9.0-beta.1 및 4.17.0-beta.1에서 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.8.7, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:11:23.902829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28683",
+    "title": "Gokapi: SVG 핫링크를 통한 저장형 XSS 취약점",
+    "description": "Gokapi는 자동 만료 및 암호화 기능을 제공하는 자체 호스팅 파일 공유 서버입니다. 2.2.3 버전 이전에는 악의적인 인증된 사용자가 SVG 파일을 업로드하고 핫링크를 생성하여 저장형 XSS 공격을 수행할 수 있었습니다. 해당 문제는 2.2.3 버전에서 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Forceu",
+        "product": "Gokapi",
+        "versions": "< 2.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:10:22.901522+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28784",
+    "title": "Craft CMS의 Twig SSTI를 통한 잠재적 원격 코드 실행 취약점",
+    "description": "Craft CMS 5.8.22 및 4.16.18 이전 버전에서 Twig 맵 필터를 사용하는 악성 페이로드를 통해 원격 코드 실행(RCE)이 가능할 수 있습니다. 관리자 권한 및 `allowAdminChanges` 설정 활성화, 또는 시스템 메시지 유틸리티 접근 권한이 필요합니다. 최신 버전(5.8.22 및 4.16.18)으로 업데이트하여 문제를 해결하십시오.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:08:24.132393+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28783",
+    "title": "Craft CMS의 Twig 함수 블랙리스트 우회 취약점",
+    "description": "Craft CMS 5.9.0-beta.1 및 4.17.0-beta.1 이전 버전에서 Twig 비-Closure 화살표 함수를 통해 위험한 PHP 함수가 호출되는 것을 막는 블랙리스트에 일부 함수가 누락되어 있습니다. 권한이 있는 공격자는 이를 이용하여 RCE, 임의 파일 읽기, SSRF, SSTI 등 다양한 페이로드를 실행할 수 있습니다. 해당 취약점은 5.9.0-beta.1 및 4.17.0-beta.1에서 해결되었습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94",
+      "CWE-184",
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.0.0-RC1, <= 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, <= 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:07:25.42201+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28697",
+    "title": "Craft CMS의 Twig 템플릿 내 \"craft.app.fs.write()\"를 통한 인증된 RCE 취약점",
+    "description": "Craft CMS 4.17.0-beta.1 및 5.9.0-beta.1 이전 버전에서 인증된 관리자가 Twig 템플릿 필드(예: 이메일 템플릿)에 SSTI 페이로드를 삽입하여 원격 코드 실행(RCE)을 달성할 수 있습니다. 공격자는 `craft.app.fs.write()` 메서드를 호출하여 악성 PHP 스크립트를 웹 접근 가능한 디렉터리에 작성하고 브라우저를 통해 실행하여 임의의 시스템 명령을 실행할 수 있습니다. 해당 취약점은 4.17.0-beta.1 및 5.9.0-beta.1에서 해결되었습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:20:36.436273+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28429",
+    "title": "Talishar: gameName 파라미터의 중요 경로 탐색 취약점",
+    "description": "Talishar는 팬 제작 Flesh and Blood 프로젝트입니다. commit 6be3871 이전, gameName 파라미터에서 경로 탐색 취약점이 발견되었습니다. 입력 유효성 검사가 주 엔트리 포인트에서 이루어지지만, ParseGamestate.php 컴포넌트는 독립 실행 스크립트로 직접 접근 가능하며, 내부 삭제(sanitization)가 없어 디렉터리 탐색 시퀀스(예: ../)를 통해 무단 파일 접근이 가능했습니다. 해당 문제는 commit 6be3871에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Talishar",
+        "product": "Talishar",
+        "versions": "< 6be3871a14c192d1fb8146cdbc76f29f27c1cf48 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:08:20.896341+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28685",
+    "title": "Kimai: API 인보이스 엔드포인트의 고객 레벨 접근 제어 미흡 (IDOR)",
+    "description": "Kimai는 웹 기반 멀티 유저 시간 추적 애플리케이션입니다. 2.51.0 버전 이전에는 \"GET /api/invoices/{id}\" 엔드포인트가 역할 기반의 view_invoice 권한만 확인하고, 요청 사용자가 해당 인보이스의 고객에 접근할 권한이 있는지 검증하지 않았습니다. ROLE_TEAMLEAD 권한을 가진 사용자는 다른 팀에 할당된 고객의 인보이스를 포함하여 시스템의 모든 인보이스를 읽을 수 있었습니다. 해당 문제는 2.51.0 버전에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "kimai",
+        "product": "kimai",
+        "versions": "< 2.51.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:06:13.217164+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-20128",
+    "title": "Cisco Catalyst SD-WAN Manager 정보 유출 취약점",
+    "description": "Cisco Catalyst SD-WAN Manager의 데이터 수집 에이전트(DCA) 기능에 인증된 로컬 공격자가 DCA 사용자 권한을 획득할 수 있는 취약점이 존재합니다. 공격자는 유효한 vmanage 자격 증명을 사용하여 파일 시스템에서 DCA 비밀번호 파일을 읽어 악용할 수 있습니다. 20.18 버전 이후의 릴리스는 해당 취약점의 영향을 받지 않습니다.",
+    "cvss": 7.5,
+    "epss": 0.00019,
+    "is_kev": false,
+    "cwe": [
+      "CWE-257"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Catalyst SD-WAN Manager",
+        "versions": "20.1.12 (단일 버전), 19.2.1 (단일 버전), 18.4.4 (단일 버전), 18.4.5 (단일 버전), 20.1.1.1 (단일 버전), 20.1.1 (단일 버전), 19.3.0 (단일 버전), 19.2.2 (단일 버전), 19.2.099 (단일 버전), 18.3.6 (단일 버전), 18.3.7 (단일 버전), 19.2.0 (단일 버전), 18.3.8 (단일 버전), 19.0.0 (단일 버전), 19.1.0 (단일 버전), 18.4.302 (단일 버전), 18.4.303 (단일 버전), 19.2.097 (단일 버전), 19.2.098 (단일 버전), 17.2.10 (단일 버전), 18.3.6.1 (단일 버전), 19.0.1a (단일 버전), 18.2.0 (단일 버전), 18.4.3 (단일 버전), 18.4.1 (단일 버전), 17.2.8 (단일 버전), 18.3.3.1 (단일 버전), 18.4.0 (단일 버전), 18.3.1 (단일 버전), 17.2.6 (단일 버전), 17.2.9 (단일 버전), 18.3.4 (단일 버전), 17.2.5 (단일 버전), 18.3.1.1 (단일 버전), 18.3.5 (단일 버전), 18.4.0.1 (단일 버전), 18.3.3 (단일 버전), 17.2.7 (단일 버전), 18.3.0 (단일 버전), 19.2.3 (단일 버전), 18.4.501_ES (단일 버전), 20.3.1 (단일 버전), 20.1.2 (단일 버전), 19.2.929 (단일 버전), 19.2.31 (단일 버전), 20.3.2 (단일 버전), 19.2.32 (단일 버전), 20.3.2.1 (단일 버전), 20.3.2.1_927 (단일 버전), 18.4.6 (단일 버전), 20.3.2_928 (단일 버전), 20.3.2_929 (단일 버전), 20.4.1.0.1 (단일 버전), 20.3.2.1_930 (단일 버전), 19.2.4 (단일 버전), 20.5.0.1.1 (단일 버전), 20.4.1.1 (단일 버전), 20.3.3 (단일 버전), 19.2.4.0.1 (단일 버전), 20.3.2_937 (단일 버전), 20.5.1 (단일 버전), 20.1.3 (단일 버전), 20.3.3.0.4 (단일 버전), 20.3.3.1.2 (단일 버전), 20.3.3.1.1 (단일 버전), 20.4.1.2 (단일 버전), 20.3.3.0.2 (단일 버전), 20.4.1.1.5 (단일 버전), 20.4.1.0.02 (단일 버전), 20.3.3.1.7 (단일 버전), 20.3.3.1.5 (단일 버전), 20.5.1.0.1 (단일 버전), 20.3.3.1.10 (단일 버전), 20.3.3.0.8 (단일 버전), 20.4.2 (단일 버전), 20.3.4 (단일 버전), 20.3.3.0.14 (단일 버전), 19.2.4.0.8 (단일 버전), 19.2.4.0.9 (단일 버전), 20.3.4.0.1 (단일 버전), 20.3.2.0.5 (단일 버전), 20.5.1.0.2 (단일 버전), 20.6.1.1 (단일 버전), 20.6.0.18.3 (단일 버전), 20.3.2.0.6 (단일 버전), 20.6.0.18.4 (단일 버전), 20.4.2.0.2 (단일 버전), 20.3.3.0.16 (단일 버전), 20.6.1.0.1 (단일 버전), 20.3.4.0.6 (단일 버전), 20.7.1EFT2 (단일 버전), 20.3.4.0.9 (단일 버전), 20.3.4.0.11 (단일 버전), 20.3.3.0.18 (단일 버전), 20.6.2.1 (단일 버전), 20.3.4.1 (단일 버전), 20.4.2.1 (단일 버전), 20.4.2.1.1 (단일 버전), 20.3.4.1.1 (단일 버전), 20.3.813 (단일 버전), 20.3.4.0.19 (단일 버전), 20.4.2.2.1 (단일 버전), 20.5.1.2 (단일 버전), 20.3.814 (단일 버전), 20.4.2.2 (단일 버전), 20.6.2.2 (단일 버전), 20.3.4.2.1 (단일 버전), 20.3.4.1.2 (단일 버전), 20.3.4.0.20 (단일 버전), 20.6.2.2.3 (단일 버전), 20.4.2.2.2 (단일 버전), 20.6.2.0.4 (단일 버전), 20.3.4.0.24 (단일 버전), 20.6.2.2.7 (단일 버전), 20.3.4.2.2 (단일 버전), 20.4.2.2.4 (단일 버전), 20.3.5.0.8 (단일 버전), 20.3.5.0.9 (단일 버전), 20.3.5.0.7 (단일 버전), 20.6.3.0.2 (단일 버전), 20.9.1EFT2 (단일 버전), 20.3.6 (단일 버전), 20.3.7 (단일 버전), 20.4.2.3 (단일 버전), 20.3.5.1 (단일 버전), 20.3.4.3 (단일 버전), 20.3.3.2 (단일 버전), 20.3.7.1 (단일 버전), 20.3.4.0.25 (단일 버전), 20.6.2.2.4 (단일 버전), 20.6.1.2 (단일 버전), 20.1.3.1 (단일 버전), 20.6.5.1.4 (단일 버전), 20.3.8 (단일 버전), 20.12.501 (단일 버전), 26.1.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:06:06.801381+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28682",
+    "title": "Gokapi: 업로드 상태 스트림의 데이터 유출",
+    "description": "Gokapi는 자동 만료 및 암호화 기능을 제공하는 자체 호스팅 파일 공유 서버입니다. 2.2.3 버전 이전에는 /uploadStatus의 업로드 상태 SSE 구현이 인증된 모든 리스너에게 전역 업로드 상태를 게시하며, 요청 사용자로 범위가 지정되지 않은 file_id 값을 포함합니다. 이 문제는 2.2.3 버전에서 수정되었습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Forceu",
+        "product": "Gokapi",
+        "versions": "< 2.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:05:05.799065+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-13590",
+    "title": "관리자 권한이 필요한 시스템 REST API를 통한 인증된 임의 파일 업로드",
+    "description": "관리자 권한을 가진 공격자가 시스템 REST API를 통해 배포 환경 내 사용자 제어 위치에 임의 파일을 업로드할 수 있습니다. 성공적인 업로드는 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00277,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "WSO2",
+        "product": "WSO2 API Manager",
+        "versions": "4.2.0 부터 4.2.0.179 이전, 4.3.0 부터 4.3.0.91 이전, 4.4.0 부터 4.4.0.55 이전, 4.5.0 부터 4.5.0.38 이전, 4.6.0 부터 4.6.0.3 이전"
+      },
+      {
+        "vendor": "WSO2",
+        "product": "WSO2 API Control Plane",
+        "versions": "4.5.0 부터 4.5.0.39 이전, 4.6.0 부터 4.6.0.3 이전"
+      },
+      {
+        "vendor": "WSO2",
+        "product": "WSO2 Universal Gateway",
+        "versions": "4.5.0 부터 4.5.0.37 이전, 4.6.0 부터 4.6.0.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:04:05.014277+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28428",
+    "title": "Talishar: 빈 authKey 파라미터를 통한 인증 우회로 인해 인증되지 않은 게임 액션 가능",
+    "description": "Talishar 프로젝트에서 commit a9c218e 이전, 게임 엔드포인트 검증 로직의 인증 우회 취약점이 발견되었습니다. 공격자는 빈 authKey 파라미터(authKey=)를 사용하여 인증 없이 게임 액션(채팅, 게임 입력 등)을 수행할 수 있습니다. 서버 측 검증은 빈 문자열을 유효한 자격 증명으로 허용하는 반면, 유효하지 않은 키는 올바르게 거부하여 인증 메커니즘을 완전히 우회할 수 있습니다. 해당 문제는 commit a9c218e에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "Talishar",
+        "product": "Talishar",
+        "versions": "< a9c218efa37756c9e7eed056fbff6ee03f79aefc (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:02:15.391904+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-20122",
+    "title": "Cisco Catalyst SD-WAN Manager 임의 파일 덮어쓰기 취약점",
+    "description": "Cisco Catalyst SD-WAN Manager API의 취약점으로 인해 인증된 원격 공격자가 로컬 파일 시스템의 임의 파일을 덮어쓸 수 있습니다. 공격자는 유효한 읽기 전용 자격 증명과 API 접근 권한이 필요하며, 악성 파일을 업로드하여 시스템 파일을 덮어쓰고 vmanage 사용자 권한을 획득할 수 있습니다. 부적절한 파일 처리 방식이 원인입니다.",
+    "cvss": 5.4,
+    "epss": 0.00042,
+    "is_kev": false,
+    "cwe": [
+      "CWE-648"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Catalyst SD-WAN Manager",
+        "versions": "20.1.12 (단일 버전), 19.2.1 (단일 버전), 18.4.4 (단일 버전), 18.4.5 (단일 버전), 20.1.1.1 (단일 버전), 20.1.1 (단일 버전), 19.3.0 (단일 버전), 19.2.2 (단일 버전), 19.2.099 (단일 버전), 18.3.6 (단일 버전), 18.3.7 (단일 버전), 19.2.0 (단일 버전), 18.3.8 (단일 버전), 19.0.0 (단일 버전), 19.1.0 (단일 버전), 18.4.302 (단일 버전), 18.4.303 (단일 버전), 19.2.097 (단일 버전), 19.2.098 (단일 버전), 17.2.10 (단일 버전), 18.3.6.1 (단일 버전), 19.0.1a (단일 버전), 18.2.0 (단일 버전), 18.4.3 (단일 버전), 18.4.1 (단일 버전), 17.2.8 (단일 버전), 18.3.3.1 (단일 버전), 18.4.0 (단일 버전), 18.3.1 (단일 버전), 17.2.6 (단일 버전), 17.2.9 (단일 버전), 18.3.4 (단일 버전), 17.2.5 (단일 버전), 18.3.1.1 (단일 버전), 18.3.5 (단일 버전), 18.4.0.1 (단일 버전), 18.3.3 (단일 버전), 17.2.7 (단일 버전), 17.2.4 (단일 버전), 18.3.0 (단일 버전), 19.2.3 (단일 버전), 18.4.501_ES (단일 버전), 20.3.1 (단일 버전), 20.1.2 (단일 버전), 19.2.929 (단일 버전), 19.2.31 (단일 버전), 20.3.2 (단일 버전), 19.2.32 (단일 버전), 20.3.2_925 (단일 버전), 20.3.2.1 (단일 버전), 20.3.2.1_927 (단일 버전), 18.4.6 (단일 버전), 20.1.2_937 (단일 버전), 20.4.1 (단일 버전), 20.3.2_928 (단일 버전), 20.3.2_929 (단일 버전), 20.4.1.0.1 (단일 버전), 20.3.2.1_930 (단일 버전), 19.2.4 (단일 버전), 20.5.0.1.1 (단일 버전), 20.4.1.1 (단일 버전), 20.3.3 (단일 버전), 19.2.4.0.1 (단일 버전), 20.3.2_937 (단일 버전), 20.3.3.1 (단일 버전), 20.5.1 (단일 버전), 20.1.3 (단일 버전), 20.3.3.0.4 (단일 버전), 20.3.3.1.2 (단일 버전), 20.3.3.1.1 (단일 버전), 20.4.1.2 (단일 버전), 20.3.3.0.2 (단일 버전), 20.4.1.1.5 (단일 버전), 20.4.1.0.01 (단일 버전), 20.4.1.0.02 (단일 버전), 20.3.3.1.7 (단일 버전), 20.3.3.1.5 (단일 버전), 20.5.1.0.1 (단일 버전), 20.3.3.1.10 (단일 버전), 20.3.3.0.8 (단일 버전), 20.4.2 (단일 버전), 20.4.2.0.1 (단일 버전), 20.3.4 (단일 버전), 20.3.3.0.14 (단일 버전), 19.2.4.0.8 (단일 버전), 19.2.4.0.9 (단일 버전), 20.3.4.0.1 (단일 버전), 20.3.2.0.5 (단일 버전), 20.6.1 (단일 버전), 20.5.1.0.2 (단일 버전), 20.3.3.0.17 (단일 버전), 20.6.1.1 (단일 버전), 20.6.0.18.3 (단일 버전), 20.3.2.0.6 (단일 버전), 20.6.0.18.4 (단일 버전), 20.4.2.0.2 (단일 버전), 20.3.3.0.16 (단일 버전), 20.3.4.0.5 (단일 버전), 20.6.1.0.1 (단일 버전), 20.3.4.0.6 (단일 버전), 20.6.2 (단일 버전), 20.7.1EFT2 (단일 버전), 20.3.4.0.9 (단일 버전), 20.3.4.0.11 (단일 버전), 20.4.2.0.4 (단일 버전), 20.3.3.0.18 (단일 버전), 20.7.1 (단일 버전), 20.6.2.1 (단일 버전), 20.3.4.1 (단일 버전), 20.5.1.1 (단일 버전), 20.4.2.1 (단일 버전), 20.4.2.1.1 (단일 버전), 20.3.4.1.1 (단일 버전), 20.3.813 (단일 버전), 20.3.4.0.19 (단일 버전), 20.4.2.2.1 (단일 버전), 20.5.1.2 (단일 버전), 20.3.4.2 (단일 버전), 20.3.814 (단일 버전), 20.4.2.2 (단일 버전), 20.6.2.2 (단일 버전), 20.3.4.2.1 (단일 버전), 20.7.1.1 (단일 버전), 20.3.4.1.2 (단일 버전), 20.6.2.2.2 (단일 버전), 20.3.4.0.20 (단일 버전), 20.6.2.2.3 (단일 버전), 20.4.2.2.2 (단일 버전), 20.3.5 (단일 버전), 20.6.2.0.4 (단일 버전), 20.4.2.2.3 (단일 버전), 20.3.4.0.24 (단일 버전), 20.6.2.2.7 (단일 버전), 20.6.3 (단일 버전), 20.3.4.2.2 (단일 버전), 20.4.2.2.4 (단일 버전), 20.7.1.0.2 (단일 버전), 20.8.1 (단일 버전), 20.3.5.0.8 (단일 버전), 20.3.5.0.9 (단일 버전), 20.4.2.2.8 (단일 버전), 20.3.5.0.7 (단일 버전), 20.6.3.0.7 (단일 버전), 20.6.3.0.5 (단일 버전), 20.6.3.0.10 (단일 버전), 20.6.3.0.2 (단일 버전), 20.7.2 (단일 버전), 20.9.1EFT2 (단일 버전), 20.6.3.0.11 (단일 버전), 20.6.3.1 (단일 버전), 20.6.3.0.14 (단일 버전), 20.6.4 (단일 버전), 20.9.1 (단일 버전), 20.6.3.0.19 (단일 버전), 20.6.3.0.18 (단일 버전), 20.3.6 (단일 버전), 20.9.1.1 (단일 버전), 20.6.3.0.23 (단일 버전), 20.6.4.0.4 (단일 버전), 20.6.3.0.25 (단일 버전), 20.6.5 (단일 버전), 20.6.3.0.27 (단일 버전), 20.9.2 (단일 버전), 20.9.2.1 (단일 버전), 20.6.3.0.29 (단일 버전), 20.6.3.0.31 (단일 버전), 20.6.3.0.32 (단일 버전), 20.10.1 (단일 버전), 20.6.3.0.33 (단일 버전), 20.9.2.0.01 (단일 버전), 20.9.1_LI_Images (단일 버전), 20.10.1_LI_Images (단일 버전), 20.9.2_LI_Images (단일 버전), 20.3.7 (단일 버전), 20.9.3 (단일 버전), 20.6.5.1 (단일 버전), 20.11.1 (단일 버전), 20.11.1_LI_Images (단일 버전), 20.9.3_LI_ Images (단일 버전), 20.6.3.1.1 (단일 버전), 20.9.3.0.2 (단일 버전), 20.6.5.1.2 (단일 버전), 20.9.3.0.3 (단일 버전), 20.4.2.3 (단일 버전), 20.6.3.2 (단일 버전), 20.6.4.1 (단일 버전), 20.6.3.0.38 (단일 버전), 20.6.3.0.39 (단일 버전), 20.3.5.1 (단일 버전), 20.3.4.3 (단일 버전), 20.9.3.1 (단일 버전), 20.3.3.2 (단일 버전), 20.6.5.2 (단일 버전), 20.3.7.1 (단일 버전), 20.10.1.1 (단일 버전), 20.6.5.2.1 (단일 버전), 20.3.4.0.25 (단일 버전), 20.6.2.2.4 (단일 버전), 20.6.1.2 (단일 버전), 20.11.1.1 (단일 버전), 20.9.3.0.5 (단일 버전), 20.3.4.0.26 (단일 버전), 20.6.5.1.3 (단일 버전), 20.6.3.0.40 (단일 버전), 20.1.3.1 (단일 버전), 20.9.2.2 (단일 버전), 20.6.5.2.3 (단일 버전), 20.6.5.1.4 (단일 버전), 20.6.5.3 (단일 버전), 20.6.3.0.41 (단일 버전), 20.9.3.0.7 (단일 버전), 20.6.5.1.5 (단일 버전), 20.9.3.0.4 (단일 버전), 20.6.4.0.19 (단일 버전), 20.6.5.1.6 (단일 버전), 20.9.3.0.8 (단일 버전), 20.6.3.3 (단일 버전), 20.3.7.2 (단일 버전), 20.6.5.4 (단일 버전), 20.6.5.1.7 (단일 버전), 20.9.3.0.12 (단일 버전), 20.6.4.2 (단일 버전), 20.6.5.5 (단일 버전), 20.9.3.2 (단일 버전), 20.11.1.2 (단일 버전), 20.6.3.4 (단일 버전), 20.10.1.2 (단일 버전), 20.6.5.1.9 (단일 버전), 20.9.3.0.16 (단일 버전), 20.6.3.0.45 (단일 버전), 20.6.5.1.10 (단일 버전), 20.9.3.0.17 (단일 버전), 20.6.5.2.4 (단일 버전), 20.6.4.0.21 (단일 버전), 20.9.3.0.18 (단일 버전), 20.6.3.0.46 (단일 버전), 20.6.3.0.47 (단일 버전), 20.9.2.3 (단일 버전), 20.9.3.2_LI_Images (단일 버전), 20.9.3.0.21 (단일 버전), 20.9.3.0.20 (단일 버전), 20.9.4_LI_Images (단일 버전), 20.9.4 (단일 버전), 20.6.5.1.11 (단일 버전), 20.12.1 (단일 버전), 20.12.1_LI_Images (단일 버전), 20.6.5.1.13 (단일 버전), 20.9.3.0.23 (단일 버전), 20.6.5.2.8 (단일 버전), 20.9.4.1 (단일 버전), 20.9.4.1_LI_Images (단일 버전), 20.9.3.0.25 (단일 버전), 20.9.3.0.24 (단일 버전), 20.6.5.1.14 (단일 버전), 20.3.8 (단일 버전), 20.6.6 (단일 버전), 20.9.3.0.26 (단일 버전), 20.6.3.0.51 (단일 버전), 20.9.3.0.29 (단일 버전), 20.12.2 (단일 버전), 20.12.2_LI_Images (단일 버전), 20.6.6.0.1 (단일 버전), 20.13.1_LI_Images (단일 버전), 20.9.4.0.4 (단일 버전), 20.13.1 (단일 버전), 20.9.4.1.1 (단일 버전), 20.9.5 (단일 버전), 20.9.5_LI_Images (단일 버전), 20.12.3_LI_Images (단일 버전), 20.12.3 (단일 버전), 20.9.4.1.3 (단일 버전), 20.6.7 (단일 버전), 20.9.5.1 (단일 버전), 20.9.5.1_LI_Images (단일 버전), 20.9.4.1.6 (단일 버전), 20.14.1 (단일 버전), 20.14.1_LI_Images (단일 버전), 20.9.5.2 (단일 버전), 20.9.5.2.1 (단일 버전), 20.9.5.2_LI_Images (단일 버전), 20.12.3.1 (단일 버전), 20.12.4 (단일 버전), 20.15.1_LI_Images (단일 버전), 20.15.1 (단일 버전), 20.9.5.1.4 (단일 버전), 20.9.5.2.7 (단일 버전), 20.9.5.2.13 (단일 버전), 20.9.6 (단일 버전), 20.9.6_LI_Images (단일 버전), 20.9.5.2.14 (단일 버전), 20.6.8 (단일 버전), 20.12.4.0.03 (단일 버전), 20.16.1 (단일 버전), 20.16.1_LI_Images (단일 버전), 20.12.4_LI_Images (단일 버전), 20.9.5.2.16 (단일 버전), 20.12.4.0.4 (단일 버전), 20.12.401 (단일 버전), 20.9.5.3 (단일 버전), 20.9.5.3_LI_Images (단일 버전), 20.12.4.1_LI_Images (단일 버전), 20.12.4.1 (단일 버전), 20.9.5.2.21 (단일 버전), 20.9.6.0.3 (단일 버전), 20.12.4.0.6 (단일 버전), 20.15.2_LI_Images (단일 버전), 20.15.2 (단일 버전), 20.12.4_Monthly_ES5 (단일 버전), 20.12.5 (단일 버전), 20.12.5_LI_Images (단일 버전), 20.9.7_LI _Images (단일 버전), 20.9.7 (단일 버전), 20.15.3 (단일 버전), 20.15.3_ LI _Images (단일 버전), 20.12.501 (단일 버전), 20.12.5.1_LI_Images (단일 버전), 20.12.5.1 (단일 버전), 20.12.5.2_LI_Images (단일 버전), 20.12.5.2 (단일 버전), 20.15.3.1 (단일 버전), 20.15.4_LI_Images (단일 버전), 20.15.4 (단일 버전), 20.9.7.1_LI _Images (단일 버전), 20.9.7.1 (단일 버전), 20.18.1 (단일 버전), 20.18.1_LI_Images (단일 버전), 20.12.6_LI_Images (단일 버전), 20.12.6 (단일 버전), 20.12.5.1.01 (단일 버전), 20.9.8 (단일 버전), 20.9.8_LI_Images (단일 버전), 20.18.2 (단일 버전), 20.15.4.1_LI_Images (단일 버전), 20.15.4.1 (단일 버전), 20.18.2_LI_Images (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:02:08.196366+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2023-41974",
+    "title": "use-after-free 취약점 해결",
+    "description": "메모리 관리 개선을 통해 use-after-free 문제가 해결되었습니다. 이 문제는 iOS 17 및 iPadOS 17에 포함되어 있으며, 앱이 커널 권한으로 임의 코드를 실행할 수 있는 가능성을 차단합니다.",
+    "cvss": 7.8,
+    "epss": 0.00307,
+    "is_kev": true,
+    "cwe": [
+      "An app may be able to execute arbitrary code with kernel privileges"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 17 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:14:41.674345+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-30952",
+    "title": "정수 오버플로우 취약점 해결",
+    "description": "입력 값 검증 강화로 정수 오버플로우 문제가 해결되었습니다. tvOS 15.2, macOS Monterey 12.1, Safari 15.2, iOS 15.2, iPadOS 15.2, watchOS 8.3에서 수정되었으며, 악성 웹 콘텐츠 처리 시 임의 코드 실행으로 이어질 수 있는 문제를 방지합니다.",
+    "cvss": 7.8,
+    "epss": 0.00329,
+    "is_kev": true,
+    "cwe": [
+      "Processing maliciously crafted web content may lead to arbitrary code execution"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "watchOS",
+        "versions": "unspecified 부터 8.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 15.2 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 12.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:12:39.622757+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-22681",
+    "title": "Rockwell Automation Studio 5000 및 RSLogix 5000 인증 우회 취약점",
+    "description": "Rockwell Automation Studio 5000 Logix Designer 21 버전 이후 및 RSLogix 5000 16-20 버전에서 Logix 컨트롤러와의 통신 검증 메커니즘 우회 취약점이 발견되었습니다. 인증되지 않은 공격자가 CompactLogix, ControlLogix, DriveLogix, GuardLogix, SoftLogix 컨트롤러에 무단으로 접근할 수 있습니다. 해당 버전을 사용하는 경우 주의가 필요합니다.",
+    "cvss": 9.8,
+    "epss": 0.00182,
+    "is_kev": true,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Rockwell Automation Studio 5000 Logix Designer, RSLogix 5000, Logix Controllers",
+        "versions": "RSLogix 5000 Versions 16 through 20 (단일 버전), Studio 5000 Logix Designer: Versions 21 and later (단일 버전), CompactLogix 1768, 1769, 5370, 5380, 5480 (단일 버전), ControlLogix 5550, 5560, 5570, 5580 (단일 버전), DriveLogix 5560, 5730, 1794-L34 (단일 버전), Compact GuardLogix 5370, 5380 (단일 버전), GuardLogix 5570, 5580 (단일 버전), SoftLogix 5800 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:11:38.693708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2017-7921",
+    "title": "하이크비전 카메라 인증 취약점",
+    "description": "하이크비전 DS-2CD2xx2F-I 시리즈 등 여러 모델에서 부적절한 인증 문제점이 발견되었습니다. 이 취약점은 공격자가 시스템 권한을 상승시키고 민감한 정보에 접근할 수 있도록 할 수 있습니다. 해당 모델의 V5.0.9부터 V5.4.5 빌드까지 영향을 받습니다.",
+    "cvss": 10.0,
+    "epss": 0.94097,
+    "is_kev": true,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Hikvision Cameras",
+        "versions": "Hikvision Cameras (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:09:36.624626+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/JrDw0/CVE-2017-7921-EXP",
+      "https://github.com/BurnyMcDull/CVE-2017-7921",
+      "https://github.com/MisakaMikato/cve-2017-7921-golang"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-55289",
+    "title": "Chamilo: 기술 논쟁 인자 내 저장형 XSS",
+    "description": "Chamilo LMS(1.11.32 버전)에서 인증된 사용자가 접근하는 소셜 네트워크 및 내부 메시징 기능에 악성 JavaScript를 삽입할 수 있는 저장형 XSS 취약점이 발견되었습니다. 이를 통해 세션 하이재킹, 권한 없는 작업 수행, 민감한 데이터 유출 등이 가능합니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:25:16.870016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2025-59543",
     "title": "Chamilo: 강의 설명 저장 XSS를 통한 계정 탈취",
     "description": "Chamilo 학습 관리 시스템 1.11.34 이전 버전에서 저장 XSS 취약점이 발견되었습니다. 공격자는 강의 설명 필드에 악성 JavaScript를 삽입하여 다른 사용자의 브라우저에서 임의의 코드를 실행할 수 있습니다. 이를 통해 관리자를 포함한 다른 사용자의 세션 쿠키나 토큰을 탈취하여 계정을 탈취할 수 있습니다. 해당 문제는 1.11.34 버전에서 해결되었습니다.",
@@ -18,6 +1394,32 @@
     ],
     "report_url": null,
     "date": "2026-03-06T05:26:01.323028+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-59542",
+    "title": "Chamilo: 학습 경로 저장 XSS를 통한 계정 탈취",
+    "description": "Chamilo LMS 1.11.34 이전 버전에서 저장 XSS 취약점이 발견되었습니다. 공격자는 학습 경로 설정 필드에 악성 JavaScript를 삽입하여 다른 사용자의 브라우저에서 임의의 코드를 실행할 수 있습니다. 이를 통해 관리자를 포함한 다른 사용자의 세션 쿠키나 토큰을 탈취하여 계정을 탈취할 수 있습니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:25:16.985778+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -210,58 +1612,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-59542",
-    "title": "Chamilo: 학습 경로 저장 XSS를 통한 계정 탈취",
-    "description": "Chamilo LMS 1.11.34 이전 버전에서 저장 XSS 취약점이 발견되었습니다. 공격자는 학습 경로 설정 필드에 악성 JavaScript를 삽입하여 다른 사용자의 브라우저에서 임의의 코드를 실행할 수 있습니다. 이를 통해 관리자를 포함한 다른 사용자의 세션 쿠키나 토큰을 탈취하여 계정을 탈취할 수 있습니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:25:16.985778+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-55289",
-    "title": "Chamilo: 기술 논쟁 인자 내 저장형 XSS",
-    "description": "Chamilo LMS(1.11.32 버전)에서 인증된 사용자가 접근하는 소셜 네트워크 및 내부 메시징 기능에 악성 JavaScript를 삽입할 수 있는 저장형 XSS 취약점이 발견되었습니다. 이를 통해 세션 하이재킹, 권한 없는 작업 수행, 민감한 데이터 유출 등이 가능합니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:25:16.870016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-59541",
     "title": "Chamilo: 프로젝트 삭제 시 CSRF 취약점",
     "description": "Chamilo LMS 1.11.34 이전 버전에서, 공격자가 피해자의 동의 없이 강좌 내 프로젝트를 삭제할 수 있는 CSRF 취약점이 발견되었습니다. 프로젝트 삭제와 같은 민감한 작업에 CSRF 방어 메커니즘(토큰)이 적용되지 않고 GET 요청 방식으로 처리되어 발생합니다. 인증된 사용자가 악성 페이지를 방문하도록 유도하여 원치 않는 작업을 수행하게 할 수 있으며, 1.11.34 버전에서 해당 문제가 해결되었습니다.",
@@ -280,32 +1630,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T05:24:15.932612+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48630",
-    "title": "SkiaRenderEngine.cpp의 GPU 캐시 접근 가능성",
-    "description": "SkiaRenderEngine.cpp의 drawLayersInternal 함수에서 부가 채널 정보 유출을 통해 GPU 캐시에 접근할 수 있는 취약점이 발견되었습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
-    "cvss": 7.4,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "Information disclosure"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:22:13.86475+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -506,32 +1830,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-48609",
-    "title": "MmsProvider.java의 임의 파일 삭제 취약점",
-    "description": "MmsProvider.java의 여러 함수에서 경로 탐색 오류로 인해 전화, SMS, MMS 기능에 영향을 주는 파일을 임의로 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 서비스 거부(DoS)를 유발할 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
-    "cvss": 9.1,
-    "epss": 0.00039,
-    "is_kev": false,
-    "cwe": [
-      "Denial of service"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:19:10.986694+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-48642",
     "title": "payload.rs의 정보 유출 가능성",
     "description": "payload.rs 파일의 jump_to_payload 함수 내 로직 오류로 인해 정보 유출이 발생할 수 있습니다. 추가적인 권한 없이 로컬 정보 유출이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
@@ -617,730 +1915,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48634",
-    "title": "WindowManagerService.java의 tapjack 공격 가능성",
-    "description": "WindowManagerService.java의 relayoutWindow 함수에서 권한 검사 누락으로 tapjack 공격이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 공격이 이루어질 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 9e-05,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/78",
-    "date": "2026-03-04T06:02:38.056722+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48631",
-    "title": "LocalImageResolver.java의 서비스 거부 취약점",
-    "description": "LocalImageResolver.java의 onHeaderDecoded 함수에서 자원 고갈로 인한 지속적인 서비스 거부(DoS) 공격 가능성이 있습니다. 추가적인 권한 없이 원격 DoS 공격으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
-    "cvss": 0,
-    "epss": 0.00182,
-    "is_kev": false,
-    "cwe": [
-      "Denial of service"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:19:06.142628+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-48619",
-    "title": "ContentProvider.java 파일 잘림 취약점",
-    "description": "ContentProvider.java의 여러 함수에서 읽기 전용 권한을 가진 앱이 코드 로직 오류로 인해 파일을 자를 수 있는 가능성이 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 8.4,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:17:08.854832+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-40931",
-    "title": "Perl의 Apache::Session::Generate::MD5 버전 1.94 이하의 안전하지 않은 세션 ID 생성",
-    "description": "Perl의 Apache::Session::Generate::MD5 모듈 1.94 버전 이하에서 안전하지 않은 세션 ID가 생성될 수 있습니다. 이 모듈은 예측 가능한 rand() 함수, epoch 시간, PID를 사용하여 MD5 해시를 생성하며, 이는 공격자가 시스템에 접근할 수 있는 취약점으로 이어질 수 있습니다. PID 값의 범위가 작고 epoch 시간도 추측 가능하기 때문입니다.",
-    "cvss": 9.1,
-    "epss": 0.00017,
-    "is_kev": false,
-    "cwe": [
-      "CWE-340",
-      "CWE-338"
-    ],
-    "affected": [
-      {
-        "vendor": "CHORNY",
-        "product": "Apache::Session::Generate::MD5",
-        "versions": "1.94 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:16:07.969078+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-48613",
-    "title": "VBMeta 재서명 취약점",
-    "description": "VBMeta는 동일한 테스트 키로 서명된 원본 이미지를 사용하여 테스트 키로 VBMeta를 수정하고 재서명할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 5e-05,
-    "is_kev": false,
-    "cwe": [
-      "Unknown"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "Android SoC (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:12:48.160196+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48605",
-    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
-    "description": "KeyguardViewMediator.java 파일 내 여러 함수에서 코드 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용될 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 9e-05,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T17:29:24.648586+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48602",
-    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
-    "description": "KeyguardViewMediator.java의 exitKeyguardAndFinishSurfaceBehindRemoteAnimation 함수 내 로직 오류로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용 없이 악용될 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 9e-05,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T17:29:24.64758+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48585",
-    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
-    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Denial of service"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:18:29.235655+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-48587",
-    "title": "ProfilingService.java 잠재적 서비스 거부 취약점",
-    "description": "ProfilingService.java 파일의 여러 함수에서 부적절한 입력 값 검증으로 인해 지속적인 서비스 거부(DoS) 공격이 발생할 수 있습니다. 추가적인 실행 권한 없이 로컬 DoS 공격이 가능하며, 사용자 상호 작용이 필요하지 않습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Denial of service"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:18:29.288372+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-48582",
-    "title": "외부 저장소 관리 권한 없이 미디어 삭제 가능성",
-    "description": "특정 상황에서 intent 리디렉션을 통해 MANAGE_EXTERNAL_STORAGE 권한 없이 미디어를 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다. 여러 위치에서 해당 문제가 발생합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T00:06:55.856188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48579",
-    "title": "MediaProvider.java 외부 저장소 쓰기 권한 우회 가능성",
-    "description": "MediaProvider.java의 여러 함수에서 혼동된 대리자 문제로 인해 외부 저장소 쓰기 권한이 우회될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T00:05:55.027465+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28785",
-    "title": "Ghostfolio: 수동 자산 가져오기 시 시간 기반 블라인드 SQL Injection",
-    "description": "Ghostfolio는 오픈 소스 자산 관리 소프트웨어입니다. 2.244.0 버전 이전에는 심볼 유효성 검사를 우회하여 getHistorical() 메서드를 통해 임의의 SQL 명령을 실행할 수 있습니다. 이를 통해 공격자는 데이터베이스 내 모든 사용자의 민감한 금융 데이터를 읽고, 수정하거나 삭제할 수 있습니다. 해당 문제는 2.244.0 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "ghostfolio",
-        "product": "ghostfolio",
-        "versions": "< 2.244.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:11:13.905179+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28681",
-    "title": "IRRd: 웹 UI 호스트 헤더 삽입을 통한 공격자 제어 이메일 링크의 비밀번호 재설정 변조 취약점",
-    "description": "IRRd 버전 4.4.0~4.4.5 미만 및 4.5.0~4.5.1 미만에서 HTTP Host 헤더 조작을 통해 비밀번호 재설정 또는 계정 생성 요청을 변조할 수 있습니다. 이로 인해 생성된 이메일의 확인 링크가 공격자의 도메인으로 연결되어, 링크를 열면 공격자에게 토큰이 전달되어 계정을 탈취할 수 있습니다. 2단계 인증을 사용한 계정은 비밀번호 재설정 후에도 로그인할 수 없습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-601",
-      "CWE-640"
-    ],
-    "affected": [
-      {
-        "vendor": "irrdnet",
-        "product": "irrd",
-        "versions": ">= 4.4.0, < 4.4.5 (단일 버전), >= 4.5.0, < 4.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:11:13.792638+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28680",
-    "title": "Ghostfolio: 수동 자산 가져오기 기능의 SSRF 취약점",
-    "description": "Ghostfolio는 오픈 소스 자산 관리 소프트웨어입니다. 2.245.0 버전 이전에는 수동 자산 가져오기 기능을 통해 SSRF 공격이 가능하며, 민감한 클라우드 메타데이터 유출 또는 내부 네트워크 서비스 탐색이 가능합니다. 해당 문제는 2.245.0 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "ghostfolio",
-        "product": "ghostfolio",
-        "versions": "< 2.245.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:10:12.914437+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28679",
-    "title": "HomeGallery: 경로 탐색 (임의 파일 읽기)",
-    "description": "Home-Gallery.org는 개인 사진 및 비디오를 탐색할 수 있는 자체 호스팅 오픈 소스 웹 갤러리입니다. 1.21.0 버전 이전에는 다운로드 요청 시 요청된 파일이 미디어 소스 디렉터리 내에 있는지 확인하지 않아 민감한 시스템 파일을 다운로드할 수 있었습니다. 이 문제는 1.21.0 버전에서 수정되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "xemle",
-        "product": "home-gallery",
-        "versions": "< 1.21.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:05:09.900413+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28676",
-    "title": "OpenSift: 저장소 헬퍼의 불충분한 경로 포함 확인으로 인한 경로 탐색 취약점",
-    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 사용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 여러 저장소 헬퍼가 기본 디렉터리 포함을 일관되게 적용하지 않는 경로 구성 패턴을 사용했습니다. 악의적인 경로 값이 주입될 경우 파일 읽기/쓰기/삭제 과정에서 경로 주입 위험이 발생했으며, 1.6.3-alpha 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSift",
-        "product": "OpenSift",
-        "versions": "< 1.6.3-alpha (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:05:07.779678+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28677",
-    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
-    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSift",
-        "product": "OpenSift",
-        "versions": "< 1.6.3-alpha (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:04:06.77766+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28508",
-    "title": "Idno: 인증되지 않은 SSRF 취약점 - URL 언폴드 엔드포인트",
-    "description": "Idno 소셜 게시 플랫폼 1.6.4 버전 이전에서 URL 언폴드 서비스 엔드포인트의 CSRF 보호를 우회하여 인증되지 않은 공격자가 임의의 HTTP 요청을 서버에 보내도록 할 수 있습니다. 이를 통해 내부 네트워크 및 클라우드 메타데이터 서비스에 접근하여 응답 내용을 탈취할 수 있습니다. 1.6.4 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "idno",
-        "product": "idno",
-        "versions": "< 1.6.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:59:01.894537+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28507",
-    "title": "Idno: 연결된 파일 쓰기 및 템플릿 경로 탐색을 통한 원격 코드 실행",
-    "description": "Idno는 소셜 게시 플랫폼입니다. 1.6.4 버전 이전에서 연결된 파일 쓰기 및 템플릿 경로 탐색 취약점을 통해 원격 코드 실행이 가능합니다. 해당 문제는 1.6.4 버전에서 패치되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "idno",
-        "product": "idno",
-        "versions": "< 1.6.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:59:01.767742+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28675",
-    "title": "OpenSift: 원시 예외 메시지와 토큰 반환 엔드포인트를 통한 민감한 구현 세부 정보 노출",
-    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 사용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 일부 엔드포인트에서 클라이언트에 원시 예외 문자열을 반환하고, UI 응답 및 토큰 순환 출력에 로그인 토큰 정보가 노출되었습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200",
-      "CWE-209"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSift",
-        "product": "OpenSift",
-        "versions": "< 1.6.3-alpha (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:58:59.264937+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28509",
-    "title": "LangBot의 크로스 사이트 스크립팅(XSS) 취약점",
-    "description": "LangBot은 LLM을 위한 글로벌 IM 봇 플랫폼입니다. 4.8.7 버전 이전에는 사용자 제공의 원시 HTML을 rehypeRaw를 사용하여 렌더링하여 XSS 취약점이 발생할 수 있습니다. 해당 문제는 4.8.7 버전에서 수정되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "langbot-app",
-        "product": "LangBot",
-        "versions": "< 4.8.7 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:58:53.731125+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27603",
-    "title": "Chartbrew: 인증되지 않은 차트 필터 엔드포인트 - POST /project/:project_id/chart/:chart_id/filter",
-    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.4 버전 이전에는 `/project/:project_id/chart/:chart_id/filter` 엔드포인트에 인증 및 권한 검사 미들웨어가 없어, 인증되지 않은 사용자가 모든 팀/프로젝트의 차트 데이터에 접근할 수 있었습니다. 해당 문제는 4.8.4 버전에서 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:58:49.299549+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27605",
-    "title": "Chartbrew: 파일 업로드 API를 통한 저장형 크로스 사이트 스크립팅 (XSS) 취약점",
-    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.4 버전 이전에는 파일 유형 또는 내용을 검증 없이 프로젝트 로고 파일을 업로드할 수 있어 악성 JavaScript가 포함된 HTML 파일을 업로드할 수 있습니다. 이를 통해 로컬 스토리지에 저장된 인증 토큰 탈취 및 계정 탈취가 가능합니다. 해당 문제는 4.8.4 버전에서 해결되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434",
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:54:42.410542+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27005",
-    "title": "Chartbrew: 날짜 유형 변수 처리의 SQL 삽입 취약점 (applyMysqlOrPostgresVariables)",
-    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈 소스 웹 애플리케이션입니다. 4.8.3 버전 이전에는 인증되지 않은 공격자가 Chartbrew에 연결된 데이터베이스(MySQL, PostgreSQL)에 임의의 SQL 코드를 삽입할 수 있습니다. 이를 통해 데이터베이스 사용자의 권한에 따라 데이터를 읽고, 수정하거나 삭제할 수 있으며, 4.8.3 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:54:28.620016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25887",
-    "title": "Chartbrew: MongoDB 데이터셋 쿼리를 통한 원격 코드 실행 (RCE) 취약점",
-    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 MongoDB 데이터셋 쿼리를 통해 원격 코드 실행 취약점이 존재했습니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:54:28.615559+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25888",
-    "title": "Chartbrew: 취약한 API를 통한 원격 코드 실행 (RCE)",
-    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈 소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 취약한 API를 통해 원격 코드 실행 취약점이 존재합니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/86",
-    "date": "2026-03-06T04:54:25.71438+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25877",
-    "title": "Chartbrew: 차트 작업 시 직접 객체 참조 (IDOR) 취약점",
-    "description": "Chartbrew는 데이터베이스 및 API에 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 차트 관련 작업 시 `project_id` 파라미터만을 기반으로 권한 검사를 수행하여 `chart_id` 자체에 대한 검사는 이루어지지 않았습니다. 인증된 사용자가 다른 사용자의 차트를 조작하거나 접근할 수 있는 취약점이며, 4.8.1 버전에서 패치되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:53:42.120024+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2010-10015",
@@ -4487,98 +5061,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2021-30952",
-    "title": "정수 오버플로우 취약점 해결",
-    "description": "입력 값 검증 강화로 정수 오버플로우 문제가 해결되었습니다. tvOS 15.2, macOS Monterey 12.1, Safari 15.2, iOS 15.2, iPadOS 15.2, watchOS 8.3에서 수정되었으며, 악성 웹 콘텐츠 처리 시 임의 코드 실행으로 이어질 수 있는 문제를 방지합니다.",
-    "cvss": 7.8,
-    "epss": 0.00329,
-    "is_kev": true,
-    "cwe": [
-      "Processing maliciously crafted web content may lead to arbitrary code execution"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "watchOS",
-        "versions": "unspecified 부터 8.3 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 15.2 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "macOS",
-        "versions": "unspecified 부터 12.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:12:39.622757+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-22681",
-    "title": "Rockwell Automation Studio 5000 및 RSLogix 5000 인증 우회 취약점",
-    "description": "Rockwell Automation Studio 5000 Logix Designer 21 버전 이후 및 RSLogix 5000 16-20 버전에서 Logix 컨트롤러와의 통신 검증 메커니즘 우회 취약점이 발견되었습니다. 인증되지 않은 공격자가 CompactLogix, ControlLogix, DriveLogix, GuardLogix, SoftLogix 컨트롤러에 무단으로 접근할 수 있습니다. 해당 버전을 사용하는 경우 주의가 필요합니다.",
-    "cvss": 9.8,
-    "epss": 0.00182,
-    "is_kev": true,
-    "cwe": [
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Rockwell Automation Studio 5000 Logix Designer, RSLogix 5000, Logix Controllers",
-        "versions": "RSLogix 5000 Versions 16 through 20 (단일 버전), Studio 5000 Logix Designer: Versions 21 and later (단일 버전), CompactLogix 1768, 1769, 5370, 5380, 5480 (단일 버전), ControlLogix 5550, 5560, 5570, 5580 (단일 버전), DriveLogix 5560, 5730, 1794-L34 (단일 버전), Compact GuardLogix 5370, 5380 (단일 버전), GuardLogix 5570, 5580 (단일 버전), SoftLogix 5800 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:11:38.693708+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2017-7921",
-    "title": "하이크비전 카메라 인증 취약점",
-    "description": "하이크비전 DS-2CD2xx2F-I 시리즈 등 여러 모델에서 부적절한 인증 문제점이 발견되었습니다. 이 취약점은 공격자가 시스템 권한을 상승시키고 민감한 정보에 접근할 수 있도록 할 수 있습니다. 해당 모델의 V5.0.9부터 V5.4.5 빌드까지 영향을 받습니다.",
-    "cvss": 10.0,
-    "epss": 0.94097,
-    "is_kev": true,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Hikvision Cameras",
-        "versions": "Hikvision Cameras (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:09:36.624626+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/JrDw0/CVE-2017-7921-EXP",
-      "https://github.com/BurnyMcDull/CVE-2017-7921",
-      "https://github.com/MisakaMikato/cve-2017-7921-golang"
-    ],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28790",
     "title": "OliveTin: 게스트 로그인 필수 시에도 KillAction을 통한 인증되지 않은 작업 종료",
     "description": "OliveTin은 웹 인터페이스를 통해 미리 정의된 셸 명령에 접근 권한을 제공합니다. 3000.11.0 버전 이전에는 `authRequireGuestsToLogin: true` 설정이 활성화되어 있어도 인증되지 않은 게스트가 KillAction을 통해 실행 중인 작업을 종료할 수 있었습니다. 게스트는 대시보드 접근은 차단되지만, KillAction RPC를 직접 호출하여 실행 중인 작업을 중단시킬 수 있는 권한 제어 오류입니다. 해당 문제는 3000.11.0 버전에서 수정되었습니다.",
@@ -5611,32 +6093,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2023-41974",
-    "title": "use-after-free 취약점 해결",
-    "description": "메모리 관리 개선을 통해 use-after-free 문제가 해결되었습니다. 이 문제는 iOS 17 및 iPadOS 17에 포함되어 있으며, 앱이 커널 권한으로 임의 코드를 실행할 수 있는 가능성을 차단합니다.",
-    "cvss": 7.8,
-    "epss": 0.00307,
-    "is_kev": true,
-    "cwe": [
-      "An app may be able to execute arbitrary code with kernel privileges"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 17 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:14:41.674345+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2023-43000",
@@ -18000,32 +18456,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28697",
-    "title": "Craft CMS의 Twig 템플릿 내 \"craft.app.fs.write()\"를 통한 인증된 RCE 취약점",
-    "description": "Craft CMS 4.17.0-beta.1 및 5.9.0-beta.1 이전 버전에서 인증된 관리자가 Twig 템플릿 필드(예: 이메일 템플릿)에 SSTI 페이로드를 삽입하여 원격 코드 실행(RCE)을 달성할 수 있습니다. 공격자는 `craft.app.fs.write()` 메서드를 호출하여 악성 PHP 스크립트를 웹 접근 가능한 디렉터리에 작성하고 브라우저를 통해 실행하여 임의의 시스템 명령을 실행할 수 있습니다. 해당 취약점은 4.17.0-beta.1 및 5.9.0-beta.1에서 해결되었습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1336"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:20:36.436273+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2019-25503",
     "title": "PHPads 2.0 SQL 삽입 취약점 - click.php3 bannerID",
     "description": "PHPads 2.0은 click.php3의 bannerID 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL 삽입 취약점을 포함하고 있습니다. 공격자는 SQL 주석 구문 및 extractvalue 함수 등을 사용하여 데이터베이스 이름과 같은 민감한 정보를 탈취할 수 있습니다. 인증되지 않은 공격자도 공격이 가능합니다.",
@@ -18234,32 +18664,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28784",
-    "title": "Craft CMS의 Twig SSTI를 통한 잠재적 원격 코드 실행 취약점",
-    "description": "Craft CMS 5.8.22 및 4.16.18 이전 버전에서 Twig 맵 필터를 사용하는 악성 페이로드를 통해 원격 코드 실행(RCE)이 가능할 수 있습니다. 관리자 권한 및 `allowAdminChanges` 설정 활성화, 또는 시스템 메시지 유틸리티 접근 권한이 필요합니다. 최신 버전(5.8.22 및 4.16.18)으로 업데이트하여 문제를 해결하십시오.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1336"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:08:24.132393+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29069",
     "title": "Craft CMS의 인증되지 않은 활성화 이메일 트리거 및 잠재적 사용자 열거 취약점",
     "description": "Craft CMS 5.9.0-beta.2 및 4.17.0-beta.2 이전 버전에서, 인증되지 않은 사용자가 활성화 이메일을 트리거하고 보류 중인 사용자의 계정을 열거할 수 있는 취약점이 발견되었습니다. 공격자는 사용자 ID를 알아내거나 추측하여 활성화 이메일을 전송하고, 대상 사용자의 이메일 주소를 제어할 경우 계정을 탈취할 수 있습니다. 해당 취약점은 5.9.0-beta.2 및 4.17.0-beta.2에서 해결되었습니다.",
@@ -18310,34 +18714,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28783",
-    "title": "Craft CMS의 Twig 함수 블랙리스트 우회 취약점",
-    "description": "Craft CMS 5.9.0-beta.1 및 4.17.0-beta.1 이전 버전에서 Twig 비-Closure 화살표 함수를 통해 위험한 PHP 함수가 호출되는 것을 막는 블랙리스트에 일부 함수가 누락되어 있습니다. 권한이 있는 공격자는 이를 이용하여 RCE, 임의 파일 읽기, SSRF, SSTI 등 다양한 페이로드를 실행할 수 있습니다. 해당 취약점은 5.9.0-beta.1 및 4.17.0-beta.1에서 해결되었습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94",
-      "CWE-184",
-      "CWE-1336"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.0.0-RC1, <= 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, <= 4.17.0-beta.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:07:25.42201+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28781",
