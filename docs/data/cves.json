@@ -1,62 +1,5 @@
 [
   {
-    "id": "CVE-2026-30821",
-    "title": "Flowise: MIME 스푸핑을 통한 임의 파일 업로드",
-    "description": "Flowise 3.0.13 이전 버전에서 인증 없이 파일 업로드 API에 접근 가능했습니다. 서버는 허용된 MIME 타입 검사를 수행하지만, 클라이언트에서 제공하는 Content-Type 헤더를 신뢰하여 파일 내용 검증이 부재했습니다. 이를 악용하여 악성 스크립트 또는 임의 파일을 업로드하고, 저장된 파일을 통해 XSS, 악성 파일 호스팅, 또는 원격 코드 실행(RCE) 공격이 가능합니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "< 3.0.13 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:19:27.759159+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21621",
-    "title": "OAuth client_credentials 흐름의 부적절한 범위 적용으로 읽기 전용 API 키가 전체 접근 권한으로 상승 가능",
-    "description": "hexpm의 권한 부여 취약점으로 인해 읽기 전용 API 키가 특정 조건에서 전체 쓰기 권한으로 상승할 수 있습니다. OAuth client_credentials grant를 통해 읽기 전용 API 키를 교환할 때 리소스 제한자가 무시되어, JWT 토큰이 예상된 \"api:read\" 범위 대신 광범위한 \"api\" 범위를 받게 됩니다. 공격자는 이를 이용하여 만료되지 않는 전체 접근 권한 API 키를 생성하고 패키지 게시, 폐기, 수정 등의 쓰기 작업을 수행할 수 있습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "hexpm",
-        "product": "hexpm",
-        "versions": "71829cb6f6559bcceb1ef4e43a2fb8cdd3af654b 부터 71c127afebb7ed7cc637eb231b98feb802d62999 이전, pkg:github/hexpm/hexpm@71829cb6f6559bcceb1ef4e43a2fb8cdd3af654b 부터 pkg:github/hexpm/hexpm@71c127afebb7ed7cc637eb231b98feb802d62999 이전"
-      },
-      {
-        "vendor": "hexpm",
-        "product": "hex.pm",
-        "versions": "2025-08-18 부터 2026-03-05 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:22:04.503229+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30822",
     "title": "Flowise: `/api/v1/leads` 엔드포인트의 대량 할당 취약점",
     "description": "Flowise는 LLM 흐름을 구축하기 위한 드래그 앤 드롭 UI입니다. 3.0.13 버전 이전에는 인증되지 않은 사용자가 리드 생성 시 내부 데이터베이스 필드에 임의의 값을 삽입할 수 있었습니다. 해당 문제는 3.0.13 버전에서 수정되었습니다.",
@@ -107,6 +50,58 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30821",
+    "title": "Flowise: MIME 스푸핑을 통한 임의 파일 업로드",
+    "description": "Flowise 3.0.13 이전 버전에서 인증 없이 파일 업로드 API에 접근 가능했습니다. 서버는 허용된 MIME 타입 검사를 수행하지만, 클라이언트에서 제공하는 Content-Type 헤더를 신뢰하여 파일 내용 검증이 부재했습니다. 이를 악용하여 악성 스크립트 또는 임의 파일을 업로드하고, 저장된 파일을 통해 XSS, 악성 파일 호스팅, 또는 원격 코드 실행(RCE) 공격이 가능합니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "< 3.0.13 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:19:27.759159+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29000",
+    "title": "pac4j-jwt JwtAuthenticator 인증 우회 취약점",
+    "description": "pac4j-jwt 4.5.9, 5.7.9, 6.3.3 이전 버전에서 암호화된 JWT 처리 시 인증 우회 취약점이 존재합니다. 공격자는 서버의 RSA 공개 키를 이용하여 임의의 주체 및 역할 클레임을 가진 JWE로 감싸인 PlainJWT를 생성하여 서명 검증을 우회하고 모든 사용자로 인증할 수 있습니다. 관리자 권한 획득도 가능합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "pac4j",
+        "product": "pac4j-jwt",
+        "versions": "4.0 부터 4.5.9 이전, 5.0 부터 5.7.9 이전, 6.0 부터 6.3.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T22:02:51.390294+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28727",
@@ -166,32 +161,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29000",
-    "title": "pac4j-jwt JwtAuthenticator 인증 우회 취약점",
-    "description": "pac4j-jwt 4.5.9, 5.7.9, 6.3.3 이전 버전에서 암호화된 JWT 처리 시 인증 우회 취약점이 존재합니다. 공격자는 서버의 RSA 공개 키를 이용하여 임의의 주체 및 역할 클레임을 가진 JWE로 감싸인 PlainJWT를 생성하여 서명 검증을 우회하고 모든 사용자로 인증할 수 있습니다. 관리자 권한 획득도 가능합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "pac4j",
-        "product": "pac4j-jwt",
-        "versions": "4.0 부터 4.5.9 이전, 5.0 부터 5.7.9 이전, 6.0 부터 6.3.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T22:02:51.390294+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28721",
     "title": "부적절한 심볼릭 링크 처리로 인한 로컬 권한 상승",
     "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 심볼릭 링크 처리의 미흡함으로 인해 로컬 권한 상승 취약점이 발생할 수 있습니다. 해당 제품을 사용하는 경우 최신 빌드로 업데이트하는 것이 좋습니다.",
@@ -218,24 +187,29 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28287",
-    "title": "FreePBX: 녹음 모듈 AJAX 엔드포인트를 통한 인증된 원격 코드 실행",
-    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.17.2 버전부터 16.0.20 이전 버전, 그리고 17.0.2.4 버전부터 17.0.5 이전 버전에서 녹음 모듈에 여러 개의 명령 주입 취약점이 존재합니다. 해당 문제는 16.0.20 및 17.0.5 버전에서 패치되었습니다.",
-    "cvss": 8.6,
-    "epss": 0.00296,
+    "id": "CVE-2026-28713",
+    "title": "가상 어플라이언스 로컬 권한 사용자 기본 자격 증명 설정",
+    "description": "가상 어플라이언스 내 로컬 권한 사용자 계정에 기본 자격 증명이 설정되어 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.0004,
     "is_kev": false,
     "cwe": [
-      "CWE-78"
+      "CWE-1392"
     ],
     "affected": [
       {
-        "vendor": "FreePBX",
-        "product": "security-reporting",
-        "versions": ">= 16.0.17.2, < 16.0.20 (단일 버전), >= 17.0.2.4, < 17.0.5 (단일 버전)"
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 36943 이전"
+      },
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T06:08:04.678678+00:00",
+    "date": "2026-03-06T19:58:42.922609+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -270,37 +244,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28713",
-    "title": "가상 어플라이언스 로컬 권한 사용자 기본 자격 증명 설정",
-    "description": "가상 어플라이언스 내 로컬 권한 사용자 계정에 기본 자격 증명이 설정되어 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.0004,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1392"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 36943 이전"
-      },
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:58:42.922609+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28712",
     "title": "DLL 하이재킹 취약점을 통한 로컬 권한 상승",
     "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 악용하면 로컬 권한 상승이 가능합니다. 해당 제품 사용자들은 최신 빌드로 업데이트해야 합니다.",
@@ -325,32 +268,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28284",
-    "title": "FreePBX: 인증된 SQL 삽입 취약점 - 로그 파일 모듈",
-    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.10 및 17.0.5 버전 이전의 로그 파일 모듈에 인증된 SQL 삽입 취약점이 존재합니다. 해당 문제는 16.0.10 및 17.0.5 버전에서 패치되었습니다.",
-    "cvss": 8.6,
-    "epss": 0.00028,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "FreePBX",
-        "product": "security-reporting",
-        "versions": "< 16.0.10 (단일 버전), < 17.0.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:07:05.813848+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28711",
@@ -405,6 +322,58 @@
     "severity": "High"
   },
   {
+    "id": "CVE-2026-28287",
+    "title": "FreePBX: 녹음 모듈 AJAX 엔드포인트를 통한 인증된 원격 코드 실행",
+    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.17.2 버전부터 16.0.20 이전 버전, 그리고 17.0.2.4 버전부터 17.0.5 이전 버전에서 녹음 모듈에 여러 개의 명령 주입 취약점이 존재합니다. 해당 문제는 16.0.20 및 17.0.5 버전에서 패치되었습니다.",
+    "cvss": 8.6,
+    "epss": 0.00296,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "FreePBX",
+        "product": "security-reporting",
+        "versions": ">= 16.0.17.2, < 16.0.20 (단일 버전), >= 17.0.2.4, < 17.0.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:08:04.678678+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28284",
+    "title": "FreePBX: 인증된 SQL 삽입 취약점 - 로그 파일 모듈",
+    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.10 및 17.0.5 버전 이전의 로그 파일 모듈에 인증된 SQL 삽입 취약점이 존재합니다. 해당 문제는 16.0.10 및 17.0.5 버전에서 패치되었습니다.",
+    "cvss": 8.6,
+    "epss": 0.00028,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "FreePBX",
+        "product": "security-reporting",
+        "versions": "< 16.0.10 (단일 버전), < 17.0.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:07:05.813848+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-28210",
     "title": "FreePBX: CDR(통화 데이터 기록) 보고서의 인증된 SQL Injection 취약점",
     "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.49 버전 및 17.0.7 이전 버전에서 cdr 모듈에 SQL 쿼리 삽입 취약점이 존재합니다. 해당 문제는 16.0.49 버전 및 17.0.7 버전에 패치되었습니다.",
@@ -431,32 +400,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-30827",
-    "title": "express-rate-limit: IPv4 매핑된 IPv6 주소로 인한 클라이언트별 속도 제한 우회 (듀얼 스택 서버에서 모든 IPv4 클라이언트가 하나의 버킷 공유)",
-    "description": "express-rate-limit은 Express를 위한 기본적인 속도 제한 미들웨어입니다. 8.0.0 이전 버전, 그리고 8.0.2, 8.1.1, 8.2.2, 8.3.0 미만 버전에서 기본 keyGenerator는 net.isIPv6()가 true를 반환하는 모든 주소에 IPv6 서브넷 마스킹(/56 기본값)을 적용합니다. 이는 Node.js에서 듀얼 스택 서버의 request.ip로 반환되는 IPv4 매핑된 IPv6 주소(::ffff:x.x.x.x)를 포함하며, 모든 IPv4 트래픽이 단일 속도 제한 버킷으로 묶여 하나의 클라이언트가 제한을 소진하면 다른 모든 IPv4 클라이언트에 HTTP 429 오류가 발생합니다. 이 문제는 8.0.2, 8.1.1, 8.2.2, 8.3.0 버전에 패치되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "express-rate-limit",
-        "product": "express-rate-limit",
-        "versions": ">= 8.0.0, < 8.0.2 (단일 버전), >= 8.1.0, < 8.1.1 (단일 버전), >= 8.2.0, < 8.2.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:01:58.668458+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28209",
     "title": "FreePBX: ElevenLabs TTS 통합의 원격 코드 실행으로 이어지는 명령어 삽입 취약점",
     "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.17.2~16.0.20 미만 버전 및 17.0.2.4~17.0.5 미만 버전에서 ElevenLabs TTS 엔진을 사용할 때 명령어 삽입 취약점이 존재합니다. 해당 문제는 16.0.20 및 17.0.5 버전에서 패치되었습니다.",
@@ -475,32 +418,6 @@
     ],
     "report_url": null,
     "date": "2026-03-07T06:01:58.667503+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30824",
-    "title": "Flowise: NVIDIA NIM 엔드포인트의 인증 누락",
-    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 NVIDIA NIM 라우터(/api/v1/nvidia-nim/*)가 전역 인증 미들웨어에서 화이트리스트되어 있어, 인증 없이 특권 컨테이너 관리 및 토큰 생성 엔드포인트에 접근할 수 있었습니다. 이 문제는 3.0.13 버전에서 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "< 3.0.13 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:00:57.666241+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -561,25 +478,50 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-30823",
-    "title": "Flowise: SSO 구성의 IDOR 취약점을 통한 계정 탈취 및 엔터프라이즈 기능 우회",
-    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 IDOR 취약점이 존재하여 SSO 구성 문제를 통해 계정 탈취 및 엔터프라이즈 기능 우회가 가능했습니다. 해당 문제는 3.0.13 버전에서 패치되었습니다.",
+    "id": "CVE-2025-8899",
+    "title": "유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠 <= 7.3.20 - 인증된 (Author+) 권한 상승",
+    "description": "워드프레스 플러그인 '유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠' 7.3.20 버전 이하에서 권한 상승 취약점이 발견되었습니다. 등록 시 사용자 역할 제한이 없어 Author 이상의 권한을 가진 공격자가 관리자 권한으로 등록 양식을 생성하고, 이를 통해 관리자 계정을 생성할 수 있습니다. 기여자 권한으로도 악용 가능하지만 성공 가능성이 낮습니다.",
     "cvss": 8.8,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-639",
-      "CWE-862"
+      "CWE-269"
     ],
     "affected": [
       {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "< 3.0.13 (단일 버전)"
+        "vendor": "videowhisper",
+        "product": "Paid Videochat Turnkey Site – HTML5 PPV Live Webcams",
+        "versions": "* 부터 7.3.20 이하"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T05:55:55.023544+00:00",
+    "date": "2026-03-07T07:01:07.4848+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30827",
+    "title": "express-rate-limit: IPv4 매핑된 IPv6 주소로 인한 클라이언트별 속도 제한 우회 (듀얼 스택 서버에서 모든 IPv4 클라이언트가 하나의 버킷 공유)",
+    "description": "express-rate-limit은 Express를 위한 기본적인 속도 제한 미들웨어입니다. 8.0.0 이전 버전, 그리고 8.0.2, 8.1.1, 8.2.2, 8.3.0 미만 버전에서 기본 keyGenerator는 net.isIPv6()가 true를 반환하는 모든 주소에 IPv6 서브넷 마스킹(/56 기본값)을 적용합니다. 이는 Node.js에서 듀얼 스택 서버의 request.ip로 반환되는 IPv4 매핑된 IPv6 주소(::ffff:x.x.x.x)를 포함하며, 모든 IPv4 트래픽이 단일 속도 제한 버킷으로 묶여 하나의 클라이언트가 제한을 소진하면 다른 모든 IPv4 클라이언트에 HTTP 429 오류가 발생합니다. 이 문제는 8.0.2, 8.1.1, 8.2.2, 8.3.0 버전에 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "express-rate-limit",
+        "product": "express-rate-limit",
+        "versions": ">= 8.0.0, < 8.0.2 (단일 버전), >= 8.1.0, < 8.1.1 (단일 버전), >= 8.2.0, < 8.2.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:01:58.668458+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -614,26 +556,24 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-30828",
-    "title": "Wallos: URL 파라미터를 통한 SSRF 및 파일 트래버설 취약점",
-    "description": "Wallos는 오픈 소스 개인 구독 트래커입니다. 4.6.2 버전 이전에는 URL 파라미터를 사용하여 로컬 시스템 파일을 탈취할 수 있는 취약점이 존재했습니다. 해당 문제는 4.6.2 버전에서 패치되었습니다.",
-    "cvss": 8.7,
+    "id": "CVE-2026-30824",
+    "title": "Flowise: NVIDIA NIM 엔드포인트의 인증 누락",
+    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 NVIDIA NIM 라우터(/api/v1/nvidia-nim/*)가 전역 인증 미들웨어에서 화이트리스트되어 있어, 인증 없이 특권 컨테이너 관리 및 토큰 생성 엔드포인트에 접근할 수 있었습니다. 이 문제는 3.0.13 버전에서 해결되었습니다.",
+    "cvss": 7.7,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-29",
-      "CWE-22",
-      "CWE-918"
+      "CWE-306"
     ],
     "affected": [
       {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "< 3.0.13 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T05:55:46.778027+00:00",
+    "date": "2026-03-07T06:00:57.666241+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -642,76 +582,31 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-30840",
-    "title": "Wallos: 알림 테스터의 서버 측 요청 위조 (SSRF) 취약점",
-    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에서 알림 테스터에 서버 측 요청 위조 취약점이 존재합니다. 해당 문제는 4.6.2 버전에서 해결되었습니다.",
+    "id": "CVE-2026-30823",
+    "title": "Flowise: SSO 구성의 IDOR 취약점을 통한 계정 탈취 및 엔터프라이즈 기능 우회",
+    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 IDOR 취약점이 존재하여 SSO 구성 문제를 통해 계정 탈취 및 엔터프라이즈 기능 우회가 가능했습니다. 해당 문제는 3.0.13 버전에서 패치되었습니다.",
     "cvss": 8.8,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-918",
-      "CWE-295"
+      "CWE-639",
+      "CWE-862"
     ],
     "affected": [
       {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/89",
-    "date": "2026-03-07T05:55:46.291023+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "< 3.0.13 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
+    "date": "2026-03-07T05:55:55.023544+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "Medium"
+    "severity": "High"
   },
   {
     "id": "CVE-2026-30842",
@@ -766,6 +661,68 @@
     "severity": "Medium"
   },
   {
+    "id": "CVE-2026-30840",
+    "title": "Wallos: 알림 테스터의 서버 측 요청 위조 (SSRF) 취약점",
+    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에서 알림 테스터에 서버 측 요청 위조 취약점이 존재합니다. 해당 문제는 4.6.2 버전에서 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918",
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/89",
+    "date": "2026-03-07T05:55:46.291023+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30830",
+    "title": "Defuddle: _findContentBySchemaText 이미지 태그 내 이스케이프되지 않은 문자열 보간을 통한 XSS 취약점",
+    "description": "Defuddle은 HTML 페이지를 정리하는 도구입니다. 0.9.0 버전 이전에는 src/defuddle.ts의 _findContentBySchemaText 메서드에서 이미지 src 및 alt 속성 값을 HTML 문자열에 이스케이프 없이 직접 삽입하여 XSS 공격에 취약했습니다. 공격자는 alt 속성에 \" 문자를 사용하여 속성 컨텍스트를 벗어나 이벤트 핸들러를 삽입할 수 있습니다. 해당 문제는 0.9.0 버전에서 수정되었습니다.",
+    "cvss": 2.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "kepano",
+        "product": "defuddle",
+        "versions": "< 0.9.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:54.541689+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
     "id": "CVE-2026-30839",
     "title": "Wallos: 웹훅 테스트 엔드포인트의 SSRF 취약점",
     "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적 오픈소스 프로젝트입니다. 4.6.2 버전 이전에는 testwebhooknotifications.php에서 대상 URL에 대한 비공개/예약 IP 범위 검증이 없어 SSRF 공격이 가능합니다. 서버 응답이 공격자에게 반환됩니다. 4.6.2 버전에서 해당 문제가 해결되었습니다.",
@@ -790,6 +747,232 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30828",
+    "title": "Wallos: URL 파라미터를 통한 SSRF 및 파일 트래버설 취약점",
+    "description": "Wallos는 오픈 소스 개인 구독 트래커입니다. 4.6.2 버전 이전에는 URL 파라미터를 사용하여 로컬 시스템 파일을 탈취할 수 있는 취약점이 존재했습니다. 해당 문제는 4.6.2 버전에서 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-29",
+      "CWE-22",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T05:55:46.778027+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30829",
+    "title": "체크메이트: 미인증 접근을 통한 미발행 상태 페이지 정보 유출",
+    "description": "체크메이트는 서버 하드웨어, 가동 시간, 응답 시간 및 사고를 실시간으로 추적하고 시각화하는 자체 호스팅 도구입니다. 3.4.0 버전 이전에는 GET /api/v1/status-page/:url 엔드포인트에 인증 절차가 없어 미발행 상태 페이지의 상세 정보가 미인증 사용자에게 노출되는 취약점이 존재했습니다. 해당 문제는 3.4.0 버전에서 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "bluewave-labs",
+        "product": "Checkmate",
+        "versions": "< 3.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:51.402461+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27797",
+    "title": "Homarr: rssFeed.ts의 인증되지 않은 SSRF 취약점",
+    "description": "Homarr 오픈소스 대시보드의 1.54.0 버전 이전에서 인증되지 않은 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 이를 통해 원격 공격자가 Homarr 서버를 통해 임의의 HTTP 요청을 수행할 수 있습니다. Homarr 호스트/컨테이너 네트워크 환경에서 내부 네트워크 접근이 가능해질 수 있으며, 1.54.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "homarr-labs",
+        "product": "homarr",
+        "versions": "< 1.54.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:48.668016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27796",
+    "title": "Homarr: 인증되지 않은 정보 유출 (통합 메타데이터 누출)",
+    "description": "Homarr 대시보드의 1.54.0 버전 이전에서, `integration.all` tRPC 엔드포인트가 공개 프로시저로 노출되어 인증되지 않은 사용자가 구성된 통합 목록을 획득할 수 있었습니다. 이 메타데이터에는 내부 서비스 URL, 통합 이름, 서비스 유형과 같은 민감한 정보가 포함됩니다. 해당 문제는 1.54.0 버전에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "homarr-labs",
+        "product": "homarr",
+        "versions": "< 1.54.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:45.89713+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29610",
+    "title": "OpenClaw < 2026.2.14 - 안전하지 않은 PATH 처리로 인한 명령어 하이재킹",
+    "description": "OpenClaw 2026.2.14 이전 버전은 PATH 환경 변수 조작을 통해 공격자가 의도하지 않은 바이너리를 실행할 수 있는 명령어 하이재킹 취약점을 가지고 있습니다. node-host 실행 또는 프로젝트 로컬 부트스트래핑을 통해 공격자는 PATH에 악성 실행 파일을 위치시켜 허용된 안전한 명령어를 덮어쓰고 임의의 명령어 실행을 달성할 수 있습니다. 인증된 접근 권한이 있는 공격자 또는 공격자가 제어하는 디렉터리에서 OpenClaw를 실행하는 경우에 악용 가능합니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:28:09.571952+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26017",
+    "title": "CoreDNS ACL 우회",
+    "description": "CoreDNS는 플러그인을 연결하는 DNS 서버입니다. 1.14.2 버전 이전에는 플러그인 실행 순서의 논리적 취약점으로 인해 DNS 접근 제어를 우회할 수 있습니다. acl과 같은 보안 플러그인이 rewrite 플러그인보다 먼저 평가되어 TOCTOU(Time-of-Check Time-of-Use) 결함이 발생합니다. 1.14.2 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "coredns",
+        "product": "coredns",
+        "versions": "< 1.14.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:00:55.095252+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21621",
+    "title": "OAuth client_credentials 흐름의 부적절한 범위 적용으로 읽기 전용 API 키가 전체 접근 권한으로 상승 가능",
+    "description": "hexpm의 권한 부여 취약점으로 인해 읽기 전용 API 키가 특정 조건에서 전체 쓰기 권한으로 상승할 수 있습니다. OAuth client_credentials grant를 통해 읽기 전용 API 키를 교환할 때 리소스 제한자가 무시되어, JWT 토큰이 예상된 \"api:read\" 범위 대신 광범위한 \"api\" 범위를 받게 됩니다. 공격자는 이를 이용하여 만료되지 않는 전체 접근 권한 API 키를 생성하고 패키지 게시, 폐기, 수정 등의 쓰기 작업을 수행할 수 있습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "hexpm",
+        "product": "hexpm",
+        "versions": "71829cb6f6559bcceb1ef4e43a2fb8cdd3af654b 부터 71c127afebb7ed7cc637eb231b98feb802d62999 이전, pkg:github/hexpm/hexpm@71829cb6f6559bcceb1ef4e43a2fb8cdd3af654b 부터 pkg:github/hexpm/hexpm@71c127afebb7ed7cc637eb231b98feb802d62999 이전"
+      },
+      {
+        "vendor": "hexpm",
+        "product": "hex.pm",
+        "versions": "2025-08-18 부터 2026-03-05 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:22:04.503229+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2026-29178",
@@ -8130,32 +8313,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29610",
-    "title": "OpenClaw < 2026.2.14 - 안전하지 않은 PATH 처리로 인한 명령어 하이재킹",
-    "description": "OpenClaw 2026.2.14 이전 버전은 PATH 환경 변수 조작을 통해 공격자가 의도하지 않은 바이너리를 실행할 수 있는 명령어 하이재킹 취약점을 가지고 있습니다. node-host 실행 또는 프로젝트 로컬 부트스트래핑을 통해 공격자는 PATH에 악성 실행 파일을 위치시켜 허용된 안전한 명령어를 덮어쓰고 임의의 명령어 실행을 달성할 수 있습니다. 인증된 접근 권한이 있는 공격자 또는 공격자가 제어하는 디렉터리에서 OpenClaw를 실행하는 경우에 악용 가능합니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:28:09.571952+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29606",
     "title": "OpenClaw < 2026.2.14 - ngrok 루프백 호환성을 이용한 웹훅 서명 검증 우회",
     "description": "OpenClaw 2026.2.14 이전 버전은 voice-call 확장 기능에서 `tunnel.allowNgrokFreeTierLoopbackBypass` 옵션이 활성화된 경우 웹훅 서명 검증 우회 취약점을 가지고 있습니다. 이를 통해 유효하지 않은 X-Twilio-Signature 헤더 없이 외부 공격자가 웹훅 엔드포인트에 위조된 요청을 전송하여 권한 없는 웹훅 이벤트 처리 및 요청 과부하 공격을 유발할 수 있습니다.",
@@ -9078,32 +9235,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26017",
-    "title": "CoreDNS ACL 우회",
-    "description": "CoreDNS는 플러그인을 연결하는 DNS 서버입니다. 1.14.2 버전 이전에는 플러그인 실행 순서의 논리적 취약점으로 인해 DNS 접근 제어를 우회할 수 있습니다. acl과 같은 보안 플러그인이 rewrite 플러그인보다 먼저 평가되어 TOCTOU(Time-of-Check Time-of-Use) 결함이 발생합니다. 1.14.2 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-367"
-    ],
-    "affected": [
-      {
-        "vendor": "coredns",
-        "product": "coredns",
-        "versions": "< 1.14.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:00:55.095252+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28017",
