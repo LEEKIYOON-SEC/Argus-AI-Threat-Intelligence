@@ -1,23 +1,21 @@
 [
   {
-    "id": "CVE-2026-24308",
-    "title": "Apache ZooKeeper: 클라이언트 설정 처리의 민감 정보 유출",
-    "description": "Apache ZooKeeper 3.8.5 및 3.9.4 버전에서 클라이언트 설정 값 처리 방식의 문제로 인해 공격자가 클라이언트 설정에 저장된 민감 정보를 로그 파일에 노출할 수 있습니다. INFO 레벨 로깅으로 인해 실제 운영 환경에 영향을 줄 수 있습니다. 3.8.6 또는 3.9.5 버전으로 업그레이드하여 문제를 해결하는 것이 좋습니다.",
+    "id": "CVE-2026-2219",
+    "title": "dpkg-deb의 zstd 압축 해제 시 CPU 과부하 가능성",
+    "description": "Debian 패키지 관리 시스템의 구성 요소인 dpkg-deb가 zstd 압축된 .deb 아카이브를 해제할 때 데이터 스트림 끝을 제대로 검증하지 않는 취약점이 발견되었습니다.",
     "cvss": 0,
     "epss": 0,
     "is_kev": false,
-    "cwe": [
-      "CWE-532"
-    ],
+    "cwe": [],
     "affected": [
       {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache ZooKeeper",
-        "versions": "3.9.0 부터 3.9.4 이하, 3.8.0 부터 3.8.5 이하"
+        "vendor": "Debian",
+        "product": "dpkg",
+        "versions": "1.21.18 부터 1.23.6 이전"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T09:45:57.320596+00:00",
+    "date": "2026-03-07T08:49:27.630341+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -62,22 +60,284 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-2219",
-    "title": "dpkg-deb의 zstd 압축 해제 시 CPU 과부하 가능성",
-    "description": "Debian 패키지 관리 시스템의 구성 요소인 dpkg-deb가 zstd 압축된 .deb 아카이브를 해제할 때 데이터 스트림 끝을 제대로 검증하지 않는 취약점이 발견되었습니다.",
-    "cvss": 0,
+    "id": "CVE-2026-20748",
+    "title": "Everon api.everon.io 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 압도하여 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
     "epss": 0,
     "is_kev": false,
-    "cwe": [],
+    "cwe": [
+      "CWE-613"
+    ],
     "affected": [
       {
-        "vendor": "Debian",
-        "product": "dpkg",
-        "versions": "1.21.18 부터 1.23.6 이전"
+        "vendor": "Everon",
+        "product": "api.everon.io",
+        "versions": "All versions (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T08:49:27.630341+00:00",
+    "date": "2026-03-06T16:10:04.123367+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28721",
+    "title": "부적절한 심볼릭 링크 처리로 인한 로컬 권한 상승",
+    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 심볼릭 링크 처리의 미흡함으로 인해 로컬 권한 상승 취약점이 발생할 수 있습니다. 해당 제품을 사용하는 경우 최신 빌드로 업데이트하는 것이 좋습니다.",
+    "cvss": 7.3,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [
+      "CWE-610"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:13:09.689893+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-11792",
+    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
+    "description": "Acronis Cyber Protect Cloud Agent (Windows) 41124 빌드 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 통해 로컬 권한 상승이 가능합니다. 영향을 받는 제품은 Acronis Cyber Protect Cloud Agent (Windows)입니다.",
+    "cvss": 7.3,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 41124 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:50:55.414905+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28722",
+    "title": "부적절한 심볼릭 링크 처리로 인한 로컬 권한 상승",
+    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 심볼릭 링크 처리의 미흡함으로 인해 로컬 권한 상승 취약점이 발생할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00014,
+    "is_kev": false,
+    "cwe": [
+      "CWE-610"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:14:10.690975+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-64999",
+    "title": "합성 모니터링 테스트 서비스 HTML 로그의 교차 사이트 스크립팅",
+    "description": "Checkmk 2.4.0 (2.4.0p22 이전) 및 2.3.0 (2.3.0p43 이전) 버전에서 입력값 검증 미흡으로 인해 호스트 검사 결과를 조작하는 공격자가 합성 모니터링 HTML 로그에 악성 JavaScript를 삽입할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.0003,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p22 이전, 2.3.0 부터 2.3.0p43 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:17:47.414475+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25711",
+    "title": "Chargemap chargemap.com 세션 만료 부족",
+    "description": "WebSocket 백엔드가 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00046,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "Chargemap",
+        "product": "chargemap.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:05:00.939859+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25778",
+    "title": "SWITCH EV swtchenergy.com 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0.00046,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:00:32.590217+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28458",
+    "title": "OpenClaw 2026.1.20 < 2026.2.1 - 브라우저 릴레이 /cdp WebSocket 엔드포인트 인증 누락",
+    "description": "OpenClaw 2026.1.20 버전(2026.2.1 이전)은 브라우저 릴레이(확장 프로그램 설치 및 활성화 필요) /cdp WebSocket 엔드포인트에서 인증 토큰이 필요 없어, 웹사이트가 루프백을 통해 연결하여 민감한 데이터에 접근할 수 있는 취약점을 가지고 있습니다. 공격자는 ws://127.0.0.1:18792/cdp에 연결하여 세션 쿠키를 탈취하고 다른 브라우저 탭에서 JavaScript를 실행할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.1.20 부터 2026.2.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:52:20.736538+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48630",
+    "title": "SkiaRenderEngine.cpp의 GPU 캐시 접근 가능성",
+    "description": "SkiaRenderEngine.cpp의 drawLayersInternal 함수에서 부가 채널 정보 유출을 통해 GPU 캐시에 접근할 수 있는 취약점이 발견되었습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
+    "cvss": 7.4,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "Information disclosure"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:22:13.86475+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29783",
+    "title": "GitHub Copilot CLI의 위험한 셸 확장 패턴으로 임의 명령 실행 가능",
+    "description": "GitHub Copilot CLI 0.0.422 버전 이하에서 조작된 bash 파라미터 확장 패턴을 통해 임의 코드 실행이 가능합니다. 공격자는 프롬프트 주입 등을 통해 셸 도구에 전달되는 명령어를 제어하여 안전 검사를 우회하고 숨겨진 명령을 실행할 수 있습니다. 0.0.423 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "github",
+        "product": "copilot-cli",
+        "versions": "<= 0.0.422 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:02:27.93871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24308",
+    "title": "Apache ZooKeeper: 클라이언트 설정 처리의 민감 정보 유출",
+    "description": "Apache ZooKeeper 3.8.5 및 3.9.4 버전에서 클라이언트 설정 값 처리 방식의 문제로 인해 공격자가 클라이언트 설정에 저장된 민감 정보를 로그 파일에 노출할 수 있습니다. INFO 레벨 로깅으로 인해 실제 운영 환경에 영향을 줄 수 있습니다. 3.8.6 또는 3.9.5 버전으로 업그레이드하여 문제를 해결하는 것이 좋습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-532"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache ZooKeeper",
+        "versions": "3.9.0 부터 3.9.4 이하, 3.8.0 부터 3.8.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T09:45:57.320596+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -2002,58 +2262,6 @@
     ],
     "report_url": null,
     "date": "2026-03-07T06:14:10.691896+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28722",
-    "title": "부적절한 심볼릭 링크 처리로 인한 로컬 권한 상승",
-    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 심볼릭 링크 처리의 미흡함으로 인해 로컬 권한 상승 취약점이 발생할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [
-      "CWE-610"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:14:10.690975+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28721",
-    "title": "부적절한 심볼릭 링크 처리로 인한 로컬 권한 상승",
-    "description": "Acronis Cyber Protect 17 (Windows) 빌드 41186 이전 버전에서 심볼릭 링크 처리의 미흡함으로 인해 로컬 권한 상승 취약점이 발생할 수 있습니다. 해당 제품을 사용하는 경우 최신 빌드로 업데이트하는 것이 좋습니다.",
-    "cvss": 7.3,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [
-      "CWE-610"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:13:09.689893+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -5708,32 +5916,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-11792",
-    "title": "DLL 하이재킹 취약점을 이용한 로컬 권한 상승",
-    "description": "Acronis Cyber Protect Cloud Agent (Windows) 41124 빌드 이전 버전에서 DLL 하이재킹 취약점이 발견되었습니다. 이 취약점을 통해 로컬 권한 상승이 가능합니다. 영향을 받는 제품은 Acronis Cyber Protect Cloud Agent (Windows)입니다.",
-    "cvss": 7.3,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 41124 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:50:55.414905+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-30413",
     "title": "Acronis 에이전트, 플랜 취소 후 자격 증명 삭제 문제",
     "description": "플랜 취소 후 Acronis 에이전트에서 자격 증명이 삭제되지 않는 문제 발생.",
@@ -8920,32 +9102,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29783",
-    "title": "GitHub Copilot CLI의 위험한 셸 확장 패턴으로 임의 명령 실행 가능",
-    "description": "GitHub Copilot CLI 0.0.422 버전 이하에서 조작된 bash 파라미터 확장 패턴을 통해 임의 코드 실행이 가능합니다. 공격자는 프롬프트 주입 등을 통해 셸 도구에 전달되는 명령어를 제어하여 안전 검사를 우회하고 숨겨진 명령을 실행할 수 있습니다. 0.0.423 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "github",
-        "product": "copilot-cli",
-        "versions": "<= 0.0.422 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:02:27.93871+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28459",
     "title": "OpenClaw < 2026.2.12 - 신뢰할 수 없는 sessionFile 경로를 통한 임의 파일 쓰기",
     "description": "OpenClaw 2026.2.12 이전 버전은 sessionFile 경로 파라미터를 검증하지 않아, 인증된 게이트웨이 클라이언트가 호스트 파일 시스템의 임의 위치에 트랜스크립트 데이터를 쓸 수 있습니다. 공격자는 sessions 디렉토리 외부의 경로를 사용하여 파일을 생성하고 데이터를 반복적으로 추가하여 설정 손상 또는 서비스 거부를 유발할 수 있습니다.",
@@ -8964,32 +9120,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T23:53:23.884686+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28458",
-    "title": "OpenClaw 2026.1.20 < 2026.2.1 - 브라우저 릴레이 /cdp WebSocket 엔드포인트 인증 누락",
-    "description": "OpenClaw 2026.1.20 버전(2026.2.1 이전)은 브라우저 릴레이(확장 프로그램 설치 및 활성화 필요) /cdp WebSocket 엔드포인트에서 인증 토큰이 필요 없어, 웹사이트가 루프백을 통해 연결하여 민감한 데이터에 접근할 수 있는 취약점을 가지고 있습니다. 공격자는 ws://127.0.0.1:18792/cdp에 연결하여 세션 쿠키를 탈취하고 다른 브라우저 탭에서 JavaScript를 실행할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.1.20 부터 2026.2.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:52:20.736538+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -10122,32 +10252,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-20748",
-    "title": "Everon api.everon.io 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 압도하여 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "Everon",
-        "product": "api.everon.io",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:10:04.123367+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-2620",
@@ -13810,32 +13914,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-48630",
-    "title": "SkiaRenderEngine.cpp의 GPU 캐시 접근 가능성",
-    "description": "SkiaRenderEngine.cpp의 drawLayersInternal 함수에서 부가 채널 정보 유출을 통해 GPU 캐시에 접근할 수 있는 취약점이 발견되었습니다. 이를 악용하면 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용이 필요하지 않습니다.",
-    "cvss": 7.4,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "Information disclosure"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16-qpr2 (단일 버전), 16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:22:13.86475+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-48609",
     "title": "MmsProvider.java의 임의 파일 삭제 취약점",
     "description": "MmsProvider.java의 여러 함수에서 경로 탐색 오류로 인해 전화, SMS, MMS 기능에 영향을 주는 파일을 임의로 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 서비스 거부(DoS)를 유발할 수 있으며, 사용자 상호 작용 없이도 악용이 가능합니다.",
@@ -15925,32 +16003,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-25778",
-    "title": "SWITCH EV swtchenergy.com 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00046,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:00:32.590217+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25774",
     "title": "EV Energy ev.energy 자격 증명 보호 부족",
     "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 보호 강화가 필요합니다.",
@@ -16940,32 +16992,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-25711",
-    "title": "Chargemap chargemap.com 세션 만료 부족",
-    "description": "WebSocket 백엔드가 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.00046,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "Chargemap",
-        "product": "chargemap.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:05:00.939859+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28410",
@@ -20353,32 +20379,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-64999",
-    "title": "합성 모니터링 테스트 서비스 HTML 로그의 교차 사이트 스크립팅",
-    "description": "Checkmk 2.4.0 (2.4.0p22 이전) 및 2.3.0 (2.3.0p43 이전) 버전에서 입력값 검증 미흡으로 인해 호스트 검사 결과를 조작하는 공격자가 합성 모니터링 HTML 로그에 악성 JavaScript를 삽입할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0.0003,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Checkmk GmbH",
-        "product": "Checkmk",
-        "versions": "2.4.0 부터 2.4.0p22 이전, 2.3.0 부터 2.3.0p43 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:17:47.414475+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28137",
