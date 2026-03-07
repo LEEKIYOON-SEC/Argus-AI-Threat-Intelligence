@@ -499,7 +499,11 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         report_url = None
         rules_info = None
         if is_high_risk:
-            report_url, rules_info = create_github_issue(current_state, alert_reason)
+            # TPD 소진 시 AI 분석/룰 생성 SKIP (Issue 미생성, 다음 실행에서 재처리)
+            if rate_limit_manager.is_tpd_exhausted("groq"):
+                logger.warning(f"⚠️ {cve_id}: Groq TPD 소진 → Issue 생성 SKIP (다음 실행에서 재처리)")
+            else:
+                report_url, rules_info = create_github_issue(current_state, alert_reason)
         
         # Step 7: Slack 알림
         notifier.send_alert(current_state, alert_reason, report_url)
@@ -736,6 +740,10 @@ def main():
                     results.append(result)
             except Exception as e:
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
+
+    # TPD 소진 경고
+    if rate_limit_manager.is_tpd_exhausted("groq"):
+        logger.warning("🚫 Groq TPD 소진으로 일부 CVE의 AI 분석/룰 생성이 SKIP됨 → 다음 실행에서 자동 재처리")
 
     # Step 8: Slack 배치 요약 전송
     repo = os.environ.get("GITHUB_REPOSITORY", "")

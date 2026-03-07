@@ -27,7 +27,7 @@ class ArgusConfig:
         "temperature": 0.2,  # 더 엄격하게 (코드는 창의성보다 정확성)
         "top_p": 0.85,
         "max_completion_tokens": 2048,
-        "reasoning_effort": "high"
+        "reasoning_effort": "low"  # 룰은 템플릿 기반 → 추론 토큰 절감 (TPD 1/3~1/5)
     }
     
     # ==========================================

@@ -99,15 +99,27 @@ class RateLimitManager:
         }
         
         self._lock = threading.Lock()
-        
+
         self.stats = {
             "total_calls": 0,
             "total_waits": 0,
             "total_wait_time": 0.0,
             "rate_limit_hits": 0
         }
-        
-        logger.info("Rate Limit Manager v3.0 초기화 완료 (Thread-Safe)")
+
+        # TPD (Tokens Per Day) 트래킹 — Groq 일간 토큰 한도 관리
+        self._tpd_limits: Dict[str, int] = {
+            "groq": 200_000,  # Free Tier: 200K TPD
+        }
+        self._tpd_used: Dict[str, int] = {}
+        self._tpd_reset_at: Dict[str, datetime] = {}
+        self._tpd_exhausted: Dict[str, bool] = {}
+        for api in self._tpd_limits:
+            self._tpd_used[api] = 0
+            self._tpd_reset_at[api] = datetime.now() + timedelta(hours=24)
+            self._tpd_exhausted[api] = False
+
+        logger.info("Rate Limit Manager v3.1 초기화 완료 (Thread-Safe + TPD 트래킹)")
     
     def check_and_wait(self, api_name: str) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단."""
@@ -167,8 +179,8 @@ class RateLimitManager:
         
         return True
     
-    def record_call(self, api_name: str):
-        """API 호출 기록 (Thread-Safe)"""
+    def record_call(self, api_name: str, tokens_used: int = 0):
+        """API 호출 기록 (Thread-Safe). tokens_used가 있으면 TPD도 업데이트."""
         if api_name not in self.limits:
             return
         with self._lock:
@@ -177,35 +189,83 @@ class RateLimitManager:
             info.last_call_at = time.time()
             self.stats["total_calls"] += 1
             logger.debug(f"{api_name} 호출 기록: {info.used}/{info.limit} ({info.usage_percent:.1f}%)")
+
+            # TPD 트래킹
+            if tokens_used > 0 and api_name in self._tpd_limits:
+                now = datetime.now()
+                if now >= self._tpd_reset_at[api_name]:
+                    self._tpd_used[api_name] = 0
+                    self._tpd_reset_at[api_name] = now + timedelta(hours=24)
+                    self._tpd_exhausted[api_name] = False
+                    logger.info(f"🔄 {api_name} TPD 리셋")
+
+                self._tpd_used[api_name] += tokens_used
+                tpd_limit = self._tpd_limits[api_name]
+                tpd_remaining = tpd_limit - self._tpd_used[api_name]
+                tpd_pct = (self._tpd_used[api_name] / tpd_limit) * 100
+
+                logger.debug(f"{api_name} TPD: {self._tpd_used[api_name]:,}/{tpd_limit:,} ({tpd_pct:.1f}%, 잔여 {tpd_remaining:,})")
+
+                if tpd_pct >= 90:
+                    logger.warning(f"⚠️ {api_name} TPD 90% 도달! ({self._tpd_used[api_name]:,}/{tpd_limit:,})")
+
+    def is_tpd_exhausted(self, api_name: str, required_tokens: int = 15000) -> bool:
+        """TPD 잔량이 부족한지 확인. required_tokens는 다음 호출에 필요한 예상 토큰."""
+        with self._lock:
+            if api_name not in self._tpd_limits:
+                return False
+
+            # 429로 TPD 소진 감지된 경우
+            if self._tpd_exhausted.get(api_name, False):
+                return True
+
+            remaining = self._tpd_limits[api_name] - self._tpd_used[api_name]
+            return remaining < required_tokens
+
+    def mark_tpd_exhausted(self, api_name: str):
+        """429 TPD 에러 수신 시 소진 상태로 마킹"""
+        with self._lock:
+            self._tpd_exhausted[api_name] = True
+            logger.warning(f"🚫 {api_name} TPD 소진 마킹 — 이번 실행의 나머지 Groq 호출 SKIP")
     
-    def handle_429(self, api_name: str, retry_after: Optional[float] = None):
-        """429 Too Many Requests 대응 (Thread-Safe)"""
+    def handle_429(self, api_name: str, retry_after: Optional[float] = None, error_message: str = ""):
+        """429 Too Many Requests 대응 (Thread-Safe). TPD 소진이면 대기 대신 즉시 마킹."""
         with self._lock:
             self.stats["rate_limit_hits"] += 1
-            
+
+            # TPD(일간 토큰) 소진인 경우 → 대기해도 의미 없음, 즉시 소진 마킹
+            if "tokens per day" in error_message.lower() or "tpd" in error_message.lower():
+                self._tpd_exhausted[api_name] = True
+                logger.warning(
+                    f"🚫 {api_name} TPD 소진 429! 남은 Groq 호출 SKIP "
+                    f"(누적 429: {self.stats['rate_limit_hits']}회)"
+                )
+                self.stats["total_waits"] += 1
+                return
+
             if api_name not in self.limits:
                 wait_time = retry_after if retry_after else 60
                 logger.warning(f"⚠️ {api_name} 429 수신, {wait_time:.0f}초 대기")
                 time.sleep(wait_time)
                 return
-            
+
             info = self.limits[api_name]
             info.used = info.limit
-            
+
             if retry_after:
                 wait_time = retry_after + 2
             else:
                 wait_time = info.time_until_reset
                 if wait_time <= 0:
                     wait_time = info.window_seconds
-            
+
             logger.warning(
                 f"⚠️ {api_name} 429 수신! {wait_time:.0f}초 대기 "
                 f"(누적 429: {self.stats['rate_limit_hits']}회)"
             )
-        
+
         time.sleep(wait_time)
-        
+
         with self._lock:
             self.stats["total_waits"] += 1
             self.stats["total_wait_time"] += wait_time
@@ -216,16 +276,39 @@ class RateLimitManager:
     
     @staticmethod
     def parse_retry_after(error_message: str) -> Optional[float]:
-        """에러 메시지에서 대기 시간 추출"""
-        match = re.search(r'retry in (\d+\.?\d*)s', str(error_message), re.IGNORECASE)
+        """
+        에러 메시지에서 대기 시간 추출
+
+        지원 형식:
+        - "try again in 10m3.072s" → 603.072초
+        - "try again in 45.5s" → 45.5초
+        - "try again in 2m" → 120초
+        - "Retry-After: 60" → 60초
+        """
+        msg = str(error_message)
+
+        # 분+초 복합 형식: "10m3.072s", "2m30s"
+        match = re.search(r'(?:retry|try again) in (\d+)m(\d+\.?\d*)s', msg, re.IGNORECASE)
+        if match:
+            minutes = int(match.group(1))
+            seconds = float(match.group(2))
+            return minutes * 60 + seconds
+
+        # 분만: "2m", "10m"
+        match = re.search(r'(?:retry|try again) in (\d+)m\b', msg, re.IGNORECASE)
+        if match:
+            return int(match.group(1)) * 60.0
+
+        # 초만: "45.5s", "10s"
+        match = re.search(r'(?:retry|try again) in (\d+\.?\d*)s', msg, re.IGNORECASE)
         if match:
             return float(match.group(1))
-        match = re.search(r'try again in (\d+\.?\d*)s', str(error_message), re.IGNORECASE)
+
+        # HTTP 표준 헤더: "Retry-After: 60"
+        match = re.search(r'Retry-After:\s*(\d+)', msg)
         if match:
             return float(match.group(1))
-        match = re.search(r'Retry-After:\s*(\d+)', str(error_message))
-        if match:
-            return float(match.group(1))
+
         return None
     
     def get_status(self, api_name: Optional[str] = None) -> Dict:
@@ -262,6 +345,17 @@ class RateLimitManager:
                 logger.info(
                     f"  {name:18s}: {info.used:4d}/{info.limit:4d} "
                     f"[{usage_bar}] {info.usage_percent:5.1f}%"
+                )
+        # TPD 요약
+        for api, limit in self._tpd_limits.items():
+            used = self._tpd_used.get(api, 0)
+            if used > 0:
+                tpd_pct = (used / limit) * 100
+                tpd_bar = self._create_usage_bar(tpd_pct)
+                exhausted = " (EXHAUSTED)" if self._tpd_exhausted.get(api, False) else ""
+                logger.info(
+                    f"  {api + ' TPD':18s}: {used:,}/{limit:,} "
+                    f"[{tpd_bar}] {tpd_pct:5.1f}%{exhausted}"
                 )
         logger.info("-" * 60)
         logger.info(f"  총 API 호출: {self.stats['total_calls']}회")

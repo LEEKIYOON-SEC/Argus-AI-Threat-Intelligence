@@ -576,8 +576,13 @@ class RuleManager:
                 logger.debug(f"✅ Observable Gate 통과: {reason}")
         
         prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
-        
+
         try:
+            # TPD 소진 시 룰 생성 SKIP
+            if rate_limit_manager.is_tpd_exhausted("groq"):
+                logger.warning(f"⛔ {rule_type} 생성 SKIP: Groq TPD 소진")
+                return None
+
             rate_limit_manager.check_and_wait("groq")
             response = self.groq_client.chat.completions.create(
                 model=self.model,
@@ -587,16 +592,27 @@ class RuleManager:
                 max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
                 reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
             )
-            rate_limit_manager.record_call("groq")
+            # 토큰 사용량 기록 (TPD 트래킹)
+            tokens_used = 0
+            if hasattr(response, 'usage') and response.usage:
+                tokens_used = response.usage.total_tokens
+            rate_limit_manager.record_call("groq", tokens_used=tokens_used)
 
             content = response.choices[0].message.content.strip()
             content = re.sub(r"```[a-z]*\n|```", "", content).strip()
-            
+
             if content == "SKIP" or not content:
                 # Sigma는 필수 생성 — SKIP 시 관대한 프롬프트로 1회 재시도
                 if rule_type in ["Sigma", "sigma"] and not getattr(self, '_sigma_retry_done', False):
                     self._sigma_retry_done = True
                     logger.info(f"⚠️ Sigma SKIP → 필수 생성이므로 관대한 프롬프트로 재시도")
+
+                    # TPD 소진 시 재시도도 SKIP
+                    if rate_limit_manager.is_tpd_exhausted("groq"):
+                        logger.warning(f"⛔ Sigma 재시도 SKIP: Groq TPD 소진")
+                        self._sigma_retry_done = False
+                        return None
+
                     retry_prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
                     retry_prompt += "\n\n[OVERRIDE] Sigma is MANDATORY. Generate a best-effort Sigma rule using whatever information is available. Do NOT return SKIP."
                     rate_limit_manager.check_and_wait("groq")
@@ -608,7 +624,10 @@ class RuleManager:
                         max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
                         reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
                     )
-                    rate_limit_manager.record_call("groq")
+                    retry_tokens = 0
+                    if hasattr(retry_resp, 'usage') and retry_resp.usage:
+                        retry_tokens = retry_resp.usage.total_tokens
+                    rate_limit_manager.record_call("groq", tokens_used=retry_tokens)
                     retry_content = retry_resp.choices[0].message.content.strip()
                     retry_content = re.sub(r"```[a-z]*\n|```", "", retry_content).strip()
                     if retry_content and retry_content != "SKIP" and self._validate_sigma(retry_content):

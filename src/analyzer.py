@@ -47,9 +47,18 @@ class Analyzer:
             if config.GROQ_ANALYSIS_PARAMS.get("reasoning_effort"):
                 api_params["reasoning_effort"] = config.GROQ_ANALYSIS_PARAMS["reasoning_effort"]
 
+            # TPD 소진 시 AI 분석 SKIP → fallback
+            if rate_limit_manager.is_tpd_exhausted("groq"):
+                logger.warning(f"{cve_data['id']}: Groq TPD 소진 → fallback 분석 사용")
+                return self._fallback_analysis(cve_data)
+
             response = self.client.chat.completions.create(**api_params)
 
-            rate_limit_manager.record_call("groq")
+            # 토큰 사용량 기록 (TPD 트래킹)
+            tokens_used = 0
+            if hasattr(response, 'usage') and response.usage:
+                tokens_used = response.usage.total_tokens
+            rate_limit_manager.record_call("groq", tokens_used=tokens_used)
 
             raw_content = response.choices[0].message.content.strip()
             result = self._extract_json(raw_content)
@@ -74,8 +83,13 @@ class Analyzer:
             if "429" in error_str or "rate_limit" in error_str.lower():
                 retry_after = rate_limit_manager.parse_retry_after(error_str)
                 wait_time = retry_after if retry_after else 10
+                # TPD 소진이면 대기 없이 즉시 마킹 → fallback 전환
+                if "tokens per day" in error_str.lower() or "tpd" in error_str.lower():
+                    logger.warning(f"Groq TPD 소진 429 (Analyzer) → fallback 전환")
+                    rate_limit_manager.handle_429("groq", wait_time, error_message=error_str)
+                    return self._fallback_analysis(cve_data)
                 logger.warning(f"Groq 429 수신 (Analyzer), {wait_time:.1f}초 대기")
-                rate_limit_manager.handle_429("groq", wait_time)
+                rate_limit_manager.handle_429("groq", wait_time, error_message=error_str)
                 raise
             # 네트워크/타임아웃 에러는 재시도 가능 → raise로 tenacity 재시도
             if any(keyword in error_str.lower() for keyword in ['timeout', 'connection', 'socket', 'network']):
