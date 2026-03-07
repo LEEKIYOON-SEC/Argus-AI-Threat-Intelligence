@@ -1,27 +1,67 @@
 [
   {
-    "id": "CVE-2026-2219",
-    "title": "dpkg-deb의 zstd 압축 해제 시 CPU 과부하 가능성",
-    "description": "Debian 패키지 관리 시스템의 구성 요소인 dpkg-deb가 zstd 압축된 .deb 아카이브를 해제할 때 데이터 스트림 끝을 제대로 검증하지 않는 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
+    "id": "CVE-2025-38001",
+    "title": "net_sched: hfsc: eltree에 클래스 중복 추가 문제 해결",
+    "description": "Linux 커널의 net_sched: hfsc에서 HFSC와 NETEM을 함께 사용할 때 발생하는 Use-After-Free (UAF) 취약점이 해결되었습니다. 기존 패치는 불완전하여 HFSC_RSC 플래그를 통해 eltree에 클래스가 두 번 추가될 수 있었으며, 이로 인해 무한 루프 또는 UAF가 발생할 수 있었습니다. HFSC_RSC 플래그가 설정된 경우 hfsc_enqueue에서 클래스가 eltree에 이미 존재하는지 명시적으로 확인하도록 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-835"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 e5bee633cc276410337d54b99f77fbc1ad8801e5 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 6672e6c00810056acaac019fe26cdc26fee8a66c 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 2c928b3a0b04a431ffcd6c8b7d88a267124a3a28 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 a0ec22fa20b252edbe070a9de8501eef63c17ef5 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 295f7c579b07b5b7cf2dffe485f71cc2f27647cb 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 2f2190ce4ca972051cac6a8d7937448f8cb9673c 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 4e38eaaabfb7fffbb371a51150203e19eee5d70e 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 39ed887b1dd2d6b720f87e86692ac3006cc111c8 이전, 37d9cf1a3ce35de3df6f7d209bfb1f50cf188cea 부터 ac9fe7dd8e730a103ae4481147395cc73492d786 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T13:10:30.856993+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/0xdevil/CVE-2025-38001",
+      "https://github.com/khoatran107/cve-2025-38001",
+      "https://github.com/ngobao2002/CVE-2025-38001-test"
+    ],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21836",
+    "title": "io_uring/kbuf: 업그레이드 시 버퍼 리스트 재할당",
+    "description": "Linux 커널의 io_uring/kbuf에서 기존 `io_buffer_list` 구조체를 재사용하는 취약점이 해결되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.00039,
     "is_kev": false,
     "cwe": [],
     "affected": [
       {
-        "vendor": "Debian",
-        "product": "dpkg",
-        "versions": "1.21.18 부터 1.23.6 이전"
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2fcabce2d7d34f69a888146dab15b36a917f09d4 부터 146a185f6c05ee263db715f860620606303c4633 이전, 2fcabce2d7d34f69a888146dab15b36a917f09d4 부터 7d0dc28dae836caf7645fef62a10befc624dd17b 이전, 2fcabce2d7d34f69a888146dab15b36a917f09d4 부터 2a5febbef40ce968e295a7aeaa5d5cbd9e3e5ad4 이전, 2fcabce2d7d34f69a888146dab15b36a917f09d4 부터 8802766324e1f5d414a81ac43365c20142e85603 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.19 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T08:49:27.630341+00:00",
+    "date": "2026-03-07T13:10:28.628582+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "None"
+    "severity": "Medium"
   },
   {
     "id": "CVE-2025-7195",
@@ -58,6 +98,290 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2012-10024",
+    "title": "XBMC ≤ 11.0 웹 서버 경로 탐색 취약점",
+    "description": "XBMC 11 버전 및 2012년 11월 4일 나이트리 빌드까지의 버전에서 내장 HTTP 서버의 경로 탐색 취약점이 발견되었습니다. HTTP Basic 인증을 통해 접근 시, 서버가 URI 입력을 제대로 검증하지 않아 인증된 사용자가 의도된 문서 루트 외부의 파일을 요청할 수 있습니다. 공격자는 이 취약점을 악용하여 호스트 파일 시스템의 임의 파일을 읽을 수 있으며, 민감한 설정 파일이나 자격 증명 파일에 접근할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.48835,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "XBMC",
+        "product": "Media Center",
+        "versions": "* 부터 11.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:44:38.38448+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1074",
+    "title": "WP App Bar <= 1.5 - 인증되지 않은 저장형 XSS 취약점 ('app-bar-features' 파라미터)",
+    "description": "WP App Bar 플러그인은 버전 1.5 이하에서 'app-bar-features' 파라미터를 통해 저장형 XSS 취약점에 노출됩니다. 이는 입력값 검증 및 출력 이스케이핑 부족, 그리고 `App_Bar_Settings` 클래스 생성자 내 인증 확인 누락으로 발생합니다. 인증되지 않은 공격자가 관리자 설정 페이지 접근 시 실행되는 플러그인 설정에 악성 스크립트를 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "ryscript",
+        "product": "WP App Bar",
+        "versions": "* 부터 1.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:59.112921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-14675",
+    "title": "Meta Box <= 5.11.1 - 인증된 사용자에 의한 임의 파일 삭제",
+    "description": "WordPress용 Meta Box 플러그인은 5.11.1 버전 및 이전 버전에서 'ajax_delete_file' 함수 내의 부적절한 파일 경로 검증으로 인해 임의 파일 삭제 취약점이 존재합니다. 인증된 Contributor 이상의 권한을 가진 공격자가 서버의 임의 파일을 삭제할 수 있으며, 특정 파일(예: wp-config.php) 삭제 시 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "metabox",
+        "product": "Meta Box",
+        "versions": "* 부터 5.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:01.471918+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3352",
+    "title": "Easy PHP Settings <= 1.0.4 - 인증된 사용자를 통한 PHP 코드 삽입 취약점",
+    "description": "Easy PHP Settings 플러그는 `wp_memory_limit` 설정을 통해 PHP 코드 삽입 취약점을 가지고 있습니다. 입력값 검증 부족으로 인해 `wp-config.php` 파일에 악성 코드를 삽입할 수 있습니다. 관리자 권한 이상의 인증된 공격자가 서버에서 임의의 PHP 코드를 실행할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "shahadul878",
+        "product": "Easy PHP Settings",
+        "versions": "* 부터 1.0.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T02:48:29.963186+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28473",
+    "title": "OpenClaw < 2026.2.2 - /approve 채팅 명령어 권한 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전은 `operator.write` 권한을 가진 클라이언트가 `/approve` 채팅 명령어를 통해 실행 승인 요청을 승인하거나 거부할 수 있는 권한 우회 취약점을 가지고 있습니다. 이 명령어는 내부 권한 게이트웨이를 통해 `exec.approval.resolve`를 호출하며, 직접 RPC 호출을 보호하는 `operator.approvals` 권한 검사를 우회합니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:11:53.620305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25887",
+    "title": "Chartbrew: MongoDB 데이터셋 쿼리를 통한 원격 코드 실행 (RCE) 취약점",
+    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 MongoDB 데이터셋 쿼리를 통해 원격 코드 실행 취약점이 존재했습니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "chartbrew",
+        "product": "chartbrew",
+        "versions": "< 4.8.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T04:54:28.615559+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27776",
+    "title": "intra-mart Accel Platform IM-LogicDesigner 모듈의 보안 취약점",
+    "description": "intra-mart Accel Platform의 IM-LogicDesigner 모듈에서 안전하지 않은 역직렬화 문제가 발견되었습니다. 이 취약점은 IM-LogicDesigner가 시스템에 배포된 경우에만 악용 가능하며, 관리자 권한을 가진 사용자가 특정 조작된 파일을 가져올 때 임의 코드 실행이 가능합니다.",
+    "cvss": 7.2,
+    "epss": 0.00063,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "NTT DATA INTRAMART Corporation",
+        "product": "intra-mart Accel Platform",
+        "versions": "2017 Spring (8.0.4) through 2025 Autumn (8.0.27) (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:11:04.480042+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29082",
+    "title": "Kestra: 마크다운 파일 미리보기의 저장된 XSS 취약점",
+    "description": "Kestra는 이벤트 기반 오케스트레이션 플랫폼입니다. 1.1.10 버전 이하에서 Kestra의 실행 파일 미리보기 기능은 사용자 제공 마크다운(.md) 파일을 `html:true` 옵션으로 `markdown-it`을 사용하여 렌더링하고, 결과 HTML을 Vue의 `v-html`을 통해 삭제 없이 주입합니다. 현재 공개된 패치는 없습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "kestra-io",
+        "product": "kestra",
+        "versions": "<= 1.1.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:07:17.244625+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27764",
+    "title": "Mobiliti e-mobi.hu 세션 만료 부족",
+    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobiliti",
+        "product": "e-mobi.hu",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:16:22.26654+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26276",
+    "title": "Gogs: 마일스톤 선택을 통한 DOM 기반 XSS 취약점",
+    "description": "Gogs는 자체 호스팅 Git 서비스 오픈 소스입니다. 0.14.2 버전 이전에서 공격자는 저장소의 마일스톤 이름에 HTML/JavaScript 페이로드를 저장할 수 있습니다. 다른 사용자가 새 이슈 페이지(/issues/new)에서 해당 마일스톤을 선택하면 DOM 기반 XSS가 발생합니다. 이 문제는 0.14.2 버전에서 패치되었습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gogs",
+        "product": "gogs",
+        "versions": "< 0.14.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:42:45.817808+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2219",
+    "title": "dpkg-deb의 zstd 압축 해제 시 CPU 과부하 가능성",
+    "description": "Debian 패키지 관리 시스템의 구성 요소인 dpkg-deb가 zstd 압축된 .deb 아카이브를 해제할 때 데이터 스트림 끝을 제대로 검증하지 않는 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Debian",
+        "product": "dpkg",
+        "versions": "1.21.18 부터 1.23.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T08:49:27.630341+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
   },
   {
     "id": "CVE-2026-20748",
@@ -1189,32 +1513,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-1074",
-    "title": "WP App Bar <= 1.5 - 인증되지 않은 저장형 XSS 취약점 ('app-bar-features' 파라미터)",
-    "description": "WP App Bar 플러그인은 버전 1.5 이하에서 'app-bar-features' 파라미터를 통해 저장형 XSS 취약점에 노출됩니다. 이는 입력값 검증 및 출력 이스케이핑 부족, 그리고 `App_Bar_Settings` 클래스 생성자 내 인증 확인 누락으로 발생합니다. 인증되지 않은 공격자가 관리자 설정 페이지 접근 시 실행되는 플러그인 설정에 악성 스크립트를 삽입할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "ryscript",
-        "product": "WP App Bar",
-        "versions": "* 부터 1.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:44:59.112921+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-1085",
     "title": "True Ranker <= 2.2.9 - 사이트 간 요청 위조를 통한 무단 True Ranker 연결 해제",
     "description": "WordPress용 True Ranker 플러그인은 2.2.9 버전까지 사이트 간 요청 위조(CSRF)에 취약합니다. 이는 'seolocalrank-signout' 액션에 nonce 검증이 누락되어 발생합니다. 인증되지 않은 공격자가 관리자를 속여 링크 클릭 등의 행위를 유도하여 True Ranker 계정을 무단으로 연결 해제할 수 있습니다.",
@@ -1291,32 +1589,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-14675",
-    "title": "Meta Box <= 5.11.1 - 인증된 사용자에 의한 임의 파일 삭제",
-    "description": "WordPress용 Meta Box 플러그인은 5.11.1 버전 및 이전 버전에서 'ajax_delete_file' 함수 내의 부적절한 파일 경로 검증으로 인해 임의 파일 삭제 취약점이 존재합니다. 인증된 Contributor 이상의 권한을 가진 공격자가 서버의 임의 파일을 삭제할 수 있으며, 특정 파일(예: wp-config.php) 삭제 시 원격 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "metabox",
-        "product": "Meta Box",
-        "versions": "* 부터 5.11.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:45:01.471918+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28695",
@@ -2483,32 +2755,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-26276",
-    "title": "Gogs: 마일스톤 선택을 통한 DOM 기반 XSS 취약점",
-    "description": "Gogs는 자체 호스팅 Git 서비스 오픈 소스입니다. 0.14.2 버전 이전에서 공격자는 저장소의 마일스톤 이름에 HTML/JavaScript 페이로드를 저장할 수 있습니다. 다른 사용자가 새 이슈 페이지(/issues/new)에서 해당 마일스톤을 선택하면 DOM 기반 XSS가 발생합니다. 이 문제는 0.14.2 버전에서 패치되었습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "gogs",
-        "product": "gogs",
-        "versions": "< 0.14.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:42:45.817808+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-26022",
     "title": "Gogs: 이슈 댓글의 data URI를 통한 저장형 XSS 취약점",
     "description": "Gogs는 자체 호스팅 Git 서비스 오픈소스입니다. 0.14.2 버전 이전에서 댓글 및 이슈 설명 기능에 저장형 XSS 취약점이 존재합니다. HTML sanitizer가 data: URI scheme을 허용하여 인증된 사용자가 악성 링크를 통해 임의의 JavaScript 실행을 삽입할 수 있습니다. 0.14.2 버전에서 패치되었습니다.",
@@ -3260,32 +3506,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3352",
-    "title": "Easy PHP Settings <= 1.0.4 - 인증된 사용자를 통한 PHP 코드 삽입 취약점",
-    "description": "Easy PHP Settings 플러그는 `wp_memory_limit` 설정을 통해 PHP 코드 삽입 취약점을 가지고 있습니다. 입력값 검증 부족으로 인해 `wp-config.php` 파일에 악성 코드를 삽입할 수 있습니다. 관리자 권한 이상의 인증된 공격자가 서버에서 임의의 PHP 코드를 실행할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "shahadul878",
-        "product": "Easy PHP Settings",
-        "versions": "* 부터 1.0.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T02:48:29.963186+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-2020",
@@ -7110,32 +7330,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-27776",
-    "title": "intra-mart Accel Platform IM-LogicDesigner 모듈의 보안 취약점",
-    "description": "intra-mart Accel Platform의 IM-LogicDesigner 모듈에서 안전하지 않은 역직렬화 문제가 발견되었습니다. 이 취약점은 IM-LogicDesigner가 시스템에 배포된 경우에만 악용 가능하며, 관리자 권한을 가진 사용자가 특정 조작된 파일을 가져올 때 임의 코드 실행이 가능합니다.",
-    "cvss": 7.2,
-    "epss": 0.00063,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "NTT DATA INTRAMART Corporation",
-        "product": "intra-mart Accel Platform",
-        "versions": "2017 Spring (8.0.4) through 2025 Autumn (8.0.27) (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:11:04.480042+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-27987",
     "title": "WordPress The Qlean 테마 <= 2.12 - 로컬 파일 포함 취약점",
     "description": "ThemeREX The Qlean 테마의 PHP include/require 문에서 파일 이름 제어 오류로 인해 로컬 파일 포함 취약점이 발생합니다.",
@@ -8030,32 +8224,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28473",
-    "title": "OpenClaw < 2026.2.2 - /approve 채팅 명령어 권한 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전은 `operator.write` 권한을 가진 클라이언트가 `/approve` 채팅 명령어를 통해 실행 승인 요청을 승인하거나 거부할 수 있는 권한 우회 취약점을 가지고 있습니다. 이 명령어는 내부 권한 게이트웨이를 통해 `exec.approval.resolve`를 호출하며, 직접 RPC 호출을 보호하는 `operator.approvals` 권한 검사를 우회합니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:11:53.620305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28472",
     "title": "OpenClaw < 2026.2.2 - 게이트웨이 WebSocket 연결 핸드셰이크 장치 ID 확인 우회",
     "description": "OpenClaw 2026.2.2 이전 버전에서 auth.token 존재 여부만 확인하고 유효성 검사를 하지 않아 장치 ID 확인을 우회하는 취약점이 발견되었습니다. 공격자는 장치 ID 또는 페어링 없이 게이트웨이에 연결하여 취약한 환경에서 운영자 권한을 획득할 수 있습니다. 이는 유효성 검사 대신 존재 확인을 이용한 공격입니다.",
@@ -8839,32 +9007,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-29082",
-    "title": "Kestra: 마크다운 파일 미리보기의 저장된 XSS 취약점",
-    "description": "Kestra는 이벤트 기반 오케스트레이션 플랫폼입니다. 1.1.10 버전 이하에서 Kestra의 실행 파일 미리보기 기능은 사용자 제공 마크다운(.md) 파일을 `html:true` 옵션으로 `markdown-it`을 사용하여 렌더링하고, 결과 HTML을 Vue의 `v-html`을 통해 삭제 없이 주입합니다. 현재 공개된 패치는 없습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "kestra-io",
-        "product": "kestra",
-        "versions": "<= 1.1.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:07:17.244625+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-59542",
@@ -10096,32 +10238,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27764",
-    "title": "Mobiliti e-mobi.hu 세션 만료 부족",
-    "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하여 여러 엔드포인트가 연결될 수 있도록 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 의도된 백엔드 명령을 수신합니다. 이 취약점은 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobiliti",
-        "product": "e-mobi.hu",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:16:22.26654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28556",
@@ -14363,32 +14479,6 @@
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25887",
-    "title": "Chartbrew: MongoDB 데이터셋 쿼리를 통한 원격 코드 실행 (RCE) 취약점",
-    "description": "Chartbrew는 데이터베이스 및 API에 직접 연결하여 차트를 생성하는 오픈소스 웹 애플리케이션입니다. 4.8.1 버전 이전에는 MongoDB 데이터셋 쿼리를 통해 원격 코드 실행 취약점이 존재했습니다. 해당 문제는 4.8.1 버전에서 패치되었습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "chartbrew",
-        "product": "chartbrew",
-        "versions": "< 4.8.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T04:54:28.615559+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -21537,32 +21627,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2012-10024",
-    "title": "XBMC ≤ 11.0 웹 서버 경로 탐색 취약점",
-    "description": "XBMC 11 버전 및 2012년 11월 4일 나이트리 빌드까지의 버전에서 내장 HTTP 서버의 경로 탐색 취약점이 발견되었습니다. HTTP Basic 인증을 통해 접근 시, 서버가 URI 입력을 제대로 검증하지 않아 인증된 사용자가 의도된 문서 루트 외부의 파일을 요청할 수 있습니다. 공격자는 이 취약점을 악용하여 호스트 파일 시스템의 임의 파일을 읽을 수 있으며, 민감한 설정 파일이나 자격 증명 파일에 접근할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.48835,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "XBMC",
-        "product": "Media Center",
-        "versions": "* 부터 11.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:44:38.38448+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-13601",
