@@ -1,5 +1,946 @@
 [
   {
+    "id": "CVE-2026-30842",
+    "title": "Wallos: 인증된 사용자의 권한 부족으로 다른 사용자의 아바타 삭제 가능",
+    "description": "Wallos는 개인 구독 트래커로, 4.6.2 버전 이전에는 인증된 사용자가 다른 사용자가 업로드한 아바타 파일을 삭제할 수 있었습니다. 아바타 삭제 엔드포인트가 요청된 아바타가 현재 사용자의 것인지 확인하지 않아, 인증된 사용자가 다른 사용자의 아바타 파일 이름을 알면 삭제가 가능했습니다. 해당 문제는 4.6.2 버전에서 수정되었습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T05:55:03.045273+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30841",
+    "title": "Wallos: passwordreset.php에서 이스케이프되지 않은 토큰 및 이메일 파라미터로 인한 반사형 XSS",
+    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에는 passwordreset.php가 `<?= $token ?>` 및 `<?= $email ?>`을 사용하여 HTML 입력 값 속성에 `$_GET[\"token\"]` 및 `$_GET[\"email\"]`을 직접 출력하며, `htmlspecialchars()`를 호출하지 않습니다. 이로 인해 속성 컨텍스트를 벗어나 반사형 XSS가 발생할 수 있습니다. 해당 문제는 4.6.2 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T05:54:54.934882+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2433",
+    "title": "RSS 집계기 – RSS 가져오기, 뉴스 피드, 피드-게시물, 자동 블로깅 <= 5.0.11 - 인증되지 않은 DOM 기반 반사형 XSS (postMessage)",
+    "description": "WordPress용 RSS 집계기 플러그인이 5.0.11 버전까지 DOM 기반 XSS 취약점을 가지고 있습니다. 이는 플러그인의 admin-shell.js 파일이 origin 검증 없이 전역 메시지 이벤트 리스너를 등록하고, 사용자 제어 URL을 URL 스키마 검증 없이 window.open()에 직접 전달하기 때문입니다. 인증되지 않은 공격자가 악성 웹사이트를 통해 관리자 세션에서 임의의 JavaScript를 실행할 수 있습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "rebelcode",
+        "product": "RSS Aggregator – RSS Import, News Feeds, Feed to Post, and Autoblogging",
+        "versions": "* 부터 5.0.11 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:30.586916+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30840",
+    "title": "Wallos: 알림 테스터의 서버 측 요청 위조 (SSRF) 취약점",
+    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에서 알림 테스터에 서버 측 요청 위조 취약점이 존재합니다. 해당 문제는 4.6.2 버전에서 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918",
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/89",
+    "date": "2026-03-07T05:55:46.291023+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30839",
+    "title": "Wallos: 웹훅 테스트 엔드포인트의 SSRF 취약점",
+    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적 오픈소스 프로젝트입니다. 4.6.2 버전 이전에는 testwebhooknotifications.php에서 대상 URL에 대한 비공개/예약 IP 범위 검증이 없어 SSRF 공격이 가능합니다. 서버 응답이 공격자에게 반환됩니다. 4.6.2 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T05:54:48.999786+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30830",
+    "title": "Defuddle: _findContentBySchemaText 이미지 태그 내 이스케이프되지 않은 문자열 보간을 통한 XSS 취약점",
+    "description": "Defuddle은 HTML 페이지를 정리하는 도구입니다. 0.9.0 버전 이전에는 src/defuddle.ts의 _findContentBySchemaText 메서드에서 이미지 src 및 alt 속성 값을 HTML 문자열에 이스케이프 없이 직접 삽입하여 XSS 공격에 취약했습니다. 공격자는 alt 속성에 \" 문자를 사용하여 속성 컨텍스트를 벗어나 이벤트 핸들러를 삽입할 수 있습니다. 해당 문제는 0.9.0 버전에서 수정되었습니다.",
+    "cvss": 2.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "kepano",
+        "product": "defuddle",
+        "versions": "< 0.9.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:54.541689+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-30828",
+    "title": "Wallos: URL 파라미터를 통한 SSRF 및 파일 트래버설 취약점",
+    "description": "Wallos는 오픈 소스 개인 구독 트래커입니다. 4.6.2 버전 이전에는 URL 파라미터를 사용하여 로컬 시스템 파일을 탈취할 수 있는 취약점이 존재했습니다. 해당 문제는 4.6.2 버전에서 패치되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-29",
+      "CWE-22",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "ellite",
+        "product": "Wallos",
+        "versions": "< 4.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T05:55:46.778027+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30829",
+    "title": "체크메이트: 미인증 접근을 통한 미발행 상태 페이지 정보 유출",
+    "description": "체크메이트는 서버 하드웨어, 가동 시간, 응답 시간 및 사고를 실시간으로 추적하고 시각화하는 자체 호스팅 도구입니다. 3.4.0 버전 이전에는 GET /api/v1/status-page/:url 엔드포인트에 인증 절차가 없어 미발행 상태 페이지의 상세 정보가 미인증 사용자에게 노출되는 취약점이 존재했습니다. 해당 문제는 3.4.0 버전에서 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "bluewave-labs",
+        "product": "Checkmate",
+        "versions": "< 3.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:51.402461+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27797",
+    "title": "Homarr: rssFeed.ts의 인증되지 않은 SSRF 취약점",
+    "description": "Homarr 오픈소스 대시보드의 1.54.0 버전 이전에서 인증되지 않은 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 이를 통해 원격 공격자가 Homarr 서버를 통해 임의의 HTTP 요청을 수행할 수 있습니다. Homarr 호스트/컨테이너 네트워크 환경에서 내부 네트워크 접근이 가능해질 수 있으며, 1.54.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "homarr-labs",
+        "product": "homarr",
+        "versions": "< 1.54.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:48.668016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27796",
+    "title": "Homarr: 인증되지 않은 정보 유출 (통합 메타데이터 누출)",
+    "description": "Homarr 대시보드의 1.54.0 버전 이전에서, `integration.all` tRPC 엔드포인트가 공개 프로시저로 노출되어 인증되지 않은 사용자가 구성된 통합 목록을 획득할 수 있었습니다. 이 메타데이터에는 내부 서비스 URL, 통합 이름, 서비스 유형과 같은 민감한 정보가 포함됩니다. 해당 문제는 1.54.0 버전에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "homarr-labs",
+        "product": "homarr",
+        "versions": "< 1.54.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:00:45.89713+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-8899",
+    "title": "유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠 <= 7.3.20 - 인증된 (Author+) 권한 상승",
+    "description": "워드프레스 플러그인 '유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠' 7.3.20 버전 이하에서 권한 상승 취약점이 발견되었습니다. 등록 시 사용자 역할 제한이 없어 Author 이상의 권한을 가진 공격자가 관리자 권한으로 등록 양식을 생성하고, 이를 통해 관리자 계정을 생성할 수 있습니다. 기여자 권한으로도 악용 가능하지만 성공 가능성이 낮습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "videowhisper",
+        "product": "Paid Videochat Turnkey Site – HTML5 PPV Live Webcams",
+        "versions": "* 부터 7.3.20 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:01:07.4848+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1825",
+    "title": "Show YouTube 비디오 <= 1.1 - 인증된(Contributor+) 저장형 XSS 취약점 ('id' 쇼트코드 속성)",
+    "description": "WordPress용 Show YouTube 비디오 플러그인은 버전 1.1 이하에서 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점에 노출됩니다. 인증된 공격자(Contributor 권한 이상)는 악성 스크립트를 페이지에 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "minor",
+        "product": "Show YouTube video",
+        "versions": "* 부터 1.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:23.075724+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2420",
+    "title": "LotekMedia 팝업 폼 <= 1.0.6 - 인증된 (관리자+) 저장형 XSS 취약점 / 플러그인 설정",
+    "description": "LotekMedia 팝업 폼 워드프레스 플러그인은 버전 1.0.6 이하에서 입력값 검증 및 출력 이스케이핑 부족으로 저장형 XSS 취약점에 노출됩니다. 관리자 권한 이상의 인증된 공격자는 팝업이 표시되는 사이트 프론트엔드에 접속하는 사용자의 브라우터에서 임의의 웹 스크립트를 실행할 수 있습니다.",
+    "cvss": 4.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "lotekmedia",
+        "product": "LotekMedia Popup Form",
+        "versions": "* 부터 1.0.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:21.693635+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1824",
+    "title": "Infomaniak Connect for OpenID <= 1.0.2 - 인증된 사용자에 의한 저장된 XSS 취약점 (숏코드 속성)",
+    "description": "Infomaniak Connect for OpenID 워드프레스 플러그인은 버전 1.0.2 이하에서 'endpoint_login' 파라미터의 부적절한 입력값 검증 및 출력 이스케이핑으로 인해 저장된 XSS 취약점에 노출됩니다. 인증된 Contributor 이상의 권한을 가진 공격자는 악성 스크립트를 삽입하여 페이지 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "leopoldinfomaniak",
+        "product": "Infomaniak Connect for OpenID",
+        "versions": "* 부터 1.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:19.192239+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1823",
+    "title": "Consensus Embed <= 1.6 - 인증된 사용자를 통한 저장형 XSS 취약점 ('src' 속성)",
+    "description": "Consensus Embed 워드프레스 플러그인은 버전 1.6 이하에서 사용자 입력값에 대한 적절한 삭제 및 출력 이스케이핑이 부족하여 저장형 XSS 취약점에 노출됩니다. 인증된 기여자 이상의 권한을 가진 공격자는 악성 스크립트를 페이지에 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "consensusintegrations",
+        "product": "Consensus Embed",
+        "versions": "* 부터 1.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:13.909984+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1820",
+    "title": "미디어 라이브러리 대체 텍스트 편집기 <= 1.0.0 - 인증된 사용자를 통한 저장형 XSS 취약점 ('post_id' 쇼트코드 속성)",
+    "description": "워드프레스 미디어 라이브러리 대체 텍스트 편집기 플러그인은 1.0.0 버전 이하에서 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점에 노출됩니다. 인증된 공격자(기여자 권한 이상)는 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "brainvireinfo",
+        "product": "Media Library Alt Text Editor",
+        "versions": "* 부터 1.0.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:12.782746+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1805",
+    "title": "DA Media GigList <= 1.9.0 - 인증된 사용자를 통한 저장형 XSS 취약점 ('list_title' 쇼트코드 속성)",
+    "description": "WordPress용 DA Media GigList 플러그는 버전 1.9.0 이하에서 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점에 노출됩니다. 인증된 기여자 이상의 권한을 가진 공격자는 악성 스크립트를 페이지에 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "damedialimited",
+        "product": "DA Media GigList",
+        "versions": "* 부터 1.9.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:10.281614+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1574",
+    "title": "MyQtip – easy qTip2 <= 2.0.5 - 인증된 사용자에 의한 저장형 XSS 취약점 (숏코드)",
+    "description": "WordPress 플러그인 MyQtip – easy qTip2 버전 2.0.5 이하에서 사용자 입력값에 대한 적절한 삭제 및 출력 이스케이핑이 부족하여 저장형 XSS 취약점이 존재합니다. 인증된 기여자 이상의 권한을 가진 공격자가 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다. 이는 `myqtip` 숏코드를 통해 발생합니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "dgamoni",
+        "product": "MyQtip – easy qTip2",
+        "versions": "* 부터 2.0.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:06.152557+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1569",
+    "title": "Wueen <= 0.2.0 - 인증된 사용자를 통한 저장형 XSS 취약점 (플러그인 단축 코드)",
+    "description": "WordPress용 Wueen 플러그인은 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 0.2.0 버전 이하에서 저장형 XSS 취약점에 노출됩니다. 인증된 공격자(기여자 권한 이상)는 악성 스크립트를 페이지에 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다. 플러그인의 `wueen-blocket` 단축 코드를 통해 공격이 가능합니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "nabeghe",
+        "product": "Wueen",
+        "versions": "* 부터 0.2.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:03.586693+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-14675",
+    "title": "Meta Box <= 5.11.1 - 인증된 사용자에 의한 임의 파일 삭제",
+    "description": "WordPress용 Meta Box 플러그인은 5.11.1 버전 및 이전 버전에서 'ajax_delete_file' 함수 내의 부적절한 파일 경로 검증으로 인해 임의 파일 삭제 취약점이 존재합니다. 인증된 Contributor 이상의 권한을 가진 공격자가 서버의 임의 파일을 삭제할 수 있으며, 특정 파일(예: wp-config.php) 삭제 시 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "metabox",
+        "product": "Meta Box",
+        "versions": "* 부터 5.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:01.471918+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1087",
+    "title": "가디언 뉴스 피드 <= 1.2 - 교차 사이트 요청 위조를 통한 설정 업데이트",
+    "description": "워드프레스 가디언 뉴스 피드 플러그인의 1.2 버전 이하에서 교차 사이트 요청 위조(CSRF) 취약점이 발견되었습니다. 설정 업데이트 기능에 nonce 검증이 없어, 공격자가 관리자를 속여 링크 클릭 등의 행위를 유도하여 플러그인 설정을 변경할 수 있습니다. 여기에는 가디언 API 키 변경도 포함됩니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "openplatform",
+        "product": "The Guardian News Feed",
+        "versions": "* 부터 1.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:45:00.581484+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1074",
+    "title": "WP App Bar <= 1.5 - 인증되지 않은 저장형 XSS 취약점 ('app-bar-features' 파라미터)",
+    "description": "WP App Bar 플러그인은 버전 1.5 이하에서 'app-bar-features' 파라미터를 통해 저장형 XSS 취약점에 노출됩니다. 이는 입력값 검증 및 출력 이스케이핑 부족, 그리고 `App_Bar_Settings` 클래스 생성자 내 인증 확인 누락으로 발생합니다. 인증되지 않은 공격자가 관리자 설정 페이지 접근 시 실행되는 플러그인 설정에 악성 스크립트를 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "ryscript",
+        "product": "WP App Bar",
+        "versions": "* 부터 1.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:59.112921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1086",
+    "title": "랜딩 페이지 폰트 조합 미리보기 플러그인 <= 1.3 - 교차 사이트 요청 위조를 통한 설정 업데이트",
+    "description": "워드프레스 랜딩 페이지 폰트 조합 미리보기 플러그인 1.3 버전 이하에서 교차 사이트 요청 위조(CSRF) 취약점이 발견되었습니다. 설정 업데이트 기능에 nonce 검증이 없어, 공격자가 관리자를 속여 링크 클릭 등의 행위를 유도하여 플러그인의 폰트 조합 설정을 변경할 수 있습니다. 인증되지 않은 공격자도 공격이 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "wpsolutions",
+        "product": "Font Pairing Preview For Landing Pages",
+        "versions": "* 부터 1.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:52.010254+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1085",
+    "title": "True Ranker <= 2.2.9 - 사이트 간 요청 위조를 통한 무단 True Ranker 연결 해제",
+    "description": "WordPress용 True Ranker 플러그인은 2.2.9 버전까지 사이트 간 요청 위조(CSRF)에 취약합니다. 이는 'seolocalrank-signout' 액션에 nonce 검증이 누락되어 발생합니다. 인증되지 않은 공격자가 관리자를 속여 링크 클릭 등의 행위를 유도하여 True Ranker 계정을 무단으로 연결 해제할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "optimizza",
+        "product": "True Ranker",
+        "versions": "* 부터 2.2.9 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:42.382885+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1071",
+    "title": "Carta Online <= 2.13.0 - 인증된(관리자+) 저장형 XSS 취약점 (플러그인 설정)",
+    "description": "Carta Online 워드프레스 플러그인은 버전 2.13.0 이하에서 입력값 검증 및 출력 이스케이핑 부족으로 저장형 XSS 취약점에 노출됩니다. 관리자 권한 이상의 인증된 공격자가 플러그인 설정을 통해 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다. 멀티사이트 설치 및 `unfiltered_html` 비활성화 환경에서만 영향을 받습니다.",
+    "cvss": 4.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "cartaonline",
+        "product": "Carta Online",
+        "versions": "* 부터 2.13.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:35.939168+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1073",
+    "title": "제휴 링크 구매 버튼 플러그인 <= 1.0.2 - 교차 사이트 요청 위조 취약점 / 설정 업데이트",
+    "description": "워드프레스 제휴 링크 구매 버튼 플러그인이 1.0.2 버전 이하에서 교차 사이트 요청 위조(CSRF) 취약점을 가지고 있습니다. `inc/purchase-btn-options-page.php`의 설정 페이지 폼 핸들러에서 nonce 검증이 누락되어 발생합니다. 인증되지 않은 공격자가 관리자를 속여 링크 클릭 등의 행위를 유도하여 플러그인 설정을 변경할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "themepul",
+        "product": "Purchase Button For Affiliate Link",
+        "versions": "* 부터 1.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T07:44:33.437697+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2022-37005",
+    "title": "설정 앱 인자 삽입 취약점",
+    "description": "설정 애플리케이션에 인자 삽입 취약점이 존재합니다. 성공적인 악용 시 데이터 기밀성에 영향을 줄 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00284,
+    "is_kev": false,
+    "cwe": [
+      "Argument injection vulnerability"
+    ],
+    "affected": [
+      {
+        "vendor": "Huawei",
+        "product": "HarmonyOS",
+        "versions": "2.0 (단일 버전)"
+      },
+      {
+        "vendor": "Huawei",
+        "product": "EMUI",
+        "versions": "12.0.0 (단일 버전), 11.0.1 (단일 버전), 11.0.0 (단일 버전), 10.1.1 (단일 버전)"
+      },
+      {
+        "vendor": "Huawei",
+        "product": "Magic UI",
+        "versions": "4.0.0 (단일 버전), 3.1.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:12:16.600836+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28209",
+    "title": "FreePBX: ElevenLabs TTS 통합의 원격 코드 실행으로 이어지는 명령어 삽입 취약점",
+    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.17.2~16.0.20 미만 버전 및 17.0.2.4~17.0.5 미만 버전에서 ElevenLabs TTS 엔진을 사용할 때 명령어 삽입 취약점이 존재합니다. 해당 문제는 16.0.20 및 17.0.5 버전에서 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00296,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "FreePBX",
+        "product": "security-reporting",
+        "versions": ">= 16.0.17.2, < 16.0.20 (단일 버전), >= 17.0.2.4, < 17.0.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:01:58.667503+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-35290",
+    "title": "SAP Authenticator for Android 정보 접근 제한 우회 가능성",
+    "description": "특정 조건 하에서, 공격자가 SAP Authenticator for Android를 통해 접근 권한이 제한된 정보에 접근할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00348,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "SAP SE",
+        "product": "SAP Authenticator for Android",
+        "versions": "unspecified 부터 1.2.17 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:07:11.643828+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-3884",
+    "title": "Undertow: application/x-www-form-urlencoded 파싱 시 outofmemory 발생",
+    "description": "Undertow에서 대용량 application/x-www-form-urlencoded 형식의 폼 데이터를 파싱할 때 OutOfMemory 오류가 발생할 수 있는 취약점이 발견되었습니다. 이 취약점을 악용하면 권한 없는 사용자가 원격 서비스 거부(DoS) 공격을 유발할 수 있습니다. FormEncodedDataDefinition.doParse() 메서리 사용 시 문제가 발생합니다.",
+    "cvss": 7.5,
+    "epss": 0.00541,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.0",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.0 for RHEL 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.0 for RHEL 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:03:47.852714+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-9784",
+    "title": "Undertow: MadeYouReset HTTP/2 DDoS 취약점",
+    "description": "Undertow에서 잘못된 클라이언트 요청으로 인해 서버 측 스트림 재설정이 발생하고, 악용 방지 카운터가 작동하지 않는 취약점이 발견되었습니다. \"MadeYouReset\" 공격으로 알려진 이 문제는 악의적인 클라이언트가 서버 측 스트림 중단을 반복적으로 유발하여 과도한 서버 부하를 초래할 수 있습니다. 프로토콜 자체의 버그는 아니지만, 서비스 거부(DoS) 공격으로 이어질 수 있는 일반적인 구현상의 약점을 보여줍니다.",
+    "cvss": 7.5,
+    "epss": 0.00982,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "2.2.38.Final 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Apache Camel 4.14.2 for Spring Boot 3.5.8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.0",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:20:47.447592+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/drackyjr/CVE-2025-9784"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-36125",
+    "title": "Avro Rust SDK에서 손상된 .avro 파일 읽기 시 정수 오버플로우 발생",
+    "description": "손상된 데이터를 읽도록 하여 애플리케이션이 중단(패닉)될 수 있는 문제입니다. Apache Avro Rust SDK 0.14.0 이전 버전을 사용하는 Rust 애플리케이션에 영향을 미칩니다. 0.14.0 버전으로 업데이트하여 문제를 해결하십시오.",
+    "cvss": 7.5,
+    "epss": 0.01244,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Avro",
+        "versions": "unspecified 부터 0.14.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:07:13.684551+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-9375",
+    "title": "TP-Link Archer C50 V3 장비 서비스 거부 취약점",
+    "description": "TP-Link Archer C50 V3 장비 (Build 200318 Rel. 62209 이전 버전)에서 조작된 HTTP 헤더의 Referer 필드를 통해 원격 공격자가 서비스 거부를 유발할 수 있는 취약점이 발견되었습니다. 예상치 못한 Referer 필드 값을 포함하는 HTTP 요청을 통해 공격이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0.28044,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T18:26:13.532602+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/thewhiteh4t/cve-2020-9375"
+    ],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-30822",
     "title": "Flowise: `/api/v1/leads` 엔드포인트의 대량 할당 취약점",
     "description": "Flowise는 LLM 흐름을 구축하기 위한 드래그 앤 드롭 UI입니다. 3.0.13 버전 이전에는 인증되지 않은 사용자가 리드 생성 시 내부 데이터베이스 필드에 임의의 값을 삽입할 수 있었습니다. 해당 문제는 3.0.13 버전에서 수정되었습니다.",
@@ -18,6 +959,32 @@
     ],
     "report_url": null,
     "date": "2026-03-07T06:19:15.756978+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30824",
+    "title": "Flowise: NVIDIA NIM 엔드포인트의 인증 누락",
+    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 NVIDIA NIM 라우터(/api/v1/nvidia-nim/*)가 전역 인증 미들웨어에서 화이트리스트되어 있어, 인증 없이 특권 컨테이너 관리 및 토큰 생성 엔드포인트에 접근할 수 있었습니다. 이 문제는 3.0.13 버전에서 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "< 3.0.13 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:00:57.666241+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -400,32 +1367,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28209",
-    "title": "FreePBX: ElevenLabs TTS 통합의 원격 코드 실행으로 이어지는 명령어 삽입 취약점",
-    "description": "FreePBX는 오픈 소스 IP PBX입니다. 16.0.17.2~16.0.20 미만 버전 및 17.0.2.4~17.0.5 미만 버전에서 ElevenLabs TTS 엔진을 사용할 때 명령어 삽입 취약점이 존재합니다. 해당 문제는 16.0.20 및 17.0.5 버전에서 패치되었습니다.",
-    "cvss": 7.5,
-    "epss": 0.00296,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "FreePBX",
-        "product": "security-reporting",
-        "versions": ">= 16.0.17.2, < 16.0.20 (단일 버전), >= 17.0.2.4, < 17.0.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:01:58.667503+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-26276",
     "title": "Gogs: 마일스톤 선택을 통한 DOM 기반 XSS 취약점",
     "description": "Gogs는 자체 호스팅 Git 서비스 오픈 소스입니다. 0.14.2 버전 이전에서 공격자는 저장소의 마일스톤 이름에 HTML/JavaScript 페이로드를 저장할 수 있습니다. 다른 사용자가 새 이슈 페이지(/issues/new)에서 해당 마일스톤을 선택하면 DOM 기반 XSS가 발생합니다. 이 문제는 0.14.2 버전에서 패치되었습니다.",
@@ -470,32 +1411,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T20:38:29.744533+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-8899",
-    "title": "유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠 <= 7.3.20 - 인증된 (Author+) 권한 상승",
-    "description": "워드프레스 플러그인 '유료 비디오챗 턴키 사이트 – HTML5 PPV 라이브 웹캠' 7.3.20 버전 이하에서 권한 상승 취약점이 발견되었습니다. 등록 시 사용자 역할 제한이 없어 Author 이상의 권한을 가진 공격자가 관리자 권한으로 등록 양식을 생성하고, 이를 통해 관리자 계정을 생성할 수 있습니다. 기여자 권한으로도 악용 가능하지만 성공 가능성이 낮습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "videowhisper",
-        "product": "Paid Videochat Turnkey Site – HTML5 PPV Live Webcams",
-        "versions": "* 부터 7.3.20 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:01:07.4848+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -556,32 +1471,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-30824",
-    "title": "Flowise: NVIDIA NIM 엔드포인트의 인증 누락",
-    "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 NVIDIA NIM 라우터(/api/v1/nvidia-nim/*)가 전역 인증 미들웨어에서 화이트리스트되어 있어, 인증 없이 특권 컨테이너 관리 및 토큰 생성 엔드포인트에 접근할 수 있었습니다. 이 문제는 3.0.13 버전에서 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "< 3.0.13 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:00:57.666241+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30823",
     "title": "Flowise: SSO 구성의 IDOR 취약점을 통한 계정 탈취 및 엔터프라이즈 기능 우회",
     "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 사용자 인터페이스입니다. 3.0.13 버전 이전에는 IDOR 취약점이 존재하여 SSO 구성 문제를 통해 계정 탈취 및 엔터프라이즈 기능 우회가 가능했습니다. 해당 문제는 3.0.13 버전에서 패치되었습니다.",
@@ -607,289 +1496,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30842",
-    "title": "Wallos: 인증된 사용자의 권한 부족으로 다른 사용자의 아바타 삭제 가능",
-    "description": "Wallos는 개인 구독 트래커로, 4.6.2 버전 이전에는 인증된 사용자가 다른 사용자가 업로드한 아바타 파일을 삭제할 수 있었습니다. 아바타 삭제 엔드포인트가 요청된 아바타가 현재 사용자의 것인지 확인하지 않아, 인증된 사용자가 다른 사용자의 아바타 파일 이름을 알면 삭제가 가능했습니다. 해당 문제는 4.6.2 버전에서 수정되었습니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T05:55:03.045273+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30841",
-    "title": "Wallos: passwordreset.php에서 이스케이프되지 않은 토큰 및 이메일 파라미터로 인한 반사형 XSS",
-    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에는 passwordreset.php가 `<?= $token ?>` 및 `<?= $email ?>`을 사용하여 HTML 입력 값 속성에 `$_GET[\"token\"]` 및 `$_GET[\"email\"]`을 직접 출력하며, `htmlspecialchars()`를 호출하지 않습니다. 이로 인해 속성 컨텍스트를 벗어나 반사형 XSS가 발생할 수 있습니다. 해당 문제는 4.6.2 버전에서 수정되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T05:54:54.934882+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30840",
-    "title": "Wallos: 알림 테스터의 서버 측 요청 위조 (SSRF) 취약점",
-    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적기입니다. 4.6.2 버전 이전에서 알림 테스터에 서버 측 요청 위조 취약점이 존재합니다. 해당 문제는 4.6.2 버전에서 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918",
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/89",
-    "date": "2026-03-07T05:55:46.291023+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30830",
-    "title": "Defuddle: _findContentBySchemaText 이미지 태그 내 이스케이프되지 않은 문자열 보간을 통한 XSS 취약점",
-    "description": "Defuddle은 HTML 페이지를 정리하는 도구입니다. 0.9.0 버전 이전에는 src/defuddle.ts의 _findContentBySchemaText 메서드에서 이미지 src 및 alt 속성 값을 HTML 문자열에 이스케이프 없이 직접 삽입하여 XSS 공격에 취약했습니다. 공격자는 alt 속성에 \" 문자를 사용하여 속성 컨텍스트를 벗어나 이벤트 핸들러를 삽입할 수 있습니다. 해당 문제는 0.9.0 버전에서 수정되었습니다.",
-    "cvss": 2.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "kepano",
-        "product": "defuddle",
-        "versions": "< 0.9.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:00:54.541689+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-30839",
-    "title": "Wallos: 웹훅 테스트 엔드포인트의 SSRF 취약점",
-    "description": "Wallos는 자체 호스팅 가능한 개인 구독 추적 오픈소스 프로젝트입니다. 4.6.2 버전 이전에는 testwebhooknotifications.php에서 대상 URL에 대한 비공개/예약 IP 범위 검증이 없어 SSRF 공격이 가능합니다. 서버 응답이 공격자에게 반환됩니다. 4.6.2 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T05:54:48.999786+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30828",
-    "title": "Wallos: URL 파라미터를 통한 SSRF 및 파일 트래버설 취약점",
-    "description": "Wallos는 오픈 소스 개인 구독 트래커입니다. 4.6.2 버전 이전에는 URL 파라미터를 사용하여 로컬 시스템 파일을 탈취할 수 있는 취약점이 존재했습니다. 해당 문제는 4.6.2 버전에서 패치되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-29",
-      "CWE-22",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "ellite",
-        "product": "Wallos",
-        "versions": "< 4.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T05:55:46.778027+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30829",
-    "title": "체크메이트: 미인증 접근을 통한 미발행 상태 페이지 정보 유출",
-    "description": "체크메이트는 서버 하드웨어, 가동 시간, 응답 시간 및 사고를 실시간으로 추적하고 시각화하는 자체 호스팅 도구입니다. 3.4.0 버전 이전에는 GET /api/v1/status-page/:url 엔드포인트에 인증 절차가 없어 미발행 상태 페이지의 상세 정보가 미인증 사용자에게 노출되는 취약점이 존재했습니다. 해당 문제는 3.4.0 버전에서 해결되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "bluewave-labs",
-        "product": "Checkmate",
-        "versions": "< 3.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:00:51.402461+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27797",
-    "title": "Homarr: rssFeed.ts의 인증되지 않은 SSRF 취약점",
-    "description": "Homarr 오픈소스 대시보드의 1.54.0 버전 이전에서 인증되지 않은 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 이를 통해 원격 공격자가 Homarr 서버를 통해 임의의 HTTP 요청을 수행할 수 있습니다. Homarr 호스트/컨테이너 네트워크 환경에서 내부 네트워크 접근이 가능해질 수 있으며, 1.54.0 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "homarr-labs",
-        "product": "homarr",
-        "versions": "< 1.54.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:00:48.668016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27796",
-    "title": "Homarr: 인증되지 않은 정보 유출 (통합 메타데이터 누출)",
-    "description": "Homarr 대시보드의 1.54.0 버전 이전에서, `integration.all` tRPC 엔드포인트가 공개 프로시저로 노출되어 인증되지 않은 사용자가 구성된 통합 목록을 획득할 수 있었습니다. 이 메타데이터에는 내부 서비스 URL, 통합 이름, 서비스 유형과 같은 민감한 정보가 포함됩니다. 해당 문제는 1.54.0 버전에서 수정되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200",
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "homarr-labs",
-        "product": "homarr",
-        "versions": "< 1.54.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T07:00:45.89713+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-29610",
@@ -6905,42 +7511,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2022-37005",
-    "title": "설정 앱 인자 삽입 취약점",
-    "description": "설정 애플리케이션에 인자 삽입 취약점이 존재합니다. 성공적인 악용 시 데이터 기밀성에 영향을 줄 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00284,
-    "is_kev": false,
-    "cwe": [
-      "Argument injection vulnerability"
-    ],
-    "affected": [
-      {
-        "vendor": "Huawei",
-        "product": "HarmonyOS",
-        "versions": "2.0 (단일 버전)"
-      },
-      {
-        "vendor": "Huawei",
-        "product": "EMUI",
-        "versions": "12.0.0 (단일 버전), 11.0.1 (단일 버전), 11.0.0 (단일 버전), 10.1.1 (단일 버전)"
-      },
-      {
-        "vendor": "Huawei",
-        "product": "Magic UI",
-        "versions": "4.0.0 (단일 버전), 3.1.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:12:16.600836+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-1128",
     "title": "WP eCommerce <= 3.15.1 - CSRF를 이용한 쿠폰 삭제",
     "description": "WP eCommerce 워드프레스 플러그인 3.15.1 버전 이하에서 쿠폰 삭제 시 CSRF 검증이 없어, 공격자가 로그인된 관리자를 통해 CSRF 공격으로 쿠폰을 삭제할 수 있습니다.",
@@ -6965,58 +7535,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2022-36125",
-    "title": "Avro Rust SDK에서 손상된 .avro 파일 읽기 시 정수 오버플로우 발생",
-    "description": "손상된 데이터를 읽도록 하여 애플리케이션이 중단(패닉)될 수 있는 문제입니다. Apache Avro Rust SDK 0.14.0 이전 버전을 사용하는 Rust 애플리케이션에 영향을 미칩니다. 0.14.0 버전으로 업데이트하여 문제를 해결하십시오.",
-    "cvss": 7.5,
-    "epss": 0.01244,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Avro",
-        "versions": "unspecified 부터 0.14.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:07:13.684551+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2022-35290",
-    "title": "SAP Authenticator for Android 정보 접근 제한 우회 가능성",
-    "description": "특정 조건 하에서, 공격자가 SAP Authenticator for Android를 통해 접근 권한이 제한된 정보에 접근할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00348,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "SAP SE",
-        "product": "SAP Authenticator for Android",
-        "versions": "unspecified 부터 1.2.17 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:07:11.643828+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2022-37004",
@@ -16348,42 +16866,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2024-3884",
-    "title": "Undertow: application/x-www-form-urlencoded 파싱 시 outofmemory 발생",
-    "description": "Undertow에서 대용량 application/x-www-form-urlencoded 형식의 폼 데이터를 파싱할 때 OutOfMemory 오류가 발생할 수 있는 취약점이 발견되었습니다. 이 취약점을 악용하면 권한 없는 사용자가 원격 서비스 거부(DoS) 공격을 유발할 수 있습니다. FormEncodedDataDefinition.doParse() 메서리 사용 시 문제가 발생합니다.",
-    "cvss": 7.5,
-    "epss": 0.00541,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.0",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.0 for RHEL 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.0 for RHEL 8",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:03:47.852714+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28078",
     "title": "WordPress uListing 플러그인 <= 2.2.0 - 임의 파일 다운로드 취약점",
     "description": "Stylemix uListing 플러그인의 경로 탐색 취약점으로 인해 임의 파일 다운로드가 가능합니다.",
@@ -16975,44 +17457,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-9784",
-    "title": "Undertow: MadeYouReset HTTP/2 DDoS 취약점",
-    "description": "Undertow에서 잘못된 클라이언트 요청으로 인해 서버 측 스트림 재설정이 발생하고, 악용 방지 카운터가 작동하지 않는 취약점이 발견되었습니다. \"MadeYouReset\" 공격으로 알려진 이 문제는 악의적인 클라이언트가 서버 측 스트림 중단을 반복적으로 유발하여 과도한 서버 부하를 초래할 수 있습니다. 프로토콜 자체의 버그는 아니지만, 서비스 거부(DoS) 공격으로 이어질 수 있는 일반적인 구현상의 약점을 보여줍니다.",
-    "cvss": 7.5,
-    "epss": 0.00982,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "2.2.38.Final 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat build of Apache Camel 4.14.2 for Spring Boot 3.5.8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.0",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:20:47.447592+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/drackyjr/CVE-2025-9784"
-    ],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-59787",
@@ -18095,34 +18539,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2020-9375",
-    "title": "TP-Link Archer C50 V3 장비 서비스 거부 취약점",
-    "description": "TP-Link Archer C50 V3 장비 (Build 200318 Rel. 62209 이전 버전)에서 조작된 HTTP 헤더의 Referer 필드를 통해 원격 공격자가 서비스 거부를 유발할 수 있는 취약점이 발견되었습니다. 예상치 못한 Referer 필드 값을 포함하는 HTTP 요청을 통해 공격이 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0.28044,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T18:26:13.532602+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/thewhiteh4t/cve-2020-9375"
-    ],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-15112",
