@@ -1,30 +1,65 @@
 [
   {
-    "id": "CVE-2026-3662",
-    "title": "Wavlink WL-NU516U1 adm.cgi usb_p910 명령어 삽입 취약점",
-    "description": "Wavlink WL-NU516U1 장비의 /cgi-bin/adm.cgi 파일 내 usb_p910 함수에서 Pr_mode 인자 조작을 통해 명령어 삽입 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점은 이미 제조사에 보고되었습니다.",
-    "cvss": 5.1,
+    "id": "CVE-2026-29185",
+    "title": "@backstage/integration: 내장 토큰을 이용한 SCM URL의 잠재적 읽기",
+    "description": "Backstage는 개발자 포털 구축을 위한 오픈 프레임워크입니다. 1.20.1 버전 이전에는 Backstage 통합에 사용된 SCM URL 파싱 취약점으로 인해 인코딩된 형태의 경로 탐색 시퀀스가 파일 경로에 포함될 수 있었습니다. API URL을 생성하는 통합 함수에서 처리될 때, 이러한 URL은 구성된 서버 측 통합 자격 증명을 사용하여 의도하지 않은 SCM 제공업체 API 엔드포인트로 요청을 리디렉션할 수 있습니다. 해당 문제는 1.20.1 버전에서 패치되었습니다.",
+    "cvss": 2.7,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-77",
-      "CWE-74"
+      "CWE-22"
     ],
     "affected": [
       {
-        "vendor": "Wavlink",
-        "product": "WL-NU516U1",
-        "versions": "240425 (단일 버전)"
+        "vendor": "backstage",
+        "product": "backstage",
+        "versions": "< 1.20.1 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T13:51:33.669723+00:00",
+    "date": "2026-03-07T15:46:02.681201+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "Medium"
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-29186",
+    "title": "@backstage/plugin-techdocs-node: TechDocs Mkdocs 설정 키를 통한 임의 코드 실행 가능성",
+    "description": "Backstage 개발자 포털 구축 프레임워크의 @backstage/plugin-techdocs-node 패키지에서 임의 코드 실행 취약점이 발견되었습니다. MkDocs 설정 키 허용 목록의 허점을 이용하여 악의적인 mkdocs.yml 파일을 통해 TechDocs 보안 제어를 우회하고 파이썬 코드를 실행할 수 있습니다. 1.14.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "backstage",
+        "product": "backstage",
+        "versions": "< 1.14.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/98",
+    "date": "2026-03-07T15:45:55.514956+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/plugin-techdocs-node))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2026-3664",
@@ -81,31 +116,258 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3661",
-    "title": "Wavlink WL-NU516U1 adm.cgi ota_new_upgrade 명령어 삽입 취약점",
-    "description": "Wavlink WL-NU516U1 장비의 /cgi-bin/adm.cgi 파일 내 ota_new_upgrade 함수에서 명령어 삽입 취약점이 발견되었습니다. 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 해당 내용은 이미 제조사에 보고되었습니다.",
-    "cvss": 5.1,
+    "id": "CVE-2026-29184",
+    "title": "@backstage/plugin-scaffolder-backend: 로그 삭제 우회 통한 세션 토큰 유출 가능성",
+    "description": "Backstage는 개발자 포털 구축을 위한 오픈 프레임워크입니다. 3.1.4 버전 이전에는 악성 스캐폴더 템플릿이 로그 삭제 메커니즘을 우회하여 작업 이벤트 로그를 통해 제공된 비밀 정보를 유출할 수 있었습니다. 해당 문제는 3.1.4 버전에서 수정되었습니다.",
+    "cvss": 2,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-77",
-      "CWE-74"
+      "CWE-532"
     ],
     "affected": [
       {
-        "vendor": "Wavlink",
-        "product": "WL-NU516U1",
-        "versions": "240425 (단일 버전)"
+        "vendor": "backstage",
+        "product": "backstage",
+        "versions": "< 3.1.4 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-07T13:51:34.204533+00:00",
+    "date": "2026-03-07T15:45:49.434818+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "Medium"
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-29192",
+    "title": "ZITADEL: 기본 URI 리디렉트를 통한 저장 XSS 취약점으로 계정 탈취 가능",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 기본 URI 리디렉트를 이용한 저장 XSS 취약점이 발견되어 계정 탈취로 이어질 수 있습니다. 해당 문제는 4.12.0 버전에서 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/97",
+    "date": "2026-03-07T15:45:48.531545+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29193",
+    "title": "ZITADEL: 로그인 V2 동작 및 보안 정책 우회 취약점",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.12.0 버전에서 로그인 V2 UI의 취약점을 통해 사용자가 로그인 동작 및 보안 정책을 우회하고, 조직에서 해당 옵션이 비활성화되어 있어도 새 계정을 자체 등록하거나 비밀번호로 로그인할 수 있었습니다. 해당 문제는 4.12.1 버전에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/96",
+    "date": "2026-03-07T15:45:41.206793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29191",
+    "title": "ZITADEL: /saml-post 엔드포인트 XSS를 통한 원클릭 계정 탈취",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 /saml-post 엔드포인트의 XSS 취약점을 통해 계정 탈취가 가능한 문제가 발견되었습니다. 해당 문제는 4.12.0 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:45:33.574477+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29067",
+    "title": "ZITADEL: V2 로그인 시 부적절한 인스턴스 검증으로 인한 계정 탈취",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0-rc.1부터 4.7.0 버전까지 로그인 V2의 비밀번호 재설정 메커니즘에 취약점이 존재했습니다. ZITADEL은 들어오는 요청의 Forwarded 또는 X-Forwarded-Host 헤더를 사용하여 비밀번호 재설정 확인 링크 URL을 생성하며, 이 링크는 사용자에게 이메일로 전송됩니다. 해당 문제는 4.7.1 버전에서 수정되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0-rc.1, < 4.7.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/95",
+    "date": "2026-03-07T15:45:09.030896+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29067 Open Redirect via X-Forwarded-Host in ZITADEL Password Reset\nstatus: experimental\ndescription: Detects attempts to exploit the open redirect vulnerability in ZITADEL (versions 4.0.0‑rc.1 to 4.7.0) by sending a malicious X-Forwarded-Host or Forwarded header to the password reset endpoint, causing a crafted password‑reset confirmation link to be sent to an attacker‑controlled domain.\nauthor: Sigma Rule Generator\ndate: 2026-03-07\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/ui/v2/passwordreset\"\n    selection_header:\n        http_request_header|contains:\n            - \"X-Forwarded-Host\"\n            - \"Forwarded\"\n    selection_malicious_host:\n        http_request_header|contains|any:\n            - \".attacker.\"\n            - \".evil.\"\n            - \".malicious.\"\n            - \".example-attacker.com\"\n            - \"localhost\"\n            - \"127.0.0.1\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026-29067\n    - attack.initial_access\n    - attack.t1566.002\n    - attack.t1212\n    - attack.t1078\n    - security\n    - open_redirect\n    - zitadel\n    - web_application\n    - exploit\n    - cwe.601",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29771",
+    "title": "Netmaker: 서버 종료 엔드포인트 통한 서비스 거부 취약점",
+    "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구성합니다. 1.2.0 버전 이전에는 /api/server/shutdown 엔드포인트가 syscall.SIGINT를 통해 Netmaker 서버 프로세스 종료를 허용했습니다. 이를 통해 모든 사용자가 서버를 반복적으로 종료하여 약 3초 간격으로 주기적인 서비스 거부 공격을 유발할 수 있습니다. 해당 문제는 1.2.0 버전에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "gravitl",
+        "product": "netmaker",
+        "versions": "< 1.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/94",
+    "date": "2026-03-07T15:45:01.94328+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29771 Netmaker Server Shutdown Endpoint Access Attempt\nstatus: experimental\ndescription: Detects unauthenticated attempts to invoke the vulnerable /api/server/shutdown endpoint in Netmaker versions prior to 1.2.0, which can cause a denial‑of‑service by terminating the server process.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/api/server/shutdown'\n    selection_method:\n        http_method|contains: 'POST'\n    selection_useragent:\n        user_agent|contains: 'curl'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.29771\n    - attack.initial_access\n    - attack.t1499\n    - netmaker\n    - vulnerability\n    - denial_of_service",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-29771 Netmaker unauthorized server shutdown\";\n    flow:to_server,established;\n    content:\"/api/server/shutdown\"; http_uri;\n    reference:cve,2026-29771;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/api/server/shutdown)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29779",
+    "title": "UptimeFlare: 클라이언트 측 JavaScript 번들에 노출된 `workerConfig`의 설정 및 자격 증명",
+    "description": "UptimeFlare는 Cloudflare Workers 기반의 서버리스 가동 시간 모니터링 및 상태 페이지 솔루션입니다. 이전 커밋(377a596 이전)에서는 `uptime.config.ts` 파일이 클라이언트 사용에 안전한 `pageConfig`와 서버 전용(민감한 데이터 포함)인 `workerConfig`를 동일한 모듈에서 내보냈습니다. `pages/incidents.tsx`에서 `workerConfig`를 직접 가져와 사용하면서, 전체 `workerConfig` 객체가 모든 방문자에게 제공되는 클라이언트 측 JavaScript 번들에 포함되었습니다. 해당 문제는 커밋 377a596을 통해 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "lyc8503",
+        "product": "UptimeFlare",
+        "versions": "< 377a5963c66ba9a798abebfe8d80378b053435e9 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/93",
+    "date": "2026-03-07T15:44:02.071367+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29779 Sensitive workerConfig Exposure via Client Bundle\nstatus: experimental\ndescription: Detects attempts to retrieve client-side JavaScript bundles from UptimeFlare that unintentionally contain the server‑only `workerConfig` object, indicating exploitation of CVE‑2026‑29779.\nauthor: SigmaRuleGenerator\ndate: 2026-03-07\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_js_request:\n        uri|endswith: \".js\"\n    selection_workerconfig:\n        response_body|contains: \"workerConfig\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.29779\n    - attack.initial_access\n    - attack.t1189\n    - attack.t1059.007\n    - attack.t1552.001\n    - cwe.200\n    - uptimeflare\n    - info_leak\n    - severity.high",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/incidents.tsx))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2025-7195",
@@ -136,6 +398,393 @@
     ],
     "report_url": null,
     "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29781",
+    "title": "Sliver: 핸들러의 인증된 널 포인터 역참조",
+    "description": "Sliver는 사용자 지정 Wireguard netstack을 사용하는 C2 프레임워크입니다. 1.7.3 버전 이하에서 Sliver C2 서버의 Protobuf 역직렬화 로직에 널 포인터 검증이 체계적으로 부족하여 취약점이 존재합니다. 유효한 임플란트 자격 증명을 추출하고 서명된 메시지에서 중첩 필드를 생략하면 인증된 공격자가 처리되지 않은 런타임 패닉을 유발할 수 있습니다. mTLS, WireGuard 및 DNS 전송 계층에 HTTP 전송 계층에 존재하는 패닉 복구 미들웨어가 없어 전체 프로세스가 종료됩니다.",
+    "cvss": 2.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "BishopFox",
+        "product": "sliver",
+        "versions": "<= 1.7.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:43:55.567507+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/skoveit/CVE-2026-29781"
+    ],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-29780",
+    "title": "eml_parser: 경로 탐색 취약점을 통한 임의 파일 쓰기 가능성",
+    "description": "eml_parser는 eml 파일 파싱을 위한 파이썬 모듈입니다. 2.0.1 버전 이전의 예제 스크립트 `examples/recursively_extract_attachments.py`에 경로 탐색 취약점이 존재하여, 공격자가 의도된 출력 디렉토리 외부의 임의 파일을 쓰도록 할 수 있습니다. 파싱된 이메일에서 추출된 첨부 파일 이름이 별도의 검증 없이 출력 파일 경로 생성에 직접 사용됩니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "GOVCERT-LU",
+        "product": "eml_parser",
+        "versions": "< 2.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:43:08.875762+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30834",
+    "title": "PinchTab: 다운로드 핸들러를 통한 SSRF 및 전체 응답 유출",
+    "description": "PinchTab은 AI 에이전트가 Chrome 브라우저를 직접 제어할 수 있도록 하는 독립 실행형 HTTP 서버입니다. 0.7.7 버전 이전에는 /download 엔드포인트의 SSRF 취약점을 통해 API 접근 권한이 있는 사용자가 임의의 URL에 대한 요청을 유도하고, 내부 네트워크 서비스 및 로컬 시스템 파일의 전체 응답 내용을 유출할 수 있었습니다. 해당 문제는 0.7.7 버전에서 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "pinchtab",
+        "product": "pinchtab",
+        "versions": "< 0.7.7 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/92",
+    "date": "2026-03-07T15:43:00.511983+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-30834 SSRF Attempt via PinchTab /download Endpoint\nstatus: experimental\ndescription: Detects attempts to exploit the SSRF vulnerability in PinchTab versions prior to 0.7.7 by sending crafted URLs to the /download endpoint.\nauthor: Senior Detection Engineer\ndate: 2026-03-07\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/download\"\n    selection_method:\n        http_method|contains|any:\n            - \"GET\"\n            - \"POST\"\n    selection_payload:\n        uri|contains|any:\n            - \"http://\"\n            - \"https://\"\n            - \"file://\"\n            - \"127.0.0.1\"\n            - \"localhost\"\n            - \"169.254.\"\n            - \"10.\"\n            - \"172.16.\"\n            - \"172.31.\"\n            - \"192.168.\"\n    condition: all of selection_endpoint, selection_method, selection_payload\nlevel: high\ntags:\n    - cve.2026.30834\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1105\n    - attack.t1041\n    - cwe.918",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-30834 PinchTab SSRF via /download endpoint\";\n    flow:to_server,established;\n    content:\"/download\"; http_uri;\n    content:\"url=\"; http_client_body;\n    pcre:\"/url=.*?(https?:\\/\\/|file:\\/\\/|ftp:\\/\\/)/i\";\n    reference:cve,2026-30834;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/download)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29190",
+    "title": "Karapace: 백업 리더의 경로 탐색 취약점",
+    "description": "Karapace는 Kafka REST 및 Schema Registry의 오픈소스 구현입니다. 6.0.0 버전 이전에는 백업 리더(backup/backends/v3/backend.py)에 경로 탐색 취약점이 존재합니다. 악성 백업 파일을 제공할 경우, 공격자가 불충분한 경로 검증을 이용하여 Karapace가 실행되는 시스템에서 임의 파일 읽기를 수행할 수 있습니다. 이 문제는 신뢰할 수 없는 소스의 백업을 처리하는 백업/복원 기능을 사용하는 배포에 영향을 미치며, 6.0.0 버전에서 패치되었습니다.",
+    "cvss": 4.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Aiven-Open",
+        "product": "karapace",
+        "versions": "< 6.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:42:17.788542+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3665",
+    "title": "xlnt-community xlnt XLSX 파일 xlsx_consumer.cpp의 널 포인터 역참조 취약점",
+    "description": "xlnt-community xlnt 1.6.1 버전 이하에서 널 포인터 역참조 취약점이 발견되었습니다. 이 취약점은 XLSX 파일 파서 컴포넌트의 source/detail/serialization/xlsx_consumer.cpp 파일 내 `xlnt::detail::xlsx_consumer::read_office_document` 함수에서 발생합니다. 로컬 환경에서 공격이 가능하며, 공개된 익스플로잇이 존재합니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476",
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "xlnt-community",
+        "product": "xlnt",
+        "versions": "1.6.0 (단일 버전), 1.6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:42:09.081433+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3667",
+    "title": "Freedom Factory dGEN1 org.ethosmobile.ethoslauncher FakeAppService 권한 문제",
+    "description": "Freedom Factory dGEN1 (20260221까지)의 org.ethosmobile.ethoslauncher 컴포넌트 내 FakeAppService 함수에서 권한 확인 미흡으로 인한 보안 취약점이 발견되었습니다. 로컬 환경에서 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점에 대해 제조사에 알렸으나 응답이 없습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285",
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "Freedom Factory",
+        "product": "dGEN1",
+        "versions": "20260221 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:42:08.252384+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29784",
+    "title": "Ghost: OTC 사용 관련 불완전한 CSRF 보호",
+    "description": "Ghost CMS(Node.js 기반)의 5.101.6 버전부터 6.19.2 버전까지, `/session/verify`에서 불완전한 CSRF 보호로 인해 요청 세션과 다른 로그인 세션에서 OTC를 사용할 수 있었습니다. 이로 인해 일부 상황에서 Ghost 사이트의 계정 탈취가 더 쉬워질 수 있었습니다. 6.19.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "TryGhost",
+        "product": "Ghost",
+        "versions": ">= 5.101.6, < 6.19.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:42:03.125124+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29786",
+    "title": "node-tar: 드라이브 상대 경로를 이용한 하드링크 경로 탐색 취약점",
+    "description": "node-tar는 Node.js를 위한 기능이 풍부한 Tar 라이브러리입니다. 7.5.10 버전 이전에는 `C:../target.txt`와 같은 드라이브 상대 경로 링크 대상을 사용하여 추출 디렉토리 외부를 가리키는 하드링크를 생성하도록 속일 수 있습니다. 이로 인해 일반적인 `tar.x()` 추출 과정에서 현재 작업 디렉토리 외부의 파일을 덮어쓰는 취약점이 발생합니다. 해당 문제는 7.5.10 버전에서 패치되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "isaacs",
+        "product": "node-tar",
+        "versions": "< 7.5.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/91",
+    "date": "2026-03-07T15:42:01.07954+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_29786_Indicator {\n    meta:\n        description = \"Detects exploitation of node-tar CVE-2026-29786 (hardlink path traversal)\"\n        author = \"Argus-AI\"\n        reference = \"https://github.com/isaacs/node-tar/security/advisories/GHSA-qffp-2rhf-9h96\"\n        reference2 = \"https://github.com/isaacs/node-tar/commit/7bc755dd85e623c0279e08eb3784909e6d7e4b9f\"\n        cve = \"CVE-2026-29786\"\n    strings:\n        $url1 = \"github.com/isaacs/node-tar/security/advisories/GHSA-qffp-2rhf-9h96\" ascii\n        $url2 = \"github.com/isaacs/node-tar/commit/7bc755dd85e623c0279e08eb3784909e6d7e4b9f\" ascii\n        $hardlink_pattern = \"C:../\" ascii\n    condition:\n        any of ($url*) or $hardlink_pattern\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로 (/target.txt)"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Jvr2022/CVE-2026-29786"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29787",
+    "title": "mcp-memory-service: Health 엔드포인트 통한 시스템 정보 유출",
+    "description": "mcp-memory-service는 멀티 에이전트 시스템용 오픈소스 메모리 백엔드입니다. 10.21.0 버전 이전에는 `/api/health/detailed` 엔드포인트가 OS 버전, Python 버전, CPU 개수, 메모리 총량, 디스크 사용량, 데이터베이스 파일시스템 경로 등 상세 시스템 정보를 반환합니다. `MCP_ALLOW_ANONYMOUS_ACCESS=true` 설정 시 인증 없이 접근 가능하며, 기본 0.0.0.0 바인딩과 결합되어 네트워크 전체에 민감한 정보를 노출합니다. 10.21.0 버전에서 패치되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "doobidoo",
+        "product": "mcp-memory-service",
+        "versions": "< 10.21.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:41:46.973074+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29778",
+    "title": "pyLoad: edit_package() 함수 내 경로 탐색을 통한 임의 파일 쓰기 취약점",
+    "description": "pyLoad는 Python으로 작성된 무료 오픈 소스 다운로드 관리자입니다. 0.5.0b3.dev13부터 0.5.0b3.dev96 버전까지, `edit_package()` 함수가 `pack_folder` 매개변수에 대한 불충분한 검증을 수행합니다. 현재 보호 방식은 \"../\" 문자열 단일 대체에 의존하며, 제작된 재귀적 탐색 시퀀스를 사용하여 우회될 수 있습니다. 해당 문제는 0.5.0b3.dev97 버전에서 수정되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-23"
+    ],
+    "affected": [
+      {
+        "vendor": "pyload",
+        "product": "pyload",
+        "versions": ">= 0.5.0b3.dev13, < 0.5.0b3.dev97 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/90",
+    "date": "2026-03-07T15:41:31.799521+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29778 Path Traversal Attempt via pyLoad edit_package\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-29778 by sending malicious pack_folder parameters to the pyLoad edit_package endpoint, using recursive directory traversal sequences.\nauthor: Sigma Rule Generator\ndate: 2026-03-07\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/edit_package'\n    selection_param:\n        uri|contains: 'pack_folder'\n    selection_traversal:\n        uri|contains|any:\n            - '..//..//'\n            - '../../'\n            - '..\\\\..\\\\'\n            - '%2e%2e%2f%2e%2e%2f'   # URL‑encoded traversal\n            - '%2e%2e%5c%2e%2e%5c'   # URL‑encoded Windows traversal\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.29778\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059\n    - attack.t1565.001\n    - cwe.23",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-29778 Directory Traversal via pack_folder parameter in pyLoad\";\n    flow:to_server,established;\n    content:\"/edit_package\"; http_uri;\n    content:\"pack_folder=\"; http_client_body;\n    pcre:\"/pack_folder=.*?(\\.\\.\\/|\\.\\/\\.\\/|%2e%2e%2f|%2e%2e%5c)/i\";\n    reference:cve,2026-29778;\n    classtype:web-application-attack;\n    sid:9000123;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로",
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3662",
+    "title": "Wavlink WL-NU516U1 adm.cgi usb_p910 명령어 삽입 취약점",
+    "description": "Wavlink WL-NU516U1 장비의 /cgi-bin/adm.cgi 파일 내 usb_p910 함수에서 Pr_mode 인자 조작을 통해 명령어 삽입 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점은 이미 제조사에 보고되었습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "Wavlink",
+        "product": "WL-NU516U1",
+        "versions": "240425 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T13:51:33.669723+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3661",
+    "title": "Wavlink WL-NU516U1 adm.cgi ota_new_upgrade 명령어 삽입 취약점",
+    "description": "Wavlink WL-NU516U1 장비의 /cgi-bin/adm.cgi 파일 내 ota_new_upgrade 함수에서 명령어 삽입 취약점이 발견되었습니다. 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 해당 내용은 이미 제조사에 보고되었습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "Wavlink",
+        "product": "WL-NU516U1",
+        "versions": "240425 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T13:51:34.204533+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
