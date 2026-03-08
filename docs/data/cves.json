@@ -1,5 +1,161 @@
 [
   {
+    "id": "CVE-2026-3727",
+    "title": "Tenda F453 QuickIndex 스택 기반 오버플로우",
+    "description": "Tenda F453 1.0.0.3 버전에서 QuickIndex의 sub_3C6C0 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. mit_linktype/PPPOEPassword 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/112",
+    "date": "2026-03-08T10:47:37.278292+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3727 Buffer Overflow Attempt via PPPOEPassword Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the stack-based buffer overflow in Tenda F453 firmware (v1.0.0.3) by sending overly long values to the mit_linktype/PPPOEPassword parameter of the /goform/QuickIndex endpoint.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/goform/QuickIndex'\n    selection_param:\n        uri|contains: 'PPPOEPassword'\n        # also catch POST body if used\n        cs-body|contains: 'PPPOEPassword'\n    selection_payload:\n        # Detect unusually long payloads that may trigger the overflow\n        uri|regex: '.{500,}'\n        cs-body|regex: '.{500,}'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3727\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453\n    - severity.high",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3727 Buffer Overflow Attempt via mit_linktype/PPPOEPassword parameter\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/QuickIndex\"; nocase;\n    http_client_body; content:\"mit_linktype=\"; nocase;\n    http_client_body; content:\"PPPOEPassword=\"; nocase;\n    reference:cve,2026-3727;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/goform/QuickIndex.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3728",
+    "title": "Tenda F453 setcfm 함수 스택 기반 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3/1.If 버전에서 /goform/setcfm 파일의 fromSetCfm 함수 관련 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. funcname/funcpara1 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전), 1.If (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/111",
+    "date": "2026-03-08T10:47:04.379683+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-3728 by sending overly long or suspicious values to the `funcname` or `funcpara1` parameters of the `/goform/setcfm` endpoint on Tenda F453 routers.\nauthor: Senior Detection Engineer\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/setcfm\"\n    selection_parameters:\n        uri|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n        cs-body|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n    selection_payload:\n        # Look for unusually long values or typical overflow patterns (e.g., long sequences of A/Z/0)\n        uri|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n        cs-body|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n    condition: all of selection_endpoint and selection_parameters and selection_payload\nlevel: high\ntags:\n    - cve.2026.3728\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\";\n    flow:to_server,established;\n    content:\"/goform/setcfm\"; http_uri;\n    content:\"funcname=\"; http_client_body;\n    content:\"funcpara1=\"; http_client_body;\n    reference:cve,2026-3728;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/1.If.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3724",
+    "title": "SourceCodester 환자 대기 구역 대기열 관리 시스템 checkin.php 권한 부족",
+    "description": "SourceCodester 환자 대기 구역 대기열 관리 시스템 1.0 버전의 /checkin.php 파일에서 권한 부족 취약점이 발견되었습니다. patient_id 인수를 조작하여 발생하는 문제이며, 원격으로 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 악용될 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285",
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "SourceCodester",
+        "product": "Patients Waiting Area Queue Management System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T08:49:56.947084+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3723",
+    "title": "code-projects 간단 항공권 예약 시스템 Admindelete.php SQL Injection",
+    "description": "code-projects 간단 항공권 예약 시스템 1.0에서 /Admindelete.php 파일의 flightno 인자 조작을 통해 SQL Injection 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "code-projects",
+        "product": "Simple Flight Ticket Booking System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T08:49:56.570856+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-3726",
     "title": "Tenda F453 webExcptypemanFilter 스택 기반 오버플로우 취약점",
     "description": "Tenda F453 1.0.0.3 버전에서 /goform/webExcptypemanFilter 파일의 fromwebExcptypemanFilter 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. page 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다.",
@@ -83,60 +239,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3724",
-    "title": "SourceCodester 환자 대기 구역 대기열 관리 시스템 checkin.php 권한 부족",
-    "description": "SourceCodester 환자 대기 구역 대기열 관리 시스템 1.0 버전의 /checkin.php 파일에서 권한 부족 취약점이 발견되었습니다. patient_id 인수를 조작하여 발생하는 문제이며, 원격으로 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 악용될 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-285",
-      "CWE-266"
-    ],
-    "affected": [
-      {
-        "vendor": "SourceCodester",
-        "product": "Patients Waiting Area Queue Management System",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-08T08:49:56.947084+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3723",
-    "title": "code-projects 간단 항공권 예약 시스템 Admindelete.php SQL Injection",
-    "description": "code-projects 간단 항공권 예약 시스템 1.0에서 /Admindelete.php 파일의 flightno 인자 조작을 통해 SQL Injection 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-74"
-    ],
-    "affected": [
-      {
-        "vendor": "code-projects",
-        "product": "Simple Flight Ticket Booking System",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-08T08:49:56.570856+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-1999-0073",
     "title": "텔넷을 통한 LD_LIBRARY_PATH 환경 변수 조작으로 인한 루트 권한 획득 가능성",
     "description": "텔넷은 원격 클라이언트가 LD_LIBRARY_PATH와 같은 환경 변수를 설정할 수 있도록 허용합니다.",
@@ -155,6 +257,173 @@
     ],
     "report_url": null,
     "date": "2026-03-07T17:40:52.083546+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3729",
+    "title": "Tenda F453 PPTPDClient fromPptpUserAdd 스택 기반 오버플로우",
+    "description": "Tenda F453 1.0.0.3/3.As 버전에서 /goform/PPTPDClient 파일의 fromPptpUserAdd 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. username/opttype 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전), 3.As (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/110",
+    "date": "2026-03-08T10:46:43.232925+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3729 Exploitation Attempt via PPTPDClient Buffer Overflow\nstatus: experimental\ndescription: Detects attempts to exploit the stack‑based buffer overflow in the fromPptpUserAdd function of Tenda F453 by sending overly long or malicious values to the `username` or `opttype` parameters of `/goform/PPTPDClient`.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/PPTPDClient\"\n    selection_method:\n        request_method|contains: \"POST\"\n    selection_username_long:\n        cs-body|contains|regex: \"(?i)username=.{200,}\"\n    selection_opttype_long:\n        cs-body|contains|regex: \"(?i)opttype=.{200,}\"\n    selection_malicious_chars:\n        cs-body|contains|any:\n            - \"%u\"\n            - \"%n\"\n            - \"%x\"\n            - \"%s\"\n            - \"%p\"\n            - \"%d\"\n            - \"%c\"\n    condition: all of selection_endpoint, selection_method, (selection_username_long or selection_opttype_long), selection_malicious_chars\nlevel: high\ntags:\n    - cve.2026.3729\n    - attack.initial_access\n    - attack.t1210\n    - attack.t1059\n    - attack.t1499\n    - vulnerability\n    - tenda\n    - buffer_overflow",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3729 Remote Buffer Overflow Attempt via /goform/PPTPDClient username/opttype parameters\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/PPTPDClient\"; nocase;\n    http_client_body; content:\"username=\"; nocase;\n    http_client_body; pcre:\"/username=[A-Za-z0-9]{200,}/i\";\n    http_client_body; content:\"opttype=\"; nocase;\n    reference:cve,2026-3729;\n    reference:url,https://vuldb.com/?id.349707;\n    classtype:web-application-attack;\n    sid:9000123;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/3.As.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23238",
+    "title": "romfs: sb_set_blocksize() 반환 값 확인",
+    "description": "Linux 커널의 romfs에서 `sb_set_blocksize()` 반환 값을 확인하지 않아 블록 장치 구성과 호환되지 않는 블록 크기 요청 시 오류가 발생할 수 있는 취약점이 수정되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 a381f0f61b35c8894b0bd0d6acef2d8f9b08b244 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f2521ab1f63a8c244f06a080319e5ff9a2e1bd95 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 2c5829cd8fbbc91568c520b666898f57cdcb8cf6 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 cbd9931e6456822067725354d83446c5bb813030 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 9b203b8ddd7359270e8a694d0584743555128e2c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 4b71ad7676564a94ec5f7d18298f51e8ae53db73 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 ab7ad7abb3660c58ffffdf07ff3bb976e7e0afa0 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T15:01:08.952681+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-23237",
+    "title": "platform/x86: classmate-laptop: 널 포인터 검사 추가",
+    "description": "Classmate 노트북 드라이버에서 `accel` 객체 주소가 입력 장치 드라이버 데이터에 저장되기 전에 해당 객체를 사용하는 코드가 실행될 수 있는 취약점을 수정합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 993708fc18d0d0919db438361b4e8c1f980a8d1b 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 af673209d43b46257540997aba042b90ef3258c0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 eb214804f03c829decf10998e9b7dd26f4c8ab9e 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 9cf4b9b8ad09d6e05307abc4e951cabdff4be652 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 da6e06a5fdbabea3870d18c227734b5dea5b3be6 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 97528b1622b8f129574d29a571c32a3c85eafa3c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 fe747d7112283f47169e9c16e751179a9b38611e 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T15:01:08.435122+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-23236",
+    "title": "fbdev: smscufx: 커널 공간으로 ioctl 메모리 올바르게 복사",
+    "description": "Linux 커널의 smscufx 드라이버에서 UFX_IOCTL_REPORT_DAMAGE ioctl 호출 시 사용자 공간의 데이터를 커널 공간으로 안전하게 복사하지 않아 발생하는 취약점이 수정되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 061cfeb560aa3ddc174153dbe5be9d0b55eb7248 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 6167af934f956d3ae1e06d61f45cd0d1004bbe1a 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 a0321e6e58facb39fe191caa0e52ed9aab6a48fe 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 0634e8d650993602fc5b389ff7ac525f6542e141 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 52917e265aa5f848212f60fc50fc504d8ef12866 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1c008ad0f0d1c1523902b9cdb08e404129677bfc 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f1e91bd4efeae48b0f42caed7e8ce2e3a0d05b02 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 120adae7b42faa641179270c067864544a50ab69 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T15:01:04.337239+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-71238",
+    "title": "scsi: qla2xxx: bsg_done() 함수에서 발생하는 이중 해제 문제 수정",
+    "description": "Linux 커널에서 qla2xxx 드라이버의 bsg_done() 함수 호출 시 이중 해제 오류가 발생하여 시스템 패닉을 일으키는 취약점이 해결되었습니다. 특정 오류 상황에서 bsg_done()이 잘못 호출되어 이중 해제가 발생하며, 해당 문제를 방지하기 위해 bsg_done() 호출 전 유효성 검사가 추가되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 057a5bdc481e58ab853117254867ffb22caf9f6e 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f2bbb4db0e4a4fbd5e649c0b5d8733f61da24720 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 27ac9679c43a09e54e2d9aae9980ada045b428e0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 74e7458537cd9349cf019862e51491f670871707 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 871f6236da96c4a9712b8a29d7f555f767a47e95 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 31f33b856d2324d86bcaef295f4d210477a1c018 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 708003e1bc857dd014d4c44278d7d77c26f91b1c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 c2c68225b1456f4d0d393b5a8778d51bb0d5b1d0 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T15:00:51.851843+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -191,6 +460,60 @@
     ],
     "report_url": null,
     "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3731",
+    "title": "libssh SFTP 확장 이름 sftp.c sftp_extensions_get_data 범위 초과",
+    "description": "libssh 0.11.3 버전까지의 SFTP 확장 이름 처리기의 sftp_extensions_get_name/sftp_extensions_get_data 함수에서 범위 초과 읽기 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 0.11.4 또는 0.12.0 버전으로 업그레이드하면 해결됩니다. 해당 패치는 855a0853ad3abd4a6cd85ce06fce6d8d4c7a0b60 입니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "libssh",
+        "versions": "0.11.0 (단일 버전), 0.11.1 (단일 버전), 0.11.2 (단일 버전), 0.11.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T10:45:56.992037+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3730",
+    "title": "itsourcecode 무료 호텔 예약 시스템 index.php SQL Injection 취약점",
+    "description": "itsourcecode 무료 호텔 예약 시스템 1.0 버전에서 /hotel/admin/mod_amenities/index.php?view=edit 파일의 amen_id/rmtype_id 파라미터 조작을 통해 SQL Injection 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "itsourcecode",
+        "product": "Free Hotel Reservation System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T10:45:56.685487+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -33876,64 +34199,6 @@
     "severity": "Low"
   },
   {
-    "id": "CVE-2026-23238",
-    "title": "romfs: sb_set_blocksize() 반환 값 확인",
-    "description": "Linux 커널의 romfs에서 `sb_set_blocksize()` 반환 값을 확인하지 않아 블록 장치 구성과 호환되지 않는 블록 크기 요청 시 오류가 발생할 수 있는 취약점이 수정되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 a381f0f61b35c8894b0bd0d6acef2d8f9b08b244 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f2521ab1f63a8c244f06a080319e5ff9a2e1bd95 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 2c5829cd8fbbc91568c520b666898f57cdcb8cf6 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 cbd9931e6456822067725354d83446c5bb813030 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 9b203b8ddd7359270e8a694d0584743555128e2c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 4b71ad7676564a94ec5f7d18298f51e8ae53db73 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 ab7ad7abb3660c58ffffdf07ff3bb976e7e0afa0 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T15:01:08.952681+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-23237",
-    "title": "platform/x86: classmate-laptop: 널 포인터 검사 추가",
-    "description": "Classmate 노트북 드라이버에서 `accel` 객체 주소가 입력 장치 드라이버 데이터에 저장되기 전에 해당 객체를 사용하는 코드가 실행될 수 있는 취약점을 수정합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 993708fc18d0d0919db438361b4e8c1f980a8d1b 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 af673209d43b46257540997aba042b90ef3258c0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 eb214804f03c829decf10998e9b7dd26f4c8ab9e 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 9cf4b9b8ad09d6e05307abc4e951cabdff4be652 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 da6e06a5fdbabea3870d18c227734b5dea5b3be6 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 97528b1622b8f129574d29a571c32a3c85eafa3c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 fe747d7112283f47169e9c16e751179a9b38611e 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T15:01:08.435122+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2025-14604",
     "title": "IBM Storage Scale 특정 ACL 구성 취약점 해결 (5.2.3.6 및 6.0.0.2)",
     "description": "IBM Storage Scale 5.2.3.0-5.2.3.5 및 6.0.0.0-6.0.0.1 버전에서 특정 ACL 구성 시 권한이 잘못 부여되어 의도치 않은 실행이 발생할 수 있는 취약점이 발견되었습니다. 5.2.3.6 및 6.0.0.2 버전에서 해당 문제가 해결되었습니다. 로컬 사용자가 자원 실행 권한을 의도치 않게 확장시키는 것을 방지합니다.",
@@ -33985,35 +34250,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-23236",
-    "title": "fbdev: smscufx: 커널 공간으로 ioctl 메모리 올바르게 복사",
-    "description": "Linux 커널의 smscufx 드라이버에서 UFX_IOCTL_REPORT_DAMAGE ioctl 호출 시 사용자 공간의 데이터를 커널 공간으로 안전하게 복사하지 않아 발생하는 취약점이 수정되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 061cfeb560aa3ddc174153dbe5be9d0b55eb7248 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 6167af934f956d3ae1e06d61f45cd0d1004bbe1a 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 a0321e6e58facb39fe191caa0e52ed9aab6a48fe 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 0634e8d650993602fc5b389ff7ac525f6542e141 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 52917e265aa5f848212f60fc50fc504d8ef12866 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1c008ad0f0d1c1523902b9cdb08e404129677bfc 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f1e91bd4efeae48b0f42caed7e8ce2e3a0d05b02 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 120adae7b42faa641179270c067864544a50ab69 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T15:01:04.337239+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2026-23235",
@@ -34124,35 +34360,6 @@
     ],
     "report_url": null,
     "date": "2026-03-04T15:00:52.703026+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-71238",
-    "title": "scsi: qla2xxx: bsg_done() 함수에서 발생하는 이중 해제 문제 수정",
-    "description": "Linux 커널에서 qla2xxx 드라이버의 bsg_done() 함수 호출 시 이중 해제 오류가 발생하여 시스템 패닉을 일으키는 취약점이 해결되었습니다. 특정 오류 상황에서 bsg_done()이 잘못 호출되어 이중 해제가 발생하며, 해당 문제를 방지하기 위해 bsg_done() 호출 전 유효성 검사가 추가되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 057a5bdc481e58ab853117254867ffb22caf9f6e 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f2bbb4db0e4a4fbd5e649c0b5d8733f61da24720 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 27ac9679c43a09e54e2d9aae9980ada045b428e0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 74e7458537cd9349cf019862e51491f670871707 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 871f6236da96c4a9712b8a29d7f555f767a47e95 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 31f33b856d2324d86bcaef295f4d210477a1c018 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 708003e1bc857dd014d4c44278d7d77c26f91b1c 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 c2c68225b1456f4d0d393b5a8778d51bb0d5b1d0 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T15:00:51.851843+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
