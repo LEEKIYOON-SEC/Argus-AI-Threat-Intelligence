@@ -1,5 +1,259 @@
 [
   {
+    "id": "CVE-2026-3787",
+    "title": "UltraVNC Windows 서비스 cryptbase.dll 제어되지 않은 검색 경로",
+    "description": "UltraVNC 1.6.4.0 Windows 버전에서 cryptbase.dll 라이브러리의 Windows 서비스 구성 요소에 제어되지 않은 검색 경로 취약점이 발견되었습니다. 로컬 접근 권한이 필요하며, 공격 난이도는 어려운 것으로 보고되었습니다. 해당 벤더에 통보했으나 응답이 없습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427",
+      "CWE-426"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "UltraVNC",
+        "versions": "1.6.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/116",
+    "date": "2026-03-08T23:42:13.878613+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3787 DLL Search Order Hijacking Attempt (UltraVNC)\nstatus: experimental\ndescription: Detects attempts to exploit the cryptbase.dll search path manipulation vulnerability in UltraVNC 1.6.4.0 by loading cryptbase.dll from non‑system locations, which may indicate DLL search order hijacking for privilege escalation.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_cryptbase_load:\n        EventID: 7                     # Sysmon Image loaded\n        ImageLoaded|endswith: '\\cryptbase.dll'\n    selection_untrusted_path:\n        ImageLoaded|contains:\n            - '\\\\AppData\\\\'\n            - '\\\\Temp\\\\'\n            - '\\\\Users\\\\'\n            - '\\\\Downloads\\\\'\n            - '\\\\Program Files (x86)\\\\'\n    selection_ultravnc_process:\n        ParentImage|contains: 'ultravnc.exe'\n    condition: all of selection_cryptbase_load, selection_untrusted_path, selection_ultravnc_process\nlevel: high\ntags:\n    - cve.2026.3787\n    - attack.t1574.001\n    - attack.t1068\n    - attack.t1078\n    - windows\n    - privilege_escalation\n    - dll_hijacking\n    - ultravn\n    - sigma\n    - exploit\n    - cryptbase.dll\n    - search_path_hijack",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25073",
+    "title": "XikeStor SKS8310-8X 저장 XSS 취약점 (시스템 이름)",
+    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에 시스템 이름 필드를 통해 임의 스크립트 콘텐츠를 삽입할 수 있는 저장형 XSS 취약점이 존재합니다. 인증된 공격자는 부적절한 출력 인코딩으로 인해 저장된 값이 조회될 때 피해자의 브라우저에서 악성 스크립트가 실행되도록 할 수 있습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
+        "product": "XikeStor SKS8310-8X",
+        "versions": "1.04.B07 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T02:48:34.199706+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3786",
+    "title": "EasyCMS 요청 파라미터 RbacuserAction.class.php SQL Injection 취약점",
+    "description": "EasyCMS 1.6 버전 이하에서 /RbacuserAction.class.php 파일의 요청 파라미터 처리 과정에서 SQL Injection 취약점이 발견되었습니다. _order 파라미터 조작을 통해 공격이 가능하며, 원격으로 악용될 수 있습니다. 해당 취약점에 대한 익스플로잇이 공개되었고, 공급업체는 이에 대한 대응을 하지 않았습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "EasyCMS",
+        "versions": "1.0 (단일 버전), 1.1 (단일 버전), 1.2 (단일 버전), 1.3 (단일 버전), 1.4 (단일 버전), 1.5 (단일 버전), 1.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T22:44:22.650387+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3785",
+    "title": "EasyCMS 요청 파라미터 RbacnodeAction.class.php SQL Injection 취약점",
+    "description": "EasyCMS 1.6 버전 이하에서 /RbacnodeAction.class.php 파일의 요청 파라미터 처리 과정에서 SQL Injection 취약점이 발견되었습니다. _order 파라미터 조작을 통해 공격이 가능하며, 원격으로 악용될 수 있습니다. 공개된 익스플로잇이 존재하며, 개발사는 해당 취약점에 대해 응답하지 않았습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "EasyCMS",
+        "versions": "1.0 (단일 버전), 1.1 (단일 버전), 1.2 (단일 버전), 1.3 (단일 버전), 1.4 (단일 버전), 1.5 (단일 버전), 1.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T22:44:22.545082+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3788",
+    "title": "Bytedesk SpringAIOpenrouterRestController 서버 측 요청 위조 취약점",
+    "description": "Bytedesk 1.3.9 버전 이하에서 SpringAIOpenrouterRestController 컴포넌트의 getModels 함수에 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. apiUrl 인수를 조작하여 공격이 가능하며, 공개적으로 익스플로잇이 공개되어 악용될 수 있습니다. 1.4.5.4 버전으로 업그레이드하면 해당 문제를 해결할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Bytedesk",
+        "versions": "1.3.0 (단일 버전), 1.3.1 (단일 버전), 1.3.2 (단일 버전), 1.3.3 (단일 버전), 1.3.4 (단일 버전), 1.3.5 (단일 버전), 1.3.6 (단일 버전), 1.3.7 (단일 버전), 1.3.8 (단일 버전), 1.3.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T23:41:47.202445+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3789",
+    "title": "Bytedesk SpringAIGiteeRestController 서버 측 요청 위조 취약점",
+    "description": "Bytedesk 1.3.9 버전 이하에서 SpringAIGiteeRestController 컴포넌트의 getModels 함수에 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. apiUrl 인수를 조작하여 공격이 가능하며, 현재 익스플로잇이 공개되어 악용될 수 있습니다. 1.4.5.4 버전으로 업데이트하면 해당 문제를 해결할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Bytedesk",
+        "versions": "1.3.0 (단일 버전), 1.3.1 (단일 버전), 1.3.2 (단일 버전), 1.3.3 (단일 버전), 1.3.4 (단일 버전), 1.3.5 (단일 버전), 1.3.6 (단일 버전), 1.3.7 (단일 버전), 1.3.8 (단일 버전), 1.3.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T23:41:46.977701+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3398",
+    "title": "Tenda F453 httpd fromAdvSetWan 버퍼 오버플로우",
+    "description": "Tenda F453 1.0.0.3 버전에서 /goform/AdvSetWan 파일의 fromAdvSetWan 함수에 버퍼 오버플로우 취약점이 발견되었습니다. wanmode/PPPOEPassword 인수를 조작하여 원격으로 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/38",
+    "date": "2026-03-01T22:57:35.215175+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3398_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3398 exploitation attempts targeting Tenda F453\"\n        author = \"Argus-AI\"\n        cve = \"CVE-2026-3398\"\n        product = \"Tenda F453\"\n        version = \"1.0.0.3\"\n    strings:\n        $s1 = \"/goform/AdvSetWan\" ascii\n        $s2 = \"wanmode\" ascii\n        $s3 = \"PPPOEPassword\" ascii\n        $s4 = \"https://vuldb.com/?id.348293\" ascii\n        $s5 = \"https://vuldb.com/?ctiid.348293\" ascii\n        $s6 = \"https://vuldb.com/?submit.759630\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로 (/goform/AdvSetWan)"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/AdvSetWan))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-3770",
     "title": "SourceCodester 컴퓨터 실험실 관리 시스템 크로스 사이트 요청 위조 취약점",
     "description": "SourceCodester 컴퓨터 실험실 관리 시스템 1.0 버전에서 크로스 사이트 요청 위조(CSRF) 취약점이 발견되었습니다. 해당 취약점은 원격에서 악용 가능하며, 관련 익스플로잇이 공개되어 있습니다. 시스템의 미확인 부분에 영향을 미칩니다.",
@@ -102,122 +356,6 @@
     ],
     "report_url": null,
     "date": "2026-03-08T21:40:18.267697+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3786",
-    "title": "EasyCMS 요청 파라미터 RbacuserAction.class.php SQL Injection 취약점",
-    "description": "EasyCMS 1.6 버전 이하에서 /RbacuserAction.class.php 파일의 요청 파라미터 처리 과정에서 SQL Injection 취약점이 발견되었습니다. _order 파라미터 조작을 통해 공격이 가능하며, 원격으로 악용될 수 있습니다. 해당 취약점에 대한 익스플로잇이 공개되었고, 공급업체는 이에 대한 대응을 하지 않았습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-74"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "EasyCMS",
-        "versions": "1.0 (단일 버전), 1.1 (단일 버전), 1.2 (단일 버전), 1.3 (단일 버전), 1.4 (단일 버전), 1.5 (단일 버전), 1.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-08T22:44:22.650387+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3785",
-    "title": "EasyCMS 요청 파라미터 RbacnodeAction.class.php SQL Injection 취약점",
-    "description": "EasyCMS 1.6 버전 이하에서 /RbacnodeAction.class.php 파일의 요청 파라미터 처리 과정에서 SQL Injection 취약점이 발견되었습니다. _order 파라미터 조작을 통해 공격이 가능하며, 원격으로 악용될 수 있습니다. 공개된 익스플로잇이 존재하며, 개발사는 해당 취약점에 대해 응답하지 않았습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-74"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "EasyCMS",
-        "versions": "1.0 (단일 버전), 1.1 (단일 버전), 1.2 (단일 버전), 1.3 (단일 버전), 1.4 (단일 버전), 1.5 (단일 버전), 1.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-08T22:44:22.545082+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-25073",
-    "title": "XikeStor SKS8310-8X 저장 XSS 취약점 (시스템 이름)",
-    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에 시스템 이름 필드를 통해 임의 스크립트 콘텐츠를 삽입할 수 있는 저장형 XSS 취약점이 존재합니다. 인증된 공격자는 부적절한 출력 인코딩으로 인해 저장된 값이 조회될 때 피해자의 브라우저에서 악성 스크립트가 실행되도록 할 수 있습니다.",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
-        "product": "XikeStor SKS8310-8X",
-        "versions": "1.04.B07 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T02:48:34.199706+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -47232,50 +47370,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3398",
-    "title": "Tenda F453 httpd fromAdvSetWan 버퍼 오버플로우",
-    "description": "Tenda F453 1.0.0.3 버전에서 /goform/AdvSetWan 파일의 fromAdvSetWan 함수에 버퍼 오버플로우 취약점이 발견되었습니다. wanmode/PPPOEPassword 인수를 조작하여 원격으로 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/38",
-    "date": "2026-03-01T22:57:35.215175+00:00",
-    "rule_engines": [
-      "yara"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": {
-        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3398_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3398 exploitation attempts targeting Tenda F453\"\n        author = \"Argus-AI\"\n        cve = \"CVE-2026-3398\"\n        product = \"Tenda F453\"\n        version = \"1.0.0.3\"\n    strings:\n        $s1 = \"/goform/AdvSetWan\" ascii\n        $s2 = \"wanmode\" ascii\n        $s3 = \"PPPOEPassword\" ascii\n        $s4 = \"https://vuldb.com/?id.348293\" ascii\n        $s5 = \"https://vuldb.com/?ctiid.348293\" ascii\n        $s6 = \"https://vuldb.com/?submit.759630\" ascii\n    condition:\n        any of ($s*)\n}",
-        "source": "AI Generated (Compiled)",
-        "verified": false,
-        "indicators": [
-          "파일 경로 (/goform/AdvSetWan)"
-        ]
-      },
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/AdvSetWan))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-67482",
