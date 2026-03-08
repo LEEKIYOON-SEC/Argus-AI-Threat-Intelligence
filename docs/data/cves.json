@@ -1,5 +1,130 @@
 [
   {
+    "id": "CVE-2026-3698",
+    "title": "UTT HiPER 810G NTP strcpy 버퍼 오버플로우",
+    "description": "UTT HiPER 810G 1.7.7-171114 버전 이하에서 /goform/NTP 파일의 strcpy 함수에 버퍼 오버플로우 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "UTT",
+        "product": "HiPER 810G",
+        "versions": "1.7.7-171114 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/103",
+    "date": "2026-03-08T03:14:16.271494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/NTP.))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30910",
+    "title": "Perl의 Crypt::Sodium::XS 버전 0.001000 이하의 정수 오버플로우 가능성",
+    "description": "Perl용 Crypt::Sodium::XS 버전 0.001000 이하에서, 결합된 AEAD 암호화, 서명 생성, bin2hex 함수가 출력 크기가 SIZE_MAX보다 작을지 확인하지 않아 정수 오버플로우가 발생할 수 있습니다. 이는 bin2hex 및 aes256gcm 외 다른 암호화 알고리즘에서 충돌을, aes256gcm 암호화 및 서명에서는 버퍼 오버플로우를 유발할 수 있습니다. 매우 큰 메시지 길이에서만 발생 가능성이 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "IAMB",
+        "product": "Crypt::Sodium::XS",
+        "versions": "0.001000 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T03:13:53.590328+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3697",
+    "title": "Planet ICG-2510 언어 패키지 구성 httpd sub_40C8E4 스택 기반 오버플로우",
+    "description": "Planet ICG-2510 1.0_20250811에서 언어 패키지 구성 핸들러의 sub_40C8E4 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 'Language' 인수를 조작하여 원격으로 공격이 가능합니다. 해당 벤더에 통보했으나 응답이 없습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Planet",
+        "product": "ICG-2510",
+        "versions": "1.0_20250811 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-08T03:13:51.877651+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-3677",
     "title": "Tenda FH451 setcfm 함수 스택 기반 오버플로우 취약점",
     "description": "Tenda FH451 1.0.0.9 버전에서 /goform/setcfm 파일의 fromSetCfm 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. funcname/funcpara1 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
@@ -225,42 +350,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-3674",
