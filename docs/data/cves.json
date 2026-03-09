@@ -1,5 +1,1511 @@
 [
   {
+    "id": "CVE-2026-29790",
+    "title": "dbt-common: commonprefix() 함수를 통한 경로 탐색 취약점",
+    "description": "dbt-common은 dbt-core 및 어댑터 구현에 사용되는 공유 유틸리티입니다. 1.34.2 및 1.37.3 버전 이전에서는 tarball 아카이브 추출 시 사용되는 safe_extract() 함수에 경로 탐색 취약점이 존재합니다. commonprefix() 함수가 경로 구성 요소가 아닌 문자별로 경로를 비교하여 악성 tarball이 일치하는 이름 접두사를 가진 형제 디렉터리에 파일을 쓸 수 있도록 허용합니다. 해당 문제는 1.34.2 및 1.37.3 버전에서 수정되었습니다.",
+    "cvss": 2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "dbt-labs",
+        "product": "dbt-common",
+        "versions": "< 1.37.3 (단일 버전), < 1.34.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:29.428645+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-29789",
+    "title": "Vito: 워크플로우 사이트 생성 작업에서의 권한 상승 취약점 - 권한 없는 서버 수정 가능",
+    "description": "Vito는 서버 관리 및 PHP 애플리케이션 배포를 돕는 자체 호스팅 웹 애플리케이션입니다. 3.20.3 버전 이전에는 워크플로우 사이트 생성 작업 시 인증된 공격자가 다른 프로젝트의 서버에 대한 사이트를 생성/관리할 수 있는 권한 상승 취약점이 존재했습니다. 해당 문제는 3.20.3 버전에서 패치되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "vitodeploy",
+        "product": "vito",
+        "versions": "< 3.20.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:47.177155+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29788",
+    "title": "TSPortal: 모든 사용자의 삭제 요청 위조 가능",
+    "description": "TSPortal은 WikiTide 재단의 Trust and Safety 팀에서 보고서, 조사, 항소 및 투명성 관련 업무를 처리하는 내부 플랫폼입니다. 30 버전 이전에는 빈 문자열을 null로 변환하여 DPA 보고서를 실제 삭제 요청으로 위장할 수 있었습니다. 해당 문제는 30 버전에서 수정되었습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-283",
+      "CWE-1287"
+    ],
+    "affected": [
+      {
+        "vendor": "miraheze",
+        "product": "TSPortal",
+        "versions": "< 30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T20:50:47.002742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28480",
+    "title": "OpenClaw < 2026.2.14 - 텔레그램 허용 목록 권한 우회 취약점 (변경 가능한 사용자 이름 이용)",
+    "description": "OpenClaw 2026.2.14 이전 버전은 텔레그램 허용 목록에서 변경 가능한 사용자 이름을 사용하여 권한을 우회할 수 있는 취약점을 가지고 있습니다. 공격자는 재활용된 사용자 이름을 획득하여 허용 목록 제한을 우회하고 승인되지 않은 발신자로 봇과 상호 작용하여 신원을 위조할 수 있습니다. 이는 불변의 숫자 발신자 ID 대신 변경 가능한 사용자 이름을 허용하기 때문입니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:13:55.543674+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25960",
+    "title": "vLLM의 SSRF 보호 우회 취약점",
+    "description": "vLLM은 대규모 언어 모델(LLM) 추론 및 서비스 엔진입니다. CVE-2026-24779에 대한 SSRF 보호 수정(0.15.1)이 URL 파싱 방식 불일치로 인해 `load_from_url_async` 메서드에서 우회될 수 있습니다. urllib3를 사용하여 URL 유효성을 검사하지만, 실제 HTTP 요청에는 aiohttp가 사용되어 yarl 라이브러리로 URL을 파싱하며, 이로 인해 0.17.0 버전에서 취약점이 발생합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "vllm-project",
+        "product": "vllm",
+        "versions": ">= 0.15.1, < 0.17.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:29.599952+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24512",
+    "title": "ingress-nginx 인증 방식 nginx 설정 삽입 취약점",
+    "description": "ingress-nginx에서 `rules.http.paths.path` Ingress 필드를 통해 nginx 설정 삽입이 가능한 보안 문제가 발견되었습니다. 이는 ingress-nginx 컨트롤러 컨텍스트에서 임의 코드 실행 및 컨트롤러가 접근 가능한 Secret 정보 유출로 이어질 수 있습니다. (기본 설치 시 컨트롤러는 클러스터 전체의 모든 Secret에 접근 가능합니다.)",
+    "cvss": 8.8,
+    "epss": 0.0006,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Kubernetes",
+        "product": "ingress-nginx",
+        "versions": "1.13.7 이전, 1.14.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:29.685077+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/mghouse17/dependency-guardian-real-advisory-demo"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-41257",
+    "title": "Suprema BioStar 2 보안 취약점 - 비밀번호 변경",
+    "description": "Suprema BioStar 2 버전 2.9.11.6에서 현재 비밀번호 없이 새로운 비밀번호를 설정할 수 있는 취약점이 발견되었습니다. 이 취약점을 다른 취약점과 결합하여 악용하면 계정 접근 권한을 무단으로 획득하고 시스템이 손상될 수 있습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Suprema",
+        "product": "BioStar 2",
+        "versions": "2.9.11.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T22:52:16.489483+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23925",
+    "title": "낮은 권한 사용자의 설정 가져오기 API를 통한 무단 호스트 생성",
+    "description": "템플릿/호스트 쓰기 권한을 가진 인증된 Zabbix 사용자(User 역할)가 configuration.import API를 통해 객체를 생성할 수 있습니다. 이는 무단 호스트 생성을 통해 기밀 정보 유출로 이어질 수 있습니다. 일반적으로 User 역할은 쓰기 권한이 있더라도 템플릿/호스트를 생성하고 편집하기에 충분하지 않습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Zabbix",
+        "product": "Zabbix",
+        "versions": "6.0.0 부터 6.0.40 이하, 7.0.0 부터 7.0.17 이하, 7.4.0 부터 7.4.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:25.906842+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3288",
+    "title": "ingress-nginx의 rewrite-target nginx 설정 삽입 취약점",
+    "description": "ingress-nginx에서 `nginx.ingress.kubernetes.io/rewrite-target` Ingress 어노테이션을 사용하여 nginx에 임의의 설정을 삽입할 수 있는 보안 문제가 발견되었습니다. 이는 ingress-nginx 컨트롤러 컨텍스트에서 임의 코드 실행 및 컨트롤러가 접근 가능한 Secret 정보 유출로 이어질 수 있습니다. (기본 설치 시 컨트롤러는 클러스터 전체의 모든 Secret에 접근 가능합니다.)",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Kubernetes",
+        "product": "ingress-nginx",
+        "versions": "1.13.8 이전, 1.14.4 이전, 1.15.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:23.161057+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31802",
+    "title": "node-tar 심볼릭 링크 경로 탐색 취약점 (드라이브 상대 경로 링크 사용)",
+    "description": "node-tar는 Node.js를 위한 기능이 풍부한 Tar 라이브러리입니다. 7.5.11 버전 이전에는 `C:../../../target.txt`와 같은 드라이브 상대 경로 심볼릭 링크를 사용하여 추출 디렉토리 외부 파일을 덮어쓰는 취약점이 존재했습니다. 이 문제는 7.5.11에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "isaacs",
+        "product": "node-tar",
+        "versions": "< 7.5.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:22.492955+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30926",
+    "title": "SiYuan Note 게시 서비스 권한 우회 취약점 - 낮은 권한 사용자의 노트 내용 수정 가능",
+    "description": "SiYuan Note 3.5.10 이전 버전에서, 게시 서비스의 권한 우회 취약점이 발견되었습니다. RoleReader 권한을 가진 사용자가 /api/block/appendHeadingChildren API 엔드포인트를 통해 노트 내용을 수정할 수 있습니다. 엔드포인트가 적절한 권한 검사를 수행하지 않아, 읽기 전용 권한 사용자도 노트에 블록을 추가하여 노트 무결성을 훼손할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.5.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:21.477737+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2754",
+    "title": "Navtor NavBox의 인증 누락으로 인한 민감 정보 노출",
+    "description": "Navtor NavBox 장치의 HTTP API 엔드포인트에 인증이 없어 민감한 설정 및 운영 데이터가 노출될 수 있습니다. 네트워크 접근 권한이 있는 공격자는 TCP 8080 포트를 통해 내부 네트워크 파라미터, ECDIS 및 OT 정보, 장치 식별자, 서비스 상태 로그 등을 탈취할 수 있습니다. 인증 절차 부재가 주요 원인입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Navtor",
+        "product": "NavBox",
+        "versions": "4.12.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:32:54.355533+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2331",
+    "title": "CVE-2026-2331",
+    "description": "AppEngine의 HTTP 파일 접근 기능에서 부적절한 접근 제한으로 인해 인증되지 않은 사용자가 민감한 파일 시스템 영역에 읽기/쓰기 작업을 수행할 수 있습니다. 특히, 고객 정의 비밀번호를 포함한 애플리케이션 설정을 읽고 수정할 수 있으며, 샌드박스 환경 내에서 임의의 Lua 코드 실행도 가능합니다. 중요한 파일 시스템 디렉터리가 HTTP를 통해 의도치 않게 노출된 것이 원인입니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:55.258793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2330",
+    "title": "CVE-2026-2330",
+    "description": "CROWN REST 인터페이스의 미흡한 화이트리스트 적용으로 인해 공격자가 장치의 제한된 파일 시스템 영역에 접근할 수 있습니다. 내부 테스트용으로 의도된 특정 디렉터리가 화이트리스트에 포함되지 않아 인증 없이 접근 가능합니다. 인증되지 않은 공격자는 재부팅 후 활성화되는 조작된 파라미터 파일을 배치하여 네트워크 구성 및 애플리케이션 파라미터와 같은 중요한 장치 설정을 변경할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.8.0 이전"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:53.126326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-26982",
+    "title": "Ghostty 페이스트 및 드래그 앤 드롭 작업 시 임의 명령 실행 취약점",
+    "description": "Ghostty는 크로스 플랫폼 터미널 에뮬레이터로, 붙여넣기 및 드래그 앤 드롭된 텍스트에 Ctrl+C와 같은 제어 문자를 허용합니다. 특정 셸 환경에서 이러한 문자를 사용하여 임의 명령을 실행할 수 있습니다. 사용자가 악성 텍스트를 복사/붙여넣기 또는 드래그 앤 드롭하도록 유도해야 하며, Ghostty v1.3.0에서 해당 문제가 해결되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "ghostty-org",
+        "product": "ghostty",
+        "versions": "< 1.3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:15.814041+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1776",
+    "title": "Camaleon CMS AWS 업로더 인증된 경로 탐색 임의 파일 읽기 취약점",
+    "description": "Camaleon CMS 2.4.5.0 ~ 2.9.0 버전에서 AWS S3 업로더 구현에 경로 탐색 취약점이 존재하여, 인증된 사용자가 웹 서버 파일 시스템의 임의 파일을 읽을 수 있습니다. 파일 경로 검증 부재로 인해 등록된 사용자도 민감한 파일에 접근 가능하며, CVE-2024-46987의 불완전한 수정 사항을 우회합니다. AWS S3 저장소 백엔드를 사용하는 환경에 영향을 미칩니다.",
+    "cvss": 6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "owen2345",
+        "product": "Camaleon CMS",
+        "versions": "2.4.5.0 부터 2.9.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:14.993938+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1468",
+    "title": "QuickCMS의 교차 사이트 요청 위조 취약점",
+    "description": "QuickCMS는 여러 엔드포인트에서 교차 사이트 요청 위조(CSRF)에 취약합니다. 공격자는 피해자가 방문할 경우 피해자의 권한으로 POST 요청을 자동으로 전송하는 악성 웹사이트를 제작할 수 있습니다. 해당 소프트웨어는 CSRF 공격에 대한 보호 장치가 전혀 구현되어 있지 않으며, 모든 폼이 잠재적으로 취약합니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSolution",
+        "product": "QuickCMS",
+        "versions": "6.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T12:22:58.982794+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28493",
+    "title": "ImageMagick SIXEL 디코더 정수 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 버전 이전에서 SIXEL 디코더에 정수 오버플로우 취약점이 존재합니다. 악의적으로 조작된 이미지를 통해 경계 외 쓰기가 발생할 수 있으며, 7.1.2-16에서 해당 취약점이 해결되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": "< 7.1.2-16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:09.08683+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28433",
+    "title": "Misskey 리소스 소유권 검증 부족",
+    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 10.93.0 버전 이후, 2026.3.1 이전 버전의 Misskey 서버는 소유권 검증 부족으로 다른 사용자의 데이터를 가져오는 취약점이 존재합니다. 공격자는 대상 파일의 ID를 알아야 악용 가능하며, 영향도는 비교적 낮은 것으로 평가됩니다. 2026.3.1에서 해당 취약점이 수정되었습니다.",
+    "cvss": 2.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "misskey-dev",
+        "product": "misskey",
+        "versions": ">= 10.93.0, < 2026.3.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:09.179326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-28432",
+    "title": "HTTP 서명 검증 우회 가능",
+    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 2026.3.1 이전 버전의 모든 Misskey 서버에서 HTTP 서명 검증을 우회하는 취약점이 발견되었습니다. 연동 관련 취약점이지만, 연동 활성화 여부와 관계없이 모든 서버에 영향을 미칩니다. 2026.3.1에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "misskey-dev",
+        "product": "misskey",
+        "versions": "< 2026.3.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:08.161989+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28431",
+    "title": "Misskey의 부적절한 권한 검사 및 입력 유효성 검사 결함",
+    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 8.45.0 버전 이후, 2026.3.1 이전 버전의 서버에서 권한 검사 및 입력 유효성 검사 부족으로 인해 악의적인 사용자가 접근 권한이 없는 데이터에 접근할 수 있는 취약점이 발견되었습니다. 페더레이션 활성화 여부와 관계없이 발생하며, 심각한 데이터 유출로 이어질 수 있습니다. 2026.3.1에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "misskey-dev",
+        "product": "misskey",
+        "versions": ">= 8.45.0, < 2026.3.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:03.215572+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30883",
+    "title": "ImageMagick PNG 인코더에서 매우 큰 이미지 프로파일 작성 시 힙 오버플로우 발생",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서는 PNG 이미지 인코딩 시 매우 큰 이미지 프로파일로 인해 힙 오버플로우가 발생할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
+    "cvss": 5.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:02.91644+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28693",
+    "title": "ImageMagick DIB 코더 정수 오버플로우 취약점 - 범위 초과 읽기/쓰기 가능",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 DIB 코더의 정수 오버플로우로 인해 범위 초과 읽기 또는 쓰기가 발생할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 해결되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-190",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:02.108353+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28691",
+    "title": "ImageMagick JBIG 디코더의 초기화되지 않은 포인터 역참조",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 JBIG 디코더에서 확인 누락으로 인해 초기화되지 않은 포인터 역참조 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-252",
+      "CWE-824"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/145",
+    "date": "2026-03-09T21:49:56.884213+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28692",
+    "title": "ImageMagick MAT 디코더의 32비트 정수 오버플로우로 인한 힙 버퍼 오버리드 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 MAT 디코더가 잘못된 괄호 사용으로 인해 32비트 연산을 수행하여 힙 오버리드를 발생시킬 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 수정되었습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:56.040969+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28690",
+    "title": "ImageMagick MNG 인코더 스택 쓰기 버퍼 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서 MNG 인코더에 스택 버퍼 오버플로우 취약점이 존재합니다. 경계 검사가 누락되어 공격자가 제어하는 데이터로 스택을 손상시킬 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 해결되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:48.753857+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30937",
+    "title": "ImageMagick의 WriteXWDImage 함수에서 CARD32 산술 오버플로우로 인한 힙 버퍼 오버플로우 발생",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서는 XWD 인코더의 32비트 부호 없는 정수 오버플로우로 인해 힙 버퍼 할당 크기가 작아질 수 있습니다. 매우 큰 이미지를 작성할 때 힙 영역을 벗어난 쓰기가 발생할 수 있으며, 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 의해 수정되었습니다.",
+    "cvss": 6.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:39.078144+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28689",
+    "title": "ImageMagick의 경로 정책 TOCTOU 심볼릭 링크 경쟁 상태 우회 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 파일 열기/사용 전에 \"path\" 도메인 권한 확인이 수행됩니다. 심볼릭 링크 교체 공격을 통해 정책에 의해 거부된 읽기/쓰기 접근을 우회할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 의해 해결되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59",
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:40.395154+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28688",
+    "title": "ImageMagick MSL 인코더 힙 사용 후 해제 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 MSL 인코더에서 클론된 이미지가 두 번 해제되는 힙 사용 후 해제 취약점이 존재합니다. MSL 코더는 MSL 쓰기를 지원하지 않아 쓰기 기능이 제거되었습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 수정되었습니다.",
+    "cvss": 4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:39.586251+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28687",
+    "title": "ImageMagick MSL 디코더의 힙 사용 후 해제 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 ImageMagick의 MSL 디코더에서 힙 사용 후 해제 취약점이 발견되어, 악의적인 MSL 파일을 통해 해제된 메모리에 접근할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 해결되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:34.021145+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28686",
+    "title": "ImageMagick PCL 인코더의 힙 버퍼 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 출력 버퍼 할당 크기 부족으로 인해 PCL 인코더에서 힙 버퍼 오버플로우 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 의해 해결되었습니다.",
+    "cvss": 6.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-131"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:49:33.220269+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30936",
+    "title": "ImageMagick WaveletDenoiseImage 힙 버퍼 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서는 조작된 이미지가 WaveletDenoiseImage 메서드 내에서 힙 버퍼 오버플로우를 발생시킬 수 있습니다. -wavelet-denoise 연산으로 처리 시 메모리 경계 초과 쓰기가 발생할 수 있으며, 7.1.2-16 및 6.9.13-41 버전에 해당 문제가 해결되었습니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:34.955412+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28494",
+    "title": "ImageMagick, 긴 형태학 커널 이름 또는 배열로 인한 스택 손상 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서 ImageMagick의 형태학 커널 파싱 함수에 스택 버퍼 오버플로우가 존재합니다. 사용자 제어 커널 문자열이 경계 검사 없이 memcpy를 통해 고정 크기 스택 버퍼로 복사되어 스택 손상을 유발합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/144",
+    "date": "2026-03-09T21:49:56.275657+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30935",
+    "title": "ImageMagick BilateralBlurImage 힙 버퍼 오버-리드 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 버전 이전에서 BilateralBlurImage에 잘못된 변환으로 인한 힙 버퍼 오버-리드 취약점이 존재합니다. 특정 이미지를 -bilateral-blur 연산으로 처리할 때 경계 외 읽기가 발생할 수 있으며, 7.1.2-16에서 해당 문제가 해결되었습니다.",
+    "cvss": 4.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": "< 7.1.2-16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:31.43329+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30929",
+    "title": "ImageMagick의 MagnifyImage 스택 버퍼 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 MagnifyImage 함수에서 고정 크기의 스택 버퍼를 사용합니다. 특정 이미지를 사용할 때 이 버퍼를 오버플로우시켜 스택을 손상시킬 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 수정되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:28.929762+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30931",
+    "title": "ImageMagick UHDR 인코더 힙 기반 버퍼 오버플로우 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 버전 이전에서는 값의 잘림으로 인해 UHDR 인코더에서 힙 기반 버퍼 오버플로우가 발생하여 경계 외 쓰기가 가능합니다. 이 취약점은 7.1.2-16에서 해결되었습니다.",
+    "cvss": 6.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": "< 7.1.2-16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:28.125291+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28513",
+    "title": "Pocket ID: OIDC 권한 부여 코드 검증 시 AND 대신 OR 사용으로 인한 클라이언트 간 토큰 교환 허용",
+    "description": "Pocket ID는 사용자가 패스키를 사용하여 서비스에 인증할 수 있도록 하는 OIDC 제공자입니다. 2.4.0 이전 버전에서는 클라이언트 ID가 잘못되었고 코드가 만료되었을 때만 권한 부여 코드를 거부하여 클라이언트 간 코드 교환 및 만료된 코드 재사용이 가능했습니다. 이 취약점은 2.4.0에서 수정되었습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "pocket-id",
+        "product": "pocket-id",
+        "versions": "< 2.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:25.268301+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28512",
+    "title": "Pocket ID: OAuth 리다이렉트 URI 검증 우회 취약점 (userinfo/host 혼동)",
+    "description": "Pocket ID는 패스키를 이용한 사용자 인증을 지원하는 OIDC 제공자입니다. 2.0.0 버전부터 2.4.0 이전 버전까지, 리다이렉트 URI 검증 로직의 결함으로 인해 URL userinfo (@)를 포함하는 악성 URI가 정상적인 패턴 검사를 우회할 수 있었습니다. 공격자는 악성 인증 링크를 통해 사용자를 속여 권한 코드를 공격자가 제어하는 호스트로 리다이렉트할 수 있습니다. 해당 취약점은 2.4.0 버전에서 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "pocket-id",
+        "product": "pocket-id",
+        "versions": ">= 2.0.0, < 2.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:22.766061+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28281",
+    "title": "InstantCMS 다수의 CSRF 취약점",
+    "description": "InstantCMS는 무료 오픈 소스 콘텐츠 관리 시스템입니다. 2.18.1 버전 이전에는 CSRF 토큰 검증이 없어 공격자가 사용자 권한을 상승시키고, 예약된 작업을 실행하며, 게시물을 휴지통으로 이동시키고, 친구 요청을 수락할 수 있습니다. 해당 취약점은 2.18.1 버전에서 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "instantsoft",
+        "product": "icms2",
+        "versions": "< 2.18.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:21.295237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1603",
+    "title": "Ivanti Endpoint Manager 인증 우회 취약점",
+    "description": "Ivanti Endpoint Manager 2024 SU5 이전 버전에 존재하는 인증 우회 취약점을 통해, 원격의 인증되지 않은 공격자가 저장된 특정 자격 증명 데이터를 유출할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.11742,
+    "is_kev": true,
+    "cwe": [
+      "CWE-288"
+    ],
+    "affected": [
+      {
+        "vendor": "Ivanti",
+        "product": "Endpoint Manager",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:18.986239+00:00",
+    "rule_engines": [],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/RemoteControlAuth/api/Auth\"; http_uri; fast_pattern:0,20; content:\"|22|logintype|22|\"; http_client_body; content:\"|22|64|22|\"; http_client_body; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; bsize:27; content:\"/RemoteControlAuth/api/Auth\"; fast_pattern; http.request_body; content:\"|22|logintype|22|\"; content:\"|22|64|22|\"; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; bsize:27; content:\"/RemoteControlAuth/api/Auth\"; fast_pattern; http.request_body; content:\"|22|logintype|22|\"; content:\"|22|64|22|\"; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "verified": true,
+          "indicators": null
+        }
+      ]
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-22054",
+    "title": "VMware Workspace ONE UEM SSRF 취약점",
+    "description": "VMware Workspace ONE UEM 20.0.8 이전 버전, 20.11.0 이전 버전, 21.2.0 이전 버전, 21.5.0 이전 버전에서 SSRF 취약점이 발견되었습니다. 네트워크 접근 권한을 가진 공격자는 인증 없이 요청을 보내고 민감한 정보에 접근할 수 있습니다. 해당 취약점을 해결하려면 최신 버전으로 업데이트해야 합니다.",
+    "cvss": 7.5,
+    "epss": 0.88929,
+    "is_kev": true,
+    "cwe": [
+      "VMware Workspace ONE UEM console patches SSRF vulnerability"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware Workspace ONE UEM console",
+        "versions": "VMware Workspace ONE UEM console 20.0.8 prior to 20.0.8.37, 20.11.0 prior to 20.11.0.40, 21.2.0 prior to 21.2.0.27, and 21.5.0 prior to 21.5.0.37. (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/146",
+    "date": "2026-03-09T22:50:14.621886+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/MKSx/CVE-2021-22054"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-26399",
+    "title": "SolarWinds Web Help Desk 신뢰할 수 없는 데이터 역직렬화 권한 상승 취약점",
+    "description": "SolarWinds Web Help Desk에서 인증되지 않은 AjaxProxy 역직렬화를 통한 원격 코드 실행 취약점이 발견되었습니다. 성공적으로 악용될 경우 공격자가 호스트 시스템에서 명령을 실행할 수 있습니다. 본 취약점은 CVE-2024-28988의 패치 우회이며, 이는 CVE-2024-28986의 패치 우회입니다.",
+    "cvss": 9.8,
+    "epss": 0.1249,
+    "is_kev": true,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "SolarWinds",
+        "product": "Web Help Desk",
+        "versions": "12.8.7 and below (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:14.018432+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: Suspicious Child Process of SolarWinds WebHelpDesk\nid: 8c7f4a2d-3b9e-4f1c-9a6d-2e8f5c3d9a1b\nstatus: experimental\ndescription: |\n    Detects suspicious child processes spawned by SolarWinds WebHelpDesk (WHD) application, which may indicate exploitation activity leveraging RCE vulnerabilities such as CVE-2025-40551, CVE-2025-40536, or CVE-2025-26399\nreferences:\n    - https://www.microsoft.com/en-us/security/blog/2026/02/06/active-exploitation-solarwinds-web-help-desk/\n    - https://www.huntress.com/blog/active-exploitation-solarwinds-web-help-desk-cve-2025-26399\n    - https://documentation.solarwinds.com/en/success_center/whd/content/release_notes/whd_2026-1_release_notes.htm\nauthor: Huntress Team, Swachchhanda Shrawan Poudel (Nextron Systems)\ndate: 2026-02-11\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - cve.2025-26399\n    - cve.2025-40536\n    - cve.2025-40551\n    - detection.emerging-threats\nlogsource:\n    category: process_creation\n    product: windows\ndetection:\n    selection_parent:\n        ParentImage|contains: '\\WebHelpDesk\\bin\\'\n        ParentImage|endswith:\n            - '\\java.exe'\n            - '\\javaw.exe'\n        ParentCommandLine|contains: 'tomcat'\n    selection_suspicious_child:\n        CommandLine|contains:\n            - '-enc'\n            - 'base64'\n            - 'bitsadmin'\n            - 'certutil'\n            - 'curl'\n            - 'Invoke-RestMethod'\n            - 'Invoke-WebRequest'\n            - 'irm '\n            - 'iwr '\n            - 'mshta'\n            - 'msiexec'\n            - 'Net.WebClient'\n            - 'Start-BitsTransfer'\n            - 'wget'\n            - 'wmic'\n    condition: all of selection_*\nfalsepositives:\n    - Unknown\nlevel: high\n",
+        "source": "Public (SigmaHQ)",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/rxerium/CVE-2025-26399"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-11158",
+    "title": "Hitachi Vantara Pentaho Data Integration & Analytics 권한 부족",
+    "description": "Hitachi Vantara Pentaho Data Integration & Analytics 10.2.0.6 이전 버전(9.3.x, 8.3.x 포함)에서 사용자 게시 PRPT 보고서 내 Groovy 스크립트 제한이 없어 임의 스크립트 삽입이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Hitachi Vantara",
+        "product": "Pentaho Data Integration and Analytics",
+        "versions": "1.0 부터 9.3.* 이하, 10.0 부터 10.2.0.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:13.614974+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30869",
+    "title": "SiYuan의 /export 엔드포인트 경로 탐색 취약점을 통한 임의 파일 읽기 및 민감 정보 유출",
+    "description": "SiYuan 개인 지식 관리 시스템 3.5.10 이전 버전에서 /export 엔드포인트의 경로 탐색 취약점이 발견되었습니다. 이를 통해 공격자는 서버 파일 시스템의 임의 파일을 읽을 수 있으며, API 토큰, 쿠키 서명 키 등 민감한 정보를 포함하는 conf/conf.json 파일에 접근할 수 있습니다. 유출된 정보는 SiYuan 커널 API에 대한 관리자 권한 접근을 가능하게 하며, 특정 환경에서는 원격 코드 실행(RCE)으로 이어질 수 있습니다. (3.5.10에서 해결됨)",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.5.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:07.804081+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30862",
+    "title": "Appsmith의 치명적인 저장형 XSS 및 권한 상승 취약점",
+    "description": "Appsmith 1.96 이전 버전에서 Table Widget(TableWidgetV2)에 치명적인 저장형 XSS 취약점이 존재합니다. React 컴포넌트 렌더링 파이프라인의 HTML 삭제 기능 부족으로 악성 속성이 DOM에 삽입될 수 있습니다. 일반 사용자 계정을 이용하여 \"사용자 초대\" 기능을 악용하면 시스템 관리자가 고권한 API 호출(/api/v1/admin/env)을 실행하도록 유도하여 완전한 관리자 계정 탈취가 가능합니다. 1.96 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "appsmithorg",
+        "product": "appsmith",
+        "versions": "< 1.96 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:07.796814+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/drkim-dev/CVE-2026-30862"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30885",
+    "title": "WWBN AVideo - 인증되지 않은 IDOR - 재생목록 정보 노출",
+    "description": "WWBN AVideo는 오픈 소스 비디오 플랫폼입니다. 25.0 이전 버전에서 /objects/playlistsFromUser.json.php 엔드포인트는 인증이나 권한 확인 없이 모든 사용자의 재생목록을 반환합니다. 인증되지 않은 공격자가 사용자 ID를 열거하고 재생목록 이름, 비디오 ID, 재생목록 상태 등 모든 사용자의 재생목록 정보를 획득할 수 있습니다. 이 취약점은 25.0에서 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306",
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "WWBN",
+        "product": "AVideo",
+        "versions": "< 25.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:50:02.999621+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-30870",
+    "title": "PowerSync 서비스에서 `config.edition: 3` 사용 시 일부 동기화 필터 무시",
+    "description": "PowerSync 서비스 1.20.0 버전에서 `config.edition: 3`을 사용하는 새로운 동기화 스트림에서 특정 하위 쿼리 필터가 무시되어 사용자가 접근 권한이 없는 데이터가 동기화될 수 있었습니다. 결과 집합을 분할하지 않는 하위 쿼리를 사용하는 동기화 쿼리만 영향을 받습니다. 1.20.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "powersync-ja",
+        "product": "powersync-service",
+        "versions": "< 1.20.1 (단일 버전)"
+      },
+      {
+        "vendor": "@powersync",
+        "product": "service-core",
+        "versions": "< 1.20.1 (단일 버전)"
+      },
+      {
+        "vendor": "@powersync",
+        "product": "service-sync-rules",
+        "versions": "< 0.33.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:49:49.523546+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-29773",
+    "title": "kubewarden-controller의 교차 네임스페이스 데이터 유출 가능성 (더 이상 사용되지 않는 호스트 콜백 바인딩)",
+    "description": "Kubewarden은 Kubernetes 정책 엔진입니다. 권한 있는 사용자가 더 이상 사용되지 않는 호스트 콜백 API(Ingress, Namespace, Service)를 악용하여 다른 네임스페이스의 리소스에 대한 읽기 권한을 얻을 수 있습니다. 이 공격은 읽기 전용이며, Secret이나 ConfigMap 등 다른 리소스에는 접근하지 않습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "kubewarden",
+        "product": "kubewarden-controller",
+        "versions": "< 1.33.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:49:37.449319+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28267",
+    "title": "i-フィルター 제품의 부적절한 파일 접근 권한 설정",
+    "description": "여러 i-フィルター 제품에서 잘못된 파일 접근 권한 설정이 발견되었습니다. 관리자 권한이 없는 사용자가 시스템 또는 백업 디렉터리에 파일을 생성하거나 덮어쓸 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "i-フィルター 10 (Windows version only)",
+        "versions": "prior to Ver.10.02.00 (단일 버전)"
+      },
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "i-フィルター 6.0",
+        "versions": "prior to Ver.6.00.57 (단일 버전)"
+      },
+      {
+        "vendor": "Digital Arts Inc.",
+        "product": "i-フィルター for ネットカフェ",
+        "versions": "prior to Ver.6.10.57 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T22:49:36.127305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-50198",
+    "title": "Chamilo: /plugin/vchamilo/views/import.php에서 신뢰할 수 없는 데이터 역직렬화 취약점 (POST configuration_file, course_path, home_path 파라미터)",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/import.php의 POST 파라미터(configuration_file, course_path, home_path)를 통해 신뢰할 수 없는 데이터 역직렬화 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:08:14.288339+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-52468",
+    "title": "Chamilo: CSV 사용자 가져오기를 통한 저장 XSS 취약점",
+    "description": "Chamilo LMS에서 CSV 파일로 사용자 데이터를 가져오는 과정에서 입력값 검증 미흡으로 인해 XSS 취약점이 발생합니다. 특히 \"성\", \"이름\", \"사용자 이름\" 필드에서 데이터 정제가 제대로 이루어지지 않아 악성 스크립트 삽입이 가능합니다. 사용자 프로필 조회 시 스크립트가 실행되어 인증된 사용자의 권한으로 악성 행위가 발생할 수 있으며, 1.11.30 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:55:30.246166+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-31328",
+    "title": "BroadcastController.java의 임의 액티비티 실행 가능성",
+    "description": "BroadcastController.java의 broadcastIntentLockedTraced 함수 내 로직 오류로 인해 페어링된 동반 기기에서 백그라운드로 임의의 액티비티를 실행할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:11:26.916853+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-31816",
     "title": "Budibase Universal Auth 우회 - Webhook 쿼리 파라미터 삽입",
     "description": "Budibase 3.31.4 버전 이하에서, 모든 서버 측 API 엔드포인트를 보호하는 `authorized()` 미들웨어를 쿼리 문자열에 webhook 경로 패턴을 추가하여 우회할 수 있습니다. 미들웨어는 쿼리 파라미터까지 포함된 전체 URL을 검사하는 unanchored 정규식을 사용하며, 일치 시 인증, 권한 부여, 역할 확인, CSRF 보호를 모두 건너뜁니다. 따라서 공격자는 URL에 `? /webhooks/trigger`를 추가하여 인증 없이 서버 측 API에 접근할 수 있습니다.",
@@ -18,6 +1524,111 @@
     ],
     "report_url": null,
     "date": "2026-03-09T21:50:52.384921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27772",
+    "title": "EV Energy ev.energy의 중요 기능 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:12.975991+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-20781",
+    "title": "CloudCharge 인증 부족으로 인한 중요 기능 악용 가능성",
+    "description": "CloudCharge WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 충전소 식별자를 이용하여 OCPP WebSocket에 연결하고, 정상적인 충전소처럼 명령을 실행하거나 데이터를 수신할 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "CloudCharge",
+        "product": "cloudcharge.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:56:00.370186+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27767",
+    "title": "SWITCH EV swtchenergy.com 중요 기능의 인증 누락",
+    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00132,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:02:08.397829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30240",
+    "title": "Budibase PWA ZIP 업로드 경로 탐색 취약점을 통한 임의 서버 파일 및 환경 변수 노출",
+    "description": "Budibase의 PWA ZIP 처리 엔드포인트에서 경로 탐색 취약점이 발견되어, 빌더 권한을 가진 인증된 사용자가 서버의 임의 파일을 읽을 수 있습니다. 이를 통해 JWT 시크릿, 데이터베이스 자격 증명, 암호화 키 등 모든 환경 변수를 포함한 민감한 정보가 노출될 수 있습니다. 공격자는 ZIP 파일 내의 `icons.json`을 통해 서버 파일 경로를 조작하여 정보를 탈취할 수 있습니다.",
+    "cvss": 9.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "Budibase",
+        "product": "budibase",
+        "versions": "<= 3.31.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:46.560763+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -59,33 +1670,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30240",
-    "title": "Budibase PWA ZIP 업로드 경로 탐색 취약점을 통한 임의 서버 파일 및 환경 변수 노출",
-    "description": "Budibase의 PWA ZIP 처리 엔드포인트에서 경로 탐색 취약점이 발견되어, 빌더 권한을 가진 인증된 사용자가 서버의 임의 파일을 읽을 수 있습니다. 이를 통해 JWT 시크릿, 데이터베이스 자격 증명, 암호화 키 등 모든 환경 변수를 포함한 민감한 정보가 노출될 수 있습니다. 공격자는 ZIP 파일 내의 `icons.json`을 통해 서버 파일 경로를 조작하여 정보를 탈취할 수 있습니다.",
-    "cvss": 9.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22",
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "Budibase",
-        "product": "budibase",
-        "versions": "<= 3.31.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:46.560763+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-30247",
@@ -475,886 +2059,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T20:50:42.411135+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29790",
-    "title": "dbt-common: commonprefix() 함수를 통한 경로 탐색 취약점",
-    "description": "dbt-common은 dbt-core 및 어댑터 구현에 사용되는 공유 유틸리티입니다. 1.34.2 및 1.37.3 버전 이전에서는 tarball 아카이브 추출 시 사용되는 safe_extract() 함수에 경로 탐색 취약점이 존재합니다. commonprefix() 함수가 경로 구성 요소가 아닌 문자별로 경로를 비교하여 악성 tarball이 일치하는 이름 접두사를 가진 형제 디렉터리에 파일을 쓸 수 있도록 허용합니다. 해당 문제는 1.34.2 및 1.37.3 버전에서 수정되었습니다.",
-    "cvss": 2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "dbt-labs",
-        "product": "dbt-common",
-        "versions": "< 1.37.3 (단일 버전), < 1.34.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T20:50:29.428645+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-29789",
-    "title": "Vito: 워크플로우 사이트 생성 작업에서의 권한 상승 취약점 - 권한 없는 서버 수정 가능",
-    "description": "Vito는 서버 관리 및 PHP 애플리케이션 배포를 돕는 자체 호스팅 웹 애플리케이션입니다. 3.20.3 버전 이전에는 워크플로우 사이트 생성 작업 시 인증된 공격자가 다른 프로젝트의 서버에 대한 사이트를 생성/관리할 수 있는 권한 상승 취약점이 존재했습니다. 해당 문제는 3.20.3 버전에서 패치되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "vitodeploy",
-        "product": "vito",
-        "versions": "< 3.20.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T20:50:47.177155+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-24512",
-    "title": "ingress-nginx 인증 방식 nginx 설정 삽입 취약점",
-    "description": "ingress-nginx에서 `rules.http.paths.path` Ingress 필드를 통해 nginx 설정 삽입이 가능한 보안 문제가 발견되었습니다. 이는 ingress-nginx 컨트롤러 컨텍스트에서 임의 코드 실행 및 컨트롤러가 접근 가능한 Secret 정보 유출로 이어질 수 있습니다. (기본 설치 시 컨트롤러는 클러스터 전체의 모든 Secret에 접근 가능합니다.)",
-    "cvss": 8.8,
-    "epss": 0.0006,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Kubernetes",
-        "product": "ingress-nginx",
-        "versions": "1.13.7 이전, 1.14.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:29.685077+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/mghouse17/dependency-guardian-real-advisory-demo"
-    ],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25960",
-    "title": "vLLM의 SSRF 보호 우회 취약점",
-    "description": "vLLM은 대규모 언어 모델(LLM) 추론 및 서비스 엔진입니다. CVE-2026-24779에 대한 SSRF 보호 수정(0.15.1)이 URL 파싱 방식 불일치로 인해 `load_from_url_async` 메서드에서 우회될 수 있습니다. urllib3를 사용하여 URL 유효성을 검사하지만, 실제 HTTP 요청에는 aiohttp가 사용되어 yarl 라이브러리로 URL을 파싱하며, 이로 인해 0.17.0 버전에서 취약점이 발생합니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "vllm-project",
-        "product": "vllm",
-        "versions": ">= 0.15.1, < 0.17.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:29.599952+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29788",
-    "title": "TSPortal: 모든 사용자의 삭제 요청 위조 가능",
-    "description": "TSPortal은 WikiTide 재단의 Trust and Safety 팀에서 보고서, 조사, 항소 및 투명성 관련 업무를 처리하는 내부 플랫폼입니다. 30 버전 이전에는 빈 문자열을 null로 변환하여 DPA 보고서를 실제 삭제 요청으로 위장할 수 있었습니다. 해당 문제는 30 버전에서 수정되었습니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-283",
-      "CWE-1287"
-    ],
-    "affected": [
-      {
-        "vendor": "miraheze",
-        "product": "TSPortal",
-        "versions": "< 30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T20:50:47.002742+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28480",
-    "title": "OpenClaw < 2026.2.14 - 텔레그램 허용 목록 권한 우회 취약점 (변경 가능한 사용자 이름 이용)",
-    "description": "OpenClaw 2026.2.14 이전 버전은 텔레그램 허용 목록에서 변경 가능한 사용자 이름을 사용하여 권한을 우회할 수 있는 취약점을 가지고 있습니다. 공격자는 재활용된 사용자 이름을 획득하여 허용 목록 제한을 우회하고 승인되지 않은 발신자로 봇과 상호 작용하여 신원을 위조할 수 있습니다. 이는 불변의 숫자 발신자 ID 대신 변경 가능한 사용자 이름을 허용하기 때문입니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-290"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:13:55.543674+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-23925",
-    "title": "낮은 권한 사용자의 설정 가져오기 API를 통한 무단 호스트 생성",
-    "description": "템플릿/호스트 쓰기 권한을 가진 인증된 Zabbix 사용자(User 역할)가 configuration.import API를 통해 객체를 생성할 수 있습니다. 이는 무단 호스트 생성을 통해 기밀 정보 유출로 이어질 수 있습니다. 일반적으로 User 역할은 쓰기 권한이 있더라도 템플릿/호스트를 생성하고 편집하기에 충분하지 않습니다.",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Zabbix",
-        "product": "Zabbix",
-        "versions": "6.0.0 부터 6.0.40 이하, 7.0.0 부터 7.0.17 이하, 7.4.0 부터 7.4.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:57:25.906842+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-41257",
-    "title": "Suprema BioStar 2 보안 취약점 - 비밀번호 변경",
-    "description": "Suprema BioStar 2 버전 2.9.11.6에서 현재 비밀번호 없이 새로운 비밀번호를 설정할 수 있는 취약점이 발견되었습니다. 이 취약점을 다른 취약점과 결합하여 악용하면 계정 접근 권한을 무단으로 획득하고 시스템이 손상될 수 있습니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Suprema",
-        "product": "BioStar 2",
-        "versions": "2.9.11.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T22:52:16.489483+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3288",
-    "title": "ingress-nginx의 rewrite-target nginx 설정 삽입 취약점",
-    "description": "ingress-nginx에서 `nginx.ingress.kubernetes.io/rewrite-target` Ingress 어노테이션을 사용하여 nginx에 임의의 설정을 삽입할 수 있는 보안 문제가 발견되었습니다. 이는 ingress-nginx 컨트롤러 컨텍스트에서 임의 코드 실행 및 컨트롤러가 접근 가능한 Secret 정보 유출로 이어질 수 있습니다. (기본 설치 시 컨트롤러는 클러스터 전체의 모든 Secret에 접근 가능합니다.)",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Kubernetes",
-        "product": "ingress-nginx",
-        "versions": "1.13.8 이전, 1.14.4 이전, 1.15.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:23.161057+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31802",
-    "title": "node-tar 심볼릭 링크 경로 탐색 취약점 (드라이브 상대 경로 링크 사용)",
-    "description": "node-tar는 Node.js를 위한 기능이 풍부한 Tar 라이브러리입니다. 7.5.11 버전 이전에는 `C:../../../target.txt`와 같은 드라이브 상대 경로 심볼릭 링크를 사용하여 추출 디렉토리 외부 파일을 덮어쓰는 취약점이 존재했습니다. 이 문제는 7.5.11에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "isaacs",
-        "product": "node-tar",
-        "versions": "< 7.5.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:22.492955+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30926",
-    "title": "SiYuan Note 게시 서비스 권한 우회 취약점 - 낮은 권한 사용자의 노트 내용 수정 가능",
-    "description": "SiYuan Note 3.5.10 이전 버전에서, 게시 서비스의 권한 우회 취약점이 발견되었습니다. RoleReader 권한을 가진 사용자가 /api/block/appendHeadingChildren API 엔드포인트를 통해 노트 내용을 수정할 수 있습니다. 엔드포인트가 적절한 권한 검사를 수행하지 않아, 읽기 전용 권한 사용자도 노트에 블록을 추가하여 노트 무결성을 훼손할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "siyuan-note",
-        "product": "siyuan",
-        "versions": "< 3.5.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:21.477737+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2754",
-    "title": "Navtor NavBox의 인증 누락으로 인한 민감 정보 노출",
-    "description": "Navtor NavBox 장치의 HTTP API 엔드포인트에 인증이 없어 민감한 설정 및 운영 데이터가 노출될 수 있습니다. 네트워크 접근 권한이 있는 공격자는 TCP 8080 포트를 통해 내부 네트워크 파라미터, ECDIS 및 OT 정보, 장치 식별자, 서비스 상태 로그 등을 탈취할 수 있습니다. 인증 절차 부재가 주요 원인입니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Navtor",
-        "product": "NavBox",
-        "versions": "4.12.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:32:54.355533+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26982",
-    "title": "Ghostty 페이스트 및 드래그 앤 드롭 작업 시 임의 명령 실행 취약점",
-    "description": "Ghostty는 크로스 플랫폼 터미널 에뮬레이터로, 붙여넣기 및 드래그 앤 드롭된 텍스트에 Ctrl+C와 같은 제어 문자를 허용합니다. 특정 셸 환경에서 이러한 문자를 사용하여 임의 명령을 실행할 수 있습니다. 사용자가 악성 텍스트를 복사/붙여넣기 또는 드래그 앤 드롭하도록 유도해야 하며, Ghostty v1.3.0에서 해당 문제가 해결되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "ghostty-org",
-        "product": "ghostty",
-        "versions": "< 1.3.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:15.814041+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2331",
-    "title": "CVE-2026-2331",
-    "description": "AppEngine의 HTTP 파일 접근 기능에서 부적절한 접근 제한으로 인해 인증되지 않은 사용자가 민감한 파일 시스템 영역에 읽기/쓰기 작업을 수행할 수 있습니다. 특히, 고객 정의 비밀번호를 포함한 애플리케이션 설정을 읽고 수정할 수 있으며, 샌드박스 환경 내에서 임의의 Lua 코드 실행도 가능합니다. 중요한 파일 시스템 디렉터리가 HTTP를 통해 의도치 않게 노출된 것이 원인입니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector85x",
-        "versions": "2.6.0 부터 2.7.0 이하"
-      },
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector83x",
-        "versions": "2.6.0 부터 2.7.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:57:55.258793+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-1776",
-    "title": "Camaleon CMS AWS 업로더 인증된 경로 탐색 임의 파일 읽기 취약점",
-    "description": "Camaleon CMS 2.4.5.0 ~ 2.9.0 버전에서 AWS S3 업로더 구현에 경로 탐색 취약점이 존재하여, 인증된 사용자가 웹 서버 파일 시스템의 임의 파일을 읽을 수 있습니다. 파일 경로 검증 부재로 인해 등록된 사용자도 민감한 파일에 접근 가능하며, CVE-2024-46987의 불완전한 수정 사항을 우회합니다. AWS S3 저장소 백엔드를 사용하는 환경에 영향을 미칩니다.",
-    "cvss": 6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "owen2345",
-        "product": "Camaleon CMS",
-        "versions": "2.4.5.0 부터 2.9.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:14.993938+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2330",
-    "title": "CVE-2026-2330",
-    "description": "CROWN REST 인터페이스의 미흡한 화이트리스트 적용으로 인해 공격자가 장치의 제한된 파일 시스템 영역에 접근할 수 있습니다. 내부 테스트용으로 의도된 특정 디렉터리가 화이트리스트에 포함되지 않아 인증 없이 접근 가능합니다. 인증되지 않은 공격자는 재부팅 후 활성화되는 조작된 파라미터 파일을 배치하여 네트워크 구성 및 애플리케이션 파라미터와 같은 중요한 장치 설정을 변경할 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector85x",
-        "versions": "2.8.0 이전"
-      },
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector83x",
-        "versions": "2.8.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:57:53.126326+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-1468",
-    "title": "QuickCMS의 교차 사이트 요청 위조 취약점",
-    "description": "QuickCMS는 여러 엔드포인트에서 교차 사이트 요청 위조(CSRF)에 취약합니다. 공격자는 피해자가 방문할 경우 피해자의 권한으로 POST 요청을 자동으로 전송하는 악성 웹사이트를 제작할 수 있습니다. 해당 소프트웨어는 CSRF 공격에 대한 보호 장치가 전혀 구현되어 있지 않으며, 모든 폼이 잠재적으로 취약합니다.",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-352"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSolution",
-        "product": "QuickCMS",
-        "versions": "6.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T12:22:58.982794+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28433",
-    "title": "Misskey 리소스 소유권 검증 부족",
-    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 10.93.0 버전 이후, 2026.3.1 이전 버전의 Misskey 서버는 소유권 검증 부족으로 다른 사용자의 데이터를 가져오는 취약점이 존재합니다. 공격자는 대상 파일의 ID를 알아야 악용 가능하며, 영향도는 비교적 낮은 것으로 평가됩니다. 2026.3.1에서 해당 취약점이 수정되었습니다.",
-    "cvss": 2.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639",
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "misskey-dev",
-        "product": "misskey",
-        "versions": ">= 10.93.0, < 2026.3.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:09.179326+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-28493",
-    "title": "ImageMagick SIXEL 디코더 정수 오버플로우 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 버전 이전에서 SIXEL 디코더에 정수 오버플로우 취약점이 존재합니다. 악의적으로 조작된 이미지를 통해 경계 외 쓰기가 발생할 수 있으며, 7.1.2-16에서 해당 취약점이 해결되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": "< 7.1.2-16 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:09.08683+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28432",
-    "title": "HTTP 서명 검증 우회 가능",
-    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 2026.3.1 이전 버전의 모든 Misskey 서버에서 HTTP 서명 검증을 우회하는 취약점이 발견되었습니다. 연동 관련 취약점이지만, 연동 활성화 여부와 관계없이 모든 서버에 영향을 미칩니다. 2026.3.1에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "misskey-dev",
-        "product": "misskey",
-        "versions": "< 2026.3.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:08.161989+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28431",
-    "title": "Misskey의 부적절한 권한 검사 및 입력 유효성 검사 결함",
-    "description": "Misskey는 오픈 소스 분산형 소셜 미디어 플랫폼입니다. 8.45.0 버전 이후, 2026.3.1 이전 버전의 서버에서 권한 검사 및 입력 유효성 검사 부족으로 인해 악의적인 사용자가 접근 권한이 없는 데이터에 접근할 수 있는 취약점이 발견되었습니다. 페더레이션 활성화 여부와 관계없이 발생하며, 심각한 데이터 유출로 이어질 수 있습니다. 2026.3.1에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-285"
-    ],
-    "affected": [
-      {
-        "vendor": "misskey-dev",
-        "product": "misskey",
-        "versions": ">= 8.45.0, < 2026.3.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:03.215572+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-30883",
-    "title": "ImageMagick PNG 인코더에서 매우 큰 이미지 프로파일 작성 시 힙 오버플로우 발생",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서는 PNG 이미지 인코딩 시 매우 큰 이미지 프로파일로 인해 힙 오버플로우가 발생할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
-    "cvss": 5.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:02.91644+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28693",
-    "title": "ImageMagick DIB 코더 정수 오버플로우 취약점 - 범위 초과 읽기/쓰기 가능",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 DIB 코더의 정수 오버플로우로 인해 범위 초과 읽기 또는 쓰기가 발생할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 해결되었습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125",
-      "CWE-190",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:02.108353+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28691",
-    "title": "ImageMagick JBIG 디코더의 초기화되지 않은 포인터 역참조",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 JBIG 디코더에서 확인 누락으로 인해 초기화되지 않은 포인터 역참조 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-252",
-      "CWE-824"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/145",
-    "date": "2026-03-09T21:49:56.884213+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28494",
-    "title": "ImageMagick, 긴 형태학 커널 이름 또는 배열로 인한 스택 손상 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서 ImageMagick의 형태학 커널 파싱 함수에 스택 버퍼 오버플로우가 존재합니다. 사용자 제어 커널 문자열이 경계 검사 없이 memcpy를 통해 고정 크기 스택 버퍼로 복사되어 스택 손상을 유발합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/144",
-    "date": "2026-03-09T21:49:56.275657+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28692",
-    "title": "ImageMagick MAT 디코더의 32비트 정수 오버플로우로 인한 힙 버퍼 오버리드 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 MAT 디코더가 잘못된 괄호 사용으로 인해 32비트 연산을 수행하여 힙 오버리드를 발생시킬 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 수정되었습니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:56.040969+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28690",
-    "title": "ImageMagick MNG 인코더 스택 쓰기 버퍼 오버플로우 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에서 MNG 인코더에 스택 버퍼 오버플로우 취약점이 존재합니다. 경계 검사가 누락되어 공격자가 제어하는 데이터로 스택을 손상시킬 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 해결되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:48.753857+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28689",
-    "title": "ImageMagick의 경로 정책 TOCTOU 심볼릭 링크 경쟁 상태 우회 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 파일 열기/사용 전에 \"path\" 도메인 권한 확인이 수행됩니다. 심볼릭 링크 교체 공격을 통해 정책에 의해 거부된 읽기/쓰기 접근을 우회할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 의해 해결되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-59",
-      "CWE-367"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:40.395154+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28688",
-    "title": "ImageMagick MSL 인코더 힙 사용 후 해제 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 MSL 인코더에서 클론된 이미지가 두 번 해제되는 힙 사용 후 해제 취약점이 존재합니다. MSL 코더는 MSL 쓰기를 지원하지 않아 쓰기 기능이 제거되었습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41에서 수정되었습니다.",
-    "cvss": 4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:39.586251+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28687",
-    "title": "ImageMagick MSL 디코더의 힙 사용 후 해제 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 ImageMagick의 MSL 디코더에서 힙 사용 후 해제 취약점이 발견되어, 악의적인 MSL 파일을 통해 해제된 메모리에 접근할 수 있습니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 해결되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:34.021145+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28686",
-    "title": "ImageMagick PCL 인코더의 힙 버퍼 오버플로우 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 버전 이전에는 출력 버퍼 할당 크기 부족으로 인해 PCL 인코더에서 힙 버퍼 오버플로우 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에 의해 해결되었습니다.",
-    "cvss": 6.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122",
-      "CWE-131"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:49:33.220269+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4429,58 +5133,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-1603",
-    "title": "Ivanti Endpoint Manager 인증 우회 취약점",
-    "description": "Ivanti Endpoint Manager 2024 SU5 이전 버전에 존재하는 인증 우회 취약점을 통해, 원격의 인증되지 않은 공격자가 저장된 특정 자격 증명 데이터를 유출할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.11742,
-    "is_kev": false,
-    "cwe": [
-      "CWE-288"
-    ],
-    "affected": [
-      {
-        "vendor": "Ivanti",
-        "product": "Endpoint Manager",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T19:13:15.178054+00:00",
-    "rule_engines": [],
-    "has_official_rules": true,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [
-        {
-          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/RemoteControlAuth/api/Auth\"; http_uri; fast_pattern:0,20; content:\"|22|logintype|22|\"; http_client_body; content:\"|22|64|22|\"; http_client_body; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
-          "engine": "snort2",
-          "source": "Public (Snort 2.9 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; bsize:27; content:\"/RemoteControlAuth/api/Auth\"; fast_pattern; http.request_body; content:\"|22|logintype|22|\"; content:\"|22|64|22|\"; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata5",
-          "source": "Public (Suricata 5 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Ivanti RemoteControlAuth logintype Parameter Authentication Bypass Attempt (CVE-2026-1603)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; bsize:27; content:\"/RemoteControlAuth/api/Auth\"; fast_pattern; http.request_body; content:\"|22|logintype|22|\"; content:\"|22|64|22|\"; within:10; reference:url,infosec.exchange/@watchTowr/116063760636955104; reference:cve,2026-1603; classtype:attempted-admin; sid:2067665; rev:1; metadata:affected_product Ivanti, attack_target Networking_Equipment, tls_state plaintext, created_at 2026_02_13, cve CVE_2026_1603, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, updated_at 2026_02_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata7",
-          "source": "Public (Suricata 7 ET Open)",
-          "verified": true,
-          "indicators": null
-        }
-      ]
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3273",
     "title": "Tenda F453 httpd AdvSetWrlsafeset 폼 버퍼 오버플로우",
     "description": "Tenda F453 1.0.0.3 버전에서 httpd 컴포넌트의 /goform/AdvSetWrlsafeset 파일 내 formWrlsafeset 함수에 버퍼 오버플로우 취약점이 발견되었습니다. mit_ssid_index 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
@@ -5420,49 +6072,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-26399",
-    "title": "SolarWinds Web Help Desk 신뢰할 수 없는 데이터 역직렬화 권한 상승 취약점",
-    "description": "SolarWinds Web Help Desk에서 인증되지 않은 AjaxProxy 역직렬화를 통한 원격 코드 실행 취약점이 발견되었습니다. 공격자는 이를 악용하여 호스트 시스템에서 명령을 실행할 수 있습니다. 본 취약점은 CVE-2024-28988의 패치 우회이며, 이는 CVE-2024-28986의 패치 우회입니다.",
-    "cvss": 9.8,
-    "epss": 0.1249,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "SolarWinds",
-        "product": "Web Help Desk",
-        "versions": "12.8.7 and below (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/141",
-    "date": "2026-03-09T19:12:58.749387+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": true,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "title: Suspicious Child Process of SolarWinds WebHelpDesk\nid: 8c7f4a2d-3b9e-4f1c-9a6d-2e8f5c3d9a1b\nstatus: experimental\ndescription: |\n    Detects suspicious child processes spawned by SolarWinds WebHelpDesk (WHD) application, which may indicate exploitation activity leveraging RCE vulnerabilities such as CVE-2025-40551, CVE-2025-40536, or CVE-2025-26399\nreferences:\n    - https://www.microsoft.com/en-us/security/blog/2026/02/06/active-exploitation-solarwinds-web-help-desk/\n    - https://www.huntress.com/blog/active-exploitation-solarwinds-web-help-desk-cve-2025-26399\n    - https://documentation.solarwinds.com/en/success_center/whd/content/release_notes/whd_2026-1_release_notes.htm\nauthor: Huntress Team, Swachchhanda Shrawan Poudel (Nextron Systems)\ndate: 2026-02-11\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - cve.2025-26399\n    - cve.2025-40536\n    - cve.2025-40551\n    - detection.emerging-threats\nlogsource:\n    category: process_creation\n    product: windows\ndetection:\n    selection_parent:\n        ParentImage|contains: '\\WebHelpDesk\\bin\\'\n        ParentImage|endswith:\n            - '\\java.exe'\n            - '\\javaw.exe'\n        ParentCommandLine|contains: 'tomcat'\n    selection_suspicious_child:\n        CommandLine|contains:\n            - '-enc'\n            - 'base64'\n            - 'bitsadmin'\n            - 'certutil'\n            - 'curl'\n            - 'Invoke-RestMethod'\n            - 'Invoke-WebRequest'\n            - 'irm '\n            - 'iwr '\n            - 'mshta'\n            - 'msiexec'\n            - 'Net.WebClient'\n            - 'Start-BitsTransfer'\n            - 'wget'\n            - 'wmic'\n    condition: all of selection_*\nfalsepositives:\n    - Unknown\nlevel: high\n",
-        "source": "Public (SigmaHQ)",
-        "verified": true,
-        "indicators": null
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/rxerium/CVE-2025-26399"
-    ],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-1820",
     "title": "미디어 라이브러리 대체 텍스트 편집기 <= 1.0.0 - 인증된 사용자를 통한 저장형 XSS 취약점 ('post_id' 쇼트코드 속성)",
     "description": "워드프레스 미디어 라이브러리 대체 텍스트 편집기 플러그인은 1.0.0 버전 이하에서 사용자 제공 속성에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점에 노출됩니다. 인증된 공격자(기여자 권한 이상)는 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
@@ -5879,34 +6488,6 @@
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-22054",
-    "title": "VMware Workspace ONE UEM SSRF 취약점",
-    "description": "VMware Workspace ONE UEM 20.0.8 이전 버전, 20.11.0 이전 버전, 21.2.0 이전 버전, 21.5.0 이전 버전에서 SSRF 취약점이 발견되었습니다. 네트워크 접근 권한을 가진 공격자는 인증 없이 요청을 보내고 민감한 정보에 접근할 수 있습니다. 해당 취약점을 해결하려면 최신 버전으로 업데이트해야 합니다.",
-    "cvss": 7.5,
-    "epss": 0.88929,
-    "is_kev": false,
-    "cwe": [
-      "VMware Workspace ONE UEM console patches SSRF vulnerability"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "VMware Workspace ONE UEM console",
-        "versions": "VMware Workspace ONE UEM console 20.0.8 prior to 20.0.8.37, 20.11.0 prior to 20.11.0.40, 21.2.0 prior to 21.2.0.27, and 21.5.0 prior to 21.5.0.37. (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T13:42:14.913046+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/MKSx/CVE-2021-22054"
-    ],
     "severity": "High"
   },
   {
@@ -29761,58 +30342,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-27772",
-    "title": "EV Energy ev.energy의 중요 기능 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00132,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "EV Energy",
-        "product": "ev.energy",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:02:12.975991+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-27767",
-    "title": "SWITCH EV swtchenergy.com 중요 기능의 인증 누락",
-    "description": "WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 알려진 또는 발견된 충전소 식별자를 사용하여 OCPP WebSocket 엔드포인트에 연결하고 합법적인 충전기처럼 OCPP 명령을 실행하거나 받을 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00132,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:02:08.397829+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-27652",
     "title": "CloudCharge 세션 만료 부족",
     "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
@@ -30480,32 +31009,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-20781",
-    "title": "CloudCharge 인증 부족으로 인한 중요 기능 악용 가능성",
-    "description": "CloudCharge WebSocket 엔드포인트에 적절한 인증 메커니즘이 없어 공격자가 충전소로 위장하고 백엔드에 전송되는 데이터를 조작할 수 있습니다. 인증되지 않은 공격자는 충전소 식별자를 이용하여 OCPP WebSocket에 연결하고, 정상적인 충전소처럼 명령을 실행하거나 데이터를 수신할 수 있습니다. 이는 권한 상승, 충전 인프라의 무단 제어, 백엔드에 보고되는 충전 네트워크 데이터 손상으로 이어질 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00132,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "CloudCharge",
-        "product": "cloudcharge.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:56:00.370186+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-20733",
@@ -50635,32 +51138,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-31328",
-    "title": "BroadcastController.java의 임의 액티비티 실행 가능성",
-    "description": "BroadcastController.java의 broadcastIntentLockedTraced 함수 내 로직 오류로 인해 페어링된 동반 기기에서 백그라운드로 임의의 액티비티를 실행할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:11:26.916853+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-50189",
     "title": "Chamilo: 오류 기반 SQL Injection",
     "description": "Chamilo 학습 관리 시스템 1.11.30 이전 버전에서 사용자 입력 데이터 검증이 미흡하여 /main/coursecopy/copy_course_session_selected.php의 POST 파라미터에서 임의의 SQL 구문을 삽입, 데이터베이스 쿼리 로직을 변경하는 SQL Injection 공격이 가능합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
@@ -53117,58 +53594,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T19:18:02.96924+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50198",
-    "title": "Chamilo: /plugin/vchamilo/views/import.php에서 신뢰할 수 없는 데이터 역직렬화 취약점 (POST configuration_file, course_path, home_path 파라미터)",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /plugin/vchamilo/views/import.php의 POST 파라미터(configuration_file, course_path, home_path)를 통해 신뢰할 수 없는 데이터 역직렬화 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:08:14.288339+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-52468",
-    "title": "Chamilo: CSV 사용자 가져오기를 통한 저장 XSS 취약점",
-    "description": "Chamilo LMS에서 CSV 파일로 사용자 데이터를 가져오는 과정에서 입력값 검증 미흡으로 인해 XSS 취약점이 발생합니다. 특히 \"성\", \"이름\", \"사용자 이름\" 필드에서 데이터 정제가 제대로 이루어지지 않아 악성 스크립트 삽입이 가능합니다. 사용자 프로필 조회 시 스크립트가 실행되어 인증된 사용자의 권한으로 악성 행위가 발생할 수 있으며, 1.11.30 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:55:30.246166+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
