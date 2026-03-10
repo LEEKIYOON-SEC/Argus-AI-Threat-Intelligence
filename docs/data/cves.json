@@ -1,5 +1,92 @@
 [
   {
+    "id": "CVE-2025-41709",
+    "title": "Modbus-TCP 및 Modbus-RTU를 통한 전력 분석기 명령어 삽입 취약점",
+    "description": "[VENDOR]의 [PRODUCT] [VERSION]에서 [PLATFORMS] 상 [COMPONENT]의 [PROBLEMTYPE] 취약점을 통해, 공격자가 [VECTOR]를 통해 [IMPACT]를 수행할 수 있습니다. Modbus-TCP 및 Modbus-RTU 프로토콜을 이용한 공격에 유의해야 합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 24V(5222063)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 230V(5222062)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Weidmueller",
+        "product": "ENERGY METER 750-230 (2540910000)",
+        "versions": "0.0 부터 3.13 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/152",
+    "date": "2026-03-10T09:03:47.673549+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-41709 OS Command Injection Attempt\nstatus: experimental\ndescription: Detects attempts to exploit OS command injection (CWE-78) in Janitza UMG and Weidmueller ENERGY METER web interfaces.\nauthor: Senior Detection Engineer\ndate: 2026-03-10\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/cgi-bin\"\n            - \"/api\"\n            - \"/config\"\n            - \"/login\"\n    selection_parameter:\n        cs-uri-query|contains|any:\n            - \"cmd\"\n            - \"command\"\n            - \"exec\"\n            - \"run\"\n            - \"action\"\n    selection_payload:\n        cs-uri-query|contains|any:\n            - \";\"\n            - \"&&\"\n            - \"|\"\n            - \"`\"\n            - \"$(\"\n            - \">\"\n            - \"<\"\n            - \"||\"\n    condition: all of selection_endpoint, selection_parameter, selection_payload\nlevel: high\ntags:\n    - cve.2025.41709\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059.004\n    - attack.t1499\n    - cwe.78",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-41712",
+    "title": "전력 분석기 권한 할당 오류",
+    "description": "사용자가 조작된 HTML 파일을 업로드하도록 유도하는 인증되지 않은 원격 공격자가 장치의 민감한 정보에 접근할 수 있습니다. 이는 웹 서버에 대한 잘못된 권한 할당으로 인해 발생합니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 24V(5222063)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 230V(5222062)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Weidmueller",
+        "product": "ENERGY METER 750-230 (2540910000)",
+        "versions": "0.0 부터 3.13 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T09:03:36.332524+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-2364",
     "title": "CODESYS 설치 프로그램 TOCTOU 권한 상승",
     "description": "CODESYS 개발 시스템의 자동 업데이트 확인 또는 설치 과정에서 TOCTOU 취약점으로 인해 낮은 권한의 로컬 공격자가 권한을 상승시킬 수 있습니다. 이는 설치 프로그램의 취약점을 악용한 것입니다. 정상적인 사용자의 행위를 통해 악용될 가능성이 있습니다.",
@@ -41,30 +128,76 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-1508",
-    "title": "코트 예약 플러그인 - 1.10.9 이전 버전의 CSRF 취약점",
-    "description": "코트 예약 WordPress 플러그인 1.10.9 이전 버전은 이벤트 삭제 시 CSRF 검사를 수행하지 않습니다.",
-    "cvss": 0,
+    "id": "CVE-2025-41711",
+    "title": "전력 분석기 펌웨어 이미지의 손상되거나 위험한 암호화 알고리즘 사용",
+    "description": "인증되지 않은 원격 공격자가 펌웨어 이미지를 이용하여 제한된 접근 권한을 가진 계정의 비밀번호 해시를 추출하고 무차별 대입 공격을 통해 평문 비밀번호를 알아낼 수 있습니다.",
+    "cvss": 5.3,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-352 Cross-Site Request Forgery (CSRF)"
+      "CWE-327"
     ],
     "affected": [
       {
-        "vendor": "Unknown",
-        "product": "Court Reservation",
-        "versions": "1.10.9 이전"
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 24V(5222063)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 230V(5222062)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Weidmueller",
+        "product": "ENERGY METER 750-230 (2540910000)",
+        "versions": "0.0 부터 3.13 이하"
       }
     ],
     "report_url": null,
-    "date": "2026-03-10T07:10:29.843074+00:00",
+    "date": "2026-03-10T09:03:26.405998+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "None"
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-41710",
+    "title": "전력 분석기 내 하드코딩된 자격 증명 사용",
+    "description": "인증되지 않은 원격 공격자가 하드코딩된 자격 증명을 사용하여 이전에 활성화된 FTP 서버에 제한적인 읽기 및 쓰기 권한으로 접근할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 24V(5222063)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 230V(5222062)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Weidmueller",
+        "product": "ENERGY METER 750-230 (2540910000)",
+        "versions": "0.0 부터 3.13 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T09:03:23.092131+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
   },
   {
     "id": "CVE-2025-7195",
@@ -101,6 +234,318 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-1394",
+    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
+    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
+    "cvss": 7.5,
+    "epss": 0.01021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-401"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Developer Tools",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:32:50.443708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-7409",
+    "title": "Qemu: 소켓 종료 시 부적절한 동기화로 인한 서비스 거부 (DoS) 취약점",
+    "description": "QEMU NBD 서버에서 클라이언트가 소켓을 열어둔 상태로 서버가 오프라인 상태가 될 때, 소켓 종료 과정에서의 부적절한 동기화로 인해 서비스 거부(DoS) 공격이 가능합니다. 이 취약점을 악용하면 서버를 마비시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.01706,
+    "is_kev": false,
+    "cwe": [
+      "CWE-662"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:52:58.840036+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30919",
+    "title": "facileManager 저장형 XSS 취약점 발생",
+    "description": "facileManager는 시스템 관리자를 위한 웹 앱 모음입니다. 6.0.4 버전 이전에서, 신뢰할 수 없는 출처의 데이터를 안전하지 않게 HTTP 응답에 포함시키는 저장형 XSS(지속적/2차 XSS) 취약점이 fmDNS 모듈에서 발견되었습니다. 6.0.4 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "facileManager",
+        "product": "facileManager",
+        "versions": "5.4.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T23:46:09.290201+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30918",
+    "title": "facileManager, 반사형 교차 사이트 스크립팅(XSS) 취약점 발생",
+    "description": "facileManager는 시스템 관리자를 위한 웹 앱 모음입니다. 6.0.4 버전 이전에서, 신뢰할 수 없는 출처의 데이터를 HTTP 응답에 사용하여 반사형 XSS가 발생할 수 있습니다. URL 파라미터에 스크립트를 추가하여 악성 JavaScript 코드를 삽입하는 것이 가능하며, fmDNS 모듈의 log_search_query 파라미터에서 해당 취약점이 발견되었습니다. 6.0.4 버전에서 수정되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "facileManager",
+        "product": "facileManager",
+        "versions": "< 6.0.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T23:46:03.460718+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28403",
+    "title": "Textream 크로스 사이트 WebSocket 하이재킹 (CSWSH) 취약점",
+    "description": "Textream은 macOS용 무료 텔레프롬프터 앱입니다. 1.5.1 버전 이전에는 `DirectorServer` WebSocket 서버가 WebSocket 핸드셰이크 시 HTTP `Origin` 헤더를 검증하지 않아 모든 오리진으로부터의 연결을 허용합니다. 악성 웹 페이지가 동일 브라우저 세션에서 WebSocket 서버에 연결하여 임의의 `DirectorCommand` 페이로드를 전송, 텔레프롬프터 콘텐츠를 완전히 제어할 수 있습니다. 1.5.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-346"
+    ],
+    "affected": [
+      {
+        "vendor": "f",
+        "product": "textream",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:58:29.371603+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2023-26323",
+    "title": "Xiaomi 앱 마켓 코드 실행 취약점",
+    "description": "Xiaomi 앱 마켓 제품에 코드 실행 취약점이 존재합니다. 이 취약점은 안전하지 않은 설정으로 인해 발생하며, 공격자가 임의 코드를 실행하는 데 악용될 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0.00172,
+    "is_kev": false,
+    "cwe": [
+      "a code execution vulnerability in Xiaomi App Store"
+    ],
+    "affected": [
+      {
+        "vendor": "Xiaomi",
+        "product": "App Market",
+        "versions": "1.0.0 부터 4.57.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T19:18:02.96924+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1876",
+    "title": "MELSEC iQ-F 시리즈 이더넷 모듈의 서비스 거부(DoS) 취약점",
+    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 이더넷 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T07:57:28.759945+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1874",
+    "title": "MELSEC iQ-F 시리즈 이더넷/IP 모듈 및 이더넷 모듈의 서비스 거부(DoS) 취약점",
+    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 및 FX5-EIP 모듈에서 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 공격을 유발할 수 있는 취약점이 발견되었습니다. 해당 취약점은 1.106 버전 이하의 FX5-ENET/IP 및 모든 버전의 FX5-EIP에 존재하며, 시스템 재시작을 통해 복구해야 합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-670"
+    ],
+    "affected": [
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
+        "versions": "versions 1.106 and prior (단일 버전)"
+      },
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "MELSEC iQ-F Series FX5-EIP EtherNet/IP Module FX5-EIP",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T07:13:15.019442+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-12345",
+    "title": "LLM-Claw 에이전트 배포 initiate.c 버퍼 오버플로우",
+    "description": "LLM-Claw 0.1.0/0.1.1/0.1.1a/0.1.1a-p1 버전에서 에이전트 배포 컴포넌트의 /agents/deploy/initiate.c 파일 내 agent_deploy_init 함수에서 버퍼 오버플로우 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 패치 적용을 통해 해결해야 합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "LLM-Claw",
+        "versions": "0.1.0 (단일 버전), 0.1.1 (단일 버전), 0.1.1a (단일 버전), 0.1.1a-p1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T07:13:14.994888+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1875",
+    "title": "MELSEC iQ-F 시리즈 EtherNet/IP 모듈의 서비스 거부(DoS) 취약점",
+    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-EIP EtherNet/IP 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "MELSEC iQ-F Series FX5-EIP EtherNet/IP Module FX5-EIP",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T07:13:12.929873+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1508",
+    "title": "코트 예약 플러그인 - 1.10.9 이전 버전의 CSRF 취약점",
+    "description": "코트 예약 WordPress 플러그인 1.10.9 이전 버전은 이벤트 삭제 시 CSRF 검사를 수행하지 않습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352 Cross-Site Request Forgery (CSRF)"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Court Reservation",
+        "versions": "1.10.9 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T07:10:29.843074+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
   },
   {
     "id": "CVE-2026-30929",
@@ -2770,32 +3215,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30919",
-    "title": "facileManager 저장형 XSS 취약점 발생",
-    "description": "facileManager는 시스템 관리자를 위한 웹 앱 모음입니다. 6.0.4 버전 이전에서, 신뢰할 수 없는 출처의 데이터를 안전하지 않게 HTTP 응답에 포함시키는 저장형 XSS(지속적/2차 XSS) 취약점이 fmDNS 모듈에서 발견되었습니다. 6.0.4 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "facileManager",
-        "product": "facileManager",
-        "versions": "5.4.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T23:46:09.290201+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30917",
     "title": "Bucket 네임스페이스 페이지의 저장된 XSS",
     "description": "Bucket은 위키 문서에 구조화된 데이터를 저장하고 검색하는 미디어위키 확장 기능입니다. 2.1.1 이전 버전에서는 PAGE 유형을 가진 Bucket 테이블 필드에 저장된 XSS를 삽입할 수 있으며, 해당 테이블의 Bucket 네임스페이스 페이지를 볼 때 실행됩니다. 이 취약점은 2.1.1에서 해결되었습니다.",
@@ -2826,32 +3245,6 @@
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30918",
-    "title": "facileManager, 반사형 교차 사이트 스크립팅(XSS) 취약점 발생",
-    "description": "facileManager는 시스템 관리자를 위한 웹 앱 모음입니다. 6.0.4 버전 이전에서, 신뢰할 수 없는 출처의 데이터를 HTTP 응답에 사용하여 반사형 XSS가 발생할 수 있습니다. URL 파라미터에 스크립트를 추가하여 악성 JavaScript 코드를 삽입하는 것이 가능하며, fmDNS 모듈의 log_search_query 파라미터에서 해당 취약점이 발견되었습니다. 6.0.4 버전에서 수정되었습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "facileManager",
-        "product": "facileManager",
-        "versions": "< 6.0.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T23:46:03.460718+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -46464,89 +46857,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-1876",
-    "title": "MELSEC iQ-F 시리즈 이더넷 모듈의 서비스 거부(DoS) 취약점",
-    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 이더넷 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-404"
-    ],
-    "affected": [
-      {
-        "vendor": "Mitsubishi Electric Corporation",
-        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T07:57:28.759945+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1875",
-    "title": "MELSEC iQ-F 시리즈 EtherNet/IP 모듈의 서비스 거부(DoS) 취약점",
-    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-EIP EtherNet/IP 모듈의 자원 종료/해제 처리 미흡으로 인해, 원격 공격자가 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 상태를 유발할 수 있습니다. 복구를 위해서는 제품 시스템 재설정이 필요합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-404"
-    ],
-    "affected": [
-      {
-        "vendor": "Mitsubishi Electric Corporation",
-        "product": "MELSEC iQ-F Series FX5-EIP EtherNet/IP Module FX5-EIP",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T07:13:12.929873+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1874",
-    "title": "MELSEC iQ-F 시리즈 이더넷/IP 모듈 및 이더넷 모듈의 서비스 거부(DoS) 취약점",
-    "description": "미쓰비시전기 MELSEC iQ-F 시리즈 FX5-ENET/IP 및 FX5-EIP 모듈에서 UDP 패킷을 지속적으로 전송하여 서비스 거부(DoS) 공격을 유발할 수 있는 취약점이 발견되었습니다. 해당 취약점은 1.106 버전 이하의 FX5-ENET/IP 및 모든 버전의 FX5-EIP에 존재하며, 시스템 재시작을 통해 복구해야 합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-670"
-    ],
-    "affected": [
-      {
-        "vendor": "Mitsubishi Electric Corporation",
-        "product": "MELSEC iQ-F Series FX5-ENET/IP Ethernet Module FX5-ENET/IP",
-        "versions": "versions 1.106 and prior (단일 버전)"
-      },
-      {
-        "vendor": "Mitsubishi Electric Corporation",
-        "product": "MELSEC iQ-F Series FX5-EIP EtherNet/IP Module FX5-EIP",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T07:13:15.019442+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28770",
     "title": "IDC SFX SuperFlex 위성 수신기 웹 관리 인터페이스 XML 삽입 취약점",
     "description": "International Datacasting Corporation의 SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 `/IDC_Logging/checkifdone.cgi` 스크립트에서 특수 요소 중성화 오류로 인해 XML 삽입 공격이 가능합니다. `file` 파라미터의 사용자 입력을 CDATA 블록에 그대로 반영하여 인증된 공격자가 태그를 벗어나 임의의 XML 요소를 삽입할 수 있습니다. 이 취약점을 이용한 XSS 공격이 확인되었으며, XXE 공격 등 추가적인 악용 가능성도 존재합니다.",
@@ -47091,42 +47401,6 @@
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2024-1394",
-    "title": "Golang-fips/openssl: RSA 페이로드 암호화/복호화 코드의 메모리 누수",
-    "description": "Golang의 RSA 암호화/복호화 코드에서 메모리 누수 취약점이 발견되었습니다. 공격자가 제어하는 입력을 통해 리소스 고갈을 유발할 수 있습니다. 누수는 github.com/golang-fips/openssl/openssl/rsa.go#L113에서 발생하며, `pkey` 및 `ctx` 객체가 누수됩니다.",
-    "cvss": 7.5,
-    "epss": 0.01021,
-    "is_kev": false,
-    "cwe": [
-      "CWE-401"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Ansible Automation Platform 2.4 for RHEL 9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Developer Tools",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:32:50.443708+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -51123,33 +51397,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-12345",
-    "title": "LLM-Claw 에이전트 배포 initiate.c 버퍼 오버플로우",
-    "description": "LLM-Claw 0.1.0/0.1.1/0.1.1a/0.1.1a-p1 버전에서 에이전트 배포 컴포넌트의 /agents/deploy/initiate.c 파일 내 agent_deploy_init 함수에서 버퍼 오버플로우 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 패치 적용을 통해 해결해야 합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "LLM-Claw",
-        "versions": "0.1.0 (단일 버전), 0.1.1 (단일 버전), 0.1.1a (단일 버전), 0.1.1a-p1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T07:13:14.994888+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-11468",
     "title": "접을 수 없는 문자로만 이루어진 이메일 주석의 괄호 보존 실패",
     "description": "이메일 헤더 내의 접을 수 없는 문자만으로 구성된 긴 주석을 접을 때 괄호가 보존되지 않습니다. 이는 사용자 제어 및 비정상적인 주소가 포함된 이메일 메시지에 헤더를 삽입하는 데 악용될 수 있습니다. 보안 취약점과 관련될 수 있는 문제입니다.",
@@ -52852,42 +53099,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-7409",
-    "title": "Qemu: 소켓 종료 시 부적절한 동기화로 인한 서비스 거부 (DoS) 취약점",
-    "description": "QEMU NBD 서버에서 클라이언트가 소켓을 열어둔 상태로 서버가 오프라인 상태가 될 때, 소켓 종료 과정에서의 부적절한 동기화로 인해 서비스 거부(DoS) 공격이 가능합니다. 이 취약점을 악용하면 서버를 마비시킬 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.01706,
-    "is_kev": false,
-    "cwe": [
-      "CWE-662"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:52:58.840036+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28421",
     "title": "Vim 힙 버퍼 오버플로우 및 세그멘테이션 오류",
     "description": "Vim은 오픈 소스 명령줄 텍스트 편집기입니다. 9.2.0077 버전 이전에는 스왑 파일 복구 로직에서 힙 버퍼 오버플로우 및 세그멘테이션 오류(SEGV)가 발생할 수 있습니다. 이는 스왑 파일 내 조작된 포인터 블록에서 검증되지 않은 필드를 읽어 발생합니다. 9.2.0077 버전에서 해당 문제가 해결되었습니다.",
@@ -54217,58 +54428,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28403",
-    "title": "Textream 크로스 사이트 WebSocket 하이재킹 (CSWSH) 취약점",
-    "description": "Textream은 macOS용 무료 텔레프롬프터 앱입니다. 1.5.1 버전 이전에는 `DirectorServer` WebSocket 서버가 WebSocket 핸드셰이크 시 HTTP `Origin` 헤더를 검증하지 않아 모든 오리진으로부터의 연결을 허용합니다. 악성 웹 페이지가 동일 브라우저 세션에서 WebSocket 서버에 연결하여 임의의 `DirectorCommand` 페이로드를 전송, 텔레프롬프터 콘텐츠를 완전히 제어할 수 있습니다. 1.5.1 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-346"
-    ],
-    "affected": [
-      {
-        "vendor": "f",
-        "product": "textream",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:58:29.371603+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2023-26323",
-    "title": "Xiaomi 앱 마켓 코드 실행 취약점",
-    "description": "Xiaomi 앱 마켓 제품에 코드 실행 취약점이 존재합니다. 이 취약점은 안전하지 않은 설정으로 인해 발생하며, 공격자가 임의 코드를 실행하는 데 악용될 수 있습니다.",
-    "cvss": 7.6,
-    "epss": 0.00172,
-    "is_kev": false,
-    "cwe": [
-      "a code execution vulnerability in Xiaomi App Store"
-    ],
-    "affected": [
-      {
-        "vendor": "Xiaomi",
-        "product": "App Market",
-        "versions": "1.0.0 부터 4.57.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T19:18:02.96924+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28424",
