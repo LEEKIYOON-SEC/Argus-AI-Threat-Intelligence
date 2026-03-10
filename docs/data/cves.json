@@ -1,33 +1,23 @@
 [
   {
-    "id": "CVE-2025-41709",
-    "title": "Modbus-TCP 및 Modbus-RTU를 통한 전력 분석기 명령어 삽입 취약점",
-    "description": "[VENDOR]의 [PRODUCT] [VERSION]에서 [PLATFORMS] 상 [COMPONENT]의 [PROBLEMTYPE] 취약점을 통해, 공격자가 [VECTOR]를 통해 [IMPACT]를 수행할 수 있습니다. Modbus-TCP 및 Modbus-RTU 프로토콜을 이용한 공격에 유의해야 합니다.",
-    "cvss": 9.8,
+    "id": "CVE-2026-1261",
+    "title": "MetForm Pro <= 3.9.6 - 인증되지 않은 저장형 XSS",
+    "description": "WordPress용 MetForm Pro 플러그인의 퀴즈 기능에서 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점이 존재합니다. 이 취약점은 3.9.6 버전 이하에서 발생하며, 인증되지 않은 공격자가 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 7.2,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-78"
+      "CWE-79"
     ],
     "affected": [
       {
-        "vendor": "Janitza",
-        "product": "UMG 96RM-E 24V(5222063)",
-        "versions": "0.0 부터 3.13 이하"
-      },
-      {
-        "vendor": "Janitza",
-        "product": "UMG 96RM-E 230V(5222062)",
-        "versions": "0.0 부터 3.13 이하"
-      },
-      {
-        "vendor": "Weidmueller",
-        "product": "ENERGY METER 750-230 (2540910000)",
-        "versions": "0.0 부터 3.13 이하"
+        "vendor": "Wpmet",
+        "product": "MetForm Pro",
+        "versions": "* 부터 3.9.6 이하"
       }
     ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/152",
-    "date": "2026-03-10T09:03:47.673549+00:00",
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/153",
+    "date": "2026-03-10T10:03:04.762732+00:00",
     "rule_engines": [
       "sigma"
     ],
@@ -35,7 +25,7 @@
     "rules": {
       "yara": null,
       "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-41709 OS Command Injection Attempt\nstatus: experimental\ndescription: Detects attempts to exploit OS command injection (CWE-78) in Janitza UMG and Weidmueller ENERGY METER web interfaces.\nauthor: Senior Detection Engineer\ndate: 2026-03-10\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/cgi-bin\"\n            - \"/api\"\n            - \"/config\"\n            - \"/login\"\n    selection_parameter:\n        cs-uri-query|contains|any:\n            - \"cmd\"\n            - \"command\"\n            - \"exec\"\n            - \"run\"\n            - \"action\"\n    selection_payload:\n        cs-uri-query|contains|any:\n            - \";\"\n            - \"&&\"\n            - \"|\"\n            - \"`\"\n            - \"$(\"\n            - \">\"\n            - \"<\"\n            - \"||\"\n    condition: all of selection_endpoint, selection_parameter, selection_payload\nlevel: high\ntags:\n    - cve.2025.41709\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059.004\n    - attack.t1499\n    - cwe.78",
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-1261 MetForm Pro Stored XSS Attempt\nstatus: experimental\ndescription: Detects attempts to exploit the stored XSS vulnerability in the MetForm Pro plugin (versions ≤ 3.9.6) via the quiz feature by submitting malicious script payloads.\nauthor: Sigma Generator\ndate: 2026-03-10\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/wp-content/plugins/metform-pro/\"\n            - \"/core/features/quiz/loader.php\"\n    selection_method:\n        http_method|contains: \"POST\"\n    selection_payload:\n        cs-body|contains|any:\n            - \"<script\"\n            - \"javascript:\"\n            - \"onerror=\"\n            - \"onload=\"\n            - \"alert(\"\n            - \"document.cookie\"\n    condition: all of selection_endpoint, selection_method, selection_payload\nlevel: high\ntags:\n    - cve.2026.1261\n    - attack.initial_access\n    - attack.execution\n    - attack.t1190\n    - attack.t1059.007\n    - attack.t1565.001\n    - cwe.79\n    - wordpress\n    - metform-pro\n    - xss\n    - stored-xss",
         "source": "AI Generated (Validated)",
         "verified": false,
         "indicators": []
@@ -48,7 +38,35 @@
     },
     "has_poc": false,
     "poc_urls": [],
-    "severity": "Critical"
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3315",
+    "title": "ASSA ABLOY Visionline 권한 상승 취약점 (쓰기 가능한 실행 파일)",
+    "description": "Windows 환경의 ASSA ABLOY Visionline에서 잘못된 기본 권한 설정 및 불필요한 권한으로 실행되는 문제로 인해 권한 상승이 가능합니다. 특히, 특권 경로 내 쓰기 가능한 실행 파일이 존재하여 설정/환경 조작으로 이어질 수 있습니다. 1.0 버전부터 1.33 이전 버전까지 영향을 받습니다.",
+    "cvss": 5.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276",
+      "CWE-250",
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "ASSA ABLOY",
+        "product": "Visionline",
+        "versions": "1.0 부터 1.33 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T10:02:37.336546+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
   },
   {
     "id": "CVE-2025-41712",
@@ -85,47 +103,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2364",
-    "title": "CODESYS 설치 프로그램 TOCTOU 권한 상승",
-    "description": "CODESYS 개발 시스템의 자동 업데이트 확인 또는 설치 과정에서 TOCTOU 취약점으로 인해 낮은 권한의 로컬 공격자가 권한을 상승시킬 수 있습니다. 이는 설치 프로그램의 취약점을 악용한 것입니다. 정상적인 사용자의 행위를 통해 악용될 가능성이 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-367"
-    ],
-    "affected": [
-      {
-        "vendor": "CODESYS",
-        "product": "CODESYS Installer",
-        "versions": "0.0.0 부터 2.6.1.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/151",
-    "date": "2026-03-10T07:57:10.468179+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-2364 CODESYS Installer TOCTOU Privilege Escalation Attempt\nstatus: experimental\ndescription: Detects execution of the CODESYS Installer that may be leveraged to exploit the TOCTOU vulnerability (CVE-2026-2364) for privilege escalation.\nauthor: Sigma Rule Generator\ndate: 2026-03-10\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_installer:\n        Image|endswith: '\\\\CODESYS Installer.exe'\n    selection_update:\n        CommandLine|contains|any:\n            - '--self-update'\n            - '/update'\n            - '/install'\n            - '/setup'\n    selection_lowpriv:\n        ParentImage|contains: 'explorer.exe'\n        # Assuming the installer is started by a normal user context\n    condition: all of selection_installer, selection_update, selection_lowpriv\nlevel: high\ntags:\n    - attack.t1068\n    - attack.t1204\n    - cve.2026.2364\n    - privilege-escalation\n    - windows\n    - codesys\n    - toctou\n    - cwe.367",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-41711",
@@ -200,6 +177,57 @@
     "severity": "Medium"
   },
   {
+    "id": "CVE-2025-41709",
+    "title": "Modbus-TCP 및 Modbus-RTU를 통한 전력 분석기 명령어 삽입 취약점",
+    "description": "[VENDOR]의 [PRODUCT] [VERSION]에서 [PLATFORMS] 상 [COMPONENT]의 [PROBLEMTYPE] 취약점을 통해, 공격자가 [VECTOR]를 통해 [IMPACT]를 수행할 수 있습니다. Modbus-TCP 및 Modbus-RTU 프로토콜을 이용한 공격에 유의해야 합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 24V(5222063)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Janitza",
+        "product": "UMG 96RM-E 230V(5222062)",
+        "versions": "0.0 부터 3.13 이하"
+      },
+      {
+        "vendor": "Weidmueller",
+        "product": "ENERGY METER 750-230 (2540910000)",
+        "versions": "0.0 부터 3.13 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/152",
+    "date": "2026-03-10T09:03:47.673549+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-41709 OS Command Injection Attempt\nstatus: experimental\ndescription: Detects attempts to exploit OS command injection (CWE-78) in Janitza UMG and Weidmueller ENERGY METER web interfaces.\nauthor: Senior Detection Engineer\ndate: 2026-03-10\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/cgi-bin\"\n            - \"/api\"\n            - \"/config\"\n            - \"/login\"\n    selection_parameter:\n        cs-uri-query|contains|any:\n            - \"cmd\"\n            - \"command\"\n            - \"exec\"\n            - \"run\"\n            - \"action\"\n    selection_payload:\n        cs-uri-query|contains|any:\n            - \";\"\n            - \"&&\"\n            - \"|\"\n            - \"`\"\n            - \"$(\"\n            - \">\"\n            - \"<\"\n            - \"||\"\n    condition: all of selection_endpoint, selection_parameter, selection_payload\nlevel: high\ntags:\n    - cve.2025.41709\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059.004\n    - attack.t1499\n    - cwe.78",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2025-7195",
     "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
     "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
@@ -234,6 +262,317 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25945",
+    "title": "EV2GO ev2go.io 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "EV2GO",
+        "product": "ev2go.io",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:55:33.975469+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25114",
+    "title": "CloudCharge cloudcharge.se 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 텔레메트리 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "CloudCharge",
+        "product": "cloudcharge.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:54:35.189131+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25113",
+    "title": "SWITCH EV swtchenergy.com 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 정상적인 충전기 통신 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 접근을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "SWITCH EV",
+        "product": "swtchenergy.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:59:03.283685+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24445",
+    "title": "EV Energy ev.energy 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
+    "cvss": 7.5,
+    "epss": 0.00057,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "EV Energy",
+        "product": "ev.energy",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:51:46.776056+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20434",
+    "title": "모뎀의 경계 외 쓰기 취약점",
+    "description": "모뎀에 경계 검사 누락으로 인한 경계 외 쓰기 취약점이 존재합니다. 공격자가 제어하는 가짜 기지국에 UE가 연결된 경우, 추가적인 실행 권한 없이 원격 권한 상승으로 이어질 수 있습니다. 악용을 위해서는 사용자 상호 작용이 필요합니다. (패치 ID: MOLY00782946; 이슈 ID: MSV-4135)",
+    "cvss": 7.5,
+    "epss": 0.00058,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "MediaTek, Inc.",
+        "product": "MT2735, MT2737, MT6739, MT6761, MT6762, MT6762D, MT6762M, MT6763, MT6765, MT6765T, MT6767, MT6768, MT6769, MT6769K, MT6769S, MT6769T, MT6769Z, MT6771, MT6779, MT6781, MT6783, MT6785, MT6785T, MT6785U, MT6789, MT6833, MT6833P, MT6835, MT6835T, MT6853, MT6853T, MT6855, MT6855T, MT6873, MT6875, MT6875T, MT6877, MT6877T, MT6877TT, MT6878, MT6878M, MT6879, MT6880, MT6883, MT6885, MT6886, MT6889, MT6890, MT6891, MT6893, MT6895, MT6895TT, MT6896, MT6897, MT6899, MT6980, MT6980D, MT6983, MT6983T, MT6985, MT6985T, MT6989, MT6989T, MT6990, MT6991, MT8666, MT8667, MT8668, MT8673, MT8675, MT8676, MT8678, MT8755, MT8765, MT8766, MT8766R, MT8768, MT8771, MT8781, MT8786, MT8788, MT8788E, MT8789, MT8791, MT8791T, MT8792, MT8793, MT8795T, MT8797, MT8798, MT8863, MT8873, MT8883, MT8893",
+        "versions": "Modem LR12A, LR13, NR15, NR16, NR17 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T06:13:06.610804+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26278",
+    "title": "fast-xml-parser의 DOCTYPE 내 엔티티 확장으로 인한 DoS 취약점 (확장 제한 없음)",
+    "description": "fast-xml-parser는 C/C++ 기반 라이브러리나 콜백 없이 XML 유효성 검사, JS 객체로 파싱, JS 객체로부터 XML 생성을 지원합니다. 4.1.3에서 5.3.5 버전 사이에서, XML 파서가 무제한 엔티티 확장을 수행하도록 유도될 수 있습니다. 작은 XML 입력으로도 파서가 단일 요청 처리하는데 수 초에서 수 분을 소요하여 애플리케이션을 멈추게 할 수 있습니다. 5.3.6 버전에서 해당 문제가 해결되었으며, `processEntities: false` 옵션을 사용하여 DOCTYPE 파싱을 피하는 것으로 임시 해결이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0.00064,
+    "is_kev": false,
+    "cwe": [
+      "CWE-776"
+    ],
+    "affected": [
+      {
+        "vendor": "NaturalIntelligence",
+        "product": "fast-xml-parser",
+        "versions": ">= 5.0.0, < 5.3.6 (단일 버전), >= 4.1.3, < 4.5.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:12:36.19165+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-13673",
+    "title": "Tutor LMS <= 3.9.6 - 인증되지 않은 SQL Injection 취약점 (coupon_code)",
+    "description": "Tutor LMS 플러그인은 3.9.6 버전까지 'coupon_code' 파라미터에서 SQL Injection에 취약합니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생합니다. 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. (3.9.4 및 3.9.6 버전에서 부분적으로 완화되었습니다.)",
+    "cvss": 7.5,
+    "epss": 0.00064,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "themeum",
+        "product": "Tutor LMS – eLearning and online course solution",
+        "versions": "* 부터 3.9.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T16:01:00.035247+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26305",
+    "title": "Mobility46 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
+    "cvss": 7.5,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobility46",
+        "product": "mobility46.se",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T02:58:37.002256+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28414",
+    "title": "Gradio Windows 절대 경로 탐색 취약점 (Python 3.13 이상)",
+    "description": "Gradio 6.7 이전 버전은 Windows 환경에서 Python 3.13 이상을 사용할 때 절대 경로 탐색 취약점을 가집니다. 이 취약점을 이용하면 인증되지 않은 공격자가 파일 시스템의 임의 파일을 읽을 수 있습니다. Python 3.13의 `os.path.isabs` 정의 변경으로 인해 발생하며, 6.7 버전에서 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00151,
+    "is_kev": false,
+    "cwe": [
+      "CWE-36"
+    ],
+    "affected": [
+      {
+        "vendor": "gradio-app",
+        "product": "gradio",
+        "versions": "< 6.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T22:57:20.229251+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2023-5157",
+    "title": "MariaDB: 연결 끊어진 전송 엔드포인트로 인한 노드 충돌, mysqld 신호 6 수신",
+    "description": "MariaDB에서 서비스 거부 취약점이 발견되었습니다. 3306 및 4567 포트에 대한 OpenVAS 포트 스캔을 통해 악의적인 원격 클라이언트가 서비스를 중단시킬 수 있습니다. 이는 연결 문제로 인해 노드가 충돌하고 mysqld 프로세스가 신호 6을 수신하는 방식으로 발생합니다.",
+    "cvss": 7.5,
+    "epss": 0.00274,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8.4 Advanced Mission Critical Update Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T22:50:35.954692+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2364",
+    "title": "CODESYS 설치 프로그램 TOCTOU 권한 상승",
+    "description": "CODESYS 개발 시스템의 자동 업데이트 확인 또는 설치 과정에서 TOCTOU 취약점으로 인해 낮은 권한의 로컬 공격자가 권한을 상승시킬 수 있습니다. 이는 설치 프로그램의 취약점을 악용한 것입니다. 정상적인 사용자의 행위를 통해 악용될 가능성이 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "CODESYS",
+        "product": "CODESYS Installer",
+        "versions": "0.0.0 부터 2.6.1.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/151",
+    "date": "2026-03-10T07:57:10.468179+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-2364 CODESYS Installer TOCTOU Privilege Escalation Attempt\nstatus: experimental\ndescription: Detects execution of the CODESYS Installer that may be leveraged to exploit the TOCTOU vulnerability (CVE-2026-2364) for privilege escalation.\nauthor: Sigma Rule Generator\ndate: 2026-03-10\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_installer:\n        Image|endswith: '\\\\CODESYS Installer.exe'\n    selection_update:\n        CommandLine|contains|any:\n            - '--self-update'\n            - '/update'\n            - '/install'\n            - '/setup'\n    selection_lowpriv:\n        ParentImage|contains: 'explorer.exe'\n        # Assuming the installer is started by a normal user context\n    condition: all of selection_installer, selection_update, selection_lowpriv\nlevel: high\ntags:\n    - attack.t1068\n    - attack.t1204\n    - cve.2026.2364\n    - privilege-escalation\n    - windows\n    - codesys\n    - toctou\n    - cwe.367",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2024-1394",
@@ -32308,32 +32647,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-26305",
-    "title": "Mobility46 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
-    "cvss": 7.5,
-    "epss": 0.00076,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobility46",
-        "product": "mobility46.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:58:37.002256+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-26290",
     "title": "EV Energy ev.energy 세션 만료 부족",
     "description": "WebSocket 백엔드는 충전소 식별자를 사용하여 세션을 고유하게 연결하지만, 동일한 세션 식별자를 사용하는 여러 엔드포인트의 연결을 허용합니다. 이로 인해 예측 가능한 세션 식별자가 생성되어 세션 하이재킹 또는 섀도잉이 가능하며, 가장 최근 연결이 합법적인 충전소를 대체하고 해당 충전소에 전송될 백엔드 명령을 수신합니다. 이 취약점을 통해 권한 없는 사용자가 다른 사용자로 인증하거나 악의적인 행위자가 유효한 세션 요청으로 백엔드를 과부하시켜 서비스 거부 상태를 유발할 수 있습니다.",
@@ -32352,32 +32665,6 @@
     ],
     "report_url": null,
     "date": "2026-03-03T02:58:37.003512+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25945",
-    "title": "EV2GO ev2go.io 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 이어질 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00057,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "EV2GO",
-        "product": "ev2go.io",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:55:33.975469+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -33376,84 +33663,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-25114",
-    "title": "CloudCharge cloudcharge.se 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 텔레메트리 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
-    "cvss": 7.5,
-    "epss": 0.00057,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "CloudCharge",
-        "product": "cloudcharge.se",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:54:35.189131+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25113",
-    "title": "SWITCH EV swtchenergy.com 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 정상적인 충전기 통신 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 접근을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
-    "cvss": 7.5,
-    "epss": 0.00057,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "SWITCH EV",
-        "product": "swtchenergy.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:59:03.283685+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24445",
-    "title": "EV Energy ev.energy 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에서 인증 요청 횟수에 대한 제한이 없어, 공격자가 정상적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
-    "cvss": 7.5,
-    "epss": 0.00057,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "EV Energy",
-        "product": "ev.energy",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T02:51:46.776056+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-22890",
@@ -52202,32 +52411,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-20434",
-    "title": "모뎀의 경계 외 쓰기 취약점",
-    "description": "모뎀에 경계 검사 누락으로 인한 경계 외 쓰기 취약점이 존재합니다. 공격자가 제어하는 가짜 기지국에 UE가 연결된 경우, 추가적인 실행 권한 없이 원격 권한 상승으로 이어질 수 있습니다. 악용을 위해서는 사용자 상호 작용이 필요합니다. (패치 ID: MOLY00782946; 이슈 ID: MSV-4135)",
-    "cvss": 7.5,
-    "epss": 0.00058,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "MediaTek, Inc.",
-        "product": "MT2735, MT2737, MT6739, MT6761, MT6762, MT6762D, MT6762M, MT6763, MT6765, MT6765T, MT6767, MT6768, MT6769, MT6769K, MT6769S, MT6769T, MT6769Z, MT6771, MT6779, MT6781, MT6783, MT6785, MT6785T, MT6785U, MT6789, MT6833, MT6833P, MT6835, MT6835T, MT6853, MT6853T, MT6855, MT6855T, MT6873, MT6875, MT6875T, MT6877, MT6877T, MT6877TT, MT6878, MT6878M, MT6879, MT6880, MT6883, MT6885, MT6886, MT6889, MT6890, MT6891, MT6893, MT6895, MT6895TT, MT6896, MT6897, MT6899, MT6980, MT6980D, MT6983, MT6983T, MT6985, MT6985T, MT6989, MT6989T, MT6990, MT6991, MT8666, MT8667, MT8668, MT8673, MT8675, MT8676, MT8678, MT8755, MT8765, MT8766, MT8766R, MT8768, MT8771, MT8781, MT8786, MT8788, MT8788E, MT8789, MT8791, MT8791T, MT8792, MT8793, MT8795T, MT8797, MT8798, MT8863, MT8873, MT8883, MT8893",
-        "versions": "Modem LR12A, LR13, NR15, NR16, NR17 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T06:13:06.610804+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-20436",
     "title": "WLAN STA 드라이버 권한 상승 취약점",
     "description": "WLAN STA 드라이버에서 경계 검사 누락으로 인한 권한 상승 가능성이 존재합니다. 이미 시스템 권한을 획득한 악의적인 사용자가 로컬 권한을 상승시킬 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다. (패치 ID: WCNCR00473802; 이슈 ID: MSV-5970)",
@@ -52776,32 +52959,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28414",
-    "title": "Gradio Windows 절대 경로 탐색 취약점 (Python 3.13 이상)",
-    "description": "Gradio 6.7 이전 버전은 Windows 환경에서 Python 3.13 이상을 사용할 때 절대 경로 탐색 취약점을 가집니다. 이 취약점을 이용하면 인증되지 않은 공격자가 파일 시스템의 임의 파일을 읽을 수 있습니다. Python 3.13의 `os.path.isabs` 정의 변경으로 인해 발생하며, 6.7 버전에서 해결되었습니다.",
-    "cvss": 7.5,
-    "epss": 0.00151,
-    "is_kev": false,
-    "cwe": [
-      "CWE-36"
-    ],
-    "affected": [
-      {
-        "vendor": "gradio-app",
-        "product": "gradio",
-        "versions": "< 6.7 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T22:57:20.229251+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-27839",
     "title": "wger: 영양 정보 엔드포인트의 IDOR 취약점 - 직접 ORM 조회로 개인 식단 데이터 노출",
     "description": "wger는 무료 오픈 소스 운동 및 피트니스 관리 도구입니다. 2.4 버전 이하에서 `nutritional_values` 관련 엔드포인트가 사용자 범위를 우회하여 ORM을 직접 호출하는 취약점이 발견되었습니다. 인증된 사용자가 임의의 PK 값을 사용하여 다른 사용자의 개인 식단 정보(칼로리 섭취량, 매크로 구성 포함)를 읽을 수 있습니다. (수정 커밋: 29876a1954fe959e4b58ef070170e81703dab60e)",
@@ -53061,42 +53218,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2023-5157",
-    "title": "MariaDB: 연결 끊어진 전송 엔드포인트로 인한 노드 충돌, mysqld 신호 6 수신",
-    "description": "MariaDB에서 서비스 거부 취약점이 발견되었습니다. 3306 및 4567 포트에 대한 OpenVAS 포트 스캔을 통해 악의적인 원격 클라이언트가 서비스를 중단시킬 수 있습니다. 이는 연결 문제로 인해 노드가 충돌하고 mysqld 프로세스가 신호 6을 수신하는 방식으로 발생합니다.",
-    "cvss": 7.5,
-    "epss": 0.00274,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8.4 Advanced Mission Critical Update Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T22:50:35.954692+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28421",
@@ -53668,58 +53789,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T18:01:53.470425+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26278",
-    "title": "fast-xml-parser의 DOCTYPE 내 엔티티 확장으로 인한 DoS 취약점 (확장 제한 없음)",
-    "description": "fast-xml-parser는 C/C++ 기반 라이브러리나 콜백 없이 XML 유효성 검사, JS 객체로 파싱, JS 객체로부터 XML 생성을 지원합니다. 4.1.3에서 5.3.5 버전 사이에서, XML 파서가 무제한 엔티티 확장을 수행하도록 유도될 수 있습니다. 작은 XML 입력으로도 파서가 단일 요청 처리하는데 수 초에서 수 분을 소요하여 애플리케이션을 멈추게 할 수 있습니다. 5.3.6 버전에서 해당 문제가 해결되었으며, `processEntities: false` 옵션을 사용하여 DOCTYPE 파싱을 피하는 것으로 임시 해결이 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0.00064,
-    "is_kev": false,
-    "cwe": [
-      "CWE-776"
-    ],
-    "affected": [
-      {
-        "vendor": "NaturalIntelligence",
-        "product": "fast-xml-parser",
-        "versions": ">= 5.0.0, < 5.3.6 (단일 버전), >= 4.1.3, < 4.5.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:12:36.19165+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-13673",
-    "title": "Tutor LMS <= 3.9.6 - 인증되지 않은 SQL Injection 취약점 (coupon_code)",
-    "description": "Tutor LMS 플러그인은 3.9.6 버전까지 'coupon_code' 파라미터에서 SQL Injection에 취약합니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생합니다. 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. (3.9.4 및 3.9.6 버전에서 부분적으로 완화되었습니다.)",
-    "cvss": 7.5,
-    "epss": 0.00064,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "themeum",
-        "product": "Tutor LMS – eLearning and online course solution",
-        "versions": "* 부터 3.9.6 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T16:01:00.035247+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
