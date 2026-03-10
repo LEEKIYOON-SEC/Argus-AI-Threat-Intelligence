@@ -1,113 +1,38 @@
 [
   {
-    "id": "CVE-2025-69219",
-    "title": "Apache Airflow Providers Http: 안전하지 않은 Pickle 역직렬화로 인한 RCE 취약점",
-    "description": "apache-airflow-providers-http의 HttpOperator에서 DB 접근 권한을 가진 사용자가 악성 코드를 실행하도록 DB 항목을 조작하여 RCE를 유발할 수 있습니다. 이는 DB 접근 권한자에게 Dag Author와 동일한 권한을 부여합니다. Airflow에서는 직접적인 DB 접근을 권장하지 않으므로 실제 피해 가능성은 낮습니다. 6.0.0 버전으로 업그레이드하여 위험을 방지하십시오.",
-    "cvss": 8.8,
-    "epss": 0.00014,
-    "is_kev": false,
-    "cwe": [
-      "CWE-913"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Airflow Providers Http",
-        "versions": "5.1.0 부터 6.0.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/149",
-    "date": "2026-03-10T04:54:09.886323+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-69219 Airflow Triggerer Code Execution Attempt\nstatus: experimental\ndescription: Detects potential exploitation of CVE-2025-69219 where crafted database entries cause the Airflow Triggerer to execute arbitrary code.\nlogsource:\n    product: linux\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '/airflow'  # Airflow executable\n    selection_triggerer:\n        CommandLine|contains|any:\n            - 'triggerer'\n            - 'airflow triggerer'\n    selection_suspicious_exec:\n        CommandLine|contains|any:\n            - 'exec('\n            - 'eval('\n            - '__import__('\n            - 'os.system('\n    condition: all of selection_process, selection_triggerer, selection_suspicious_exec\nlevel: high\ntags:\n    - cve.2025.69219\n    - attack.execution\n    - airflow\n    - cwe.913",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/ahmetartuc/poc-cve-2025-69219"
-    ],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3585",
-    "title": "The Events Calendar <= 6.15.17 - 인증된 사용자를 통한 임의 파일 읽기 취약점 (Author+ 권한)",
-    "description": "WordPress용 The Events Calendar 플러그인이 6.15.17 버전 이하에서 'ajax_create_import' 함수를 통해 경로 탐색 취약점을 갖습니다. 이를 통해 Author 이상의 권한을 가진 인증된 공격자가 서버의 임의 파일을 읽을 수 있으며, 민감한 정보가 포함될 수 있습니다.",
-    "cvss": 7.5,
+    "id": "CVE-2026-0953",
+    "title": "Tutor LMS Pro <= 3.9.5 - 소셜 로그인 우회 인증 취약점",
+    "description": "Tutor LMS Pro 플러그인의 소셜 로그인 애드온에서 인증 우회 취약점이 발견되었습니다 (버전 3.9.5 이하). OAuth 토큰에서 검증된 이메일과 인증 요청에 제공된 이메일 주소가 일치하는지 확인하지 않아 발생합니다. 공격자는 자신의 OAuth 토큰과 피해자의 이메일 주소를 사용하여 관리자를 포함한 모든 사용자로 로그인할 수 있습니다.",
+    "cvss": 9.8,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-22"
+      "CWE-287"
     ],
     "affected": [
       {
-        "vendor": "stellarwp",
-        "product": "The Events Calendar",
-        "versions": "* 부터 6.15.17 이하"
+        "vendor": "themeum",
+        "product": "Tutor LMS Pro",
+        "versions": "* 부터 3.9.5 이하"
       }
     ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/148",
-    "date": "2026-03-10T04:54:02.728062+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/150",
+    "date": "2026-03-10T06:03:08.897444+00:00",
+    "rule_engines": [],
     "has_official_rules": false,
     "rules": {
       "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3585 Path Traversal Attempt via ajax_create_import\nstatus: experimental\ndescription: Detects attempts to exploit the Events Calendar plugin path traversal vulnerability (CVE-2026-3585) by sending '../' sequences to the ajax_create_import AJAX endpoint.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: 'admin-ajax.php'\n    selection_action:\n        uri|contains: 'action=ajax_create_import'\n        # also catch when the action is sent in POST body\n        cs-body|contains: 'action=ajax_create_import'\n    selection_traversal:\n        uri|contains: '../'\n        cs-body|contains:\n            - '../'\n            - '..%2F'\n            - '..%5C'\n    condition: all of selection_endpoint, selection_action, selection_traversal\nlevel: high\ntags:\n    - cve.2026.3585\n    - attack.initial_access\n    - attack.t1213\n    - attack.t1078\n    - attack.t1190\n    - path_traversal\n    - wordpress\n    - the_events_calendar",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
+      "sigma": null,
       "network": [],
       "skip_reasons": {
         "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
       }
     },
     "has_poc": false,
     "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-69649",
-    "title": "GNU Binutils readelf 취약점 (널 포인터 역참조)",
-    "description": "GNU Binutils 2.46 이하 버전의 readelf는 손상된 헤더 필드를 가진 ELF 바이너리를 처리할 때 널 포인터 역참조 취약점을 포함합니다. 리로케이션 처리 중 유효하지 않거나 널인 섹션 포인터가 display_relocations() 함수에 전달되어 세그멘테이션 오류(SIGSEGV)가 발생하고 프로그램이 예기치 않게 종료될 수 있습니다. 메모리 손상이나 코드 실행 가능성은 확인되지 않았습니다.",
-    "cvss": 0,
-    "epss": 0.00019,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T04:53:31.907855+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-26022",
@@ -231,40 +156,109 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
+    "id": "CVE-2025-69219",
+    "title": "Apache Airflow Providers Http: 안전하지 않은 Pickle 역직렬화로 인한 RCE 취약점",
+    "description": "apache-airflow-providers-http의 HttpOperator에서 DB 접근 권한을 가진 사용자가 악성 코드를 실행하도록 DB 항목을 조작하여 RCE를 유발할 수 있습니다. 이는 DB 접근 권한자에게 Dag Author와 동일한 권한을 부여합니다. Airflow에서는 직접적인 DB 접근을 권장하지 않으므로 실제 피해 가능성은 낮습니다. 6.0.0 버전으로 업그레이드하여 위험을 방지하십시오.",
+    "cvss": 8.8,
+    "epss": 0.00014,
     "is_kev": false,
     "cwe": [
-      "CWE-276"
+      "CWE-913"
     ],
     "affected": [
       {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Airflow Providers Http",
+        "versions": "5.1.0 부터 6.0.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/149",
+    "date": "2026-03-10T04:54:09.886323+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-69219 Airflow Triggerer Code Execution Attempt\nstatus: experimental\ndescription: Detects potential exploitation of CVE-2025-69219 where crafted database entries cause the Airflow Triggerer to execute arbitrary code.\nlogsource:\n    product: linux\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '/airflow'  # Airflow executable\n    selection_triggerer:\n        CommandLine|contains|any:\n            - 'triggerer'\n            - 'airflow triggerer'\n    selection_suspicious_exec:\n        CommandLine|contains|any:\n            - 'exec('\n            - 'eval('\n            - '__import__('\n            - 'os.system('\n    condition: all of selection_process, selection_triggerer, selection_suspicious_exec\nlevel: high\ntags:\n    - cve.2025.69219\n    - attack.execution\n    - airflow\n    - cwe.913",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ahmetartuc/poc-cve-2025-69219"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-2399",
+    "title": "미쓰비시 전기 CNC 시리즈 서비스 거부(DoS) 취약점",
+    "description": "미쓰비시 전기 CNC M800V, M80V, M800, M80, E80, C80, M700V, M70V, E70 시리즈 및 NC Trainer2 소프트웨어 도구에서 입력값의 인덱스, 위치 또는 오프셋 검증이 미흡하여 발생하는 취약점입니다. 공격자는 특수 제작된 패킷을 TCP 683 포트로 전송하여 메모리 범위를 벗어난 읽기를 유발, 서비스 거부 상태를 초래할 수 있습니다.",
+    "cvss": 5.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1285"
+    ],
+    "affected": [
+      {
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "Mitsubishi Electric CNC M800V Series M800VW",
+        "versions": "System Number BND-2051W000 versions BB and prior (단일 버전)"
       },
       {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "Mitsubishi Electric CNC M800V Series M800VS",
+        "versions": "System Number BND-2052W000 versions BB and prior (단일 버전)"
       },
       {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
+        "vendor": "Mitsubishi Electric Corporation",
+        "product": "Mitsubishi Electric CNC M80V Series M80V",
+        "versions": "System Number BND-2053W000 versions BB and prior (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
+    "date": "2026-03-10T06:02:43.620008+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-15568",
+    "title": "TP-Link Archer AXE75 명령 주입 취약점",
+    "description": "Archer AXE75 v1.6/v1.0 라우터 웹 모듈에서 명령 주입 취약점이 발견되었습니다. 인접 네트워크 접근 권한을 가진 인증된 공격자는 sysmode=ap로 설정된 경우 원격 코드 실행(RCE)을 수행할 수 있습니다. 성공적인 공격은 루트 권한을 획득하며 장치의 기밀성, 무결성 및 가용성에 영향을 미칩니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "TP-Link Systems Inc.",
+        "product": "Archer AXE75 v1.6/v1.0",
+        "versions": "1.3.2 Build 20250107 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T17:14:23.196483+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2025-14558",
@@ -333,30 +327,386 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-15568",
-    "title": "TP-Link Archer AXE75 명령 주입 취약점",
-    "description": "Archer AXE75 v1.6/v1.0 라우터 웹 모듈에서 명령 주입 취약점이 발견되었습니다. 인접 네트워크 접근 권한을 가진 인증된 공격자는 sysmode=ap로 설정된 경우 원격 코드 실행(RCE)을 수행할 수 있습니다. 성공적인 공격은 루트 권한을 획득하며 장치의 기밀성, 무결성 및 가용성에 영향을 미칩니다.",
-    "cvss": 8.5,
-    "epss": 0,
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
     "is_kev": false,
     "cwe": [
-      "CWE-78"
+      "CWE-276"
     ],
     "affected": [
       {
-        "vendor": "TP-Link Systems Inc.",
-        "product": "Archer AXE75 v1.6/v1.0",
-        "versions": "1.3.2 Build 20250107 이하"
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
       }
     ],
     "report_url": null,
-    "date": "2026-03-09T17:14:23.196483+00:00",
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31802",
+    "title": "node-tar 심볼릭 링크 경로 탐색 취약점 (드라이브 상대 경로 링크 사용)",
+    "description": "node-tar는 Node.js를 위한 기능이 풍부한 Tar 라이브러리입니다. 7.5.11 버전 이전에는 `C:../../../target.txt`와 같은 드라이브 상대 경로 심볼릭 링크를 사용하여 추출 디렉토리 외부 파일을 덮어쓰는 취약점이 존재했습니다. 이 문제는 7.5.11에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "isaacs",
+        "product": "node-tar",
+        "versions": "< 7.5.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T21:50:22.492955+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0754",
+    "title": "Poly Voice 장치 위장 가능성을 이용한 SIP 서비스 제공업체 공격",
+    "description": "전문적인 리버스 엔지니어링 도구를 사용하여 Poly Voice 장치에서 내장된 테스트 키와 인증서를 추출할 수 있습니다. 적절한 장치 인증서 검증을 수행하지 않는 SIP 서비스 제공업체는 이 인증서를 수락할 수 있습니다. 이를 통해 장치 위장이 가능해집니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-321"
+    ],
+    "affected": [
+      {
+        "vendor": "HP Inc",
+        "product": "VVX",
+        "versions": "<UCS 6.4.8 이전"
+      },
+      {
+        "vendor": "HP Inc",
+        "product": "Edge E",
+        "versions": "<PVOS 8.5.0 이전"
+      },
+      {
+        "vendor": "HP Inc",
+        "product": "Trio 8300",
+        "versions": "<UCS 8.1.7.c 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T03:14:27.420582+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28416",
+    "title": "Gradio의 `gr.load()` 설정 처리에서 악성 `proxy_url` 주입을 통한 SSRF 취약점",
+    "description": "Gradio는 빠른 프로토타입 제작을 위한 오픈 소스 Python 패키지입니다. 6.6.0 버전 이전에는 악성 Gradio Space를 호스팅하여 피해자의 서버에서 임의의 HTTP 요청을 수행할 수 있는 SSRF 취약점이 존재했습니다. `gr.load()`를 통해 공격자가 제어하는 Space를 로드할 때, 악성 `proxy_url`이 allowlist에 추가되어 내부 서비스 및 비공개 네트워크에 접근이 가능했습니다. 6.6.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0.0003,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "gradio-app",
+        "product": "gradio",
+        "versions": "< 6.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T23:12:36.552743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28406",
+    "title": "Kaniko의 빌드 컨텍스트 추출 시 tar 아카이브 경로 탐색 취약점",
+    "description": "Kaniko는 Dockerfile로부터 컨테이너 이미지를 빌드하는 도구입니다. 1.25.4 버전부터 1.25.10 이전 버전까지, Kaniko는 `filepath.Join`을 사용하여 빌드 컨텍스트 아카이브를 압축 해제할 때 최종 경로가 대상 디렉토리 내에 있는지 확인하지 않아 경로 탐색 취약점이 존재합니다. 이를 통해 대상 디렉토리 외부 파일에 쓰기가 가능하며, 레지스트리 인증 환경에서는 코드 실행으로 이어질 수 있습니다. 1.25.10 버전에서는 안전한 경로 결합 방식을 사용하여 이 문제를 해결했습니다.",
+    "cvss": 8.2,
+    "epss": 0.0012,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "chainguard-forks",
+        "product": "kaniko",
+        "versions": ">= 1.25.4, < 1.25.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T23:06:29.249651+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48582",
+    "title": "외부 저장소 관리 권한 없이 미디어 삭제 가능성",
+    "description": "특정 상황에서 intent 리디렉션을 통해 MANAGE_EXTERNAL_STORAGE 권한 없이 미디어를 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다. 여러 위치에서 해당 문제가 발생합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T00:06:55.856188+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48579",
+    "title": "MediaProvider.java 외부 저장소 쓰기 권한 우회 가능성",
+    "description": "MediaProvider.java의 여러 함수에서 혼동된 대리자 문제로 인해 외부 저장소 쓰기 권한이 우회될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T00:05:55.027465+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48650",
+    "title": "SQL Injection으로 인한 정보 유출 가능성",
+    "description": "여러 위치에서 SQL Injection 취약점이 발견되었습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호작용 없이 공격이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T23:01:24.278645+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0013",
+    "title": "PickActivity.java의 권한 상승 취약점",
+    "description": "PickActivity.java의 setupLayout에서 혼동된 대리자 문제로 인해 임의의 액티비티가 DocumentsUI 앱으로 실행될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T23:13:04.625861+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0047",
+    "title": "ActivityManagerService.java의 권한 확인 누락으로 인한 정보 접근 가능성",
+    "description": "ActivityManagerService.java의 dumpBitmapsProto 함수에서 권한 확인이 누락되어 앱이 개인 정보에 접근할 수 있는 취약점이 발견되었습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 악용될 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16-qpr2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:07:13.285841+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1492",
+    "title": "사용자 등록 및 멤버십 <= 5.1.2 - 인증되지 않은 권한 상승 (멤버십 등록을 통해)",
+    "description": "워드프레스 플러그인 'User Registration & Membership' 5.1.2 버전 이하에서 멤버십 등록 시 서버 측 허용 목록 검사 없이 사용자 제공 역할을 허용하여, 인증되지 않은 공격자가 관리자 계정을 생성할 수 있는 권한 상승 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "wpeverest",
+        "product": "User Registration & Membership – Free & Paid Memberships, Subscriptions, Content Restriction, User Profile, Custom User Registration & Login Builder",
+        "versions": "* 부터 5.1.2 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/68",
+    "date": "2026-03-03T04:59:28.144744+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3585",
+    "title": "The Events Calendar <= 6.15.17 - 인증된 사용자를 통한 임의 파일 읽기 취약점 (Author+ 권한)",
+    "description": "WordPress용 The Events Calendar 플러그인이 6.15.17 버전 이하에서 'ajax_create_import' 함수를 통해 경로 탐색 취약점을 갖습니다. 이를 통해 Author 이상의 권한을 가진 인증된 공격자가 서버의 임의 파일을 읽을 수 있으며, 민감한 정보가 포함될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "stellarwp",
+        "product": "The Events Calendar",
+        "versions": "* 부터 6.15.17 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/148",
+    "date": "2026-03-10T04:54:02.728062+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3585 Path Traversal Attempt via ajax_create_import\nstatus: experimental\ndescription: Detects attempts to exploit the Events Calendar plugin path traversal vulnerability (CVE-2026-3585) by sending '../' sequences to the ajax_create_import AJAX endpoint.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: 'admin-ajax.php'\n    selection_action:\n        uri|contains: 'action=ajax_create_import'\n        # also catch when the action is sent in POST body\n        cs-body|contains: 'action=ajax_create_import'\n    selection_traversal:\n        uri|contains: '../'\n        cs-body|contains:\n            - '../'\n            - '..%2F'\n            - '..%5C'\n    condition: all of selection_endpoint, selection_action, selection_traversal\nlevel: high\ntags:\n    - cve.2026.3585\n    - attack.initial_access\n    - attack.t1213\n    - attack.t1078\n    - attack.t1190\n    - path_traversal\n    - wordpress\n    - the_events_calendar",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-69649",
+    "title": "GNU Binutils readelf 취약점 (널 포인터 역참조)",
+    "description": "GNU Binutils 2.46 이하 버전의 readelf는 손상된 헤더 필드를 가진 ELF 바이너리를 처리할 때 널 포인터 역참조 취약점을 포함합니다. 리로케이션 처리 중 유효하지 않거나 널인 섹션 포인터가 display_relocations() 함수에 전달되어 세그멘테이션 오류(SIGSEGV)가 발생하고 프로그램이 예기치 않게 종료될 수 있습니다. 메모리 손상이나 코드 실행 가능성은 확인되지 않았습니다.",
+    "cvss": 0,
+    "epss": 0.00019,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T04:53:31.907855+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
   },
   {
     "id": "CVE-2025-48636",
@@ -2377,32 +2727,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31802",
-    "title": "node-tar 심볼릭 링크 경로 탐색 취약점 (드라이브 상대 경로 링크 사용)",
-    "description": "node-tar는 Node.js를 위한 기능이 풍부한 Tar 라이브러리입니다. 7.5.11 버전 이전에는 `C:../../../target.txt`와 같은 드라이브 상대 경로 심볼릭 링크를 사용하여 추출 디렉토리 외부 파일을 덮어쓰는 취약점이 존재했습니다. 이 문제는 7.5.11에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "isaacs",
-        "product": "node-tar",
-        "versions": "< 7.5.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T21:50:22.492955+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-30926",
@@ -29718,58 +30042,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-48582",
-    "title": "외부 저장소 관리 권한 없이 미디어 삭제 가능성",
-    "description": "특정 상황에서 intent 리디렉션을 통해 MANAGE_EXTERNAL_STORAGE 권한 없이 미디어를 삭제할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용이 가능합니다. 여러 위치에서 해당 문제가 발생합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T00:06:55.856188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48579",
-    "title": "MediaProvider.java 외부 저장소 쓰기 권한 우회 가능성",
-    "description": "MediaProvider.java의 여러 함수에서 혼동된 대리자 문제로 인해 외부 저장소 쓰기 권한이 우회될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T00:05:55.027465+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-40931",
     "title": "Perl의 Apache::Session::Generate::MD5 버전 1.94 이하의 안전하지 않은 세션 ID 생성",
     "description": "Perl의 Apache::Session::Generate::MD5 모듈 1.94 버전 이하에서 안전하지 않은 세션 ID가 생성될 수 있습니다. 이 모듈은 예측 가능한 rand() 함수, epoch 시간, PID를 사용하여 MD5 해시를 생성하며, 이는 공격자가 시스템에 접근할 수 있는 취약점으로 이어질 수 있습니다. PID 값의 범위가 작고 epoch 시간도 추측 가능하기 때문입니다.",
@@ -30571,32 +30843,6 @@
     ],
     "report_url": null,
     "date": "2026-03-03T17:11:00.711101+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48650",
-    "title": "SQL Injection으로 인한 정보 유출 가능성",
-    "description": "여러 위치에서 SQL Injection 취약점이 발견되었습니다. 이를 통해 추가적인 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호작용 없이 공격이 가능합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T23:01:24.278645+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -49774,41 +50020,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-1492",
-    "title": "사용자 등록 및 멤버십 <= 5.1.2 - 인증되지 않은 권한 상승 (멤버십 등록을 통해)",
-    "description": "워드프레스 플러그인 'User Registration & Membership' 5.1.2 버전 이하에서 멤버십 등록 시 서버 측 허용 목록 검사 없이 사용자 제공 역할을 허용하여, 인증되지 않은 공격자가 관리자 계정을 생성할 수 있는 권한 상승 취약점이 존재합니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "wpeverest",
-        "product": "User Registration & Membership – Free & Paid Memberships, Subscriptions, Content Restriction, User Profile, Custom User Registration & Login Builder",
-        "versions": "* 부터 5.1.2 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/68",
-    "date": "2026-03-03T04:59:28.144744+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-6927",
     "title": "글로벌 계정 차단 기록이 공개적으로 보이는 Autoblocks 문제",
     "description": "위키미디어 재단 MediaWiki의 취약점으로, includes/specials/pagers/BlockListPager.Php 및 includes/api/ApiQueryBlocks.Php 파일과 관련이 있습니다.",
@@ -50206,42 +50417,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-0754",
-    "title": "Poly Voice 장치 위장 가능성을 이용한 SIP 서비스 제공업체 공격",
-    "description": "전문적인 리버스 엔지니어링 도구를 사용하여 Poly Voice 장치에서 내장된 테스트 키와 인증서를 추출할 수 있습니다. 적절한 장치 인증서 검증을 수행하지 않는 SIP 서비스 제공업체는 이 인증서를 수락할 수 있습니다. 이를 통해 장치 위장이 가능해집니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-321"
-    ],
-    "affected": [
-      {
-        "vendor": "HP Inc",
-        "product": "VVX",
-        "versions": "<UCS 6.4.8 이전"
-      },
-      {
-        "vendor": "HP Inc",
-        "product": "Edge E",
-        "versions": "<PVOS 8.5.0 이전"
-      },
-      {
-        "vendor": "HP Inc",
-        "product": "Trio 8300",
-        "versions": "<UCS 8.1.7.c 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T03:14:27.420582+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-6075",
@@ -51541,32 +51716,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-0047",
-    "title": "ActivityManagerService.java의 권한 확인 누락으로 인한 정보 접근 가능성",
-    "description": "ActivityManagerService.java의 dumpBitmapsProto 함수에서 권한 확인이 누락되어 앱이 개인 정보에 접근할 수 있는 취약점이 발견되었습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이 악용될 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16-qpr2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:07:13.285841+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-0030",
     "title": "mem_protect.c의 범위 초과 쓰기 취약점",
     "description": "mem_protect.c의 `__host_check_page_state_range` 함수에서 잘못된 범위 검사로 인해 범위 초과 쓰기 취약점이 발생할 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호작용 없이도 악용이 가능합니다.",
@@ -51747,32 +51896,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-0013",
-    "title": "PickActivity.java의 권한 상승 취약점",
-    "description": "PickActivity.java의 setupLayout에서 혼동된 대리자 문제로 인해 임의의 액티비티가 DocumentsUI 앱으로 실행될 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T23:13:04.625861+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-59603",
@@ -52832,32 +52955,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28416",
-    "title": "Gradio의 `gr.load()` 설정 처리에서 악성 `proxy_url` 주입을 통한 SSRF 취약점",
-    "description": "Gradio는 빠른 프로토타입 제작을 위한 오픈 소스 Python 패키지입니다. 6.6.0 버전 이전에는 악성 Gradio Space를 호스팅하여 피해자의 서버에서 임의의 HTTP 요청을 수행할 수 있는 SSRF 취약점이 존재했습니다. `gr.load()`를 통해 공격자가 제어하는 Space를 로드할 때, 악성 `proxy_url`이 allowlist에 추가되어 내부 서비스 및 비공개 네트워크에 접근이 가능했습니다. 6.6.0 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0.0003,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "gradio-app",
-        "product": "gradio",
-        "versions": "< 6.6.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T23:12:36.552743+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28415",
     "title": "Gradio OAuth 흐름의 오픈 리디렉션 취약점",
     "description": "Gradio는 빠른 프로토타입 제작을 위한 오픈 소스 Python 패키지입니다. 6.6.0 버전 이전에는 OAuth 흐름의 `_redirect_to_target()` 함수가 검증되지 않은 `_target_url` 쿼리 파라미터를 허용하여 임의의 외부 URL로 리디렉션이 가능했습니다. 이는 OAuth가 활성화된 Gradio 앱 (예: Hugging Face Spaces에서 `gr.LoginButton`을 사용하는 앱)의 `/logout` 및 `/login/callback` 엔드포인트에 영향을 미칩니다. 6.6.0 버전부터는 `_target_url` 파라미터가 경로, 쿼리, 프래그먼트만 사용하도록 소독되어 스킴 또는 호스트가 제거됩니다.",
@@ -52885,32 +52982,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28406",
-    "title": "Kaniko의 빌드 컨텍스트 추출 시 tar 아카이브 경로 탐색 취약점",
-    "description": "Kaniko는 Dockerfile로부터 컨테이너 이미지를 빌드하는 도구입니다. 1.25.4 버전부터 1.25.10 이전 버전까지, Kaniko는 `filepath.Join`을 사용하여 빌드 컨텍스트 아카이브를 압축 해제할 때 최종 경로가 대상 디렉토리 내에 있는지 확인하지 않아 경로 탐색 취약점이 존재합니다. 이를 통해 대상 디렉토리 외부 파일에 쓰기가 가능하며, 레지스트리 인증 환경에서는 코드 실행으로 이어질 수 있습니다. 1.25.10 버전에서는 안전한 경로 결합 방식을 사용하여 이 문제를 해결했습니다.",
-    "cvss": 8.2,
-    "epss": 0.0012,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "chainguard-forks",
-        "product": "kaniko",
-        "versions": ">= 1.25.4, < 1.25.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T23:06:29.249651+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28407",
