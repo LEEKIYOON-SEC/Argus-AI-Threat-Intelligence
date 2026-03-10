@@ -1,5 +1,100 @@
 [
   {
+    "id": "CVE-2026-2724",
+    "title": "Elementor용 Unlimited Elements 2.0.5 이하 버전 - 인증되지 않은 저장형 XSS 취약점 (폼 입력 필드)",
+    "description": "Elementor용 Unlimited Elements 플러그인은 2.0.5 버전까지 모든 버전에서 폼 입력 필드를 통해 저장형 XSS 취약점에 노출됩니다. 이는 폼 제출 데이터에 대한 불충분한 입력 값 검증 및 관리자 폼 항목 휴지통 보기에서 표시되는 출력 이스케이핑 때문입니다. 이를 통해 인증되지 않은 공격자가 관리자가 삭제된 폼 항목을 볼 때 실행되는 임의의 웹 스크립트를 페이지에 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "unitecms",
+        "product": "Unlimited Elements For Elementor",
+        "versions": "* 부터 2.0.5 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/154",
+    "date": "2026-03-10T11:04:48.898792+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-2724 Unlimited Elements for Elementor Stored XSS Attempt\nstatus: experimental\ndescription: Detects attempts to exploit the stored XSS vulnerability in Unlimited Elements for Elementor (<= 2.0.5) by submitting malicious script payloads to form entry endpoints.\nauthor: Sigma Rule Generator\ndate: 2026-03-10\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/wp-content/plugins/unlimited-elements-for-elementor/\"\n            - \"/wp-admin/admin-ajax.php\"\n    selection_parameter:\n        cs-body|contains|any:\n            - \"action=unlimited_elements_form_save\"\n            - \"action=unlimited_elements_form_submit\"\n    selection_payload:\n        cs-body|contains|any:\n            - \"<script\"\n            - \"javascript:\"\n            - \"onerror=\"\n            - \"onload=\"\n            - \"alert(\"\n            - \"document.cookie\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.2724\n    - attack.initial_access\n    - attack.execution\n    - attack.t1190\n    - attack.t1059.007\n    - cwe.79\n    - wordpress\n    - plugin\n    - unlimited-elements-for-elementor\n    - xss\n    - stored-xss",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3228",
+    "title": "NextScripts: Social Networks Auto-Poster <= 4.4.6 - 인증된(Contributor+) 사용자를 통한 저장형 XSS 취약점 ('nxs_fbembed' 단축 코드)",
+    "description": "WordPress용 NextScripts: Social Networks Auto-Poster 플러그인이 버전 4.4.6 이하에서 `[nxs_fbembed]` 단축 코드를 통해 저장형 XSS 취약점에 노출됩니다. 이는 `snapFB` 게시물 메타 값에 대한 입력값 검증 및 출력 이스케이핑이 미흡하여 발생합니다. 인증된 Contributor 레벨 이상의 공격자가 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "nextscripts",
+        "product": "NextScripts: Social Networks Auto-Poster",
+        "versions": "* 부터 4.4.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T11:04:20.038464+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3315",
+    "title": "ASSA ABLOY Visionline 권한 상승 취약점 (쓰기 가능한 실행 파일)",
+    "description": "Windows 환경의 ASSA ABLOY Visionline에서 잘못된 기본 권한 설정 및 불필요한 권한으로 실행되는 문제로 인해 권한 상승이 가능합니다. 특히, 특권 경로 내 쓰기 가능한 실행 파일이 존재하여 설정/환경 조작으로 이어질 수 있습니다. 1.0 버전부터 1.33 이전 버전까지 영향을 받습니다.",
+    "cvss": 5.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276",
+      "CWE-250",
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "ASSA ABLOY",
+        "product": "Visionline",
+        "versions": "1.0 부터 1.33 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T10:02:37.336546+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-1261",
     "title": "MetForm Pro <= 3.9.6 - 인증되지 않은 저장형 XSS",
     "description": "WordPress용 MetForm Pro 플러그인의 퀴즈 기능에서 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점이 존재합니다. 이 취약점은 3.9.6 버전 이하에서 발생하며, 인증되지 않은 공격자가 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
@@ -41,32 +136,398 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3315",
-    "title": "ASSA ABLOY Visionline 권한 상승 취약점 (쓰기 가능한 실행 파일)",
-    "description": "Windows 환경의 ASSA ABLOY Visionline에서 잘못된 기본 권한 설정 및 불필요한 권한으로 실행되는 문제로 인해 권한 상승이 가능합니다. 특히, 특권 경로 내 쓰기 가능한 실행 파일이 존재하여 설정/환경 조작으로 이어질 수 있습니다. 1.0 버전부터 1.33 이전 버전까지 영향을 받습니다.",
-    "cvss": 5.8,
+    "id": "CVE-2026-23907",
+    "title": "Apache PDFBox 예제: PDFBox ExtractEmbeddedFiles 예제 코드의 경로 탐색 취약점",
+    "description": "Apache PDFBox의 ExtractEmbeddedFiles 예제 코드(2.0.24~2.0.36, 3.0.0~3.0.7 버전)에서 경로 탐색 취약점(CWE-22)이 발견되었습니다.",
+    "cvss": 0,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-276",
-      "CWE-250",
-      "CWE-732"
+      "CWE-22"
     ],
     "affected": [
       {
-        "vendor": "ASSA ABLOY",
-        "product": "Visionline",
-        "versions": "1.0 부터 1.33 이전"
+        "vendor": "Apache Software Foundation",
+        "product": "Apache PDFBox Examples",
+        "versions": "2.0.24 부터 2.0.36 이하, 3.0.0 부터 3.0.7 이하"
       }
     ],
     "report_url": null,
-    "date": "2026-03-10T10:02:37.336546+00:00",
+    "date": "2026-03-10T11:04:14.065404+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-22614",
+    "title": "이튼 EasySoft 프로젝트 파일의 취약점",
+    "description": "이튼 EasySoft 프로젝트 파일에 사용된 암호화 방식이 취약하여 무차별 대입 공격에 노출되었습니다. 공격자는 해당 파일과 로컬 호스트에 접근하여 민감한 정보를 탈취하고 프로젝트 파일을 변조할 수 있습니다. 최신 버전의 EasySoft는 이튼 다운로드 센터에서 다운로드하여 문제를 해결할 수 있습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-257"
+    ],
+    "affected": [
+      {
+        "vendor": "Eaton",
+        "product": "EasySoft",
+        "versions": "8.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T11:04:11.38154+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21791",
+    "title": "HCL Sametime for Android 민감 정보 유출 취약점",
+    "description": "HCL Sametime for Android에서 민감 정보 유출 취약점이 발견되었습니다.",
+    "cvss": 3.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-532"
+    ],
+    "affected": [
+      {
+        "vendor": "HCL",
+        "product": "Sametime",
+        "versions": "Android 12.0.21 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T11:04:11.068513+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-48577",
+    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
+    "description": "KeyguardViewMediator.java 파일의 여러 함수에서 경쟁 조건으로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용이 필요하지 않습니다. 악용이 용이합니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T00:02:45.770589+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-62166",
+    "title": "FreshRSS의 IDOR 취약점으로 인한 사용자 피드 열람 및 토큰 유출 가능성",
+    "description": "FreshRSS는 무료로 자체 호스팅 가능한 RSS 집계 프로그램입니다. 1.28.0 이전 버전에서 마스터 인증 토큰 관련 인증 로직의 버그로 인해 익명 보기 기능이 활성화되어 있어도 다른 사용자의 피드를 열람하고 토큰을 유출할 수 있었습니다. 이 취약점은 1.28.0에서 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "FreshRSS",
+        "product": "FreshRSS",
+        "versions": "< 1.28.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T19:54:42.57331+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3180",
+    "title": "Contest Gallery <= 28.1.4 - 인증되지 않은 SQL Injection",
+    "description": "Contest Gallery 워드프레스 플러그인 버전 28.1.4 이하에서 ‘cgLostPasswordEmail’ 및 ‘cgl_mail’ 파라미터를 통해 Blind SQL Injection 취약점이 발견되었습니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. ‘cgLostPasswordEmail’ 파라미터는 28.1.4 버전, ‘cgl_mail’ 파라미터는 28.1.5 버전에서 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "contest-gallery",
+        "product": "Contest Gallery – Upload & Vote Photos, Media, Sell with PayPal & Stripe",
+        "versions": "* 부터 28.1.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:11:15.903927+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3338",
+    "title": "AWS-LC의 PKCS7 서명 검증 우회 취약점",
+    "description": "AWS-LC의 PKCS7_verify() 함수 내 부적절한 서명 검증으로 인해, 인증되지 않은 사용자가 Authenticated Attributes가 포함된 PKCS7 객체 처리 시 서명 검증을 우회할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "AWS",
+        "product": "AWS-LC",
+        "versions": "1.41.0 부터 1.69.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:57:52.276996+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3336",
+    "title": "AWS-LC의 PKCS7 인증서 체인 검증 우회 취약점",
+    "description": "AWS-LC의 PKCS7_verify() 함수 내 인증서 검증 오류로 인해, 최종 서명자를 제외한 다중 서명자 PKCS7 객체 처리 시 인증되지 않은 사용자가 인증서 체인 검증을 우회할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "AWS",
+        "product": "AWS-LC",
+        "versions": "1.41.0 부터 1.69.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T21:57:35.574199+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-14769",
+    "title": "ipfw 서비스 거부 취약점",
+    "description": "특정 상황에서 `tcp-setmss` 핸들러가 패킷 데이터를 해제하고 오류를 발생시키지만 규칙 처리 엔진은 중단되지 않을 수 있습니다. 이후 규칙이 패킷 데이터가 사라진 후 트래픽을 허용하여 NULL 포인터 역참조가 발생할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeBSD",
+        "product": "FreeBSD",
+        "versions": "14.3-RELEASE 부터 p7 이전, 13.5-RELEASE 부터 p8 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-09T15:15:07.046154+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2471",
+    "title": "WP Mail Logging <= 1.15.0 - 인증되지 않은 PHP 객체 주입 취약점 / 이메일 로그 메시지 필드",
+    "description": "WP Mail Logging 플러그인은 이메일 로그 메시지 필드의 신뢰할 수 없는 입력을 역직렬화하여 PHP 객체 주입 취약점을 가지고 있습니다 (1.15.0 버전 이하). 데이터베이스에서 가져온 모든 속성에 대해 유효성 검사 없이 `maybe_unserialize()`를 호출하기 때문입니다. 공격자는 이메일을 보내는 모든 공개 폼(예: Contact Form 7)을 통해 더블 직렬화된 페이로드를 제출하여 PHP 객체를 주입할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.0004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "smub",
+        "product": "WP Mail Logging",
+        "versions": "* 부터 1.15.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:01:00.917499+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-37165",
+    "title": "의도하지 않은 네트워크 인터페이스에서 VLAN 정보 노출",
+    "description": "HPE Instant On 액세스 포인트의 라우터 모드 설정에서 특정 네트워크 구성 정보가 의도하지 않은 인터페이스에 노출되는 취약점이 발견되었습니다. 악의적인 공격자는 영향을 받는 패킷을 검사하여 내부 네트워크 구성 세부 정보를 파악할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00044,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Hewlett Packard Enterprise (HPE)",
+        "product": "Instant On",
+        "versions": "3.0.0.0 부터 3.3.1.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:01:53.470425+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27449",
+    "title": "Umbraco.Engage.Forms의 인증되지 않은 API 엔드포인트 접근 허용",
+    "description": "Umbraco Engage 플랫폼에서 인증/인가 검사 없이 특정 API 엔드포인트에 접근 가능한 취약점이 발견되었습니다. 공격자는 예측 가능한 식별자를 사용하여 민감한 데이터를 대량으로 추출할 수 있으며, v16 및 v17 버전에 영향을 미칩니다. 16.2.1 또는 17.1.1로 업데이트하는 것이 권장됩니다.",
+    "cvss": 7.5,
+    "epss": 0.00052,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-306",
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "umbraco",
+        "product": "Umbraco.Engage.Forms",
+        "versions": "< 16.2.1 (단일 버전), >= 17.0.0, < 17.1.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T03:04:55.208274+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22886",
+    "title": "OpenMQ 기본 관리자 계정의 취약점",
+    "description": "OpenMQ는 기본적으로 인증이 필요한 TCP 기반 관리 서비스를 제공하며, 기본 관리자 계정(admin/admin)을 포함합니다. 최초 사용 시 비밀번호 변경을 강제하지 않아, 로그인 후에도 기본 비밀번호를 무기한 허용합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1392",
+      "CWE-1393",
+      "CWE-1391"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse OpenMQ",
+        "versions": "0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/70",
+    "date": "2026-03-03T10:03:26.854412+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_22886_Indicator {\n    meta:\n        description = \"Detects CVE-2026-22886\"\n        author = \"Argus-AI\"\n    strings:\n        $s1 = \"admin/admin\" ascii\n        $s2 = \"imqbrokerd\" ascii\n        $s3 = \"OpenMQ\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2025-41712",
@@ -226,42 +687,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-25945",
@@ -6424,33 +6849,6 @@
     ],
     "report_url": null,
     "date": "2026-03-09T19:54:40.286978+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-62166",
-    "title": "FreshRSS의 IDOR 취약점으로 인한 사용자 피드 열람 및 토큰 유출 가능성",
-    "description": "FreshRSS는 무료로 자체 호스팅 가능한 RSS 집계 프로그램입니다. 1.28.0 이전 버전에서 마스터 인증 토큰 관련 인증 로직의 버그로 인해 익명 보기 기능이 활성화되어 있어도 다른 사용자의 피드를 열람하고 토큰을 유출할 수 있었습니다. 이 취약점은 1.28.0에서 해결되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "FreshRSS",
-        "product": "FreshRSS",
-        "versions": "< 1.28.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T19:54:42.57331+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -13717,32 +14115,6 @@
     ],
     "report_url": null,
     "date": "2026-03-07T06:14:10.690975+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-14769",
-    "title": "ipfw 서비스 거부 취약점",
-    "description": "특정 상황에서 `tcp-setmss` 핸들러가 패킷 데이터를 해제하고 오류를 발생시키지만 규칙 처리 엔진은 중단되지 않을 수 있습니다. 이후 규칙이 패킷 데이터가 사라진 후 트래픽을 허용하여 NULL 포인터 역참조가 발생할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "FreeBSD",
-        "product": "FreeBSD",
-        "versions": "14.3-RELEASE 부터 p7 이전, 13.5-RELEASE 부터 p8 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-09T15:15:07.046154+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -49089,32 +49461,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-3336",
-    "title": "AWS-LC의 PKCS7 인증서 체인 검증 우회 취약점",
-    "description": "AWS-LC의 PKCS7_verify() 함수 내 인증서 검증 오류로 인해, 최종 서명자를 제외한 다중 서명자 PKCS7 객체 처리 시 인증되지 않은 사용자가 인증서 체인 검증을 우회할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "AWS",
-        "product": "AWS-LC",
-        "versions": "1.41.0 부터 1.69.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:57:35.574199+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-67840",
     "title": "Cohesity TranZman OS 명령 삽입 취약점",
     "description": "Cohesity TranZman 4.0 빌드 14614 ~ TZM_1757588060_SEP2025_FULL.depot 웹 애플리케이션 API에 인증된 사용자가 OS 명령을 삽입할 수 있는 다수의 취약점이 존재합니다. 사용자 제어 파라미터를 적절히 소독하지 않고 시스템 명령에 직접 연결하여 루트 권한으로 임의의 OS 명령을 실행할 수 있습니다. 프록시를 사용하여 요청을 가로채고 셸 메타 문자를 삽입하여 시스템을 완전히 손상시킬 수 있습니다.",
@@ -50559,51 +50905,6 @@
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-22886",
-    "title": "OpenMQ 기본 관리자 계정의 취약점",
-    "description": "OpenMQ는 기본적으로 인증이 필요한 TCP 기반 관리 서비스를 제공하며, 기본 관리자 계정(admin/admin)을 포함합니다. 최초 사용 시 비밀번호 변경을 강제하지 않아, 로그인 후에도 기본 비밀번호를 무기한 허용합니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1392",
-      "CWE-1393",
-      "CWE-1391"
-    ],
-    "affected": [
-      {
-        "vendor": "Eclipse Foundation",
-        "product": "Eclipse OpenMQ",
-        "versions": "0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/70",
-    "date": "2026-03-03T10:03:26.854412+00:00",
-    "rule_engines": [
-      "yara"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": {
-        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_22886_Indicator {\n    meta:\n        description = \"Detects CVE-2026-22886\"\n        author = \"Argus-AI\"\n    strings:\n        $s1 = \"admin/admin\" ascii\n        $s2 = \"imqbrokerd\" ascii\n        $s3 = \"OpenMQ\" ascii\n    condition:\n        any of ($s*)\n}",
-        "source": "AI Generated (Compiled)",
-        "verified": false,
-        "indicators": [
-          "파일 경로"
-        ]
-      },
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로)"
-      }
-    },
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
@@ -52749,32 +53050,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2025-48577",
-    "title": "KeyguardViewMediator.java 잠금 화면 우회 가능성",
-    "description": "KeyguardViewMediator.java 파일의 여러 함수에서 경쟁 조건으로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가 권한 없이 로컬 권한 상승이 가능하며, 사용자 상호 작용이 필요하지 않습니다. 악용이 용이합니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T00:02:45.770589+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-48568",
     "title": "잠금 화면 우회 가능성 (경쟁 조건)",
     "description": "여러 위치에서 경쟁 조건으로 인해 잠금 화면이 우회될 수 있습니다. 이를 통해 추가적인 실행 권한 없이 로컬 권한 상승이 가능합니다. 사용자 상호 작용 없이 악용이 가능합니다.",
@@ -52845,112 +53120,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T20:06:18.102272+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3338",
-    "title": "AWS-LC의 PKCS7 서명 검증 우회 취약점",
-    "description": "AWS-LC의 PKCS7_verify() 함수 내 부적절한 서명 검증으로 인해, 인증되지 않은 사용자가 Authenticated Attributes가 포함된 PKCS7 객체 처리 시 서명 검증을 우회할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "AWS",
-        "product": "AWS-LC",
-        "versions": "1.41.0 부터 1.69.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T21:57:52.276996+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3180",
-    "title": "Contest Gallery <= 28.1.4 - 인증되지 않은 SQL Injection",
-    "description": "Contest Gallery 워드프레스 플러그인 버전 28.1.4 이하에서 ‘cgLostPasswordEmail’ 및 ‘cgl_mail’ 파라미터를 통해 Blind SQL Injection 취약점이 발견되었습니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 유출할 수 있습니다. ‘cgLostPasswordEmail’ 파라미터는 28.1.4 버전, ‘cgl_mail’ 파라미터는 28.1.5 버전에서 패치되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "contest-gallery",
-        "product": "Contest Gallery – Upload & Vote Photos, Media, Sell with PayPal & Stripe",
-        "versions": "* 부터 28.1.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:11:15.903927+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2471",
-    "title": "WP Mail Logging <= 1.15.0 - 인증되지 않은 PHP 객체 주입 취약점 / 이메일 로그 메시지 필드",
-    "description": "WP Mail Logging 플러그인은 이메일 로그 메시지 필드의 신뢰할 수 없는 입력을 역직렬화하여 PHP 객체 주입 취약점을 가지고 있습니다 (1.15.0 버전 이하). 데이터베이스에서 가져온 모든 속성에 대해 유효성 검사 없이 `maybe_unserialize()`를 호출하기 때문입니다. 공격자는 이메일을 보내는 모든 공개 폼(예: Contact Form 7)을 통해 더블 직렬화된 페이로드를 제출하여 PHP 객체를 주입할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.0004,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "smub",
-        "product": "WP Mail Logging",
-        "versions": "* 부터 1.15.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:01:00.917499+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27449",
-    "title": "Umbraco.Engage.Forms의 인증되지 않은 API 엔드포인트 접근 허용",
-    "description": "Umbraco Engage 플랫폼에서 인증/인가 검사 없이 특정 API 엔드포인트에 접근 가능한 취약점이 발견되었습니다. 공격자는 예측 가능한 식별자를 사용하여 민감한 데이터를 대량으로 추출할 수 있으며, v16 및 v17 버전에 영향을 미칩니다. 16.2.1 또는 17.1.1로 업데이트하는 것이 권장됩니다.",
-    "cvss": 7.5,
-    "epss": 0.00052,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-306",
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "umbraco",
-        "product": "Umbraco.Engage.Forms",
-        "versions": "< 16.2.1 (단일 버전), >= 17.0.0, < 17.1.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T03:04:55.208274+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -53771,30 +53940,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-37165",
-    "title": "의도하지 않은 네트워크 인터페이스에서 VLAN 정보 노출",
-    "description": "HPE Instant On 액세스 포인트의 라우터 모드 설정에서 특정 네트워크 구성 정보가 의도하지 않은 인터페이스에 노출되는 취약점이 발견되었습니다. 악의적인 공격자는 영향을 받는 패킷을 검사하여 내부 네트워크 구성 세부 정보를 파악할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00044,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Hewlett Packard Enterprise (HPE)",
-        "product": "Instant On",
-        "versions": "3.0.0.0 부터 3.3.1.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:01:53.470425+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28218",
