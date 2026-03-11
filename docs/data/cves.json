@@ -1,5 +1,161 @@
 [
   {
+    "id": "CVE-2026-1454",
+    "title": "반응형 문의 양식 빌더 & 리드 생성 플러그인 <= 2.0.1 - 인증되지 않은 저장형 XSS 취약점",
+    "description": "워드프레스용 반응형 문의 양식 빌더 & 리드 생성 플러그인이 2.0.1 버전 이하에서 저장형 XSS 취약점을 가지고 있습니다. 이는 `lfb_lead_sanitize()` 함수에서 특정 필드 유형에 대한 소독이 부족하고, 출력 시 `wp_kses()` 필터가 과도하게 허용적이기 때문입니다. 인증되지 않은 공격자가 관리자가 리드 항목을 볼 때 실행되는 임의의 웹 스크립트를 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "themehunk",
+        "product": "Lead Form Builder & Contact Form",
+        "versions": "* 부터 2.0.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:03:20.314211+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3825",
+    "title": "WellChoose｜IFTOP - 반사형 XSS",
+    "description": "IFTOP의 반사형 XSS 취약점을 해결합니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "WellChoose",
+        "product": "IFTOP",
+        "versions": "IFTOP_P4_181 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:13:55.12673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3903",
+    "title": "Modular Connector <= 2.5.1 - Cross-Site Request Forgery 취약점 (postConfirmOauth)",
+    "description": "WordPress 플러그인 Modular DS의 2.5.1 버전 이하에서 Cross-Site Request Forgery (CSRF) 취약점이 발견되었습니다. nonce 검증 누락으로 인해, 공격자는 관리자를 속여 링크 클릭 등의 행위를 유도하여 OAuth/SSO 연결을 끊을 수 있습니다. 인증되지 않은 공격도 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "modulards",
+        "product": "Modular DS: Monitor, update, and backup multiple websites",
+        "versions": "* 부터 2.5.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:57:32.190333+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-60007",
+    "title": "Junos OS: 특정 'show chassis' 명령어로 chassisd 프로세스 충돌 발생",
+    "description": "Juniper Networks Junos OS의 chassis 데몬(chassisd)에서 NULL 포인터 역참조 취약점이 발견되어, 낮은 권한의 로컬 공격자가 서비스 거부(DoS)를 유발할 수 있습니다. 특정 옵션과 함께 'show chassis' 명령어를 실행하면 chassisd가 충돌하고 재시작되며, 라우팅 엔진(RE)을 제외한 모든 구성 요소가 재초기화되어 서비스 중단이 발생합니다. (시스템은 자동으로 복구됩니다.)",
+    "cvss": 5.5,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Juniper Networks",
+        "product": "Junos OS",
+        "versions": "22.4R3-S8 이전, 23.2 부터 23.2R2-S5 이전, 23.4 부터 23.4R2-S6 이전, 24.2 부터 24.2R2-S2 이전, 24.4 부터 24.4R2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:03:04.383614+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2918",
+    "title": "Elementor용 Happy Addons <= 3.21.0 - 인증된 사용자를 대상으로 하는 보안 취약점 (IDOR 및 저장형 XSS)",
+    "description": "Elementor용 Happy Addons 플러그인의 3.21.0 버전 이하에서 `ha_condition_update` AJAX 액션을 통해 IDOR 취약점이 발견되었습니다. 권한 검사 오류로 인해 Contributor 이상의 권한을 가진 공격자가 게시된 템플릿의 표시 조건을 수정할 수 있으며, HTML 이스케이핑 부족으로 저장형 XSS 공격이 가능합니다. 관리자가 템플릿 조건 패널을 볼 때 JavaScript가 실행될 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "thehappymonster",
+        "product": "Happy Addons for Elementor",
+        "versions": "* 부터 3.21.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:57:25.848936+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2917",
+    "title": "Elementor용 Happy Addons <= 3.21.0 - 인증된 사용자를 대상으로 하는 'post_id' 파라미터를 통한 안전하지 않은 직접 객체 참조 및 게시물 복제",
+    "description": "Elementor용 Happy Addons 플러그인의 3.21.0 버전까지에서 안전하지 않은 직접 객체 참조 취약점이 발견되었습니다. 기여자(Contributor) 이상의 권한을 가진 인증된 공격자는 다른 사용자의 게시물을 복제할 수 있습니다. 이는 게시물 ID별 권한 확인 없이 일반적인 권한만 확인하고, nonce가 특정 게시물 ID가 아닌 일반적인 액션 이름에 연결되어 있기 때문입니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "thehappymonster",
+        "product": "Happy Addons for Elementor",
+        "versions": "* 부터 3.21.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:57:25.382061+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-1708",
     "title": "Appointment Booking Calendar <= 1.6.9.27 - 인증되지 않은 SQL Injection 취약점 ('append_where_sql' 파라미터)",
     "description": "WordPress 플러그인 Appointment Booking Calendar 1.6.9.27 버전 이하에서 인증 없이 SQL Injection 공격이 가능합니다. JSON 요청 본문 내 `append_where_sql` 파라미터를 제대로 검증하지 못하여 발생하며, 유효한 `public_token`을 확보한 공격자는 데이터베이스에서 민감한 정보를 탈취할 수 있습니다. 이는 예약 과정에서 실수로 노출되는 `public_token`을 이용합니다.",
@@ -24,6 +180,461 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31844",
+    "title": "Koha suggestion.pl의 displayby 파라미터에서 발견된 인증된 SQL Injection 취약점",
+    "description": "Koha의 /cgi-bin/koha/suggestion/suggestion.pl 내 displayby 파라미터에서 인증된 SQL Injection (CWE-89) 취약점이 발견되었습니다. 낮은 권한의 직원 사용자가 임의의 SQL 쿼리를 실행하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Koha Community",
+        "product": "Koha",
+        "versions": "24.11.0 부터 24.11.12 이전, 25.05.0 부터 25.05.07 이전, 25.11.0 부터 25.11.01 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/181",
+    "date": "2026-03-11T07:14:09.611375+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-31844 SQL Injection Attempt via displayby Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the authenticated SQL injection vulnerability in the `displayby` parameter of `/cgi-bin/koha/suggestion/suggestion.pl` in Koha.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/cgi-bin/koha/suggestion/suggestion.pl'\n    selection_param:\n        uri|contains: 'displayby='\n    selection_payload:\n        uri|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n        cs-body|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.31844\n    - attack.initial_access\n    - attack.execution\n    - attack.impact\n    - cwe.89\n    - koha\n    - sql_injection",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-31844 SQL Injection via displayby parameter in Koha suggestion.pl\";\n    flow:to_server,established;\n    content:\"/cgi-bin/koha/suggestion/suggestion.pl\"; http_uri;\n    content:\"displayby=\"; http_uri;\n    pcre:\"/displayby=.*?(UNION|SELECT|INSERT|UPDATE|DELETE|--|%27|%23)/i\";\n    reference:cve,2026-31844;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/cgi-bin/koha/suggestion/suggestion.pl)",
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-14026",
+    "title": "QTS, QuTS hero 명령어 삽입 취약점",
+    "description": "QNAP 운영체제 여러 버전에 명령어 삽입 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 사용자 계정을 획득한 공격자는 임의 명령 실행이 가능합니다.",
+    "cvss": 2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "5.1.x 부터 5.1.9.2954 build 20241120 이전, 5.2.x 부터 5.2.3.3006 build 20250108 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QuTS hero",
+        "versions": "h5.1.x 부터 h5.1.9.2954 build 20241120 이전, h5.2.x 부터 h5.2.3.3006 build 20250108 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:58.596668+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2024-14025",
+    "title": "비디오 스테이션",
+    "description": "비디오 스테이션에서 SQL Injection 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 관리자 계정을 획득한 공격자는 이 취약점을 악용하여 무단 코드를 실행하거나 명령을 수행할 수 있습니다.",
+    "cvss": 0.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "Video Station",
+        "versions": "5.8.x 부터 5.8.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:55.378808+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2024-14024",
+    "title": "Video Station",
+    "description": "Video Station의 인증서 검증 오류 취약점이 발견되었습니다. 공격자가 관리자 계정을 획득하고 로컬 네트워크에 접근할 경우, 시스템 보안을 위협할 수 있습니다.",
+    "cvss": 0.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "Video Station",
+        "versions": "5.8.x 부터 5.8.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:50.837691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-14831",
+    "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
+    "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-407"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:15:48.290235+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27274",
+    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
+    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Substance3D - Stager",
+        "versions": "3.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:12:12.148376+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27277",
+    "title": "Substance3D - Stager | Use After Free (CWE-416)",
+    "description": "Substance3D - Stager 3.1.7 버전 이하에서 Use After Free 취약점이 발견되었습니다. 이 취약점은 현재 사용자의 권한으로 임의 코드 실행을 유발할 수 있습니다. 악성 파일을 열어야 취약점이 악용될 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Substance3D - Stager",
+        "versions": "3.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:12:17.964185+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27275",
+    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
+    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Substance3D - Stager",
+        "versions": "3.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:12:11.297778+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28776",
+    "title": "\"monitor\" 계정의 하드코딩된 취약한 SSH 자격 증명",
+    "description": "International Datacasting Corporation (IDC) SFX Series SuperFlex 위성 수신기에서 `monitor` 계정에 대한 하드코딩된 자격 증명이 발견되었습니다. 인증되지 않은 원격 공격자는 이러한 간단하고 문서화되지 않은 자격 증명을 사용하여 SSH를 통해 시스템에 접근할 수 있습니다. 제한된 셸로 초기 접근은 가능하지만, 공격자는 쉽게 일반 셸 기능을 확보할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
+        "versions": "SFX2100 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:55:07.629709+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-0193",
+    "title": "커널: netfilter: nft_trans_gc_catchall_sync 사용 후 해제 취약점으로 인한 권한 상승",
+    "description": "리눅스 커널의 netfilter 서브시스템에서 사용 후 해제 취약점이 발견되었습니다. pipapo 세트가 제거될 때 catchall 요소가 가비지 컬렉션되면 해당 요소가 두 번 비활성화될 수 있습니다. 이는 NFT_CHAIN 또는 NFT_OBJECT 객체에서 사용 후 해제 문제를 발생시켜, CAP_NET_ADMIN 권한을 가진 로컬 비특권 사용자가 시스템 권한을 상승시킬 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00113,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:57.529877+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29119",
+    "title": "IDC SFX2100 위성 수신기 \"admin\" 계정의 하드코딩된 취약한 자격 증명 및 Telnet 접근 가능성",
+    "description": "IDC SFX2100 위성 수신기에 `admin` 계정의 하드코딩된 취약한 자격 증명이 존재합니다. 인증되지 않은 원격 공격자가 Telnet 서비스를 통해 시스템에 직접 접근하여 시스템 손상을 유발할 수 있습니다. 이는 문서화되지 않은 자격 증명을 이용한 공격입니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX2100 Series SuperFlex SatelliteReceiver",
+        "versions": "SFX2100 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/79",
+    "date": "2026-03-04T08:59:07.022449+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29119 Hardcoded Admin Credentials Telnet Login Attempt\nstatus: experimental\ndescription: Detects successful Telnet login using the default admin credentials on International Datacasting Corporation SFX2100 Satellite Receiver.\nlogsource:\n    product: zeek\n    service: telnet\n    category: network\ndetection:\n    selection_success:\n        success: true\n    selection_username:\n        username|contains: admin\n    selection_port:\n        dst_port: 23\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.29119\n    - attack.initial_access\n    - attack.t1078\n    - cwe.798",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28777",
+    "title": "\"User\" 로컬 계정의 하드코딩된 취약한 SSH 접근 자격 증명",
+    "description": "IDC SFX2100 위성 수신기의 `user` 계정에 쉬운 비밀번호가 설정되어 있습니다. 인증되지 않은 원격 공격자가 이를 이용하여 시스템에 무단 SSH 접근이 가능하며, 제한된 쉘로 초기 접속되지만 쉽게 완전한 pty를 생성하여 대화형 쉘을 얻을 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX2100 Satellite Receiver",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:54:25.651844+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28773",
+    "title": "인증된 OS 명령어 삽입 취약점 - Ping 유틸리티를 통한 Root 권한 획득",
+    "description": "International Dataccasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Ping 진단 유틸리티(/IDC_Ping/main.cgi)에서 OS 명령어 삽입 취약점이 발견되었습니다. `IPaddr` 파라미터를 안전하지 않게 파싱하여, 인증된 공격자가 쉘 메타 문자를 사용하여 임의의 쉘 명령어를 Root 권한으로 실행할 수 있습니다. 서버 측 세미콜론 검사를 우회하여 공격이 가능합니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T07:59:11.818657+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28774",
+    "title": "Traceroute 유틸리티를 통한 인증된 OS 명령어 삽입 취약점 - Root 권한 획득 가능",
+    "description": "International Datacasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Traceroute 진단 유틸리티에서 OS 명령어 삽입 취약점이 발견되었습니다. 인증된 공격자는 flags 파라미터에 임의의 쉘 메타 문자를 삽입하여 root 권한으로 임의의 OS 명령을 실행할 수 있습니다. 파이프(`|`) 연산자 등이 악용될 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:12.822874+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28775",
+    "title": "기본 쓰기 커뮤니티 문자열을 통한 인증되지 않은 SNMP RCE",
+    "description": "International Datacasting Corporation SFX 시리즈 SuperFlex 위성 수신기 SNMP 서비스에서 인증되지 않은 원격 코드 실행(RCE) 취약점이 발견되었습니다. 기본적으로 읽기/쓰기 접근 권한으로 안전하지 않은 `private` SNMP 커뮤니티 문자열이 프로비저닝되어 있습니다. 공격자는 net-snmp 5.8 이전 버전을 악용하여 root 권한으로 임의의 운영체제 명령을 실행할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1188"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "SFX Series SuperFlex SatelliteReceiver",
+        "versions": "101 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:00:24.953778+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-2631",
@@ -244,32 +855,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3903",
-    "title": "Modular Connector <= 2.5.1 - Cross-Site Request Forgery 취약점 (postConfirmOauth)",
-    "description": "WordPress 플러그인 Modular DS의 2.5.1 버전 이하에서 Cross-Site Request Forgery (CSRF) 취약점이 발견되었습니다. nonce 검증 누락으로 인해, 공격자는 관리자를 속여 링크 클릭 등의 행위를 유도하여 OAuth/SSO 연결을 끊을 수 있습니다. 인증되지 않은 공격도 가능합니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-352"
-    ],
-    "affected": [
-      {
-        "vendor": "modulards",
-        "product": "Modular DS: Monitor, update, and backup multiple websites",
-        "versions": "* 부터 2.5.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:57:32.190333+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-3534",
     "title": "Astra <= 4.12.3 - 인증된 사용자를 통한 저장형 XSS 취약점 (Contributor+ 권한) / 게시물 메타",
     "description": "WordPress Astra 테마 4.12.3 버전 이하에서 `ast-page-background-meta` 및 `ast-content-background-meta` 게시물 메타 필드를 통해 저장형 XSS 취약점이 발견되었습니다. 입력값 검증 부족 및 `astra_get_responsive_background_obj()` 함수 내 CSS 컨텍스트 속성에 대한 출력 이스케이핑 부재가 원인입니다. 인증된 Contributor 이상의 권한을 가진 공격자가 페이지에 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
@@ -288,135 +873,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T07:13:48.250758+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3825",
-    "title": "WellChoose｜IFTOP - 반사형 XSS",
-    "description": "IFTOP의 반사형 XSS 취약점을 해결합니다.",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "WellChoose",
-        "product": "IFTOP",
-        "versions": "IFTOP_P4_181 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:13:55.12673+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31844",
-    "title": "Koha suggestion.pl의 displayby 파라미터에서 발견된 인증된 SQL Injection 취약점",
-    "description": "Koha의 /cgi-bin/koha/suggestion/suggestion.pl 내 displayby 파라미터에서 인증된 SQL Injection (CWE-89) 취약점이 발견되었습니다. 낮은 권한의 직원 사용자가 임의의 SQL 쿼리를 실행하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Koha Community",
-        "product": "Koha",
-        "versions": "24.11.0 부터 24.11.12 이전, 25.05.0 부터 25.05.07 이전, 25.11.0 부터 25.11.01 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/181",
-    "date": "2026-03-11T07:14:09.611375+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-31844 SQL Injection Attempt via displayby Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the authenticated SQL injection vulnerability in the `displayby` parameter of `/cgi-bin/koha/suggestion/suggestion.pl` in Koha.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/cgi-bin/koha/suggestion/suggestion.pl'\n    selection_param:\n        uri|contains: 'displayby='\n    selection_payload:\n        uri|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n        cs-body|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.31844\n    - attack.initial_access\n    - attack.execution\n    - attack.impact\n    - cwe.89\n    - koha\n    - sql_injection",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-31844 SQL Injection via displayby parameter in Koha suggestion.pl\";\n    flow:to_server,established;\n    content:\"/cgi-bin/koha/suggestion/suggestion.pl\"; http_uri;\n    content:\"displayby=\"; http_uri;\n    pcre:\"/displayby=.*?(UNION|SELECT|INSERT|UPDATE|DELETE|--|%27|%23)/i\";\n    reference:cve,2026-31844;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/cgi-bin/koha/suggestion/suggestion.pl)",
-            "URL 파라미터"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2918",
-    "title": "Elementor용 Happy Addons <= 3.21.0 - 인증된 사용자를 대상으로 하는 보안 취약점 (IDOR 및 저장형 XSS)",
-    "description": "Elementor용 Happy Addons 플러그인의 3.21.0 버전 이하에서 `ha_condition_update` AJAX 액션을 통해 IDOR 취약점이 발견되었습니다. 권한 검사 오류로 인해 Contributor 이상의 권한을 가진 공격자가 게시된 템플릿의 표시 조건을 수정할 수 있으며, HTML 이스케이핑 부족으로 저장형 XSS 공격이 가능합니다. 관리자가 템플릿 조건 패널을 볼 때 JavaScript가 실행될 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "thehappymonster",
-        "product": "Happy Addons for Elementor",
-        "versions": "* 부터 3.21.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:57:25.848936+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2917",
-    "title": "Elementor용 Happy Addons <= 3.21.0 - 인증된 사용자를 대상으로 하는 'post_id' 파라미터를 통한 안전하지 않은 직접 객체 참조 및 게시물 복제",
-    "description": "Elementor용 Happy Addons 플러그인의 3.21.0 버전까지에서 안전하지 않은 직접 객체 참조 취약점이 발견되었습니다. 기여자(Contributor) 이상의 권한을 가진 인증된 공격자는 다른 사용자의 게시물을 복제할 수 있습니다. 이는 게시물 ID별 권한 확인 없이 일반적인 권한만 확인하고, nonce가 특정 게시물 ID가 아닌 일반적인 액션 이름에 연결되어 있기 때문입니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "thehappymonster",
-        "product": "Happy Addons for Elementor",
-        "versions": "* 부터 3.21.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:57:25.382061+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -9456,32 +9912,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27277",
-    "title": "Substance3D - Stager | Use After Free (CWE-416)",
-    "description": "Substance3D - Stager 3.1.7 버전 이하에서 Use After Free 취약점이 발견되었습니다. 이 취약점은 현재 사용자의 권한으로 임의 코드 실행을 유발할 수 있습니다. 악성 파일을 열어야 취약점이 악용될 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Substance3D - Stager",
-        "versions": "3.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:12:17.964185+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-27276",
     "title": "Substance3D - Stager | Use After Free (CWE-416)",
     "description": "Substance3D - Stager 3.1.7 버전 이하에서 Use After Free 취약점이 발견되었습니다. 이 취약점은 현재 사용자의 권한으로 임의 코드 실행을 유발할 수 있습니다. 악성 파일을 여는 사용자 상호 작용이 필요합니다.",
@@ -9500,58 +9930,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T19:12:14.650114+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27274",
-    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
-    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Substance3D - Stager",
-        "versions": "3.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:12:12.148376+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27275",
-    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
-    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Substance3D - Stager",
-        "versions": "3.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:12:11.297778+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -55492,32 +55870,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28774",
-    "title": "Traceroute 유틸리티를 통한 인증된 OS 명령어 삽입 취약점 - Root 권한 획득 가능",
-    "description": "International Datacasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Traceroute 진단 유틸리티에서 OS 명령어 삽입 취약점이 발견되었습니다. 인증된 공격자는 flags 파라미터에 임의의 쉘 메타 문자를 삽입하여 root 권한으로 임의의 OS 명령을 실행할 수 있습니다. 파이프(`|`) 연산자 등이 악용될 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
-        "versions": "101 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T08:00:12.822874+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28434",
     "title": "cpp-httplib 기본 예외 처리기의 EXCEPTION_WHAT 응답 헤더를 통한 정보 유출",
     "description": "cpp-httplib 0.35.0 이전 버전에서, 사용자 정의 예외 처리기가 등록되지 않은 경우 발생한 C++ 예외 메시지가 EXCEPTION_WHAT 헤더를 통해 클라이언트에 노출됩니다. 인증 확인 없이 누구나 해당 헤더를 통해 내부 예외 메시지를 확인할 수 있습니다. 0.35.0 버전에서 해당 문제가 수정되었습니다.",
@@ -55624,32 +55976,6 @@
     ],
     "report_url": null,
     "date": "2026-03-04T19:54:13.160098+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28773",
-    "title": "인증된 OS 명령어 삽입 취약점 - Ping 유틸리티를 통한 Root 권한 획득",
-    "description": "International Dataccasting Corporation SFX Series SuperFlex 위성 수신기 웹 관리 인터페이스 버전 101의 Ping 진단 유틸리티(/IDC_Ping/main.cgi)에서 OS 명령어 삽입 취약점이 발견되었습니다. `IPaddr` 파라미터를 안전하지 않게 파싱하여, 인증된 공격자가 쉘 메타 문자를 사용하여 임의의 쉘 명령어를 Root 권한으로 실행할 수 있습니다. 서버 측 세미콜론 검사를 우회하여 공격이 가능합니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "SFX Series SuperFlex SatelliteReceiver Web Management Interface",
-        "versions": "101 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:59:11.818657+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -57922,47 +58248,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29119",
-    "title": "IDC SFX2100 위성 수신기 \"admin\" 계정의 하드코딩된 취약한 자격 증명 및 Telnet 접근 가능성",
-    "description": "IDC SFX2100 위성 수신기에 `admin` 계정의 하드코딩된 취약한 자격 증명이 존재합니다. 인증되지 않은 원격 공격자가 Telnet 서비스를 통해 시스템에 직접 접근하여 시스템 손상을 유발할 수 있습니다. 이는 문서화되지 않은 자격 증명을 이용한 공격입니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "SFX2100 Series SuperFlex SatelliteReceiver",
-        "versions": "SFX2100 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/79",
-    "date": "2026-03-04T08:59:07.022449+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-29119 Hardcoded Admin Credentials Telnet Login Attempt\nstatus: experimental\ndescription: Detects successful Telnet login using the default admin credentials on International Datacasting Corporation SFX2100 Satellite Receiver.\nlogsource:\n    product: zeek\n    service: telnet\n    category: network\ndetection:\n    selection_success:\n        success: true\n    selection_username:\n        username|contains: admin\n    selection_port:\n        dst_port: 23\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.29119\n    - attack.initial_access\n    - attack.t1078\n    - cwe.798",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28769",
     "title": "IDC SFX 시리즈 SuperFlex 위성 수신기 웹 관리 포털 경로 탐색 취약점",
     "description": "International Datacasting Corporation의 SFX 시리즈 SuperFlex 위성 수신기 웹 관리 포털 버전 101의 `/IDC_Logging/checkifdone.cgi` 스크립트에 경로 탐색 취약점이 존재합니다. 인증된 공격자는 `file` 파라미터를 조작하여 디렉터리를 탐색하고 임의의 파일을 열람할 수 있습니다. 불안전한 perl 파일 경로 처리 함수 사용으로 인해 발생하며, 백업 엔드포인트를 통해 파일 존재 여부를 확인할 수 있습니다.",
@@ -58328,58 +58613,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28777",
-    "title": "\"User\" 로컬 계정의 하드코딩된 취약한 SSH 접근 자격 증명",
-    "description": "IDC SFX2100 위성 수신기의 `user` 계정에 쉬운 비밀번호가 설정되어 있습니다. 인증되지 않은 원격 공격자가 이를 이용하여 시스템에 무단 SSH 접근이 가능하며, 제한된 쉘로 초기 접속되지만 쉽게 완전한 pty를 생성하여 대화형 쉘을 얻을 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "SFX2100 Satellite Receiver",
-        "versions": "101 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:54:25.651844+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28776",
-    "title": "\"monitor\" 계정의 하드코딩된 취약한 SSH 자격 증명",
-    "description": "International Datacasting Corporation (IDC) SFX Series SuperFlex 위성 수신기에서 `monitor` 계정에 대한 하드코딩된 자격 증명이 발견되었습니다. 인증되지 않은 원격 공격자는 이러한 간단하고 문서화되지 않은 자격 증명을 사용하여 SSH를 통해 시스템에 접근할 수 있습니다. 제한된 셸로 초기 접근은 가능하지만, 공격자는 쉽게 일반 셸 기능을 확보할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
-        "versions": "SFX2100 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T07:55:07.629709+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-59786",
     "title": "로그아웃 및 비밀번호 변경 시 쿠키 무효화 실패",
     "description": "2N Access Commander 3.4.2 버전 이하에서 세션 토큰이 제대로 무효화되지 않아, 웹 애플리케이션 로그아웃 후에도 여러 개의 세션 쿠키가 활성 상태로 유지될 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
@@ -58482,32 +58715,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28775",
-    "title": "기본 쓰기 커뮤니티 문자열을 통한 인증되지 않은 SNMP RCE",
-    "description": "International Datacasting Corporation SFX 시리즈 SuperFlex 위성 수신기 SNMP 서비스에서 인증되지 않은 원격 코드 실행(RCE) 취약점이 발견되었습니다. 기본적으로 읽기/쓰기 접근 권한으로 안전하지 않은 `private` SNMP 커뮤니티 문자열이 프로비저닝되어 있습니다. 공격자는 net-snmp 5.8 이전 버전을 악용하여 root 권한으로 임의의 운영체제 명령을 실행할 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1188"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "SFX Series SuperFlex SatelliteReceiver",
-        "versions": "101 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T08:00:24.953778+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-3240",
@@ -59575,42 +59782,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2024-0193",
-    "title": "커널: netfilter: nft_trans_gc_catchall_sync 사용 후 해제 취약점으로 인한 권한 상승",
-    "description": "리눅스 커널의 netfilter 서브시스템에서 사용 후 해제 취약점이 발견되었습니다. pipapo 세트가 제거될 때 catchall 요소가 가비지 컬렉션되면 해당 요소가 두 번 비활성화될 수 있습니다. 이는 NFT_CHAIN 또는 NFT_OBJECT 객체에서 사용 후 해제 문제를 발생시켜, CAP_NET_ADMIN 권한을 가진 로컬 비특권 사용자가 시스템 권한을 상승시킬 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00113,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 9",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 9",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T08:00:57.529877+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-25828",
@@ -65522,42 +65693,6 @@
     ],
     "report_url": null,
     "date": "2026-03-02T01:30:01.93999+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-14831",
-    "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
-    "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0.00039,
-    "is_kev": false,
-    "cwe": [
-      "CWE-407"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:15:48.290235+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
