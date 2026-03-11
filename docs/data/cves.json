@@ -1,5 +1,1642 @@
 [
   {
+    "id": "CVE-2026-32063",
+    "title": "OpenClaw 2026.2.19-2 < 2026.2.21 - systemd 유닛 생성 시 개행 문자 주입 취약점",
+    "description": "OpenClaw 2026.2.19-2 버전(2026.2.21 이전)은 systemd 유닛 파일 생성 과정에서 CR/LF 문자를 검증하지 않아 개행 문자 주입 취약점이 존재합니다. 이를 통해 공격자는 `Environment=` 라인을 탈출하여 임의의 systemd 지시어를 삽입할 수 있습니다. `config.env.vars` 파일에 접근 가능하고 서비스 설치 또는 재시작을 유발할 수 있는 공격자는 OpenClaw 게이트웨이 서비스 사용자 권한으로 임의 명령을 실행할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "2026.2.19-2 부터 2026.2.21 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T13:41:49.459291+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32060",
+    "title": "OpenClaw < 2026.2.14 - 조작된 경로를 통한 apply_patch의 경로 탐색 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전에서 `apply_patch` 기능에 경로 탐색 취약점이 존재합니다. 공격자는 조작된 경로를 사용하여 설정된 작업 공간 디렉터리 외부의 파일을 수정하거나 삭제할 수 있습니다. 파일 시스템 샌드박스 제한 없이 `apply_patch`가 활성화된 경우, 공격자는 작업 공간 경계를 벗어나 임의 파일을 변경할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "2026.2.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T13:41:43.924582+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32062",
+    "title": "OpenClaw 2026.2.21-2 < 2026.2.22 - 미디어 스트림을 통한 인증되지 않은 WebSocket 리소스 고갈",
+    "description": "OpenClaw 2026.2.21-2 버전(2026.2.22 이전) 및 @openclaw/voice-call 2026.2.21 버전(2026.2.22 이전)은 스트림 유효성 검사 전에 media-stream WebSocket 업그레이드를 허용합니다. 이를 통해 인증되지 않은 클라이언트가 연결을 설정할 수 있으며, 공격자는 유휴 소켓을 열어 연결 리소스를 소모하고 정상적인 스트림의 서비스 가용성을 저하시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "2026.2.21-2 부터 2026.2.22 이전"
+      },
+      {
+        "vendor": "openclaw",
+        "product": "voice-call",
+        "versions": "2026.2.21 (단일 버전), 2026.2.22 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T13:41:43.917323+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32059",
+    "title": "OpenClaw 2026.2.22-2 < 2026.2.23 - 긴 옵션 약어 정렬을 통한 허용 목록 우회",
+    "description": "OpenClaw 2026.2.22-2 버전(2026.2.23 이전)에서 `sort` 명령어 검증 시 GNU 긴 옵션 약어를 제대로 확인하지 않아, 공격자가 약어 옵션을 통해 허용 목록 검사를 우회할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "2026.2.22-2 부터 2026.2.23 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T13:41:43.28764+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32061",
+    "title": "OpenClaw < 2026.2.17 - $include 지시어 경로 탐색을 통한 임의 파일 읽기",
+    "description": "OpenClaw 2026.2.17 이전 버전은 $include 지시어 경로 해결 과정에서 경로 탐색 취약점을 가지고 있어, config 디렉토리 외부의 임의 로컬 파일을 읽을 수 있습니다. 설정 변경 권한을 가진 공격자는 절대 경로, 탐색 시퀀스, 심볼릭 링크 등을 사용하여 OpenClaw 프로세스 사용자가 읽을 수 있는 민감한 파일(API 키, 자격 증명 포함)에 접근할 수 있습니다.",
+    "cvss": 6.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "2026.2.17 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T13:41:15.294021+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2626",
+    "title": "Divi Booster < 5.0.2 - 인증되지 않은 PHP 객체 주입",
+    "description": "Divi Booster WordPress 플러그인 5.0.2 미만 버전에서 권한 및 CSRF 검사가 누락되어 인증되지 않은 사용자가 플러그인 옵션을 수정할 수 있습니다. 또한, `unserialize()` 함수 사용으로 인해 PHP 가젯 체인과 결합하여 PHP 객체 주입 공격으로 이어질 수 있습니다. 이는 보안 취약점으로 악용될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502 Deserialization of Untrusted Data",
+      "CWE-352 Cross-Site Request Forgery (CSRF)"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "divi-booster",
+        "versions": "5.0.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:14:18.42782+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-2631",
+    "title": "Datalogics Ecommerce Delivery < 2.6.60 - 인증되지 않은 권한 상승",
+    "description": "Datalogics Ecommerce Delivery 워드프레스 플러그인 2.6.60 이전 버전에서 인증되지 않은 REST 엔드포인트가 존재하여, 원격 사용자가 `datalogics_token` 옵션을 검증 없이 수정할 수 있습니다. 이 토큰은 이후 보호된 엔드포인트에서 워드프레스 `update_option()` 함수를 임의로 실행하는 데 사용됩니다. 공격자는 이를 통해 회원가입을 활성화하고 기본 역할을 관리자로 설정할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269 Improper Privilege Management"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Datalogics Ecommerce Delivery",
+        "versions": "2.6.60 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:14:20.703088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-2466",
+    "title": "DukaPress <= 3.2.4 - 반사형 XSS",
+    "description": "DukaPress 워드프레스 플러그인 3.2.4 버전 이하에서 파라미터를 적절히 삭제하거나 이스케이프 처리하지 않아 반사형 XSS 취약점이 존재합니다. 이를 통해 관리자 등 권한이 높은 사용자를 대상으로 공격이 가능합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79 Cross-Site Scripting (XSS)"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "DukaPress",
+        "versions": "3.2.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T07:14:18.500381+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-28394",
+    "title": "OpenClaw < 2026.2.15 - web_fetch 도구의 무한 응답 파싱을 통한 서비스 거부",
+    "description": "OpenClaw 2026.2.15 이전 버전의 web_fetch 도구에 과도하게 크거나 중첩된 HTML 응답을 파싱하여 Gateway 프로세스를 중단시키는 서비스 거부 취약점이 존재합니다. 공격자는 악성 URL을 통해 서버 메모리를 고갈시켜 서비스 가용성을 저하시킬 수 있습니다. 사용자 사회공학적 기법을 통해 악성 URL 접근을 유도할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.15 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:34:48.410255+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28393",
+    "title": "OpenClaw 2.0.0-beta3 < 2026.2.14 - Hook Transform 경로 탐색을 통한 임의 JavaScript 모듈 로딩",
+    "description": "OpenClaw 2.0.0-beta3 버전(2026.2.14 이전)은 hook transform 모듈 로딩 시 경로 탐색 취약점을 가지고 있어 임의의 JavaScript 실행을 허용합니다. 설정 쓰기 권한을 가진 공격자는 절대 경로 및 탐색 시퀀스를 사용하여 악성 모듈을 로드하고 게이트웨이 프로세스 권한으로 실행할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2.0.0-beta3 부터 2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:35:52.70211+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27270",
+    "title": "Illustrator | 경계 외 읽기 (CWE-125)",
+    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 읽기 취약점이 발견되어 메모리 정보 노출 가능성이 있습니다. 공격자는 이 취약점을 이용하여 메모리에 저장된 민감한 정보에 접근할 수 있습니다. 악성 파일을 여는 사용자 상호 작용이 필요합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:33.846302+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27272",
+    "title": "Illustrator | 경계 외 쓰기 (CWE-787)",
+    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:37.490781+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27271",
+    "title": "Illustrator | 힙 기반 버퍼 오버플로우 (CWE-122)",
+    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드 실행이 가능합니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/172",
+    "date": "2026-03-10T23:45:41.131389+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27221",
+    "title": "Acrobat Reader | 잘못된 인증서 검증 (CWE-295)",
+    "description": "Acrobat Reader 24.001.30307, 24.001.30308, 25.001.21265 버전 및 이전 버전에서 잘못된 인증서 검증 취약점이 발견되었습니다. 이 취약점을 악용하면 보안 기능 우회 및 서명자 신원 위장이 가능합니다. 사용자 상호작용이 필요합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Acrobat Reader",
+        "versions": "25.001.21265 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T22:49:48.443717+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27228",
+    "title": "Adobe Experience Manager | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Experience Manager 6.5.23 버전 이하에서 권한이 낮은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있는 저장형 교차 사이트 스크립팅(XSS) 취약점이 존재합니다. 피해자가 해당 필드가 포함된 페이지를 방문할 때 악성 JavaScript가 실행될 수 있습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Experience Manager",
+        "versions": "6.5.23 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:51.607431+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27267",
+    "title": "Illustrator | 스택 기반 버퍼 오버플로우 (CWE-121)",
+    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:27.013217+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26115",
+    "title": "SQL Server 권한 상승 취약점",
+    "description": "SQL Server의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1287"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SQL Server 2016 Service Pack 3 (GDR)",
+        "versions": "13.0.0 부터 13.0.6480.4 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SQL Server 2016 Service Pack 3 Azure Connect Feature Pack",
+        "versions": "13.0.0 부터 13.0.7075.5 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SQL Server 2017 (CU 31)",
+        "versions": "14.0.0 부터 14.0.3520.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:38.79465+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27220",
+    "title": "Acrobat Reader | Use After Free (CWE-416)",
+    "description": "Acrobat Reader 24.001.30307, 24.001.30308, 25.001.21265 버전 및 이전 버전에서 Use After Free 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드 실행이 가능합니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Acrobat Reader",
+        "versions": "25.001.21265 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T22:49:47.460297+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26131",
+    "title": ".NET 권한 상승 취약점",
+    "description": ".NET 프레임워크의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": ".NET 10.0",
+        "versions": "10.0.0 부터 10.0.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:46.301933+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25189",
+    "title": "Windows DWM 핵심 라이브러리 권한 상승 취약점",
+    "description": "Windows DWM(Desktop Window Manager) 핵심 라이브러리의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 22H2",
+        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:57:04.272481+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26111",
+    "title": "Windows 라우팅 및 원격 액세스 서비스 (RRAS) 원격 코드 실행 취약점",
+    "description": "Windows 라우팅 및 원격 액세스 서비스의 취약점을 통해 공격자가 원격 코드를 실행할 수 있습니다. 해당 취약점은 공격 표면을 넓히고 시스템을 위험에 빠뜨릴 수 있습니다. 자세한 내용은 관련 보안 공지를 참조하십시오.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190",
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012",
+        "versions": "6.2.9200.0 부터 6.2.9200.25973 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012 (Server Core installation)",
+        "versions": "6.2.9200.0 부터 6.2.9200.25973 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012 R2",
+        "versions": "6.3.9600.0 부터 6.3.9600.23074 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:31.000676+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26107",
+    "title": "Microsoft Excel 원격 코드 실행 취약점",
+    "description": "Microsoft Excel의 원격 코드 실행 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Excel 2016",
+        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:23.091255+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25175",
+    "title": "Windows NTFS 권한 상승 취약점",
+    "description": "Windows NTFS 파일 시스템의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:54.912521+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25174",
+    "title": "Windows 확장 파일 할당 테이블 권한 상승 취약점",
+    "description": "Windows 확장 파일 할당 테이블(Extensible File Allocation Table)의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:52.411297+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25178",
+    "title": "WinSock 권한 상승 취약점을 이용한 Windows 보조 기능 드라이버",
+    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:57.416213+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25171",
+    "title": "Windows 인증 권한 상승 취약점",
+    "description": "Windows 인증 과정에서 권한 상승이 가능한 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:49.909266+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25167",
+    "title": "Microsoft 브로커링 파일 시스템 권한 상승 취약점",
+    "description": "Microsoft 브로커링 파일 시스템에 권한 상승 취약점이 존재합니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 24H2",
+        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 25H2",
+        "versions": "10.0.26200.0 부터 10.0.26200.8037 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 version 26H1",
+        "versions": "10.0.28000.0 부터 10.0.28000.1719 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:44.906848+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25170",
+    "title": "Windows Hyper-V 권한 상승 취약점",
+    "description": "Windows Hyper-V의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 version 22H3",
+        "versions": "10.0.22631.0 부터 10.0.22631.6783 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 23H2",
+        "versions": "10.0.22631.0 부터 10.0.22631.6783 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 24H2",
+        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:47.407954+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24295",
+    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
+    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362",
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:42.404284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24296",
+    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
+    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:44.905957+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24292",
+    "title": "Windows 연결 장치 플랫폼 서비스 권한 상승 취약점",
+    "description": "Windows 연결 장치 플랫폼 서비스의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 22H2",
+        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:38.190323+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23814",
+    "title": "AOS-CX CLI 명령어의 인증된 명령 주입 취약점 발견",
+    "description": "특정 AOS-CX CLI 명령어의 파라미터에서 인증된 원격 공격자가 악성 명령을 주입할 수 있는 취약점이 발견되었습니다. 이를 통해 원치 않는 행위가 발생할 수 있습니다. 낮은 권한의 공격자도 악용 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Hewlett Packard Enterprise (HPE)",
+        "product": "AOS-CX",
+        "versions": "10.17.0000 부터 10.17.0001 이하, 10.16.0000 부터 10.16.1020 이하, 10.13.0000 부터 10.13.1101 이하, 10.10.0000 부터 10.10.1170 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:55:53.789952+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24287",
+    "title": "Windows 커널 권한 상승 취약점",
+    "description": "Windows 커널의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 22H2",
+        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:33.367899+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24018",
+    "title": "Fortinet FortiClientLinux 심볼릭 링크 취약점",
+    "description": "Fortinet FortiClientLinux 7.4.0~7.4.4 및 7.2.2~7.2.12 버전에서 심볼릭 링크(Symlink) 취약점이 발견되었습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-61"
+    ],
+    "affected": [
+      {
+        "vendor": "Fortinet",
+        "product": "FortiClientLinux",
+        "versions": "7.4.0 부터 7.4.4 이하, 7.2.2 부터 7.2.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T17:14:46.032653+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23813",
+    "title": "웹 인터페이스 인증 우회 취약점으로 관리자 비밀번호 초기화 가능",
+    "description": "AOS-CX 스위치의 웹 기반 관리 인터페이스에서 인증되지 않은 원격 공격자가 인증 절차를 우회할 수 있는 취약점이 발견되었습니다. 이 취약점을 악용하면 관리자 비밀번호를 초기화하는 것이 가능할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Hewlett Packard Enterprise (HPE)",
+        "product": "AOS-CX",
+        "versions": "10.17.0000 부터 10.17.0001 이하, 10.16.0000 부터 10.16.1020 이하, 10.13.0000 부터 10.13.1101 이하, 10.10.0000 부터 10.10.1170 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:55:51.686397+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-23671",
+    "title": "Windows Bluetooth RFCOM 프로토콜 드라이버 권한 상승 취약점",
+    "description": "Windows Bluetooth RFCOM 프로토콜 드라이버의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362",
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:28.362138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23669",
+    "title": "Windows Print Spooler 원격 코드 실행 취약점",
+    "description": "Windows Print Spooler 서비스의 취약점을 통해 공격자가 원격으로 코드를 실행할 수 있습니다. 해당 취약점은 프린터 드라이버 처리 과정에서 발생하며, 시스템 권한으로 악성 코드를 실행할 위험이 있습니다. 최신 보안 업데이트를 적용하여 해결해야 합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:25.859387+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23660",
+    "title": "Azure Portal의 Windows Admin Center 권한 상승 취약점",
+    "description": "Azure Portal 내 Windows Admin Center에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Admin Center in Azure Portal",
+        "versions": "1.0 부터 2.6.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T18:04:54.946032+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21362",
+    "title": "Illustrator | 경계 외 쓰기 (CWE-787)",
+    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:26.708262+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21294",
+    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 측 요청을 조작하고 보안 제어를 우회할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:55.696208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21333",
+    "title": "Illustrator | 신뢰할 수 없는 검색 경로 (CWE-426)",
+    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 신뢰할 수 없는 검색 경로 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-426"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Illustrator",
+        "versions": "30.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:24.650309+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21293",
+    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 요청을 조작하고 무단 리소스에 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:50.467292+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21291",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있습니다. 이 취약점 악용에는 사용자의 상호 작용이 필요하며, 피해자가 취약한 필드가 포함된 페이지를 방문해야 합니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:34.338143+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21286",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 보안 조치를 우회하여 제한적인 범위의 데이터에 무단으로 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:07:53.862741+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21282",
+    "title": "Adobe Commerce | 부적절한 입력 유효성 검사 (CWE-20)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 입력 유효성 검사 오류가 발견되었습니다. 공격자는 특수 제작된 입력을 통해 서비스 거부(DoS) 공격을 유발할 수 있습니다. 사용자 상호작용 없이 악용 가능하며, 애플리케이션 가용성에 제한적인 영향을 미칩니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:07:48.216637+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21284",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입하여 피해자의 브라우저에서 실행될 수 있습니다. 성공적인 공격은 세션 탈취로 이어질 수 있으며, 기밀성 및 무결성에 심각한 영향을 미칩니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/173",
+    "date": "2026-03-11T03:08:29.641016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1993",
+    "title": "ExactMetrics 7.1.0 - 9.0.2 - 인증된(맞춤) 부적절한 권한 관리로 인한 역할 권한 상승 / 설정 업데이트",
+    "description": "ExactMetrics – WordPress용 Google Analytics 대시보드 플러그인의 7.1.0~9.0.2 버전에 부적절한 권한 관리 취약점이 존재합니다. 허용된 설정 목록 없이 임의의 플러그인 설정 이름을 `update_settings()` 함수에서 허용하여, `exactmetrics_save_settings` 권한을 가진 인증된 공격자가 모든 플러그인 설정을 수정할 수 있습니다. 이를 통해 구독자 역할에게도 플러그인 관리자 권한을 부여하여 권한 상승이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "smub",
+        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
+        "versions": "7.1.0 부터 9.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:48.433647+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1992",
+    "title": "ExactMetrics 8.6.0 - 9.0.2 - 인증된(맞춤) 보안되지 않은 직접 객체 참조를 통한 임의 플러그인 설치",
+    "description": "ExactMetrics – Google Analytics Dashboard for WordPress 플러그인의 8.6.0~9.0.2 버전에 보안되지 않은 직접 객체 참조 취약점이 존재합니다. `triggered_by` 파라미터를 통해 권한 검사를 우회하여 관리자 권한으로 임의 플러그인을 설치하고 원격 코드 실행을 달성할 수 있습니다. 이 취약점은 보고서 보기 권한을 가진 사용자에게만 영향을 미칩니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "smub",
+        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
+        "versions": "8.0.0 부터 9.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:48.395468+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48418",
+    "title": "Fortinet FortiAnalyzer/FortiManager 권한 상승 취약점",
+    "description": "Fortinet FortiAnalyzer 및 FortiManager 제품의 특정 버전에서 CLI 접근 권한을 가진 읽기 전용 관리자가 숨겨진 명령어를 사용하여 권한을 상승시킬 수 있는 취약점이 발견되었습니다. 해당 취약점은 6.4 버전부터 7.6.3 버전까지 영향을 미칠 수 있습니다. 클라우드 버전 또한 포함됩니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-912"
+    ],
+    "affected": [
+      {
+        "vendor": "Fortinet",
+        "product": "FortiAnalyzer",
+        "versions": "7.6.0 부터 7.6.3 이하, 7.4.0 부터 7.4.7 이하, 7.2.0 부터 7.2.10 이하, 7.0.0 부터 7.0.14 이하, 6.4.0 부터 6.4.15 이하"
+      },
+      {
+        "vendor": "Fortinet",
+        "product": "FortiAnalyzer Cloud",
+        "versions": "7.6.2 (단일 버전), 7.4.1 부터 7.4.7 이하, 7.2.1 부터 7.2.10 이하, 7.0.1 부터 7.0.14 이하, 6.4.1 부터 6.4.7 이하"
+      },
+      {
+        "vendor": "Fortinet",
+        "product": "FortiManager",
+        "versions": "7.6.0 부터 7.6.3 이하, 7.4.0 부터 7.4.7 이하, 7.2.0 부터 7.2.10 이하, 7.0.0 부터 7.0.14 이하, 6.4.0 부터 6.4.15 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T17:12:56.976717+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1454",
+    "title": "반응형 문의 양식 빌더 & 리드 생성 플러그인 <= 2.0.1 - 인증되지 않은 저장형 XSS 취약점",
+    "description": "워드프레스용 반응형 문의 양식 빌더 & 리드 생성 플러그인이 2.0.1 버전 이하에서 저장형 XSS 취약점을 가지고 있습니다. 이는 `lfb_lead_sanitize()` 함수에서 특정 필드 유형에 대한 소독이 부족하고, 출력 시 `wp_kses()` 필터가 과도하게 허용적이기 때문입니다. 인증되지 않은 공격자가 관리자가 리드 항목을 볼 때 실행되는 임의의 웹 스크립트를 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "themehunk",
+        "product": "Lead Form Builder & Contact Form",
+        "versions": "* 부터 2.0.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:03:20.314211+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26112",
+    "title": "Microsoft Excel 원격 코드 실행 취약점",
+    "description": "Microsoft Excel의 원격 코드 실행 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-822"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Excel 2016",
+        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:33.503378+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26108",
+    "title": "Microsoft Excel 원격 코드 실행 취약점",
+    "description": "Microsoft Excel의 취약점을 통해 공격자가 원격으로 코드를 실행할 수 있습니다. 해당 취약점은 특별히 제작된 파일을 이용하여 악용될 수 있습니다. 사용자들은 최신 보안 업데이트를 적용하는 것이 좋습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Excel 2016",
+        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:25.590328+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25190",
+    "title": "GDI 원격 코드 실행 취약점",
+    "description": "GDI(Graphics Device Interface)의 원격 코드 실행 취약점이 발견되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-426"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T06:06:20.589623+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24290",
+    "title": "Windows 투영 파일 시스템 권한 상승 취약점",
+    "description": "Windows 투영 파일 시스템의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 22H2",
+        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:36.689978+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-3178",
     "title": "Name Directory <= 1.32.1 - 인증되지 않은 저장형 XSS 취약점 ('name_directory_name' 매개변수)",
     "description": "WordPress Name Directory 플러그는 'name_directory_name' 매개변수를 통해 저장형 XSS 취약점을 가지고 있습니다 (버전 1.32.1 이하). 입력값 검증 및 출력 이스케이핑이 미흡하여 인증되지 않은 공격자가 악성 스크립트를 삽입할 수 있습니다. 삽입된 페이지에 접속하는 사용자의 브라우저에서 스크립트가 실행될 수 있습니다. (부분적으로 1.30.3 및 1.32.1 버전에서 패치됨)",
@@ -314,110 +1951,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27220",
-    "title": "Acrobat Reader | Use After Free (CWE-416)",
-    "description": "Acrobat Reader 24.001.30307, 24.001.30308, 25.001.21265 버전 및 이전 버전에서 Use After Free 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드 실행이 가능합니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Acrobat Reader",
-        "versions": "25.001.21265 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T22:49:47.460297+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27272",
-    "title": "Illustrator | 경계 외 쓰기 (CWE-787)",
-    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:37.490781+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27267",
-    "title": "Illustrator | 스택 기반 버퍼 오버플로우 (CWE-121)",
-    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:27.013217+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21362",
-    "title": "Illustrator | 경계 외 쓰기 (CWE-787)",
-    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:26.708262+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-23673",
     "title": "Windows Resilient File System (ReFS) 권한 상승 취약점",
     "description": "Windows Resilient File System (ReFS)의 취약점을 통해 권한 상승이 가능합니다.",
@@ -612,58 +2145,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T10:03:46.346621+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1993",
-    "title": "ExactMetrics 7.1.0 - 9.0.2 - 인증된(맞춤) 부적절한 권한 관리로 인한 역할 권한 상승 / 설정 업데이트",
-    "description": "ExactMetrics – WordPress용 Google Analytics 대시보드 플러그인의 7.1.0~9.0.2 버전에 부적절한 권한 관리 취약점이 존재합니다. 허용된 설정 목록 없이 임의의 플러그인 설정 이름을 `update_settings()` 함수에서 허용하여, `exactmetrics_save_settings` 권한을 가진 인증된 공격자가 모든 플러그인 설정을 수정할 수 있습니다. 이를 통해 구독자 역할에게도 플러그인 관리자 권한을 부여하여 권한 상승이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "smub",
-        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
-        "versions": "7.1.0 부터 9.0.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T10:03:48.433647+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1992",
-    "title": "ExactMetrics 8.6.0 - 9.0.2 - 인증된(맞춤) 보안되지 않은 직접 객체 참조를 통한 임의 플러그인 설치",
-    "description": "ExactMetrics – Google Analytics Dashboard for WordPress 플러그인의 8.6.0~9.0.2 버전에 보안되지 않은 직접 객체 참조 취약점이 존재합니다. `triggered_by` 파라미터를 통해 권한 검사를 우회하여 관리자 권한으로 임의 플러그인을 설치하고 원격 코드 실행을 달성할 수 있습니다. 이 취약점은 보고서 보기 권한을 가진 사용자에게만 영향을 미칩니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "smub",
-        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
-        "versions": "8.0.0 부터 9.0.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T10:03:48.395468+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1047,32 +2528,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-1454",
-    "title": "반응형 문의 양식 빌더 & 리드 생성 플러그인 <= 2.0.1 - 인증되지 않은 저장형 XSS 취약점",
-    "description": "워드프레스용 반응형 문의 양식 빌더 & 리드 생성 플러그인이 2.0.1 버전 이하에서 저장형 XSS 취약점을 가지고 있습니다. 이는 `lfb_lead_sanitize()` 함수에서 특정 필드 유형에 대한 소독이 부족하고, 출력 시 `wp_kses()` 필터가 과도하게 허용적이기 때문입니다. 인증되지 않은 공격자가 관리자가 리드 항목을 볼 때 실행되는 임의의 웹 스크립트를 삽입할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "themehunk",
-        "product": "Lead Form Builder & Contact Form",
-        "versions": "* 부터 2.0.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T09:03:20.314211+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-14831",
@@ -1792,85 +3247,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-2631",
-    "title": "Datalogics Ecommerce Delivery < 2.6.60 - 인증되지 않은 권한 상승",
-    "description": "Datalogics Ecommerce Delivery 워드프레스 플러그인 2.6.60 이전 버전에서 인증되지 않은 REST 엔드포인트가 존재하여, 원격 사용자가 `datalogics_token` 옵션을 검증 없이 수정할 수 있습니다. 이 토큰은 이후 보호된 엔드포인트에서 워드프레스 `update_option()` 함수를 임의로 실행하는 데 사용됩니다. 공격자는 이를 통해 회원가입을 활성화하고 기본 역할을 관리자로 설정할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269 Improper Privilege Management"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Datalogics Ecommerce Delivery",
-        "versions": "2.6.60 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:14:20.703088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-2626",
-    "title": "Divi Booster < 5.0.2 - 인증되지 않은 PHP 객체 주입",
-    "description": "Divi Booster WordPress 플러그인 5.0.2 미만 버전에서 권한 및 CSRF 검사가 누락되어 인증되지 않은 사용자가 플러그인 옵션을 수정할 수 있습니다. 또한, `unserialize()` 함수 사용으로 인해 PHP 가젯 체인과 결합하여 PHP 객체 주입 공격으로 이어질 수 있습니다. 이는 보안 취약점으로 악용될 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502 Deserialization of Untrusted Data",
-      "CWE-352 Cross-Site Request Forgery (CSRF)"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "divi-booster",
-        "versions": "5.0.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:14:18.42782+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-2466",
-    "title": "DukaPress <= 3.2.4 - 반사형 XSS",
-    "description": "DukaPress 워드프레스 플러그인 3.2.4 버전 이하에서 파라미터를 적절히 삭제하거나 이스케이프 처리하지 않아 반사형 XSS 취약점이 존재합니다. 이를 통해 관리자 등 권한이 높은 사용자를 대상으로 공격이 가능합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79 Cross-Site Scripting (XSS)"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "DukaPress",
-        "versions": "3.2.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T07:14:18.500381+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2026-1867",
     "title": "WP Front User Submit < 5.0.6 - 인증되지 않은 민감 정보 노출",
     "description": "WP Front User Submit 플러그인 5.0.6 이전 버전은 데모 데이터를 기반으로 .json 파일을 재생성하는 URL 파라미터를 허용합니다. 관리자가 데모 양식을 수정하고 관리자 알림을 활성화하면, 인증되지 않은 공격자가 모든 양식 데이터/설정(관리자 이메일 주소 포함)을 내보내고 다운로드할 수 있습니다.",
@@ -2034,42 +3410,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-24292",
-    "title": "Windows 연결 장치 플랫폼 서비스 권한 상승 취약점",
-    "description": "Windows 연결 장치 플랫폼 서비스의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 22H2",
-        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:38.190323+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-26132",
@@ -2753,42 +4093,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-26115",
-    "title": "SQL Server 권한 상승 취약점",
-    "description": "SQL Server의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1287"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SQL Server 2016 Service Pack 3 (GDR)",
-        "versions": "13.0.0 부터 13.0.6480.4 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SQL Server 2016 Service Pack 3 Azure Connect Feature Pack",
-        "versions": "13.0.0 부터 13.0.7075.5 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SQL Server 2017 (CU 31)",
-        "versions": "14.0.0 부터 14.0.3520.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:38.79465+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-26114",
     "title": "Microsoft SharePoint Server 원격 코드 실행 취약점",
     "description": "Microsoft SharePoint Server의 취약점을 통해 공격자가 원격으로 코드를 실행할 수 있습니다. 해당 취약점은 서버 제어 권한 획득으로 이어질 수 있습니다. 자세한 내용은 Microsoft 보안 공지를 참고하십시오.",
@@ -2812,43 +4116,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T06:06:36.290942+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26111",
-    "title": "Windows 라우팅 및 원격 액세스 서비스 (RRAS) 원격 코드 실행 취약점",
-    "description": "Windows 라우팅 및 원격 액세스 서비스의 취약점을 통해 공격자가 원격 코드를 실행할 수 있습니다. 해당 취약점은 공격 표면을 넓히고 시스템을 위험에 빠뜨릴 수 있습니다. 자세한 내용은 관련 보안 공지를 참조하십시오.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190",
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Server 2012",
-        "versions": "6.2.9200.0 부터 6.2.9200.25973 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Server 2012 (Server Core installation)",
-        "versions": "6.2.9200.0 부터 6.2.9200.25973 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Server 2012 R2",
-        "versions": "6.3.9600.0 부터 6.3.9600.23074 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:31.000676+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -2909,32 +4176,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28393",
-    "title": "OpenClaw 2.0.0-beta3 < 2026.2.14 - Hook Transform 경로 탐색을 통한 임의 JavaScript 모듈 로딩",
-    "description": "OpenClaw 2.0.0-beta3 버전(2026.2.14 이전)은 hook transform 모듈 로딩 시 경로 탐색 취약점을 가지고 있어 임의의 JavaScript 실행을 허용합니다. 설정 쓰기 권한을 가진 공격자는 절대 경로 및 탐색 시퀀스를 사용하여 악성 모듈을 로드하고 게이트웨이 프로세스 권한으로 실행할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2.0.0-beta3 부터 2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:35:52.70211+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2413",
     "title": "Ally – 웹 접근성 & 사용성 <= 4.0.3 - 인증되지 않은 SQL Injection 취약점 (/ URL 경로)",
     "description": "Ally – 웹 접근성 & 사용성 워드프레스 플러그인의 4.0.3 버전 및 이전 버전에서 URL 경로를 통해 SQL Injection 취약점이 발견되었습니다. URL 파라미터에 대한 적절한 이스케이핑이 부족하여 SQL JOIN 구문에 직접 연결될 때 발생하며, URL 안전 처리는 SQL 메타 문자를 막지 못합니다. 이를 통해 공격자는 시간 기반 블라인드 SQL Injection 기법으로 데이터베이스에서 민감한 정보를 추출할 수 있습니다.",
@@ -2953,202 +4194,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T06:06:57.720931+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27228",
-    "title": "Adobe Experience Manager | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
-    "description": "Adobe Experience Manager 6.5.23 버전 이하에서 권한이 낮은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있는 저장형 교차 사이트 스크립팅(XSS) 취약점이 존재합니다. 피해자가 해당 필드가 포함된 페이지를 방문할 때 악성 JavaScript가 실행될 수 있습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Experience Manager",
-        "versions": "6.5.23 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:51.607431+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26131",
-    "title": ".NET 권한 상승 취약점",
-    "description": ".NET 프레임워크의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": ".NET 10.0",
-        "versions": "10.0.0 부터 10.0.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:46.301933+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26112",
-    "title": "Microsoft Excel 원격 코드 실행 취약점",
-    "description": "Microsoft Excel의 원격 코드 실행 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-822"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Excel 2016",
-        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:33.503378+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26108",
-    "title": "Microsoft Excel 원격 코드 실행 취약점",
-    "description": "Microsoft Excel의 취약점을 통해 공격자가 원격으로 코드를 실행할 수 있습니다. 해당 취약점은 특별히 제작된 파일을 이용하여 악용될 수 있습니다. 사용자들은 최신 보안 업데이트를 적용하는 것이 좋습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Excel 2016",
-        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:25.590328+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26107",
-    "title": "Microsoft Excel 원격 코드 실행 취약점",
-    "description": "Microsoft Excel의 원격 코드 실행 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Excel 2016",
-        "versions": "16.0.0.0 부터 16.0.5543.1000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:23.091255+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25190",
-    "title": "GDI 원격 코드 실행 취약점",
-    "description": "GDI(Graphics Device Interface)의 원격 코드 실행 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-426"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T06:06:20.589623+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3336,42 +4381,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-23669",
-    "title": "Windows Print Spooler 원격 코드 실행 취약점",
-    "description": "Windows Print Spooler 서비스의 취약점을 통해 공격자가 원격으로 코드를 실행할 수 있습니다. 해당 취약점은 프린터 드라이버 처리 과정에서 발생하며, 시스템 권한으로 악성 코드를 실행할 위험이 있습니다. 최신 보안 업데이트를 적용하여 해결해야 합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:25.859387+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-13067",
     "title": "Elementor용 Royal Addons <= 1.7.1049 - 인증된 사용자(Author+)를 통한 임의 파일 업로드 취약점 (main.php 업로드 우회)",
     "description": "Elementor용 Royal Addons 플러그인 1.7.1049 버전 이하에서 임의 파일 업로드 취약점이 발견되었습니다. 파일 형식 검증이 'main.php' 파일을 제대로 처리하지 못하여, 인증된 Author 레벨 이상의 사용자가 서버에 임의 파일을 업로드할 수 있습니다. 이는 원격 코드 실행으로 이어질 수 있습니다.",
@@ -3396,54 +4405,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23814",
-    "title": "AOS-CX CLI 명령어의 인증된 명령 주입 취약점 발견",
-    "description": "특정 AOS-CX CLI 명령어의 파라미터에서 인증된 원격 공격자가 악성 명령을 주입할 수 있는 취약점이 발견되었습니다. 이를 통해 원치 않는 행위가 발생할 수 있습니다. 낮은 권한의 공격자도 악용 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Hewlett Packard Enterprise (HPE)",
-        "product": "AOS-CX",
-        "versions": "10.17.0000 부터 10.17.0001 이하, 10.16.0000 부터 10.16.1020 이하, 10.13.0000 부터 10.13.1101 이하, 10.10.0000 부터 10.10.1170 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:55:53.789952+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23813",
-    "title": "웹 인터페이스 인증 우회 취약점으로 관리자 비밀번호 초기화 가능",
-    "description": "AOS-CX 스위치의 웹 기반 관리 인터페이스에서 인증되지 않은 원격 공격자가 인증 절차를 우회할 수 있는 취약점이 발견되었습니다. 이 취약점을 악용하면 관리자 비밀번호를 초기화하는 것이 가능할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Hewlett Packard Enterprise (HPE)",
-        "product": "AOS-CX",
-        "versions": "10.17.0000 부터 10.17.0001 이하, 10.16.0000 부터 10.16.1020 이하, 10.13.0000 부터 10.13.1101 이하, 10.10.0000 부터 10.10.1170 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:55:51.686397+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-65791",
@@ -3525,42 +4486,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25189",
-    "title": "Windows DWM 핵심 라이브러리 권한 상승 취약점",
-    "description": "Windows DWM(Desktop Window Manager) 핵심 라이브러리의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 22H2",
-        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:57:04.272481+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25179",
     "title": "WinSock 상승 권한 취약점을 이용한 Windows 보조 기능 드라이버",
     "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
@@ -3597,367 +4522,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25178",
-    "title": "WinSock 권한 상승 취약점을 이용한 Windows 보조 기능 드라이버",
-    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:57.416213+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25175",
-    "title": "Windows NTFS 권한 상승 취약점",
-    "description": "Windows NTFS 파일 시스템의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:54.912521+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25174",
-    "title": "Windows 확장 파일 할당 테이블 권한 상승 취약점",
-    "description": "Windows 확장 파일 할당 테이블(Extensible File Allocation Table)의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:52.411297+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25171",
-    "title": "Windows 인증 권한 상승 취약점",
-    "description": "Windows 인증 과정에서 권한 상승이 가능한 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:49.909266+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25170",
-    "title": "Windows Hyper-V 권한 상승 취약점",
-    "description": "Windows Hyper-V의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 version 22H3",
-        "versions": "10.0.22631.0 부터 10.0.22631.6783 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 23H2",
-        "versions": "10.0.22631.0 부터 10.0.22631.6783 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 24H2",
-        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:47.407954+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25167",
-    "title": "Microsoft 브로커링 파일 시스템 권한 상승 취약점",
-    "description": "Microsoft 브로커링 파일 시스템에 권한 상승 취약점이 존재합니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 24H2",
-        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 25H2",
-        "versions": "10.0.26200.0 부터 10.0.26200.8037 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 version 26H1",
-        "versions": "10.0.28000.0 부터 10.0.28000.1719 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:44.906848+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24296",
-    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
-    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:44.905957+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24295",
-    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
-    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362",
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:42.404284+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24290",
-    "title": "Windows 투영 파일 시스템 권한 상승 취약점",
-    "description": "Windows 투영 파일 시스템의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 22H2",
-        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:36.689978+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24287",
-    "title": "Windows 커널 권한 상승 취약점",
-    "description": "Windows 커널의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 22H2",
-        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:33.367899+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24285",
     "title": "Win32k 권한 상승 취약점",
     "description": "Win32k 구성 요소의 권한 상승 취약점이 발견되었습니다.",
@@ -3986,43 +4550,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T04:56:30.86565+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23671",
-    "title": "Windows Bluetooth RFCOM 프로토콜 드라이버 권한 상승 취약점",
-    "description": "Windows Bluetooth RFCOM 프로토콜 드라이버의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362",
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:28.362138+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4231,32 +4758,6 @@
     "severity": "Low"
   },
   {
-    "id": "CVE-2026-21294",
-    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
-    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 측 요청을 조작하고 보안 제어를 우회할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
-    "cvss": 5.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T03:08:55.696208+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-21296",
     "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
     "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 권한 부여 오류 취약점이 발견되었습니다. 낮은 권한의 공격자가 보안 조치를 우회하여 제한적인 데이터 접근 권한을 획득할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
@@ -4309,58 +4810,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-21293",
-    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
-    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 요청을 조작하고 무단 리소스에 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
-    "cvss": 5.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T03:08:50.467292+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-21291",
-    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
-    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있습니다. 이 취약점 악용에는 사용자의 상호 작용이 필요하며, 피해자가 취약한 필드가 포함된 페이지를 방문해야 합니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T03:08:34.338143+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-21290",
     "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
     "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 권한이 낮은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있는 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 피해자가 해당 페이지를 방문하면 악성 JavaScript가 실행될 수 있으며, 공격자는 세션 탈취를 통해 기밀성 및 무결성에 심각한 영향을 줄 수 있습니다. 취약점 악용에는 피해자의 페이지 방문과 같은 사용자 상호 작용이 필요합니다.",
@@ -4394,32 +4843,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21286",
-    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
-    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 보안 조치를 우회하여 제한적인 범위의 데이터에 무단으로 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T03:07:53.862741+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-21289",
@@ -4547,67 +4970,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21284",
-    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
-    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입하여 피해자의 브라우저에서 실행될 수 있습니다. 성공적인 공격은 세션 탈취로 이어질 수 있으며, 기밀성 및 무결성에 심각한 영향을 미칩니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/173",
-    "date": "2026-03-11T03:08:29.641016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21282",
-    "title": "Adobe Commerce | 부적절한 입력 유효성 검사 (CWE-20)",
-    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 입력 유효성 검사 오류가 발견되었습니다. 공격자는 특수 제작된 입력을 통해 서비스 거부(DoS) 공격을 유발할 수 있습니다. 사용자 상호작용 없이 악용 가능하며, 애플리케이션 가용성에 제한적인 영향을 미칩니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Commerce",
-        "versions": "2.4.4-p16 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T03:07:48.216637+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-23817",
@@ -4758,32 +5120,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T21:46:06.956075+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21333",
-    "title": "Illustrator | 신뢰할 수 없는 검색 경로 (CWE-426)",
-    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 신뢰할 수 없는 검색 경로 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-426"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:24.650309+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -5436,32 +5772,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-27221",
-    "title": "Acrobat Reader | 잘못된 인증서 검증 (CWE-295)",
-    "description": "Acrobat Reader 24.001.30307, 24.001.30308, 25.001.21265 버전 및 이전 버전에서 잘못된 인증서 검증 취약점이 발견되었습니다. 이 취약점을 악용하면 보안 기능 우회 및 서명자 신원 위장이 가능합니다. 사용자 상호작용이 필요합니다.",
-    "cvss": 5.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Acrobat Reader",
-        "versions": "25.001.21265 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T22:49:48.443717+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-21622",
     "title": "비밀번호 재설정 토큰의 만료되지 않는 문제",
     "description": "hexpm의 'Elixir.Hexpm.Accounts.PasswordReset' 모듈에서 세션 만료 기능이 부족하여 계정 탈취가 가능합니다. 비밀번호 재설정 링크의 토큰이 만료되지 않아, 과거에 유출된 이메일에서 토큰을 사용하여 비밀번호를 재설정할 수 있습니다. 이는 lib/hexpm/accounts/password_reset.ex 파일 및 'Elixir.Hexpm.Accounts.PasswordReset':can_reset?/3 루틴과 관련이 있습니다.",
@@ -5894,41 +6204,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27271",
-    "title": "Illustrator | 힙 기반 버퍼 오버플로우 (CWE-122)",
-    "description": "Illustrator 29.8.4 및 30.1 버전 이하에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드 실행이 가능합니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/172",
-    "date": "2026-03-10T23:45:41.131389+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-20005",
     "title": "일부 Intel(R) 레퍼런스 플랫폼 UEFI 펌웨어의 부적절한 버퍼 제한",
     "description": "특정 Intel 레퍼런스 플랫폼의 UEFI 펌웨어에서 버퍼 제한 오류로 권한 상승이 가능할 수 있습니다. 권한 있는 사용자 접근과 복잡한 공격을 결합하여 데이터 조작을 유발할 수 있으며, 특별한 내부 지식 없이 로컬 접근을 통해 발생할 수 있습니다. 이 취약점은 시스템의 기밀성, 무결성, 가용성에 영향을 줄 수 있습니다.",
@@ -5948,32 +6223,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T23:45:40.127145+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27270",
-    "title": "Illustrator | 경계 외 읽기 (CWE-125)",
-    "description": "Illustrator 29.8.4, 30.1 및 이전 버전에서 경계 외 읽기 취약점이 발견되어 메모리 정보 노출 가능성이 있습니다. 공격자는 이 취약점을 이용하여 메모리에 저장된 민감한 정보에 접근할 수 있습니다. 악성 파일을 여는 사용자 상호 작용이 필요합니다.",
-    "cvss": 5.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Illustrator",
-        "versions": "30.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:33.846302+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -11079,32 +11328,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-23660",
-    "title": "Azure Portal의 Windows Admin Center 권한 상승 취약점",
-    "description": "Azure Portal 내 Windows Admin Center에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Admin Center in Azure Portal",
-        "versions": "1.0 부터 2.6.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T18:04:54.946032+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30942",
     "title": "Flare의 /api/avatars/[filename] 경로 탐색 취약점",
     "description": "Flare는 Next.js 기반의 자체 호스팅 파일 공유 플랫폼입니다. 1.7.3 버전 이전에는 인증된 사용자가 /api/avatars/[filename]에서 경로 탐색 취약점을 통해 애플리케이션 컨테이너 내의 임의 파일을 읽을 수 있습니다. 파일명 URL 파라미터가 삭제되지 않은 채 path.join()에 전달되어 공격이 가능하며, 1.7.3에서 해당 문제가 해결되었습니다.",
@@ -13088,32 +13311,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-24018",
-    "title": "Fortinet FortiClientLinux 심볼릭 링크 취약점",
-    "description": "Fortinet FortiClientLinux 7.4.0~7.4.4 및 7.2.2~7.2.12 버전에서 심볼릭 링크(Symlink) 취약점이 발견되었습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-61"
-    ],
-    "affected": [
-      {
-        "vendor": "Fortinet",
-        "product": "FortiClientLinux",
-        "versions": "7.4.0 부터 7.4.4 이하, 7.2.2 부터 7.2.12 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T17:14:46.032653+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24313",
     "title": "SAP Solution Tools Plug-In (ST-PI) 권한 확인 누락",
     "description": "SAP Solution Tools Plug-In (ST-PI)의 함수 모듈에서 인증된 사용자에 대한 필수 권한 확인이 누락되어 시스템 정보가 노출될 수 있습니다. 이 취약점은 기밀성에 미치는 영향이 낮으며, 무결성 또는 가용성에는 영향을 미치지 않습니다.",
@@ -13477,42 +13674,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T17:13:03.421376+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-48418",
-    "title": "Fortinet FortiAnalyzer/FortiManager 권한 상승 취약점",
-    "description": "Fortinet FortiAnalyzer 및 FortiManager 제품의 특정 버전에서 CLI 접근 권한을 가진 읽기 전용 관리자가 숨겨진 명령어를 사용하여 권한을 상승시킬 수 있는 취약점이 발견되었습니다. 해당 취약점은 6.4 버전부터 7.6.3 버전까지 영향을 미칠 수 있습니다. 클라우드 버전 또한 포함됩니다.",
-    "cvss": 6.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-912"
-    ],
-    "affected": [
-      {
-        "vendor": "Fortinet",
-        "product": "FortiAnalyzer",
-        "versions": "7.6.0 부터 7.6.3 이하, 7.4.0 부터 7.4.7 이하, 7.2.0 부터 7.2.10 이하, 7.0.0 부터 7.0.14 이하, 6.4.0 부터 6.4.15 이하"
-      },
-      {
-        "vendor": "Fortinet",
-        "product": "FortiAnalyzer Cloud",
-        "versions": "7.6.2 (단일 버전), 7.4.1 부터 7.4.7 이하, 7.2.1 부터 7.2.10 이하, 7.0.1 부터 7.0.14 이하, 6.4.1 부터 6.4.7 이하"
-      },
-      {
-        "vendor": "Fortinet",
-        "product": "FortiManager",
-        "versions": "7.6.0 부터 7.6.3 이하, 7.4.0 부터 7.4.7 이하, 7.2.0 부터 7.2.10 이하, 7.0.0 부터 7.0.14 이하, 6.4.0 부터 6.4.15 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T17:12:56.976717+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -47295,32 +47456,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T00:11:58.947458+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28394",
-    "title": "OpenClaw < 2026.2.15 - web_fetch 도구의 무한 응답 파싱을 통한 서비스 거부",
-    "description": "OpenClaw 2026.2.15 이전 버전의 web_fetch 도구에 과도하게 크거나 중첩된 HTML 응답을 파싱하여 Gateway 프로세스를 중단시키는 서비스 거부 취약점이 존재합니다. 공격자는 악성 URL을 통해 서버 메모리를 고갈시켜 서비스 가용성을 저하시킬 수 있습니다. 사용자 사회공학적 기법을 통해 악성 URL 접근을 유도할 수 있습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.15 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:34:48.410255+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
