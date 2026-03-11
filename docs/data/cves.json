@@ -1,5 +1,191 @@
 [
   {
+    "id": "CVE-2026-31844",
+    "title": "Koha suggestion.pl의 displayby 파라미터에서 발견된 인증된 SQL Injection 취약점",
+    "description": "Koha의 /cgi-bin/koha/suggestion/suggestion.pl 내 displayby 파라미터에서 인증된 SQL Injection (CWE-89) 취약점이 발견되었습니다. 낮은 권한의 직원 사용자가 임의의 SQL 쿼리를 실행하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Koha Community",
+        "product": "Koha",
+        "versions": "24.11.0 부터 24.11.12 이전, 25.05.0 부터 25.05.07 이전, 25.11.0 부터 25.11.01 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/181",
+    "date": "2026-03-11T07:14:09.611375+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-31844 SQL Injection Attempt via displayby Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the authenticated SQL injection vulnerability in the `displayby` parameter of `/cgi-bin/koha/suggestion/suggestion.pl` in Koha.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/cgi-bin/koha/suggestion/suggestion.pl'\n    selection_param:\n        uri|contains: 'displayby='\n    selection_payload:\n        uri|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n        cs-body|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.31844\n    - attack.initial_access\n    - attack.execution\n    - attack.impact\n    - cwe.89\n    - koha\n    - sql_injection",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-31844 SQL Injection via displayby parameter in Koha suggestion.pl\";\n    flow:to_server,established;\n    content:\"/cgi-bin/koha/suggestion/suggestion.pl\"; http_uri;\n    content:\"displayby=\"; http_uri;\n    pcre:\"/displayby=.*?(UNION|SELECT|INSERT|UPDATE|DELETE|--|%27|%23)/i\";\n    reference:cve,2026-31844;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/cgi-bin/koha/suggestion/suggestion.pl)",
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-14026",
+    "title": "QTS, QuTS hero 명령어 삽입 취약점",
+    "description": "QNAP 운영체제 여러 버전에 명령어 삽입 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 사용자 계정을 획득한 공격자는 임의 명령 실행이 가능합니다.",
+    "cvss": 2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "5.1.x 부터 5.1.9.2954 build 20241120 이전, 5.2.x 부터 5.2.3.3006 build 20250108 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QuTS hero",
+        "versions": "h5.1.x 부터 h5.1.9.2954 build 20241120 이전, h5.2.x 부터 h5.2.3.3006 build 20250108 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:58.596668+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-60007",
+    "title": "Junos OS: 특정 'show chassis' 명령어로 chassisd 프로세스 충돌 발생",
+    "description": "Juniper Networks Junos OS의 chassis 데몬(chassisd)에서 NULL 포인터 역참조 취약점이 발견되어, 낮은 권한의 로컬 공격자가 서비스 거부(DoS)를 유발할 수 있습니다. 특정 옵션과 함께 'show chassis' 명령어를 실행하면 chassisd가 충돌하고 재시작되며, 라우팅 엔진(RE)을 제외한 모든 구성 요소가 재초기화되어 서비스 중단이 발생합니다. (시스템은 자동으로 복구됩니다.)",
+    "cvss": 5.5,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Juniper Networks",
+        "product": "Junos OS",
+        "versions": "22.4R3-S8 이전, 23.2 부터 23.2R2-S5 이전, 23.4 부터 23.4R2-S6 이전, 24.2 부터 24.2R2-S2 이전, 24.4 부터 24.4R2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:03:04.383614+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2024-14025",
+    "title": "비디오 스테이션",
+    "description": "비디오 스테이션에서 SQL Injection 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 관리자 계정을 획득한 공격자는 이 취약점을 악용하여 무단 코드를 실행하거나 명령을 수행할 수 있습니다.",
+    "cvss": 0.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "Video Station",
+        "versions": "5.8.x 부터 5.8.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:55.378808+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2024-14024",
+    "title": "Video Station",
+    "description": "Video Station의 인증서 검증 오류 취약점이 발견되었습니다. 공격자가 관리자 계정을 획득하고 로컬 네트워크에 접근할 경우, 시스템 보안을 위협할 수 있습니다.",
+    "cvss": 0.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "Video Station",
+        "versions": "5.8.x 부터 5.8.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T09:02:50.837691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-3906",
+    "title": "WordPress 6.9 - 6.9.1 - 인증된 사용자의 권한 없는 임의 노트 생성 취약점 (REST API)",
+    "description": "WordPress 6.9부터 6.9.1 버전에서 권한 없는 접근 취약점이 발견되었습니다. 블록 편집기 내 게시물에 대한 협업 주석 기능인 '노트' 기능에서, REST API의 권한 검사 과정에서 인증된 사용자가 대상 게시물에 대한 '게시물 편집' 권한을 가지고 있는지 확인하지 않아 Subscriber 이상의 권한을 가진 공격자가 다른 사용자의 게시물, 비공개 게시물 등 모든 게시물에 임의의 노트를 생성할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "WordPress Foundation",
+        "product": "WordPress",
+        "versions": "6.9 부터 6.9.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:53.702579+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-1454",
     "title": "반응형 문의 양식 빌더 & 리드 생성 플러그인 <= 2.0.1 - 인증되지 않은 저장형 XSS 취약점",
     "description": "워드프레스용 반응형 문의 양식 빌더 & 리드 생성 플러그인이 2.0.1 버전 이하에서 저장형 XSS 취약점을 가지고 있습니다. 이는 `lfb_lead_sanitize()` 함수에서 특정 필드 유형에 대한 소독이 부족하고, 출력 시 `wp_kses()` 필터가 과도하게 허용적이기 때문입니다. 인증되지 않은 공격자가 관리자가 리드 항목을 볼 때 실행되는 임의의 웹 스크립트를 삽입할 수 있습니다.",
@@ -24,6 +210,519 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2025-14831",
+    "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
+    "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-407"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:15:48.290235+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3492",
+    "title": "Gravity Forms <= 2.9.28.1 - 인증된 사용자를 통한 저장형 XSS 취약점 (폼 제목)",
+    "description": "Gravity Forms 플러그인의 2.9.28.1 버전 이하에서 인증된 사용자가 폼 제목을 통해 저장형 XSS 공격을 수행할 수 있습니다. 권한 확인 부족, 입력값 소독 미흡, 출력 이스케이핑 부재 등의 복합적인 원인으로 발생합니다. 관리자가 폼 편집기에서 폼 전환 드롭다운 메뉴를 검색할 때 악성 JavaScript가 실행될 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Gravity Forms",
+        "product": "Gravity Forms",
+        "versions": "* 부터 2.9.28 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:51.009816+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-54820",
+    "title": "Fortinet FortiManager 스택 기반 버퍼 오버플로우 취약점",
+    "description": "Fortinet FortiManager 7.4.0~7.4.2, 7.2.0~7.2.10 및 6.4 모든 버전에서 스택 기반 버퍼 오버플로우 [CWE-121] 취약점이 발견되었습니다. 서비스가 활성화된 경우, 인증되지 않은 원격 공격자가 조작된 요청을 통해 임의의 명령을 실행할 수 있습니다. 공격 성공 여부는 스택 보호 메커니즘 우회 가능성에 따라 달라집니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Fortinet",
+        "product": "FortiManager",
+        "versions": "7.4.0 부터 7.4.2 이하, 7.2.0 부터 7.2.10 이하, 6.4.0 부터 6.4.15 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/161",
+    "date": "2026-03-10T17:13:28.741136+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1993",
+    "title": "ExactMetrics 7.1.0 - 9.0.2 - 인증된(맞춤) 부적절한 권한 관리로 인한 역할 권한 상승 / 설정 업데이트",
+    "description": "ExactMetrics – WordPress용 Google Analytics 대시보드 플러그인의 7.1.0~9.0.2 버전에 부적절한 권한 관리 취약점이 존재합니다. 허용된 설정 목록 없이 임의의 플러그인 설정 이름을 `update_settings()` 함수에서 허용하여, `exactmetrics_save_settings` 권한을 가진 인증된 공격자가 모든 플러그인 설정을 수정할 수 있습니다. 이를 통해 구독자 역할에게도 플러그인 관리자 권한을 부여하여 권한 상승이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "smub",
+        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
+        "versions": "7.1.0 부터 9.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:48.433647+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1992",
+    "title": "ExactMetrics 8.6.0 - 9.0.2 - 인증된(맞춤) 보안되지 않은 직접 객체 참조를 통한 임의 플러그인 설치",
+    "description": "ExactMetrics – Google Analytics Dashboard for WordPress 플러그인의 8.6.0~9.0.2 버전에 보안되지 않은 직접 객체 참조 취약점이 존재합니다. `triggered_by` 파라미터를 통해 권한 검사를 우회하여 관리자 권한으로 임의 플러그인을 설치하고 원격 코드 실행을 달성할 수 있습니다. 이 취약점은 보고서 보기 권한을 가진 사용자에게만 영향을 미칩니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "smub",
+        "product": "ExactMetrics – Google Analytics Dashboard for WordPress (Website Stats Plugin)",
+        "versions": "8.0.0 부터 9.0.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:48.395468+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3231",
+    "title": "WooCommerce <= 2.1.7용 Checkout Field Editor (Checkout Manager) - 인증되지 않은 저장형 XSS 취약점 (블록 결제 사용자 정의 라디오 필드)",
+    "description": "WooCommerce용 Checkout Field Editor (Checkout Manager) 플러그인은 2.1.7 버전까지의 모든 버전에서 저장형 XSS 취약점에 영향을 받습니다. 이는 사용자 정의 라디오 및 체크박스 그룹 필드 값을 통해 발생하며, 관리자가 주문 상세 페이지를 볼 때 임의의 웹 스크립트가 실행될 수 있습니다. 인증되지 않은 공격자가 Store API 결제 엔드포인트를 통해 악성 스크립트를 삽입할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "themehigh",
+        "product": "Checkout Field Editor (Checkout Manager) for WooCommerce",
+        "versions": "* 부터 2.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T10:03:46.346621+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-9820",
+    "title": "GnuTLS: gnutls_pkcs11_token_init() 함수 스택 기반 버퍼 오버플로우",
+    "description": "GnuTLS 라이브러리의 gnutls_pkcs11_token_init() 함수에서 PKCS#11 토큰 초기화 처리 시, 예상보다 긴 토큰 레이블을 처리할 때 고정 크기 스택 버퍼의 경계를 넘어 쓰기 오류가 발생합니다. 이로 인해 GnuTLS를 사용하는 애플리케이션이 충돌하거나, 특정 조건에서 코드 실행으로 이어질 수 있습니다. 따라서 GnuTLS에 의존하는 시스템이나 애플리케이션은 서비스 거부 또는 로컬 권한 상승 공격에 취약할 수 있습니다.",
+    "cvss": 4,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T18:03:26.836503+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-14087",
+    "title": "Glib: GVariant 파서의 버퍼 언더플로우로 인한 힙 손상",
+    "description": "GLib(Gnome Lib)에서 GVariant 파서의 버퍼 언더플로우 취약점이 발견되었습니다. 악의적으로 조작된 입력 문자열 처리 시 힙 손상을 유발하여 서비스 거부 또는 잠재적인 코드 실행으로 이어질 수 있습니다. 원격 공격자가 이 취약점을 악용할 수 있습니다.",
+    "cvss": 5.6,
+    "epss": 0.00258,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "GNOME",
+        "product": "glib",
+        "versions": "2.86.3 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T13:40:48.340014+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31792",
+    "title": "iccDEV의 CIccTagXmlStruct::ParseTag() 함수에서 NULL 포인터 역참조 발생",
+    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 버전 이전에는 CIccTagXmlStruct::ParseTag() 함수에서 NULL 포인터 역참조로 인해 세그멘테이션 오류 또는 서비스 거부(DoS)가 발생할 수 있습니다. 이 취약점은 2.3.1.5 버전에서 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "InternationalColorConsortium",
+        "product": "iccDEV",
+        "versions": "< 2.3.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:55:12.43991+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30985",
+    "title": "iccDEV의 CIccMatrixMath::SetRange() 함수 힙 기반 버퍼 오버플로우 취약점",
+    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 버전 이전에서 CIccMatrixMath::SetRange() 함수에 힙 기반 버퍼 오버플로우 쓰기 취약점이 존재하여 메모리 손상 또는 충돌을 일으킬 수 있습니다. 해당 취약점은 2.3.1.5 버전에서 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-122",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "InternationalColorConsortium",
+        "product": "iccDEV",
+        "versions": "< 2.3.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:55:07.013271+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30983",
+    "title": "iccDEV의 icFixXml() 함수 스택 버퍼 오버플로우 취약점",
+    "description": "iccDEV는 ICC 색상 관리 프로필 작업을 위한 라이브러리 및 도구를 제공합니다. 2.3.1.5 버전 이전에서 icFixXml() 함수(strcpy 사용)에 스택 버퍼 오버플로우가 발생하여 스택 메모리 손상 또는 크래시를 유발할 수 있습니다. 이 취약점은 2.3.1.5 버전에서 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-121",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "InternationalColorConsortium",
+        "product": "iccDEV",
+        "versions": "< 2.3.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:55:04.510583+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30979",
+    "title": "iccDEV의 CIccCalculatorFunc::InitSelectOp() 함수에서 힙 기반 버퍼 오버플로우 발생",
+    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 이전 버전에서 CIccCalculatorFunc::InitSelectOp() 함수에 로컬 사용자 상호 작용으로 트리거되는 힙 기반 버퍼 오버플로우가 발생하여 메모리 손상/충돌을 일으킬 수 있습니다. 이 취약점은 2.3.1.5에서 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-122",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "InternationalColorConsortium",
+        "product": "iccDEV",
+        "versions": "< 2.3.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:54:53.188739+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26141",
+    "title": "하이브리드 워커 확장 (Arc-활성화 Windows VM) 권한 상승 취약점",
+    "description": "Arc-활성화 Windows VM에서 사용되는 하이브리드 워커 확장에 권한 상승 취약점이 존재합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure Automation Hybrid Worker Windows Extension",
+        "versions": "1.0.0 부터 1.3.74 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:54:44.77549+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27279",
+    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
+    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Substance3D - Stager",
+        "versions": "3.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:12:19.828275+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27276",
+    "title": "Substance3D - Stager | Use After Free (CWE-416)",
+    "description": "Substance3D - Stager 3.1.7 버전 이하에서 Use After Free 취약점이 발견되었습니다. 이 취약점은 현재 사용자의 권한으로 임의 코드 실행을 유발할 수 있습니다. 악성 파일을 여는 사용자 상호 작용이 필요합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Substance3D - Stager",
+        "versions": "3.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:12:14.650114+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3094",
+    "title": "CNCSoft-G2 파일 파싱 경계 외 쓰기 취약점",
+    "description": "Delta Electronics CNCSoft-G2에서 사용자 제공 파일에 대한 적절한 검증이 부족합니다. 악성 파일을 열 경우, 공격자가 이 취약점을 이용하여 현재 프로세스 컨텍스트에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "deltaww",
+        "product": "CNCSoft-G2",
+        "versions": "2.1.0.39 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T09:00:19.406815+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28778",
+    "title": "하드코딩된 FTP 자격 증명 및 IDC SFX2100의 `xd` 로컬 계정에 대한 LPE (취약한 권한으로 인한)",
+    "description": "IDC SFX 시리즈 위성 수신기에 `xd` 사용자 계정에 대한 하드코딩되거나 취약한 자격 증명이 존재합니다. 인증되지 않은 원격 공격자가 이러한 자격 증명을 사용하여 FTP로 로그인할 수 있습니다. `xd` 사용자는 root 권한으로 실행되는 바이너리 및 심볼릭 링크가 저장된 홈 디렉토리에 쓰기 권한이 있으므로, 공격자는 파일을 덮어쓰거나 심볼릭 링크를 조작하여 root 권한으로 임의 코드 실행을 달성할 수 있습니다.",
+    "cvss": 7.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation (IDC)",
+        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
+        "versions": "SFX2100 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:59:46.91124+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29120",
+    "title": "IDC SFX2100 위성 수신기 Anaconda 설정 파일에 저장된 안전하지 않은 하드코딩된 root 비밀번호",
+    "description": "IDC SFX 시리즈(SFX2100) 위성 수신기의 anaconda-ks.cfg 파일에 하드코딩된 root 비밀번호 해시가 안전하지 않게 저장되어 있습니다. 해당 비밀번호는 rockyou.txt 단어 목록을 사용한 오프라인 사전 공격에 취약합니다. root SSH 로그인이 비활성화되어 있어 공격자는 먼저 낮은 권한으로 시스템에 접근해야 root 사용자로 로그인할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "International Datacasting Corporation",
+        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
+        "versions": "SFX2100 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T08:59:12.129411+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-3825",
@@ -70,32 +769,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T07:57:32.190333+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-60007",
-    "title": "Junos OS: 특정 'show chassis' 명령어로 chassisd 프로세스 충돌 발생",
-    "description": "Juniper Networks Junos OS의 chassis 데몬(chassisd)에서 NULL 포인터 역참조 취약점이 발견되어, 낮은 권한의 로컬 공격자가 서비스 거부(DoS)를 유발할 수 있습니다. 특정 옵션과 함께 'show chassis' 명령어를 실행하면 chassisd가 충돌하고 재시작되며, 라우팅 엔진(RE)을 제외한 모든 구성 요소가 재초기화되어 서비스 중단이 발생합니다. (시스템은 자동으로 복구됩니다.)",
-    "cvss": 5.5,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "Juniper Networks",
-        "product": "Junos OS",
-        "versions": "22.4R3-S8 이전, 23.2 부터 23.2R2-S5 이전, 23.4 부터 23.4R2-S6 이전, 24.2 부터 24.2R2-S2 이전, 24.4 부터 24.4R2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T09:03:04.383614+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -180,176 +853,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31844",
-    "title": "Koha suggestion.pl의 displayby 파라미터에서 발견된 인증된 SQL Injection 취약점",
-    "description": "Koha의 /cgi-bin/koha/suggestion/suggestion.pl 내 displayby 파라미터에서 인증된 SQL Injection (CWE-89) 취약점이 발견되었습니다. 낮은 권한의 직원 사용자가 임의의 SQL 쿼리를 실행하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Koha Community",
-        "product": "Koha",
-        "versions": "24.11.0 부터 24.11.12 이전, 25.05.0 부터 25.05.07 이전, 25.11.0 부터 25.11.01 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/181",
-    "date": "2026-03-11T07:14:09.611375+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-31844 SQL Injection Attempt via displayby Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the authenticated SQL injection vulnerability in the `displayby` parameter of `/cgi-bin/koha/suggestion/suggestion.pl` in Koha.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/cgi-bin/koha/suggestion/suggestion.pl'\n    selection_param:\n        uri|contains: 'displayby='\n    selection_payload:\n        uri|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n        cs-body|contains|any:\n            - \"UNION\"\n            - \"SELECT\"\n            - \"'\"\n            - \"--\"\n            - \"#\"\n            - \" OR \"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.31844\n    - attack.initial_access\n    - attack.execution\n    - attack.impact\n    - cwe.89\n    - koha\n    - sql_injection",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-31844 SQL Injection via displayby parameter in Koha suggestion.pl\";\n    flow:to_server,established;\n    content:\"/cgi-bin/koha/suggestion/suggestion.pl\"; http_uri;\n    content:\"displayby=\"; http_uri;\n    pcre:\"/displayby=.*?(UNION|SELECT|INSERT|UPDATE|DELETE|--|%27|%23)/i\";\n    reference:cve,2026-31844;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/cgi-bin/koha/suggestion/suggestion.pl)",
-            "URL 파라미터"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2024-14026",
-    "title": "QTS, QuTS hero 명령어 삽입 취약점",
-    "description": "QNAP 운영체제 여러 버전에 명령어 삽입 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 사용자 계정을 획득한 공격자는 임의 명령 실행이 가능합니다.",
-    "cvss": 2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "QNAP Systems Inc.",
-        "product": "QTS",
-        "versions": "5.1.x 부터 5.1.9.2954 build 20241120 이전, 5.2.x 부터 5.2.3.3006 build 20250108 이전"
-      },
-      {
-        "vendor": "QNAP Systems Inc.",
-        "product": "QuTS hero",
-        "versions": "h5.1.x 부터 h5.1.9.2954 build 20241120 이전, h5.2.x 부터 h5.2.3.3006 build 20250108 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T09:02:58.596668+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2024-14025",
-    "title": "비디오 스테이션",
-    "description": "비디오 스테이션에서 SQL Injection 취약점이 발견되었습니다. 로컬 네트워크 접근 권한과 관리자 계정을 획득한 공격자는 이 취약점을 악용하여 무단 코드를 실행하거나 명령을 수행할 수 있습니다.",
-    "cvss": 0.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "QNAP Systems Inc.",
-        "product": "Video Station",
-        "versions": "5.8.x 부터 5.8.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T09:02:55.378808+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2024-14024",
-    "title": "Video Station",
-    "description": "Video Station의 인증서 검증 오류 취약점이 발견되었습니다. 공격자가 관리자 계정을 획득하고 로컬 네트워크에 접근할 경우, 시스템 보안을 위협할 수 있습니다.",
-    "cvss": 0.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "QNAP Systems Inc.",
-        "product": "Video Station",
-        "versions": "5.8.x 부터 5.8.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T09:02:50.837691+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-14831",
-    "title": "GnuTLS: 인증서 검증 중 과도한 자원 소비를 통한 서비스 거부 (DoS) 취약점",
-    "description": "GnuTLS에서 악의적으로 조작된 인증서로 인해 CPU 및 메모리 자원 과다 소비를 유발하여 서비스 거부(DoS) 공격이 가능합니다. 특히, 많은 수의 이름 제약 조건(name constraints)과 주체 대체 이름(SANs)을 포함하는 인증서에서 발생합니다. 이 취약점을 악용하면 시스템 성능 저하 또는 중단을 초래할 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0.00039,
-    "is_kev": false,
-    "cwe": [
-      "CWE-407"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:15:48.290235+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-27274",
@@ -9198,32 +9701,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-31792",
-    "title": "iccDEV의 CIccTagXmlStruct::ParseTag() 함수에서 NULL 포인터 역참조 발생",
-    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 버전 이전에는 CIccTagXmlStruct::ParseTag() 함수에서 NULL 포인터 역참조로 인해 세그멘테이션 오류 또는 서비스 거부(DoS)가 발생할 수 있습니다. 이 취약점은 2.3.1.5 버전에서 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "InternationalColorConsortium",
-        "product": "iccDEV",
-        "versions": "< 2.3.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:55:12.43991+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30986",
     "title": "iccDEV의 CIccCLUT::Interp3d() 함수 힙 기반 버퍼 오버플로우 취약점",
     "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 이전 버전에서 CIccMatrixMath::SetRange() 함수에 힙 기반 버퍼 오버플로우 쓰기 취약점이 존재하여 메모리 손상 또는 충돌을 일으킬 수 있습니다. 해당 취약점은 2.3.1.5 버전에서 수정되었습니다.",
@@ -9251,34 +9728,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30985",
-    "title": "iccDEV의 CIccMatrixMath::SetRange() 함수 힙 기반 버퍼 오버플로우 취약점",
-    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 버전 이전에서 CIccMatrixMath::SetRange() 함수에 힙 기반 버퍼 오버플로우 쓰기 취약점이 존재하여 메모리 손상 또는 충돌을 일으킬 수 있습니다. 해당 취약점은 2.3.1.5 버전에서 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-122",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "InternationalColorConsortium",
-        "product": "iccDEV",
-        "versions": "< 2.3.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:55:07.013271+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30984",
     "title": "iccDEV의 CIccCalculatorFunc::ApplySequence() 함수에서 힙 버퍼 오버리드 취약점",
     "description": "iccDEV는 ICC 색상 관리 프로필 작업을 위한 라이브러리 및 도구를 제공합니다. 2.3.1.5 버전 이전에는 CIccCalculatorFunc::ApplySequence() 함수에서 힙 버퍼 오버리드가 발생하여 애플리케이션 충돌을 일으킬 수 있습니다. 이 취약점은 2.3.1.5 버전에서 수정되었습니다.",
@@ -9304,34 +9753,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30983",
-    "title": "iccDEV의 icFixXml() 함수 스택 버퍼 오버플로우 취약점",
-    "description": "iccDEV는 ICC 색상 관리 프로필 작업을 위한 라이브러리 및 도구를 제공합니다. 2.3.1.5 버전 이전에서 icFixXml() 함수(strcpy 사용)에 스택 버퍼 오버플로우가 발생하여 스택 메모리 손상 또는 크래시를 유발할 수 있습니다. 이 취약점은 2.3.1.5 버전에서 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-121",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "InternationalColorConsortium",
-        "product": "iccDEV",
-        "versions": "< 2.3.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:55:04.510583+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-30982",
@@ -9455,34 +9876,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-30979",
-    "title": "iccDEV의 CIccCalculatorFunc::InitSelectOp() 함수에서 힙 기반 버퍼 오버플로우 발생",
-    "description": "iccDEV는 ICC 색상 관리 프로파일 작업을 위한 라이브러리 및 도구 모음입니다. 2.3.1.5 이전 버전에서 CIccCalculatorFunc::InitSelectOp() 함수에 로컬 사용자 상호 작용으로 트리거되는 힙 기반 버퍼 오버플로우가 발생하여 메모리 손상/충돌을 일으킬 수 있습니다. 이 취약점은 2.3.1.5에서 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-122",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "InternationalColorConsortium",
-        "product": "iccDEV",
-        "versions": "< 2.3.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:54:53.188739+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29113",
     "title": "Craft CMS 프리뷰 토큰 정보 유출 취약점",
     "description": "Craft CMS 4.17.4 및 5.9.7 이전 버전에서 /actions/preview/create-token 엔드포인트에 CSRF 문제가 존재합니다. 공격자는 피해 사용자가 선택한 프리뷰 토큰을 생성하도록 강제할 수 있으며, 이를 통해 인증 없이 피해 사용자의 권한으로 프리뷰/미발행 콘텐츠에 접근할 수 있습니다. 해당 취약점은 4.17.4 및 5.9.7 버전에서 해결되었습니다.",
@@ -9533,32 +9926,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26141",
-    "title": "하이브리드 워커 확장 (Arc-활성화 Windows VM) 권한 상승 취약점",
-    "description": "Arc-활성화 Windows VM에서 사용되는 하이브리드 워커 확장에 권한 상승 취약점이 존재합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure Automation Hybrid Worker Windows Extension",
-        "versions": "1.0.0 부터 1.3.74 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:54:44.77549+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-26105",
@@ -9878,58 +10245,6 @@
     ],
     "report_url": null,
     "date": "2026-03-03T19:13:18.387736+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27279",
-    "title": "Substance3D - Stager | 경계 외 쓰기 (CWE-787)",
-    "description": "Substance3D - Stager 3.1.7 버전 이하에서 경계 외 쓰기 취약점이 발견되었습니다. 이 취약점을 악용하면 현재 사용자의 권한으로 임의 코드를 실행할 수 있습니다. 악용을 위해서는 사용자가 악성 파일을 열어야 합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Substance3D - Stager",
-        "versions": "3.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:12:19.828275+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27276",
-    "title": "Substance3D - Stager | Use After Free (CWE-416)",
-    "description": "Substance3D - Stager 3.1.7 버전 이하에서 Use After Free 취약점이 발견되었습니다. 이 취약점은 현재 사용자의 권한으로 임의 코드 실행을 유발할 수 있습니다. 악성 파일을 여는 사용자 상호 작용이 필요합니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Substance3D - Stager",
-        "versions": "3.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:12:14.650114+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -12753,41 +13068,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-54820",
-    "title": "Fortinet FortiManager 스택 기반 버퍼 오버플로우 취약점",
-    "description": "Fortinet FortiManager 7.4.0~7.4.2, 7.2.0~7.2.10 및 6.4 모든 버전에서 스택 기반 버퍼 오버플로우 [CWE-121] 취약점이 발견되었습니다. 서비스가 활성화된 경우, 인증되지 않은 원격 공격자가 조작된 요청을 통해 임의의 명령을 실행할 수 있습니다. 공격 성공 여부는 스택 보호 메커니즘 우회 가능성에 따라 달라집니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Fortinet",
-        "product": "FortiManager",
-        "versions": "7.4.0 부터 7.4.2 이하, 7.2.0 부터 7.2.10 이하, 6.4.0 부터 6.4.15 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/161",
-    "date": "2026-03-10T17:13:28.741136+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-1261",
     "title": "MetForm Pro <= 3.9.6 - 인증되지 않은 저장형 XSS",
     "description": "WordPress용 MetForm Pro 플러그인의 퀴즈 기능에서 입력값 검증 및 출력 이스케이핑이 미흡하여 저장형 XSS 취약점이 존재합니다. 이 취약점은 3.9.6 버전 이하에서 발생하며, 인증되지 않은 공격자가 악성 스크립트를 삽입하여 사용자 접근 시 실행되도록 할 수 있습니다.",
@@ -13857,42 +14137,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2025-14087",
-    "title": "Glib: GVariant 파서의 버퍼 언더플로우로 인한 힙 손상",
-    "description": "GLib(Gnome Lib)에서 GVariant 파서의 버퍼 언더플로우 취약점이 발견되었습니다. 악의적으로 조작된 입력 문자열 처리 시 힙 손상을 유발하여 서비스 거부 또는 잠재적인 코드 실행으로 이어질 수 있습니다. 원격 공격자가 이 취약점을 악용할 수 있습니다.",
-    "cvss": 5.6,
-    "epss": 0.00258,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "GNOME",
-        "product": "glib",
-        "versions": "2.86.3 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T13:40:48.340014+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-3845",
@@ -54808,32 +55052,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3094",
-    "title": "CNCSoft-G2 파일 파싱 경계 외 쓰기 취약점",
-    "description": "Delta Electronics CNCSoft-G2에서 사용자 제공 파일에 대한 적절한 검증이 부족합니다. 악성 파일을 열 경우, 공격자가 이 취약점을 이용하여 현재 프로세스 컨텍스트에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "deltaww",
-        "product": "CNCSoft-G2",
-        "versions": "2.1.0.39 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T09:00:19.406815+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2746",
     "title": "누락된 PGP 서명 태그",
     "description": "SEPPmail Secure Email Gateway 15.0.1 이전 버전은 PGP 서명 검증 결과를 제대로 전달하지 않아 사용자가 위조 이메일을 식별하지 못하게 할 수 있습니다.",
@@ -58144,32 +58362,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-29120",
-    "title": "IDC SFX2100 위성 수신기 Anaconda 설정 파일에 저장된 안전하지 않은 하드코딩된 root 비밀번호",
-    "description": "IDC SFX 시리즈(SFX2100) 위성 수신기의 anaconda-ks.cfg 파일에 하드코딩된 root 비밀번호 해시가 안전하지 않게 저장되어 있습니다. 해당 비밀번호는 rockyou.txt 단어 목록을 사용한 오프라인 사전 공격에 취약합니다. root SSH 로그인이 비활성화되어 있어 공격자는 먼저 낮은 권한으로 시스템에 접근해야 root 사용자로 로그인할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation",
-        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
-        "versions": "SFX2100 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T08:59:12.129411+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-26886",
     "title": "Sourcecodester 온라인 남성 미용실 관리 시스템 v1.0 SQL Injection 취약점",
     "description": "Sourcecodester 온라인 남성 미용실 관리 시스템 v1.0의 `/admin/services/manage_service.php` 파일에서 SQL Injection 취약점이 발견되었습니다.",
@@ -58220,32 +58412,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28778",
-    "title": "하드코딩된 FTP 자격 증명 및 IDC SFX2100의 `xd` 로컬 계정에 대한 LPE (취약한 권한으로 인한)",
-    "description": "IDC SFX 시리즈 위성 수신기에 `xd` 사용자 계정에 대한 하드코딩되거나 취약한 자격 증명이 존재합니다. 인증되지 않은 원격 공격자가 이러한 자격 증명을 사용하여 FTP로 로그인할 수 있습니다. `xd` 사용자는 root 권한으로 실행되는 바이너리 및 심볼릭 링크가 저장된 홈 디렉토리에 쓰기 권한이 있으므로, 공격자는 파일을 덮어쓰거나 심볼릭 링크를 조작하여 root 권한으로 임의 코드 실행을 달성할 수 있습니다.",
-    "cvss": 7.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "International Datacasting Corporation (IDC)",
-        "product": "IDC SFX2100 SuperFlex Satellite Receiver",
-        "versions": "SFX2100 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T08:59:46.91124+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28769",
@@ -65849,42 +66015,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-9820",
-    "title": "GnuTLS: gnutls_pkcs11_token_init() 함수 스택 기반 버퍼 오버플로우",
-    "description": "GnuTLS 라이브러리의 gnutls_pkcs11_token_init() 함수에서 PKCS#11 토큰 초기화 처리 시, 예상보다 긴 토큰 레이블을 처리할 때 고정 크기 스택 버퍼의 경계를 넘어 쓰기 오류가 발생합니다. 이로 인해 GnuTLS를 사용하는 애플리케이션이 충돌하거나, 특정 조건에서 코드 실행으로 이어질 수 있습니다. 따라서 GnuTLS에 의존하는 시스템이나 애플리케이션은 서비스 거부 또는 로컬 권한 상승 공격에 취약할 수 있습니다.",
-    "cvss": 4,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T18:03:26.836503+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2018-12652",
