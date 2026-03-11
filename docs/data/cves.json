@@ -1,5 +1,916 @@
 [
   {
+    "id": "CVE-2026-2324",
+    "title": "LatePoint – 예약 및 이벤트 캘린더 플러그인 <= 5.2.7 - 교차 사이트 요청 위조 취약점 (저장된 교차 사이트 스크립팅으로 이어짐)",
+    "description": "LatePoint 플러그인 5.2.7 버전 이하에서 교차 사이트 요청 위조(CSRF) 취약점이 발견되었습니다. nonce 검증 누락으로 인해, 공격자가 위조된 요청을 통해 설정을 변경하고 악성 스크립트를 삽입할 수 있습니다. 관리자를 속여 링크 클릭 등의 행위를 유도해야 공격이 가능합니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "latepoint",
+        "product": "LatePoint – Calendar Booking Plugin for Appointments and Events",
+        "versions": "* 부터 5.2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:33.653588+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1781",
+    "title": "MC4WP: Mailchimp for WordPress <= 4.11.1 - 인증되지 않은 임의 구독 삭제 취약점",
+    "description": "MC4WP: Mailchimp for WordPress 플러그인의 4.11.1 버전 이하에서 인증되지 않은 사용자가 임의의 이메일 주소를 Mailchimp 구독 목록에서 삭제할 수 있는 취약점이 발견되었습니다. 플러그인이 `_mc4wp_action` POST 파라미터를 검증 없이 신뢰하여 발생하며, HTML 소스 코드에서 공개적으로 노출되는 폼 ID를 통해 악용될 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "dvankooten",
+        "product": "MC4WP: Mailchimp for WordPress",
+        "versions": "* 부터 4.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:33.134906+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3453",
+    "title": "ProfilePress <= 4.16.11 - 인증된 사용자를 통한 임의 구독 취소/만료 취약점",
+    "description": "ProfilePress 워드프레스 플러그인은 4.16.11 버전까지 인증된 사용자가 다른 사용자의 구독을 임의로 취소하거나 만료시킬 수 있는 IDOR(Insecure Direct Object Reference) 취약점을 가지고 있습니다. 이는 `process_checkout()` 함수 내 `change_plan_sub_id` 파라미터에서 소유권 검증이 누락되어 발생합니다. 구독자 레벨 이상의 권한을 가진 공격자가 체크아웃 과정에서 이 파라미터를 악용하여 피해자의 유료 접근 권한을 즉시 박탈할 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "properfraction",
+        "product": "Paid Membership Plugin, Ecommerce, User Registration Form, Login Form, User Profile & Restrict Content – ProfilePress",
+        "versions": "* 부터 4.16.11 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:27.635563+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-12473",
+    "title": "RTMKit <= 1.6.8 - 'themebuilder' 파라미터를 통한 반사형 XSS 취약점",
+    "description": "RTMKit 워드프레스 플러그인은 버전 1.6.8 이하에서 'themebuilder' 파라미터의 입력값 검증 및 출력 이스케이핑 부족으로 반사형 XSS 취약점에 노출됩니다. 인증되지 않은 공격자가 관리자를 속여 링크를 클릭하도록 유도하여 임의의 웹 스크립트를 삽입할 수 있습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "rometheme",
+        "product": "RTMKit",
+        "versions": "* 부터 1.6.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:26.969928+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21361",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입하여 피해자의 브라우저에서 실행될 수 있습니다. 성공적인 공격은 세션 탈취로 이어질 수 있으며, 기밀성 및 무결성에 심각한 영향을 미칩니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:26.150478+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21309",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 이 취약점을 악용하면 보안 기능을 우회하여 데이터에 무단으로 접근할 수 있습니다. 사용자 상호작용 없이 공격이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/177",
+    "date": "2026-03-11T03:09:21.455381+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21311",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입하여 피해자의 브라우저에서 실행될 수 있습니다. 성공적인 공격은 세션 탈취로 이어질 수 있으며, 기밀성 및 무결성에 심각한 영향을 미칩니다.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/176",
+    "date": "2026-03-11T03:09:21.205454+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21360",
+    "title": "Adobe Commerce | 제한된 디렉터리에 대한 경로 이름의 부적절한 제한 ('경로 탐색') (CWE-22)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 '경로 탐색' 취약점이 발견되었습니다. 권한이 높은 공격자가 이 취약점을 악용하여 의도된 제한 경로 외부의 무단 파일 또는 디렉터리에 접근할 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 6.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:20.594377+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21359",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 공격자는 이를 통해 보안 기능을 우회하여 데이터의 무결성과 가용성에 제한적인 영향을 줄 수 있습니다. 이 취약점의 악용은 공격자가 통제할 수 없는 조건에 따라 달라지며, 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 4.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:15.217976+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21310",
+    "title": "Adobe Commerce | 부적절한 입력 유효성 검사 (CWE-20)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3, 2.4.7-p8 등 이전 버전에서 입력 유효성 검사 오류가 발견되었습니다. 이 취약점을 악용하면 보안 기능 우회로 이어질 수 있으며, 데이터 무결성에 제한적인 영향을 미칩니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:09.335663+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21297",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 권한 부여 오류 취약점이 발견되었습니다. 낮은 권한의 공격자가 보안 기능을 우회하여 제한적인 무단 접근을 할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:04.195602+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21296",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 권한 부여 오류 취약점이 발견되었습니다. 낮은 권한의 공격자가 보안 조치를 우회하여 제한적인 데이터 접근 권한을 획득할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:09:01.694096+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21290",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 권한이 낮은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있는 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 피해자가 해당 페이지를 방문하면 악성 JavaScript가 실행될 수 있으며, 공격자는 세션 탈취를 통해 기밀성 및 무결성에 심각한 영향을 줄 수 있습니다. 취약점 악용에는 피해자의 페이지 방문과 같은 사용자 상호 작용이 필요합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/175",
+    "date": "2026-03-11T03:09:00.537826+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21295",
+    "title": "Adobe Commerce | 신뢰할 수 없는 사이트로의 URL 리디렉션 ('Open Redirect') (CWE-601)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 'Open Redirect' 취약점이 발견되었습니다. 공격자는 이 취약점을 이용하여 사용자를 악성 웹사이트로 리디렉션할 수 있습니다. 이 문제는 사용자 상호작용이 필요합니다.",
+    "cvss": 3.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:56.535994+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-21294",
+    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 측 요청을 조작하고 보안 제어를 우회할 수 있습니다. 사용자 상호작용 없이 악용이 가능합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:55.696208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21293",
+    "title": "Adobe Commerce | 서버 측 요청 위조 (SSRF) (CWE-918)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. 권한이 높은 공격자는 이 취약점을 악용하여 서버 요청을 조작하고 무단 리소스에 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 5.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:50.467292+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21289",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 이 취약점을 악용하면 보안 기능을 우회하여 데이터에 무단으로 접근할 수 있습니다. 사용자 상호작용 없이 공격이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/174",
+    "date": "2026-03-11T03:08:49.263554+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21292",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 낮은 권한의 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있습니다. 이 취약점 악용에는 사용자의 상호 작용이 필요하며, 피해자가 취약한 필드가 포함된 페이지를 방문해야 합니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:43.572136+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21291",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입할 수 있습니다. 이 취약점 악용에는 사용자의 상호 작용이 필요하며, 피해자가 취약한 필드가 포함된 페이지를 방문해야 합니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:08:34.338143+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21284",
+    "title": "Adobe Commerce | 교차 사이트 스크립팅 (Stored XSS) (CWE-79)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 저장된 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 권한이 높은 공격자가 취약한 폼 필드에 악성 스크립트를 삽입하여 피해자의 브라우저에서 실행될 수 있습니다. 성공적인 공격은 세션 탈취로 이어질 수 있으며, 기밀성 및 무결성에 심각한 영향을 미칩니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/173",
+    "date": "2026-03-11T03:08:29.641016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21286",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3 이하 버전에서 잘못된 권한 부여 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 보안 조치를 우회하여 제한적인 범위의 데이터에 무단으로 접근할 수 있습니다. 사용자 상호작용 없이 악용 가능합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:07:53.862741+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21282",
+    "title": "Adobe Commerce | 부적절한 입력 유효성 검사 (CWE-20)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 입력 유효성 검사 오류가 발견되었습니다. 공격자는 특수 제작된 입력을 통해 서비스 거부(DoS) 공격을 유발할 수 있습니다. 사용자 상호작용 없이 악용 가능하며, 애플리케이션 가용성에 제한적인 영향을 미칩니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:07:48.216637+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-21285",
+    "title": "Adobe Commerce | 잘못된 권한 부여 (CWE-863)",
+    "description": "Adobe Commerce 2.4.9-alpha3, 2.4.8-p3 등 이전 버전에서 권한 부여 오류 취약점이 발견되었습니다. 낮은 권한의 공격자가 보안 조치를 우회하여 기능에 대한 제한적인 무단 액세스를 얻을 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Commerce",
+        "versions": "2.4.4-p16 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T03:07:47.403415+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-20105",
+    "title": "Intel(R) 레퍼런스 플랫폼 UEFI 펌웨어 SMM 모듈의 입력 유효성 검사 오류",
+    "description": "일부 Intel 레퍼런스 플랫폼 UEFI 펌웨어 SMM 모듈의 부적절한 입력 유효성 검사로 권한 상승이 가능할 수 있습니다. 권한 있는 사용자 계정과 낮은 복잡도의 공격을 결합한 시스템 소프트웨어 공격자가 로컬 코드 실행을 유발할 수 있습니다. 사용자 상호 작용 없이, 특정 조건 하에 로컬 접근을 통해 기밀성, 무결성, 가용성에 심각한 영향을 줄 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Escalation of Privilege",
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Intel(R) reference platforms may allow an escalation of privilege. System software adversary with a privileged user combined with a low complexity attack may enable local code execution. This result may potentially occur via local access when attack requirements are present without special internal knowledge and requires no user interaction. The potential vulnerability may impact the confidentiality (high), integrity (high) and availability (high) of the vulnerable system, resulting in subsequent system confidentiality (high), integrity (high) and availability (high) impacts.",
+        "versions": "See references (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:56.366234+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-20064",
+    "title": "Intel UEFI FlashUcAcmSmm 모듈의 입력 유효성 검사 취약점",
+    "description": "일부 Intel 플랫폼의 UEFI FlashUcAcmSmm 모듈에서 입력 유효성 검사 오류로 권한 상승이 가능할 수 있습니다. 특권 사용자 권한과 복잡한 공격을 결합한 공격자가 로컬 코드 실행을 유발할 수 있습니다. 사용자 상호 작용 없이, 특정 조건 하에 기밀성, 무결성, 가용성에 심각한 영향을 줄 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Escalation of Privilege",
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Intel(R) reference platforms may allow an escalation of privilege. System software adversary with a privileged user combined with a high complexity attack may enable local code execution. This result may potentially occur via local access when attack requirements are not present without special internal knowledge and requires no user interaction. The potential vulnerability may impact the confidentiality (high), integrity (high) and availability (high) of the vulnerable system, resulting in subsequent system confidentiality (high), integrity (high) and availability (high) impacts.",
+        "versions": "See references (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T23:45:48.231722+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31812",
+    "title": "QUIC 전송 파라미터 파싱의 패닉으로 인한 Quinn의 인증되지 않은 원격 DoS 취약점",
+    "description": "Quinn은 IETF QUIC 전송 프로토콜의 순수 Rust 비동기 구현입니다. 0.11.14 이전 버전에서는 공격자가 조작된 QUIC Initial 패킷을 전송하여 DoS 공격을 유발할 수 있습니다. 잘못된 varint 디코딩 과정에서 패닉이 발생하며, 네트워크를 통해 단일 패킷으로 공격이 가능합니다. 0.11.14 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248"
+    ],
+    "affected": [
+      {
+        "vendor": "quinn-rs",
+        "product": "quinn",
+        "versions": "< 0.11.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T21:46:04.454402+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28807",
+    "title": "wisp.serve_static의 경로 탐색 취약점을 통한 임의 파일 읽기",
+    "description": "gleam-wisp의 wisp에서 경로 탐색 취약점이 발견되어, 퍼센트 인코딩된 경로를 통해 임의 파일 읽기가 가능합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "gleam-wisp",
+        "product": "wisp",
+        "versions": "2.1.1 부터 2.2.1 이전, pkg:hex/wisp@2.1.1 부터 pkg:hex/wisp@2.2.1 이전"
+      },
+      {
+        "vendor": "gleam-wisp",
+        "product": "wisp",
+        "versions": "129dcb1fe10ab1e676145d91477535e1c90ab550 부터 161118c431047f7ef1ff7cabfcc38981877fdd93 이전, pkg:github/gleam-wisp/wisp@129dcb1fe10ab1e676145d91477535e1c90ab550 부터 pkg:github/gleam-wisp/wisp@161118c431047f7ef1ff7cabfcc38981877fdd93 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T22:49:56.034846+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24848",
+    "title": "OpenEMR 임의 파일 쓰기 취약점 및 원격 코드 실행",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 7.0.4 버전 이하에서 EtherFaxActions.php의 disposeDocument() 메서드를 통해 인증된 사용자가 서버 파일 시스템의 임의 위치에 임의의 내용을 쓸 수 있습니다. 이 취약점을 악용하여 악성 PHP 웹 셸을 업로드하여 원격 코드 실행(RCE)을 달성할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "<= 7.0.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T23:50:23.66743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26279",
+    "title": "Froxlor 관리자-루트 권한 상승: 입력 유효성 검사 우회 및 OS 명령어 삽입",
+    "description": "Froxlor 2.3.4 이전 버전에서 이메일 형식 검사 오류로 관리자가 panel.adminmail 설정에 임의의 문자열을 저장할 수 있습니다. 이 값은 루트 권한으로 실행되는 cron 작업의 셸 명령어에 연결되어, 파이프 문자(|)가 허용 목록에 있어 원격 코드 실행으로 이어질 수 있습니다. 2.3.4 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78",
+      "CWE-482"
+    ],
+    "affected": [
+      {
+        "vendor": "froxlor",
+        "product": "Froxlor",
+        "versions": "< 2.3.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T22:50:10.532407+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-26266",
+    "title": "AliasVault, 이메일 HTML 렌더링을 통한 크로스 사이트 스크립팅(XSS) 취약점 발생",
+    "description": "AliasVault Web Client 0.25.3 이하 버전에서 이메일 렌더링 기능의 XSS 취약점이 발견되었습니다. 악성 JavaScript 코드가 포함된 이메일을 AliasVault 이메일 별칭으로 전송하여, 사용자가 웹 클라이언트에서 해당 이메일을 열람할 때 스크립트가 실행될 수 있습니다. 0.26.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "aliasvault",
+        "product": "aliasvault",
+        "versions": "< 0.26.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T22:56:53.249393+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-25146",
+    "title": "OpenEMR의 payments gateway_api_key 보안 키가 클라이언트 JS 코드에 노출됨",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 5.0.2 버전부터 8.0.0 이전 버전까지, gateway_api_key 보안 키 값이 클라이언트에 일반 텍스트로 노출되는 경로가 최소 두 군데 존재합니다. 이 보안 키 유출은 임의의 자금 이동 또는 결제 게이트웨이 API의 광범위한 계정 탈취로 이어질 수 있으며, 8.0.0 버전에서 해결되었습니다.",
+    "cvss": 9.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": ">= 5.0.2, < 8.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T23:00:59.897839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27012",
+    "title": "OpenSTAManager의 인증되지 않은 권한 상승 취약점",
+    "description": "OpenSTAManager 2.9.8 버전 이하에서, 공격자가 `modules/utenti/actions.php`를 직접 호출하여 사용자의 그룹(idgruppo)을 임의로 변경할 수 있는 권한 상승 및 인증 우회 취약점이 존재합니다. 이를 통해 일반 계정(예: 에이전트)을 관리자 그룹으로 승격하거나, 기존 관리자를 포함한 모든 사용자의 권한을 강등시킬 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "devcode-it",
+        "product": "openstamanager",
+        "versions": "<= 2.9.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T23:03:13.978831+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-24898",
+    "title": "OpenEMR의 인증되지 않은 MedEx 토큰 노출",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0 이전 버전에서 MedEx 콜백 엔드포인트의 인증되지 않은 토큰 노출 취약점을 통해 인증되지 않은 방문자가 의료기관의 MedEx API 토큰을 획득할 수 있습니다. 이는 HIPAA 위반, PHI 유출, MedEx 플랫폼에서의 무단 작업 및 완전한 제3자 서비스 손상을 초래할 수 있습니다. 8.0.0에서 해당 취약점이 해결되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T23:03:01.907462+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-31829",
     "title": "Flowise, HTTP 노드의 서버 측 요청 위조(SSRF) 취약점으로 내부 네트워크 접근 가능",
     "description": "Flowise는 맞춤형 대규모 언어 모델 흐름을 구축하기 위한 드래그 앤 드롭 인터페이스입니다. 3.0.13 이전 버전에서 Flowise는 사용자 제어 URL을 사용하여 서버 측 HTTP 요청을 수행하는 HTTP 노드를 AgentFlow 및 Chatflow에 노출합니다. 이로 인해 내부 IP 범위, 로컬 호스트, 클라우드 메타데이터 엔드포인트 등에 대한 제한 없이 서버 측 요청 위조(SSRF)가 가능하며, 공개된 chatflow를 통해 내부 네트워크 리소스에 접근할 수 있습니다. 해당 취약점은 3.0.13에서 해결되었습니다.",
@@ -156,37 +1067,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28807",
-    "title": "wisp.serve_static의 경로 탐색 취약점을 통한 임의 파일 읽기",
-    "description": "gleam-wisp의 wisp에서 경로 탐색 취약점이 발견되어, 퍼센트 인코딩된 경로를 통해 임의 파일 읽기가 가능합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "gleam-wisp",
-        "product": "wisp",
-        "versions": "2.1.1 부터 2.2.1 이전, pkg:hex/wisp@2.1.1 부터 pkg:hex/wisp@2.2.1 이전"
-      },
-      {
-        "vendor": "gleam-wisp",
-        "product": "wisp",
-        "versions": "129dcb1fe10ab1e676145d91477535e1c90ab550 부터 161118c431047f7ef1ff7cabfcc38981877fdd93 이전, pkg:github/gleam-wisp/wisp@129dcb1fe10ab1e676145d91477535e1c90ab550 부터 pkg:github/gleam-wisp/wisp@161118c431047f7ef1ff7cabfcc38981877fdd93 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T22:49:56.034846+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-27278",
@@ -654,33 +1534,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-20105",
-    "title": "Intel(R) 레퍼런스 플랫폼 UEFI 펌웨어 SMM 모듈의 입력 유효성 검사 오류",
-    "description": "일부 Intel 레퍼런스 플랫폼 UEFI 펌웨어 SMM 모듈의 부적절한 입력 유효성 검사로 권한 상승이 가능할 수 있습니다. 권한 있는 사용자 계정과 낮은 복잡도의 공격을 결합한 시스템 소프트웨어 공격자가 로컬 코드 실행을 유발할 수 있습니다. 사용자 상호 작용 없이, 특정 조건 하에 로컬 접근을 통해 기밀성, 무결성, 가용성에 심각한 영향을 줄 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Escalation of Privilege",
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Intel(R) reference platforms may allow an escalation of privilege. System software adversary with a privileged user combined with a low complexity attack may enable local code execution. This result may potentially occur via local access when attack requirements are present without special internal knowledge and requires no user interaction. The potential vulnerability may impact the confidentiality (high), integrity (high) and availability (high) of the vulnerable system, resulting in subsequent system confidentiality (high), integrity (high) and availability (high) impacts.",
-        "versions": "See references (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:56.366234+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-20073",
     "title": "Intel UEFI DXE 모듈의 버퍼 제한 오류로 인한 정보 유출 가능성",
     "description": "일부 Intel 레퍼런스 플랫폼의 UEFI DXE 모듈에서 버퍼 제한 오류가 발생하여 정보 유출이 가능할 수 있습니다. 권한 있는 사용자와 복잡한 공격을 결합한 시스템 소프트웨어 공격자가 데이터를 노출시킬 수 있습니다. 사용자 상호 작용 없이 로컬 접근을 통해 공격이 가능하며, 시스템 기밀성, 무결성 및 가용성에 미치는 영향은 낮습니다.",
@@ -727,33 +1580,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T23:45:50.946629+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-20064",
-    "title": "Intel UEFI FlashUcAcmSmm 모듈의 입력 유효성 검사 취약점",
-    "description": "일부 Intel 플랫폼의 UEFI FlashUcAcmSmm 모듈에서 입력 유효성 검사 오류로 권한 상승이 가능할 수 있습니다. 특권 사용자 권한과 복잡한 공격을 결합한 공격자가 로컬 코드 실행을 유발할 수 있습니다. 사용자 상호 작용 없이, 특정 조건 하에 기밀성, 무결성, 가용성에 심각한 영향을 줄 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Escalation of Privilege",
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Intel(R) reference platforms may allow an escalation of privilege. System software adversary with a privileged user combined with a high complexity attack may enable local code execution. This result may potentially occur via local access when attack requirements are not present without special internal knowledge and requires no user interaction. The potential vulnerability may impact the confidentiality (high), integrity (high) and availability (high) of the vulnerable system, resulting in subsequent system confidentiality (high), integrity (high) and availability (high) impacts.",
-        "versions": "See references (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T23:45:48.231722+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1466,32 +2292,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31812",
-    "title": "QUIC 전송 파라미터 파싱의 패닉으로 인한 Quinn의 인증되지 않은 원격 DoS 취약점",
-    "description": "Quinn은 IETF QUIC 전송 프로토콜의 순수 Rust 비동기 구현입니다. 0.11.14 이전 버전에서는 공격자가 조작된 QUIC Initial 패킷을 전송하여 DoS 공격을 유발할 수 있습니다. 잘못된 varint 디코딩 과정에서 패닉이 발생하며, 네트워크를 통해 단일 패킷으로 공격이 가능합니다. 0.11.14 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248"
-    ],
-    "affected": [
-      {
-        "vendor": "quinn-rs",
-        "product": "quinn",
-        "versions": "< 0.11.14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T21:46:04.454402+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-0124",
@@ -51173,84 +51973,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27012",
-    "title": "OpenSTAManager의 인증되지 않은 권한 상승 취약점",
-    "description": "OpenSTAManager 2.9.8 버전 이하에서, 공격자가 `modules/utenti/actions.php`를 직접 호출하여 사용자의 그룹(idgruppo)을 임의로 변경할 수 있는 권한 상승 및 인증 우회 취약점이 존재합니다. 이를 통해 일반 계정(예: 에이전트)을 관리자 그룹으로 승격하거나, 기존 관리자를 포함한 모든 사용자의 권한을 강등시킬 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "devcode-it",
-        "product": "openstamanager",
-        "versions": "<= 2.9.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T23:03:13.978831+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-25146",
-    "title": "OpenEMR의 payments gateway_api_key 보안 키가 클라이언트 JS 코드에 노출됨",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 5.0.2 버전부터 8.0.0 이전 버전까지, gateway_api_key 보안 키 값이 클라이언트에 일반 텍스트로 노출되는 경로가 최소 두 군데 존재합니다. 이 보안 키 유출은 임의의 자금 이동 또는 결제 게이트웨이 API의 광범위한 계정 탈취로 이어질 수 있으며, 8.0.0 버전에서 해결되었습니다.",
-    "cvss": 9.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": ">= 5.0.2, < 8.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T23:00:59.897839+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-24848",
-    "title": "OpenEMR 임의 파일 쓰기 취약점 및 원격 코드 실행",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 7.0.4 버전 이하에서 EtherFaxActions.php의 disposeDocument() 메서드를 통해 인증된 사용자가 서버 파일 시스템의 임의 위치에 임의의 내용을 쓸 수 있습니다. 이 취약점을 악용하여 악성 PHP 웹 셸을 업로드하여 원격 코드 실행(RCE)을 달성할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "<= 7.0.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T23:50:23.66743+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-20105",
     "title": "Cisco Secure Firewall ASA/FTD 소프트웨어 원격 액세스 SSL VPN 서비스 거부 취약점",
     "description": "Cisco Secure Firewall ASA 및 FTD 소프트웨어의 원격 액세스 SSL VPN 기능에 인증된 원격 공격자가 유효한 VPN 연결을 통해 장치 메모리를 고갈시켜 서비스 거부(DoS)를 유발할 수 있는 취약점이 존재합니다. 이는 사용자 입력 값 검증 미흡으로 발생하며, 공격자는 조작된 패킷을 전송하여 장치 재부팅을 유도할 수 있습니다. 관리 인터페이스 및 MUS 인터페이스는 영향을 받지 않습니다.",
@@ -53916,33 +54638,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-26279",
-    "title": "Froxlor 관리자-루트 권한 상승: 입력 유효성 검사 우회 및 OS 명령어 삽입",
-    "description": "Froxlor 2.3.4 이전 버전에서 이메일 형식 검사 오류로 관리자가 panel.adminmail 설정에 임의의 문자열을 저장할 수 있습니다. 이 값은 루트 권한으로 실행되는 cron 작업의 셸 명령어에 연결되어, 파이프 문자(|)가 허용 목록에 있어 원격 코드 실행으로 이어질 수 있습니다. 2.3.4 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78",
-      "CWE-482"
-    ],
-    "affected": [
-      {
-        "vendor": "froxlor",
-        "product": "Froxlor",
-        "versions": "< 2.3.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T22:50:10.532407+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-1980",
     "title": "WPBookit <= 1.0.8 - 인증되지 않은 민감한 고객 데이터 노출",
     "description": "WPBookit 플러그인은 1.0.8 버전까지 'get_customer_list' 경로에 인증 확인이 없어 민감한 고객 정보가 유출될 수 있습니다. 인증되지 않은 공격자가 이름, 이메일, 전화번호, 생년월일, 성별 등의 정보를 탈취할 수 있습니다. 이는 WordPress 웹사이트에 심각한 보안 위험을 초래합니다.",
@@ -54344,32 +55039,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-26266",
-    "title": "AliasVault, 이메일 HTML 렌더링을 통한 크로스 사이트 스크립팅(XSS) 취약점 발생",
-    "description": "AliasVault Web Client 0.25.3 이하 버전에서 이메일 렌더링 기능의 XSS 취약점이 발견되었습니다. 악성 JavaScript 코드가 포함된 이메일을 AliasVault 이메일 별칭으로 전송하여, 사용자가 웹 클라이언트에서 해당 이메일을 열람할 때 스크립트가 실행될 수 있습니다. 0.26.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "aliasvault",
-        "product": "aliasvault",
-        "versions": "< 0.26.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T22:56:53.249393+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-25590",
     "title": "GLPI Inventory 플러그인 반사형 XSS 취약점",
     "description": "GLPI Inventory 플러그인은 네트워크 검색, 인벤토리, 소프트웨어 배포 및 GLPI 에이전트 데이터 수집을 처리합니다. 1.6.6 이전 버전에서 작업 작업에 반사형 XSS 취약점이 존재합니다. 해당 취약점은 1.6.6에서 해결되었습니다.",
@@ -54420,32 +55089,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-24898",
-    "title": "OpenEMR의 인증되지 않은 MedEx 토큰 노출",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0 이전 버전에서 MedEx 콜백 엔드포인트의 인증되지 않은 토큰 노출 취약점을 통해 인증되지 않은 방문자가 의료기관의 MedEx API 토큰을 획득할 수 있습니다. 이는 HIPAA 위반, PHI 유출, MedEx 플랫폼에서의 무단 작업 및 완전한 제3자 서비스 손상을 초래할 수 있습니다. 8.0.0에서 해당 취약점이 해결되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T23:03:01.907462+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-59571",
