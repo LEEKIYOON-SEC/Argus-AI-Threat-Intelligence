@@ -1,5 +1,1673 @@
 [
   {
+    "id": "CVE-2026-31863",
+    "title": "github.com/anyproto/anytype-heart의 과도한 인증 시도 제한 미흡",
+    "description": "Anytype Heart는 Anytype의 미들웨어 라이브러리입니다. 로컬 gRPC 클라이언트 API의 챌린지 기반 인증을 우회하여 공격자가 4자리 코드를 입력하지 않고도 접근할 수 있는 취약점이 있었습니다. 해당 취약점은 anytype-heart 0.48.4, anytype-cli 0.1.11, Anytype Desktop 0.54.5에서 해결되었습니다.",
+    "cvss": 3.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "anyproto",
+        "product": "anytype-heart",
+        "versions": "< 0.48.4 (단일 버전)"
+      },
+      {
+        "vendor": "anyproto",
+        "product": "anytype-cli",
+        "versions": "< 0.1.11 (단일 버전)"
+      },
+      {
+        "vendor": "anyproto",
+        "product": "anytype-ts",
+        "versions": "< 0.54.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:06:45.306953+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-31858",
+    "title": "CraftCMS `ElementSearchController` 맹점 SQL Injection 취약점",
+    "description": "Craft CMS의 `ElementSearchController::actionSearch()` 엔드포인트에 CVE-2026-25495에서 적용된 unset() 보호 기능이 누락되어 SQL Injection 취약점이 발생합니다. 인증된 사용자(관리자 권한 불필요)는 `criteria[where]`, `criteria[orderBy]` 등의 쿼리 속성을 통해 임의의 SQL을 삽입하고, boolean 기반 맹점 SQL Injection을 통해 데이터베이스 전체 내용을 추출할 수 있습니다. 5.9.9 버전으로 업데이트하여 문제를 해결해야 합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.0.0-RC1, <= 5.9.8 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/188",
+    "date": "2026-03-11T18:06:58.183281+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31859",
+    "title": "Craft CMS의 불완전한 반환 URL 삭제로 인한 반사형 XSS 취약점",
+    "description": "Craft CMS는 콘텐츠 관리 시스템(CMS)입니다. CVE-2025-35939 수정 과정에서 반환 URL을 저장하기 전 삭제 처리가 추가되었지만, HTML 태그만 제거하고 URL 스킴은 검사하지 않아 javascript:alert(document.cookie)와 같은 페이로드가 그대로 통과되어 반사형 XSS가 발생할 수 있습니다. 5.9.7 및 4.17.3 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-116"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 4.15.3, < 4.17.3 (단일 버전), >= 5.7.5, < 5.9.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:06:39.718894+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31854",
+    "title": "프롬프트 인젝션 및 화이트리스트 우회를 통한 Cursor 임의 코드 실행 취약점",
+    "description": "Cursor는 AI 기반 프로그래밍 코드 편집기입니다. 2.0 이전 버전에서 악성 스크립트가 포함된 웹사이트 방문 시, 모델이 사용자를 “돕기” 위해 해당 명령을 실행할 수 있었습니다. 화이트리스트 우회와 결합될 경우, 사용자의 명시적인 의도 없이 자동으로 명령이 실행되어 심각한 보안 위험을 초래할 수 있으며, 2.0 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "cursor",
+        "product": "cursor",
+        "versions": "< 2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/187",
+    "date": "2026-03-11T17:14:08.142897+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31853",
+    "title": "ImageMagick 32비트 시스템 SFW 디코더 힙 버퍼 오버라이트 취약점",
+    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 이전 버전에서 32비트 시스템에서 매우 큰 이미지를 처리할 때 SFW 디코더에서 충돌이 발생할 수 있는 오버플로우 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
+    "cvss": 5.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "ImageMagick",
+        "product": "ImageMagick",
+        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:14:00.908294+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31852",
+    "title": "Jellyfin의 위험한 CI 구현으로 인한 잠재적 조직 손상/비밀 유출 가능성",
+    "description": "Jellyfin은 오픈 소스 미디어 시스템입니다. jellyfin/jellyfin-ios 저장소의 GitHub Actions 워크플로우(code-quality.yml)가 포크된 저장소로부터의 풀 리퀘스트를 통해 임의 코드 실행에 취약합니다. 이 취약점은 저장소 전체 장악, 중요한 비밀 정보 유출, Apple App Store 공급망 공격, ghcr.io 패키지 변조, 그리고 교차 저장소 토큰 사용을 통한 Jellyfin 조직 전체 손상을 가능하게 합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "jellyfin",
+        "product": "code-quality.yml",
+        "versions": "< 109217e75f38394b2f6e46e25dfe5a721203d3c8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:14:00.81025+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31840",
+    "title": "Parse Server의 PostgreSQL SQL Injection 취약점",
+    "description": "Parse Server 9.6.0-alpha.2 및 8.6.28 이전 버전에서 점 표기법 필드 이름을 사용하여 SQL Injection 공격이 가능합니다. 정렬 쿼리 파라미터와 함께 점 표기법을 사용하면 PostgreSQL 데이터베이스에 악성 SQL 코드를 삽입할 수 있습니다. distinct 및 where 파라미터와 함께 점 표기법을 사용하는 쿼리에도 영향을 미칠 수 있으며, PostgreSQL 데이터베이스를 사용하는 환경에만 해당됩니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.2 (단일 버전), < 8.6.28 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:13:58.401036+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31875",
+    "title": "Parse Server MFA 복구 코드 사용 후 소모되지 않는 문제",
+    "description": "Parse Server에서 TOTP 기반 다중 인증(MFA) 사용 시, 9.6.0-alpha.7 및 8.6.33 이전 버전에서 생성되는 복구 코드가 일회용으로 작동하지 않아 무제한 재사용이 가능했습니다. 이는 복구 코드의 일회용 설계 의도를 무력화하고 MFA 보호 계정의 보안을 약화시킵니다. 해당 취약점은 9.6.0-alpha.7 및 8.6.33에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-672"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.7 (단일 버전), < 8.6.33 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:48.410138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30226",
+    "title": "devalue 라이브러리의 prototype pollution 취약점 (devalue.parse 및 devalue.unflatten)",
+    "description": "Svelte의 devalue 라이브러리 v5.6.3 이하 버전에서 `devalue.parse` 및 `devalue.unflatten` 함수를 통해 prototype pollution 공격이 가능합니다. 악의적인 페이로드를 사용하여 서비스 거부(DoS) 또는 타입 혼동을 유발할 수 있습니다. 해당 취약점은 v5.6.4에서 해결되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "sveltejs",
+        "product": "devalue",
+        "versions": "< 5.6.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:06:32.647994+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31872",
+    "title": "Parse Server 쿼리 및 정렬의 점 표기법을 통한 보호 필드 우회",
+    "description": "Parse Server 9.6.0-alpha.6 및 8.6.32 이전 버전에서 쿼리 WHERE 절과 정렬 파라미터의 점 표기법을 사용하여 클래스 수준 권한(CLP)으로 보호된 필드를 우회할 수 있습니다. 공격자는 점 표기법을 통해 보호된 필드의 하위 필드를 쿼리하거나 정렬하여 보호된 필드 값을 열거하는 이진 오라클 공격을 수행할 수 있습니다. MongoDB 및 PostgreSQL 배포 모두에 영향을 미치며, 9.6.0-alpha.6 및 8.6.32에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.6 (단일 버전), < 8.6.32 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:46.121238+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-68613",
+    "title": "n8n, 표현식 주입을 통한 원격 코드 실행 취약점",
+    "description": "n8n 워크플로우 자동화 플랫폼의 0.211.0 버전 이전 및 1.120.4, 1.121.1, 1.122.0 이전 버전에 심각한 원격 코드 실행(RCE) 취약점이 존재합니다. 인증된 사용자가 설정하는 표현식이 안전하게 격리되지 않은 상태로 실행되어 악의적인 코드 실행이 가능할 수 있습니다. 최신 버전으로 업그레이드하거나, 권한 제한 및 보안 강화된 환경 배포 등의 임시 조치를 권장합니다.",
+    "cvss": 10,
+    "epss": 0.7898,
+    "is_kev": true,
+    "cwe": [
+      "CWE-913"
+    ],
+    "affected": [
+      {
+        "vendor": "n8n-io",
+        "product": "n8n",
+        "versions": ">= 0.211.0, < 1.120.4 (단일 버전), = 1.121.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/190",
+    "date": "2026-03-11T18:07:00.139815+00:00",
+    "rule_engines": [],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; content:\"/rest/workflows\"; http_uri; fast_pattern; depth:15; content:\"n8n-auth|3d|\"; http_cookie; nocase; content:\"|22|value|22 3a|\"; http_client_body; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/rxerium/CVE-2025-68613",
+      "https://github.com/TheStingR/CVE-2025-68613-POC",
+      "https://github.com/sahilccras/Blackash-CVE-2025-68613"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31871",
+    "title": "Parse Server의 점 표기법 하위 키 이름 SQL Injection 취약점",
+    "description": "Parse Server PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 Increment 작업 처리 시 SQL Injection 취약점이 존재합니다. 하위 키 이름이 이스케이프 처리 없이 SQL 문자열 리터럴에 직접 삽입되어, 악의적인 하위 키 이름을 통해 임의의 SQL 코드를 삽입할 수 있습니다. 이 취약점은 9.6.0-alpha.5 및 8.6.31 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.5 (단일 버전), < 8.6.31 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:42.172754+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31870",
+    "title": "cpp-httplib, 잘못된 Content-Length 응답 헤더로 인한 원격 프로세스 충돌 취약점",
+    "description": "cpp-httplib은 C++11 기반의 크로스 플랫폼 HTTP/HTTPS 라이브러리입니다. 0.37.1 이전 버전에서 스트리밍 API 사용 시, 서버로부터 받은 Content-Length 헤더 값을 검증 없이 std::stoull()로 직접 변환하여 예외 처리 부재로 인해 프로세스가 SIGABRT 신호와 함께 종료될 수 있습니다. HTTP 리디렉션, API, 중간자 공격 등을 통해 원격으로 애플리케이션을 충돌시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248"
+    ],
+    "affected": [
+      {
+        "vendor": "yhirose",
+        "product": "cpp-httplib",
+        "versions": "< 0.37.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:39.515749+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31868",
+    "title": "Parse Server의 HTML 렌더링 파일 업로드를 통한 XSS 취약점",
+    "description": "Parse Server 9.6.0-alpha.4 및 8.6.30 이전 버전에서, 공격자는 기본 설정에서 차단되지 않는 파일 확장자 또는 콘텐츠 유형의 파일을 업로드할 수 있습니다. 업로드된 파일(예: SVG, XHTML)은 악성 JavaScript 코드를 포함할 수 있으며, URL을 통해 접근 시 Parse Server 도메인 컨텍스트에서 실행됩니다. 이는 세션 토큰 탈취, 사용자 리디렉션, 또는 다른 사용자를 사칭하는 행위로 이어질 수 있는 저장형 XSS 취약점입니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.4 (단일 버전), < 8.6.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:39.087308+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0231",
+    "title": "Cortex XDR Broker VM: 민감 정보 유출 취약점",
+    "description": "Palo Alto Networks Cortex XDR® Broker VM의 정보 유출 취약점을 통해 인증된 사용자가 Cortex UI를 통해 라이브 터미널 세션을 실행하고 설정을 변경하여 민감한 정보에 접근 및 수정할 수 있습니다.",
+    "cvss": 5.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-497"
+    ],
+    "affected": [
+      {
+        "vendor": "Palo Alto Networks",
+        "product": "Cortex XDR Broker VM",
+        "versions": "30.0.0 부터 30.0.49 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:36.425744+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0230",
+    "title": "Cortex XDR 에이전트: macOS에서 로컬 관리자의 에이전트 비활성화 가능",
+    "description": "Palo Alto Networks Cortex XDR 에이전트의 macOS 보호 메커니즘 문제로 인해 로컬 관리자가 에이전트를 비활성화할 수 있습니다. 이 문제는 악성코드가 탐지되지 않고 악의적인 활동을 수행하는 데 악용될 수 있습니다.",
+    "cvss": 4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-754"
+    ],
+    "affected": [
+      {
+        "vendor": "Palo Alto Networks",
+        "product": "Cortex XDR Agent",
+        "versions": "8.7-CE 부터 8.7.101-CE 이전, 8.3-CE 부터 8.3.102-CE 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:33.098494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3949",
+    "title": "strukturag libheif HEIF 파일 디코더 vvdec.cc의 범위 초과 접근 취약점",
+    "description": "strukturag libheif 1.21.2 버전 이하에서 HEIF 파일 파서 컴포넌트의 vvdec_push_data2 함수에 범위 초과 읽기 취약점이 발견되었습니다. 공격자는 로컬 환경에서 인자 크기 조작을 통해 해당 취약점을 악용할 수 있으며, 관련 익스플로잇이 공개되어 있습니다. b97c8b5f198b27f375127cd597a35f2113544d03 패치를 적용하여 문제를 해결하는 것이 좋습니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "strukturag",
+        "product": "libheif",
+        "versions": "1.21.0 (단일 버전), 1.21.1 (단일 버전), 1.21.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:30.596922+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31879",
+    "title": "Frappe 워크스페이스 수정 및 부적절한 리소스 소유권 확인으로 인한 저장 XSS",
+    "description": "Frappe 프레임워크에서 사용자 권한 확인 및 유효성 검사 부족으로 인해 다른 사용자의 개인 워크스페이스를 수정할 수 있었습니다. 악성 요청을 통해 저장 XSS 공격이 가능했습니다. 해당 취약점은 14.100.2, 15.101.0, 16.10.0 버전에서 해결되었습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 16.10.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:29.773404+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31878",
+    "title": "Frappe: 인증된 사용자에 의한 SSRF 가능성",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 14.100.1, 15.100.0, 16.6.0 이전 버전에서 악의적인 사용자가 특정 엔드포인트에 조작된 요청을 보내 서버가 사용자가 지정한 서비스에 HTTP 요청을 수행하도록 할 수 있습니다. 해당 취약점은 14.100.1, 15.100.0, 16.6.0 버전에 의해 해결되었습니다.",
+    "cvss": 5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": ">= 16.0.0, < 16.6.0 (단일 버전), >= 15.0.0, < 15.100.0 (단일 버전), < 14.100.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:26.374499+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31876",
+    "title": "Notesnook 에디터 내 미정제된 Twitter/X 임베드 URL을 통한 저장형 XSS 취약점",
+    "description": "Notesnook은 사용자 프라이버시 및 사용 편의성에 중점을 둔 노트 작성 앱입니다. 3.3.9 버전 이전에는 Twitter/X 임베드 URL 렌더링 시 저장형 XSS 취약점이 존재했습니다. `tweetToEmbed()` 함수가 사용자 URL을 이스케이프 처리 없이 HTML 문자열에 직접 삽입하여 <iframe>의 `srcdoc` 속성에 할당했습니다. 해당 취약점은 3.3.9 버전에서 해결되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "streetwriters",
+        "product": "notesnook",
+        "versions": "< 3.3.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:23.376834+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31877",
+    "title": "Frappe SQL Injection 취약점 (부적절한 필드 소독으로 발생)",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.84.0 및 14.99.0 이전 버전에서 특정 엔드포인트에 조작된 요청을 보내 SQL Injection을 유발하여 공격자가 정보 탈취를 할 수 있습니다. 해당 취약점은 15.84.0 및 14.99.0 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": ">= 15.0.0, < 15.84.0 (단일 버전), < 14.99.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:21.041188+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31874",
+    "title": "Taskosaur 사용자 등록 시 파라미터 조작을 통한 부적절한 역할 할당",
+    "description": "Taskosaur 1.0.0 버전에서 사용자 등록 과정 중 역할 파라미터에 대한 적절한 검증 및 제한이 없어 공격자가 요청 페이로드를 조작하여 권한을 상승시킬 수 있습니다. 백엔드에서 역할 할당 제한을 적용하지 않거나 클라이언트에서 제공하는 역할 파라미터를 무시하여, 조작된 값으로 SUPER_ADMIN 권한을 가진 계정을 생성할 수 있습니다. 이를 통해 인증되지 않은 공격자도 관리자 계정을 등록할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Taskosaur",
+        "product": "Taskosaur",
+        "versions": "1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:19.389872+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-25487",
+    "title": "SAPIDO RB-1732 V2.0.43 원격 명령 실행 취약점",
+    "description": "SAPIDO RB-1732 V2.0.43 버전에서 인증되지 않은 공격자가 formSysCmd 엔드포인트에 악성 입력을 전송하여 임의의 시스템 명령을 실행할 수 있는 원격 명령 실행 취약점이 발견되었습니다. 공격자는 sysCmd 파라미터를 포함하는 POST 요청을 통해 라우터 권한으로 장치에서 코드를 실행할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Sapido",
+        "product": "RB-1732",
+        "versions": "2.0.43 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:13.694997+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-70082",
+    "title": "Lantronix EDS3000PS v.3.1.0.0R2 임의 코드 실행 및 정보 유출 취약점",
+    "description": "Lantronix EDS3000PS v.3.1.0.0R2 버전의 ltrx_evo 구성 요소에서 임의 코드 실행이 가능한 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:14:56.58668+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-68623",
+    "title": "Microsoft DirectX End-User Runtime 웹 설치 관리자 9.29.1974.0 권한 상승 취약점",
+    "description": "낮은 권한의 사용자가 설치 과정 중 실행 파일을 교체하여 권한 상승을 유발할 수 있는 취약점입니다. 설치 관리자가 다운로드한 실행 파일을 높은 권한으로 실행하는데, 공격자가 해당 파일을 악성 코드로 교체할 경우 시스템 권한까지 획득할 수 있습니다. 공급업체는 의도된 동작이라고 주장합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:14:55.304884+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2019-25486",
+    "title": "Varient 1.6.1 user_id 파라미터 SQL Injection 취약점",
+    "description": "Varient 1.6.1 버전에서 user_id 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 인증 우회 및 민감한 데이터베이스 정보 유출이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Varient",
+        "product": "Varient SQL Inj.",
+        "versions": "1.6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:10.789273+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25485",
+    "title": "R 3.4.4 Windows x64 버퍼 오버플로우 SEH DEP ASLR 우회",
+    "description": "R 3.4.4 Windows x64 버전에서 GUI 환경 설정의 언어 메뉴 필드에 버퍼 오버플로우 취약점이 존재합니다. 이를 통해 로컬 공격자는 DEP 및 ASLR 보호 기능을 우회할 수 있습니다. 악의적인 코드를 주입하여 구조적 예외 처리기 체인을 통해 임의의 셸 코드를 실행할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "R-Project",
+        "product": "R",
+        "versions": "3.4.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:07.786467+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25483",
+    "title": "Comtrend AR-5310 GE31-412SSG-C01_R10.A2pG039u.d24k 제한된 셸 탈출 취약점",
+    "description": "Comtrend AR-5310 GE31-412SSG-C01_R10.A2pG039u.d24k 장치에 로컬 사용자가 명령 치환 연산자 $( )를 사용하여 명령 제한을 우회하는 제한된 셸 탈출 취약점이 존재합니다. 공격자는 ping과 같은 허용된 명령에 인수로 $( ) 구문을 삽입하여 제한 없는 셸 접근을 실행할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Comtrend",
+        "product": "AR-5310",
+        "versions": "GE31-412SSG-C01_R10.A2pG039u.d24k (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:05.285308+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25484",
+    "title": "WinMPG iPod Convert 3.0 등록 필드 버퍼 오버플로우 DoS",
+    "description": "WinMPG iPod Convert 3.0의 등록 대화 상자에 버퍼 오버플로우 취약점이 존재합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Winmpg",
+        "product": "WinMPG iPod Convert",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:04.436351+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25480",
+    "title": "ARMBot의 upload.php를 통한 무제한 파일 업로드 취약점",
+    "description": "ARMBot의 upload.php 파일에 인증되지 않은 공격자가 파일 업로드 파라미터를 조작하여 임의 파일을 업로드할 수 있는 취약점이 존재합니다. 경로 탐색 시퀀스를 이용하여 PHP 파일을 업로드하고 웹 루트에 실행 가능한 코드를 작성하여 원격 코드 실행을 달성할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "ARMBot",
+        "product": "ARMBot",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:01.743275+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25478",
+    "title": "GetGo 다운로드 매니저 6.2.2.3300 버퍼 오버플로우 DoS",
+    "description": "GetGo 다운로드 매니저 6.2.2.3300 버전에서 과도하게 긴 HTTP 헤더를 전송하여 서비스 거부(DoS)를 유발하는 버퍼 오버플로우 취약점이 발견되었습니다. 공격자는 조작된 HTTP 응답을 통해 애플리케이션을 중단시키고 사용할 수 없게 만들 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Getgosoft",
+        "product": "GetGo Download Manager",
+        "versions": "6.2.2.3300 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:59.13466+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25477",
+    "title": "RAR Password Recovery 1.80 서비스 거부 버퍼 오버플로우",
+    "description": "RAR Password Recovery 1.80 버전에서 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격자는 등록 대화 상자에 6000바이트를 초과하는 악성 입력을 삽입하여 애플리케이션을 중단시킬 수 있습니다. 사용자 이름 및 등록 코드 필드에 과도한 크기의 데이터를 입력하면 충돌이 발생합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Top-Password",
+        "product": "RAR Password Recovery",
+        "versions": "1.80 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:59.133758+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25476",
+    "title": "Outlook Password Recovery 2.10 서비스 거부 버퍼 오버플로우",
+    "description": "Outlook Password Recovery 2.10 버전에서 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격자는 6000바이트 이상의 데이터를 포함하는 악성 텍스트 파일을 사용자 이름 및 등록 코드 필드에 붙여넣어 애플리케이션을 중단시킬 수 있습니다. 이는 서비스 거부 상태를 유발합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Top-Password",
+        "product": "Outlook Password Recovery Denial of Service Exploit",
+        "versions": "2.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:56.632096+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25475",
+    "title": "SQL Server Password Changer 1.90 서비스 거부 버퍼 오버플로우",
+    "description": "SQL Server Password Changer 1.90 버전에서 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격자는 과도한 크기의 데이터를 전송하여 애플리케이션을 중단시킬 수 있습니다. 사용자 이름 및 등록 코드 필드에 6000바이트의 데이터를 삽입하여 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Top-Password",
+        "product": "SQL Server Password Changer Denial of Service Exploit",
+        "versions": "1.90 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:51.455339+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25474",
+    "title": "Easy MP3 Downloader 4.7.8.8 서비스 거부 버퍼 오버플로우",
+    "description": "Easy MP3 Downloader 4.7.8.8 버전에서 과도하게 긴 Unlock Code를 입력하여 애플리케이션을 중단시키는 버퍼 오버플로우 취약점이 발견되었습니다. 공격자는 6000개의 'A' 문자로 구성된 파일을 생성하여 애플리케이션 시작 시 Unlock Code 필드에 붙여넣어 서비스 거부 상태를 유발할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Easy MP3 Downloader Denial of Service",
+        "versions": "4.7.8.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:50.824739+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25472",
+    "title": "IntelBras TIP200/200 LITE IP 전화 임의 파일 읽기 취약점",
+    "description": "IntelBras TIP200 및 200 LITE IP 전화는 cgiServer.exx 엔드포인트를 통해 접근 가능한 dumpConfigFile 함수에서 인증되지 않은 임의 파일 읽기 취약점을 포함합니다. 공격자는 /cgi-bin/cgiServer.exx에 command 파라미터에 dumpConfigFile()을 포함한 GET 요청을 전송하여 /etc/shadow 및 설정 파일과 같은 민감한 파일을 권한 없이 읽을 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "Intelbras",
+        "product": "Telefone IP TIP 200",
+        "versions": "* (단일 버전)"
+      },
+      {
+        "vendor": "Intelbras",
+        "product": "Telefone IP TIP 200 LITE",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:49.940259+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25470",
+    "title": "eWON 펌웨어 12.2-13.0 인증 우회 취약점 / wsdReadForm",
+    "description": "eWON 펌웨어 12.2~13.0 버전에서 wsdReadForm 엔드포인트 악용을 통한 인증 우회 취약점이 발견되었습니다. 최소 권한을 가진 공격자가 base64 인코딩된 부분 자격 증명과 조작된 wsdList 파라미터를 사용하여 모든 사용자의 암호화된 비밀번호를 탈취할 수 있습니다. 탈취된 비밀번호는 하드코딩된 XOR 키를 사용하여 해독 가능합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "eWON",
+        "product": "eWON",
+        "versions": "12.2 <= 13.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:43.845551+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25471",
+    "title": "FileThingie 2.5.7 임의 파일 업로드 취약점",
+    "description": "FileThingie 2.5.7 버전에서 ft2.php를 통해 악성 파일 업로드 취약점이 발견되었습니다. 공격자는 ZIP 아카이브 파일을 전송하여 PHP 쉘 등을 업로드할 수 있습니다. 업로드된 ZIP 파일은 추출되어 실행 가능한 PHP 파일로 변환될 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "filethingie",
+        "product": "FileThingie",
+        "versions": "2.5.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:42.966747+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-25469",
+    "title": "Folder Lock 7.7.9 시리얼 번호 필드 DoS 취약점",
+    "description": "Folder Lock 7.7.9 버전에서 시리얼 번호 등록 필드의 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Newsoftwares",
+        "product": "Folder Lock",
+        "versions": "7.7.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:42.313613+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25468",
+    "title": "NetGain EM Plus 10.1.68 원격 코드 실행 취약점",
+    "description": "NetGain EM Plus 10.1.68 버전에서 script_test.jsp 엔드포인트에 악성 파라미터를 전송하여 인증되지 않은 공격자가 임의의 시스템 명령을 실행할 수 있는 원격 코드 실행 취약점이 발견되었습니다. 공격자는 'content' 파라미터에 셸 명령을 포함한 POST 요청을 보내 코드를 실행하고 명령 출력을 얻을 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "NetGain Systems",
+        "product": "NetGain EM Plus",
+        "versions": "10.1.68 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:37.190693+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-25467",
+    "title": "Verypdf docPrint Pro 8.0 로컬 SEH 버퍼 오버플로우",
+    "description": "Verypdf docPrint Pro 8.0은 사용자 또는 마스터 비밀번호 필드에 과도한 크기의 영숫자 인코딩된 페이로드를 제공하여 로컬 공격자가 임의 코드를 실행할 수 있는 구조적 예외 처리 버퍼 오버플로우 취약점을 포함합니다. 공격자는 인코딩된 셸코드와 SEH 체인 조작을 통해 보호를 우회하고 PDF 암호화 과정 중 비밀번호 필드 처리 시 MessageBox 개념 증명 코드를 실행할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Verypdf",
+        "product": "docPrint Pro",
+        "versions": "8.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:37.023673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25466",
+    "title": "Easy File Sharing Web Server 7.2 로컬 SEH 오버플로우",
+    "description": "Easy File Sharing Web Server 7.2에서 악성 사용자 이름을 생성하여 임의 코드 실행을 허용하는 로컬 구조적 예외 처리 버퍼 오버플로우 취약점이 발견되었습니다. 공격자는 4059바이트 패딩, nseh 값, seh 포인터를 포함하는 사용자 이름을 제작하여 새 사용자 계정 추가 시 오버플로우를 유발할 수 있습니다. 이를 통해 로컬 공격자가 시스템을 제어할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Sharing-File",
+        "product": "Easy File Sharing Web Server",
+        "versions": "7.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:35.628937+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25465",
+    "title": "Hisilicon HiIpcam V100R003 디렉토리 순회 취약점",
+    "description": "Hisilicon HiIpcam V100R003에 인증되지 않은 공격자가 디렉토리 순회 취약점을 이용하여 민감한 설정 파일에 접근할 수 있습니다. cgi-bin 디렉토리의 목록 노출을 악용하여 ADSL 자격 증명 및 네트워크 설정을 탈취할 수 있습니다. 사용자 이름, 비밀번호, DNS 설정 등이 유출될 위험이 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-260"
+    ],
+    "affected": [
+      {
+        "vendor": "Hisilicon",
+        "product": "HiIpcam",
+        "versions": "V100R003 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:30.30948+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25463",
+    "title": "SpotIE Internet Explorer 비밀번호 복구 2.9.5 등록 키 필드 DoS 취약점",
+    "description": "SpotIE Internet Explorer 비밀번호 복구 2.9.5 버전에서 등록 키 입력 필드에 서비스 거부(DoS) 취약점이 발견되었습니다. 로컬 공격자는 과도하게 긴 문자열을 입력하여 애플리케이션을 중단시킬 수 있습니다. 256자 이상의 페이로드를 등록 시 'Key' 필드에 붙여넣으면 버퍼 오버플로우가 발생하여 애플리케이션이 충돌합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Nsauditor",
+        "product": "SpotIE Internet Explorer Password Recovery",
+        "versions": "2.9.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:28.774146+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25464",
+    "title": "InputMapper 1.6.10 사용자 이름 필드 로컬 서비스 거부 취약점",
+    "description": "InputMapper 1.6.10 버전에서 사용자 이름 필드의 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격자는 과도하게 긴 문자열을 입력하여 애플리케이션을 중단시킬 수 있습니다. 큰 페이로드를 사용자 이름 필드에 복사하고 더블 클릭하여 처리하면 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 6.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "DSD Consulting Services LLC.",
+        "product": "InputMapper",
+        "versions": "1.6.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:28.428864+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31887",
+    "title": "Shopware store-api.order 엔드포인트 통해 인증되지 않은 데이터 유출 가능",
+    "description": "Shopware 6.7.8.1 및 6.6.10.15 이전 버전에서, 인증되지 않은 고객에 대한 필터 유형 검사가 미흡하여 다른 고객의 주문 정보에 접근할 수 있습니다. 이는 store-api.order 엔드포인트의 deepLinkCode 지원 기능과 관련이 있습니다. 6.7.8.1 및 6.6.10.15 버전에 해당 취약점이 수정되었습니다.",
+    "cvss": 8.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "shopware",
+        "product": "core",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      },
+      {
+        "vendor": "shopware",
+        "product": "platform",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/193",
+    "date": "2026-03-11T19:13:24.945093+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31881",
+    "title": "Runtipi 인증되지 않은 /api/auth/reset-password 경로를 통한 운영자 계정 탈취 가능성 (활성 재설정 기간 중)",
+    "description": "Runtipi 개인 홈서버 오케스트레이터의 4.8.0 이전 버전에서, 활성 상태의 비밀번호 재설정 요청 시 인증되지 않은 공격자가 운영자(관리자) 비밀번호를 재설정하여 계정을 탈취할 수 있습니다. /api/auth/reset-password 엔드포인트가 인증/인가 검사 없이 노출되어 15분 동안 누구든 관리자 권한으로 로그인할 수 있습니다. 4.8.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "runtipi",
+        "product": "runtipi",
+        "versions": "< 4.8.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/192",
+    "date": "2026-03-11T19:13:23.292871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/api/auth/reset-password))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-25159",
+    "title": "Epross AVCON6 OGNL 원격 코드 실행 취약점",
+    "description": "Epross AVCON6 시스템 관리 플랫폼에 인증되지 않은 공격자가 악성 OGNL 표현식을 삽입하여 임의 명령을 실행할 수 있는 OGNL 주입 취약점이 존재합니다. 공격자는 `login.action` 엔드포인트에 조작된 요청을 전송하여 `redirect` 파라미터를 통해 `ProcessBuilder` 객체를 생성하고 루트 권한으로 시스템 명령을 실행할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1334"
+    ],
+    "affected": [
+      {
+        "vendor": "Epross",
+        "product": "AVCON6 systems management platform",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/191",
+    "date": "2026-03-11T19:13:23.016372+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31888",
+    "title": "Shopware 스토어 API 로그인 엔드포인트에서 고유한 오류 코드를 통한 사용자 열거 가능",
+    "description": "Shopware는 오픈 커머스 플랫폼입니다. 6.7.8.1 및 6.6.10.15 이전 버전에서 스토어 API 로그인 엔드포인트는 등록된 고객인지 여부에 따라 다른 오류 코드를 반환하며, \"찾을 수 없음\" 응답은 입력된 이메일 주소를 그대로 반환합니다. 이를 통해 인증되지 않은 공격자가 유효한 고객 계정을 열거할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "shopware",
+        "product": "core",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      },
+      {
+        "vendor": "shopware",
+        "product": "platform",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:06.723851+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-24509",
+    "title": "Dell Alienware Command Center (AWCC) 임의 접근 제어 취약점",
+    "description": "Dell Alienware Command Center (AWCC) 6.12.24.0 버전 이전에서 임의 접근 제어 취약점이 발견되었습니다. 로컬 접근 권한을 가진 저권한 공격자가 이 취약점을 악용하여 서비스 거부(Denial of service)를 유발할 수 있습니다.",
+    "cvss": 3.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Dell",
+        "product": "Alienware Command Center (AWCC)",
+        "versions": "6.12.24.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:12:59.589992+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-31975",
+    "title": "Cloud CLI WebSocket 셸 주입",
+    "description": "Cloud CLI(Claude Code UI) 1.25.0 이전 버전에서 WebSocket 셸을 통해 OS 명령 주입 취약점이 발견되었습니다. `server/index.js`의 `projectPath` 및 `initialCommand`가 WebSocket 메시지 페이로드에서 직접 가져와 어떠한 검증 없이 bash 명령 문자열에 삽입되어 임의의 OS 명령 실행이 가능했습니다. `sessionId`를 통한 추가적인 주입 벡터 또한 존재했으며, 1.25.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "siteboon",
+        "product": "claudecodeui",
+        "versions": "< 1.25.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:41.576295+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31861",
+    "title": "Git Routes [CloudCLI UI] 셸 명령어 삽입 취약점",
+    "description": "Cloud CLI (Claude Code UI)의 1.24.0 이전 버전에서 /api/user/git-config 엔드포인트가 사용자 제공 gitName 및 gitEmail 값을 셸 명령어에 삽입하여 실행합니다. 이 과정에서 백틱, `$()` 명령어 치환, `\\` 시퀀스 등이 제대로 이스케이프되지 않아 인증된 공격자가 임의의 OS 명령어를 실행할 수 있습니다. 1.24.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "siteboon",
+        "product": "claudecodeui",
+        "versions": "< 1.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:36.05678+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25501",
+    "title": "Simple Job Script SQL Injection 취약점 / delete_application_ajax.php",
+    "description": "Simple Job Script에 app_id 파라미터를 통해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 delete_application_ajax.php로 조작된 POST 요청을 전송하여 민감한 데이터를 탈취하거나, 인증을 우회하거나, 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "niteosoft",
+        "product": "Simple Job Script",
+        "versions": "1.66 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T18:06:09.462267+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25500",
+    "title": "Simple Job Script SQL Injection 취약점 - register-recruiters 엔드포인트",
+    "description": "Simple Job Script에서 employerid 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 register-recruiters 엔드포인트에 time-based SQL injection 페이로드를 전송하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "niteosoft",
+        "product": "Simple Job Script",
+        "versions": "1.66 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T18:06:07.25775+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25498",
+    "title": "Simple Job Script SQL Injection 취약점 - 검색 엔드포인트 /",
+    "description": "Simple Job Script에 인증되지 않은 공격자가 `landing_location` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 악성 SQL 페이로드를 포함한 POST 요청을 검색 엔드포인트로 전송하여 인증을 우회하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "niteosoft",
+        "product": "Simple Job Script",
+        "versions": "1.66 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T18:04:42.110236+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25499",
+    "title": "Simple Job Script SQL Injection 취약점 / get_job_applications_ajax.php",
+    "description": "Simple Job Script에서 job_id 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 get_job_applications_ajax.php에 악성 job_id 값을 POST 요청하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 인증 우회, 민감 정보 탈취, 데이터베이스 내용 변경 등이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "niteosoft",
+        "product": "Simple Job Script",
+        "versions": "1.66 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T18:04:42.109363+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31862",
+    "title": "Cloud CLI에서 여러 매개변수를 통한 명령 주입 취약점",
+    "description": "Cloud CLI(Claude Code UI)는 Claude Code, Cursor CLI, Codex, Gemini-CLI를 위한 데스크톱 및 모바일 UI입니다. 1.24.0 이전 버전에서 여러 Git 관련 API 엔드포인트가 사용자 제어 매개변수(파일, 브랜치, 메시지, 커밋)의 문자열 보간과 함께 execAsync()를 사용하여 인증된 공격자가 임의의 OS 명령을 실행할 수 있습니다. 1.24.0에서 해당 취약점이 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "siteboon",
+        "product": "claudecodeui",
+        "versions": "< 1.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:36.279063+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31856",
+    "title": "PostgreSQL에서 중첩 객체 필드 `Increment` 연산의 SQL Injection 취약점 - Parse Server",
+    "description": "Parse Server의 PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 `Increment` 연산 처리 시 SQL Injection 취약점이 존재합니다. 입력 값 검증 없이 SQL 쿼리에 직접 삽입되어 공격자가 데이터베이스의 모든 데이터를 읽을 수 있습니다. MongoDB 배포판은 영향을 받지 않으며, 9.6.0-alpha.3 및 8.6.29 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.3 (단일 버전), < 8.6.29 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:29.741404+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28229",
+    "title": "Argo Workflows 템플릿의 무단 접근 가능성",
+    "description": "Argo Workflows는 Kubernetes에서 병렬 작업을 관리하는 오픈 소스 컨테이너 기반 워크플로우 엔진입니다. 4.0.2 및 3.7.11 버전 이전에는 워크플로우 템플릿 엔드포인트에서 인증되지 않은 클라이언트가 워크플로우 템플릿(및 클러스터 워크플로우 템플릿)을 검색할 수 있었습니다. \"Authorization: Bearer nothing\" 토큰을 사용하는 요청으로 인해 임베디드된 Secret 매니페스트를 포함한 민감한 템플릿 내용이 유출될 수 있으며, 4.0.2 및 3.7.11 버전을 통해 해결되었습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "argoproj",
+        "product": "argo-workflows",
+        "versions": ">= 4.0.0, < 4.0.2 (단일 버전), < 3.7.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:14.966691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27897",
+    "title": "격렬한 인증되지 않은 원격 경로 탐색 (CSRF를 통한 RCE)",
+    "description": "Vociferous는 로컬 AI 개선 기능을 갖춘 크로스 플랫폼 오프라인 음성-텍스트 변환 소프트웨어입니다. 4.4.2 버전 이전에는 `src/api/system.py`의 `export_file` 경로에 파일 이름 검증이 없어 공격자가 디렉터리 탐색 시퀀스(../)를 사용하여 임의의 위치에 데이터를 쓸 수 있습니다. 인증이 필요 없고 CORS 설정이 허용적이어서 외부 공격자가 UI를 우회하여 악용 가능합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "WanderingAstronomer",
+        "product": "Vociferous",
+        "versions": "< 4.4.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:13.817825+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2025-12690",
     "title": "Forcepoint NGFW 엔진의 로컬 권한 상승 취약점",
     "description": "Forcepoint NGFW 엔진에서 불필요한 권한으로 실행되어 로컬 권한 상승이 가능합니다.",
@@ -322,32 +1990,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-31975",
-    "title": "Cloud CLI WebSocket 셸 주입",
-    "description": "Cloud CLI(Claude Code UI) 1.25.0 이전 버전에서 WebSocket 셸을 통해 OS 명령 주입 취약점이 발견되었습니다. `server/index.js`의 `projectPath` 및 `initialCommand`가 WebSocket 메시지 페이로드에서 직접 가져와 어떠한 검증 없이 bash 명령 문자열에 삽입되어 임의의 OS 명령 실행이 가능했습니다. `sessionId`를 통한 추가적인 주입 벡터 또한 존재했으며, 1.25.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "siteboon",
-        "product": "claudecodeui",
-        "versions": "< 1.25.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:41.576295+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-32229",
     "title": "JetBrains Hub 계정 불일치 취약점 (2026.1 이전 버전)",
     "description": "JetBrains Hub 2026.1 이전 버전에서 SSO 인증을 사용하지 않고 2단계 인증이 비활성화된 경우, 로그인 계정 불일치 문제가 발생할 수 있습니다.",
@@ -453,58 +2095,6 @@
     "severity": "Low"
   },
   {
-    "id": "CVE-2026-31862",
-    "title": "Cloud CLI에서 여러 매개변수를 통한 명령 주입 취약점",
-    "description": "Cloud CLI(Claude Code UI)는 Claude Code, Cursor CLI, Codex, Gemini-CLI를 위한 데스크톱 및 모바일 UI입니다. 1.24.0 이전 버전에서 여러 Git 관련 API 엔드포인트가 사용자 제어 매개변수(파일, 브랜치, 메시지, 커밋)의 문자열 보간과 함께 execAsync()를 사용하여 인증된 공격자가 임의의 OS 명령을 실행할 수 있습니다. 1.24.0에서 해당 취약점이 해결되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "siteboon",
-        "product": "claudecodeui",
-        "versions": "< 1.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:36.279063+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31861",
-    "title": "Git Routes [CloudCLI UI] 셸 명령어 삽입 취약점",
-    "description": "Cloud CLI (Claude Code UI)의 1.24.0 이전 버전에서 /api/user/git-config 엔드포인트가 사용자 제공 gitName 및 gitEmail 값을 셸 명령어에 삽입하여 실행합니다. 이 과정에서 백틱, `$()` 명령어 치환, `\\` 시퀀스 등이 제대로 이스케이프되지 않아 인증된 공격자가 임의의 OS 명령어를 실행할 수 있습니다. 1.24.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "siteboon",
-        "product": "claudecodeui",
-        "versions": "< 1.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:36.05678+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-31857",
     "title": "CraftCMS 제어판의 관계 조건식에서 RCE 취약점 발견",
     "description": "CraftCMS 5.9.9 및 4.17.4 이전 버전에서, 사용자 제어 문자열 입력이 escaping 없이 Twig 렌더링 함수를 통해 전달되어 원격 코드 실행(RCE) 취약점이 존재합니다. 인증된 제어판 사용자라면 특별한 권한 없이도 악성 조건 규칙을 전송하여 시스템을 장악할 수 있습니다. 최신 버전(5.9.9 또는 4.17.4)으로 업데이트하여 문제를 해결해야 합니다.",
@@ -529,32 +2119,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31856",
-    "title": "PostgreSQL에서 중첩 객체 필드 `Increment` 연산의 SQL Injection 취약점 - Parse Server",
-    "description": "Parse Server의 PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 `Increment` 연산 처리 시 SQL Injection 취약점이 존재합니다. 입력 값 검증 없이 SQL 쿼리에 직접 삽입되어 공격자가 데이터베이스의 모든 데이터를 읽을 수 있습니다. MongoDB 배포판은 영향을 받지 않으며, 9.6.0-alpha.3 및 8.6.29 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.3 (단일 버전), < 8.6.29 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:29.741404+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-31813",
@@ -765,32 +2329,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28229",
-    "title": "Argo Workflows 템플릿의 무단 접근 가능성",
-    "description": "Argo Workflows는 Kubernetes에서 병렬 작업을 관리하는 오픈 소스 컨테이너 기반 워크플로우 엔진입니다. 4.0.2 및 3.7.11 버전 이전에는 워크플로우 템플릿 엔드포인트에서 인증되지 않은 클라이언트가 워크플로우 템플릿(및 클러스터 워크플로우 템플릿)을 검색할 수 있었습니다. \"Authorization: Bearer nothing\" 토큰을 사용하는 요청으로 인해 임베디드된 Secret 매니페스트를 포함한 민감한 템플릿 내용이 유출될 수 있으며, 4.0.2 및 3.7.11 버전을 통해 해결되었습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "argoproj",
-        "product": "argo-workflows",
-        "versions": ">= 4.0.0, < 4.0.2 (단일 버전), < 3.7.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:14.966691+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-22248",
     "title": "GLPI의 악성 파일 업로드를 통한 원격 코드 실행 취약점",
     "description": "GLPI는 IT 자산 및 관리 소프트웨어로, ITIL 서비스 데스크 기능을 제공합니다. 11.0.0부터 11.0.5 이전 버전에서 인증된 기술자 사용자가 악성 파일을 업로드하여 안전하지 않은 PHP 인스턴스화를 통해 실행을 유발할 수 있습니다. 해당 취약점은 11.0.5 버전에서 해결되었습니다.",
@@ -815,33 +2353,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27897",
-    "title": "격렬한 인증되지 않은 원격 경로 탐색 (CSRF를 통한 RCE)",
-    "description": "Vociferous는 로컬 AI 개선 기능을 갖춘 크로스 플랫폼 오프라인 음성-텍스트 변환 소프트웨어입니다. 4.4.2 버전 이전에는 `src/api/system.py`의 `export_file` 경로에 파일 이름 검증이 없어 공격자가 디렉터리 탐색 시퀀스(../)를 사용하여 임의의 위치에 데이터를 쓸 수 있습니다. 인증이 필요 없고 CORS 설정이 허용적이어서 외부 공격자가 UI를 우회하여 악용 가능합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22",
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "WanderingAstronomer",
-        "product": "Vociferous",
-        "versions": "< 4.4.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:13.817825+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-20118",
@@ -1052,66 +2563,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-68613",
-    "title": "n8n, 표현식 주입을 통한 원격 코드 실행 취약점",
-    "description": "n8n 워크플로우 자동화 플랫폼의 0.211.0 버전 이전 및 1.120.4, 1.121.1, 1.122.0 이전 버전에 심각한 원격 코드 실행(RCE) 취약점이 존재합니다. 인증된 사용자가 설정하는 표현식이 안전하게 격리되지 않은 상태로 실행되어 악의적인 코드 실행이 가능할 수 있습니다. 최신 버전으로 업그레이드하거나, 권한 제한 및 보안 강화된 환경 배포 등의 임시 조치를 권장합니다.",
-    "cvss": 10,
-    "epss": 0.7898,
-    "is_kev": true,
-    "cwe": [
-      "CWE-913"
-    ],
-    "affected": [
-      {
-        "vendor": "n8n-io",
-        "product": "n8n",
-        "versions": ">= 0.211.0, < 1.120.4 (단일 버전), = 1.121.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/190",
-    "date": "2026-03-11T18:07:00.139815+00:00",
-    "rule_engines": [],
-    "has_official_rules": true,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [
-        {
-          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; content:\"/rest/workflows\"; http_uri; fast_pattern; depth:15; content:\"n8n-auth|3d|\"; http_cookie; nocase; content:\"|22|value|22 3a|\"; http_client_body; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
-          "engine": "snort2",
-          "source": "Public (Snort 2.9 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata5",
-          "source": "Public (Suricata 5 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata7",
-          "source": "Public (Suricata 7 ET Open)",
-          "verified": true,
-          "indicators": null
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
-      }
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/rxerium/CVE-2025-68613",
-      "https://github.com/TheStingR/CVE-2025-68613-POC",
-      "https://github.com/sahilccras/Blackash-CVE-2025-68613"
-    ],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-31866",
     "title": "flagd의 제한 없는 리소스 할당 취약점",
     "description": "flagd 0.14.2 이전 버전은 클라이언트 애플리케이션이 접근 가능한 OFREP 및 gRPC 엔드포인트를 통해 기능 플래그를 평가합니다. 요청 페이로드의 평가 컨텍스트를 크기 제한 없이 메모리에 읽어들여, 공격자가 큰 요청을 보내 메모리 고갈을 유발할 수 있습니다. 이 취약점은 0.14.2 버전에서 해결되었습니다.",
@@ -1145,243 +2596,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31858",
-    "title": "CraftCMS `ElementSearchController` 맹점 SQL Injection 취약점",
-    "description": "Craft CMS의 `ElementSearchController::actionSearch()` 엔드포인트에 CVE-2026-25495에서 적용된 unset() 보호 기능이 누락되어 SQL Injection 취약점이 발생합니다. 인증된 사용자(관리자 권한 불필요)는 `criteria[where]`, `criteria[orderBy]` 등의 쿼리 속성을 통해 임의의 SQL을 삽입하고, boolean 기반 맹점 SQL Injection을 통해 데이터베이스 전체 내용을 추출할 수 있습니다. 5.9.9 버전으로 업데이트하여 문제를 해결해야 합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.0.0-RC1, <= 5.9.8 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/188",
-    "date": "2026-03-11T18:06:58.183281+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31863",
-    "title": "github.com/anyproto/anytype-heart의 과도한 인증 시도 제한 미흡",
-    "description": "Anytype Heart는 Anytype의 미들웨어 라이브러리입니다. 로컬 gRPC 클라이언트 API의 챌린지 기반 인증을 우회하여 공격자가 4자리 코드를 입력하지 않고도 접근할 수 있는 취약점이 있었습니다. 해당 취약점은 anytype-heart 0.48.4, anytype-cli 0.1.11, Anytype Desktop 0.54.5에서 해결되었습니다.",
-    "cvss": 3.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "anyproto",
-        "product": "anytype-heart",
-        "versions": "< 0.48.4 (단일 버전)"
-      },
-      {
-        "vendor": "anyproto",
-        "product": "anytype-cli",
-        "versions": "< 0.1.11 (단일 버전)"
-      },
-      {
-        "vendor": "anyproto",
-        "product": "anytype-ts",
-        "versions": "< 0.54.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:06:45.306953+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-31859",
-    "title": "Craft CMS의 불완전한 반환 URL 삭제로 인한 반사형 XSS 취약점",
-    "description": "Craft CMS는 콘텐츠 관리 시스템(CMS)입니다. CVE-2025-35939 수정 과정에서 반환 URL을 저장하기 전 삭제 처리가 추가되었지만, HTML 태그만 제거하고 URL 스킴은 검사하지 않아 javascript:alert(document.cookie)와 같은 페이로드가 그대로 통과되어 반사형 XSS가 발생할 수 있습니다. 5.9.7 및 4.17.3 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79",
-      "CWE-116"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 4.15.3, < 4.17.3 (단일 버전), >= 5.7.5, < 5.9.7 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:06:39.718894+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31854",
-    "title": "프롬프트 인젝션 및 화이트리스트 우회를 통한 Cursor 임의 코드 실행 취약점",
-    "description": "Cursor는 AI 기반 프로그래밍 코드 편집기입니다. 2.0 이전 버전에서 악성 스크립트가 포함된 웹사이트 방문 시, 모델이 사용자를 “돕기” 위해 해당 명령을 실행할 수 있었습니다. 화이트리스트 우회와 결합될 경우, 사용자의 명시적인 의도 없이 자동으로 명령이 실행되어 심각한 보안 위험을 초래할 수 있으며, 2.0 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "cursor",
-        "product": "cursor",
-        "versions": "< 2.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/187",
-    "date": "2026-03-11T17:14:08.142897+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30226",
-    "title": "devalue 라이브러리의 prototype pollution 취약점 (devalue.parse 및 devalue.unflatten)",
-    "description": "Svelte의 devalue 라이브러리 v5.6.3 이하 버전에서 `devalue.parse` 및 `devalue.unflatten` 함수를 통해 prototype pollution 공격이 가능합니다. 악의적인 페이로드를 사용하여 서비스 거부(DoS) 또는 타입 혼동을 유발할 수 있습니다. 해당 취약점은 v5.6.4에서 해결되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1321"
-    ],
-    "affected": [
-      {
-        "vendor": "sveltejs",
-        "product": "devalue",
-        "versions": "< 5.6.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:06:32.647994+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31853",
-    "title": "ImageMagick 32비트 시스템 SFW 디코더 힙 버퍼 오버라이트 취약점",
-    "description": "ImageMagick은 디지털 이미지 편집 및 조작을 위한 무료 오픈 소스 소프트웨어입니다. 7.1.2-16 및 6.9.13-41 이전 버전에서 32비트 시스템에서 매우 큰 이미지를 처리할 때 SFW 디코더에서 충돌이 발생할 수 있는 오버플로우 취약점이 존재합니다. 해당 취약점은 7.1.2-16 및 6.9.13-41 버전에서 수정되었습니다.",
-    "cvss": 5.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "ImageMagick",
-        "product": "ImageMagick",
-        "versions": ">= 7.0.0, < 7.1.2-16 (단일 버전), < 6.9.13-41 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:14:00.908294+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31852",
-    "title": "Jellyfin의 위험한 CI 구현으로 인한 잠재적 조직 손상/비밀 유출 가능성",
-    "description": "Jellyfin은 오픈 소스 미디어 시스템입니다. jellyfin/jellyfin-ios 저장소의 GitHub Actions 워크플로우(code-quality.yml)가 포크된 저장소로부터의 풀 리퀘스트를 통해 임의 코드 실행에 취약합니다. 이 취약점은 저장소 전체 장악, 중요한 비밀 정보 유출, Apple App Store 공급망 공격, ghcr.io 패키지 변조, 그리고 교차 저장소 토큰 사용을 통한 Jellyfin 조직 전체 손상을 가능하게 합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "jellyfin",
-        "product": "code-quality.yml",
-        "versions": "< 109217e75f38394b2f6e46e25dfe5a721203d3c8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:14:00.81025+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31840",
-    "title": "Parse Server의 PostgreSQL SQL Injection 취약점",
-    "description": "Parse Server 9.6.0-alpha.2 및 8.6.28 이전 버전에서 점 표기법 필드 이름을 사용하여 SQL Injection 공격이 가능합니다. 정렬 쿼리 파라미터와 함께 점 표기법을 사용하면 PostgreSQL 데이터베이스에 악성 SQL 코드를 삽입할 수 있습니다. distinct 및 where 파라미터와 함께 점 표기법을 사용하는 쿼리에도 영향을 미칠 수 있으며, PostgreSQL 데이터베이스를 사용하는 환경에만 해당됩니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.2 (단일 버전), < 8.6.28 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:13:58.401036+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28784",
@@ -1843,58 +3057,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-70082",
-    "title": "Lantronix EDS3000PS v.3.1.0.0R2 임의 코드 실행 및 정보 유출 취약점",
-    "description": "Lantronix EDS3000PS v.3.1.0.0R2 버전의 ltrx_evo 구성 요소에서 임의 코드 실행이 가능한 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:14:56.58668+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-68623",
-    "title": "Microsoft DirectX End-User Runtime 웹 설치 관리자 9.29.1974.0 권한 상승 취약점",
-    "description": "낮은 권한의 사용자가 설치 과정 중 실행 파일을 교체하여 권한 상승을 유발할 수 있는 취약점입니다. 설치 관리자가 다운로드한 실행 파일을 높은 권한으로 실행하는데, 공격자가 해당 파일을 악성 코드로 교체할 경우 시스템 권한까지 획득할 수 있습니다. 공급업체는 의도된 동작이라고 주장합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:14:55.304884+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2025-67041",
@@ -60501,110 +61663,6 @@
     ],
     "report_url": null,
     "date": "2026-03-04T18:01:41.203491+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25501",
-    "title": "Simple Job Script SQL Injection 취약점 / delete_application_ajax.php",
-    "description": "Simple Job Script에 app_id 파라미터를 통해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 delete_application_ajax.php로 조작된 POST 요청을 전송하여 민감한 데이터를 탈취하거나, 인증을 우회하거나, 데이터베이스 내용을 수정할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "niteosoft",
-        "product": "Simple Job Script",
-        "versions": "1.66 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T18:06:09.462267+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25500",
-    "title": "Simple Job Script SQL Injection 취약점 - register-recruiters 엔드포인트",
-    "description": "Simple Job Script에서 employerid 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 register-recruiters 엔드포인트에 time-based SQL injection 페이로드를 전송하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "niteosoft",
-        "product": "Simple Job Script",
-        "versions": "1.66 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T18:06:07.25775+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25498",
-    "title": "Simple Job Script SQL Injection 취약점 - 검색 엔드포인트 /",
-    "description": "Simple Job Script에 인증되지 않은 공격자가 `landing_location` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 악성 SQL 페이로드를 포함한 POST 요청을 검색 엔드포인트로 전송하여 인증을 우회하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "niteosoft",
-        "product": "Simple Job Script",
-        "versions": "1.66 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T18:04:42.110236+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25499",
-    "title": "Simple Job Script SQL Injection 취약점 / get_job_applications_ajax.php",
-    "description": "Simple Job Script에서 job_id 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 get_job_applications_ajax.php에 악성 job_id 값을 POST 요청하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 인증 우회, 민감 정보 탈취, 데이터베이스 내용 변경 등이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "niteosoft",
-        "product": "Simple Job Script",
-        "versions": "1.66 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T18:04:42.109363+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
