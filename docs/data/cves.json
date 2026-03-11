@@ -1,5 +1,1581 @@
 [
   {
+    "id": "CVE-2026-24282",
+    "title": "푸시 메시지 라우팅 서비스 권한 상승 취약점",
+    "description": "푸시 메시지 라우팅 서비스에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.00039,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:35.843757+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32118",
+    "title": "OpenEMR Graphical Pain Map 레전드에 저장된 XSS 취약점 (이스케이프되지 않은 주석 텍스트)",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 Graphical Pain Map (\"clickmap\") 양식의 저장된 XSS 취약점을 통해 인증된 임상의가 악의적인 JavaScript 코드를 삽입하여 후속 사용자의 브라우저에서 실행되도록 할 수 있습니다. 세션 쿠키가 HttpOnly로 설정되지 않아 다른 사용자, 심지어 관리자의 세션 하이재킹까지 가능합니다. 8.0.0.1에서 해당 취약점이 해결되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:51:53.190296+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32121",
+    "title": "OpenEMR: 포털 서명자 모달의 `.html()`을 통한 저장된 DOM XSS",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 환자 인구 통계 정보를 통해 처방 CSS/HTML 인쇄 보기에서 저장된 XSS 취약점이 발견되었습니다. 이는 jQuery의 `.html()`을 통해 클라이언트 측 DOM 기반 렌더링에서 발생하며, 근본 원인은 동일하지만 다른 구성 요소 및 수정이 필요합니다. 8.0.0.1에서 해당 취약점이 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/196",
+    "date": "2026-03-11T20:52:43.561933+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/HTML))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32112",
+    "title": "ha-mcp OAuth 동의 폼의 미처리 HTML로 인한 XSS 취약점",
+    "description": "ha-mcp는 Home Assistant MCP 서버입니다. 7.0.0 이전 버전에서 OAuth 동의 폼이 HTML 이스케이핑 없이 Python f-string을 통해 사용자 제어 파라미터를 렌더링합니다. 공격자는 OAuth 엔드포인트에 접근하고 조작된 인증 URL을 서버 운영자에게 유도하여 운영자의 브라우저에서 JavaScript를 실행할 수 있습니다. 이 취약점은 표준 설정이 아니며 명시적 구성이 필요한 베타 OAuth 모드(ha-mcp-oauth) 사용자에게만 영향을 미칩니다. 7.0.0에서 수정되었습니다.",
+    "cvss": 6.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "homeassistant-ai",
+        "product": "ha-mcp",
+        "versions": "< 7.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:51:52.188885+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32111",
+    "title": "ha-mcp OAuth 2.1 DCR 모드에서 오류 오라클을 통한 네트워크 정찰 가능",
+    "description": "ha-mcp는 Home Assistant MCP 서버입니다. 7.0.0 이전 버전에서 OAuth 동의 양식(베타 기능)이 사용자 제공 ha_url을 검증 없이 사용해 내부 HTTP 요청을 수행합니다. 인증되지 않은 공격자가 임의의 URL을 제출하여 오류 오라클을 통해 내부 네트워크 정찰을 수행할 수 있습니다. REST 및 WebSocket OAuth 도구 호출에서도 동일한 문제가 발생하며, 7.0.0에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "homeassistant-ai",
+        "product": "ha-mcp",
+        "versions": "< 7.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:51:45.334811+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32110",
+    "title": "SiYuan의 /api/network/forwardProxy를 통한 SSRF 취약점",
+    "description": "SiYuan 개인 지식 관리 시스템 3.6.0 이전 버전에서, 인증된 사용자가 /api/network/forwardProxy 엔드포인트를 통해 서버에서 임의의 HTTP 요청을 수행할 수 있습니다. 사용자가 제어하는 URL을 받아 내부 네트워크, 로컬호스트, 클라우드 메타데이터 서비스 등에 대한 요청을 제한 없이 수행하며, 응답 본문과 헤더를 반환합니다. 3.6.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:52:26.449305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-70041",
+    "title": "oslabs-beta ThermaKube 마스터의 하드코딩된 비밀번호 문제",
+    "description": "oslabs-beta ThermaKube 마스터에서 CWE-259(하드코딩된 비밀번호 사용) 관련 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:51:43.85225+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3957",
+    "title": "xierongwkhd weimai-wetapp Endpoint HomeController.java SQL 삽입 취약점",
+    "description": "xierongwkhd weimai-wetapp의 HomeController.java 파일 내 getLikeMovieList 함수에서 SQL 삽입 취약점이 발견되었습니다. 'cat' 인수를 조작하여 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 있습니다. 해당 프로젝트는 문제 보고를 받았으나 아직 응답하지 않았습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "xierongwkhd",
+        "product": "weimai-wetapp",
+        "versions": "5fe9e8225be4f73f2c5087f134aff657bdf1c6f2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:45.151326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32127",
+    "title": "OpenEMR ajax graphs 라이브러리의 SQL Injection 취약점",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 버전 이전에는 ajax graphs 라이브러리에서 SQL Injection 취약점이 발견되었습니다. 인증된 공격자가 악용할 수 있으며, 입력 값 검증 부족이 원인입니다. 8.0.0.1 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:41.359375+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32126",
+    "title": "OpenEMR: CDR ControllerRouter의 반전된 ACL 조건으로 인해 인증된 모든 사용자가 임상 규칙 및 계획을 수정/삭제 가능",
+    "description": "OpenEMR 8.0.0.1 이전 버전에서 ControllerRouter::route() 함수의 논리 오류로 인해 관리자/슈퍼 ACL 검사가 일부 컨트롤러에만 적용됩니다. 이로 인해 인증된 모든 사용자가 임상 의사 결정 지원 알림을 억제하거나, 임상 계획을 삭제/수정하고, 규칙 설정을 변경할 수 있습니다. 해당 취약점은 8.0.0.1 버전에서 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/197",
+    "date": "2026-03-11T21:50:42.158976+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/super))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32125",
+    "title": "OpenEMR: Track Anything 그래프에서 이스케이프되지 않은 Dygraph 제목/레이블을 통한 저장 XSS",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 Track Anything 기능의 트랙/항목 이름이 사용자 입력(POST)으로부터 저장되고, 이스케이프 처리 없이 Dygraph 차트(제목/레이블)에 innerHTML 또는 유사한 방식으로 렌더링됩니다. Track Anything 항목을 생성하거나 편집할 수 있는 사용자는 해당 그래프를 보는 모든 사용자의 브라우저에서 실행되는 스크립트를 삽입할 수 있습니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:35.248466+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32124",
+    "title": "OpenEMR: 동적 코드 선택기에서 이스케이프되지 않은 설명 렌더링 (저장된 XSS)",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 동적 코드 선택기 AJAX 엔드포인트는 HTML 이스케이프 처리 없이 코드 설명(code_text)을 반환합니다. 관리자 또는 코드 관리 권한이 있는 사용자가 악성 스크립트를 포함하는 코드를 생성하거나 수정하면 해당 스크립트가 선택기를 사용하는 모든 사용자의 브라우저에서 실행됩니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:35.0406+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32123",
+    "title": "OpenEMR: 그룹 치료 세션 ACL 적용 오류 수정",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서는 그룹 세션의 민감도 확인 기능에 오류가 있어, 민감 정보(예: 정신 건강)에 접근이 제한되어야 하는 사용자가 해당 정보를 볼 수 있었습니다. 이 문제는 8.0.0.1 버전에서 수정되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:31.447033+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32122",
+    "title": "OpenEMR: 청구 파일 추적기 UI 및 AJAX 엔드포인트 권한 부족 (V2)",
+    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 청구 파일 추적기 기능은 청구 ID, 지불자 정보, 전송 로그 등의 청구 메타데이터를 반환하는 AJAX 엔드포인트를 노출합니다. 이 엔드포인트는 주요 청구 워크플로우와 동일한 ACL을 적용하지 않아 적절한 청구 권한이 없는 인증된 사용자도 데이터에 접근할 수 있습니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "openemr",
+        "product": "openemr",
+        "versions": "< 8.0.0.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:52:03.325313+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32128",
+    "title": "FastGPT Python 샌드박스 파일 쓰기 제한 우회",
+    "description": "FastGPT는 AI 에이전트 구축 플랫폼입니다. 4.14.7 버전 이하에서 FastGPT의 Python 샌드박스는 파일 쓰기를 방지하기 위한 보호 장치(정적 탐지 + seccomp)를 포함합니다. 하지만 `fcntl`을 사용하여 stdout(fd 1)을 임의의 쓰기 가능한 파일 디스크립터로 재매핑하여 이러한 보호 장치를 우회할 수 있습니다. 재매핑 후 `sys.stdout.write()`를 통한 쓰기는 `write(fd==1)` seccomp 규칙을 만족하며, 샌드박스 컨테이너 내에서 의도된 파일 쓰기 제한에도 불구하고 임의의 파일 생성/덮어쓰기가 가능합니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-184"
+    ],
+    "affected": [
+      {
+        "vendor": "labring",
+        "product": "FastGPT",
+        "versions": "<= 4.14.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:01.488852+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3961",
+    "title": "zyddnys 만화 이미지 번역기 서버 측 요청 위조 취약점",
+    "description": "zyddnys 만화 이미지 번역기 베타-0.3 버전에서 서버 측 요청 위조(SSRF) 취약점이 발견되었습니다. `manga-image-translator-main/server/request_extraction.py` 파일의 `to_pil_image` 함수에서 발생하며, 원격으로 공격이 가능합니다. 해당 취약점은 이미 공개되었고, 프로젝트에 보고되었으나 아직 대응하지 않았습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "zyddnys",
+        "product": "manga-image-translator",
+        "versions": "beta-0.0 (단일 버전), beta-0.1 (단일 버전), beta-0.2 (단일 버전), beta-0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:21.248914+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32117",
+    "title": "grafanacubism-panel: 패널 확대/축소 링크의 javascript: URL을 통한 저장된 XSS (에디터 → 뷰어)",
+    "description": "grafanacubism-panel 플러그인은 Grafana에서 cubism.js를 사용할 수 있게 합니다. 0.1.2 버전 이하에서는 패널의 확대/축소 링크 핸들러가 스키마 검증 없이 대시보드 에디터에서 제공된 URL을 `window.location.assign()` 또는 `window.open()`에 직접 전달합니다. 대시보드 에디터 권한을 가진 공격자는 링크를 javascript: URI로 설정하여, 뷰어가 패널을 확대/축소할 때 Grafana 도메인에서 페이로드가 실행되도록 할 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "ekacnet",
+        "product": "grafanacubism-panel",
+        "versions": "<= 0.1.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:20.61102+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27591",
+    "title": "Winter: 인증된 백엔드 사용자의 권한 상승",
+    "description": "Winter CMS는 Laravel PHP 프레임워크 기반의 오픈소스 CMS입니다. 1.0.477, 1.1.12, 1.2.12 버전 이전에서 인증된 백엔드 사용자가 특수 제작된 요청을 통해 계정의 역할/권한을 수정하여 시스템 접근 권한을 상승시킬 수 있었습니다. 공격자는 백엔드에 사용자 계정으로 접근할 수 있어야 악용 가능하며, 해당 취약점은 1.0.477, 1.1.12, 1.2.12 버전에 의해 해결되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-639",
+      "CWE-915"
+    ],
+    "affected": [
+      {
+        "vendor": "wintercms",
+        "product": "winter",
+        "versions": ">= 1.2.0, < 1.2.12 (단일 버전), >= 1.1.0, < 1.1.12 (단일 버전), < 1.0.477 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:21.157536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3942",
+    "title": "Google Chrome Picture-in-Picture 보안 UI 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 Picture-in-Picture 모드의 보안 UI 오류로 인해 공격자가 제작된 HTML 페이지를 통해 UI 스푸핑을 수행할 수 있었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:18.266011+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3941",
+    "title": "Google Chrome DevTools 정책 미흡으로 인한 탐색 제한 우회 가능성",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 DevTools에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:15.763494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3940",
+    "title": "Google Chrome DevTools 정책 미흡으로 인한 탐색 제한 우회 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 DevTools에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:12.452179+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3939",
+    "title": "Google Chrome PDF 탐색 제한 우회 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 PDF 파일의 정책 적용이 미흡하여, 악성 PDF 파일을 통해 원격 공격자가 탐색 제한을 우회할 수 있는 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:11.419521+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3938",
+    "title": "Google Chrome 클립보드 정책 미흡으로 인한 정보 유출 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 클립보드 정책이 제대로 적용되지 않아, 악성 HTML 페이지를 통해 원격 공격자가 교차 출처 데이터를 유출할 수 있었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:06.494143+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3937",
+    "title": "Android Chrome 다운로드 보안 UI 취약점",
+    "description": "Android Chrome 146.0.7680.71 이전 버전에서 제작된 HTML 페이지를 통해 원격 공격자가 UI 스푸핑을 수행할 수 있는 보안 UI 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:03.263901+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3936",
+    "title": "Android Chrome WebView 사용 후 해제 취약점",
+    "description": "Google Chrome Android 146.0.7680.71 이전 버전의 WebView에서 사용 후 해제 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:00.763316+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3935",
+    "title": "Google Chrome WebAppInstalls 보안 UI 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 WebAppInstalls 관련 보안 UI 오류로 인해 공격자가 제작된 HTML 페이지를 통해 UI 스푸핑 공격을 수행할 수 있었습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:58.260742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3934",
+    "title": "ChromeDriver의 정책 미흡으로 인한 동일 출처 정책 우회 가능성",
+    "description": "Google Chrome의 ChromeDriver 버전 146.0.7680.71 이전 버전에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 동일 출처 정책을 우회할 수 있었습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:55.759137+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3932",
+    "title": "Android Chrome PDF 정책 미흡으로 인한 우회 가능성",
+    "description": "Android Chrome 브라우저 146.0.7680.71 이전 버전에서 PDF 관련 정책이 미흡하여, 악성 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:50.757427+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3931",
+    "title": "Google Chrome Skia 힙 버퍼 오버플로우 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 Skia의 힙 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:45.755765+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3930",
+    "title": "iOS Google Chrome 탐색 관련 보안 취약점",
+    "description": "iOS Google Chrome 146.0.7680.71 이전 버전에서 악성 HTML 페이지를 통해 탐색 제한을 우회할 수 있는 보안 취약점이 발견되었습니다. 이를 악용한 원격 공격으로 인해 보안 문제가 발생할 수 있습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Unsafe navigation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:40.752817+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3929",
+    "title": "Google Chrome ResourceTiming 정보 유출 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 ResourceTiming 관련 side-channel 정보 유출 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1300"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:38.251473+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3928",
+    "title": "Google Chrome 확장 프로그램 정책 미흡으로 인한 UI 스푸핑 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 확장 프로그램 정책이 제대로 적용되지 않아, 악성 확장 프로그램을 설치한 사용자가 UI 스푸핑 공격에 노출될 수 있었습니다. 공격자는 조작된 Chrome 확장 프로그램을 통해 사용자 인터페이스를 위조할 수 있습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:35.7519+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3927",
+    "title": "Google Chrome Picture-in-Picture 보안 UI 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 Picture-in-Picture 모드의 보안 UI 오류로 인해 악성 HTML 페이지를 통해 UI 스푸핑 공격이 가능했습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:33.248319+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3926",
+    "title": "Google Chrome V8의 경계 외 메모리 읽기 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 V8 엔진의 경계 외 메모리 읽기 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:30.746727+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3925",
+    "title": "Android Chrome LookalikeChecks 보안 UI 취약점",
+    "description": "Android Chrome 146.0.7680.71 이전 버전에서 LookalikeChecks의 잘못된 보안 UI로 인해 공격자가 제작된 HTML 페이지를 통해 UI 스푸핑을 수행할 수 있었습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:27.743379+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3924",
+    "title": "Google Chrome WindowDialog 사용 후 해제 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 WindowDialog의 사용 후 해제 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:26.766629+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3923",
+    "title": "Chrome WebMIDI 사용 후 해제 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 WebMIDI에서 사용 후 해제 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:24.265235+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3922",
+    "title": "Google Chrome MediaStream 사용 후 해제 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 MediaStream의 사용 후 해제 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:21.763941+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3921",
+    "title": "Google Chrome 텍스트 인코딩 Use-after-free 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 텍스트 인코딩 관련 Use-after-free 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:19.262586+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3920",
+    "title": "Google Chrome WebML 메모리 접근 권한 오류",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 WebML에서 경계 외 메모리 접근 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Out of bounds memory access"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:16.76117+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3919",
+    "title": "Google Chrome 확장 프로그램 사용 후 해제 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 악성 확장 프로그램을 설치하도록 유도된 사용자가 조작된 HTML 페이지를 통해 힙 손상을 악용할 수 있는 사용 후 해제 취약점이 존재했습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:13.810414+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3917",
+    "title": "Google Chrome 에이전트의 use-after-free 취약점 (146.0.7680.71 이전 버전)",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 에이전트에서 use-after-free 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:11.307595+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3918",
+    "title": "Google Chrome WebMCP Use-After-Free 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 WebMCP의 use-after-free 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:10.379845+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3915",
+    "title": "Google Chrome WebML 힙 버퍼 오버플로우 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 WebML 관련 힙 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:04.030749+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3916",
+    "title": "Google Chrome Web Speech 경계 외 읽기 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 Web Speech 기능의 경계 외 읽기 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:03.911293+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3914",
+    "title": "Google Chrome WebML 정수 오버플로우 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 WebML에서 정수 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-472"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:03.086698+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3913",
+    "title": "Google Chrome WebML 힙 버퍼 오버플로우 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 WebML 관련 힙 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:44:57.841733+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3962",
+    "title": "Jcharis 머신러닝 웹 앱 Jinja2 템플릿의 XSS 취약점",
+    "description": "Jcharis 머신러닝 웹 앱의 `app.py` 파일 내 `render_template` 함수에서 Jinja2 템플릿 처리 과정의 XSS 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 공개된 익스플로잇이 존재합니다. 해당 프로젝트는 지속적인 배포 방식을 채택하여 버전 정보가 제공되지 않으며, 문제 보고에도 응답하지 않고 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Jcharis",
+        "product": "Machine-Learning-Web-Apps",
+        "versions": "a6996b634d98ccec4701ac8934016e8175b60eb5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:44:57.619893+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-62328",
+    "title": "도미노 기반 HCL Nomad 서버의 기본 frame-ancestors 지시어 누락 취약점",
+    "description": "도미노 기반 HCL Nomad 서버가 Content-Security-Policy 헤더에 frame-ancestors 지시어를 기본적으로 설정하지 않아, 공격자가 불특정 경로를 통해 민감한 정보를 탈취할 수 있는 취약점이 발견되었습니다. 이 문제는 기본 설정 상태에서 발생하며, 적절한 설정이 필요합니다.",
+    "cvss": 3.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1021"
+    ],
+    "affected": [
+      {
+        "vendor": "HCLSoftware",
+        "product": "Nomad server on Domino",
+        "versions": "<1.0.19 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:44:56.784118+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2025-68613",
+    "title": "n8n, 표현식 주입을 통한 원격 코드 실행 취약점",
+    "description": "n8n 워크플로우 자동화 플랫폼의 0.211.0 버전 이전 및 1.120.4, 1.121.1, 1.122.0 이전 버전에 심각한 원격 코드 실행(RCE) 취약점이 존재합니다. 인증된 사용자가 설정하는 표현식이 안전하게 격리되지 않은 상태로 실행되어 악의적인 코드 실행이 가능할 수 있습니다. 최신 버전으로 업그레이드하거나, 권한 제한 및 보안 강화된 환경 배포 등의 임시 조치를 권장합니다.",
+    "cvss": 10,
+    "epss": 0.7898,
+    "is_kev": true,
+    "cwe": [
+      "CWE-913"
+    ],
+    "affected": [
+      {
+        "vendor": "n8n-io",
+        "product": "n8n",
+        "versions": ">= 0.211.0, < 1.120.4 (단일 버전), = 1.121.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/190",
+    "date": "2026-03-11T18:07:00.139815+00:00",
+    "rule_engines": [],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; content:\"/rest/workflows\"; http_uri; fast_pattern; depth:15; content:\"n8n-auth|3d|\"; http_cookie; nocase; content:\"|22|value|22 3a|\"; http_client_body; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/rxerium/CVE-2025-68613",
+      "https://github.com/TheStingR/CVE-2025-68613-POC",
+      "https://github.com/sahilccras/Blackash-CVE-2025-68613"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31875",
+    "title": "Parse Server MFA 복구 코드 사용 후 소모되지 않는 문제",
+    "description": "Parse Server에서 TOTP 기반 다중 인증(MFA) 사용 시, 9.6.0-alpha.7 및 8.6.33 이전 버전에서 생성되는 복구 코드가 일회용으로 작동하지 않아 무제한 재사용이 가능했습니다. 이는 복구 코드의 일회용 설계 의도를 무력화하고 MFA 보호 계정의 보안을 약화시킵니다. 해당 취약점은 9.6.0-alpha.7 및 8.6.33에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-672"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.7 (단일 버전), < 8.6.33 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:48.410138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31839",
+    "title": "Striae의 해시 검증 유틸리티 취약점",
+    "description": "Striae는 법의학 화기 감정 도구입니다. v3.0.0 이전 버전에서 높은 심각도의 무결성 우회 취약점이 존재했습니다. 해시만으로 검증하는 방식은 패키지 내용과 함께 수정될 수 있는 매니페스트 해시 필드를 신뢰하여 변조된 패키지가 무결성 검사를 통과할 수 있었습니다. 이 취약점은 3.0.0에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-354"
+    ],
+    "affected": [
+      {
+        "vendor": "striae-org",
+        "product": "striae",
+        "versions": ">= 0.9.22-0, < 3.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:13:56.220402+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25554",
+    "title": "OpenSIPS 3.1 <= 3.6.4 auth_jwt SQL Injection 취약점을 통한 JWT 인증 우회",
+    "description": "OpenSIPS 3.1에서 3.6.4 이전 버전의 auth_jwt 모듈(commit 3822d33 이전)에 SQL injection 취약점이 존재합니다. db_mode 활성화 시, JWT의 tag 클레임을 검증 없이 SQL 쿼리에 직접 삽입하여 공격자가 악성 JWT를 통해 인증을 우회하고 임의의 사용자로 위장할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0.00066,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSIPS",
+        "product": "OpenSIPS",
+        "versions": "3.1 부터 3.6.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:07:23.201433+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32097",
+    "title": "PingPong의 스레드 파일 엔드포인트에서 부적절한 접근 제어 문제 발견",
+    "description": "PingPong은 LLM 기반 교육 플랫폼입니다. 7.27.2 버전 이전에는 인증된 사용자가 권한 범위를 벗어난 파일에 접근하거나 삭제할 수 있었습니다. 이로 인해 사용자 업로드 파일 및 모델 생성 결과 파일을 포함한 개인 파일이 유출 또는 삭제될 수 있습니다. 7.27.2 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "comppolicylab",
+        "product": "pingpong",
+        "versions": "< 7.27.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T20:53:42.705623+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25467",
+    "title": "Verypdf docPrint Pro 8.0 로컬 SEH 버퍼 오버플로우",
+    "description": "Verypdf docPrint Pro 8.0은 사용자 또는 마스터 비밀번호 필드에 과도한 크기의 영숫자 인코딩된 페이로드를 제공하여 로컬 공격자가 임의 코드를 실행할 수 있는 구조적 예외 처리 버퍼 오버플로우 취약점을 포함합니다. 공격자는 인코딩된 셸코드와 SEH 체인 조작을 통해 보호를 우회하고 PDF 암호화 과정 중 비밀번호 필드 처리 시 MessageBox 개념 증명 코드를 실행할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Verypdf",
+        "product": "docPrint Pro",
+        "versions": "8.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:37.023673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3539",
+    "title": "Chrome DevTools 객체 수명 주기 취약점",
+    "description": "Google Chrome 145.0.7632.159 이전 버전의 DevTools에서 객체 수명 주기 관련 문제가 발견되었습니다. 악성 확장 프로그램을 설치하도록 유도된 사용자는 조작된 Chrome 확장을 통해 힙 손상을 악용당할 수 있습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Object lifecycle issue"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T20:53:25.726771+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-70236",
+    "title": "D-Link DIR-513 v1.10 스택 버퍼 오버플로우 취약점",
+    "description": "D-Link DIR-513 v1.10 장비에서 goform/formSetDomainFilter의 curTime 파라미터를 통해 스택 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 9.8,
+    "epss": 0.00017,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T20:53:09.355856+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-66956",
+    "title": "Asseco SEE Live 2.0의 불안전한 접근 제어",
+    "description": "Asseco SEE Live 2.0의 연락 계획, 이메일, SMS, 팩스 구성 요소에서 발견된 불안전한 접근 제어로 인해 원격 공격자가 계산 가능한 URL을 통해 첨부 파일을 접근 및 실행할 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
+    "cvss": 9.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T21:50:56.991587+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/TheWoodenBench/CVE-2025-66956"
+    ],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-32096",
     "title": "Plunk, 검증되지 않은 AWS SNS 구독 확인을 통한 SSRF 취약점",
     "description": "Plunk는 AWS SES 기반 오픈 소스 이메일 플랫폼입니다. 0.7.0 이전 버전에서 SNS 웹훅 핸들러에 SSRF 취약점이 존재했습니다. 인증되지 않은 공격자가 조작된 요청을 보내 서버가 서버에서 접근 가능한 임의의 호스트에 HTTP GET 요청을 수행하도록 할 수 있었습니다. 이 취약점은 0.7.0에서 해결되었습니다.",
@@ -758,34 +2334,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-66956",
-    "title": "Asseco SEE Live 2.0의 불안전한 접근 제어",
-    "description": "Asseco SEE Live 2.0의 연락 계획, 이메일, SMS, 팩스 구성 요소에서 발견된 불안전한 접근 제어로 인해 원격 공격자가 계산 가능한 URL을 통해 첨부 파일을 접근 및 실행할 수 있습니다. 이는 보안 취약점으로 이어질 수 있습니다.",
-    "cvss": 9.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:56.991587+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/TheWoodenBench/CVE-2025-66956"
-    ],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-0940",
     "title": "일부 ThinkPad BIOS의 잠재적 초기화 취약점",
     "description": "일부 ThinkPad BIOS에서 로컬 권한이 있는 사용자가 데이터를 수정하고 임의 코드를 실행할 수 있는 잠재적인 초기화 취약점이 보고되었습니다. 이 취약점은 BIOS 초기화 과정의 문제로 발생할 수 있습니다. 보안 업데이트를 통해 해결해야 합니다.",
@@ -927,443 +2475,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T19:14:33.098494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32121",
-    "title": "OpenEMR: 포털 서명자 모달의 `.html()`을 통한 저장된 DOM XSS",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 환자 인구 통계 정보를 통해 처방 CSS/HTML 인쇄 보기에서 저장된 XSS 취약점이 발견되었습니다. 이는 jQuery의 `.html()`을 통해 클라이언트 측 DOM 기반 렌더링에서 발생하며, 근본 원인은 동일하지만 다른 구성 요소 및 수정이 필요합니다. 8.0.0.1에서 해당 취약점이 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/196",
-    "date": "2026-03-11T20:52:43.561933+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/HTML))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32118",
-    "title": "OpenEMR Graphical Pain Map 레전드에 저장된 XSS 취약점 (이스케이프되지 않은 주석 텍스트)",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 Graphical Pain Map (\"clickmap\") 양식의 저장된 XSS 취약점을 통해 인증된 임상의가 악의적인 JavaScript 코드를 삽입하여 후속 사용자의 브라우저에서 실행되도록 할 수 있습니다. 세션 쿠키가 HttpOnly로 설정되지 않아 다른 사용자, 심지어 관리자의 세션 하이재킹까지 가능합니다. 8.0.0.1에서 해당 취약점이 해결되었습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:51:53.190296+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32112",
-    "title": "ha-mcp OAuth 동의 폼의 미처리 HTML로 인한 XSS 취약점",
-    "description": "ha-mcp는 Home Assistant MCP 서버입니다. 7.0.0 이전 버전에서 OAuth 동의 폼이 HTML 이스케이핑 없이 Python f-string을 통해 사용자 제어 파라미터를 렌더링합니다. 공격자는 OAuth 엔드포인트에 접근하고 조작된 인증 URL을 서버 운영자에게 유도하여 운영자의 브라우저에서 JavaScript를 실행할 수 있습니다. 이 취약점은 표준 설정이 아니며 명시적 구성이 필요한 베타 OAuth 모드(ha-mcp-oauth) 사용자에게만 영향을 미칩니다. 7.0.0에서 수정되었습니다.",
-    "cvss": 6.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "homeassistant-ai",
-        "product": "ha-mcp",
-        "versions": "< 7.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:51:52.188885+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32110",
-    "title": "SiYuan의 /api/network/forwardProxy를 통한 SSRF 취약점",
-    "description": "SiYuan 개인 지식 관리 시스템 3.6.0 이전 버전에서, 인증된 사용자가 /api/network/forwardProxy 엔드포인트를 통해 서버에서 임의의 HTTP 요청을 수행할 수 있습니다. 사용자가 제어하는 URL을 받아 내부 네트워크, 로컬호스트, 클라우드 메타데이터 서비스 등에 대한 요청을 제한 없이 수행하며, 응답 본문과 헤더를 반환합니다. 3.6.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "siyuan-note",
-        "product": "siyuan",
-        "versions": "< 3.6.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:52:26.449305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32111",
-    "title": "ha-mcp OAuth 2.1 DCR 모드에서 오류 오라클을 통한 네트워크 정찰 가능",
-    "description": "ha-mcp는 Home Assistant MCP 서버입니다. 7.0.0 이전 버전에서 OAuth 동의 양식(베타 기능)이 사용자 제공 ha_url을 검증 없이 사용해 내부 HTTP 요청을 수행합니다. 인증되지 않은 공격자가 임의의 URL을 제출하여 오류 오라클을 통해 내부 네트워크 정찰을 수행할 수 있습니다. REST 및 WebSocket OAuth 도구 호출에서도 동일한 문제가 발생하며, 7.0.0에서 수정되었습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "homeassistant-ai",
-        "product": "ha-mcp",
-        "versions": "< 7.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:51:45.334811+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3957",
-    "title": "xierongwkhd weimai-wetapp Endpoint HomeController.java SQL 삽입 취약점",
-    "description": "xierongwkhd weimai-wetapp의 HomeController.java 파일 내 getLikeMovieList 함수에서 SQL 삽입 취약점이 발견되었습니다. 'cat' 인수를 조작하여 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 있습니다. 해당 프로젝트는 문제 보고를 받았으나 아직 응답하지 않았습니다.",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-74"
-    ],
-    "affected": [
-      {
-        "vendor": "xierongwkhd",
-        "product": "weimai-wetapp",
-        "versions": "5fe9e8225be4f73f2c5087f134aff657bdf1c6f2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:45.151326+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-70041",
-    "title": "oslabs-beta ThermaKube 마스터의 하드코딩된 비밀번호 문제",
-    "description": "oslabs-beta ThermaKube 마스터에서 CWE-259(하드코딩된 비밀번호 사용) 관련 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:51:43.85225+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-32126",
-    "title": "OpenEMR: CDR ControllerRouter의 반전된 ACL 조건으로 인해 인증된 모든 사용자가 임상 규칙 및 계획을 수정/삭제 가능",
-    "description": "OpenEMR 8.0.0.1 이전 버전에서 ControllerRouter::route() 함수의 논리 오류로 인해 관리자/슈퍼 ACL 검사가 일부 컨트롤러에만 적용됩니다. 이로 인해 인증된 모든 사용자가 임상 의사 결정 지원 알림을 억제하거나, 임상 계획을 삭제/수정하고, 규칙 설정을 변경할 수 있습니다. 해당 취약점은 8.0.0.1 버전에서 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/197",
-    "date": "2026-03-11T21:50:42.158976+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/super))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32127",
-    "title": "OpenEMR ajax graphs 라이브러리의 SQL Injection 취약점",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 버전 이전에는 ajax graphs 라이브러리에서 SQL Injection 취약점이 발견되었습니다. 인증된 공격자가 악용할 수 있으며, 입력 값 검증 부족이 원인입니다. 8.0.0.1 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:41.359375+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32125",
-    "title": "OpenEMR: Track Anything 그래프에서 이스케이프되지 않은 Dygraph 제목/레이블을 통한 저장 XSS",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 Track Anything 기능의 트랙/항목 이름이 사용자 입력(POST)으로부터 저장되고, 이스케이프 처리 없이 Dygraph 차트(제목/레이블)에 innerHTML 또는 유사한 방식으로 렌더링됩니다. Track Anything 항목을 생성하거나 편집할 수 있는 사용자는 해당 그래프를 보는 모든 사용자의 브라우저에서 실행되는 스크립트를 삽입할 수 있습니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:35.248466+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32124",
-    "title": "OpenEMR: 동적 코드 선택기에서 이스케이프되지 않은 설명 렌더링 (저장된 XSS)",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 동적 코드 선택기 AJAX 엔드포인트는 HTML 이스케이프 처리 없이 코드 설명(code_text)을 반환합니다. 관리자 또는 코드 관리 권한이 있는 사용자가 악성 스크립트를 포함하는 코드를 생성하거나 수정하면 해당 스크립트가 선택기를 사용하는 모든 사용자의 브라우저에서 실행됩니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:35.0406+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32123",
-    "title": "OpenEMR: 그룹 치료 세션 ACL 적용 오류 수정",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서는 그룹 세션의 민감도 확인 기능에 오류가 있어, 민감 정보(예: 정신 건강)에 접근이 제한되어야 하는 사용자가 해당 정보를 볼 수 있었습니다. 이 문제는 8.0.0.1 버전에서 수정되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:31.447033+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27591",
-    "title": "Winter: 인증된 백엔드 사용자의 권한 상승",
-    "description": "Winter CMS는 Laravel PHP 프레임워크 기반의 오픈소스 CMS입니다. 1.0.477, 1.1.12, 1.2.12 버전 이전에서 인증된 백엔드 사용자가 특수 제작된 요청을 통해 계정의 역할/권한을 수정하여 시스템 접근 권한을 상승시킬 수 있었습니다. 공격자는 백엔드에 사용자 계정으로 접근할 수 있어야 악용 가능하며, 해당 취약점은 1.0.477, 1.1.12, 1.2.12 버전에 의해 해결되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-639",
-      "CWE-915"
-    ],
-    "affected": [
-      {
-        "vendor": "wintercms",
-        "product": "winter",
-        "versions": ">= 1.2.0, < 1.2.12 (단일 버전), >= 1.1.0, < 1.1.12 (단일 버전), < 1.0.477 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:21.157536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-32117",
-    "title": "grafanacubism-panel: 패널 확대/축소 링크의 javascript: URL을 통한 저장된 XSS (에디터 → 뷰어)",
-    "description": "grafanacubism-panel 플러그인은 Grafana에서 cubism.js를 사용할 수 있게 합니다. 0.1.2 버전 이하에서는 패널의 확대/축소 링크 핸들러가 스키마 검증 없이 대시보드 에디터에서 제공된 URL을 `window.location.assign()` 또는 `window.open()`에 직접 전달합니다. 대시보드 에디터 권한을 가진 공격자는 링크를 javascript: URI로 설정하여, 뷰어가 패널을 확대/축소할 때 Grafana 도메인에서 페이로드가 실행되도록 할 수 있습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "ekacnet",
-        "product": "grafanacubism-panel",
-        "versions": "<= 0.1.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:20.61102+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32122",
-    "title": "OpenEMR: 청구 파일 추적기 UI 및 AJAX 엔드포인트 권한 부족 (V2)",
-    "description": "OpenEMR은 무료 오픈 소스 전자 건강 기록 및 의료 진료 관리 애플리케이션입니다. 8.0.0.1 이전 버전에서 청구 파일 추적기 기능은 청구 ID, 지불자 정보, 전송 로그 등의 청구 메타데이터를 반환하는 AJAX 엔드포인트를 노출합니다. 이 엔드포인트는 주요 청구 워크플로우와 동일한 ACL을 적용하지 않아 적절한 청구 권한이 없는 인증된 사용자도 데이터에 접근할 수 있습니다. 이 취약점은 8.0.0.1에서 수정되었습니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "openemr",
-        "product": "openemr",
-        "versions": "< 8.0.0.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:52:03.325313+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32128",
-    "title": "FastGPT Python 샌드박스 파일 쓰기 제한 우회",
-    "description": "FastGPT는 AI 에이전트 구축 플랫폼입니다. 4.14.7 버전 이하에서 FastGPT의 Python 샌드박스는 파일 쓰기를 방지하기 위한 보호 장치(정적 탐지 + seccomp)를 포함합니다. 하지만 `fcntl`을 사용하여 stdout(fd 1)을 임의의 쓰기 가능한 파일 디스크립터로 재매핑하여 이러한 보호 장치를 우회할 수 있습니다. 재매핑 후 `sys.stdout.write()`를 통한 쓰기는 `write(fd==1)` seccomp 규칙을 만족하며, 샌드박스 컨테이너 내에서 의도된 파일 쓰기 제한에도 불구하고 임의의 파일 생성/덮어쓰기가 가능합니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-184"
-    ],
-    "affected": [
-      {
-        "vendor": "labring",
-        "product": "FastGPT",
-        "versions": "<= 4.14.7 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T21:50:01.488852+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1787,32 +2898,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32097",
-    "title": "PingPong의 스레드 파일 엔드포인트에서 부적절한 접근 제어 문제 발견",
-    "description": "PingPong은 LLM 기반 교육 플랫폼입니다. 7.27.2 버전 이전에는 인증된 사용자가 권한 범위를 벗어난 파일에 접근하거나 삭제할 수 있었습니다. 이로 인해 사용자 업로드 파일 및 모델 생성 결과 파일을 포함한 개인 파일이 유출 또는 삭제될 수 있습니다. 7.27.2 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "comppolicylab",
-        "product": "pingpong",
-        "versions": "< 7.27.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T20:53:42.705623+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-32098",
@@ -2412,32 +3497,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2019-25467",
-    "title": "Verypdf docPrint Pro 8.0 로컬 SEH 버퍼 오버플로우",
-    "description": "Verypdf docPrint Pro 8.0은 사용자 또는 마스터 비밀번호 필드에 과도한 크기의 영숫자 인코딩된 페이로드를 제공하여 로컬 공격자가 임의 코드를 실행할 수 있는 구조적 예외 처리 버퍼 오버플로우 취약점을 포함합니다. 공격자는 인코딩된 셸코드와 SEH 체인 조작을 통해 보호를 우회하고 PDF 암호화 과정 중 비밀번호 필드 처리 시 MessageBox 개념 증명 코드를 실행할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Verypdf",
-        "product": "docPrint Pro",
-        "versions": "8.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:13:37.023673+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2019-25465",
@@ -3492,32 +4551,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-31875",
-    "title": "Parse Server MFA 복구 코드 사용 후 소모되지 않는 문제",
-    "description": "Parse Server에서 TOTP 기반 다중 인증(MFA) 사용 시, 9.6.0-alpha.7 및 8.6.33 이전 버전에서 생성되는 복구 코드가 일회용으로 작동하지 않아 무제한 재사용이 가능했습니다. 이는 복구 코드의 일회용 설계 의도를 무력화하고 MFA 보호 계정의 보안을 약화시킵니다. 해당 취약점은 9.6.0-alpha.7 및 8.6.33에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-672"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.7 (단일 버전), < 8.6.33 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:48.410138+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30226",
     "title": "devalue 라이브러리의 prototype pollution 취약점 (devalue.parse 및 devalue.unflatten)",
     "description": "Svelte의 devalue 라이브러리 v5.6.3 이하 버전에서 `devalue.parse` 및 `devalue.unflatten` 함수를 통해 prototype pollution 공격이 가능합니다. 악의적인 페이로드를 사용하여 서비스 거부(DoS) 또는 타입 혼동을 유발할 수 있습니다. 해당 취약점은 v5.6.4에서 해결되었습니다.",
@@ -3542,66 +4575,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-68613",
-    "title": "n8n, 표현식 주입을 통한 원격 코드 실행 취약점",
-    "description": "n8n 워크플로우 자동화 플랫폼의 0.211.0 버전 이전 및 1.120.4, 1.121.1, 1.122.0 이전 버전에 심각한 원격 코드 실행(RCE) 취약점이 존재합니다. 인증된 사용자가 설정하는 표현식이 안전하게 격리되지 않은 상태로 실행되어 악의적인 코드 실행이 가능할 수 있습니다. 최신 버전으로 업그레이드하거나, 권한 제한 및 보안 강화된 환경 배포 등의 임시 조치를 권장합니다.",
-    "cvss": 10,
-    "epss": 0.7898,
-    "is_kev": true,
-    "cwe": [
-      "CWE-913"
-    ],
-    "affected": [
-      {
-        "vendor": "n8n-io",
-        "product": "n8n",
-        "versions": ">= 0.211.0, < 1.120.4 (단일 버전), = 1.121.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/190",
-    "date": "2026-03-11T18:07:00.139815+00:00",
-    "rule_engines": [],
-    "has_official_rules": true,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [
-        {
-          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; content:\"/rest/workflows\"; http_uri; fast_pattern; depth:15; content:\"n8n-auth|3d|\"; http_cookie; nocase; content:\"|22|value|22 3a|\"; http_client_body; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
-          "engine": "snort2",
-          "source": "Public (Snort 2.9 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata5",
-          "source": "Public (Suricata 5 ET Open)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Node.js n8n Authenticated Workflow Expression Injection (CVE-2025-68613)\"; flow:established,to_server; http.uri; content:\"/rest/workflows\"; fast_pattern; startswith; http.cookie; content:\"n8n-auth|3d|\"; nocase; http.request_body; content:\"|22|value|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*?\\x3d\\x7b{2}/R\"; reference:url,github.com/n8n-io/n8n/security/advisories/GHSA-v98v-ff95-f3cp; reference:cve,2025-68613; classtype:web-application-attack; sid:2066448; rev:2; metadata:affected_product Node_js, attack_target Server, tls_state TLSDecrypt, created_at 2025_12_23, cve CVE_2025_68613, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_01_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "engine": "suricata7",
-          "source": "Public (Suricata 7 ET Open)",
-          "verified": true,
-          "indicators": null
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
-      }
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/rxerium/CVE-2025-68613",
-      "https://github.com/TheStingR/CVE-2025-68613-POC",
-      "https://github.com/sahilccras/Blackash-CVE-2025-68613"
-    ],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-31870",
@@ -4526,32 +5499,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-31839",
-    "title": "Striae의 해시 검증 유틸리티 취약점",
-    "description": "Striae는 법의학 화기 감정 도구입니다. v3.0.0 이전 버전에서 높은 심각도의 무결성 우회 취약점이 존재했습니다. 해시만으로 검증하는 방식은 패키지 내용과 함께 수정될 수 있는 매니페스트 해시 필드를 신뢰하여 변조된 패키지가 무결성 검사를 통과할 수 있었습니다. 이 취약점은 3.0.0에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-354"
-    ],
-    "affected": [
-      {
-        "vendor": "striae-org",
-        "product": "striae",
-        "versions": ">= 0.9.22-0, < 3.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:13:56.220402+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-31857",
@@ -55918,32 +56865,6 @@
     "severity": "Low"
   },
   {
-    "id": "CVE-2026-25554",
-    "title": "OpenSIPS 3.1 <= 3.6.4 auth_jwt SQL Injection 취약점을 통한 JWT 인증 우회",
-    "description": "OpenSIPS 3.1에서 3.6.4 이전 버전의 auth_jwt 모듈(commit 3822d33 이전)에 SQL injection 취약점이 존재합니다. db_mode 활성화 시, JWT의 tag 클레임을 검증 없이 SQL 쿼리에 직접 삽입하여 공격자가 악성 JWT를 통해 인증을 우회하고 임의의 사용자로 위장할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0.00066,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSIPS",
-        "product": "OpenSIPS",
-        "versions": "3.1 부터 3.6.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:07:23.201433+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24103",
     "title": "Tenda AC15V1.0 V15.03.05.18_multi 버퍼 오버플로우 취약점",
     "description": "Tenda AC15V1.0 V15.03.05.18_multi 펌웨어의 goform/formSetMacFilterCfg에서 버퍼 오버플로우 취약점이 발견되었습니다.",
@@ -59646,32 +60567,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-3539",
-    "title": "Chrome DevTools 객체 수명 주기 취약점",
-    "description": "Google Chrome 145.0.7632.159 이전 버전의 DevTools에서 객체 수명 주기 관련 문제가 발견되었습니다. 악성 확장 프로그램을 설치하도록 유도된 사용자는 조작된 Chrome 확장을 통해 힙 손상을 악용당할 수 있습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Object lifecycle issue"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T20:53:25.726771+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25906",
     "title": "Dell Optimizer 파일 접근 전 잘못된 링크 해결 취약점",
     "description": "Dell Optimizer 6.3.1 이전 버전에 파일 접근 전 링크 해결 취약점(Link Following)이 존재합니다. 로컬 접근 권한을 가진 저권한 공격자가 이 취약점을 악용하여 권한 상승을 유발할 수 있습니다.",
@@ -62078,32 +62973,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-70236",
-    "title": "D-Link DIR-513 v1.10 스택 버퍼 오버플로우 취약점",
-    "description": "D-Link DIR-513 v1.10 장비에서 goform/formSetDomainFilter의 curTime 파라미터를 통해 스택 버퍼 오버플로우 취약점이 발견되었습니다.",
-    "cvss": 9.8,
-    "epss": 0.00017,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T20:53:09.355856+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-1763",
