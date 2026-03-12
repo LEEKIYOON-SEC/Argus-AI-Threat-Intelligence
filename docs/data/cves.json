@@ -1,5 +1,1635 @@
 [
   {
+    "id": "CVE-2026-21670",
+    "title": "저장된 SSH 자격 증명 탈취 취약점",
+    "description": "낮은 권한의 사용자가 저장된 SSH 자격 증명을 추출할 수 있는 취약점입니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Backup and Replication",
+        "versions": "13.0.1 부터 13.0.1 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/212",
+    "date": "2026-03-12T15:15:40.400183+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21669",
+    "title": "백업 서버 원격 코드 실행 취약점",
+    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Backup and Replication",
+        "versions": "13.0.1 부터 13.0.1 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/210",
+    "date": "2026-03-12T15:14:41.472178+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-21669 Remote Code Execution Attempt on Veeam Backup Server\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-21669 by executing arbitrary commands through the Veeam Backup and Replication service on a backup server.\nauthor: Senior Detection Engineer\ndate: 2026-03-12\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\Veeam.Backup.Service.exe'\n    selection_cmd:\n        CommandLine|contains|any:\n            - 'powershell'\n            - 'cmd.exe'\n            - 'cscript'\n            - 'wscript'\n            - 'Invoke-Expression'\n            - '-EncodedCommand'\n            - '-ExecutionPolicy'\n    selection_user:\n        SubjectUserName|contains: 'DOMAIN\\\\'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.21669\n    - attack.execution\n    - attack.t1190\n    - veeam\n    - backup\n    - remote_code_execution",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21668",
+    "title": "백업 저장소 임의 파일 조작 취약점",
+    "description": "인증된 도메인 사용자가 제한을 우회하여 백업 저장소의 임의 파일을 조작할 수 있는 취약점입니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Backup and Replication",
+        "versions": "12.3.2 부터 12.3.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/209",
+    "date": "2026-03-12T15:13:33.88277+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4044",
+    "title": "projectsend import-orphans.php 경로 탐색 취약점",
+    "description": "projectsend r1945 버전 이하에서 Delete Handler 컴포넌트의 /import-orphans.php 파일 내 realpath 함수에 경로 탐색 취약점이 발견되었습니다. files[] 인수를 조작하여 공격이 가능하며, 원격으로 악용될 수 있습니다. 해당 취약점 정보가 공개되었고, 벤더에 통보했으나 응답이 없습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "projectsend",
+        "versions": "r1945 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:14.610924+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4043",
+    "title": "Tenda i12 wifiSSIDget 함수 스택 기반 오버플로우 취약점",
+    "description": "Tenda i12 1.0.0.6(2204) 버전에서 /goform/wifiSSIDget 파일의 formwrlSSIDget 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 인자 인덱스 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "i12",
+        "versions": "1.0.0.6(2204) (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:14.10493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21667",
+    "title": "백업 서버 원격 코드 실행 취약점",
+    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Backup and Replication",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/208",
+    "date": "2026-03-12T15:13:23.786643+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21666",
+    "title": "백업 서버 원격 코드 실행 취약점",
+    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Veeam",
+        "product": "Backup and Replication",
+        "versions": "12.3.2 부터 12.3.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/207",
+    "date": "2026-03-12T15:13:06.0648+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-57622",
+    "title": "Step-Video-T2V 원격 코드 실행 취약점",
+    "description": "Step-Video-T2V의 /vae-api, /caption-api 컴포넌트에서 원격 공격자가 임의 코드를 실행할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 9.8,
+    "epss": 0.00076,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:09.005325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27777",
+    "title": "Mobiliti e-mobi.hu 자격 증명 보호 미흡",
+    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 유출 위험이 존재합니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "Mobiliti",
+        "product": "e-mobi.hu",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:14:20.263317+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-25543",
+    "title": "Netartmedia 부동산 포털 5.0 SQL Injection 취약점",
+    "description": "Netartmedia 부동산 포털 5.0 버전에서 인증되지 않은 공격자가 `index.php`의 `page` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 악의적인 SQL 페이로드를 `page` 필드에 담아 POST 요청을 보내 인증 우회, 민감 정보 탈취, 데이터베이스 내용 변경 등이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Real Estate Portal",
+        "versions": "5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:06.63751+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25542",
+    "title": "Netartmedia 부동산 포털 5.0 SQL Injection 취약점",
+    "description": "Netartmedia 부동산 포털 5.0은 user_email 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함하고 있습니다. 인증되지 않은 공격자는 index.php에 악성 페이로드를 담아 POST 요청을 보내 인증을 우회하고, 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Real Estate Portal",
+        "versions": "5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:03.634605+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25541",
+    "title": "Netartmedia PHP Mall 4.1 다중 SQL Injection 취약점",
+    "description": "Netartmedia PHP Mall 4.1 버전에서 인증되지 않은 공격자가 매개변수 검증 부재로 인해 다중 SQL Injection 취약점이 발견되었습니다. 'id' (index.php) 또는 'Email' (loginaction.php) 매개변수를 통해 시간 기반 Blind SQL Injection 페이로드를 삽입하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia PHP Mall",
+        "versions": "4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:20:00.997898+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25540",
+    "title": "Netartmedia PHP Mall 4.1 다중 SQL Injection 취약점",
+    "description": "Netartmedia PHP Mall 4.1 버전에서 다수의 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 다양한 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 사용자 계정 정보 및 시스템 데이터와 같은 민감한 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia PHP Mall",
+        "versions": "4.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:58.496547+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25539",
+    "title": "202CMS v10 베타 SQL Injection 취약점",
+    "description": "202CMS v10 베타 버전에서 인증되지 않은 공격자가 `register.php`를 통해 SQL injection 공격을 수행할 수 있습니다. `log_user` 파라미터를 이용해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하며, 시간 기반 blind SQL injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Sourceforge",
+        "product": "202CMS",
+        "versions": "v10 beta (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:55.993485+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25538",
+    "title": "202CMS v10 베타 버전의 log_user 파라미터를 통한 SQL Injection 취약점",
+    "description": "202CMS v10 베타 버전에서 인증되지 않은 공격자가 log_user 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 악의적인 SQL 구문을 포함한 요청을 전송하여 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 변경할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Sourceforge",
+        "product": "202CMS",
+        "versions": "v10 beta (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:48.491518+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25537",
+    "title": "Netartmedia Event Portal 2.0 SQL Injection 취약점",
+    "description": "Netartmedia Event Portal 2.0에서 인증되지 않은 공격자가 `loginaction.php`의 Email 파라미터를 통해 SQL 코드를 삽입하여 시간 기반 블라인드 SQL Injection 공격을 수행할 수 있습니다. 악의적인 SQL 페이로드를 POST 요청으로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Event Portal",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:43.490034+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25536",
+    "title": "Netartmedia PHP 부동산 에이전시 4.0 SQL Injection 취약점",
+    "description": "Netartmedia PHP 부동산 에이전시 4.0 버전에서 `features[]` 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있습니다. 이를 통해 데이터베이스 정보를 탈취하거나 데이터베이스 쿼리를 조작할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia PHP Real Estate Agency",
+        "versions": "4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:38.489287+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25535",
+    "title": "Netartmedia PHP 데이팅 사이트 SQL Injection 취약점",
+    "description": "Netartmedia PHP 데이팅 사이트의 loginaction.php에서 인증되지 않은 공격자가 SQL injection을 통해 데이터베이스 쿼리를 조작할 수 있는 취약점이 발견되었습니다. 이메일 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 정보를 탈취할 수 있습니다. POST 요청 시 loginaction.php의 이메일 필드에 시간 기반 SQL injection 페이로드를 사용하여 공격이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Php Dating Site",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:33.481269+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25534",
+    "title": "Netartmedia PHP 자동차 딜러 SQL Injection 취약점",
+    "description": "Netartmedia PHP 자동차 딜러에 인증되지 않은 공격자가 `features[]` 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 `index.php`에 조작된 SQL 페이로드를 `features[]` 파라미터로 전송하여 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 쿼리를 조작할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia PHP Car Dealer",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:30.977441+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25533",
+    "title": "Netartmedia PHP Business Directory 4.2 SQL Injection 취약점",
+    "description": "Netartmedia PHP Business Directory 4.2 버전에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회할 수 있습니다. 공격자는 `loginaction.php` 엔드포인트로 조작된 SQL 페이로드를 POST 요청으로 전송합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Phpbusinessdirectory",
+        "product": "Netartmedia PHP Business Directory",
+        "versions": "4.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:30.172793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25532",
+    "title": "Netartmedia 채용 포털 6.1 SQL Injection 취약점",
+    "description": "Netartmedia 채용 포털 6.1에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 이용하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회하는 데 사용될 수 있습니다. 공격자는 조작된 SQL 페이로드를 Email 필드에 담아 POST 요청을 보낼 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Jobs Portal",
+        "versions": "6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:27.671586+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25530",
+    "title": "uHotelBooking 시스템의 system_page 파라미터 SQL Injection 취약점",
+    "description": "uHotelBooking 시스템은 system_page GET 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함하고 있습니다. 인증되지 않은 공격자는 시간 기반 블라인드 SQL Injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. index.php 파일에 악성 system_page 값을 포함한 요청을 전송하여 공격이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Hotel-Booking-Script",
+        "product": "uHotelBooking System",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:24.746476+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25531",
+    "title": "Netartmedia Deals Portal의 loginaction.php SQL Injection 취약점",
+    "description": "Netartmedia Deals Portal의 loginaction.php 파일 내 Email 파라미터에서 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 데이터베이스 쿼리를 조작하여 민감한 정보를 탈취하거나 인증을 우회할 수 있습니다. POST 요청을 통해 악성 SQL 코드를 삽입하는 방식으로 공격이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Deals Portal",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:22.24486+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25529",
+    "title": "Placeto CMS Alpha rv.4 페이지 파라미터 SQL Injection 취약점",
+    "description": "Placeto CMS Alpha rv.4는 'page' 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함합니다. 인증된 공격자는 boolean 기반, time 기반, union 기반 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. 공격은 admin/edit.php 엔드포인트에 악성 'page' 값을 포함한 GET 요청을 통해 이루어집니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Sourceforge",
+        "product": "Placeto CMS",
+        "versions": "0.4a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:20.257108+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25528",
+    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
+    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 property1 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 search/searchdetailed 엔드포인트에 악성 SQL 페이로드를 포함한 POST 요청을 전송하여 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout EasyRooms Ultimate Edition",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:17.44186+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25527",
+    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
+    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 `numguest` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 `search/searchdetailed` 엔드포인트로 POST 요청하여 인증을 우회하고, 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout EasyRooms Ultimate Edition",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:14.938178+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25526",
+    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
+    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 `location` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 `search/searchdetailed` 엔드포인트에 악성 SQL 페이로드를 포함한 POST 요청을 전송하여 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout EasyRooms Ultimate Edition",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:11.934853+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25525",
+    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
+    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 `guests` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 악의적인 SQL 페이로드를 `search/rentals` 엔드포인트로 POST 요청하여 인증 우회, 민감한 데이터 추출, 또는 데이터베이스 내용 변경이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout EasyRooms Ultimate Edition",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:09.433323+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25524",
+    "title": "XooGallery 최신 버전 SQL Injection 취약점 (results.php)",
+    "description": "XooGallery 최신 버전에서 'p' 파라미터를 통해 SQL injection 공격이 가능한 취약점이 발견되었습니다. 인증되지 않은 공격자가 results.php 파일에 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 인증 우회, 민감 정보 탈취, 데이터베이스 내용 변경 등이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooGallery",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:09.154513+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25523",
+    "title": "XooGallery 최신 버전의 cat.php를 통한 SQL Injection 취약점",
+    "description": "XooGallery 최신 버전에서 cat_id 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 인증 우회, 민감 정보 유출, 또는 데이터베이스 내용 변경이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooGallery",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:06.653278+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25522",
+    "title": "XooGallery 최신 버전의 photo.php에서 다중 SQL Injection 취약점 발견",
+    "description": "XooGallery 최신 버전에서 인증되지 않은 공격자가 photo_id 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 다중 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 photo_id 값을 포함한 GET 요청을 photo.php로 전송하여 민감한 데이터를 탈취하거나, 인증을 우회하거나, 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooGallery",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:04.152338+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25521",
+    "title": "XooGallery 최신 버전의 gal.php를 통한 SQL Injection 취약점",
+    "description": "XooGallery 최신 버전에서 gal_id 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 gal.php에 악성 gal_id 값을 전송하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooGallery",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:04.151237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25520",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 인증 우회",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1의 관리자 패널에 인증 우회 취약점이 존재합니다. 공격자는 부적절한 SQL 쿼리 검증을 이용하여 인증 없이 관리자 권한을 획득할 수 있습니다. `admingiris.php` 로그인 폼의 사용자 이름 및 비밀번호 필드에 SQL injection 페이로드를 제출하여 인증을 우회하고 관리자 인터페이스에 접근할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:01.649826+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25519",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1에서 'option' 파라미터를 통해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하는 SQL Injection 취약점이 발견되었습니다. 공격자는 'uyelik.php'로 조작된 페이로드를 POST 요청하여 시간 기반 SQL Injection 공격을 수행하고 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:58.664567+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25518",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1에서 인증되지 않은 공격자가 `arama.php`를 통해 SQL injection 공격을 수행할 수 있습니다. `poll` 파라미터를 이용해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하고, 민감한 정보를 탈취하거나 데이터베이스 내용을 변경할 수 있습니다. POST 요청을 통해 공격이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:56.162157+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25517",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1에서 인증되지 않은 공격자가 `haberarsiv.php`의 `cid` 파라미터를 통해 SQL injection 공격을 수행할 수 있습니다. 악의적인 `cid` 값을 사용하여 데이터베이스 쿼리를 조작하고, UNION 기반 injection을 통해 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:53.503707+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25516",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1에서 `gallery.php`를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 `gallery_id` 파라미터를 이용하여 데이터베이스 쿼리를 조작할 수 있습니다. UNION 기반 SQL Injection을 통해 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:50.999995+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25515",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V3 인증 우회",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V3의 관리자 페이지(login.php)에 인증 우회 취약점이 존재합니다. 공격자는 조작된 SQL 구문을 통해 유효한 자격 증명 없이 관리자 권한을 획득할 수 있습니다. 사용자 이름 및 비밀번호 필드에 '=' 및 'or' 연산자를 사용하여 인증을 우회합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:48.496804+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25514",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V3 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V3에서 POST 요청의 'kelime' 파라미터를 통해 SQL Injection 공격이 가능합니다. 공격자는 UNION 기반 SQL Injection 페이로드를 사용하여 데이터베이스에서 민감한 정보를 탈취하거나 인증을 우회할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:45.99509+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25513",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V3 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V3에서 'q' 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 datagetir.php 파일에 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 시간 기반 블라인드 SQL injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취하거나 인증을 우회할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:43.493673+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25512",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V3 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V3에 POST 요청의 'kelime' 파라미터를 통해 악성 SQL 명령어를 삽입할 수 있는 SQL Injection 취약점이 존재합니다. 공격자는 UNION 기반 SQL Injection 페이로드를 사용하여 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:40.491852+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25511",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V3 SQL Injection 취약점",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V3에서 인증되지 않은 공격자가 `videoid` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 `fonksiyonlar.php`에 악성 `videoid` 값을 포함한 GET 요청을 보내 UNION 기반 SQL Injection을 통해 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:37.988325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25510",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V2 인증 우회",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V2의 관리자 패널에 인증 우회 취약점이 존재합니다. 공격자는 부적절한 SQL 쿼리 검증을 이용하여 인증 없이 관리자 권한을 획득할 수 있습니다. `admingiris.php` 로그인 폼의 사용자 이름 및 비밀번호 필드에 SQL injection 페이로드를 삽입하여 인증을 우회하고 관리자 인터페이스에 접근할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:35.330556+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25509",
+    "title": "XooDigital 최신 버전 results.php SQL Injection 취약점",
+    "description": "XooDigital 최신 버전에서 'p' 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 results.php에 악성 'p' 값을 포함한 GET 요청을 보내 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooDigital",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:32.634333+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25508",
+    "title": "Jettweb Php 구인구직 사이트 스크립트 V2 SQL Injection 취약점",
+    "description": "Jettweb Php 구인구직 사이트 스크립트 V2는 'kat' 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함합니다. 인증되지 않은 공격자는 악성 'kat' 값을 포함한 GET 요청을 katgetir.php 엔드포인트로 전송하여 민감한 데이터베이스 정보를 유출할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Ilan Sitesi Scripti",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:30.130492+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25482",
+    "title": "Jettweb PHP 렌터카 사이트 스크립트 V2 SQL Injection 취약점",
+    "description": "Jettweb PHP 렌터카 사이트 스크립트 V2에서 `arac_kategori_id` 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 악성 SQL 페이로드를 POST 요청으로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Rent A Car Sitesi Scripti",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/216",
+    "date": "2026-03-12T16:18:27.934562+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25481",
+    "title": "iScripts ReserveLogic 최신 SQL Injection 취약점 - 검색 엔드포인트",
+    "description": "iScripts ReserveLogic에서 인증되지 않은 공격자가 `jqSearchDestination` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 조작된 SQL 페이로드를 포함한 POST 요청을 검색 엔드포인트로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Iscripts",
+        "product": "iScripts ReserveLogic",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/215",
+    "date": "2026-03-12T16:18:27.61971+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25488",
+    "title": "Jettweb Hazir Rent A Car Script V4 SQL Injection 취약점",
+    "description": "Jettweb Hazir Rent A Car Script V4 관리자 패널에 인증되지 않은 공격자가 GET 파라미터를 통해 SQL injection을 수행할 수 있는 다수의 취약점이 존재합니다. 'tur', 'id', 'ozellikdil' 파라미터를 악용하여 데이터베이스 정보를 탈취하거나 서비스 거부 공격을 유발할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Rent A Car Scripti",
+        "versions": "4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:24.665164+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25479",
+    "title": "Inout RealEstate 최신 SQL Injection 취약점 (agentlistdetails)",
+    "description": "Inout RealEstate에서 인증되지 않은 공격자가 city 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 city 파라미터에 담아 agents/agentlistdetails 엔드포인트에 POST 요청을 보내 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout RealEstate",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:19.369119+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25473",
+    "title": "Clinic Pro SQL Injection 취약점 - monthly_expense_overview 월 파라미터",
+    "description": "Clinic Pro에서 인증된 공격자가 `monthly_expense_overview` 엔드포인트의 `month` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. Boolean 기반, Time 기반, Error 기반 SQL Injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. POST 요청을 통해 조작된 `month` 값을 전송하여 공격이 가능합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Softwebinternational",
+        "product": "Clinic Pro",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:17.300537+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2012-10056",
+    "title": "PHP 자원봉사 관리 시스템 1.0.2 임의 파일 업로드 취약점",
+    "description": "PHP 자원봉사 관리 시스템 v1.0.2 버전에서 문서 업로드 기능에 임의 파일 업로드 취약점이 존재합니다. 인증된 사용자가 파일 유형이나 확장자 제한 없이 `mods/documents/uploads/` 디렉토리에 파일을 업로드할 수 있으며, 해당 디렉토리가 공개적으로 접근 가능하고 실행 제어가 없어 악성 PHP 파일을 업로드하여 원격으로 실행할 수 있습니다. 기본 계정 정보가 함께 제공되어 공격이 용이합니다.",
+    "cvss": 8.7,
+    "epss": 0.32753,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "PHP Volunteer Management",
+        "product": "PHP Volunteer Management",
+        "versions": "1.0.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:50:44.587953+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2009-10005",
+    "title": "ContentKeeper 웹 어플라이언스 125.10 미만 버전 임의 파일 접근 취약점",
+    "description": "ContentKeeper 웹 어플라이언스(Impero Software에서 유지 관리) 125.10 이전 버전은 CGI 엔드포인트를 통해 mimencode 바이너리를 노출합니다. 이를 통해 인증되지 않은 공격자가 파일 시스템에서 임의의 파일을 탈취할 수 있습니다. /cgi-bin/ck/mimencode에 대한 POST 요청을 조작하여 웹 루트 외부의 민감한 파일(예: /etc/passwd)을 읽을 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.45401,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "ContentKeeper Technologies",
+        "product": "Web Appliance",
+        "versions": "* 부터 125.10 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:38:57.304327+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2011-10020",
+    "title": "Kaillera 0.86 서버 변조된 UDP 패킷을 통한 DoS 공격",
+    "description": "Kaillera 서버 0.86 버전은 초기 핸드셰이크 이후 변조된 UDP 패킷을 전송하여 서비스 거부(DoS) 공격에 취약합니다. 유효한 HELLO0.83 패킷을 보내고 응답을 받으면, 이후의 모든 변조된 패킷은 서버 충돌 및 응답 불가 상태를 유발합니다. 이는 서버의 UDP 패킷 처리기의 부적절한 입력 유효성 검증으로 인해 발생하며, 인증되지 않은 원격 공격자가 서비스 가용성을 방해할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.47259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Kaillera Project",
+        "product": "Server",
+        "versions": "* 부터 0.86 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:43:37.381561+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2013-10039",
+    "title": "GestioIP 3.0 ip_checkhost.cgi 원격 코드 실행 취약점",
+    "description": "GestioIP 3.0 버전 ac67be 이하의 ip_checkhost.cgi 파일에 명령 삽입 취약점이 존재합니다. 'ip' 파라미터에 특수하게 조작된 입력을 통해 공격자가 서버에서 임의의 셸 명령을 실행할 수 있습니다. 배포 구성에 따라 인증이 필요할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.56462,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "GestioIP",
+        "product": "IPAM",
+        "versions": "* 부터 3.0 commit ac67be 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:50:44.521788+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1720",
+    "title": "WowOptin: 차세대 팝업 제작기 – 멋진 팝업 및 리드 생성 옵션 <= 1.4.24 - 인증된 사용자(Subscriber+)의 임의 플러그인 설치 권한 부족",
+    "description": "WowOptin 플러그인은 1.4.24 버전까지 'install_and_active_plugin' 함수에서 권한 검사가 누락되어 인증된 공격자(Subscriber 이상)가 임의의 플러그인을 설치 및 활성화할 수 있는 취약점이 있습니다. 이는 WordPress 웹사이트 보안에 심각한 위험을 초래할 수 있습니다. 즉, 낮은 권한의 사용자도 악성 플러그인을 설치할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wpxpo",
+        "product": "WowOptin: Next-Gen Popup Maker – Create Stunning Popups and Optins for Lead Generation",
+        "versions": "* 부터 1.4.24 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:18:48.415728+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3544",
+    "title": "Google Chrome WebCodecs 힙 버퍼 오버플로우 취약점",
+    "description": "Google Chrome 145.0.7632.159 이전 버전의 WebCodecs에서 제작된 HTML 페이지를 통해 원격 공격자가 메모리 경계 밖 쓰기를 수행할 수 있는 힙 버퍼 오버플로우 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 8.8,
+    "epss": 0.0003,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:32:42.64265+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3540",
+    "title": "Google Chrome WebAudio 취약점 (CVE-2024-2579)",
+    "description": "Google Chrome 145.0.7632.159 이전 버전의 WebAudio 구현 상의 부적절한 처리로 인해, 악의적인 HTML 페이지를 통해 원격 공격자가 메모리 접근 오류를 발생시킬 수 있었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 8.8,
+    "epss": 0.00032,
+    "is_kev": false,
+    "cwe": [
+      "Inappropriate implementation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:32:30.592828+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25235",
+    "title": "Smartwares HOME easy 1.0.9 웹 페이지를 통한 클라이언트 측 인증 우회",
+    "description": "Smartwares HOME easy 1.0.9 버전에서 JavaScript를 비활성화하여 관리자 웹 페이지에 접근하는 인증 우회 취약점이 발견되었습니다. 공격자는 여러 관리자 엔드포인트에 접근하여 클라이언트 측 검증을 우회하고 민감한 시스템 정보에 접근할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00313,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Smartwares",
+        "product": "Smartwares HOME easy",
+        "versions": "1.0.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:10:19.757871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3545",
+    "title": "Google Chrome 탐색 기능의 데이터 유효성 검사 부족 취약점",
+    "description": "Google Chrome 145.0.7632.159 이전 버전에서 탐색 기능의 데이터 유효성 검사 부족으로 인해 악성 HTML 페이지를 통해 원격 공격자가 샌드박스를 탈출할 수 있는 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 9.6,
+    "epss": 0.00035,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient data validation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:31:00.663857+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-12543",
+    "title": "Undertow-core: 잘못된 Host 헤더 거부 실패로 인한 캐시 포이즈닝 및 SSRF 취약점",
+    "description": "Undertow HTTP 서버 코어(WildFly, JBoss EAP 등 사용)에서 Host 헤더 유효성 검증이 제대로 이루어지지 않는 취약점이 발견되었습니다. 악의적인 Host 헤더를 포함한 요청이 거부되지 않아 캐시 포이즈닝, 내부 네트워크 스캔, 사용자 세션 탈취 등의 공격이 가능합니다.",
+    "cvss": 9.6,
+    "epss": 0.00056,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat build of Apache Camel 4.14.4 for Spring Boot 3.5.11",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.1",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat JBoss Enterprise Application Platform 8.1 for RHEL 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:12:42.618131+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2023-43010",
     "title": "메모리 관리 개선을 통한 문제 해결",
     "description": "악성 웹 콘텐츠 처리 시 메모리 손상이 발생할 수 있는 문제가 개선되었습니다.",
@@ -943,39 +2573,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-21670",
-    "title": "저장된 SSH 자격 증명 탈취 취약점",
-    "description": "낮은 권한의 사용자가 저장된 SSH 자격 증명을 추출할 수 있는 취약점입니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Veeam",
-        "product": "Backup and Replication",
-        "versions": "13.0.1 부터 13.0.1 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/212",
-    "date": "2026-03-12T15:15:40.400183+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3929",
     "title": "Google Chrome ResourceTiming 정보 유출 취약점",
     "description": "Google Chrome 146.0.7680.71 이전 버전에서 ResourceTiming 관련 side-channel 정보 유출 취약점이 발견되었습니다.",
@@ -1241,144 +2838,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-21669",
-    "title": "백업 서버 원격 코드 실행 취약점",
-    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Veeam",
-        "product": "Backup and Replication",
-        "versions": "13.0.1 부터 13.0.1 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/210",
-    "date": "2026-03-12T15:14:41.472178+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-21669 Remote Code Execution Attempt on Veeam Backup Server\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-21669 by executing arbitrary commands through the Veeam Backup and Replication service on a backup server.\nauthor: Senior Detection Engineer\ndate: 2026-03-12\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\Veeam.Backup.Service.exe'\n    selection_cmd:\n        CommandLine|contains|any:\n            - 'powershell'\n            - 'cmd.exe'\n            - 'cscript'\n            - 'wscript'\n            - 'Invoke-Expression'\n            - '-EncodedCommand'\n            - '-ExecutionPolicy'\n    selection_user:\n        SubjectUserName|contains: 'DOMAIN\\\\'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.21669\n    - attack.execution\n    - attack.t1190\n    - veeam\n    - backup\n    - remote_code_execution",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-21668",
-    "title": "백업 저장소 임의 파일 조작 취약점",
-    "description": "인증된 도메인 사용자가 제한을 우회하여 백업 저장소의 임의 파일을 조작할 수 있는 취약점입니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Veeam",
-        "product": "Backup and Replication",
-        "versions": "12.3.2 부터 12.3.2 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/209",
-    "date": "2026-03-12T15:13:33.88277+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21667",
-    "title": "백업 서버 원격 코드 실행 취약점",
-    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Veeam",
-        "product": "Backup and Replication",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/208",
-    "date": "2026-03-12T15:13:23.786643+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-21666",
-    "title": "백업 서버 원격 코드 실행 취약점",
-    "description": "인증된 도메인 사용자가 백업 서버에서 원격 코드 실행(RCE)을 수행할 수 있는 취약점이 존재합니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Veeam",
-        "product": "Backup and Replication",
-        "versions": "12.3.2 부터 12.3.2 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/207",
-    "date": "2026-03-12T15:13:06.0648+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-15038",
@@ -22665,42 +24124,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-12543",
-    "title": "Undertow-core: 잘못된 Host 헤더 거부 실패로 인한 캐시 포이즈닝 및 SSRF 취약점",
-    "description": "Undertow HTTP 서버 코어(WildFly, JBoss EAP 등 사용)에서 Host 헤더 유효성 검증이 제대로 이루어지지 않는 취약점이 발견되었습니다. 악의적인 Host 헤더를 포함한 요청이 거부되지 않아 캐시 포이즈닝, 내부 네트워크 스캔, 사용자 세션 탈취 등의 공격이 가능합니다.",
-    "cvss": 9.6,
-    "epss": 0.00056,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat build of Apache Camel 4.14.4 for Spring Boot 3.5.11",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.1",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat JBoss Enterprise Application Platform 8.1 for RHEL 8",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:12:42.618131+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-3792",
@@ -54862,32 +56285,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-27777",
-    "title": "Mobiliti e-mobi.hu 자격 증명 보호 미흡",
-    "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안 취약점으로 이어질 수 있습니다. 자격 증명 유출 위험이 존재합니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "Mobiliti",
-        "product": "e-mobi.hu",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:14:20.263317+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-27027",
     "title": "Everon api.everon.io의 취약한 자격 증명",
     "description": "웹 기반 지도 플랫폼을 통해 충전소 인증 정보가 공개적으로 접근 가능합니다. 이는 보안상의 취약점으로 이어질 수 있습니다. 자격 증명 보호 강화가 필요합니다.",
@@ -62165,240 +63562,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2012-10056",
-    "title": "PHP 자원봉사 관리 시스템 1.0.2 임의 파일 업로드 취약점",
-    "description": "PHP 자원봉사 관리 시스템 v1.0.2 버전에서 문서 업로드 기능에 임의 파일 업로드 취약점이 존재합니다. 인증된 사용자가 파일 유형이나 확장자 제한 없이 `mods/documents/uploads/` 디렉토리에 파일을 업로드할 수 있으며, 해당 디렉토리가 공개적으로 접근 가능하고 실행 제어가 없어 악성 PHP 파일을 업로드하여 원격으로 실행할 수 있습니다. 기본 계정 정보가 함께 제공되어 공격이 용이합니다.",
-    "cvss": 8.7,
-    "epss": 0.32753,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "PHP Volunteer Management",
-        "product": "PHP Volunteer Management",
-        "versions": "1.0.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:50:44.587953+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2009-10005",
-    "title": "ContentKeeper 웹 어플라이언스 125.10 미만 버전 임의 파일 접근 취약점",
-    "description": "ContentKeeper 웹 어플라이언스(Impero Software에서 유지 관리) 125.10 이전 버전은 CGI 엔드포인트를 통해 mimencode 바이너리를 노출합니다. 이를 통해 인증되지 않은 공격자가 파일 시스템에서 임의의 파일을 탈취할 수 있습니다. /cgi-bin/ck/mimencode에 대한 POST 요청을 조작하여 웹 루트 외부의 민감한 파일(예: /etc/passwd)을 읽을 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.45401,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "ContentKeeper Technologies",
-        "product": "Web Appliance",
-        "versions": "* 부터 125.10 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:38:57.304327+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2011-10020",
-    "title": "Kaillera 0.86 서버 변조된 UDP 패킷을 통한 DoS 공격",
-    "description": "Kaillera 서버 0.86 버전은 초기 핸드셰이크 이후 변조된 UDP 패킷을 전송하여 서비스 거부(DoS) 공격에 취약합니다. 유효한 HELLO0.83 패킷을 보내고 응답을 받으면, 이후의 모든 변조된 패킷은 서버 충돌 및 응답 불가 상태를 유발합니다. 이는 서버의 UDP 패킷 처리기의 부적절한 입력 유효성 검증으로 인해 발생하며, 인증되지 않은 원격 공격자가 서비스 가용성을 방해할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.47259,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Kaillera Project",
-        "product": "Server",
-        "versions": "* 부터 0.86 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:43:37.381561+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2013-10039",
-    "title": "GestioIP 3.0 ip_checkhost.cgi 원격 코드 실행 취약점",
-    "description": "GestioIP 3.0 버전 ac67be 이하의 ip_checkhost.cgi 파일에 명령 삽입 취약점이 존재합니다. 'ip' 파라미터에 특수하게 조작된 입력을 통해 공격자가 서버에서 임의의 셸 명령을 실행할 수 있습니다. 배포 구성에 따라 인증이 필요할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.56462,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "GestioIP",
-        "product": "IPAM",
-        "versions": "* 부터 3.0 commit ac67be 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:50:44.521788+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1720",
-    "title": "WowOptin: 차세대 팝업 제작기 – 멋진 팝업 및 리드 생성 옵션 <= 1.4.24 - 인증된 사용자(Subscriber+)의 임의 플러그인 설치 권한 부족",
-    "description": "WowOptin 플러그인은 1.4.24 버전까지 'install_and_active_plugin' 함수에서 권한 검사가 누락되어 인증된 공격자(Subscriber 이상)가 임의의 플러그인을 설치 및 활성화할 수 있는 취약점이 있습니다. 이는 WordPress 웹사이트 보안에 심각한 위험을 초래할 수 있습니다. 즉, 낮은 권한의 사용자도 악성 플러그인을 설치할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "wpxpo",
-        "product": "WowOptin: Next-Gen Popup Maker – Create Stunning Popups and Optins for Lead Generation",
-        "versions": "* 부터 1.4.24 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:18:48.415728+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3544",
-    "title": "Google Chrome WebCodecs 힙 버퍼 오버플로우 취약점",
-    "description": "Google Chrome 145.0.7632.159 이전 버전의 WebCodecs에서 제작된 HTML 페이지를 통해 원격 공격자가 메모리 경계 밖 쓰기를 수행할 수 있는 힙 버퍼 오버플로우 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 8.8,
-    "epss": 0.0003,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:32:42.64265+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3540",
-    "title": "Google Chrome WebAudio 취약점 (CVE-2024-2579)",
-    "description": "Google Chrome 145.0.7632.159 이전 버전의 WebAudio 구현 상의 부적절한 처리로 인해, 악의적인 HTML 페이지를 통해 원격 공격자가 메모리 접근 오류를 발생시킬 수 있었습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 8.8,
-    "epss": 0.00032,
-    "is_kev": false,
-    "cwe": [
-      "Inappropriate implementation"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:32:30.592828+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25235",
-    "title": "Smartwares HOME easy 1.0.9 웹 페이지를 통한 클라이언트 측 인증 우회",
-    "description": "Smartwares HOME easy 1.0.9 버전에서 JavaScript를 비활성화하여 관리자 웹 페이지에 접근하는 인증 우회 취약점이 발견되었습니다. 공격자는 여러 관리자 엔드포인트에 접근하여 클라이언트 측 검증을 우회하고 민감한 시스템 정보에 접근할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00313,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "Smartwares",
-        "product": "Smartwares HOME easy",
-        "versions": "1.0.9 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:10:19.757871+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3545",
-    "title": "Google Chrome 탐색 기능의 데이터 유효성 검사 부족 취약점",
-    "description": "Google Chrome 145.0.7632.159 이전 버전에서 탐색 기능의 데이터 유효성 검사 부족으로 인해 악성 HTML 페이지를 통해 원격 공격자가 샌드박스를 탈출할 수 있는 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 9.6,
-    "epss": 0.00035,
-    "is_kev": false,
-    "cwe": [
-      "Insufficient data validation"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "145.0.7632.159 부터 145.0.7632.159 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:31:00.663857+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-20044",
@@ -71529,32 +72692,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2025-57622",
-    "title": "Step-Video-T2V 원격 코드 실행 취약점",
-    "description": "Step-Video-T2V의 /vae-api, /caption-api 컴포넌트에서 원격 공격자가 임의 코드를 실행할 수 있는 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T15:10:23.428629+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2025-13837",
