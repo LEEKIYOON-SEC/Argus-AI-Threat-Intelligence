@@ -1,5 +1,1673 @@
 [
   {
+    "id": "CVE-2026-31894",
+    "title": "WeGIA 백업 복원 시 심볼릭 링크를 통한 임의 파일 읽기 취약점",
+    "description": "WeGIA는 자선 단체를 위한 웹 관리 도구입니다. 3.6.5 버전에서 패치된 loadBackupDB() 함수는 PharData 클래스를 사용하여 tar.gz 아카이브를 임시 디렉터리에 추출하고, glob() 및 file_get_contents()를 사용하여 추출된 내용에서 SQL 파일을 읽습니다. 아카이브 멤버가 심볼릭 링크인지 확인하는 검증이 없어 취약점이 발생하며, 3.6.6 버전에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0.00042,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "LabRedesCefetRJ",
+        "product": "WeGIA",
+        "versions": ">= 3.6.5, < 3.6.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:55.400544+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31889",
+    "title": "Shopware 앱 자격 증명 탈취 가능성",
+    "description": "Shopware 6.6.10.15 및 6.7.8.1 이전 버전에서 앱 등록 흐름의 취약점이 발견되었습니다. 특정 조건 하에 공격자가 상점과 앱 간의 통신 채널을 탈취할 수 있습니다. 이 취약점은 앱 재등록 시 상점 URL을 변경할 때 기존 상점 또는 도메인에 대한 제어권을 확인하지 않아 발생하며, 공격자는 앱 트래픽을 악성 도메인으로 리디렉션하고 API 자격 증명을 탈취할 수 있습니다. 해당 문제는 6.6.10.15 및 6.7.8.1 버전에서 해결되었습니다.",
+    "cvss": 8.9,
+    "epss": 0.00065,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "shopware",
+        "product": "core",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      },
+      {
+        "vendor": "shopware",
+        "product": "platform",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/224",
+    "date": "2026-03-12T20:55:58.713763+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31888",
+    "title": "Shopware 스토어 API 로그인 엔드포인트에서 고유한 오류 코드를 통한 사용자 열거 가능",
+    "description": "Shopware는 오픈 커머스 플랫폼입니다. 6.7.8.1 및 6.6.10.15 이전 버전에서 스토어 API 로그인 엔드포인트는 등록된 고객인지 여부에 따라 다른 오류 코드를 반환하며, \"찾을 수 없음\" 응답은 입력된 이메일 주소를 그대로 반환합니다. 이를 통해 인증되지 않은 공격자가 유효한 고객 계정을 열거할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "shopware",
+        "product": "core",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
+      },
+      {
+        "vendor": "shopware",
+        "product": "platform",
+        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:13:06.723851+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31881",
+    "title": "Runtipi 인증되지 않은 /api/auth/reset-password 경로를 통한 운영자 계정 탈취 가능성 (활성 재설정 기간 중)",
+    "description": "Runtipi 개인 홈서버 오케스트레이터의 4.8.0 이전 버전에서, 활성 상태의 비밀번호 재설정 요청 시 인증되지 않은 공격자가 운영자(관리자) 비밀번호를 재설정하여 계정을 탈취할 수 있습니다. /api/auth/reset-password 엔드포인트가 인증/인가 검사 없이 노출되어 15분 동안 누구든 관리자 권한으로 로그인할 수 있습니다. 4.8.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "runtipi",
+        "product": "runtipi",
+        "versions": "< 4.8.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/192",
+    "date": "2026-03-11T19:13:23.292871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/api/auth/reset-password))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31877",
+    "title": "Frappe SQL Injection 취약점 (부적절한 필드 소독으로 발생)",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.84.0 및 14.99.0 이전 버전에서 특정 엔드포인트에 조작된 요청을 보내 SQL Injection을 유발하여 공격자가 정보 탈취를 할 수 있습니다. 해당 취약점은 15.84.0 및 14.99.0 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": ">= 15.0.0, < 15.84.0 (단일 버전), < 14.99.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:21.041188+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31876",
+    "title": "Notesnook 에디터 내 미정제된 Twitter/X 임베드 URL을 통한 저장형 XSS 취약점",
+    "description": "Notesnook은 사용자 프라이버시 및 사용 편의성에 중점을 둔 노트 작성 앱입니다. 3.3.9 버전 이전에는 Twitter/X 임베드 URL 렌더링 시 저장형 XSS 취약점이 존재했습니다. `tweetToEmbed()` 함수가 사용자 URL을 이스케이프 처리 없이 HTML 문자열에 직접 삽입하여 <iframe>의 `srcdoc` 속성에 할당했습니다. 해당 취약점은 3.3.9 버전에서 해결되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "streetwriters",
+        "product": "notesnook",
+        "versions": "< 3.3.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:23.376834+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31874",
+    "title": "Taskosaur 사용자 등록 시 파라미터 조작을 통한 부적절한 역할 할당",
+    "description": "Taskosaur 1.0.0 버전에서 사용자 등록 과정 중 역할 파라미터에 대한 적절한 검증 및 제한이 없어 공격자가 요청 페이로드를 조작하여 권한을 상승시킬 수 있습니다. 백엔드에서 역할 할당 제한을 적용하지 않거나 클라이언트에서 제공하는 역할 파라미터를 무시하여, 조작된 값으로 SUPER_ADMIN 권한을 가진 계정을 생성할 수 있습니다. 이를 통해 인증되지 않은 공격자도 관리자 계정을 등록할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Taskosaur",
+        "product": "Taskosaur",
+        "versions": "1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:19.389872+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31875",
+    "title": "Parse Server MFA 복구 코드 사용 후 소모되지 않는 문제",
+    "description": "Parse Server에서 TOTP 기반 다중 인증(MFA) 사용 시, 9.6.0-alpha.7 및 8.6.33 이전 버전에서 생성되는 복구 코드가 일회용으로 작동하지 않아 무제한 재사용이 가능했습니다. 이는 복구 코드의 일회용 설계 의도를 무력화하고 MFA 보호 계정의 보안을 약화시킵니다. 해당 취약점은 9.6.0-alpha.7 및 8.6.33에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-672"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.7 (단일 버전), < 8.6.33 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:48.410138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31872",
+    "title": "Parse Server 쿼리 및 정렬의 점 표기법을 통한 보호 필드 우회",
+    "description": "Parse Server 9.6.0-alpha.6 및 8.6.32 이전 버전에서 쿼리 WHERE 절과 정렬 파라미터의 점 표기법을 사용하여 클래스 수준 권한(CLP)으로 보호된 필드를 우회할 수 있습니다. 공격자는 점 표기법을 통해 보호된 필드의 하위 필드를 쿼리하거나 정렬하여 보호된 필드 값을 열거하는 이진 오라클 공격을 수행할 수 있습니다. MongoDB 및 PostgreSQL 배포 모두에 영향을 미치며, 9.6.0-alpha.6 및 8.6.32에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.6 (단일 버전), < 8.6.32 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:46.121238+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31871",
+    "title": "Parse Server의 점 표기법 하위 키 이름 SQL Injection 취약점",
+    "description": "Parse Server PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 Increment 작업 처리 시 SQL Injection 취약점이 존재합니다. 하위 키 이름이 이스케이프 처리 없이 SQL 문자열 리터럴에 직접 삽입되어, 악의적인 하위 키 이름을 통해 임의의 SQL 코드를 삽입할 수 있습니다. 이 취약점은 9.6.0-alpha.5 및 8.6.31 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.5 (단일 버전), < 8.6.31 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:42.172754+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31870",
+    "title": "cpp-httplib, 잘못된 Content-Length 응답 헤더로 인한 원격 프로세스 충돌 취약점",
+    "description": "cpp-httplib은 C++11 기반의 크로스 플랫폼 HTTP/HTTPS 라이브러리입니다. 0.37.1 이전 버전에서 스트리밍 API 사용 시, 서버로부터 받은 Content-Length 헤더 값을 검증 없이 std::stoull()로 직접 변환하여 예외 처리 부재로 인해 프로세스가 SIGABRT 신호와 함께 종료될 수 있습니다. HTTP 리디렉션, API, 중간자 공격 등을 통해 원격으로 애플리케이션을 충돌시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248"
+    ],
+    "affected": [
+      {
+        "vendor": "yhirose",
+        "product": "cpp-httplib",
+        "versions": "< 0.37.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:39.515749+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31868",
+    "title": "Parse Server의 HTML 렌더링 파일 업로드를 통한 XSS 취약점",
+    "description": "Parse Server 9.6.0-alpha.4 및 8.6.30 이전 버전에서, 공격자는 기본 설정에서 차단되지 않는 파일 확장자 또는 콘텐츠 유형의 파일을 업로드할 수 있습니다. 업로드된 파일(예: SVG, XHTML)은 악성 JavaScript 코드를 포함할 수 있으며, URL을 통해 접근 시 Parse Server 도메인 컨텍스트에서 실행됩니다. 이는 세션 토큰 탈취, 사용자 리디렉션, 또는 다른 사용자를 사칭하는 행위로 이어질 수 있는 저장형 XSS 취약점입니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.4 (단일 버전), < 8.6.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T19:14:39.087308+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2581",
+    "title": "undici의 무제한 메모리 소비 취약점 - 서비스 거부(DoS) 가능성",
+    "description": "undici의 `interceptors.deduplicate()` 기능 활성화 시, 중복 제거된 요청의 응답 데이터가 메모리에 누적되어 과도한 메모리 사용 및 프로세스 종료를 유발할 수 있는 취약점입니다. 특히, 큰 응답이나 청크된 응답을 보내는 악의적인 서버를 통해 서비스 거부 공격이 가능합니다. 패치를 통해 응답 청크를 즉시 전달하고, 스트리밍이 시작된 후의 중복 제거를 방지하여 해결되었습니다.",
+    "cvss": 5.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:39.155016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31856",
+    "title": "PostgreSQL에서 중첩 객체 필드 `Increment` 연산의 SQL Injection 취약점 - Parse Server",
+    "description": "Parse Server의 PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 `Increment` 연산 처리 시 SQL Injection 취약점이 존재합니다. 입력 값 검증 없이 SQL 쿼리에 직접 삽입되어 공격자가 데이터베이스의 모든 데이터를 읽을 수 있습니다. MongoDB 배포판은 영향을 받지 않으며, 9.6.0-alpha.3 및 8.6.29 버전에서 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.3 (단일 버전), < 8.6.29 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T18:07:29.741404+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-1527",
+    "title": "undici의 upgrade 옵션을 통한 CRLF Injection 취약점",
+    "description": "undici는 `client.request()`의 `upgrade` 옵션에 사용자 제어 입력을 전달할 때 CRLF 시퀀스(\\r\\n) 주입에 취약합니다. 공격자는 임의의 HTTP 헤더를 삽입하거나, HTTP 요청을 조기에 종료하고 Redis, Memcached, Elasticsearch와 같은 비 HTTP 서비스에 원시 데이터를 밀어넣을 수 있습니다. 이는 undici가 유효하지 않은 헤더 문자를 검증 없이 소켓에 직접 `upgrade` 값을 쓰기 때문입니다.",
+    "cvss": 4.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-93"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:37.208466+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32242",
+    "title": "Parse Server OAuth2 어댑터, 싱글톤 인스턴스를 통해 제공업체 간 가변 상태 공유",
+    "description": "Parse Server 9.6.0-alpha.11 및 8.6.37 이전 버전에서 OAuth2 인증 어댑터가 모든 제공업체 구성에서 재사용되는 싱글톤 인스턴스를 내보냅니다. 동시 인증 요청 시, 다른 제공업체의 설정으로 토큰 유효성 검사가 실행되어 잘못된 토큰이 허용될 수 있습니다. oauth2: true 플래그를 사용하여 여러 OAuth2 제공업체를 구성한 배포에 영향을 미치며, 9.6.0-alpha.11 및 8.6.37에서 수정되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.6.0-alpha.11 (단일 버전), < 8.6.37 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:41.659407+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-1526",
+    "title": "undici WebSocket permessage-deflate 압축 해제 시 메모리 무한 소비 취약점",
+    "description": "undici WebSocket 클라이언트는 permessage-deflate 확장이 협상된 경우, 압축 해제 과정에서 메모리 소비량 제한이 없어 서비스 거부 공격에 취약합니다. 악의적인 서버는 매우 큰 크기로 확장되는 작은 압축 프레임을 전송하여 Node.js 프로세스의 메모리 고갈을 유발할 수 있습니다. PerMessageDeflate.decompress() 메서드의 문제로 인해 해제된 청크들이 안전한 크기 제한 없이 메모리에 누적됩니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:38.053133+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2229",
+    "title": "undici WebSocket 클라이언트에 대한 잘못된 server_max_window_bits 유효성 검사로 인한 예외 처리 미흡",
+    "description": "undici WebSocket 클라이언트는 permessage-deflate 확장 기능의 server_max_window_bits 파라미터 유효성 검사 미흡으로 인해 서비스 거부 공격에 취약합니다. 악의적인 서버가 유효 범위를 벗어난 값을 전송하면 클라이언트가 zlib InflateRaw 인스턴스를 생성하는 과정에서 예외가 발생하고, 이 예외가 제대로 처리되지 않아 프로세스가 즉시 종료됩니다. 이는 유효성 검사 함수의 범위 검사 부재 및 try-catch 블록의 부재에서 기인합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248",
+      "CWE-1284"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:33.623919+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1528",
+    "title": "undici의 악성 WebSocket 64비트 길이 오버플로우 취약점",
+    "description": "서버가 64비트 길이 형식을 사용하여 매우 큰 길이를 가진 WebSocket 프레임을 응답할 수 있습니다. undici의 ByteParser는 내부 계산에서 오버플로우가 발생하여 유효하지 않은 상태에 빠지고, 프로세스를 종료하는 치명적인 TypeError를 발생시킵니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248",
+      "CWE-1284"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": ">= 6.0.0 < 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:27.906005+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32246",
+    "title": "Tinyauth의 OIDC 권한 부여 엔드포인트에서 TOTP/2FA 우회 취약점",
+    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서 TOTP 대기 중인 세션(비밀번호 확인, TOTP 미완료) 사용자가 권한 부여 코드를 얻을 수 있습니다. 공격자는 사용자의 비밀번호를 알지만 TOTP 비밀번호를 모르는 경우 유효한 OIDC 토큰을 얻어 2차 요소를 완전히 우회할 수 있습니다. 5.0.3에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "steveiliop56",
+        "product": "tinyauth",
+        "versions": "< 5.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:45.629184+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32245",
+    "title": "Tinyauth의 OIDC 권한 부여 코드, 토큰 교환 시 클라이언트 바인딩 부재",
+    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서는 권한 부여 코드를 교환하는 클라이언트가 해당 코드를 발급받은 클라이언트와 동일한지 확인하지 않습니다. 악의적인 OIDC 클라이언트 운영자는 자신의 클라이언트 자격 증명을 사용하여 다른 클라이언트의 권한 부여 코드를 교환하여 해당 사용자의 토큰을 획득할 수 있습니다. 이 문제는 5.0.3에서 해결되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "steveiliop56",
+        "product": "tinyauth",
+        "versions": "< 5.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:45.593354+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32236",
+    "title": "@backstage/plugin-auth-backend: 실험적 CIMD 메타데이터 가져오기에서의 SSRF 취약점",
+    "description": "Backstage 개발자 포털 프레임워크의 @backstage/plugin-auth-backend에서 `auth.experimentalClientIdMetadataDocuments.enabled`가 활성화된 경우 SSRF 취약점이 존재합니다. 초기 client_id 호스트 이름은 비공개 IP 범위에 대해 검증되지만, HTTP 리디렉션 후에는 동일한 검증이 적용되지 않습니다. 영향은 제한적이며, 0.27.1 버전에서 패치되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "@backstage",
+        "product": "plugin-auth-backend",
+        "versions": "< 0.27.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:11.436618+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-32237",
+    "title": "@backstage/plugin-scaffolder-backend: dry-run 엔드포인트를 통한 기본 환경 Secret 노출 가능성",
+    "description": "Backstage는 개발자 포털 구축을 위한 오픈 프레임워크입니다. 3.1.5 이전 버전에서, 스캐폴더 dry-run 실행 권한이 있는 인증된 사용자는 dry-run API 응답을 통해 서버 구성 환경 Secret에 접근할 수 있습니다. 로그 출력에서는 Secret이 적절히 삭제되지만, 응답 페이로드의 모든 부분에서 삭제되지 않습니다. `scaffolder.defaultEnvironment.secrets`를 구성한 배포에 영향을 미치며, @backstage/plugin-scaffolder-backend 3.1.5 버전에서 패치되었습니다.",
+    "cvss": 4.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "@backstage",
+        "product": "plugin-scaffolder-backend",
+        "versions": "< 3.1.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:17.760422+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32235",
+    "title": "@backstage/plugin-auth-backend: OAuth 리디렉션 URI 허용 목록 우회",
+    "description": "Backstage 개발자 포털 구축 프레임워크의 @backstage/plugin-auth-backend 내 실험적인 OIDC 제공자에 리디렉션 URI 허용 목록 우회 취약점이 존재합니다. Dynamic Client Registration 또는 Client ID Metadata Documents 기능 활성화 시, 악의적인 호스트로 연결되는 리디렉션 URI가 허용 목록 검증을 통과할 수 있습니다. 사용자가 OAuth 동의 요청을 승인하면 권한 부여 코드가 공격자에게 전송되어 액세스 토큰으로 교환될 수 있습니다.",
+    "cvss": 5.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "@backstage",
+        "product": "plugin-auth-backend",
+        "versions": "< 0.27.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:11.756835+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32231",
+    "title": "ZeptoClaw: 일반 웹훅 채널, 호출자가 제공한 ID 필드 신뢰 및 허용 목록 확인 시 신뢰할 수 없는 페이로드 데이터 사용",
+    "description": "ZeptoClaw는 개인 AI 어시스턴트입니다. 0.7.6 이전 버전에서는 일반 웹훅 채널이 요청 본문에서 제공된 ID 필드(sender, chat_id)를 신뢰하고, 이러한 신뢰할 수 없는 값에 대해 권한 부여 검사를 수행합니다. 인증이 선택 사항이며 기본적으로 비활성화되어 있어, 공격자가 POST /webhook에 접근하여 허용 목록에 있는 sender를 위조하고 임의의 chat_id 값을 선택하여 고위험 메시지 위조 및 IDOR 스타일의 세션/채팅 라우팅 악용을 가능하게 합니다. 0.7.6에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306",
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "qhkm",
+        "product": "zeptoclaw",
+        "versions": "< 0.7.6 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/220",
+    "date": "2026-03-12T19:14:55.802334+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/webhook))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32232",
+    "title": "ZeptoClaw: 심볼릭 링크, TOCTOU, 하드링크를 이용한 경로 경계 검사 우회",
+    "description": "ZeptoClaw는 개인 AI 어시스턴트입니다. 0.7.6 버전 이전에는 심볼릭 링크 우회, 검증과 사용 사이의 TOCTOU 취약점, 하드링크 별칭 우회가 존재했습니다. 해당 취약점은 0.7.6 버전에서 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-62"
+    ],
+    "affected": [
+      {
+        "vendor": "qhkm",
+        "product": "zeptoclaw",
+        "versions": "< 0.7.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:53.415937+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32138",
+    "title": "NEXULEAN API 키 유출",
+    "description": "NEXULEAN은 윤리적 해커, AI 애호가, 침투 테스터를 위한 사이버 보안 포트폴리오 및 서비스 플랫폼입니다. 2.0.0 이전 버전에서 Firebase 및 Web3Forms API 키가 노출되는 보안 취약점이 발견되었습니다. 공격자는 이를 이용하여 인증 없이 백엔드 서비스에 접근하여 애플리케이션 리소스 및 사용자 데이터에 무단으로 접근할 수 있었습니다. 해당 취약점은 2.0.0에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "Stalin-143",
+        "product": "website",
+        "versions": "< 2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:37.82615+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25076",
+    "title": "Anchore Enterprise GraphQL Reports API SQL 삽입 취약점",
+    "description": "Anchore Enterprise 5.25.1 이전 버전에서 GraphQL Reports API의 SQL 삽입 취약점이 발견되었습니다. 인증된 공격자는 GraphQL API에 접근하여 임의의 SQL 명령을 실행하고 Anchore Enterprise 데이터베이스의 데이터를 수정할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Anchore",
+        "product": "Anchore Enterprise",
+        "versions": "5.25.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:40.755686+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2376",
+    "title": "Mirror-registry: quay: quay: 웹 인터페이스의 오픈 리디렉트 취약점을 이용한 서버 측 요청 위조",
+    "description": "Mirror-registry에서 인증된 사용자가 악성 웹 주소를 제공하여 시스템이 의도치 않은 내부 또는 제한된 시스템에 접근하도록 유도하는 취약점이 발견되었습니다.",
+    "cvss": 4.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-601"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "mirror registry for Red Hat OpenShift",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "mirror registry for Red Hat OpenShift 2",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Quay 3",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:42.508398+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-27940",
+    "title": "llama.cpp의 `mem_size` 계산 시 정수 오버플로우를 통한 힙 버퍼 오버플로우 - CVE-2025-53630 수정 우회",
+    "description": "llama.cpp는 C/C++으로 구현된 LLM 모델 추론 라이브러리입니다. b8146 이전 버전에서 gguf.cpp의 gguf_init_from_file_impl() 함수에 정수 오버플로우 취약점이 존재하여 힙 할당 크기가 부족해집니다. 이후 fread() 함수를 통해 버퍼 경계를 넘어 528바이트 이상의 공격자 제어 데이터를 쓰게 되며, 이는 CVE-2025-53630과 유사한 버그를 우회하는 것입니다. b8146에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "ggml-org",
+        "product": "llama.cpp",
+        "versions": "< b8146 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T17:16:03.713325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1525",
+    "title": "undici의 HTTP 요청 일관성 없는 해석 취약점 (HTTP Request/Response Smuggling)",
+    "description": "undici는 대소문자가 다른 이름으로 배열 형태로 중복된 HTTP Content-Length 헤더를 허용하여, 충돌하는 Content-Length 값을 가진 잘못된 HTTP/1.1 요청을 생성합니다. 이는 서비스 거부 또는 HTTP 요청 밀수 공격으로 이어질 수 있습니다. undici.request(), undici.Client 등의 API를 사용하거나 사용자 제어 헤더 이름을 사용하는 애플리케이션이 영향을 받습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-444"
+    ],
+    "affected": [
+      {
+        "vendor": "undici",
+        "product": "undici",
+        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:54:55.991469+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 4e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T19:08:04.50536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3910",
+    "title": "Chrome V8의 부적절한 구현으로 인한 원격 코드 실행 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전의 V8 엔진에서 부적절한 구현으로 인해, 공격자가 특수 제작된 HTML 페이지를 통해 샌드박스 내에서 임의 코드를 실행할 수 있는 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Inappropriate implementation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:35.081716+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3909",
+    "title": "Chrome Skia 아웃오브바운드 쓰기 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전에서 Skia의 아웃오브바운드 쓰기 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:34.455135+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-70245",
+    "title": "D-Link DIR-513 v1.10 스택 버퍼 오버플로우 취약점",
+    "description": "D-Link DIR-513 v1.10 라우터에서 `goform/formSetWizardSelectMode`로 전달되는 `curTime` 파라미터를 통해 스택 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:39.96955+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-32598",
+    "title": "OneUptime: 비밀번호 재설정 토큰 INFO 레벨로 로깅",
+    "description": "OneUptime은 온라인 서비스 모니터링 및 관리 솔루션입니다. 10.0.24 이전 버전에서는 비밀번호 재설정 과정에서 일반 텍스트 토큰을 포함한 전체 재설정 URL이 기본적으로 활성화된 INFO 레벨로 로깅되었습니다. 애플리케이션 로그에 접근 가능한 경우, 재설정 토큰을 가로채 계정 탈취가 가능합니다. 해당 취약점은 10.0.24에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-532"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.24 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:32.578399+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32308",
+    "title": "OneUptime: Mermaid 다이어그램 렌더링을 통한 저장형 XSS (securityLevel: \"loose\")",
+    "description": "OneUptime은 온라인 서비스 모니터링 솔루션입니다. 10.0.23 이전 버전에서 Markdown 뷰어 컴포넌트가 securityLevel: \"loose\"로 Mermaid 다이어그램을 렌더링하며, SVG 출력을 innerHTML을 통해 삽입합니다. 이 설정은 Mermaid 다이어그램 내의 상호작용 이벤트 바인딩을 허용하여 Mermaid의 클릭 지시어를 통해 임의의 JavaScript를 실행하는 XSS 취약점을 발생시킵니다. 인시던트 설명, 상태 페이지 공지, 모니터 노트 등 Markdown을 렌더링하는 모든 필드가 취약합니다. 이 문제는 10.0.23에서 해결되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.23 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:29.459824+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32306",
+    "title": "OneUptime ClickHouse SQL Injection 취약점 (집계 쿼리 파라미터)",
+    "description": "OneUptime 10.0.23 이전 버전에서 집계 API가 사용자 제어 파라미터(aggregationType, aggregateColumnName, aggregationTimestampColumnName)를 검증 없이 ClickHouse SQL 쿼리에 직접 삽입합니다. 인증된 사용자는 임의의 SQL 코드를 삽입하여 데이터베이스 전체 읽기, 데이터 수정, 잠재적인 원격 코드 실행이 가능합니다. 10.0.23 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.23 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:27.184208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-32301",
+    "title": "Centrifugo: 검증되지 않은 JWT 클레임을 이용한 SSRF 취약점 (동적 JWKS 엔드포인트 URL)",
+    "description": "Centrifugo는 확장 가능한 실시간 메시징 서버입니다. 6.7.0 이전 버전에서, 템플릿 변수(예: {{tenant}})를 사용하는 동적 JWKS 엔드포인트 URL 설정 시 SSRF 취약점이 존재합니다. 인증되지 않은 공격자가 악성 `iss` 또는 `aud` 클레임 값을 포함하는 JWT를 생성하여 JWKS URL에 삽입하고, 토큰 서명 검증 전에 Centrifugo가 공격자가 제어하는 목적지로 HTTP 요청을 보내도록 할 수 있습니다. 6.7.0에서 해당 취약점이 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "centrifugal",
+        "product": "centrifugo",
+        "versions": "< 6.7.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/225",
+    "date": "2026-03-12T21:51:25.896562+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-32302",
+    "title": "OpenClaw: 신뢰할 수 없는 웹 출처에서 신뢰 프록시 모드에서 인증된 운영자.admin 액세스 획득 가능",
+    "description": "OpenClaw는 개인 AI 어시스턴트입니다. 2026.3.11 이전, `gateway.auth.mode`가 `trusted-proxy`로 설정되고 프록시 헤더와 함께 요청이 도착했을 때 브라우저에서 시작된 WebSocket 연결이 출처 검증을 우회할 수 있었습니다. 이로 인해 신뢰할 수 없는 출처의 페이지가 신뢰할 수 있는 리버스 프록시를 통해 연결하고, 프록시 인증된 ID를 상속받아 권한 있는 운영자 세션을 설정할 수 있었습니다. 2026.3.11에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-346"
+    ],
+    "affected": [
+      {
+        "vendor": "openclaw",
+        "product": "openclaw",
+        "versions": "< 2026.3.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:21.446939+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32304",
+    "title": "Locutus: create_function() 입력값 미정제에 의한 RCE",
+    "description": "Locutus는 교육 목적으로 다른 프로그래밍 언어의 표준 라이브러리를 JavaScript로 가져오는 라이브러리입니다. 3.0.14 버전 이전에는 `create_function(args, code)` 함수가 매개변수를 정제 없이 `Function` 생성자에 직접 전달하여 임의 코드 실행이 가능했습니다. 이는 v2.x 버전의 `call_user_func_array`에서 `eval()`을 사용한 CVE-2026-29091과는 다른 문제입니다. 3.0.14에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "locutusjs",
+        "product": "locutus",
+        "versions": "< 3.0.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:20.940753+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-25823",
+    "title": "HMS Networks Ewon Flexy/Cosy+ 보안 취약점",
+    "description": "HMS Networks Ewon Flexy 및 Cosy+ 펌웨어에서 스택 버퍼 오버플로우 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:14.177338+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-25819",
+    "title": "HMS Networks Ewon 장비 DoS 취약점",
+    "description": "HMS Networks의 Ewon Flexy(펌웨어 15.0s4 이전), Cosy+(펌웨어 22.xx, 22.1s6 이전 및 23.xx, 23.0s3 이전) 장비에서 인증되지 않은 공격자가 특수 제작된 HTTP 요청을 통해 장치를 재부팅시켜 서비스 거부(DoS)를 유발할 수 있습니다. 공격자는 장비의 GUI에 접근할 수 있어야 합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:14.140244+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-32597",
+    "title": "PyJWT, 알 수 없는 `crit` 헤더 확장 허용 (RFC 7515 §4.1.11 위반)",
+    "description": "PyJWT는 Python의 JSON Web Token 구현체입니다. 2.12.0 이전 버전에서는 RFC 7515 §4.1.11에 정의된 crit (Critical) 헤더 파라미터를 검증하지 않습니다. PyJWT가 이해하지 못하는 확장을 crit 배열에 포함하는 JWS 토큰을 거부하지 않고 허용하여 RFC의 MUST 요구사항을 위반합니다. 2.12.0에서 이 문제가 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345",
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "jpadilla",
+        "product": "pyjwt",
+        "versions": "< 2.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:13.258196+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32319",
+    "title": "Ella Core: 인증되지 않은 AMF DoS - 잘못된 형식의 InitialUEMessage 및 작은 크기의 NAS 페이로드",
+    "description": "Ella Core는 사설 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 7바이트 미만의 길이의 손상된 NGAP/NAS 메시지를 처리할 때 패닉이 발생합니다. 공격자는 조작된 NAS 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자에게 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 1.5.1에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:08.727557+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25818",
+    "title": "HMS Networks Ewon 장치 인증 쿠키 취약점",
+    "description": "HMS Networks Ewon Flexy, Cosy+ 장치의 특정 펌웨어 버전에서 인증 쿠키의 엔트로피가 낮아, 탈취된 세션 쿠키를 이용해 공격자가 암호화 파라미터를 무작위 대입하여 사용자 비밀번호를 알아낼 수 있습니다. 해당 펌웨어 버전은 Flexy 15.0s4 이전, Cosy+ 22.1s6 이전 (22.xx), Cosy+ 23.0s3 이전 (23.xx)입니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:08.647313+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-25817",
+    "title": "HMS Networks Ewon 장비 원격 코드 실행 취약점",
+    "description": "HMS Networks Ewon Flexy (펌웨어 15.0s4 이전), Cosy+ (펌웨어 22.xx, 22.1s6 이전 및 23.xx, 23.0s3 이전) 장비에서 OS 명령어 관련 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:00.961715+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-32612",
+    "title": "Statmatic: 저장된 XSS를 통한 권한 상승",
+    "description": "Statmatic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 6.6.2 버전 이전에는 관리자 패널의 색상 모드 설정에 저장된 XSS 취약점이 존재하여, 관리자 패널 접근 권한이 있는 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이는 더 높은 권한을 가진 사용자가 해당 계정을 위임할 때 실행됩니다. 6.6.2에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "statamic",
+        "product": "cms",
+        "versions": ">= 6.0.0, < 6.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:49.651854+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32322",
+    "title": "soroban-sdk: `Fr` 스칼라 필드 동등성 비교 우회 취약점",
+    "description": "soroban-sdk는 Soroban 컨트랙트를 위한 Rust SDK입니다. 22.0.11, 23.5.3, 25.3.0 이전 버전에서 BN254 및 BLS12-381의 `Fr` 타입은 필드 모듈러스 r로 먼저 축소하지 않고 raw U256 표현을 사용하여 값을 비교했습니다. 이로 인해 하나 이상의 값이 축소되지 않은 경우(>= r) 수학적으로 동일한 필드 요소가 다르게 비교될 수 있습니다. 이 취약점은 공격자가 컨트랙트 입력을 통해 조작된 `Fr` 값을 공급하고, 호스트 측 연산을 거치지 않고 직접 비교할 때 발생합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-697"
+    ],
+    "affected": [
+      {
+        "vendor": "stellar",
+        "product": "rs-soroban-sdk",
+        "versions": ">= 25.0.0, < 25.3.0 (단일 버전), >= 23.0.0, < 23.5.3 (단일 버전), < 22.0.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:44.323632+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32320",
+    "title": "Ella Core: 잘못된 형식의 PathSwitchRequest로 인한 AMF DoS 공격 (빈 NR 보안 기능 비트 문자열)",
+    "description": "Ella Core는 비공개 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 NR 암호화 또는 무결성 보호 알고리즘 비트 문자열의 길이가 0인 PathSwitchRequest를 처리할 때 패닉이 발생하여 서비스 거부(DoS)를 유발합니다. 공격자는 제작된 NGAP 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자의 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 이 취약점은 1.5.1에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:43.837839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28114",
+    "title": "WordPress WooCommerce License Manager 플러그인 <= 7.0.6 - 임의 파일 업로드 취약점",
+    "description": "firassaidi WooCommerce License Manager (fs-license-manager)에서 위험한 유형의 파일을 제한 없이 업로드할 수 있는 취약점이 발견되었습니다. 이를 통해 웹 쉘을 웹 서버에 업로드할 수 있습니다. 해당 문제는 WooCommerce License Manager 7.0.6 버전 이하에서 발생합니다.",
+    "cvss": 9.1,
+    "epss": 0.00018,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "firassaidi",
+        "product": "WooCommerce License Manager",
+        "versions": "<= 7.0.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:32:23.926826+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-25921",
+    "title": "Gogs: 저장소 간 LFS 객체 덮어쓰기 취약점 (콘텐츠 해시 검증 누락)",
+    "description": "Gogs는 오픈 소스 자체 호스팅 Git 서비스입니다. 0.14.2 버전 이전에는 다른 저장소 간 LFS 객체 덮어쓰기가 가능하여 공급망 공격으로 이어질 수 있습니다. 모든 LFS 객체가 악의적인 공격자에 의해 악성으로 덮어쓰일 위험이 있었습니다. 해당 문제는 0.14.2 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "gogs",
+        "product": "gogs",
+        "versions": "< 0.14.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:38:29.943493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31896",
+    "title": "WeGIA의 시간 기반 Blind SQL Injection 취약점",
+    "description": "WeGIA는 자선 단체 웹 관리 프로그램입니다. 3.6.6 버전 이전에서 `remover_produto_ocultar.php` 스크립트에 심각한 SQL Injection 취약점이 존재합니다. 이 취약점을 이용하면 인증된(또는 인증 우회된) 공격자가 임의의 SQL 명령을 실행하여 데이터베이스의 민감한 정보를 유출하거나 서비스 거부 공격을 수행할 수 있습니다. 3.6.6 버전에서 해당 취약점이 해결되었습니다.",
+    "cvss": 9.8,
+    "epss": 0.00029,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "LabRedesCefetRJ",
+        "product": "WeGIA",
+        "versions": "< 3.6.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:55:55.96198+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3611",
+    "title": "Honeywell IQ4x BMS 컨트롤러의 중요 기능 인증 누락",
+    "description": "Honeywell IQ4x 건물 관리 컨트롤러는 초기 설정 시 웹 기반 HMI에 인증 없이 접근 가능합니다. 사용자 모듈이 구성되지 않으면 보안이 비활성화되어 HTTP 인터페이스에 접근 가능한 모든 사용자가 읽기/쓰기 권한을 갖습니다. 공격자는 인증 전에 계정을 생성하여 관리자 권한을 획득하고, 인증을 우회하여 시스템 설정을 장악할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Honeywell",
+        "product": "IQ4E",
+        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
+      },
+      {
+        "vendor": "Honeywell",
+        "product": "IQ412",
+        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
+      },
+      {
+        "vendor": "Honeywell",
+        "product": "IQ422",
+        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:56:01.149071+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31957",
+    "title": "Himmelblau 설정 오류로 인한 임의 테넌트 인증 허용 가능성 (원격 배포 시)",
+    "description": "Himmelblau는 Azure Entra ID 및 Intune 상호 운용성 도구입니다. 3.0.0 버전에서 3.1.0 이전 버전까지, `himmelblau.conf`에 테넌트 도메인이 설정되지 않은 상태로 배포될 경우 테넌트 범위 인증이 적용되지 않습니다. 이로 인해 임의의 Entra ID 도메인에 대한 인증 시도가 허용될 수 있으며, 원격 환경에서 보안 위험을 초래할 수 있습니다. 3.1.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 10,
+    "epss": 0.00213,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1188"
+    ],
+    "affected": [
+      {
+        "vendor": "himmelblau-idm",
+        "product": "himmelblau",
+        "versions": ">= 3.0.0, < 3.1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:56:14.431785+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2023-41974",
+    "title": "use-after-free 취약점 해결",
+    "description": "메모리 관리 개선을 통해 use-after-free 문제가 해결되었습니다. 이 문제는 iOS 17 및 iPadOS 17에 포함되어 있으며, 앱이 커널 권한으로 임의 코드를 실행할 수 있는 가능성을 차단합니다.",
+    "cvss": 7.8,
+    "epss": 0.00307,
+    "is_kev": true,
+    "cwe": [
+      "An app may be able to execute arbitrary code with kernel privileges"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 17 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:14:41.674345+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-30952",
+    "title": "정수 오버플로우 취약점 해결",
+    "description": "입력 값 검증 강화로 정수 오버플로우 문제가 해결되었습니다. tvOS 15.2, macOS Monterey 12.1, Safari 15.2, iOS 15.2, iPadOS 15.2, watchOS 8.3에서 수정되었으며, 악성 웹 콘텐츠 처리 시 임의 코드 실행으로 이어질 수 있는 문제를 방지합니다.",
+    "cvss": 7.8,
+    "epss": 0.00329,
+    "is_kev": true,
+    "cwe": [
+      "Processing maliciously crafted web content may lead to arbitrary code execution"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "watchOS",
+        "versions": "unspecified 부터 8.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 15.2 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 12.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:12:39.622757+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2023-43000",
+    "title": "사용 후 해제 취약점 해결",
+    "description": "개선된 메모리 관리를 통해 사용 후 해제 문제가 해결되었습니다. macOS Ventura 13.5, iOS 16.6, iPadOS 16.6, Safari 16.6에 해당 수정 사항이 적용되었습니다. 악성 웹 콘텐츠 처리 시 메모리 손상이 발생할 수 있는 문제가 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00053,
+    "is_kev": true,
+    "cwe": [
+      "Processing maliciously crafted web content may lead to memory corruption"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 13.5 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 16.6 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "Safari",
+        "versions": "unspecified 부터 16.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:16:43.632549+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-22681",
+    "title": "Rockwell Automation Studio 5000 및 RSLogix 5000 인증 우회 취약점",
+    "description": "Rockwell Automation Studio 5000 Logix Designer 21 버전 이후 및 RSLogix 5000 16-20 버전에서 Logix 컨트롤러와의 통신 검증 메커니즘 우회 취약점이 발견되었습니다. 인증되지 않은 공격자가 CompactLogix, ControlLogix, DriveLogix, GuardLogix, SoftLogix 컨트롤러에 무단으로 접근할 수 있습니다. 해당 버전을 사용하는 경우 주의가 필요합니다.",
+    "cvss": 9.8,
+    "epss": 0.00182,
+    "is_kev": true,
+    "cwe": [
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Rockwell Automation Studio 5000 Logix Designer, RSLogix 5000, Logix Controllers",
+        "versions": "RSLogix 5000 Versions 16 through 20 (단일 버전), Studio 5000 Logix Designer: Versions 21 and later (단일 버전), CompactLogix 1768, 1769, 5370, 5380, 5480 (단일 버전), ControlLogix 5550, 5560, 5570, 5580 (단일 버전), DriveLogix 5560, 5730, 1794-L34 (단일 버전), Compact GuardLogix 5370, 5380 (단일 버전), GuardLogix 5570, 5580 (단일 버전), SoftLogix 5800 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:11:38.693708+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2017-7921",
+    "title": "하이크비전 카메라 인증 취약점",
+    "description": "하이크비전 DS-2CD2xx2F-I 시리즈 등 여러 모델에서 부적절한 인증 문제점이 발견되었습니다. 이 취약점은 공격자가 시스템 권한을 상승시키고 민감한 정보에 접근할 수 있도록 할 수 있습니다. 해당 모델의 V5.0.9부터 V5.4.5 빌드까지 영향을 받습니다.",
+    "cvss": 10.0,
+    "epss": 0.94097,
+    "is_kev": true,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Hikvision Cameras",
+        "versions": "Hikvision Cameras (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:09:36.624626+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/JrDw0/CVE-2017-7921-EXP",
+      "https://github.com/BurnyMcDull/CVE-2017-7921",
+      "https://github.com/MisakaMikato/cve-2017-7921-golang"
+    ],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-31960",
     "title": "Quill의 공증 과정 중 HTTP 응답 본문 무제한 읽기로 인한 DoS 공격 가능성",
     "description": "Quill은 모든 플랫폼에서 Mac 바이너리 서명 및 공증을 지원하는 도구입니다. v0.7.1 이전 버전에서는 Apple 공증 과정 중 HTTP 응답 본문을 무제한으로 읽어 메모리 부족으로 인한 서비스 거부(DoS) 공격에 취약합니다. TLS 인증서 검증이 우회되는 환경(프록시, 손상된 CA 등)에서 공격이 가능하며, 기밀성 및 무결성에는 영향을 미치지 않습니다.",
@@ -180,32 +1848,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31957",
-    "title": "Himmelblau 설정 오류로 인한 임의 테넌트 인증 허용 가능성 (원격 배포 시)",
-    "description": "Himmelblau는 Azure Entra ID 및 Intune 상호 운용성 도구입니다. 3.0.0 버전에서 3.1.0 이전 버전까지, `himmelblau.conf`에 테넌트 도메인이 설정되지 않은 상태로 배포될 경우 테넌트 범위 인증이 적용되지 않습니다. 이로 인해 임의의 Entra ID 도메인에 대한 인증 시도가 허용될 수 있으며, 원격 환경에서 보안 위험을 초래할 수 있습니다. 3.1.0 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 10,
-    "epss": 0.00213,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1188"
-    ],
-    "affected": [
-      {
-        "vendor": "himmelblau-idm",
-        "product": "himmelblau",
-        "versions": ">= 3.0.0, < 3.1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:56:14.431785+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-31900",
@@ -389,42 +2031,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3611",
-    "title": "Honeywell IQ4x BMS 컨트롤러의 중요 기능 인증 누락",
-    "description": "Honeywell IQ4x 건물 관리 컨트롤러는 초기 설정 시 웹 기반 HMI에 인증 없이 접근 가능합니다. 사용자 모듈이 구성되지 않으면 보안이 비활성화되어 HTTP 인터페이스에 접근 가능한 모든 사용자가 읽기/쓰기 권한을 갖습니다. 공격자는 인증 전에 계정을 생성하여 관리자 권한을 획득하고, 인증을 우회하여 시스템 설정을 장악할 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Honeywell",
-        "product": "IQ4E",
-        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
-      },
-      {
-        "vendor": "Honeywell",
-        "product": "IQ412",
-        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
-      },
-      {
-        "vendor": "Honeywell",
-        "product": "IQ422",
-        "versions": "v3.50_3.44 부터 4.36 (build 4.3.7.9) 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:56:01.149071+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-70798",
     "title": "Tenda i24V3.0si V3.0.0.5 펌웨어의 하드코딩된 비밀번호 취약점",
     "description": "Tenda i24V3.0si V3.0.0.5 펌웨어에서 /etc_ro/shadow 파일 내에 하드코딩된 비밀번호 취약점이 발견되었습니다.",
@@ -477,46 +2083,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-31889",
-    "title": "Shopware 앱 자격 증명 탈취 가능성",
-    "description": "Shopware 6.6.10.15 및 6.7.8.1 이전 버전에서 앱 등록 흐름의 취약점이 발견되었습니다. 특정 조건 하에 공격자가 상점과 앱 간의 통신 채널을 탈취할 수 있습니다. 이 취약점은 앱 재등록 시 상점 URL을 변경할 때 기존 상점 또는 도메인에 대한 제어권을 확인하지 않아 발생하며, 공격자는 앱 트래픽을 악성 도메인으로 리디렉션하고 API 자격 증명을 탈취할 수 있습니다. 해당 문제는 6.6.10.15 및 6.7.8.1 버전에서 해결되었습니다.",
-    "cvss": 8.9,
-    "epss": 0.00065,
-    "is_kev": false,
-    "cwe": [
-      "CWE-290"
-    ],
-    "affected": [
-      {
-        "vendor": "shopware",
-        "product": "core",
-        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
-      },
-      {
-        "vendor": "shopware",
-        "product": "platform",
-        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/224",
-    "date": "2026-03-12T20:55:58.713763+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-57850",
     "title": "Codeready-ws: /etc/passwd 권한 과다 설정으로 인한 권한 상승",
     "description": "특정 CodeReady Workspaces 이미지에서 컨테이너 권한 상승 취약점이 발견되었습니다. 빌드 시 /etc/passwd 파일이 그룹 쓰기 권한으로 생성되어, 공격자가 컨테이너 내에서 root 그룹 멤버십을 이용하여 해당 파일을 수정할 수 있습니다. 이를 통해 공격자는 임의의 UID(UID 0 포함)로 사용자를 추가하여 컨테이너 내에서 완전한 root 권한을 획득할 수 있습니다.",
@@ -545,862 +2111,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T23:44:50.211158+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31896",
-    "title": "WeGIA의 시간 기반 Blind SQL Injection 취약점",
-    "description": "WeGIA는 자선 단체 웹 관리 프로그램입니다. 3.6.6 버전 이전에서 `remover_produto_ocultar.php` 스크립트에 심각한 SQL Injection 취약점이 존재합니다. 이 취약점을 이용하면 인증된(또는 인증 우회된) 공격자가 임의의 SQL 명령을 실행하여 데이터베이스의 민감한 정보를 유출하거나 서비스 거부 공격을 수행할 수 있습니다. 3.6.6 버전에서 해당 취약점이 해결되었습니다.",
-    "cvss": 9.8,
-    "epss": 0.00029,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "LabRedesCefetRJ",
-        "product": "WeGIA",
-        "versions": "< 3.6.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:55.96198+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31894",
-    "title": "WeGIA 백업 복원 시 심볼릭 링크를 통한 임의 파일 읽기 취약점",
-    "description": "WeGIA는 자선 단체를 위한 웹 관리 도구입니다. 3.6.5 버전에서 패치된 loadBackupDB() 함수는 PharData 클래스를 사용하여 tar.gz 아카이브를 임시 디렉터리에 추출하고, glob() 및 file_get_contents()를 사용하여 추출된 내용에서 SQL 파일을 읽습니다. 아카이브 멤버가 심볼릭 링크인지 확인하는 검증이 없어 취약점이 발생하며, 3.6.6 버전에서 수정되었습니다.",
-    "cvss": 6.9,
-    "epss": 0.00042,
-    "is_kev": false,
-    "cwe": [
-      "CWE-59"
-    ],
-    "affected": [
-      {
-        "vendor": "LabRedesCefetRJ",
-        "product": "WeGIA",
-        "versions": ">= 3.6.5, < 3.6.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:55.400544+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31888",
-    "title": "Shopware 스토어 API 로그인 엔드포인트에서 고유한 오류 코드를 통한 사용자 열거 가능",
-    "description": "Shopware는 오픈 커머스 플랫폼입니다. 6.7.8.1 및 6.6.10.15 이전 버전에서 스토어 API 로그인 엔드포인트는 등록된 고객인지 여부에 따라 다른 오류 코드를 반환하며, \"찾을 수 없음\" 응답은 입력된 이메일 주소를 그대로 반환합니다. 이를 통해 인증되지 않은 공격자가 유효한 고객 계정을 열거할 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-204"
-    ],
-    "affected": [
-      {
-        "vendor": "shopware",
-        "product": "core",
-        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.15 (단일 버전)"
-      },
-      {
-        "vendor": "shopware",
-        "product": "platform",
-        "versions": ">= 6.7.0.0, < 6.7.8.1 (단일 버전), < 6.6.10.14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:13:06.723851+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31881",
-    "title": "Runtipi 인증되지 않은 /api/auth/reset-password 경로를 통한 운영자 계정 탈취 가능성 (활성 재설정 기간 중)",
-    "description": "Runtipi 개인 홈서버 오케스트레이터의 4.8.0 이전 버전에서, 활성 상태의 비밀번호 재설정 요청 시 인증되지 않은 공격자가 운영자(관리자) 비밀번호를 재설정하여 계정을 탈취할 수 있습니다. /api/auth/reset-password 엔드포인트가 인증/인가 검사 없이 노출되어 15분 동안 누구든 관리자 권한으로 로그인할 수 있습니다. 4.8.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "runtipi",
-        "product": "runtipi",
-        "versions": "< 4.8.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/192",
-    "date": "2026-03-11T19:13:23.292871+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/api/auth/reset-password))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31877",
-    "title": "Frappe SQL Injection 취약점 (부적절한 필드 소독으로 발생)",
-    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.84.0 및 14.99.0 이전 버전에서 특정 엔드포인트에 조작된 요청을 보내 SQL Injection을 유발하여 공격자가 정보 탈취를 할 수 있습니다. 해당 취약점은 15.84.0 및 14.99.0 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "frappe",
-        "product": "frappe",
-        "versions": ">= 15.0.0, < 15.84.0 (단일 버전), < 14.99.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:21.041188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31876",
-    "title": "Notesnook 에디터 내 미정제된 Twitter/X 임베드 URL을 통한 저장형 XSS 취약점",
-    "description": "Notesnook은 사용자 프라이버시 및 사용 편의성에 중점을 둔 노트 작성 앱입니다. 3.3.9 버전 이전에는 Twitter/X 임베드 URL 렌더링 시 저장형 XSS 취약점이 존재했습니다. `tweetToEmbed()` 함수가 사용자 URL을 이스케이프 처리 없이 HTML 문자열에 직접 삽입하여 <iframe>의 `srcdoc` 속성에 할당했습니다. 해당 취약점은 3.3.9 버전에서 해결되었습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "streetwriters",
-        "product": "notesnook",
-        "versions": "< 3.3.9 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:23.376834+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31875",
-    "title": "Parse Server MFA 복구 코드 사용 후 소모되지 않는 문제",
-    "description": "Parse Server에서 TOTP 기반 다중 인증(MFA) 사용 시, 9.6.0-alpha.7 및 8.6.33 이전 버전에서 생성되는 복구 코드가 일회용으로 작동하지 않아 무제한 재사용이 가능했습니다. 이는 복구 코드의 일회용 설계 의도를 무력화하고 MFA 보호 계정의 보안을 약화시킵니다. 해당 취약점은 9.6.0-alpha.7 및 8.6.33에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-672"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.7 (단일 버전), < 8.6.33 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:48.410138+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31874",
-    "title": "Taskosaur 사용자 등록 시 파라미터 조작을 통한 부적절한 역할 할당",
-    "description": "Taskosaur 1.0.0 버전에서 사용자 등록 과정 중 역할 파라미터에 대한 적절한 검증 및 제한이 없어 공격자가 요청 페이로드를 조작하여 권한을 상승시킬 수 있습니다. 백엔드에서 역할 할당 제한을 적용하지 않거나 클라이언트에서 제공하는 역할 파라미터를 무시하여, 조작된 값으로 SUPER_ADMIN 권한을 가진 계정을 생성할 수 있습니다. 이를 통해 인증되지 않은 공격자도 관리자 계정을 등록할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "Taskosaur",
-        "product": "Taskosaur",
-        "versions": "1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:19.389872+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31872",
-    "title": "Parse Server 쿼리 및 정렬의 점 표기법을 통한 보호 필드 우회",
-    "description": "Parse Server 9.6.0-alpha.6 및 8.6.32 이전 버전에서 쿼리 WHERE 절과 정렬 파라미터의 점 표기법을 사용하여 클래스 수준 권한(CLP)으로 보호된 필드를 우회할 수 있습니다. 공격자는 점 표기법을 통해 보호된 필드의 하위 필드를 쿼리하거나 정렬하여 보호된 필드 값을 열거하는 이진 오라클 공격을 수행할 수 있습니다. MongoDB 및 PostgreSQL 배포 모두에 영향을 미치며, 9.6.0-alpha.6 및 8.6.32에서 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.6 (단일 버전), < 8.6.32 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:46.121238+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31871",
-    "title": "Parse Server의 점 표기법 하위 키 이름 SQL Injection 취약점",
-    "description": "Parse Server PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 Increment 작업 처리 시 SQL Injection 취약점이 존재합니다. 하위 키 이름이 이스케이프 처리 없이 SQL 문자열 리터럴에 직접 삽입되어, 악의적인 하위 키 이름을 통해 임의의 SQL 코드를 삽입할 수 있습니다. 이 취약점은 9.6.0-alpha.5 및 8.6.31 버전에서 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.5 (단일 버전), < 8.6.31 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:42.172754+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31870",
-    "title": "cpp-httplib, 잘못된 Content-Length 응답 헤더로 인한 원격 프로세스 충돌 취약점",
-    "description": "cpp-httplib은 C++11 기반의 크로스 플랫폼 HTTP/HTTPS 라이브러리입니다. 0.37.1 이전 버전에서 스트리밍 API 사용 시, 서버로부터 받은 Content-Length 헤더 값을 검증 없이 std::stoull()로 직접 변환하여 예외 처리 부재로 인해 프로세스가 SIGABRT 신호와 함께 종료될 수 있습니다. HTTP 리디렉션, API, 중간자 공격 등을 통해 원격으로 애플리케이션을 충돌시킬 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248"
-    ],
-    "affected": [
-      {
-        "vendor": "yhirose",
-        "product": "cpp-httplib",
-        "versions": "< 0.37.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:39.515749+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31868",
-    "title": "Parse Server의 HTML 렌더링 파일 업로드를 통한 XSS 취약점",
-    "description": "Parse Server 9.6.0-alpha.4 및 8.6.30 이전 버전에서, 공격자는 기본 설정에서 차단되지 않는 파일 확장자 또는 콘텐츠 유형의 파일을 업로드할 수 있습니다. 업로드된 파일(예: SVG, XHTML)은 악성 JavaScript 코드를 포함할 수 있으며, URL을 통해 접근 시 Parse Server 도메인 컨텍스트에서 실행됩니다. 이는 세션 토큰 탈취, 사용자 리디렉션, 또는 다른 사용자를 사칭하는 행위로 이어질 수 있는 저장형 XSS 취약점입니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.4 (단일 버전), < 8.6.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T19:14:39.087308+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2581",
-    "title": "undici의 무제한 메모리 소비 취약점 - 서비스 거부(DoS) 가능성",
-    "description": "undici의 `interceptors.deduplicate()` 기능 활성화 시, 중복 제거된 요청의 응답 데이터가 메모리에 누적되어 과도한 메모리 사용 및 프로세스 종료를 유발할 수 있는 취약점입니다. 특히, 큰 응답이나 청크된 응답을 보내는 악의적인 서버를 통해 서비스 거부 공격이 가능합니다. 패치를 통해 응답 청크를 즉시 전달하고, 스트리밍이 시작된 후의 중복 제거를 방지하여 해결되었습니다.",
-    "cvss": 5.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:39.155016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-31856",
-    "title": "PostgreSQL에서 중첩 객체 필드 `Increment` 연산의 SQL Injection 취약점 - Parse Server",
-    "description": "Parse Server의 PostgreSQL 저장 어댑터에서 점 표기법(예: stats.counter)을 사용하는 `Increment` 연산 처리 시 SQL Injection 취약점이 존재합니다. 입력 값 검증 없이 SQL 쿼리에 직접 삽입되어 공격자가 데이터베이스의 모든 데이터를 읽을 수 있습니다. MongoDB 배포판은 영향을 받지 않으며, 9.6.0-alpha.3 및 8.6.29 버전에서 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.3 (단일 버전), < 8.6.29 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T18:07:29.741404+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-1526",
-    "title": "undici WebSocket permessage-deflate 압축 해제 시 메모리 무한 소비 취약점",
-    "description": "undici WebSocket 클라이언트는 permessage-deflate 확장이 협상된 경우, 압축 해제 과정에서 메모리 소비량 제한이 없어 서비스 거부 공격에 취약합니다. 악의적인 서버는 매우 큰 크기로 확장되는 작은 압축 프레임을 전송하여 Node.js 프로세스의 메모리 고갈을 유발할 수 있습니다. PerMessageDeflate.decompress() 메서드의 문제로 인해 해제된 청크들이 안전한 크기 제한 없이 메모리에 누적됩니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-409"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:38.053133+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1527",
-    "title": "undici의 upgrade 옵션을 통한 CRLF Injection 취약점",
-    "description": "undici는 `client.request()`의 `upgrade` 옵션에 사용자 제어 입력을 전달할 때 CRLF 시퀀스(\\r\\n) 주입에 취약합니다. 공격자는 임의의 HTTP 헤더를 삽입하거나, HTTP 요청을 조기에 종료하고 Redis, Memcached, Elasticsearch와 같은 비 HTTP 서비스에 원시 데이터를 밀어넣을 수 있습니다. 이는 undici가 유효하지 않은 헤더 문자를 검증 없이 소켓에 직접 `upgrade` 값을 쓰기 때문입니다.",
-    "cvss": 4.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-93"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:37.208466+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2229",
-    "title": "undici WebSocket 클라이언트에 대한 잘못된 server_max_window_bits 유효성 검사로 인한 예외 처리 미흡",
-    "description": "undici WebSocket 클라이언트는 permessage-deflate 확장 기능의 server_max_window_bits 파라미터 유효성 검사 미흡으로 인해 서비스 거부 공격에 취약합니다. 악의적인 서버가 유효 범위를 벗어난 값을 전송하면 클라이언트가 zlib InflateRaw 인스턴스를 생성하는 과정에서 예외가 발생하고, 이 예외가 제대로 처리되지 않아 프로세스가 즉시 종료됩니다. 이는 유효성 검사 함수의 범위 검사 부재 및 try-catch 블록의 부재에서 기인합니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248",
-      "CWE-1284"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:33.623919+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1528",
-    "title": "undici의 악성 WebSocket 64비트 길이 오버플로우 취약점",
-    "description": "서버가 64비트 길이 형식을 사용하여 매우 큰 길이를 가진 WebSocket 프레임을 응답할 수 있습니다. undici의 ByteParser는 내부 계산에서 오버플로우가 발생하여 유효하지 않은 상태에 빠지고, 프로세스를 종료하는 치명적인 TypeError를 발생시킵니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248",
-      "CWE-1284"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": ">= 6.0.0 < 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:55:27.906005+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32242",
-    "title": "Parse Server OAuth2 어댑터, 싱글톤 인스턴스를 통해 제공업체 간 가변 상태 공유",
-    "description": "Parse Server 9.6.0-alpha.11 및 8.6.37 이전 버전에서 OAuth2 인증 어댑터가 모든 제공업체 구성에서 재사용되는 싱글톤 인스턴스를 내보냅니다. 동시 인증 요청 시, 다른 제공업체의 설정으로 토큰 유효성 검사가 실행되어 잘못된 토큰이 허용될 수 있습니다. oauth2: true 플래그를 사용하여 여러 OAuth2 제공업체를 구성한 배포에 영향을 미치며, 9.6.0-alpha.11 및 8.6.37에서 수정되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.6.0-alpha.11 (단일 버전), < 8.6.37 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:41.659407+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-32245",
-    "title": "Tinyauth의 OIDC 권한 부여 코드, 토큰 교환 시 클라이언트 바인딩 부재",
-    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서는 권한 부여 코드를 교환하는 클라이언트가 해당 코드를 발급받은 클라이언트와 동일한지 확인하지 않습니다. 악의적인 OIDC 클라이언트 운영자는 자신의 클라이언트 자격 증명을 사용하여 다른 클라이언트의 권한 부여 코드를 교환하여 해당 사용자의 토큰을 획득할 수 있습니다. 이 문제는 5.0.3에서 해결되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "steveiliop56",
-        "product": "tinyauth",
-        "versions": "< 5.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:45.593354+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32246",
-    "title": "Tinyauth의 OIDC 권한 부여 엔드포인트에서 TOTP/2FA 우회 취약점",
-    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서 TOTP 대기 중인 세션(비밀번호 확인, TOTP 미완료) 사용자가 권한 부여 코드를 얻을 수 있습니다. 공격자는 사용자의 비밀번호를 알지만 TOTP 비밀번호를 모르는 경우 유효한 OIDC 토큰을 얻어 2차 요소를 완전히 우회할 수 있습니다. 5.0.3에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "steveiliop56",
-        "product": "tinyauth",
-        "versions": "< 5.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:45.629184+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32237",
-    "title": "@backstage/plugin-scaffolder-backend: dry-run 엔드포인트를 통한 기본 환경 Secret 노출 가능성",
-    "description": "Backstage는 개발자 포털 구축을 위한 오픈 프레임워크입니다. 3.1.5 이전 버전에서, 스캐폴더 dry-run 실행 권한이 있는 인증된 사용자는 dry-run API 응답을 통해 서버 구성 환경 Secret에 접근할 수 있습니다. 로그 출력에서는 Secret이 적절히 삭제되지만, 응답 페이로드의 모든 부분에서 삭제되지 않습니다. `scaffolder.defaultEnvironment.secrets`를 구성한 배포에 영향을 미치며, @backstage/plugin-scaffolder-backend 3.1.5 버전에서 패치되었습니다.",
-    "cvss": 4.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "@backstage",
-        "product": "plugin-scaffolder-backend",
-        "versions": "< 3.1.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:17.760422+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32235",
-    "title": "@backstage/plugin-auth-backend: OAuth 리디렉션 URI 허용 목록 우회",
-    "description": "Backstage 개발자 포털 구축 프레임워크의 @backstage/plugin-auth-backend 내 실험적인 OIDC 제공자에 리디렉션 URI 허용 목록 우회 취약점이 존재합니다. Dynamic Client Registration 또는 Client ID Metadata Documents 기능 활성화 시, 악의적인 호스트로 연결되는 리디렉션 URI가 허용 목록 검증을 통과할 수 있습니다. 사용자가 OAuth 동의 요청을 승인하면 권한 부여 코드가 공격자에게 전송되어 액세스 토큰으로 교환될 수 있습니다.",
-    "cvss": 5.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-601"
-    ],
-    "affected": [
-      {
-        "vendor": "@backstage",
-        "product": "plugin-auth-backend",
-        "versions": "< 0.27.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:11.756835+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32236",
-    "title": "@backstage/plugin-auth-backend: 실험적 CIMD 메타데이터 가져오기에서의 SSRF 취약점",
-    "description": "Backstage 개발자 포털 프레임워크의 @backstage/plugin-auth-backend에서 `auth.experimentalClientIdMetadataDocuments.enabled`가 활성화된 경우 SSRF 취약점이 존재합니다. 초기 client_id 호스트 이름은 비공개 IP 범위에 대해 검증되지만, HTTP 리디렉션 후에는 동일한 검증이 적용되지 않습니다. 영향은 제한적이며, 0.27.1 버전에서 패치되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "@backstage",
-        "product": "plugin-auth-backend",
-        "versions": "< 0.27.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:11.436618+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-32232",
-    "title": "ZeptoClaw: 심볼릭 링크, TOCTOU, 하드링크를 이용한 경로 경계 검사 우회",
-    "description": "ZeptoClaw는 개인 AI 어시스턴트입니다. 0.7.6 버전 이전에는 심볼릭 링크 우회, 검증과 사용 사이의 TOCTOU 취약점, 하드링크 별칭 우회가 존재했습니다. 해당 취약점은 0.7.6 버전에서 수정되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22",
-      "CWE-62"
-    ],
-    "affected": [
-      {
-        "vendor": "qhkm",
-        "product": "zeptoclaw",
-        "versions": "< 0.7.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:53.415937+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1525",
-    "title": "undici의 HTTP 요청 일관성 없는 해석 취약점 (HTTP Request/Response Smuggling)",
-    "description": "undici는 대소문자가 다른 이름으로 배열 형태로 중복된 HTTP Content-Length 헤더를 허용하여, 충돌하는 Content-Length 값을 가진 잘못된 HTTP/1.1 요청을 생성합니다. 이는 서비스 거부 또는 HTTP 요청 밀수 공격으로 이어질 수 있습니다. undici.request(), undici.Client 등의 API를 사용하거나 사용자 제어 헤더 이름을 사용하는 애플리케이션이 영향을 받습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-444"
-    ],
-    "affected": [
-      {
-        "vendor": "undici",
-        "product": "undici",
-        "versions": "< 6.24.0; 7.0.0 < 7.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:54:55.991469+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32231",
-    "title": "ZeptoClaw: 일반 웹훅 채널, 호출자가 제공한 ID 필드 신뢰 및 허용 목록 확인 시 신뢰할 수 없는 페이로드 데이터 사용",
-    "description": "ZeptoClaw는 개인 AI 어시스턴트입니다. 0.7.6 이전 버전에서는 일반 웹훅 채널이 요청 본문에서 제공된 ID 필드(sender, chat_id)를 신뢰하고, 이러한 신뢰할 수 없는 값에 대해 권한 부여 검사를 수행합니다. 인증이 선택 사항이며 기본적으로 비활성화되어 있어, 공격자가 POST /webhook에 접근하여 허용 목록에 있는 sender를 위조하고 임의의 chat_id 값을 선택하여 고위험 메시지 위조 및 IDOR 스타일의 세션/채팅 라우팅 악용을 가능하게 합니다. 0.7.6에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306",
-      "CWE-345"
-    ],
-    "affected": [
-      {
-        "vendor": "qhkm",
-        "product": "zeptoclaw",
-        "versions": "< 0.7.6 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/220",
-    "date": "2026-03-12T19:14:55.802334+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/webhook))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32138",
-    "title": "NEXULEAN API 키 유출",
-    "description": "NEXULEAN은 윤리적 해커, AI 애호가, 침투 테스터를 위한 사이버 보안 포트폴리오 및 서비스 플랫폼입니다. 2.0.0 이전 버전에서 Firebase 및 Web3Forms API 키가 노출되는 보안 취약점이 발견되었습니다. 공격자는 이를 이용하여 인증 없이 백엔드 서비스에 접근하여 애플리케이션 리소스 및 사용자 데이터에 무단으로 접근할 수 있었습니다. 해당 취약점은 2.0.0에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "Stalin-143",
-        "product": "website",
-        "versions": "< 2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:37.82615+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27940",
-    "title": "llama.cpp의 `mem_size` 계산 시 정수 오버플로우를 통한 힙 버퍼 오버플로우 - CVE-2025-53630 수정 우회",
-    "description": "llama.cpp는 C/C++으로 구현된 LLM 모델 추론 라이브러리입니다. b8146 이전 버전에서 gguf.cpp의 gguf_init_from_file_impl() 함수에 정수 오버플로우 취약점이 존재하여 힙 할당 크기가 부족해집니다. 이후 fread() 함수를 통해 버퍼 경계를 넘어 528바이트 이상의 공격자 제어 데이터를 쓰게 되며, 이는 CVE-2025-53630과 유사한 버그를 우회하는 것입니다. b8146에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122",
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "ggml-org",
-        "product": "llama.cpp",
-        "versions": "< b8146 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T17:16:03.713325+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2376",
-    "title": "Mirror-registry: quay: quay: 웹 인터페이스의 오픈 리디렉트 취약점을 이용한 서버 측 요청 위조",
-    "description": "Mirror-registry에서 인증된 사용자가 악성 웹 주소를 제공하여 시스템이 의도치 않은 내부 또는 제한된 시스템에 접근하도록 유도하는 취약점이 발견되었습니다.",
-    "cvss": 4.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-601"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "mirror registry for Red Hat OpenShift",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "mirror registry for Red Hat OpenShift 2",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Quay 3",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:42.508398+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1929,32 +2639,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-70245",
-    "title": "D-Link DIR-513 v1.10 스택 버퍼 오버플로우 취약점",
-    "description": "D-Link DIR-513 v1.10 라우터에서 `goform/formSetWizardSelectMode`로 전달되는 `curTime` 파라미터를 통해 스택 버퍼 오버플로우 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:39.96955+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2025-61154",
@@ -62697,124 +63381,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2023-41974",
-    "title": "use-after-free 취약점 해결",
-    "description": "메모리 관리 개선을 통해 use-after-free 문제가 해결되었습니다. 이 문제는 iOS 17 및 iPadOS 17에 포함되어 있으며, 앱이 커널 권한으로 임의 코드를 실행할 수 있는 가능성을 차단합니다.",
-    "cvss": 7.8,
-    "epss": 0.00307,
-    "is_kev": true,
-    "cwe": [
-      "An app may be able to execute arbitrary code with kernel privileges"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 17 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:14:41.674345+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-30952",
-    "title": "정수 오버플로우 취약점 해결",
-    "description": "입력 값 검증 강화로 정수 오버플로우 문제가 해결되었습니다. tvOS 15.2, macOS Monterey 12.1, Safari 15.2, iOS 15.2, iPadOS 15.2, watchOS 8.3에서 수정되었으며, 악성 웹 콘텐츠 처리 시 임의 코드 실행으로 이어질 수 있는 문제를 방지합니다.",
-    "cvss": 7.8,
-    "epss": 0.00329,
-    "is_kev": true,
-    "cwe": [
-      "Processing maliciously crafted web content may lead to arbitrary code execution"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "watchOS",
-        "versions": "unspecified 부터 8.3 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 15.2 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "macOS",
-        "versions": "unspecified 부터 12.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:12:39.622757+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-22681",
-    "title": "Rockwell Automation Studio 5000 및 RSLogix 5000 인증 우회 취약점",
-    "description": "Rockwell Automation Studio 5000 Logix Designer 21 버전 이후 및 RSLogix 5000 16-20 버전에서 Logix 컨트롤러와의 통신 검증 메커니즘 우회 취약점이 발견되었습니다. 인증되지 않은 공격자가 CompactLogix, ControlLogix, DriveLogix, GuardLogix, SoftLogix 컨트롤러에 무단으로 접근할 수 있습니다. 해당 버전을 사용하는 경우 주의가 필요합니다.",
-    "cvss": 9.8,
-    "epss": 0.00182,
-    "is_kev": true,
-    "cwe": [
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Rockwell Automation Studio 5000 Logix Designer, RSLogix 5000, Logix Controllers",
-        "versions": "RSLogix 5000 Versions 16 through 20 (단일 버전), Studio 5000 Logix Designer: Versions 21 and later (단일 버전), CompactLogix 1768, 1769, 5370, 5380, 5480 (단일 버전), ControlLogix 5550, 5560, 5570, 5580 (단일 버전), DriveLogix 5560, 5730, 1794-L34 (단일 버전), Compact GuardLogix 5370, 5380 (단일 버전), GuardLogix 5570, 5580 (단일 버전), SoftLogix 5800 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:11:38.693708+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2017-7921",
-    "title": "하이크비전 카메라 인증 취약점",
-    "description": "하이크비전 DS-2CD2xx2F-I 시리즈 등 여러 모델에서 부적절한 인증 문제점이 발견되었습니다. 이 취약점은 공격자가 시스템 권한을 상승시키고 민감한 정보에 접근할 수 있도록 할 수 있습니다. 해당 모델의 V5.0.9부터 V5.4.5 빌드까지 영향을 받습니다.",
-    "cvss": 10.0,
-    "epss": 0.94097,
-    "is_kev": true,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "Hikvision Cameras",
-        "versions": "Hikvision Cameras (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:09:36.624626+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/JrDw0/CVE-2017-7921-EXP",
-      "https://github.com/BurnyMcDull/CVE-2017-7921",
-      "https://github.com/MisakaMikato/cve-2017-7921-golang"
-    ],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-0012",
     "title": "ExpandableNotificationRow.java 잠재적 연락처 이름 유출",
     "description": "ExpandableNotificationRow.java의 setHideSensitive 함수 내 로직 오류로 인해 연락처 이름이 유출될 수 있습니다. 추가적인 실행 권한 없이 로컬 정보 유출이 발생할 수 있으며, 사용자 상호작용 없이도 악용이 가능합니다.",
@@ -64300,94 +64866,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T20:41:44.814363+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28114",
-    "title": "WordPress WooCommerce License Manager 플러그인 <= 7.0.6 - 임의 파일 업로드 취약점",
-    "description": "firassaidi WooCommerce License Manager (fs-license-manager)에서 위험한 유형의 파일을 제한 없이 업로드할 수 있는 취약점이 발견되었습니다. 이를 통해 웹 쉘을 웹 서버에 업로드할 수 있습니다. 해당 문제는 WooCommerce License Manager 7.0.6 버전 이하에서 발생합니다.",
-    "cvss": 9.1,
-    "epss": 0.00018,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "firassaidi",
-        "product": "WooCommerce License Manager",
-        "versions": "<= 7.0.6 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:32:23.926826+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-25921",
-    "title": "Gogs: 저장소 간 LFS 객체 덮어쓰기 취약점 (콘텐츠 해시 검증 누락)",
-    "description": "Gogs는 오픈 소스 자체 호스팅 Git 서비스입니다. 0.14.2 버전 이전에는 다른 저장소 간 LFS 객체 덮어쓰기가 가능하여 공급망 공격으로 이어질 수 있습니다. 모든 LFS 객체가 악의적인 공격자에 의해 악성으로 덮어쓰일 위험이 있었습니다. 해당 문제는 0.14.2 버전에서 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-345"
-    ],
-    "affected": [
-      {
-        "vendor": "gogs",
-        "product": "gogs",
-        "versions": "< 0.14.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:38:29.943493+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2023-43000",
-    "title": "사용 후 해제 취약점 해결",
-    "description": "개선된 메모리 관리를 통해 사용 후 해제 문제가 해결되었습니다. macOS Ventura 13.5, iOS 16.6, iPadOS 16.6, Safari 16.6에 해당 수정 사항이 적용되었습니다. 악성 웹 콘텐츠 처리 시 메모리 손상이 발생할 수 있는 문제가 수정되었습니다.",
-    "cvss": 8.8,
-    "epss": 0.00053,
-    "is_kev": true,
-    "cwe": [
-      "Processing maliciously crafted web content may lead to memory corruption"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "macOS",
-        "versions": "unspecified 부터 13.5 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 16.6 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "Safari",
-        "versions": "unspecified 부터 16.6 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:16:43.632549+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
