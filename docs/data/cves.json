@@ -1,5 +1,56 @@
 [
   {
+    "id": "CVE-2025-61662",
+    "title": "Grub2: gettext 명령어 미등록 해제 호출 누락으로 인한 use-after-free 발생 가능성",
+    "description": "GRUB의 gettext 모듈에서 Use-After-Free 취약점이 발견되었습니다. 모듈이 언로드된 후에도 gettext 명령어가 메모리에 남아있어 발생하며, 공격자가 해당 명령어를 호출하여 유효하지 않은 메모리 위치에 접근하도록 유도할 수 있습니다. 이 취약점을 악용하면 GRUB이 충돌하여 서비스 거부(Denial of Service)가 발생할 수 있습니다. 데이터 무결성 또는 기밀성 손상 가능성도 배제할 수 없습니다.",
+    "cvss": 7.8,
+    "epss": 0.00015,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "grub2",
+        "versions": "2.14 이하"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/206",
+    "date": "2026-03-12T11:46:25.468991+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2025-61662 GRUB gettext Use-After-Free Exploit Attempt\nstatus: experimental\ndescription: Detects attempts to trigger the GRUB gettext module use‑after‑free vulnerability (CVE‑2025‑61662) which may cause GRUB crashes during boot.\nauthor: Sigma Rule Generator\ndate: 2026-03-12\nlogsource:\n    product: linux\n    category: syslog\ndetection:\n    selection_grub:\n        syslog_message|contains:\n            - \"grub\"\n            - \"GRUB\"\n    selection_gettext:\n        syslog_message|contains: \"gettext\"\n    selection_error:\n        syslog_message|contains:\n            - \"use after free\"\n            - \"UAF\"\n            - \"segfault\"\n            - \"crash\"\n            - \"invalid memory access\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2025.61662\n    - attack.execution\n    - attack.t1068\n    - exploit\n    - grub\n    - linux\n    - use-after-free",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-3234",
     "title": "Mod_proxy_cluster: CRLF 삽입을 통한 응답 본문 손상",
     "description": "mod_proxy_cluster의 decodeenc() 함수에서 CRLF(Carriage Return Line Feed) 삽입 취약점이 발견되었습니다. 공격자는 클러스터 설정에 CRLF 시퀀스를 삽입하여 INFO 엔드포인트 응답의 본문을 손상시킬 수 있습니다. MCMP 프로토콜 포트에 대한 네트워크 접근만 필요하며, 인증은 필요하지 않습니다.",
@@ -60,6 +111,281 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-24018",
+    "title": "Fortinet FortiClientLinux 심볼릭 링크 취약점",
+    "description": "Fortinet FortiClientLinux 7.4.0~7.4.4 및 7.2.2~7.2.12 버전에서 심볼릭 링크(Symlink) 취약점이 발견되었습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-61"
+    ],
+    "affected": [
+      {
+        "vendor": "Fortinet",
+        "product": "FortiClientLinux",
+        "versions": "7.4.0 부터 7.4.4 이하, 7.2.2 부터 7.2.12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T17:14:46.032653+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25167",
+    "title": "Microsoft 브로커링 파일 시스템 권한 상승 취약점",
+    "description": "Microsoft 브로커링 파일 시스템에 권한 상승 취약점이 존재합니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 24H2",
+        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 25H2",
+        "versions": "10.0.26200.0 부터 10.0.26200.8037 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 version 26H1",
+        "versions": "10.0.28000.0 부터 10.0.28000.1719 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:44.906848+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-66413",
+    "title": "Git for Windows, 공격자가 제어하는 서버에서 클론 시 NTLM 해시 유출",
+    "description": "Git for Windows 2.53.0(2) 이전 버전에서 악성 서버로부터 클론하도록 유도하여 사용자의 NTLM 해시를 탈취할 수 있습니다. NTLM 해싱은 취약하므로 공격자가 계정 이름과 비밀번호를 무작위 대입 방식으로 알아낼 수 있습니다. 해당 취약점은 2.53.0(2) 버전에서 해결되었습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "git-for-windows",
+        "product": "git",
+        "versions": "< 2.53.0(2) (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T20:52:17.125307+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2713",
+    "title": "IBM Trusteer Rapport 설치 프로그램의 제어되지 않은 검색 경로 요소 취약점",
+    "description": "IBM Trusteer Rapport 설치 프로그램 3.5.2309.290에 DLL 제어되지 않은 검색 경로 요소 취약점이 발견되었습니다. 공격자는 손상된 폴더에 특수 제작된 파일을 위치시켜 시스템에서 임의 코드를 실행할 수 있습니다. 이 취약점을 통해 로컬 공격자가 시스템을 제어할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "IBM",
+        "product": "Trusteer Rapport installer",
+        "versions": "3.5.2309.290 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T20:53:10.645881+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20074",
+    "title": "Cisco IOS XR 소프트웨어의 IS-IS 멀티 인스턴스 서비스 거부 취약점",
+    "description": "Cisco IOS XR 소프트웨어의 IS-IS 멀티 인스턴스 라우팅 기능에 존재하는 취약점으로, 인증되지 않은 인접 공격자가 IS-IS 프로세스를 예기치 않게 재시작하도록 유발할 수 있습니다. 입력 유효성 검사 미흡이 원인이며, 공격자는 조작된 IS-IS 패킷을 전송하여 네트워크 연결을 일시적으로 끊고 서비스 거부(DoS) 상태를 초래할 수 있습니다. 공격자는 영향을 받는 장치와 Layer 2 인접 관계를 형성해야 취약점을 악용할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1287"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco IOS XR Software",
+        "versions": "7.8.1 (단일 버전), 7.9.1 (단일 버전), 7.10.1 (단일 버전), 7.8.2 (단일 버전), 7.8.22 (단일 버전), 7.9.2 (단일 버전), 7.11.1 (단일 버전), 7.9.21 (단일 버전), 7.10.2 (단일 버전), 24.1.1 (단일 버전), 7.11.2 (단일 버전), 24.2.1 (단일 버전), 24.1.2 (단일 버전), 24.2.11 (단일 버전), 24.3.1 (단일 버전), 24.4.1 (단일 버전), 24.2.2 (단일 버전), 7.8.23 (단일 버전), 7.11.21 (단일 버전), 24.2.20 (단일 버전), 24.3.2 (단일 버전), 24.4.10 (단일 버전), 25.1.1 (단일 버전), 24.4.2 (단일 버전), 24.3.20 (단일 버전), 24.4.15 (단일 버전), 25.2.1 (단일 버전), 25.1.2 (단일 버전), 24.3.30 (단일 버전), 24.4.30 (단일 버전), 24.2.21 (단일 버전), 25.2.15 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T17:14:14.188553+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27981",
+    "title": "HomeBox의 IP 스푸핑을 통한 인증 속도 제한 우회",
+    "description": "HomeBox는 가정용 재고 및 정리 시스템입니다. 0.24.0 이전 버전에서 인증 속도 제한기는 클라이언트 IP 주소당 실패 횟수를 추적합니다. 공격자는 X-Real-IP 헤더 값을 위조하여 요청마다 새로운 속도 제한 ID를 얻을 수 있으며, TrustProxy 옵션은 제대로 작동하지 않았습니다. 0.24.0에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "sysadminsmedia",
+        "product": "homebox",
+        "versions": "< 0.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T22:54:51.028558+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28372",
+    "title": "GNU inetutils telnetd 권한 상승 취약점",
+    "description": "GNU inetutils 2.7 버전 이하의 telnetd에서 util-linux 2.40 버전의 login(1) 구현에 추가된 systemd 서비스 자격 증명 지원 방식을 악용한 권한 상승 취약점이 발견되었습니다. 이는 CREDENTIALS_DIRECTORY 환경 변수에 대한 클라이언트 제어와 관련 있으며, 권한이 없는 로컬 사용자가 login.noauth 파일을 생성해야 악용 가능합니다.",
+    "cvss": 7.4,
+    "epss": 0.00012,
+    "is_kev": false,
+    "cwe": [
+      "CWE-829"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "inetutils",
+        "versions": "2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-03T17:24:19.639085+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/mbanyamer/CVE-2026-28372-GNU-inetutils-telnetd-Privilege-Escalation",
+      "https://github.com/kalibb/CVE-2026-28372-GNU-inetutils-telnetd-Privilege-Escalation-main"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1605",
+    "title": "Eclipse Jetty의 GzipHandler 클래스 메모리 누수 취약점",
+    "description": "Eclipse Jetty 12.0.0-12.0.31 및 12.1.0-12.0.5 버전에서, Content-Encoding: gzip으로 압축된 HTTP 요청을 처리하고 압축되지 않은 응답을 보낼 때 메모리 누수 취약점이 발생합니다. JDK Inflater가 요청 압축 해제를 위해 할당되지만, 압축된 응답과 연결된 해제 메커니즘 때문에 해제되지 않아 누수가 발생합니다. 응답이 압축되지 않으면 해제 메커니즘이 작동하지 않아 메모리 누수가 지속됩니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-401"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse Jetty",
+        "versions": "12.0.0 부터 12.0.31 이하, 12.1.0. 부터 12.1.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T10:04:04.459081+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3978",
+    "title": "D-Link DIR-513 formEasySetupWizard3 스택 기반 오버플로우",
+    "description": "D-Link DIR-513 1.10 버전에서 /goform/formEasySetupWizard3 파일의 특정 함수에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. wan_connected 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "D-Link",
+        "product": "DIR-513",
+        "versions": "1.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T05:00:16.183849+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21628",
+    "title": "확장 기능 - astroidframe.work - Astroid Framework 2.0.0 - 3.3.10의 인증되지 않은 원격 코드 실행",
+    "description": "Astroid Framework의 파일 관리 기능 보안 미흡으로 인해 인증되지 않은 사용자가 위험한 유형의 파일을 업로드할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "astroidframe.work",
+        "product": "Astroid Template Framework",
+        "versions": "2.0.0-3.3.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T10:04:04.681693+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-1708",
@@ -3378,33 +3704,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3978",
-    "title": "D-Link DIR-513 formEasySetupWizard3 스택 기반 오버플로우",
-    "description": "D-Link DIR-513 1.10 버전에서 /goform/formEasySetupWizard3 파일의 특정 함수에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. wan_connected 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "D-Link",
-        "product": "DIR-513",
-        "versions": "1.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T05:00:16.183849+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3977",
@@ -10367,32 +10666,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-20074",
-    "title": "Cisco IOS XR 소프트웨어의 IS-IS 멀티 인스턴스 서비스 거부 취약점",
-    "description": "Cisco IOS XR 소프트웨어의 IS-IS 멀티 인스턴스 라우팅 기능에 존재하는 취약점으로, 인증되지 않은 인접 공격자가 IS-IS 프로세스를 예기치 않게 재시작하도록 유발할 수 있습니다. 입력 유효성 검사 미흡이 원인이며, 공격자는 조작된 IS-IS 패킷을 전송하여 네트워크 연결을 일시적으로 끊고 서비스 거부(DoS) 상태를 초래할 수 있습니다. 공격자는 영향을 받는 장치와 Layer 2 인접 관계를 형성해야 취약점을 악용할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1287"
-    ],
-    "affected": [
-      {
-        "vendor": "Cisco",
-        "product": "Cisco IOS XR Software",
-        "versions": "7.8.1 (단일 버전), 7.9.1 (단일 버전), 7.10.1 (단일 버전), 7.8.2 (단일 버전), 7.8.22 (단일 버전), 7.9.2 (단일 버전), 7.11.1 (단일 버전), 7.9.21 (단일 버전), 7.10.2 (단일 버전), 24.1.1 (단일 버전), 7.11.2 (단일 버전), 24.2.1 (단일 버전), 24.1.2 (단일 버전), 24.2.11 (단일 버전), 24.3.1 (단일 버전), 24.4.1 (단일 버전), 24.2.2 (단일 버전), 7.8.23 (단일 버전), 7.11.21 (단일 버전), 24.2.20 (단일 버전), 24.3.2 (단일 버전), 24.4.10 (단일 버전), 25.1.1 (단일 버전), 24.4.2 (단일 버전), 24.3.20 (단일 버전), 24.4.15 (단일 버전), 25.2.1 (단일 버전), 25.1.2 (단일 버전), 24.3.30 (단일 버전), 24.4.30 (단일 버전), 24.2.21 (단일 버전), 25.2.15 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T17:14:14.188553+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-31867",
     "title": "Craft Commerce 잠재적 IDOR 취약점 (장바구니)",
     "description": "Craft Commerce는 Craft CMS 기반의 이커머스 플랫폼입니다. 4.11.0 및 5.6.0 이전 버전에서 장바구니 기능에 IDOR(Insecure Direct Object Reference) 취약점이 존재하여, 32자리 장바구니 번호를 알거나 추측하여 다른 사용자의 장바구니를 탈취할 수 있습니다. 소유권 검증 없이 주문 존재 여부와 미완료 여부만 확인하여 개인 정보 유출 가능성이 있습니다. 해당 취약점은 4.11.0 및 5.6.0에서 해결되었습니다.",
@@ -12877,32 +13150,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-66413",
-    "title": "Git for Windows, 공격자가 제어하는 서버에서 클론 시 NTLM 해시 유출",
-    "description": "Git for Windows 2.53.0(2) 이전 버전에서 악성 서버로부터 클론하도록 유도하여 사용자의 NTLM 해시를 탈취할 수 있습니다. NTLM 해싱은 취약하므로 공격자가 계정 이름과 비밀번호를 무작위 대입 방식으로 알아낼 수 있습니다. 해당 취약점은 2.53.0(2) 버전에서 해결되었습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "git-for-windows",
-        "product": "git",
-        "versions": "< 2.53.0(2) (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T20:52:17.125307+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3720",
     "title": "1024-lab/lab1024 SmartAdmin 공지 폼 드로어(notice-form-drawer.vue) XSS 취약점",
     "description": "1024-lab/lab1024 SmartAdmin 3.29 버전 이하에서 XSS 취약점이 발견되었습니다. `notice-form-drawer.vue` 파일의 Notice 모듈에서 발생하며, 원격으로 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 공격에 악용될 수 있으며, 공급업체는 이에 대한 대응을 하지 않고 있습니다.",
@@ -14137,42 +14384,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25167",
-    "title": "Microsoft 브로커링 파일 시스템 권한 상승 취약점",
-    "description": "Microsoft 브로커링 파일 시스템에 권한 상승 취약점이 존재합니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 24H2",
-        "versions": "10.0.26100.0 부터 10.0.26100.8037 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 25H2",
-        "versions": "10.0.26200.0 부터 10.0.26200.8037 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 version 26H1",
-        "versions": "10.0.28000.0 부터 10.0.28000.1719 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:44.906848+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25170",
     "title": "Windows Hyper-V 권한 상승 취약점",
     "description": "Windows Hyper-V의 취약점을 통해 권한 상승이 가능합니다.",
@@ -14346,32 +14557,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T04:56:33.367899+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24018",
-    "title": "Fortinet FortiClientLinux 심볼릭 링크 취약점",
-    "description": "Fortinet FortiClientLinux 7.4.0~7.4.4 및 7.2.2~7.2.12 버전에서 심볼릭 링크(Symlink) 취약점이 발견되었습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-61"
-    ],
-    "affected": [
-      {
-        "vendor": "Fortinet",
-        "product": "FortiClientLinux",
-        "versions": "7.4.0 부터 7.4.4 이하, 7.2.2 부터 7.2.12 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T17:14:46.032653+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -20441,32 +20626,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Low"
-  },
-  {
-    "id": "CVE-2026-2713",
-    "title": "IBM Trusteer Rapport 설치 프로그램의 제어되지 않은 검색 경로 요소 취약점",
-    "description": "IBM Trusteer Rapport 설치 프로그램 3.5.2309.290에 DLL 제어되지 않은 검색 경로 요소 취약점이 발견되었습니다. 공격자는 손상된 폴더에 특수 제작된 파일을 위치시켜 시스템에서 임의 코드를 실행할 수 있습니다. 이 취약점을 통해 로컬 공격자가 시스템을 제어할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "IBM",
-        "product": "Trusteer Rapport installer",
-        "versions": "3.5.2309.290 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T20:53:10.645881+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-29176",
@@ -46672,35 +46831,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28372",
-    "title": "GNU inetutils telnetd 권한 상승 취약점",
-    "description": "GNU inetutils 2.7 버전 이하의 telnetd에서 util-linux 2.40 버전의 login(1) 구현에 추가된 systemd 서비스 자격 증명 지원 방식을 악용한 권한 상승 취약점이 발견되었습니다. 이는 CREDENTIALS_DIRECTORY 환경 변수에 대한 클라이언트 제어와 관련 있으며, 권한이 없는 로컬 사용자가 login.noauth 파일을 생성해야 악용 가능합니다.",
-    "cvss": 7.4,
-    "epss": 0.00012,
-    "is_kev": false,
-    "cwe": [
-      "CWE-829"
-    ],
-    "affected": [
-      {
-        "vendor": "GNU",
-        "product": "inetutils",
-        "versions": "2.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T17:24:19.639085+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/mbanyamer/CVE-2026-28372-GNU-inetutils-telnetd-Privilege-Escalation",
-      "https://github.com/kalibb/CVE-2026-28372-GNU-inetutils-telnetd-Privilege-Escalation-main"
-    ],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30838",
     "title": "league/commonmark: DisallowedRawHtml 확장 기능 우회 - HTML 태그 이름의 공백 문자 이용",
     "description": "league/commonmark은 PHP Markdown 파서입니다. 2.8.1 버전 이전에는 DisallowedRawHtml 확장 기능이 HTML 태그 이름과 닫는 '>' 사이에 개행, 탭 등의 ASCII 공백 문자를 삽입하여 우회될 수 있었습니다. 예를 들어, `<script\\n>`은 필터링되지 않고 브라우저에서 유효한 HTML 태그로 렌더링됩니다. 이는 신뢰할 수 없는 사용자 입력을 처리하기 위해 이 확장 기능을 사용하는 모든 애플리케이션에 대한 교차 사이트 스크립팅(XSS) 벡터입니다. 2.8.1 버전에서 패치되었습니다.",
@@ -61459,32 +61589,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-21628",
-    "title": "확장 기능 - astroidframe.work - Astroid Framework 2.0.0 - 3.3.10의 인증되지 않은 원격 코드 실행",
-    "description": "Astroid Framework의 파일 관리 기능 보안 미흡으로 인해 인증되지 않은 사용자가 위험한 유형의 파일을 업로드할 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "astroidframe.work",
-        "product": "Astroid Template Framework",
-        "versions": "2.0.0-3.3.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T10:04:04.681693+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-2893",
     "title": "Page and Post Clone <= 6.3 - 인증된 사용자를 통한 'meta_key' 파라미터 SQL Injection 취약점 (Contributor+ 권한 필요)",
     "description": "WordPress Page and Post Clone 플러그니스가 버전 6.3 이하에서 'meta_key' 파라미터의 SQL Injection 취약점을 가지고 있습니다. 사용자 입력값의 'meta_key'에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생합니다. 인증된 Contributor 이상의 권한을 가진 공격자가 데이터베이스에서 민감한 정보를 추출할 수 있습니다.",
@@ -61722,33 +61826,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-1605",
-    "title": "Eclipse Jetty의 GzipHandler 클래스 메모리 누수 취약점",
-    "description": "Eclipse Jetty 12.0.0-12.0.31 및 12.1.0-12.0.5 버전에서, Content-Encoding: gzip으로 압축된 HTTP 요청을 처리하고 압축되지 않은 응답을 보낼 때 메모리 누수 취약점이 발생합니다. JDK Inflater가 요청 압축 해제를 위해 할당되지만, 압축된 응답과 연결된 해제 메커니즘 때문에 해제되지 않아 누수가 발생합니다. 응답이 압축되지 않으면 해제 메커니즘이 작동하지 않아 메모리 누수가 지속됩니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400",
-      "CWE-401"
-    ],
-    "affected": [
-      {
-        "vendor": "Eclipse Foundation",
-        "product": "Eclipse Jetty",
-        "versions": "12.0.0 부터 12.0.31 이하, 12.1.0. 부터 12.1.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T10:04:04.459081+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-66678",
@@ -66443,32 +66520,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-27981",
-    "title": "HomeBox의 IP 스푸핑을 통한 인증 속도 제한 우회",
-    "description": "HomeBox는 가정용 재고 및 정리 시스템입니다. 0.24.0 이전 버전에서 인증 속도 제한기는 클라이언트 IP 주소당 실패 횟수를 추적합니다. 공격자는 X-Real-IP 헤더 값을 위조하여 요청마다 새로운 속도 제한 ID를 얻을 수 있으며, TrustProxy 옵션은 제대로 작동하지 않았습니다. 0.24.0에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "sysadminsmedia",
-        "product": "homebox",
-        "versions": "< 0.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-03T22:54:51.028558+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-27600",
