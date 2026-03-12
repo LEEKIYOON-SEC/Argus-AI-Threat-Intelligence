@@ -1,5 +1,619 @@
 [
   {
+    "id": "CVE-2023-43010",
+    "title": "메모리 관리 개선",
+    "description": "악성 웹 콘텐츠 처리 시 메모리 손상 문제가 해결되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00018,
+    "is_kev": false,
+    "cwe": [
+      "Processing maliciously crafted web content may lead to memory corruption"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "iOS and iPadOS",
+        "versions": "unspecified 부터 17.2 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "Safari",
+        "versions": "unspecified 부터 17.2 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 14.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/226",
+    "date": "2026-03-12T23:45:23.07563+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32597",
+    "title": "PyJWT, 알 수 없는 `crit` 헤더 확장 허용 (RFC 7515 §4.1.11 위반)",
+    "description": "PyJWT는 Python의 JSON Web Token 구현체입니다. 2.12.0 이전 버전에서는 RFC 7515 §4.1.11에 정의된 crit (Critical) 헤더 파라미터를 검증하지 않습니다. PyJWT가 이해하지 못하는 확장을 crit 배열에 포함하는 JWS 토큰을 거부하지 않고 허용하여 RFC의 MUST 요구사항을 위반합니다. 2.12.0에서 이 문제가 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345",
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "jpadilla",
+        "product": "pyjwt",
+        "versions": "< 2.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:13.258196+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32612",
+    "title": "Statmatic: 저장된 XSS를 통한 권한 상승",
+    "description": "Statmatic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 6.6.2 버전 이전에는 관리자 패널의 색상 모드 설정에 저장된 XSS 취약점이 존재하여, 관리자 패널 접근 권한이 있는 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이는 더 높은 권한을 가진 사용자가 해당 계정을 위임할 때 실행됩니다. 6.6.2에서 해당 문제가 해결되었습니다.",
+    "cvss": 5.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "statamic",
+        "product": "cms",
+        "versions": ">= 6.0.0, < 6.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:49.651854+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32320",
+    "title": "Ella Core: 잘못된 형식의 PathSwitchRequest로 인한 AMF DoS 공격 (빈 NR 보안 기능 비트 문자열)",
+    "description": "Ella Core는 비공개 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 NR 암호화 또는 무결성 보호 알고리즘 비트 문자열의 길이가 0인 PathSwitchRequest를 처리할 때 패닉이 발생하여 서비스 거부(DoS)를 유발합니다. 공격자는 제작된 NGAP 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자의 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 이 취약점은 1.5.1에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:43.837839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32322",
+    "title": "soroban-sdk: `Fr` 스칼라 필드 동등성 비교 우회 취약점",
+    "description": "soroban-sdk는 Soroban 컨트랙트를 위한 Rust SDK입니다. 22.0.11, 23.5.3, 25.3.0 이전 버전에서 BN254 및 BLS12-381의 `Fr` 타입은 필드 모듈러스 r로 먼저 축소하지 않고 raw U256 표현을 사용하여 값을 비교했습니다. 이로 인해 하나 이상의 값이 축소되지 않은 경우(>= r) 수학적으로 동일한 필드 요소가 다르게 비교될 수 있습니다. 이 취약점은 공격자가 컨트랙트 입력을 통해 조작된 `Fr` 값을 공급하고, 호스트 측 연산을 거치지 않고 직접 비교할 때 발생합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-697"
+    ],
+    "affected": [
+      {
+        "vendor": "stellar",
+        "product": "rs-soroban-sdk",
+        "versions": ">= 25.0.0, < 25.3.0 (단일 버전), >= 23.0.0, < 23.5.3 (단일 버전), < 22.0.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:44.323632+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32319",
+    "title": "Ella Core: 인증되지 않은 AMF DoS - 잘못된 형식의 InitialUEMessage 및 작은 크기의 NAS 페이로드",
+    "description": "Ella Core는 사설 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 7바이트 미만의 길이의 손상된 NGAP/NAS 메시지를 처리할 때 패닉이 발생합니다. 공격자는 조작된 NAS 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자에게 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 1.5.1에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:08.727557+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3910",
+    "title": "Chrome V8의 부적절한 구현으로 인한 원격 코드 실행 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전의 V8 엔진에서 부적절한 구현으로 인해, 공격자가 특수 제작된 HTML 페이지를 통해 샌드박스 내에서 임의 코드를 실행할 수 있는 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Inappropriate implementation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:35.081716+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-14242",
+    "title": "vsftpd: ls 명령어 파라미터 파싱 시 정수 오버플로우를 통한 서비스 거부 (DoS)",
+    "description": "vsftpd에서 발견된 취약점으로, 원격 인증된 공격자가 특정 바이트 시퀀스를 포함하는 STAT 명령어를 전송하여 ls 명령어 파라미터 파싱 시 정수 오버플로우를 발생시켜 서비스 거부(DoS) 공격을 유발할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00061,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8.2 Advanced Update Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:37.466828+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3909",
+    "title": "Chrome Skia 아웃오브바운드 쓰기 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전에서 Skia의 아웃오브바운드 쓰기 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:34.455135+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-10010",
+    "title": "CryptoPro Secure Disk for BitLocker 무결성 검증 우회",
+    "description": "CryptoPro Secure Disk는 BitLocker 암호 해독 전 사용자 인증을 위해 소형 Linux OS를 부팅합니다. 이 시스템은 암호화되지 않은 별도 파티션에 위치하며, 하드 디스크 접근 권한이 있는 누구나 접근 가능합니다.",
+    "cvss": 6.8,
+    "epss": 0.00012,
+    "is_kev": false,
+    "cwe": [
+      "CWE-353"
+    ],
+    "affected": [
+      {
+        "vendor": "CPSD IT SERVICES GMBH",
+        "product": "CryptoPro Secure Disk for BitLocker",
+        "versions": "<7.6.6 / 7.7.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.014591+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2021-47721",
+    "title": "Orangescrum 1.8.0 인증된 권한 상승 - 사용자 세션 조작",
+    "description": "Orangescrum 1.8.0 버전에서 인증된 사용자가 세션 쿠키를 조작하여 다른 프로젝트 계정을 탈취할 수 있는 권한 상승 취약점이 발견되었습니다. 공격자는 페이지 소스에서 피해자의 고유 ID를 추출하고 자신의 세션 쿠키를 변경하여 다른 사용자의 계정에 무단으로 접근할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.0002,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Orangescrum",
+        "product": "orangescrum",
+        "versions": "1.8.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:25:50.750858+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31958",
+    "title": "Tornado의 과도한 multipart 파트 처리로 인한 DoS 취약점",
+    "description": "Tornado는 Python 웹 프레임워크 및 비동기 네트워킹 라이브러리입니다. 6.5.5 이전 버전에서는 multipart/form-data의 파트 수 제한이 max_body_size 설정(기본 100MB) 뿐이었습니다. 많은 파트를 가진 매우 큰 multipart 본문을 동기적으로 파싱하는 과정에서 DoS 공격 가능성이 존재하며, 6.5.5에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.7,
+    "epss": 0.00048,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "tornadoweb",
+        "product": "tornado",
+        "versions": "< 6.5.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T20:56:15.225239+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-36850",
+    "title": "Sitecore JSS React 샘플 애플리케이션 11.0.0 - 14.0.1 정보 노출",
+    "description": "Sitecore JSS React 샘플 애플리케이션 11.0.0 - 14.0.1에 정보 노출 취약점이 존재합니다. 이 취약점은 특정 사용자를 위해 의도된 페이지 콘텐츠가 다른 사용자에게 노출될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00058,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Sitecore",
+        "product": "JSS React Sample Application",
+        "versions": "11.0.0 부터 14.0.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:21:46.741788+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-55208",
+    "title": "Chamilo LMS 소셜 네트워크 업로드 파일에 저장된 XSS 취약점",
+    "description": "Chamilo LMS 1.11.34 이전 버전에서 `소셜 네트워크` 기능의 안전하지 않은 파일 업로드를 통해 저장된 XSS 취약점이 발견되었습니다. 이를 통해 권한이 낮은 사용자가 관리자 계정의 받은 편지함에서 임의 코드를 실행하여 계정 탈취가 가능합니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.34 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:59:00.641146+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-29188",
+    "title": "파일 브라우저: TUS 삭제 엔드포인트 권한 검사 우회 취약점",
+    "description": "파일 브라우저는 파일 관리 인터페이스를 제공하며, 파일 업로드, 삭제, 미리보기, 이름 변경 및 편집 기능을 지원합니다. 2.61.1 버전 이전에는 TUS 프로토콜의 삭제 엔드포인트에서 접근 제어 취약점이 발견되어, 생성 권한만 있는 인증된 사용자가 권한 제한을 우회하여 임의의 파일 및 디렉터리를 삭제할 수 있습니다. 다중 사용자 환경에서 파일 삭제 권한을 제한하는 경우 영향을 받을 수 있으며, 2.61.1 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732",
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "filebrowser",
+        "product": "filebrowser",
+        "versions": "< 2.61.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:10:11.6579+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-4404",
+    "title": "FreeIPA: idm: FreeIPA에서 호스트에서 도메인 관리자로 권한 상승",
+    "description": "FreeIPA 프로젝트에서 호스트에서 도메인 관리자로 권한 상승 취약점이 발견되었습니다. FreeIPA 패키지는 기본적으로 관리 계정의 `krbCanonicalName` 고유성을 검증하지 않아, 사용자가 REALM 관리자와 동일한 canonical name을 가진 서비스를 생성할 수 있습니다. 공격에 성공하면 공격자는 admin@REALM 자격 증명을 포함하는 서비스 이름으로 Kerberos 티켓을 획득하여 REALM에 대한 관리 작업을 수행하고 민감한 데이터에 접근 및 유출할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00073,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1220"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "4.12.4 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:11:12.646554+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Im10n/CVE-2025-4404-POC"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-1709",
+    "title": "Keylime: 클라이언트 측 TLS 인증 누락으로 인한 권한 우회 취약점",
+    "description": "Keylime 등록기는 7.12.0 버전부터 클라이언트 측 TLS 인증을 적용하지 않아, 인증되지 않은 클라이언트가 네트워크 접근 권한만으로 관리자 작업을 수행할 수 있습니다. 여기에는 에이전트 목록 확인, TPM 데이터 검색, 에이전트 삭제 등이 포함됩니다. 클라이언트 인증서 없이 연결하여 이러한 취약점을 악용할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00025,
+    "is_kev": false,
+    "cwe": [
+      "CWE-322"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:54:29.668154+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21622",
+    "title": "비밀번호 재설정 토큰의 만료되지 않는 문제",
+    "description": "hexpm의 'Elixir.Hexpm.Accounts.PasswordReset' 모듈에서 세션 만료 기능이 부족하여 계정 탈취가 가능합니다. 비밀번호 재설정 링크의 토큰이 만료되지 않아, 과거에 유출된 이메일에서 토큰을 사용하여 비밀번호를 재설정할 수 있습니다. 이는 lib/hexpm/accounts/password_reset.ex 파일 및 'Elixir.Hexpm.Accounts.PasswordReset':can_reset?/3 루틴과 관련이 있습니다.",
+    "cvss": 9.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "hexpm",
+        "product": "hexpm",
+        "versions": "617e44c71f1dd9043870205f371d375c5c4d886d 부터 bb0e42091995945deef10556f58d046a52eb7884 이전, pkg:github/hexpm/hexpm@617e44c71f1dd9043870205f371d375c5c4d886d 부터 pkg:github/hexpm/hexpm@bb0e42091995945deef10556f58d046a52eb7884 이전"
+      },
+      {
+        "vendor": "hexpm",
+        "product": "hex.pm",
+        "versions": "2025-08-01 부터 2026-03-05 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:55:45.564406+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28074",
+    "title": "WordPress Pizza House 테마 <= 1.4.0 - PHP 객체 주입 취약점",
+    "description": "ThemeREX Pizza House 테마의 pizzahouse에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다.",
+    "cvss": 9.8,
+    "epss": 0.00024,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Pizza House",
+        "versions": "<= 1.4.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:12:11.437916+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-0848",
+    "title": "NLTK StanfordSegmenter의 신뢰할 수 없는 JAR 파일 로딩을 통한 임의 코드 실행",
+    "description": "NLTK 3.9.2 이하 버전의 StanfordSegmenter 모듈은 입력 유효성 검사 미흡으로 인해 임의 코드 실행에 취약합니다. 이 모듈은 외부 Java .jar 파일을 검증이나 샌드박스 없이 동적으로 로드합니다. 공격자는 JAR 파일을 조작하여 JVM 로드 시 임의의 Java 바이트코드를 실행할 수 있으며, 모델 포이즈닝, MITM 공격, 의존성 포이즈닝 등을 통해 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "nltk",
+        "product": "nltk/nltk",
+        "versions": "unspecified 부터 latest 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T22:12:54.865963+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-32246",
     "title": "Tinyauth의 OIDC 권한 부여 엔드포인트에서 TOTP/2FA 우회 취약점",
     "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서 TOTP 대기 중인 세션(비밀번호 확인, TOTP 미완료) 사용자가 권한 부여 코드를 얻을 수 있습니다. 공격자는 사용자의 비밀번호를 알지만 TOTP 비밀번호를 모르는 경우 유효한 OIDC 토큰을 얻어 2차 요소를 완전히 우회할 수 있습니다. 5.0.3에서 해당 취약점이 수정되었습니다.",
@@ -604,59 +1218,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-32597",
-    "title": "PyJWT, 알 수 없는 `crit` 헤더 확장 허용 (RFC 7515 §4.1.11 위반)",
-    "description": "PyJWT는 Python의 JSON Web Token 구현체입니다. 2.12.0 이전 버전에서는 RFC 7515 §4.1.11에 정의된 crit (Critical) 헤더 파라미터를 검증하지 않습니다. PyJWT가 이해하지 못하는 확장을 crit 배열에 포함하는 JWS 토큰을 거부하지 않고 허용하여 RFC의 MUST 요구사항을 위반합니다. 2.12.0에서 이 문제가 해결되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-345",
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "jpadilla",
-        "product": "pyjwt",
-        "versions": "< 2.12.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:13.258196+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32612",
-    "title": "Statmatic: 저장된 XSS를 통한 권한 상승",
-    "description": "Statmatic은 Laravel 및 Git 기반 콘텐츠 관리 시스템(CMS)입니다. 6.6.2 버전 이전에는 관리자 패널의 색상 모드 설정에 저장된 XSS 취약점이 존재하여, 관리자 패널 접근 권한이 있는 사용자가 악성 JavaScript를 삽입할 수 있습니다. 이는 더 높은 권한을 가진 사용자가 해당 계정을 위임할 때 실행됩니다. 6.6.2에서 해당 문제가 해결되었습니다.",
-    "cvss": 5.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "statamic",
-        "product": "cms",
-        "versions": ">= 6.0.0, < 6.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:50:49.651854+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-25817",
     "title": "HMS Networks Ewon 장비 원격 코드 실행 취약점",
     "description": "HMS Networks Ewon Flexy (펌웨어 15.0s4 이전), Cosy+ (펌웨어 22.xx, 22.1s6 이전 및 23.xx, 23.0s3 이전) 장비에서 OS 명령어 관련 취약점이 발견되었습니다.",
@@ -681,172 +1242,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-32320",
-    "title": "Ella Core: 잘못된 형식의 PathSwitchRequest로 인한 AMF DoS 공격 (빈 NR 보안 기능 비트 문자열)",
-    "description": "Ella Core는 비공개 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 NR 암호화 또는 무결성 보호 알고리즘 비트 문자열의 길이가 0인 PathSwitchRequest를 처리할 때 패닉이 발생하여 서비스 거부(DoS)를 유발합니다. 공격자는 제작된 NGAP 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자의 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 이 취약점은 1.5.1에서 수정되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "ellanetworks",
-        "product": "core",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:50:43.837839+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32319",
-    "title": "Ella Core: 인증되지 않은 AMF DoS - 잘못된 형식의 InitialUEMessage 및 작은 크기의 NAS 페이로드",
-    "description": "Ella Core는 사설 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 7바이트 미만의 길이의 손상된 NGAP/NAS 메시지를 처리할 때 패닉이 발생합니다. 공격자는 조작된 NAS 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자에게 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 1.5.1에서 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "ellanetworks",
-        "product": "core",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:08.727557+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32322",
-    "title": "soroban-sdk: `Fr` 스칼라 필드 동등성 비교 우회 취약점",
-    "description": "soroban-sdk는 Soroban 컨트랙트를 위한 Rust SDK입니다. 22.0.11, 23.5.3, 25.3.0 이전 버전에서 BN254 및 BLS12-381의 `Fr` 타입은 필드 모듈러스 r로 먼저 축소하지 않고 raw U256 표현을 사용하여 값을 비교했습니다. 이로 인해 하나 이상의 값이 축소되지 않은 경우(>= r) 수학적으로 동일한 필드 요소가 다르게 비교될 수 있습니다. 이 취약점은 공격자가 컨트랙트 입력을 통해 조작된 `Fr` 값을 공급하고, 호스트 측 연산을 거치지 않고 직접 비교할 때 발생합니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-697"
-    ],
-    "affected": [
-      {
-        "vendor": "stellar",
-        "product": "rs-soroban-sdk",
-        "versions": ">= 25.0.0, < 25.3.0 (단일 버전), >= 23.0.0, < 23.5.3 (단일 버전), < 22.0.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:50:44.323632+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3910",
-    "title": "Chrome V8의 부적절한 구현으로 인한 원격 코드 실행 취약점",
-    "description": "Google Chrome 146.0.7680.75 이전 버전의 V8 엔진에서 부적절한 구현으로 인해, 공격자가 특수 제작된 HTML 페이지를 통해 샌드박스 내에서 임의 코드를 실행할 수 있는 취약점이 발견되었습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Inappropriate implementation"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:35.081716+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-3909",
-    "title": "Chrome Skia 아웃오브바운드 쓰기 취약점",
-    "description": "Google Chrome 146.0.7680.75 이전 버전에서 Skia의 아웃오브바운드 쓰기 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:34.455135+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 4e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T19:08:04.50536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2019-25257",
@@ -2016,32 +2411,6 @@
     "severity": "Low"
   },
   {
-    "id": "CVE-2026-31958",
-    "title": "Tornado의 과도한 multipart 파트 처리로 인한 DoS 취약점",
-    "description": "Tornado는 Python 웹 프레임워크 및 비동기 네트워킹 라이브러리입니다. 6.5.5 이전 버전에서는 multipart/form-data의 파트 수 제한이 max_body_size 설정(기본 100MB) 뿐이었습니다. 많은 파트를 가진 매우 큰 multipart 본문을 동기적으로 파싱하는 과정에서 DoS 공격 가능성이 존재하며, 6.5.5에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.7,
-    "epss": 0.00048,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400"
-    ],
-    "affected": [
-      {
-        "vendor": "tornadoweb",
-        "product": "tornado",
-        "versions": "< 6.5.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T20:56:15.225239+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-31959",
     "title": "Quill의 Apple 공증 로그 검색 시 유효성 검사되지 않은 URL을 통한 SSRF 취약점",
     "description": "Quill은 모든 플랫폼에서 macOS 바이너리 서명 및 공증을 지원하는 도구입니다. v0.7.1 이전 버전에서는 Apple 공증 제출 로그를 가져오는 과정에서 서버 측 요청 위조(SSRF) 취약점이 존재합니다. 공격자는 응답을 조작하여 임의의 URL로 HTTP/HTTPS 요청을 보내 민감한 데이터 유출을 유발할 수 있습니다.",
@@ -2857,42 +3226,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2025-14242",
-    "title": "vsftpd: ls 명령어 파라미터 파싱 시 정수 오버플로우를 통한 서비스 거부 (DoS)",
-    "description": "vsftpd에서 발견된 취약점으로, 원격 인증된 공격자가 특정 바이트 시퀀스를 포함하는 STAT 명령어를 전송하여 ls 명령어 파라미터 파싱 시 정수 오버플로우를 발생시켜 서비스 거부(DoS) 공격을 유발할 수 있습니다.",
-    "cvss": 6.5,
-    "epss": 0.00061,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8.2 Advanced Update Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:37.466828+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2025-13913",
@@ -7192,42 +7525,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2023-43010",
-    "title": "메모리 관리 개선을 통한 문제 해결",
-    "description": "악성 웹 콘텐츠 처리 시 메모리 손상이 발생할 수 있는 문제가 개선되었습니다.",
-    "cvss": 0,
-    "epss": 0.00018,
-    "is_kev": false,
-    "cwe": [
-      "Processing maliciously crafted web content may lead to memory corruption"
-    ],
-    "affected": [
-      {
-        "vendor": "Apple",
-        "product": "iOS and iPadOS",
-        "versions": "unspecified 부터 17.2 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "Safari",
-        "versions": "unspecified 부터 17.2 이전"
-      },
-      {
-        "vendor": "Apple",
-        "product": "macOS",
-        "versions": "unspecified 부터 14.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T15:16:38.544186+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2025-70041",
@@ -26159,37 +26456,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-21622",
-    "title": "비밀번호 재설정 토큰의 만료되지 않는 문제",
-    "description": "hexpm의 'Elixir.Hexpm.Accounts.PasswordReset' 모듈에서 세션 만료 기능이 부족하여 계정 탈취가 가능합니다. 비밀번호 재설정 링크의 토큰이 만료되지 않아, 과거에 유출된 이메일에서 토큰을 사용하여 비밀번호를 재설정할 수 있습니다. 이는 lib/hexpm/accounts/password_reset.ex 파일 및 'Elixir.Hexpm.Accounts.PasswordReset':can_reset?/3 루틴과 관련이 있습니다.",
-    "cvss": 9.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-613"
-    ],
-    "affected": [
-      {
-        "vendor": "hexpm",
-        "product": "hexpm",
-        "versions": "617e44c71f1dd9043870205f371d375c5c4d886d 부터 bb0e42091995945deef10556f58d046a52eb7884 이전, pkg:github/hexpm/hexpm@617e44c71f1dd9043870205f371d375c5c4d886d 부터 pkg:github/hexpm/hexpm@bb0e42091995945deef10556f58d046a52eb7884 이전"
-      },
-      {
-        "vendor": "hexpm",
-        "product": "hex.pm",
-        "versions": "2025-08-01 부터 2026-03-05 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:55:45.564406+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-31834",
@@ -59711,32 +59977,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-0848",
-    "title": "NLTK StanfordSegmenter의 신뢰할 수 없는 JAR 파일 로딩을 통한 임의 코드 실행",
-    "description": "NLTK 3.9.2 이하 버전의 StanfordSegmenter 모듈은 입력 유효성 검사 미흡으로 인해 임의 코드 실행에 취약합니다. 이 모듈은 외부 Java .jar 파일을 검증이나 샌드박스 없이 동적으로 로드합니다. 공격자는 JAR 파일을 조작하여 JVM 로드 시 임의의 Java 바이트코드를 실행할 수 있으며, 모델 포이즈닝, MITM 공격, 의존성 포이즈닝 등을 통해 원격 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "nltk",
-        "product": "nltk/nltk",
-        "versions": "unspecified 부터 latest 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T22:12:54.865963+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28562",
     "title": "wpForo 포럼 2.4.14 SQL Injection 취약점 (Topics ORDER BY 파라미터)",
     "description": "wpForo 2.4.14 버전에서 Topics::get_topics() 함수 내의 SQL Injection 취약점이 발견되었습니다. 이 취약점은 따옴표로 묶이지 않은 식별자에 대해 효과가 없는 esc_sql() 함수를 사용하여 ORDER BY 절을 처리하는 방식에서 발생합니다. 공격자는 wpfob 파라미터를 이용하여 CASE WHEN 페이로드를 통해 WordPress 데이터베이스에서 자격 증명을 추출할 수 있습니다.",
@@ -61559,33 +61799,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29188",
-    "title": "파일 브라우저: TUS 삭제 엔드포인트 권한 검사 우회 취약점",
-    "description": "파일 브라우저는 파일 관리 인터페이스를 제공하며, 파일 업로드, 삭제, 미리보기, 이름 변경 및 편집 기능을 지원합니다. 2.61.1 버전 이전에는 TUS 프로토콜의 삭제 엔드포인트에서 접근 제어 취약점이 발견되어, 생성 권한만 있는 인증된 사용자가 권한 제한을 우회하여 임의의 파일 및 디렉터리를 삭제할 수 있습니다. 다중 사용자 환경에서 파일 삭제 권한을 제한하는 경우 영향을 받을 수 있으며, 2.61.1 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-732",
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "filebrowser",
-        "product": "filebrowser",
-        "versions": "< 2.61.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T22:10:11.6579+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28223",
     "title": "Wagtail: simple_translation 관리 인터페이스의 HTML 부적절한 이스케이핑 (크로스 사이트 스크립팅)",
     "description": "Wagtail CMS의 특정 버전(6.3.8, 7.0.6, 7.2.3, 7.3.1 이전)에서 `wagtail.contrib.simple_translation` 모듈의 확인 메시지 내에 저장형 XSS 취약점이 존재합니다. 관리자 권한을 가진 사용자가 악성 제목을 가진 페이지를 생성하면, 다른 사용자가 \"번역\" 작업을 수행할 때 임의의 JavaScript 코드가 실행될 수 있습니다. 이는 해당 사용자의 권한으로 악의적인 행위를 초래할 수 있습니다.",
@@ -61610,32 +61823,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-55208",
-    "title": "Chamilo LMS 소셜 네트워크 업로드 파일에 저장된 XSS 취약점",
-    "description": "Chamilo LMS 1.11.34 이전 버전에서 `소셜 네트워크` 기능의 안전하지 않은 파일 업로드를 통해 저장된 XSS 취약점이 발견되었습니다. 이를 통해 권한이 낮은 사용자가 관리자 계정의 받은 편지함에서 임의 코드를 실행하여 계정 탈취가 가능합니다. 1.11.34 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.34 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:59:00.641146+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-27750",
@@ -63859,106 +64046,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-4404",
-    "title": "FreeIPA: idm: FreeIPA에서 호스트에서 도메인 관리자로 권한 상승",
-    "description": "FreeIPA 프로젝트에서 호스트에서 도메인 관리자로 권한 상승 취약점이 발견되었습니다. FreeIPA 패키지는 기본적으로 관리 계정의 `krbCanonicalName` 고유성을 검증하지 않아, 사용자가 REALM 관리자와 동일한 canonical name을 가진 서비스를 생성할 수 있습니다. 공격에 성공하면 공격자는 admin@REALM 자격 증명을 포함하는 서비스 이름으로 Kerberos 티켓을 획득하여 REALM에 대한 관리 작업을 수행하고 민감한 데이터에 접근 및 유출할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00073,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1220"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "4.12.4 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T22:11:12.646554+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/Im10n/CVE-2025-4404-POC"
-    ],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-1709",
-    "title": "Keylime: 클라이언트 측 TLS 인증 누락으로 인한 권한 우회 취약점",
-    "description": "Keylime 등록기는 7.12.0 버전부터 클라이언트 측 TLS 인증을 적용하지 않아, 인증되지 않은 클라이언트가 네트워크 접근 권한만으로 관리자 작업을 수행할 수 있습니다. 여기에는 에이전트 목록 확인, TPM 데이터 검색, 에이전트 삭제 등이 포함됩니다. 클라이언트 인증서 없이 연결하여 이러한 취약점을 악용할 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00025,
-    "is_kev": false,
-    "cwe": [
-      "CWE-322"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 9",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:54:29.668154+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28074",
-    "title": "WordPress Pizza House 테마 <= 1.4.0 - PHP 객체 주입 취약점",
-    "description": "ThemeREX Pizza House 테마의 pizzahouse에서 신뢰할 수 없는 데이터의 역직렬화로 인해 객체 주입 취약점이 발생합니다.",
-    "cvss": 9.8,
-    "epss": 0.00024,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Pizza House",
-        "versions": "<= 1.4.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T22:12:11.437916+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28059",
     "title": "WordPress Dermatology Clinic 테마 <= 1.4.3 - 로컬 파일 포함 취약점",
     "description": "ThemeREX Dermatology Clinic 테마의 dermatology-clinic에서 PHP 로컬 파일 포함 취약점이 발견되었습니다. 이 취약점은 include/require 구문의 파일 이름 제어 미흡으로 발생합니다. Dermatology Clinic 버전 n/a부터 <= 1.4.3까지 영향을 받습니다.",
@@ -65155,58 +65242,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T14:22:47.744733+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-47721",
-    "title": "Orangescrum 1.8.0 인증된 권한 상승 - 사용자 세션 조작",
-    "description": "Orangescrum 1.8.0 버전에서 인증된 사용자가 세션 쿠키를 조작하여 다른 프로젝트 계정을 탈취할 수 있는 권한 상승 취약점이 발견되었습니다. 공격자는 페이지 소스에서 피해자의 고유 ID를 추출하고 자신의 세션 쿠키를 변경하여 다른 사용자의 계정에 무단으로 접근할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.0002,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "Orangescrum",
-        "product": "orangescrum",
-        "versions": "1.8.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:25:50.750858+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2020-36850",
-    "title": "Sitecore JSS React 샘플 애플리케이션 11.0.0 - 14.0.1 정보 노출",
-    "description": "Sitecore JSS React 샘플 애플리케이션 11.0.0 - 14.0.1에 정보 노출 취약점이 존재합니다. 이 취약점은 특정 사용자를 위해 의도된 페이지 콘텐츠가 다른 사용자에게 노출될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00058,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "Sitecore",
-        "product": "JSS React Sample Application",
-        "versions": "11.0.0 부터 14.0.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:21:46.741788+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
