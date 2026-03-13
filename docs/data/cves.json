@@ -1,5 +1,138 @@
 [
   {
+    "id": "CVE-2026-23943",
+    "title": "사전 인증 SSH DoS - zlib 압축 해제 크기 제한 없음",
+    "description": "Erlang OTP ssh (ssh_transport 모듈)의 압축 데이터 처리 미흡으로 인해 서비스 거부(DoS) 공격이 가능합니다. 공격자는 사전 인증 단계에서 크기가 제한되지 않은 zlib 압축 페이로드를 전송하여 메모리 고갈을 유발할 수 있습니다. zlib 및 zlib@openssh.com 알고리즘이 영향을 받으며, 최대 1029:1의 증폭 비율로 메모리 소모를 빠르게 가속화할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409"
+    ],
+    "affected": [
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
+      },
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "17.0 부터 * 이전, 07b8f441ca711f9812fad9e9115bab3c3aa92f79 부터 * 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:16.312923+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4105",
+    "title": "systemd: systemd의 잘못된 접근 제어 취약점을 이용한 권한 상승",
+    "description": "systemd-machined 서비스의 RegisterMachine D-Bus 메서드에서 class 파라미터 검증이 미흡하여 권한 상승 취약점이 발견되었습니다. 로컬 비권한 사용자가 특정 class 값을 사용하여 머신 등록을 시도하면 공격자가 제어하는 머신 객체가 생성될 수 있습니다. 이를 통해 공격자는 특권 객체의 메서드를 호출하여 호스트 시스템에서 root 권한으로 임의 명령을 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/236",
+    "date": "2026-03-13T09:01:07.062838+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23942",
+    "title": "ssh_sftpd 모듈의 컴포넌트 비의존적 접두사 검사를 통한 SFTP 루트 이스케이프 취약점",
+    "description": "Erlang OTP (ssh_sftpd 모듈)의 경로 제한 오류(경로 탐색) 취약점으로 인해 경로 탐색이 가능합니다. SFTP 서버가 경로 유효성 검사 시 적절한 경로 컴포넌트 검증 대신 문자열 접두사 매칭을 사용하여, 설정된 루트 디렉토리와 공통 접두사를 가진 상위 디렉토리에 접근할 수 있습니다. 해당 취약점은 OTP 17.0 ~ 28.4.1, 27.3.4.9, 26.2.5.18 버전에 영향을 미칩니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
+      },
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "17.0 부터 * 이전, * 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:16.606873+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4063",
+    "title": "WPZOOM Social Icons 위젯 & 블록 <= 4.5.8 - 인증된 사용자(Subscriber+) 공유 설정 생성 권한 부족",
+    "description": "WPZOOM Social Icons 위젯 & 블록 플러그인은 관리자 권한 확인 누락으로 인해 인증된 공격자(Subscriber 이상)가 공유 설정을 생성할 수 있는 취약점이 있습니다. 이로 인해 기본 공유 버튼 설정으로 wpzoom-sharing 설정 게시물이 생성되어, 전면 콘텐츠에 소셜 공유 버튼이 자동으로 삽입될 수 있습니다. 해당 취약점은 4.5.8 버전까지 영향을 받습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wpzoom",
+        "product": "Social Icons Widget & Block – Social Media Icons & Share Buttons",
+        "versions": "* 부터 4.5.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:08.338127+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-23941",
     "title": "inets httpd의 Content-Length 파싱 방식에서 발생하는 요청 밀수 취약점",
     "description": "Erlang OTP (inets httpd 모듈)에서 HTTP 요청 해석의 불일치로 인해 HTTP 요청 밀수 취약점이 발생합니다. 서버가 중복된 Content-Length 헤더를 거부하거나 정규화하지 않아 프론트엔드/백엔드 간의 동기화 문제를 야기하며, 공격자가 다음 요청의 시작 부분에 제어 가능한 바이트를 삽입할 수 있습니다. OTP 17.0부터 28.4.1, 27.3.4.9, 26.2.5.18 버전 및 inets 5.10부터 9.6.1, 9.3.2.3, 9.1.0.5 버전에 영향을 미칩니다.",
@@ -23,6 +156,401 @@
     ],
     "report_url": null,
     "date": "2026-03-13T09:58:35.943574+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3873",
+    "title": "내장 사용자 계정의 레거시 문제",
+    "description": "Avnatra Avantra에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이로 인해 ACL로 적절히 제한되지 않은 기능에 접근할 수 있습니다. 해당 문제는 Avantra 25.3.0 이전 버전에 영향을 미칩니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "syslink software AG",
+        "product": "Avantra",
+        "versions": "25.3.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/235",
+    "date": "2026-03-13T09:01:03.67489+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-24097",
+    "title": "에이전트 등록 기존 엔드포인트의 관찰 가능한 응답 불일치를 통한 인증된 호스트 열거",
+    "description": "Checkmk 2.4.0 이전 버전(2.4.0p23 미만), 2.3.0 이전 버전(2.3.0p43 미만), 및 2.2.0(EOL)에서 부적절한 권한 적용으로 인해 인증된 사용자가 agent-receiver/register_existing 엔드포인트의 HTTP 응답 코드 차이를 관찰하여 기존 호스트를 열거할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:06.909583+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2859",
+    "title": "Deploy Agent 엔드포인트의 Observable 응답 불일치를 통한 인증되지 않은 호스트 열거",
+    "description": "Checkmk 2.4.0 이전(2.4.0p23 미만), 2.3.0 이전(2.3.0p43 미만), 및 2.2.0 버전에서 부적절한 권한 관리가 발견되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:06.672237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28454",
+    "title": "OpenClaw < 2026.2.2 - 인증되지 않은 텔레그램 웹훅을 통한 권한 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전은 텔레그램 웹훅 모드에서 웹훅 비밀번호를 검증하지 않아, 공격자가 제어하는 JSON 페이로드를 통해 인증되지 않은 HTTP POST 요청을 웹훅 엔드포인트로 전송할 수 있습니다. 이를 통해 공격자는 메시지 발신자 및 채팅 ID를 위조하여 권한 있는 봇 명령을 실행할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:47:15.725865+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28469",
+    "title": "OpenClaw < 2026.2.14 - 공유 웹훅 경로 모호성을 이용한 계정 간 정책 컨텍스트 오루팅",
+    "description": "OpenClaw 2026.2.14 이전 버전은 Google Chat 모니터링 구성 요소에서 웹훅 라우팅 취약점을 가지고 있습니다. 여러 웹훅 대상이 동일한 HTTP 경로를 공유할 경우, 계정 간 정책 컨텍스트 오루팅이 발생할 수 있습니다. 공격자는 첫 번째 일치 요청 검증 방식을 악용하여 잘못된 계정 컨텍스트에서 웹훅 이벤트를 처리하고, 허용 목록 및 세션 정책을 우회할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:07:49.534041+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28787",
+    "title": "OneUptime WebAuthn 2FA 우회 취약점",
+    "description": "OneUptime 10.0.11 버전 이하에서 WebAuthn 인증 구현 시 서버 측에서 challenge 값을 저장하지 않고 클라이언트에 반환합니다. 이 challenge 값을 클라이언트 요청 본문에서 다시 받아 검증하여 WebAuthn 규격(W3C Web Authentication Level 2, §13.4.3)을 위반하며, 유효한 WebAuthn assertion을 탈취한 공격자가 이를 무한 반복하여 2차 인증을 우회할 수 있습니다. 현재 패치는 제공되지 않습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-294"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "<= 10.0.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:12:27.161079+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28255",
+    "title": "Trane Tracer SC, SC+, 및 Concierge 제품의 하드코딩된 자격 증명 사용 취약점",
+    "description": "Trane Tracer SC, SC+, 및 Concierge 제품에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 민감한 정보를 유출하고 계정을 탈취할 수 있습니다. 따라서 보안에 유의해야 합니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "Trane",
+        "product": "Tracer SC",
+        "versions": "v4.4 SP7 이전"
+      },
+      {
+        "vendor": "Trane",
+        "product": "Tracer SC+",
+        "versions": "v6.3.2310 이전"
+      },
+      {
+        "vendor": "Trane",
+        "product": "Tracer Concierge",
+        "versions": "v6.3.2310 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T18:06:41.675369+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28677",
+    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
+    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSift",
+        "product": "OpenSift",
+        "versions": "< 1.6.3-alpha (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:04:06.77766+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30798",
+    "title": "RustDesk 클라이언트, 인증되지 않은 stop-service 명령어 취약점",
+    "description": "RustDesk 클라이언트의 heartbeat sync 루프 및 strategy 처리 모듈에서 데이터 진위성 검증 부족 및 예외 처리 미흡으로 프로토콜 조작이 가능합니다. Windows, MacOS, Linux, iOS, Android에서 발생하며, 1.4.5 버전 이하에 영향을 미칩니다. src/hbbs_http/sync.Rs 파일 및 stop-service 핸들러에서 문제가 발생합니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-345",
+      "CWE-755"
+    ],
+    "affected": [
+      {
+        "vendor": "rustdesk-client",
+        "product": "RustDesk Client",
+        "versions": "1.4.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T16:25:00.194896+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29611",
+    "title": "OpenClaw < 2026.2.14 - BlueBubbles 미디어 처리의 mediaPath 파라미터를 통한 로컬 파일 포함 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전은 BlueBubbles 확장 기능(설치 및 활성화 필요)의 미디어 경로 처리에서 로컬 파일 포함 취약점을 가지고 있습니다. 공격자는 이를 통해 로컬 파일 시스템의 임의 파일을 읽을 수 있습니다. sendBlueBubblesMedia 함수가 mediaPath 파라미터를 허용 목록으로 검증하지 않아 /etc/passwd와 같은 민감한 파일을 요청하고 미디어 첨부 파일로 유출할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:28:21.635182+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28393",
+    "title": "OpenClaw 2.0.0-beta3 < 2026.2.14 - Hook Transform 경로 탐색을 통한 임의 JavaScript 모듈 로딩",
+    "description": "OpenClaw 2.0.0-beta3 버전(2026.2.14 이전)은 hook transform 모듈 로딩 시 경로 탐색 취약점을 가지고 있어 임의의 JavaScript 실행을 허용합니다. 설정 쓰기 권한을 가진 공격자는 절대 경로 및 탐색 시퀀스를 사용하여 악성 모듈을 로드하고 게이트웨이 프로세스 권한으로 실행할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2.0.0-beta3 부터 2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:35:52.70211+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28450",
+    "title": "OpenClaw < 2026.2.12 - Nostr 플러그인을 통한 인증되지 않은 프로필 변조",
+    "description": "OpenClaw 2026.2.12 이전 버전은 Nostr 플러그인이 활성화된 경우, /api/channels/nostr/:accountId/profile 및 /api/channels/nostr/:accountId/profile/import 엔드포인트를 통해 게이트웨이 인증 없이 Nostr 프로필에 접근 및 수정이 가능합니다. 외부 공격자는 이를 악용하여 민감한 프로필 데이터를 읽고, 프로필을 변조하며, 악성 변경 사항을 지속적으로 적용하고, 게이트웨이 HTTP 포트가 localhost 외부에서 접근 가능한 경우 봇의 개인 키를 사용하여 서명된 Nostr 이벤트를 게시할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:43:11.717459+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28453",
+    "title": "OpenClaw < 2026.2.14 - TAR 아카이브 추출 시 Zip Slip 경로 탐색 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전은 TAR 아카이브 항목 경로를 추출 시 검증하지 않아 경로 탐색 공격에 취약합니다. 공격자는 악성 아카이브를 통해 의도된 디렉토리 외부의 파일에 접근하여 설정을 변경하거나 코드를 실행할 수 있습니다. `../..` 와 같은 경로 탐색 시퀀스가 사용될 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:46:14.724462+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -168,262 +696,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-4105",
-    "title": "systemd: systemd의 잘못된 접근 제어 취약점을 이용한 권한 상승",
-    "description": "systemd-machined 서비스의 RegisterMachine D-Bus 메서드에서 class 파라미터 검증이 미흡하여 권한 상승 취약점이 발견되었습니다. 로컬 비권한 사용자가 특정 class 값을 사용하여 머신 등록을 시도하면 공격자가 제어하는 머신 객체가 생성될 수 있습니다. 이를 통해 공격자는 특권 객체의 메서드를 호출하여 호스트 시스템에서 root 권한으로 임의 명령을 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/236",
-    "date": "2026-03-13T09:01:07.062838+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23942",
-    "title": "ssh_sftpd 모듈의 컴포넌트 비의존적 접두사 검사를 통한 SFTP 루트 이스케이프 취약점",
-    "description": "Erlang OTP (ssh_sftpd 모듈)의 경로 제한 오류(경로 탐색) 취약점으로 인해 경로 탐색이 가능합니다. SFTP 서버가 경로 유효성 검사 시 적절한 경로 컴포넌트 검증 대신 문자열 접두사 매칭을 사용하여, 설정된 루트 디렉토리와 공통 접두사를 가진 상위 디렉토리에 접근할 수 있습니다. 해당 취약점은 OTP 17.0 ~ 28.4.1, 27.3.4.9, 26.2.5.18 버전에 영향을 미칩니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "Erlang",
-        "product": "OTP",
-        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
-      },
-      {
-        "vendor": "Erlang",
-        "product": "OTP",
-        "versions": "17.0 부터 * 이전, * 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T09:58:16.606873+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-23943",
-    "title": "사전 인증 SSH DoS - zlib 압축 해제 크기 제한 없음",
-    "description": "Erlang OTP ssh (ssh_transport 모듈)의 압축 데이터 처리 미흡으로 인해 서비스 거부(DoS) 공격이 가능합니다. 공격자는 사전 인증 단계에서 크기가 제한되지 않은 zlib 압축 페이로드를 전송하여 메모리 고갈을 유발할 수 있습니다. zlib 및 zlib@openssh.com 알고리즘이 영향을 받으며, 최대 1029:1의 증폭 비율로 메모리 소모를 빠르게 가속화할 수 있습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-409"
-    ],
-    "affected": [
-      {
-        "vendor": "Erlang",
-        "product": "OTP",
-        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
-      },
-      {
-        "vendor": "Erlang",
-        "product": "OTP",
-        "versions": "17.0 부터 * 이전, 07b8f441ca711f9812fad9e9115bab3c3aa92f79 부터 * 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T09:58:16.312923+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-4063",
-    "title": "WPZOOM Social Icons 위젯 & 블록 <= 4.5.8 - 인증된 사용자(Subscriber+) 공유 설정 생성 권한 부족",
-    "description": "WPZOOM Social Icons 위젯 & 블록 플러그인은 관리자 권한 확인 누락으로 인해 인증된 공격자(Subscriber 이상)가 공유 설정을 생성할 수 있는 취약점이 있습니다. 이로 인해 기본 공유 버튼 설정으로 wpzoom-sharing 설정 게시물이 생성되어, 전면 콘텐츠에 소셜 공유 버튼이 자동으로 삽입될 수 있습니다. 해당 취약점은 4.5.8 버전까지 영향을 받습니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "wpzoom",
-        "product": "Social Icons Widget & Block – Social Media Icons & Share Buttons",
-        "versions": "* 부터 4.5.8 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T09:58:08.338127+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-24097",
-    "title": "에이전트 등록 기존 엔드포인트의 관찰 가능한 응답 불일치를 통한 인증된 호스트 열거",
-    "description": "Checkmk 2.4.0 이전 버전(2.4.0p23 미만), 2.3.0 이전 버전(2.3.0p43 미만), 및 2.2.0(EOL)에서 부적절한 권한 적용으로 인해 인증된 사용자가 agent-receiver/register_existing 엔드포인트의 HTTP 응답 코드 차이를 관찰하여 기존 호스트를 열거할 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-204"
-    ],
-    "affected": [
-      {
-        "vendor": "Checkmk GmbH",
-        "product": "Checkmk",
-        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T09:58:06.909583+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-2859",
-    "title": "Deploy Agent 엔드포인트의 Observable 응답 불일치를 통한 인증되지 않은 호스트 열거",
-    "description": "Checkmk 2.4.0 이전(2.4.0p23 미만), 2.3.0 이전(2.3.0p43 미만), 및 2.2.0 버전에서 부적절한 권한 관리가 발견되었습니다.",
-    "cvss": 6.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-204"
-    ],
-    "affected": [
-      {
-        "vendor": "Checkmk GmbH",
-        "product": "Checkmk",
-        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T09:58:06.672237+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3873",
-    "title": "내장 사용자 계정의 레거시 문제",
-    "description": "Avnatra Avantra에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이로 인해 ACL로 적절히 제한되지 않은 기능에 접근할 수 있습니다. 해당 문제는 Avantra 25.3.0 이전 버전에 영향을 미칩니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "syslink software AG",
-        "product": "Avantra",
-        "versions": "25.3.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/235",
-    "date": "2026-03-13T09:01:03.67489+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28482",
@@ -8193,42 +8465,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28255",
-    "title": "Trane Tracer SC, SC+, 및 Concierge 제품의 하드코딩된 자격 증명 사용 취약점",
-    "description": "Trane Tracer SC, SC+, 및 Concierge 제품에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 민감한 정보를 유출하고 계정을 탈취할 수 있습니다. 따라서 보안에 유의해야 합니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "Trane",
-        "product": "Tracer SC",
-        "versions": "v4.4 SP7 이전"
-      },
-      {
-        "vendor": "Trane",
-        "product": "Tracer SC+",
-        "versions": "v6.3.2310 이전"
-      },
-      {
-        "vendor": "Trane",
-        "product": "Tracer Concierge",
-        "versions": "v6.3.2310 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T18:06:41.675369+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-26794",
@@ -25174,32 +25410,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28393",
-    "title": "OpenClaw 2.0.0-beta3 < 2026.2.14 - Hook Transform 경로 탐색을 통한 임의 JavaScript 모듈 로딩",
-    "description": "OpenClaw 2.0.0-beta3 버전(2026.2.14 이전)은 hook transform 모듈 로딩 시 경로 탐색 취약점을 가지고 있어 임의의 JavaScript 실행을 허용합니다. 설정 쓰기 권한을 가진 공격자는 절대 경로 및 탐색 시퀀스를 사용하여 악성 모듈을 로드하고 게이트웨이 프로세스 권한으로 실행할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2.0.0-beta3 부터 2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:35:52.70211+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-27270",
@@ -45211,33 +45421,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-28787",
-    "title": "OneUptime WebAuthn 2FA 우회 취약점",
-    "description": "OneUptime 10.0.11 버전 이하에서 WebAuthn 인증 구현 시 서버 측에서 challenge 값을 저장하지 않고 클라이언트에 반환합니다. 이 challenge 값을 클라이언트 요청 본문에서 다시 받아 검증하여 WebAuthn 규격(W3C Web Authentication Level 2, §13.4.3)을 위반하며, 유효한 WebAuthn assertion을 탈취한 공격자가 이를 무한 반복하여 2차 인증을 우회할 수 있습니다. 현재 패치는 제공되지 않습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287",
-      "CWE-294"
-    ],
-    "affected": [
-      {
-        "vendor": "OneUptime",
-        "product": "oneuptime",
-        "versions": "<= 10.0.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T06:12:27.161079+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2020",
     "title": "JS Archive List <= 6.1.7 - 인증된 사용자를 통한 PHP 객체 주입 취약점 (Contributor+ 권한 필요)",
     "description": "WordPress용 JS Archive List 플러그인은 'included' 쇼트코드 속성을 통해 6.1.7 버전 이하에서 PHP 객체 주입 취약점을 가지고 있습니다. 신뢰할 수 없는 입력값이 'included' 파라미터를 통해 역직렬화되는 것이 원인입니다. 인증된 공격자(Contributor 권한 이상)는 PHP 객체를 주입할 수 있으며, 추가 플러그인이나 테마를 통해 POP 체인이 존재할 경우 임의 파일 삭제, 민감 정보 탈취, 코드 실행 등이 가능합니다.",
@@ -46190,32 +46373,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T17:02:25.86647+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29611",
-    "title": "OpenClaw < 2026.2.14 - BlueBubbles 미디어 처리의 mediaPath 파라미터를 통한 로컬 파일 포함 취약점",
-    "description": "OpenClaw 2026.2.14 이전 버전은 BlueBubbles 확장 기능(설치 및 활성화 필요)의 미디어 경로 처리에서 로컬 파일 포함 취약점을 가지고 있습니다. 공격자는 이를 통해 로컬 파일 시스템의 임의 파일을 읽을 수 있습니다. sendBlueBubblesMedia 함수가 mediaPath 파라미터를 허용 목록으로 검증하지 않아 /etc/passwd와 같은 민감한 파일을 요청하고 미디어 첨부 파일로 유출할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:28:21.635182+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -47506,32 +47663,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28454",
-    "title": "OpenClaw < 2026.2.2 - 인증되지 않은 텔레그램 웹훅을 통한 권한 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전은 텔레그램 웹훅 모드에서 웹훅 비밀번호를 검증하지 않아, 공격자가 제어하는 JSON 페이로드를 통해 인증되지 않은 HTTP POST 요청을 웹훅 엔드포인트로 전송할 수 있습니다. 이를 통해 공격자는 메시지 발신자 및 채팅 ID를 위조하여 권한 있는 봇 명령을 실행할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-345"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:47:15.725865+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28452",
     "title": "OpenClaw < 2026.2.14 - 안전하지 않은 아카이브 추출을 통한 서비스 거부 (DoS)",
     "description": "OpenClaw 2026.2.14 이전 버전은 `src/infra/archive.ts`의 `extractArchive` 함수에서 높은 확장률의 ZIP 및 TAR 아카이브를 통해 과도한 CPU, 메모리, 디스크 자원을 소모시키는 서비스 거부 취약점을 가지고 있습니다. 공격자는 설치 또는 업데이트 과정에서 악의적으로 조작된 아카이브 파일을 제공하여 시스템의 성능 저하나 가용성 중단을 유발할 수 있습니다.",
@@ -47556,32 +47687,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28453",
-    "title": "OpenClaw < 2026.2.14 - TAR 아카이브 추출 시 Zip Slip 경로 탐색 취약점",
-    "description": "OpenClaw 2026.2.14 이전 버전은 TAR 아카이브 항목 경로를 추출 시 검증하지 않아 경로 탐색 공격에 취약합니다. 공격자는 악성 아카이브를 통해 의도된 디렉토리 외부의 파일에 접근하여 설정을 변경하거나 코드를 실행할 수 있습니다. `../..` 와 같은 경로 탐색 시퀀스가 사용될 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:46:14.724462+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28451",
@@ -49581,32 +49686,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T19:07:44.142259+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28450",
-    "title": "OpenClaw < 2026.2.12 - Nostr 플러그인을 통한 인증되지 않은 프로필 변조",
-    "description": "OpenClaw 2026.2.12 이전 버전은 Nostr 플러그인이 활성화된 경우, /api/channels/nostr/:accountId/profile 및 /api/channels/nostr/:accountId/profile/import 엔드포인트를 통해 게이트웨이 인증 없이 Nostr 프로필에 접근 및 수정이 가능합니다. 외부 공격자는 이를 악용하여 민감한 프로필 데이터를 읽고, 프로필을 변조하며, 악성 변경 사항을 지속적으로 적용하고, 게이트웨이 HTTP 포트가 localhost 외부에서 접근 가능한 경우 봇의 개인 키를 사용하여 서명된 Nostr 이벤트를 게시할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.12 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:43:11.717459+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -62096,32 +62175,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28469",
-    "title": "OpenClaw < 2026.2.14 - 공유 웹훅 경로 모호성을 이용한 계정 간 정책 컨텍스트 오루팅",
-    "description": "OpenClaw 2026.2.14 이전 버전은 Google Chat 모니터링 구성 요소에서 웹훅 라우팅 취약점을 가지고 있습니다. 여러 웹훅 대상이 동일한 HTTP 경로를 공유할 경우, 계정 간 정책 컨텍스트 오루팅이 발생할 수 있습니다. 공격자는 첫 번째 일치 요청 검증 방식을 악용하여 잘못된 계정 컨텍스트에서 웹훅 이벤트를 처리하고, 허용 목록 및 세션 정책을 우회할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:07:49.534041+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28467",
     "title": "OpenClaw < 2026.2.2 - 첨부 미디어 URL 수화 시 SSRF 취약점",
     "description": "OpenClaw 2026.2.2 이전 버전에서 첨부 파일 및 미디어 URL 수화 과정에서 SSRF 취약점이 발견되었습니다. 이를 통해 원격 공격자는 임의의 HTTP(S) URL을 가져올 수 있습니다. 모델 제어 전송 첨부 또는 자동 응답 메커니즘을 통해 미디어 URL에 영향을 줄 수 있는 공격자는 SSRF를 유발하여 내부 리소스에 접근하고 응답 바이트를 유출할 수 있습니다.",
@@ -64732,59 +64785,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30798",
-    "title": "RustDesk 클라이언트, 인증되지 않은 stop-service 명령어 취약점",
-    "description": "RustDesk 클라이언트의 heartbeat sync 루프 및 strategy 처리 모듈에서 데이터 진위성 검증 부족 및 예외 처리 미흡으로 프로토콜 조작이 가능합니다. Windows, MacOS, Linux, iOS, Android에서 발생하며, 1.4.5 버전 이하에 영향을 미칩니다. src/hbbs_http/sync.Rs 파일 및 stop-service 핸들러에서 문제가 발생합니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-345",
-      "CWE-755"
-    ],
-    "affected": [
-      {
-        "vendor": "rustdesk-client",
-        "product": "RustDesk Client",
-        "versions": "1.4.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T16:25:00.194896+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28677",
-    "title": "OpenSift: URL 대상 제한 미흡으로 인한 SSRF 취약점",
-    "description": "OpenSift는 시맨틱 검색 및 생성형 AI를 활용하여 대규모 데이터셋을 분석하는 AI 학습 도구입니다. 1.6.3-alpha 버전 이전에는 URL 수집 파이프라인이 사용자 제어 원격 URL을 처리할 때 대상 제한이 미흡했습니다. 인증 정보가 포함된 URL, 비표준 포트, 교차 호스트 리디렉션에 대한 제한이 없어 SSRF 공격에 취약했습니다. 해당 문제는 1.6.3-alpha 버전에서 수정되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSift",
-        "product": "OpenSift",
-        "versions": "< 1.6.3-alpha (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:04:06.77766+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28804",
