@@ -1,5 +1,725 @@
 [
   {
+    "id": "CVE-2026-22193",
+    "title": "wpDiscuz 7.6.47 이전 버전 - getAllSubscriptions() 함수 SQL Injection 취약점",
+    "description": "wpDiscuz 7.6.47 이전 버전의 getAllSubscriptions() 함수에서 SQL 쿼리 내 문자열 파라미터의 적절한 따옴표 이스케이핑이 부족하여 SQL Injection 취약점이 존재합니다. 공격자는 이메일, activation_key, subscription_date, imported_from 파라미터를 통해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하고 민감한 정보를 유출할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/228",
+    "date": "2026-03-13T03:12:01.032001+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-22216",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 구독 엔드포인트의 속도 제한 미흡 및 LIKE 와일드카드 우회",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 인증되지 않은 공격자가 `wpdAddSubscription` 핸들러를 통해 임의의 이메일 주소를 게시물 알림 구독할 수 있는 속도 제한 미흡 취약점이 발견되었습니다. LIKE 와일드카드를 사용하여 여러 이메일 주소를 매칭하고, 피해자 계정으로 불필요한 알림 이메일을 생성할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-799"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:57.23738+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22215",
+    "title": "wpDiscuz 7.6.47 이전 버전 - CSRF 보호 기능 부재",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 getFollowsPage() 함수에 CSRF 보호 기능이 없어 공격자가 nonce 검증 없이 무단 작업을 수행할 수 있는 취약점이 발견되었습니다. 공격자는 follows 페이지 핸들러의 CSRF 보호 기능 부재를 악용하여 팔로우 관계를 열거하고 사용자 팔로우 데이터를 조작할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:55.60957+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22210",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 이스케이프되지 않은 첨부 파일 URL을 통한 교차 사이트 스크립팅",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 WpdiscuzHelperUpload 클래스 취약점을 이용하여 첨부 파일 URL을 통해 악성 코드를 삽입하는 교차 사이트 스크립팅(XSS) 취약점이 발견되었습니다. 공격자는 악성 첨부 파일 레코드 또는 필터 훅을 제작하여 img 및 앵커 태그 속성에 임의의 JavaScript를 삽입하고, 댓글을 보는 워드프레스 사용자 컨텍스트에서 코드를 실행할 수 있습니다.",
+    "cvss": 2.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:50.518157+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-22209",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 스타일 태그 내 미탈출 사용자 정의 CSS를 통한 교차 사이트 스크립팅",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 사용자 정의 CSS 필드에 교차 사이트 스크립팅 취약점이 존재합니다. 관리자가 스타일 태그를 벗어나 악성 스크립트를 삽입할 수 있습니다. 관리자 권한을 가진 공격자는 사용자 정의 CSS 설정에 </style><script>alert(1)</script>와 같은 페이로드를 삽입하여 사용자 브라우저에서 임의의 JavaScript를 실행할 수 있습니다.",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:49.429398+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22204",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 쿠키 이메일의 미흡한 검증으로 인한 wp_mail() 수신자 조작 취약점",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 comment_author_email 쿠키에 악성 데이터를 삽입하여 이메일 수신자를 조작하는 취약점이 발견되었습니다. urldecode()를 통해 처리된 쿠키 값이 wp_mail() 함수에 전달될 때 헤더 삽입이 가능하여 수신자 변경 또는 추가 헤더 삽입이 이루어질 수 있습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:43.736208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22182",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 인증되지 않은 이메일 알림 과다 전송 취약점",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 익명의 사용자가 `checkNotificationType()` 함수를 악용하여 대량의 이메일 알림을 발생시키는 서비스 거부(DoS) 취약점이 발견되었습니다. 공격자는 `wpdiscuz-ajax.php` 엔드포인트에 임의의 `postId` 및 `comment_id` 파라미터를 반복적으로 전송하여 구독자에게 알림을 과도하게 보낼 수 있습니다. 해당 핸들러는 Nonce 검증, 인증 확인, 속도 제한 기능이 부족합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/227",
+    "date": "2026-03-13T03:11:42.647572+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-22182 wpDiscuz Unauthenticated Email Notification Flood Attempt\nstatus: experimental\ndescription: Detects unauthenticated requests to wpdiscuz-ajax.php that include both postId and comment_id parameters, which can be abused to trigger mass notification emails (CVE-2026-22182).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: 'wpdiscuz-ajax.php'\n    selection_params:\n        - uri|contains: 'postId='\n        - uri|contains: 'comment_id='\n    selection_body_params:\n        - cs-body|contains: 'postId='\n        - cs-body|contains: 'comment_id='\n    condition: all of selection_endpoint and 1 of selection_params and 1 of selection_body_params\nlevel: high\ntags:\n    - cve.2026.22182\n    - wpdiscuz\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1071.001\n    - attack.t1499.002",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-22182 wpDiscuz unauthenticated email notification flood\";\n    flow:to_server,established;\n    http_method; content:\"POST\";\n    http_uri; content:\"/wpdiscuz-ajax.php\";\n    http_client_body; content:\"postId=\"; within:50;\n    http_client_body; content:\"comment_id=\"; within:50;\n    reference:cve,2026-22182;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "웹 파일 (.php)",
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-22203",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 옵션 내보내기 시 OAuth 보안 키 평문 유출",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 플러그인 옵션을 JSON으로 내보낼 때 OAuth 보안 키가 평문으로 노출되는 정보 유출 취약점이 존재합니다. 공격자는 지원 티켓, 백업, 버전 관리 저장소 등에서 API 보안 키(fbAppSecret, googleClientSecret, twitterAppSecret 등)를 포함하는 내보낸 파일을 획득할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:38.255891+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22202",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 파괴적인 GET 요청으로 이메일 기반 모든 댓글 삭제",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 유효한 HMAC 키를 사용한 악성 GET 요청을 통해 특정 이메일 주소와 관련된 모든 댓글을 삭제할 수 있는 CSRF 취약점이 발견되었습니다. 공격자는 이미지 태그 등에 삭제 URL을 삽입하여 사용자 확인 없이 댓글을 영구적으로 삭제할 수 있습니다. POST 기반 CSRF 보호 기능이 적용되지 않아 위험이 더욱 큽니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:29.233062+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22201",
+    "title": "wpDiscuz 7.6.47 이전 버전 - getIP() 함수 IP 주소 위조",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 getIP() 함수에 IP 주소 위조 취약점이 존재합니다. 공격자는 신뢰할 수 없는 HTTP 헤더를 이용하여 IP 기반 속도 제한 및 차단 기능을 우회할 수 있습니다. HTTP_CLIENT_IP 또는 HTTP_X_FORWARDED_FOR 헤더를 설정하여 IP 주소를 위조하는 방식으로 보안 제어를 무력화합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-348"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:23.890206+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22199",
+    "title": "wpDiscuz 7.6.47 이전 버전 - Nonce Oracle 및 IP 로테이션을 통한 투표 조작",
+    "description": "wpDiscuz 7.6.47 이전 버전에서 공격자가 Nonce를 획득하고, 클라이언트 제어 헤더를 통해 속도 제한을 우회하여 댓글 투표를 조작할 수 있는 취약점이 발견되었습니다. User-Agent 헤더 변경으로 속도 제한을 초기화하고, 인증되지 않은 wpdGetNonce 엔드포인트에서 Nonce를 요청하며, IP 로테이션 또는 역방향 프록시 헤더 조작을 통해 여러 번 투표가 가능합니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:10.607001+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22192",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 악성 옵션 가져오기를 통한 저장형 XSS 취약점",
+    "description": "wpDiscuz 7.6.47 이전 버전은 인증된 공격자가 악성 JavaScript를 삽입할 수 있는 저장형 XSS 취약점을 포함합니다. 공격자는 `customCss` 필드 값이 이스케이프되지 않은 조작된 옵션 파일을 가져와 이를 악용할 수 있습니다. 적절한 삭제 없이 옵션 핸들러를 통해 렌더링될 때 모든 페이지에서 실행되는 스크립트 페이로드를 `customCss` 파라미터에 담은 악성 JSON 가져오기 파일을 사용할 수 있습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:11:02.205645+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22191",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 이메일 알림을 통한 서버 측 쇼트코드 삽입",
+    "description": "wpDiscuz 7.6.47 이전 버전은 이메일 알림으로 전송되는 댓글 내용에 쇼트코드를 삽입하여 임의의 쇼트코드를 실행할 수 있는 취약점을 포함합니다. 공격자는 댓글에 [contact-form-7] 또는 [user_meta]와 같은 쇼트코드를 삽입하여 wp_mail() 함수 호출 전 do_shortcode()를 통해 서버 측에서 실행되도록 할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:10:59.336168+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-22183",
+    "title": "wpDiscuz 7.6.47 이전 버전 - 인라인 댓글 미리보기 저장형 XSS 취약점",
+    "description": "wpDiscuz 7.6.47 이전 버전은 인라인 댓글 미리보기 기능에 저장형 XSS 취약점이 존재합니다. 인증된 사용자가 이스케이프되지 않은 콘텐츠를 포함하는 댓글을 제출하여 악성 스크립트를 삽입할 수 있습니다. 필터링되지 않은 HTML 기능이 있는 공격자는 class.WpdiscuzHelperAjax.php의 getLastInlineComments() 함수에서 반환되는 AJAX 응답 내 댓글 콘텐츠를 통해 JavaScript를 직접 삽입할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gVectors",
+        "product": "wpDiscuz",
+        "versions": "7.6.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:10:56.159698+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-8766",
+    "title": "Noobaa-core: /etc 과도한 권한으로 인한 noobaa-core 컨테이너 권한 상승 가능성",
+    "description": "특정 Multi-Cloud Object Gateway Core 이미지에서 컨테이너 권한 상승 취약점이 발견되었습니다. 빌드 시 /etc/passwd 파일이 그룹 쓰기 권한으로 생성되어, 컨테이너 내에서 명령어를 실행할 수 있는 공격자가 root 그룹 멤버십을 이용하여 해당 파일을 수정할 수 있습니다. 이를 통해 공격자는 임의의 UID(UID 0 포함)를 가진 사용자를 추가하여 컨테이너 내에서 완전한 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Openshift Data Foundation 4",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T03:10:52.732326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28478",
+    "title": "OpenClaw < 2026.2.13 - 무제한 웹훅 요청 본문 버퍼링을 통한 서비스 거부",
+    "description": "OpenClaw 2026.2.13 이전 버전은 웹훅 핸들러에서 요청 본문을 엄격한 제한 없이 버퍼링하여 서비스 거부 취약점을 포함합니다. 인증되지 않은 공격자가 과도한 JSON 페이로드 또는 느린 업로드를 웹훅 엔드포인트로 전송하여 메모리 압박 및 가용성 저하를 유발할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.13 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:17:59.552385+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28462",
+    "title": "OpenClaw < 2026.2.13 - 경로 탐색 취약점 (Trace 및 다운로드 출력 경로)",
+    "description": "OpenClaw 2026.2.13 이전 버전은 Trace 및 다운로드 파일의 출력 경로를 사용자 입력에 따라 처리하면서 임시 디렉토리 내 쓰기 제한이 일관되지 않아 경로 탐색 취약점이 존재합니다. API 접근 권한을 가진 공격자는 `/trace/stop`, `/wait/download`, `/download` 엔드포인트를 통해 의도된 임시 루트 외부의 파일 쓰기를 수행할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.13 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:54:22.740285+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-47720",
+    "title": "Orangescrum 1.8.0 인증된 SQL Injection 취약점 (다중 파라미터)",
+    "description": "Orangescrum 1.8.0 버전에서 인증된 사용자가 다수의 파라미터를 통해 SQL Injection 공격을 수행할 수 있는 취약점이 발견되었습니다. 공격자는 old_project_id, project_id, uuid, uniqid 등의 파라미터에 악성 SQL 코드를 삽입하여 데이터베이스 정보를 탈취하거나 수정할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Orangescrum",
+        "product": "orangescrum",
+        "versions": "1.8.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T14:22:47.744733+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28391",
+    "title": "OpenClaw < 2026.2.2 - cmd.exe 파싱 우회를 통한 명령 주입 취약점 / 허용 목록 적용 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전은 허용 목록 기반 실행 요청 시 Windows cmd.exe 메타 문자를 제대로 검증하지 않습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-184"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:34:39.811205+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28446",
+    "title": "OpenClaw < 2026.2.1 - 음성 통화 확장 기능의 발신자 ID 및 접미사 매칭을 통한 인바운드 허용 목록 정책 우회",
+    "description": "OpenClaw 2026.2.1 이전 버전에서 음성 통화 확장 기능 활성화 시, 인바운드 허용 목록 정책 검증에 인증 우회 취약점이 존재합니다. 발신자 ID가 비어 있거나 허용된 숫자로 끝나는 번호를 사용하여 접근 제어를 우회하고 음성 통화 에이전트에 접근하여 도구를 실행할 수 있습니다. 이 취약점은 엄격한 동등성 비교 대신 접미사 기반 매칭을 사용한다는 점을 악용합니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-303"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:40:57.867019+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28472",
+    "title": "OpenClaw < 2026.2.2 - 게이트웨이 WebSocket 연결 핸드셰이크 장치 ID 확인 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전에서 auth.token 존재 여부만 확인하고 유효성 검사를 하지 않아 장치 ID 확인을 우회하는 취약점이 발견되었습니다. 공격자는 장치 ID 또는 페어링 없이 게이트웨이에 연결하여 취약한 환경에서 운영자 권한을 획득할 수 있습니다. 이는 유효성 검사 대신 존재 확인을 이용한 공격입니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:11:53.765367+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28470",
+    "title": "OpenClaw < 2026.2.2 - 큰따옴표 내 명령 치환을 통한 실행 허용 목록 우회",
+    "description": "OpenClaw 2026.2.2 이전 버전에서 실행 승인 허용 목록 우회 취약점이 발견되었습니다. 공격자는 큰따옴표 문자열 내에 이스케이프되지 않은 `$()` 또는 백틱을 삽입하여 임의 명령을 실행할 수 있습니다. 이를 통해 허용 목록 보호를 우회하고 권한 없는 명령을 실행할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:08:50.781099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28484",
+    "title": "OpenClaw 2026.2.15 - 악성 파일명을 통한 pre-commit 훅 옵션 주입 취약점",
+    "description": "OpenClaw 2026.2.15 이전 버전은 git-hooks/pre-commit 훅에서 악성 파일명(대시로 시작)을 사용하여 무시된 파일을 스테이징할 수 있는 옵션 주입 취약점을 가지고 있습니다. xargs를 통해 git add로 파일명을 전달할 때 구분자(--)를 사용하지 않아 공격자가 git 플래그를 주입하고 .env와 같은 민감한 무시 파일을 git 히스토리에 추가할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.15 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:22:03.754822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28474",
+    "title": "OpenClaw Nextcloud Talk < 2026.2.6 - actor.name 표시 이름 위조를 통한 접근 제어 우회",
+    "description": "OpenClaw의 Nextcloud Talk 플러그인 2026.2.6 이전 버전은 변경 가능한 actor.name 표시 이름 필드에서 동일성 비교를 사용하여 접근 제어 목록(allowlist)을 검증합니다. 이를 통해 공격자는 접근 제어 목록을 우회할 수 있습니다. 공격자는 접근 허용된 사용자의 ID와 동일하게 Nextcloud 표시 이름을 변경하여 제한된 대화에 무단으로 접근할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "nextcloud-talk",
+        "versions": "2026.2.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:12:54.688762+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-28466",
+    "title": "OpenClaw < 2026.2.14 - Node Invoke 승인 우회 원격 코드 실행 취약점",
+    "description": "OpenClaw 2026.2.14 이전 버전은 node.invoke 파라미터 내 내부 승인 필드 삭제에 실패하여 인증된 클라이언트가 system.run 명령어에 대한 실행 승인 검사를 우회할 수 있는 취약점을 가지고 있습니다. 유효한 게이트웨이 자격 증명을 가진 공격자는 승인 제어 필드를 삽입하여 연결된 노드 호스트에서 임의 명령어를 실행하고 개발 워크스테이션 및 CI 러너를 손상시킬 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:02:44.652911+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2023-43010",
     "title": "메모리 관리 개선",
     "description": "악성 웹 콘텐츠 처리 시 메모리 손상 문제가 해결되었습니다.",
@@ -262,42 +982,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2025-10010",
@@ -34783,32 +35467,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28391",
-    "title": "OpenClaw < 2026.2.2 - cmd.exe 파싱 우회를 통한 명령 주입 취약점 / 허용 목록 적용 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전은 허용 목록 기반 실행 요청 시 Windows cmd.exe 메타 문자를 제대로 검증하지 않습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-184"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:34:39.811205+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28281",
     "title": "InstantCMS 다수의 CSRF 취약점",
     "description": "InstantCMS는 무료 오픈 소스 콘텐츠 관리 시스템입니다. 2.18.1 버전 이전에는 CSRF 토큰 검증이 없어 공격자가 사용자 권한을 상승시키고, 예약된 작업을 실행하며, 게시물을 휴지통으로 이동시키고, 친구 요청을 수락할 수 있습니다. 해당 취약점은 2.18.1 버전에서 해결되었습니다.",
@@ -43889,32 +44547,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28478",
-    "title": "OpenClaw < 2026.2.13 - 무제한 웹훅 요청 본문 버퍼링을 통한 서비스 거부",
-    "description": "OpenClaw 2026.2.13 이전 버전은 웹훅 핸들러에서 요청 본문을 엄격한 제한 없이 버퍼링하여 서비스 거부 취약점을 포함합니다. 인증되지 않은 공격자가 과도한 JSON 페이로드 또는 느린 업로드를 웹훅 엔드포인트로 전송하여 메모리 압박 및 가용성 저하를 유발할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.13 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:17:59.552385+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-27363",
     "title": "WordPress WP Bakery Autoresponder Addon 플러그인 <= 1.0.6 - 교차 사이트 스크립팅 (XSS) 취약점",
     "description": "kamleshyadav WP Bakery Autoresponder Addon vc-autoresponder-addon에서 웹 페이지 생성 중 입력값 검증 미흡으로 인해 저장형 XSS 취약점이 발생합니다. 해당 취약점은 WP Bakery Autoresponder Addon 버전 n/a부터 <= 1.0.6까지 영향을 받습니다.",
@@ -45608,32 +46240,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28462",
-    "title": "OpenClaw < 2026.2.13 - 경로 탐색 취약점 (Trace 및 다운로드 출력 경로)",
-    "description": "OpenClaw 2026.2.13 이전 버전은 Trace 및 다운로드 파일의 출력 경로를 사용자 입력에 따라 처리하면서 임시 디렉토리 내 쓰기 제한이 일관되지 않아 경로 탐색 취약점이 존재합니다. API 접근 권한을 가진 공격자는 `/trace/stop`, `/wait/download`, `/download` 엔드포인트를 통해 의도된 임시 루트 외부의 파일 쓰기를 수행할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.13 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:54:22.740285+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28459",
     "title": "OpenClaw < 2026.2.12 - 신뢰할 수 없는 sessionFile 경로를 통한 임의 파일 쓰기",
     "description": "OpenClaw 2026.2.12 이전 버전은 sessionFile 경로 파라미터를 검증하지 않아, 인증된 게이트웨이 클라이언트가 호스트 파일 시스템의 임의 위치에 트랜스크립트 데이터를 쓸 수 있습니다. 공격자는 sessions 디렉토리 외부의 경로를 사용하여 파일을 생성하고 데이터를 반복적으로 추가하여 설정 손상 또는 서비스 거부를 유발할 수 있습니다.",
@@ -45797,32 +46403,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-28466",
-    "title": "OpenClaw < 2026.2.14 - Node Invoke 승인 우회 원격 코드 실행 취약점",
-    "description": "OpenClaw 2026.2.14 이전 버전은 node.invoke 파라미터 내 내부 승인 필드 삭제에 실패하여 인증된 클라이언트가 system.run 명령어에 대한 실행 승인 검사를 우회할 수 있는 취약점을 가지고 있습니다. 유효한 게이트웨이 자격 증명을 가진 공격자는 승인 제어 필드를 삽입하여 연결된 노드 호스트에서 임의 명령어를 실행하고 개발 워크스테이션 및 CI 러너를 손상시킬 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:02:44.652911+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-27375",
@@ -59276,32 +59856,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28472",
-    "title": "OpenClaw < 2026.2.2 - 게이트웨이 WebSocket 연결 핸드셰이크 장치 ID 확인 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전에서 auth.token 존재 여부만 확인하고 유효성 검사를 하지 않아 장치 ID 확인을 우회하는 취약점이 발견되었습니다. 공격자는 장치 ID 또는 페어링 없이 게이트웨이에 연결하여 취약한 환경에서 운영자 권한을 획득할 수 있습니다. 이는 유효성 검사 대신 존재 확인을 이용한 공격입니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:11:53.765367+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28471",
     "title": "OpenClaw 2026.1.14-1 < 2026.2.2 - Matrix 플러그인 displayName 및 Cross-Homeserver localpart 매칭을 통한 허용 목록 우회",
     "description": "OpenClaw 2026.1.14-1 버전(2026.2.2 이전)에서 Matrix 플러그인을 사용할 때, 발신자 표시 이름 및 homeserver 검증 없는 localpart 정확히 일치 방식을 통해 DM 허용 목록 우회가 가능합니다. 공격자는 악의적인 표시 이름이나 다른 homeserver의 localpart를 사용하여 허용된 사용자로 위장하여 라우팅 및 에이전트 파이프라인에 접근할 수 있습니다.",
@@ -59873,32 +60427,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28446",
-    "title": "OpenClaw < 2026.2.1 - 음성 통화 확장 기능의 발신자 ID 및 접미사 매칭을 통한 인바운드 허용 목록 정책 우회",
-    "description": "OpenClaw 2026.2.1 이전 버전에서 음성 통화 확장 기능 활성화 시, 인바운드 허용 목록 정책 검증에 인증 우회 취약점이 존재합니다. 발신자 ID가 비어 있거나 허용된 숫자로 끝나는 번호를 사용하여 접근 제어를 우회하고 음성 통화 에이전트에 접근하여 도구를 실행할 수 있습니다. 이 취약점은 엄격한 동등성 비교 대신 접미사 기반 매칭을 사용한다는 점을 악용합니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-303"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:40:57.867019+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28442",
@@ -63890,84 +64418,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28470",
-    "title": "OpenClaw < 2026.2.2 - 큰따옴표 내 명령 치환을 통한 실행 허용 목록 우회",
-    "description": "OpenClaw 2026.2.2 이전 버전에서 실행 승인 허용 목록 우회 취약점이 발견되었습니다. 공격자는 큰따옴표 문자열 내에 이스케이프되지 않은 `$()` 또는 백틱을 삽입하여 임의 명령을 실행할 수 있습니다. 이를 통해 허용 목록 보호를 우회하고 권한 없는 명령을 실행할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-88"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:08:50.781099+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28484",
-    "title": "OpenClaw 2026.2.15 - 악성 파일명을 통한 pre-commit 훅 옵션 주입 취약점",
-    "description": "OpenClaw 2026.2.15 이전 버전은 git-hooks/pre-commit 훅에서 악성 파일명(대시로 시작)을 사용하여 무시된 파일을 스테이징할 수 있는 옵션 주입 취약점을 가지고 있습니다. xargs를 통해 git add로 파일명을 전달할 때 구분자(--)를 사용하지 않아 공격자가 git 플래그를 주입하고 .env와 같은 민감한 무시 파일을 git 히스토리에 추가할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-77"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.15 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:22:03.754822+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-28474",
-    "title": "OpenClaw Nextcloud Talk < 2026.2.6 - actor.name 표시 이름 위조를 통한 접근 제어 우회",
-    "description": "OpenClaw의 Nextcloud Talk 플러그인 2026.2.6 이전 버전은 변경 가능한 actor.name 표시 이름 필드에서 동일성 비교를 사용하여 접근 제어 목록(allowlist)을 검증합니다. 이를 통해 공격자는 접근 제어 목록을 우회할 수 있습니다. 공격자는 접근 허용된 사용자의 ID와 동일하게 Nextcloud 표시 이름을 변경하여 제한된 대화에 무단으로 접근할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "nextcloud-talk",
-        "versions": "2026.2.6 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:12:54.688762+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28475",
     "title": "OpenClaw < 2026.2.13 - 훅 토큰 비교를 통한 타이밍 공격",
     "description": "OpenClaw 2026.2.13 이전 버전은 훅 토큰 유효성 검사에 일정한 시간이 걸리지 않는 문자열 비교를 사용합니다. 공격자는 타이밍 측정을 통해 토큰을 추론할 수 있습니다. 네트워크 접근 권한이 있는 원격 공격자는 여러 요청에 걸쳐 타이밍 측면 채널을 이용하여 인증 토큰을 점진적으로 복구할 수 있습니다.",
@@ -65216,32 +65666,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T15:11:41.454191+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2021-47720",
-    "title": "Orangescrum 1.8.0 인증된 SQL Injection 취약점 (다중 파라미터)",
-    "description": "Orangescrum 1.8.0 버전에서 인증된 사용자가 다수의 파라미터를 통해 SQL Injection 공격을 수행할 수 있는 취약점이 발견되었습니다. 공격자는 old_project_id, project_id, uuid, uniqid 등의 파라미터에 악성 SQL 코드를 삽입하여 데이터베이스 정보를 탈취하거나 수정할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0.00013,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Orangescrum",
-        "product": "orangescrum",
-        "versions": "1.8.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T14:22:47.744733+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
