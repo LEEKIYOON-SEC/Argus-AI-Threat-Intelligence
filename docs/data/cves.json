@@ -1,44 +1,34 @@
 [
   {
-    "id": "CVE-2026-3891",
-    "title": "WooCommerce용 Pix 플러그인 <= 1.5.0 - 인증되지 않은 임의 파일 업로드",
-    "description": "WooCommerce용 Pix 플러그인이 버전 1.5.0 이하에서 권한 확인 및 파일 유형 검증이 누락되어 임의 파일 업로드 취약점이 존재합니다. 인증되지 않은 공격자가 영향을 받는 서버에 임의 파일을 업로드하여 원격 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 9.8,
+    "id": "CVE-2026-23941",
+    "title": "inets httpd의 Content-Length 파싱 방식에서 발생하는 요청 밀수 취약점",
+    "description": "Erlang OTP (inets httpd 모듈)에서 HTTP 요청 해석의 불일치로 인해 HTTP 요청 밀수 취약점이 발생합니다. 서버가 중복된 Content-Length 헤더를 거부하거나 정규화하지 않아 프론트엔드/백엔드 간의 동기화 문제를 야기하며, 공격자가 다음 요청의 시작 부분에 제어 가능한 바이트를 삽입할 수 있습니다. OTP 17.0부터 28.4.1, 27.3.4.9, 26.2.5.18 버전 및 inets 5.10부터 9.6.1, 9.3.2.3, 9.1.0.5 버전에 영향을 미칩니다.",
+    "cvss": 7,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-434"
+      "CWE-444"
     ],
     "affected": [
       {
-        "vendor": "linknacional",
-        "product": "Pix for WooCommerce",
-        "versions": "* 부터 1.5.0 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/233",
-    "date": "2026-03-13T07:59:15.00163+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3891 Arbitrary File Upload Attempt via Pix for WooCommerce\nstatus: experimental\ndescription: Detects unauthenticated arbitrary file upload attempts targeting the vulnerable `lkn_pix_for_woocommerce_c6_save_settings` function in the Pix for WooCommerce plugin (<= 1.5.0). The rule looks for POST requests to WordPress admin‑ajax endpoint with the specific action parameter and suspicious file payloads (e.g., PHP shells).\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/wp-admin/admin-ajax.php'\n    selection_action:\n        cs-body|contains: 'action=lkn_pix_for_woocommerce_c6_save_settings'\n    selection_multipart:\n        cs-body|contains: 'multipart/form-data'\n    selection_file_payload:\n        cs-body|contains|any:\n            - 'filename=\"shell.php'\n            - 'filename=\"shell.php5'\n            - 'filename=\"shell.phtml'\n            - 'filename=\"shell.asp'\n            - 'filename=\"shell.jsp'\n            - 'filename=\"shell.cgi'\n            - 'filename=\"shell.sh'\n            - 'filename=\"shell.rb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3891\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1100\n    - cwe.434\n    - wordpress\n    - plugin\n    - pix_for_woocommerce",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "5.10 부터 * 이전, pkg:otp/inets@5.10 부터 pkg:otp/inets@* 이전"
       },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "17.0 부터 * 이전, * 이전"
       }
-    },
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:35.943574+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
     "has_poc": false,
     "poc_urls": [],
-    "severity": "Critical"
+    "severity": "High"
   },
   {
     "id": "CVE-2026-3999",
@@ -74,209 +64,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2890",
-    "title": "Formidable Forms <= 6.28 - 인증되지 않은 결제 무결성 우회 취약점 (PaymentIntent 재사용)",
-    "description": "Formidable Forms 플러그인 6.28 버전 이하에서 결제 무결성 우회 취약점이 발견되었습니다. Stripe PaymentIntent 상태만으로 결제 완료 여부를 판단하고, PaymentIntent를 특정 폼이나 작업에 연결하지 않아 공격자가 낮은 금액의 완료된 PaymentIntent를 재사용하여 높은 금액의 결제를 우회할 수 있습니다. 이는 인증되지 않은 공격자에게도 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "strategy11team",
-        "product": "Formidable Forms – Contact Form Plugin, Survey, Quiz, Payment, Calculator Form & Custom Form Builder",
-        "versions": "* 부터 6.28 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/234",
-    "date": "2026-03-13T07:59:27.176969+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3045",
-    "title": "Appointment Booking Calendar <= 1.6.9.29 - 인증되지 않은 사용자의 민감 정보 노출 취약점",
-    "description": "Appointment Booking Calendar 플러그인은 1.6.9.29 버전 이하에서 인증되지 않은 사용자가 민감한 데이터에 접근할 수 있는 취약점을 가지고 있습니다. 이는 공개 REST API 엔드포인트를 통해 노출된 `public_nonce`와, 권한 검사 시 제한된 필드를 필터링하지 않는 `get_item()` 메서드 때문입니다. 이로 인해 공격자는 관리자 이메일, 전화번호, 내부 액세스 토큰 등 관리자 전용 플러그인 설정을 노출 및 변경할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "croixhaug",
-        "product": "Appointment Booking Calendar — Simply Schedule Appointments Booking Plugin",
-        "versions": "* 부터 1.6.9.29 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T07:59:29.706992+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1704",
-    "title": "Appointment Booking Calendar <= 1.6.9.29 - 인증된 사용자를 통한 민감 정보 노출 취약점",
-    "description": "Appointment Booking Calendar 플러그인은 1.6.9.29 버전 이하에서 인증된 공격자(팀 멤버 등)가 다른 직원의 예약 기록 및 고객 개인정보에 접근할 수 있는 IDOR(Insecure Direct Object Reference) 취약점을 가지고 있습니다. `get_item_permissions_check` 메서드에서 예약 소유자 확인 없이 `ssa_manage_appointments` 권한을 가진 사용자에게 접근 권한을 부여하는 것이 원인입니다. 이를 통해 예약 ID 파라미터를 통해 민감한 정보를 탈취할 수 있습니다.",
-    "cvss": 4.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "croixhaug",
-        "product": "Appointment Booking Calendar — Simply Schedule Appointments Booking Plugin",
-        "versions": "* 부터 1.6.9.29 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T07:58:27.483091+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-4105",
-    "title": "systemd: systemd의 잘못된 접근 제어 취약점을 이용한 권한 상승",
-    "description": "systemd-machined 서비스의 RegisterMachine D-Bus 메서드에서 class 파라미터 검증이 미흡하여 권한 상승 취약점이 발견되었습니다. 로컬 비권한 사용자가 특정 class 값을 사용하여 머신 등록을 시도하면 공격자가 제어하는 머신 객체가 생성될 수 있습니다. 이를 통해 공격자는 특권 객체의 메서드를 호출하여 호스트 시스템에서 root 권한으로 임의 명령을 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/236",
-    "date": "2026-03-13T09:01:07.062838+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3873",
-    "title": "내장 사용자 계정의 레거시 문제",
-    "description": "Avnatra Avantra에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이로 인해 ACL로 적절히 제한되지 않은 기능에 접근할 수 있습니다. 해당 문제는 Avantra 25.3.0 이전 버전에 영향을 미칩니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-798"
-    ],
-    "affected": [
-      {
-        "vendor": "syslink software AG",
-        "product": "Avantra",
-        "versions": "25.3.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/235",
-    "date": "2026-03-13T09:01:03.67489+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-3986",
@@ -375,6 +162,660 @@
     ],
     "report_url": null,
     "date": "2026-03-13T09:00:37.942349+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4105",
+    "title": "systemd: systemd의 잘못된 접근 제어 취약점을 이용한 권한 상승",
+    "description": "systemd-machined 서비스의 RegisterMachine D-Bus 메서드에서 class 파라미터 검증이 미흡하여 권한 상승 취약점이 발견되었습니다. 로컬 비권한 사용자가 특정 class 값을 사용하여 머신 등록을 시도하면 공격자가 제어하는 머신 객체가 생성될 수 있습니다. 이를 통해 공격자는 특권 객체의 메서드를 호출하여 호스트 시스템에서 root 권한으로 임의 명령을 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/236",
+    "date": "2026-03-13T09:01:07.062838+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23942",
+    "title": "ssh_sftpd 모듈의 컴포넌트 비의존적 접두사 검사를 통한 SFTP 루트 이스케이프 취약점",
+    "description": "Erlang OTP (ssh_sftpd 모듈)의 경로 제한 오류(경로 탐색) 취약점으로 인해 경로 탐색이 가능합니다. SFTP 서버가 경로 유효성 검사 시 적절한 경로 컴포넌트 검증 대신 문자열 접두사 매칭을 사용하여, 설정된 루트 디렉토리와 공통 접두사를 가진 상위 디렉토리에 접근할 수 있습니다. 해당 취약점은 OTP 17.0 ~ 28.4.1, 27.3.4.9, 26.2.5.18 버전에 영향을 미칩니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
+      },
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "17.0 부터 * 이전, * 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:16.606873+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23943",
+    "title": "사전 인증 SSH DoS - zlib 압축 해제 크기 제한 없음",
+    "description": "Erlang OTP ssh (ssh_transport 모듈)의 압축 데이터 처리 미흡으로 인해 서비스 거부(DoS) 공격이 가능합니다. 공격자는 사전 인증 단계에서 크기가 제한되지 않은 zlib 압축 페이로드를 전송하여 메모리 고갈을 유발할 수 있습니다. zlib 및 zlib@openssh.com 알고리즘이 영향을 받으며, 최대 1029:1의 증폭 비율로 메모리 소모를 빠르게 가속화할 수 있습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409"
+    ],
+    "affected": [
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "3.0.1 부터 * 이전, pkg:otp/ssh@3.0.1 부터 pkg:otp/ssh@* 이전"
+      },
+      {
+        "vendor": "Erlang",
+        "product": "OTP",
+        "versions": "17.0 부터 * 이전, 07b8f441ca711f9812fad9e9115bab3c3aa92f79 부터 * 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:16.312923+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4063",
+    "title": "WPZOOM Social Icons 위젯 & 블록 <= 4.5.8 - 인증된 사용자(Subscriber+) 공유 설정 생성 권한 부족",
+    "description": "WPZOOM Social Icons 위젯 & 블록 플러그인은 관리자 권한 확인 누락으로 인해 인증된 공격자(Subscriber 이상)가 공유 설정을 생성할 수 있는 취약점이 있습니다. 이로 인해 기본 공유 버튼 설정으로 wpzoom-sharing 설정 게시물이 생성되어, 전면 콘텐츠에 소셜 공유 버튼이 자동으로 삽입될 수 있습니다. 해당 취약점은 4.5.8 버전까지 영향을 받습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wpzoom",
+        "product": "Social Icons Widget & Block – Social Media Icons & Share Buttons",
+        "versions": "* 부터 4.5.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:08.338127+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-24097",
+    "title": "에이전트 등록 기존 엔드포인트의 관찰 가능한 응답 불일치를 통한 인증된 호스트 열거",
+    "description": "Checkmk 2.4.0 이전 버전(2.4.0p23 미만), 2.3.0 이전 버전(2.3.0p43 미만), 및 2.2.0(EOL)에서 부적절한 권한 적용으로 인해 인증된 사용자가 agent-receiver/register_existing 엔드포인트의 HTTP 응답 코드 차이를 관찰하여 기존 호스트를 열거할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:06.909583+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2859",
+    "title": "Deploy Agent 엔드포인트의 Observable 응답 불일치를 통한 인증되지 않은 호스트 열거",
+    "description": "Checkmk 2.4.0 이전(2.4.0p23 미만), 2.3.0 이전(2.3.0p43 미만), 및 2.2.0 버전에서 부적절한 권한 관리가 발견되었습니다.",
+    "cvss": 6.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-204"
+    ],
+    "affected": [
+      {
+        "vendor": "Checkmk GmbH",
+        "product": "Checkmk",
+        "versions": "2.4.0 부터 2.4.0p23 이전, 2.3.0 부터 2.3.0p43 이전, 2.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T09:58:06.672237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3873",
+    "title": "내장 사용자 계정의 레거시 문제",
+    "description": "Avnatra Avantra에서 하드코딩된 자격 증명 사용 취약점이 발견되었습니다. 이로 인해 ACL로 적절히 제한되지 않은 기능에 접근할 수 있습니다. 해당 문제는 Avantra 25.3.0 이전 버전에 영향을 미칩니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-798"
+    ],
+    "affected": [
+      {
+        "vendor": "syslink software AG",
+        "product": "Avantra",
+        "versions": "25.3.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/235",
+    "date": "2026-03-13T09:01:03.67489+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28482",
+    "title": "OpenClaw < 2026.2.12 - 미검증 sessionId 및 sessionFile 파라미터를 통한 경로 탐색 취약점",
+    "description": "OpenClaw 2026.2.12 이전 버전은 sessionId 파라미터 및 sessionFile 경로를 적절히 검증하지 않아 경로 탐색 취약점에 노출됩니다. 인증된 공격자는 sessionId 또는 sessionFile 파라미터에 `../..`와 같은 경로 탐색 시퀀스를 사용하여 에이전트 세션 디렉토리 외부의 임의 파일을 읽거나 쓸 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:21:02.557355+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48619",
+    "title": "ContentProvider.java 파일 잘림 취약점",
+    "description": "ContentProvider.java의 여러 함수에서 읽기 전용 권한을 가진 앱이 코드 로직 오류로 인해 파일을 자를 수 있는 가능성이 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 8.4,
+    "epss": 6e-05,
+    "is_kev": false,
+    "cwe": [
+      "Elevation of privilege"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:17:08.854832+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2013-10036",
+    "title": "Beetel Connection Manager NetConfig.ini 스택 기반 버퍼 오버플로우",
+    "description": "Beetel Connection Manager PCW_BTLINDV1.0.0B04 버전의 NetConfig.ini 설정 파일에서 UserName 파라스를 처리하는 과정에 스택 기반 버퍼 오버플로우 취약점이 존재합니다. 악성 .ini 파일의 과도하게 긴 UserName 값은 SEH(구조적 예외 처리기)를 덮어쓰고, 애플리케이션이 파일을 처리할 때 임의 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0.0365,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Beetel Teletech Ltd.",
+        "product": "Connection Manager",
+        "versions": "PCW_BTLINDV1.0.0B04 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:50:44.520888+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2010-20042",
+    "title": "Xion Audio Player ≤ 1.0.126 유니코드 스택 버퍼 오버플로우",
+    "description": "Xion Audio Player 1.0.126 이전 버전은 특수 제작된 .m3u 재생 목록 파일을 열 때 유니코드 기반 스택 버퍼 오버플로우에 취약합니다. 파일 내의 과도하게 긴 문자열이 SEH 체인을 덮어써 공격자가 실행 흐름을 제어하고 임의 코드를 실행할 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0.08151,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Xion",
+        "product": "Audio Player",
+        "versions": "* 부터 1.0.126 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:38:57.293055+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2010-10015",
+    "title": "AOL 9.5 Phobos.Playlist 'Import()' 스택 기반 버퍼 오버플로우",
+    "description": "AOL 9.5 버전 이하에 포함된 Phobos.dll ActiveX 컨트롤의 Phobos.Playlist COM 객체 내 Import() 메서드는 과도하게 긴 문자열 인수가 제공될 경우 스택 기반 버퍼 오버플로우에 취약합니다. 악용 시 원격 공격자가 사용자 권한으로 임의 코드를 실행할 수 있지만, 스크립팅 또는 초기화에 안전하다고 표시되지 않아 로컬에서 악성 HTML 파일을 열어야 합니다. 해당 AOL 9.5 데스크톱 소프트웨어는 더 이상 지원되지 않습니다.",
+    "cvss": 8.4,
+    "epss": 0.19962,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "AOL",
+        "product": "AOL",
+        "versions": "* 부터 9.5 (Revision 4337.155) 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T13:57:51.536449+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32246",
+    "title": "Tinyauth의 OIDC 권한 부여 엔드포인트에서 TOTP/2FA 우회 취약점",
+    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서 TOTP 대기 중인 세션(비밀번호 확인, TOTP 미완료) 사용자가 권한 부여 코드를 얻을 수 있습니다. 공격자는 사용자의 비밀번호를 알지만 TOTP 비밀번호를 모르는 경우 유효한 OIDC 토큰을 얻어 2차 요소를 완전히 우회할 수 있습니다. 5.0.3에서 해당 취약점이 수정되었습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "steveiliop56",
+        "product": "tinyauth",
+        "versions": "< 5.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:45.629184+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28468",
+    "title": "OpenClaw 2026.1.29-beta.1 < 2026.2.14 - 샌드박스 브라우저 브리지 서버 인증 우회",
+    "description": "OpenClaw 2026.1.29-beta.1 버전(2026.2.14 이전)은 샌드박스 브라우저 브리지 서버에서 게이트웨이 인증 없이 요청을 허용하는 취약점을 가지고 있습니다. 이를 통해 로컬 공격자가 브라우저 제어 엔드포인트에 접근할 수 있습니다. 공격자는 탭 열거, WebSocket URL 획득, JavaScript 실행, 인증된 브라우저 컨텍스트에서 쿠키 및 세션 데이터 유출 등을 수행할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.1.29-beta.1 부터 2026.2.14 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:04:46.527248+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27749",
+    "title": "Avira Internet Security 시스템 속도 향상 기능의 안전하지 않은 역직렬화",
+    "description": "Avira Internet Security의 시스템 속도 향상 컴포넌트에 신뢰할 수 없는 데이터 역직렬화 취약점이 존재합니다. SYSTEM 권한으로 실행되는 프로세스가 입력 유효성 검사나 역직렬화 보호 장치 없이 .NET BinaryFormatter를 사용하여 C:\\\\ProgramData 위치의 파일을 역직렬화합니다. 기본 설정에서 로컬 사용자가 파일을 생성하거나 수정할 수 있으므로, 공격자가 악성 페이로드를 역직렬화하여 SYSTEM 권한으로 임의 코드 실행을 유발할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Gen Digital Inc.",
+        "product": "Avira Internet Security",
+        "versions": "1.1.109.1990 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T15:24:54.430871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2330",
+    "title": "CVE-2026-2330",
+    "description": "CROWN REST 인터페이스의 미흡한 화이트리스트 적용으로 인해 공격자가 장치의 제한된 파일 시스템 영역에 접근할 수 있습니다. 내부 테스트용으로 의도된 특정 디렉터리가 화이트리스트에 포함되지 않아 인증 없이 접근 가능합니다. 인증되지 않은 공격자는 재부팅 후 활성화되는 조작된 파라미터 파일을 배치하여 네트워크 구성 및 애플리케이션 파라미터와 같은 중요한 장치 설정을 변경할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.8.0 이전"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.8.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:53.126326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2331",
+    "title": "CVE-2026-2331",
+    "description": "AppEngine의 HTTP 파일 접근 기능에서 부적절한 접근 제한으로 인해 인증되지 않은 사용자가 민감한 파일 시스템 영역에 읽기/쓰기 작업을 수행할 수 있습니다. 특히, 고객 정의 비밀번호를 포함한 애플리케이션 설정을 읽고 수정할 수 있으며, 샌드박스 환경 내에서 임의의 Lua 코드 실행도 가능합니다. 중요한 파일 시스템 디렉터리가 HTTP를 통해 의도치 않게 노출된 것이 원인입니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-552"
+    ],
+    "affected": [
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector85x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      },
+      {
+        "vendor": "SICK AG",
+        "product": "SICK Lector83x",
+        "versions": "2.6.0 부터 2.7.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T08:57:55.258793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3891",
+    "title": "WooCommerce용 Pix 플러그인 <= 1.5.0 - 인증되지 않은 임의 파일 업로드",
+    "description": "WooCommerce용 Pix 플러그인이 버전 1.5.0 이하에서 권한 확인 및 파일 유형 검증이 누락되어 임의 파일 업로드 취약점이 존재합니다. 인증되지 않은 공격자가 영향을 받는 서버에 임의 파일을 업로드하여 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "linknacional",
+        "product": "Pix for WooCommerce",
+        "versions": "* 부터 1.5.0 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/233",
+    "date": "2026-03-13T07:59:15.00163+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3891 Arbitrary File Upload Attempt via Pix for WooCommerce\nstatus: experimental\ndescription: Detects unauthenticated arbitrary file upload attempts targeting the vulnerable `lkn_pix_for_woocommerce_c6_save_settings` function in the Pix for WooCommerce plugin (<= 1.5.0). The rule looks for POST requests to WordPress admin‑ajax endpoint with the specific action parameter and suspicious file payloads (e.g., PHP shells).\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/wp-admin/admin-ajax.php'\n    selection_action:\n        cs-body|contains: 'action=lkn_pix_for_woocommerce_c6_save_settings'\n    selection_multipart:\n        cs-body|contains: 'multipart/form-data'\n    selection_file_payload:\n        cs-body|contains|any:\n            - 'filename=\"shell.php'\n            - 'filename=\"shell.php5'\n            - 'filename=\"shell.phtml'\n            - 'filename=\"shell.asp'\n            - 'filename=\"shell.jsp'\n            - 'filename=\"shell.cgi'\n            - 'filename=\"shell.sh'\n            - 'filename=\"shell.rb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3891\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1100\n    - cwe.434\n    - wordpress\n    - plugin\n    - pix_for_woocommerce",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-2890",
+    "title": "Formidable Forms <= 6.28 - 인증되지 않은 결제 무결성 우회 취약점 (PaymentIntent 재사용)",
+    "description": "Formidable Forms 플러그인 6.28 버전 이하에서 결제 무결성 우회 취약점이 발견되었습니다. Stripe PaymentIntent 상태만으로 결제 완료 여부를 판단하고, PaymentIntent를 특정 폼이나 작업에 연결하지 않아 공격자가 낮은 금액의 완료된 PaymentIntent를 재사용하여 높은 금액의 결제를 우회할 수 있습니다. 이는 인증되지 않은 공격자에게도 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "strategy11team",
+        "product": "Formidable Forms – Contact Form Plugin, Survey, Quiz, Payment, Calculator Form & Custom Form Builder",
+        "versions": "* 부터 6.28 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/234",
+    "date": "2026-03-13T07:59:27.176969+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3045",
+    "title": "Appointment Booking Calendar <= 1.6.9.29 - 인증되지 않은 사용자의 민감 정보 노출 취약점",
+    "description": "Appointment Booking Calendar 플러그인은 1.6.9.29 버전 이하에서 인증되지 않은 사용자가 민감한 데이터에 접근할 수 있는 취약점을 가지고 있습니다. 이는 공개 REST API 엔드포인트를 통해 노출된 `public_nonce`와, 권한 검사 시 제한된 필드를 필터링하지 않는 `get_item()` 메서드 때문입니다. 이로 인해 공격자는 관리자 이메일, 전화번호, 내부 액세스 토큰 등 관리자 전용 플러그인 설정을 노출 및 변경할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "croixhaug",
+        "product": "Appointment Booking Calendar — Simply Schedule Appointments Booking Plugin",
+        "versions": "* 부터 1.6.9.29 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T07:59:29.706992+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1704",
+    "title": "Appointment Booking Calendar <= 1.6.9.29 - 인증된 사용자를 통한 민감 정보 노출 취약점",
+    "description": "Appointment Booking Calendar 플러그인은 1.6.9.29 버전 이하에서 인증된 공격자(팀 멤버 등)가 다른 직원의 예약 기록 및 고객 개인정보에 접근할 수 있는 IDOR(Insecure Direct Object Reference) 취약점을 가지고 있습니다. `get_item_permissions_check` 메서드에서 예약 소유자 확인 없이 `ssa_manage_appointments` 권한을 가진 사용자에게 접근 권한을 부여하는 것이 원인입니다. 이를 통해 예약 ID 파라미터를 통해 민감한 정보를 탈취할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "croixhaug",
+        "product": "Appointment Booking Calendar — Simply Schedule Appointments Booking Plugin",
+        "versions": "* 부터 1.6.9.29 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T07:58:27.483091+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3869,32 +4310,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-32246",
-    "title": "Tinyauth의 OIDC 권한 부여 엔드포인트에서 TOTP/2FA 우회 취약점",
-    "description": "Tinyauth는 인증 및 권한 부여 서버입니다. 5.0.3 이전 버전에서 TOTP 대기 중인 세션(비밀번호 확인, TOTP 미완료) 사용자가 권한 부여 코드를 얻을 수 있습니다. 공격자는 사용자의 비밀번호를 알지만 TOTP 비밀번호를 모르는 경우 유효한 OIDC 토큰을 얻어 2차 요소를 완전히 우회할 수 있습니다. 5.0.3에서 해당 취약점이 수정되었습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "steveiliop56",
-        "product": "tinyauth",
-        "versions": "< 5.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:45.629184+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-32237",
@@ -41922,68 +42337,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-2331",
-    "title": "CVE-2026-2331",
-    "description": "AppEngine의 HTTP 파일 접근 기능에서 부적절한 접근 제한으로 인해 인증되지 않은 사용자가 민감한 파일 시스템 영역에 읽기/쓰기 작업을 수행할 수 있습니다. 특히, 고객 정의 비밀번호를 포함한 애플리케이션 설정을 읽고 수정할 수 있으며, 샌드박스 환경 내에서 임의의 Lua 코드 실행도 가능합니다. 중요한 파일 시스템 디렉터리가 HTTP를 통해 의도치 않게 노출된 것이 원인입니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector85x",
-        "versions": "2.6.0 부터 2.7.0 이하"
-      },
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector83x",
-        "versions": "2.6.0 부터 2.7.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:57:55.258793+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-2330",
-    "title": "CVE-2026-2330",
-    "description": "CROWN REST 인터페이스의 미흡한 화이트리스트 적용으로 인해 공격자가 장치의 제한된 파일 시스템 영역에 접근할 수 있습니다. 내부 테스트용으로 의도된 특정 디렉터리가 화이트리스트에 포함되지 않아 인증 없이 접근 가능합니다. 인증되지 않은 공격자는 재부팅 후 활성화되는 조작된 파라미터 파일을 배치하여 네트워크 구성 및 애플리케이션 파라미터와 같은 중요한 장치 설정을 변경할 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-552"
-    ],
-    "affected": [
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector85x",
-        "versions": "2.8.0 이전"
-      },
-      {
-        "vendor": "SICK AG",
-        "product": "SICK Lector83x",
-        "versions": "2.8.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T08:57:53.126326+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-1468",
     "title": "QuickCMS의 교차 사이트 요청 위조 취약점",
     "description": "QuickCMS는 여러 엔드포인트에서 교차 사이트 요청 위조(CSRF)에 취약합니다. 공격자는 피해자가 방문할 경우 피해자의 권한으로 POST 요청을 자동으로 전송하는 악성 웹사이트를 제작할 수 있습니다. 해당 소프트웨어는 CSRF 공격에 대한 보호 장치가 전혀 구현되어 있지 않으며, 모든 폼이 잠재적으로 취약합니다.",
@@ -43809,32 +44162,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T00:22:03.636188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28482",
-    "title": "OpenClaw < 2026.2.12 - 미검증 sessionId 및 sessionFile 파라미터를 통한 경로 탐색 취약점",
-    "description": "OpenClaw 2026.2.12 이전 버전은 sessionId 파라미터 및 sessionFile 경로를 적절히 검증하지 않아 경로 탐색 취약점에 노출됩니다. 인증된 공격자는 sessionId 또는 sessionFile 파라미터에 `../..`와 같은 경로 탐색 시퀀스를 사용하여 에이전트 세션 디렉토리 외부의 임의 파일을 읽거나 쓸 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.12 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:21:02.557355+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -61795,32 +62122,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28468",
-    "title": "OpenClaw 2026.1.29-beta.1 < 2026.2.14 - 샌드박스 브라우저 브리지 서버 인증 우회",
-    "description": "OpenClaw 2026.1.29-beta.1 버전(2026.2.14 이전)은 샌드박스 브라우저 브리지 서버에서 게이트웨이 인증 없이 요청을 허용하는 취약점을 가지고 있습니다. 이를 통해 로컬 공격자가 브라우저 제어 엔드포인트에 접근할 수 있습니다. 공격자는 탭 열거, WebSocket URL 획득, JavaScript 실행, 인증된 브라우저 컨텍스트에서 쿠키 및 세션 데이터 유출 등을 수행할 수 있습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.1.29-beta.1 부터 2026.2.14 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:04:46.527248+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28467",
     "title": "OpenClaw < 2026.2.2 - 첨부 미디어 URL 수화 시 SSRF 취약점",
     "description": "OpenClaw 2026.2.2 이전 버전에서 첨부 파일 및 미디어 URL 수화 과정에서 SSRF 취약점이 발견되었습니다. 이를 통해 원격 공격자는 임의의 HTTP(S) URL을 가져올 수 있습니다. 모델 제어 전송 첨부 또는 자동 응답 메커니즘을 통해 미디어 URL에 영향을 줄 수 있는 공격자는 SSRF를 유발하여 내부 리소스에 접근하고 응답 바이트를 유출할 수 있습니다.",
@@ -63745,32 +64046,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-27749",
-    "title": "Avira Internet Security 시스템 속도 향상 기능의 안전하지 않은 역직렬화",
-    "description": "Avira Internet Security의 시스템 속도 향상 컴포넌트에 신뢰할 수 없는 데이터 역직렬화 취약점이 존재합니다. SYSTEM 권한으로 실행되는 프로세스가 입력 유효성 검사나 역직렬화 보호 장치 없이 .NET BinaryFormatter를 사용하여 C:\\\\ProgramData 위치의 파일을 역직렬화합니다. 기본 설정에서 로컬 사용자가 파일을 생성하거나 수정할 수 있으므로, 공격자가 악성 페이로드를 역직렬화하여 SYSTEM 권한으로 임의 코드 실행을 유발할 수 있습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "Gen Digital Inc.",
-        "product": "Avira Internet Security",
-        "versions": "1.1.109.1990 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T15:24:54.430871+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2804",
     "title": "JavaScript: WebAssembly 컴포넌트의 Use-after-free 취약점",
     "description": "JavaScript와 WebAssembly 컴포넌트에서 Use-after-free 취약점이 발견되었습니다.",
@@ -64618,84 +64893,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-48619",
-    "title": "ContentProvider.java 파일 잘림 취약점",
-    "description": "ContentProvider.java의 여러 함수에서 읽기 전용 권한을 가진 앱이 코드 로직 오류로 인해 파일을 자를 수 있는 가능성이 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 8.4,
-    "epss": 6e-05,
-    "is_kev": false,
-    "cwe": [
-      "Elevation of privilege"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "16 (단일 버전), 15 (단일 버전), 14 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:17:08.854832+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2013-10036",
-    "title": "Beetel Connection Manager NetConfig.ini 스택 기반 버퍼 오버플로우",
-    "description": "Beetel Connection Manager PCW_BTLINDV1.0.0B04 버전의 NetConfig.ini 설정 파일에서 UserName 파라스를 처리하는 과정에 스택 기반 버퍼 오버플로우 취약점이 존재합니다. 악성 .ini 파일의 과도하게 긴 UserName 값은 SEH(구조적 예외 처리기)를 덮어쓰고, 애플리케이션이 파일을 처리할 때 임의 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0.0365,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Beetel Teletech Ltd.",
-        "product": "Connection Manager",
-        "versions": "PCW_BTLINDV1.0.0B04 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:50:44.520888+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2010-20042",
-    "title": "Xion Audio Player ≤ 1.0.126 유니코드 스택 버퍼 오버플로우",
-    "description": "Xion Audio Player 1.0.126 이전 버전은 특수 제작된 .m3u 재생 목록 파일을 열 때 유니코드 기반 스택 버퍼 오버플로우에 취약합니다. 파일 내의 과도하게 긴 문자열이 SEH 체인을 덮어써 공격자가 실행 흐름을 제어하고 임의 코드를 실행할 수 있습니다.",
-    "cvss": 8.4,
-    "epss": 0.08151,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Xion",
-        "product": "Audio Player",
-        "versions": "* 부터 1.0.126 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:38:57.293055+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-48631",
     "title": "LocalImageResolver.java의 서비스 거부 취약점",
     "description": "LocalImageResolver.java의 onHeaderDecoded 함수에서 자원 고갈로 인한 지속적인 서비스 거부(DoS) 공격 가능성이 있습니다. 추가적인 권한 없이 원격 DoS 공격으로 이어질 수 있으며, 사용자 상호작용 없이 악용 가능합니다.",
@@ -65133,32 +65330,6 @@
     ],
     "report_url": null,
     "date": "2026-03-03T17:10:02.556923+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2010-10015",
-    "title": "AOL 9.5 Phobos.Playlist 'Import()' 스택 기반 버퍼 오버플로우",
-    "description": "AOL 9.5 버전 이하에 포함된 Phobos.dll ActiveX 컨트롤의 Phobos.Playlist COM 객체 내 Import() 메서드는 과도하게 긴 문자열 인수가 제공될 경우 스택 기반 버퍼 오버플로우에 취약합니다. 악용 시 원격 공격자가 사용자 권한으로 임의 코드를 실행할 수 있지만, 스크립팅 또는 초기화에 안전하다고 표시되지 않아 로컬에서 악성 HTML 파일을 열어야 합니다. 해당 AOL 9.5 데스크톱 소프트웨어는 더 이상 지원되지 않습니다.",
-    "cvss": 8.4,
-    "epss": 0.19962,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "AOL",
-        "product": "AOL",
-        "versions": "* 부터 9.5 (Revision 4337.155) 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T13:57:51.536449+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
