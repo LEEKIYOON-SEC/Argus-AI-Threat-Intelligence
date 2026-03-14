@@ -36,6 +36,305 @@
     "severity": "Medium"
   },
   {
+    "id": "CVE-2026-24696",
+    "title": "Everon api.everon.io 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어 DoS 공격에 취약합니다. 합법적인 충전기 텔레메트리 데이터를 차단하거나 변조할 수 있으며, 무차별 대입 공격을 통해 무단 접근을 시도할 수 있습니다. 속도 제한 기능 부재가 문제의 원인입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "Everon",
+        "product": "api.everon.io",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:13:19.260822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-26018",
+    "title": "CoreDNS 루프 감지 서비스 거부 취약점",
+    "description": "CoreDNS는 플러그인을 연결하는 DNS 서버입니다. 1.14.2 버전 이전에는 CoreDNS의 루프 감지 플러그인에 서비스 거부 취약점이 존재하여, 특수 제작된 DNS 쿼리를 통해 공격자가 DNS 서버를 중단시킬 수 있습니다. 이는 예측 가능한 의사 난수 생성기를 사용하여 비밀 쿼리 이름을 생성하고, 치명적인 오류 처리기가 전체 프로세스를 종료하는 데 기인합니다. 해당 문제는 1.14.2 버전에서 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-337",
+      "CWE-770",
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "coredns",
+        "product": "coredns",
+        "versions": "< 1.14.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:01:56.098955+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30827",
+    "title": "express-rate-limit: IPv4 매핑된 IPv6 주소로 인한 클라이언트별 속도 제한 우회 (듀얼 스택 서버에서 모든 IPv4 클라이언트가 하나의 버킷 공유)",
+    "description": "express-rate-limit은 Express를 위한 기본적인 속도 제한 미들웨어입니다. 8.0.0 이전 버전, 그리고 8.0.2, 8.1.1, 8.2.2, 8.3.0 미만 버전에서 기본 keyGenerator는 net.isIPv6()가 true를 반환하는 모든 주소에 IPv6 서브넷 마스킹(/56 기본값)을 적용합니다. 이는 Node.js에서 듀얼 스택 서버의 request.ip로 반환되는 IPv4 매핑된 IPv6 주소(::ffff:x.x.x.x)를 포함하며, 모든 IPv4 트래픽이 단일 속도 제한 버킷으로 묶여 하나의 클라이언트가 제한을 소진하면 다른 모든 IPv4 클라이언트에 HTTP 429 오류가 발생합니다. 이 문제는 8.0.2, 8.1.1, 8.2.2, 8.3.0 버전에 패치되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "express-rate-limit",
+        "product": "express-rate-limit",
+        "versions": ">= 8.0.0, < 8.0.2 (단일 버전), >= 8.1.0, < 8.1.1 (단일 버전), >= 8.2.0, < 8.2.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:01:58.668458+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2493",
+    "title": "IceWarp 협업 디렉토리 순회 정보 유출 취약점",
+    "description": "IceWarp 설치 환경에서 민감한 정보가 유출될 수 있는 취약점입니다. 인증 없이 원격 공격자가 악용 가능하며, 협업 엔드포인트의 ticket 파라미터 처리 과정에서 사용자 제공 경로에 대한 적절한 검증이 부족하여 발생합니다. 루트 권한으로 정보 유출이 가능합니다 (ZDI-CAN-25440).",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "IceWarp",
+        "product": "IceWarp",
+        "versions": "14.2.0.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:56:26.631799+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29784",
+    "title": "Ghost: OTC 사용 관련 불완전한 CSRF 보호",
+    "description": "Ghost CMS(Node.js 기반)의 5.101.6 버전부터 6.19.2 버전까지, `/session/verify`에서 불완전한 CSRF 보호로 인해 요청 세션과 다른 로그인 세션에서 OTC를 사용할 수 있었습니다. 이로 인해 일부 상황에서 Ghost 사이트의 계정 탈취가 더 쉬워질 수 있었습니다. 6.19.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-352"
+    ],
+    "affected": [
+      {
+        "vendor": "TryGhost",
+        "product": "Ghost",
+        "versions": ">= 5.101.6, < 6.19.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:42:03.125124+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29186",
+    "title": "@backstage/plugin-techdocs-node: TechDocs Mkdocs 설정 키를 통한 임의 코드 실행 가능성",
+    "description": "Backstage 개발자 포털 구축 프레임워크의 @backstage/plugin-techdocs-node 패키지에서 임의 코드 실행 취약점이 발견되었습니다. MkDocs 설정 키 허용 목록의 허점을 이용하여 악의적인 mkdocs.yml 파일을 통해 TechDocs 보안 제어를 우회하고 파이썬 코드를 실행할 수 있습니다. 1.14.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "backstage",
+        "product": "backstage",
+        "versions": "< 1.14.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/98",
+    "date": "2026-03-07T15:45:55.514956+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/plugin-techdocs-node))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29192",
+    "title": "ZITADEL: 기본 URI 리디렉트를 통한 저장 XSS 취약점으로 계정 탈취 가능",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 기본 URI 리디렉트를 이용한 저장 XSS 취약점이 발견되어 계정 탈취로 이어질 수 있습니다. 해당 문제는 4.12.0 버전에서 해결되었습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/97",
+    "date": "2026-03-07T15:45:48.531545+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29193",
+    "title": "ZITADEL: 로그인 V2 동작 및 보안 정책 우회 취약점",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.12.0 버전에서 로그인 V2 UI의 취약점을 통해 사용자가 로그인 동작 및 보안 정책을 우회하고, 조직에서 해당 옵션이 비활성화되어 있어도 새 계정을 자체 등록하거나 비밀번호로 로그인할 수 있었습니다. 해당 문제는 4.12.1 버전에서 해결되었습니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/96",
+    "date": "2026-03-07T15:45:41.206793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29191",
+    "title": "ZITADEL: /saml-post 엔드포인트 XSS를 통한 원클릭 계정 탈취",
+    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 /saml-post 엔드포인트의 XSS 취약점을 통해 계정 탈취가 가능한 문제가 발견되었습니다. 해당 문제는 4.12.0 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "zitadel",
+        "product": "zitadel",
+        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T15:45:33.574477+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30860",
+    "title": "WeKnora: SQL Injection 우회를 통한 원격 코드 실행 취약점 (AI 데이터베이스 쿼리 도구)",
+    "description": "WeKnora는 문서 심층 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.2.12 버전 이전에는 데이터베이스 쿼리 기능에 원격 코드 실행(RCE) 취약점이 존재했습니다. PostgreSQL 배열 및 행 표현식 내의 하위 노드에 대한 재귀적 검사가 실패하여 SQL Injection 방어 우회를 허용하며, 공격자는 데이터베이스 서버에서 임의 코드 실행을 달성할 수 있습니다. 해당 문제는 0.2.12 버전에서 패치되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Tencent",
+        "product": "WeKnora",
+        "versions": "< 0.2.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/99",
+    "date": "2026-03-07T16:46:44.773574+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-30244",
     "title": "Plane: 인증되지 않은 워크스페이스 멤버 정보 유출",
     "description": "Plane은 오픈 소스 프로젝트 관리 도구입니다. 1.2.2 버전 이전에는 인증되지 않은 공격자가 워크스페이스 멤버를 열거하고 이메일 주소, 사용자 역할, 내부 식별자 등 민감한 정보를 추출할 수 있었습니다. 이는 Django REST Framework 권한 클래스가 잘못 구성되어 익명 사용자가 보호된 엔드포인트에 접근할 수 있도록 허용한 데 기인합니다. 해당 문제는 1.2.2 버전에서 수정되었습니다.",
@@ -8190,32 +8489,6 @@
         "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2493",
-    "title": "IceWarp 협업 디렉토리 순회 정보 유출 취약점",
-    "description": "IceWarp 설치 환경에서 민감한 정보가 유출될 수 있는 취약점입니다. 인증 없이 원격 공격자가 악용 가능하며, 협업 엔드포인트의 ticket 파라미터 처리 과정에서 사용자 제공 경로에 대한 적절한 검증이 부족하여 발생합니다. 루트 권한으로 정보 유출이 가능합니다 (ZDI-CAN-25440).",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "IceWarp",
-        "product": "IceWarp",
-        "versions": "14.2.0.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:56:26.631799+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -55105,42 +55378,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-29186",
-    "title": "@backstage/plugin-techdocs-node: TechDocs Mkdocs 설정 키를 통한 임의 코드 실행 가능성",
-    "description": "Backstage 개발자 포털 구축 프레임워크의 @backstage/plugin-techdocs-node 패키지에서 임의 코드 실행 취약점이 발견되었습니다. MkDocs 설정 키 허용 목록의 허점을 이용하여 악의적인 mkdocs.yml 파일을 통해 TechDocs 보안 제어를 우회하고 파이썬 코드를 실행할 수 있습니다. 1.14.3 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434",
-      "CWE-74"
-    ],
-    "affected": [
-      {
-        "vendor": "backstage",
-        "product": "backstage",
-        "versions": "< 1.14.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/98",
-    "date": "2026-03-07T15:45:55.514956+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/plugin-techdocs-node))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29185",
     "title": "@backstage/integration: 내장 토큰을 이용한 SCM URL의 잠재적 읽기",
     "description": "Backstage는 개발자 포털 구축을 위한 오픈 프레임워크입니다. 1.20.1 버전 이전에는 Backstage 통합에 사용된 SCM URL 파싱 취약점으로 인해 인코딩된 형태의 경로 탐색 시퀀스가 파일 경로에 포함될 수 있었습니다. API URL을 생성하는 통합 함수에서 처리될 때, 이러한 URL은 구성된 서버 측 통합 자격 증명을 사용하여 의도하지 않은 SCM 제공업체 API 엔드포인트로 요청을 리디렉션할 수 있습니다. 해당 문제는 1.20.1 버전에서 패치되었습니다.",
@@ -55298,32 +55535,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30827",
-    "title": "express-rate-limit: IPv4 매핑된 IPv6 주소로 인한 클라이언트별 속도 제한 우회 (듀얼 스택 서버에서 모든 IPv4 클라이언트가 하나의 버킷 공유)",
-    "description": "express-rate-limit은 Express를 위한 기본적인 속도 제한 미들웨어입니다. 8.0.0 이전 버전, 그리고 8.0.2, 8.1.1, 8.2.2, 8.3.0 미만 버전에서 기본 keyGenerator는 net.isIPv6()가 true를 반환하는 모든 주소에 IPv6 서브넷 마스킹(/56 기본값)을 적용합니다. 이는 Node.js에서 듀얼 스택 서버의 request.ip로 반환되는 IPv4 매핑된 IPv6 주소(::ffff:x.x.x.x)를 포함하며, 모든 IPv4 트래픽이 단일 속도 제한 버킷으로 묶여 하나의 클라이언트가 제한을 소진하면 다른 모든 IPv4 클라이언트에 HTTP 429 오류가 발생합니다. 이 문제는 8.0.2, 8.1.1, 8.2.2, 8.3.0 버전에 패치되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "express-rate-limit",
-        "product": "express-rate-limit",
-        "versions": ">= 8.0.0, < 8.0.2 (단일 버전), >= 8.1.0, < 8.1.1 (단일 버전), >= 8.2.0, < 8.2.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:01:58.668458+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30825",
     "title": "hoppscotch: IDOR - 인증된 사용자가 다른 사용자의 개인 액세스 토큰을 해지할 수 있음",
     "description": "hoppscotch는 오픈 소스 API 개발 환경입니다. 2026.2.1 버전 이전에는 인증된 사용자가 소유권 확인 없이 ID만으로 다른 사용자의 PAT를 삭제할 수 있는 IDOR 취약점이 존재했습니다. 해당 문제는 2026.2.1 버전에서 수정되었습니다.",
@@ -55376,41 +55587,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-29192",
-    "title": "ZITADEL: 기본 URI 리디렉트를 통한 저장 XSS 취약점으로 계정 탈취 가능",
-    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 기본 URI 리디렉트를 이용한 저장 XSS 취약점이 발견되어 계정 탈취로 이어질 수 있습니다. 해당 문제는 4.12.0 버전에서 해결되었습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "zitadel",
-        "product": "zitadel",
-        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/97",
-    "date": "2026-03-07T15:45:48.531545+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29606",
     "title": "OpenClaw < 2026.2.14 - ngrok 루프백 호환성을 이용한 웹훅 서명 검증 우회",
     "description": "OpenClaw 2026.2.14 이전 버전은 voice-call 확장 기능에서 `tunnel.allowNgrokFreeTierLoopbackBypass` 옵션이 활성화된 경우 웹훅 서명 검증 우회 취약점을 가지고 있습니다. 이를 통해 유효하지 않은 X-Twilio-Signature 헤더 없이 외부 공격자가 웹훅 엔드포인트에 위조된 요청을 전송하여 권한 없는 웹훅 이벤트 처리 및 요청 과부하 공격을 유발할 수 있습니다.",
@@ -55435,32 +55611,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29191",
-    "title": "ZITADEL: /saml-post 엔드포인트 XSS를 통한 원클릭 계정 탈취",
-    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.11.1 버전에서 /saml-post 엔드포인트의 XSS 취약점을 통해 계정 탈취가 가능한 문제가 발견되었습니다. 해당 문제는 4.12.0 버전에서 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "zitadel",
-        "product": "zitadel",
-        "versions": ">= 4.0.0, < 4.12.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T15:45:33.574477+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-28486",
@@ -56762,32 +56912,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-29784",
-    "title": "Ghost: OTC 사용 관련 불완전한 CSRF 보호",
-    "description": "Ghost CMS(Node.js 기반)의 5.101.6 버전부터 6.19.2 버전까지, `/session/verify`에서 불완전한 CSRF 보호로 인해 요청 세션과 다른 로그인 세션에서 OTC를 사용할 수 있었습니다. 이로 인해 일부 상황에서 Ghost 사이트의 계정 탈취가 더 쉬워질 수 있었습니다. 6.19.3 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-352"
-    ],
-    "affected": [
-      {
-        "vendor": "TryGhost",
-        "product": "Ghost",
-        "versions": ">= 5.101.6, < 6.19.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T15:42:03.125124+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29781",
     "title": "Sliver: 핸들러의 인증된 널 포인터 역참조",
     "description": "Sliver는 사용자 지정 Wireguard netstack을 사용하는 C2 프레임워크입니다. 1.7.3 버전 이하에서 Sliver C2 서버의 Protobuf 역직렬화 로직에 널 포인터 검증이 체계적으로 부족하여 취약점이 존재합니다. 유효한 임플란트 자격 증명을 추출하고 서명된 메시지에서 중첩 필드를 생략하면 인증된 공격자가 처리되지 않은 런타임 패닉을 유발할 수 있습니다. mTLS, WireGuard 및 DNS 전송 계층에 HTTP 전송 계층에 존재하는 패닉 복구 미들웨어가 없어 전체 프로세스가 종료됩니다.",
@@ -56992,41 +57116,6 @@
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29193",
-    "title": "ZITADEL: 로그인 V2 동작 및 보안 정책 우회 취약점",
-    "description": "ZITADEL은 오픈 소스 ID 관리 플랫폼입니다. 4.0.0부터 4.12.0 버전에서 로그인 V2 UI의 취약점을 통해 사용자가 로그인 동작 및 보안 정책을 우회하고, 조직에서 해당 옵션이 비활성화되어 있어도 새 계정을 자체 등록하거나 비밀번호로 로그인할 수 있었습니다. 해당 문제는 4.12.1 버전에서 해결되었습니다.",
-    "cvss": 8.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "zitadel",
-        "product": "zitadel",
-        "versions": ">= 4.0.0, < 4.12.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/96",
-    "date": "2026-03-07T15:45:41.206793+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -66318,41 +66407,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30860",
-    "title": "WeKnora: SQL Injection 우회를 통한 원격 코드 실행 취약점 (AI 데이터베이스 쿼리 도구)",
-    "description": "WeKnora는 문서 심층 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.2.12 버전 이전에는 데이터베이스 쿼리 기능에 원격 코드 실행(RCE) 취약점이 존재했습니다. PostgreSQL 배열 및 행 표현식 내의 하위 노드에 대한 재귀적 검사가 실패하여 SQL Injection 방어 우회를 허용하며, 공격자는 데이터베이스 서버에서 임의 코드 실행을 달성할 수 있습니다. 해당 문제는 0.2.12 버전에서 패치되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Tencent",
-        "product": "WeKnora",
-        "versions": "< 0.2.12 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/99",
-    "date": "2026-03-07T16:46:44.773574+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-30858",
     "title": "WeKnora: web_fetch 도구의 DNS 재바인딩 취약점을 이용한 SSRF 공격 가능성",
     "description": "WeKnora는 심층 문서 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.3.0 버전 이전의 web_fetch 도구에서 DNS 재바인딩 취약점이 발견되어, 인증되지 않은 공격자가 URL 검증을 우회하고 서버 내부 리소스에 접근할 수 있습니다. 이를 통해 내부 IP 주소(예: 127.0.0.1, 192.168.x.x)를 포함한 민감한 로컬 서비스에 접근하고 데이터를 유출할 수 있으며, 0.3.0 버전에서 해당 문제가 해결되었습니다.",
@@ -67288,32 +67342,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-24696",
-    "title": "Everon api.everon.io 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어 DoS 공격에 취약합니다. 합법적인 충전기 텔레메트리 데이터를 차단하거나 변조할 수 있으며, 무차별 대입 공격을 통해 무단 접근을 시도할 수 있습니다. 속도 제한 기능 부재가 문제의 원인입니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "Everon",
-        "product": "api.everon.io",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:13:19.260822+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-20882",
     "title": "Mobiliti e-mobi.hu 과도한 인증 시도 제한 미흡",
     "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능이 부재하여 발생한 문제입니다.",
@@ -67332,34 +67360,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T16:11:05.118332+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-26018",
-    "title": "CoreDNS 루프 감지 서비스 거부 취약점",
-    "description": "CoreDNS는 플러그인을 연결하는 DNS 서버입니다. 1.14.2 버전 이전에는 CoreDNS의 루프 감지 플러그인에 서비스 거부 취약점이 존재하여, 특수 제작된 DNS 쿼리를 통해 공격자가 DNS 서버를 중단시킬 수 있습니다. 이는 예측 가능한 의사 난수 생성기를 사용하여 비밀 쿼리 이름을 생성하고, 치명적인 오류 처리기가 전체 프로세스를 종료하는 데 기인합니다. 해당 문제는 1.14.2 버전에서 패치되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-337",
-      "CWE-770",
-      "CWE-400"
-    ],
-    "affected": [
-      {
-        "vendor": "coredns",
-        "product": "coredns",
-        "versions": "< 1.14.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:01:56.098955+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
