@@ -499,9 +499,12 @@
 <!-- Header -->
 <div class="header">
   <h1>Argus - AI Threat Intelligence Platform</h1>
-  <div class="subtitle">AI 기반 위협 인텔리전스 자동화 플랫폼</div>
+  <div class="subtitle">AI-Driven Vibe Coding으로 구현한 자동화된 보안 위협 탐지 파이프라인</div>
   <div class="description">
-    CVE 취약점 분석부터 탐지 룰 생성, IP 블랙리스트 관리, IOC 통합까지 보안 운영에 필요한 위협 인텔리전스를 자동으로 수집·분석하여 Slack으로 전달하고, GitHub Pages 대시보드로 시각화합니다.
+    Argus는 AI 바이브 코딩을 활용하여 보안 운영(SecOps)의 핵심 과정을 자동화한 프로젝트입니다.
+    CVE 취약점 모니터링, LLM 기반 위협 분석, 탐지 룰 자동 생성까지 — 기존에 보안 담당자가 NVD, KEV, EPSS, PoC 저장소, 룰셋 등 여러 소스를 개별적으로 확인하며 수동으로 수행하던 위협 식별과 대응 과정을 하나의 파이프라인으로 통합하였습니다.
+    이를 통해 분산된 위협 정보를 단일 대시보드에서 확인하고, 상용 솔루션 없이도 신속한 초기 대응이 가능하도록 설계하였습니다.
+    AI 주도 개발 방식을 적용하여 개발 비용과 위협 대응 시간을 동시에 절감하였습니다.
   </div>
   <div class="badges">
     <span class="badge badge-blue">Python</span>
@@ -564,11 +567,13 @@
 <ul>
   <li><strong>자동화</strong>: CVE 발표 → 분석 → 탐지 룰 → 보안 담당자 알림까지 사람 개입 없이 동작</li>
   <li><strong>AI 분석</strong>: LLM 기반 근본 원인 분석, 공격 시나리오 생성, 맞춤형 탐지 룰 자동 생성</li>
-  <li><strong>다중 엔진 룰</strong>: Sigma, Snort 2.9/3, Suricata 5/7, YARA 등 실무 보안 장비에 바로 적용 가능</li>
+  <li><strong>다중 엔진 룰</strong>: Sigma(필수), Snort/Suricata(AV:N), YARA(AV:L) — CVSS 공격벡터 기반 자동 선택으로 실무 보안 장비에 바로 적용 가능</li>
+  <li><strong>AI 룰 생성 게이트</strong>: KEV 등재, EPSS &ge; 0.2, PoC 존재 등 익스플로잇 근거가 있는 CVE만 AI 룰 생성 → TPD 낭비 방지</li>
+  <li><strong>PoC 소스 확장</strong>: nomi-sec/PoC-in-GitHub + trickest/cve 이중 검색, nuclei-templates로 AI 프롬프트 품질 향상</li>
   <li><strong>IP 위험도 관리</strong>: 8개 위협 피드 통합, AbuseIPDB/InternetDB 보강, 기간 기반 가중치, 카테고리별 임계값, 방화벽 정책 자동 권고</li>
   <li><strong>IOC 통합</strong>: URLhaus, MalwareBazaar, PhishTank/OpenPhish 피드 연동, 타입별 Lazy-Load 대시보드</li>
   <li><strong>스마트 필터링</strong>: 콘텐츠 해시 기반 벌크 커밋 감지로 메타데이터 패치 무시, 실제 변경된 CVE만 처리</li>
-  <li><strong>Thread-Safe Rate Limiting</strong>: 10개 API 엔드포인트별 속도 제어, 429 자동 대응, 사용률 요약 리포트</li>
+  <li><strong>Thread-Safe Rate Limiting</strong>: 10개 API 엔드포인트별 속도 제어 + Groq TPD(일간 토큰) 트래킹, 429 자동 대응, TPD 소진 시 조기 종료</li>
 </ul>
 
 <hr>
@@ -610,21 +615,23 @@
       <div class="arch-step">
         <div class="arch-step-title">2. AI 분석</div>
         <ul class="arch-step-items">
-          <li>Groq LLM</li>
+          <li>Groq LLM (high)</li>
           <li>번역 (Gemini)</li>
+          <li>TPD 소진 시 fallback</li>
         </ul>
       </div>
       <div class="arch-step">
-        <div class="arch-step-title">3. 룰 생성</div>
+        <div class="arch-step-title">3. 룰 생성 (AV 기반)</div>
         <ul class="arch-step-items">
-          <li>Sigma / Snort</li>
-          <li>YARA</li>
+          <li>Sigma (필수)</li>
+          <li>AV:N → Snort/Suricata</li>
+          <li>AV:L → YARA</li>
         </ul>
       </div>
       <div class="arch-step">
         <div class="arch-step-title">4. 알림 &amp; 저장</div>
         <ul class="arch-step-items">
-          <li>Slack</li>
+          <li>Slack + 대시보드</li>
           <li>GitHub Issue</li>
           <li>Supabase</li>
         </ul>
@@ -725,6 +732,9 @@
   <tr><td><strong>GitHub API</strong></td><td>Issue 생성, 룰 검색</td><td>Token</td></tr>
   <tr><td><strong>AbuseIPDB</strong></td><td>IP 평판 조회 (Shield 선택)</td><td>API Key</td></tr>
   <tr><td><strong>InternetDB (Shodan)</strong></td><td>포트/취약점 열거</td><td>공개 API</td></tr>
+  <tr><td><strong>nomi-sec/PoC-in-GitHub</strong></td><td>PoC 공개 여부 확인 (1차)</td><td>공개</td></tr>
+  <tr><td><strong>trickest/cve</strong></td><td>PoC 공개 여부 확인 (2차 fallback)</td><td>공개</td></tr>
+  <tr><td><strong>nuclei-templates</strong></td><td>CVE 탐지 템플릿 (AI 프롬프트 참고용)</td><td>공개</td></tr>
   <tr><td><strong>SigmaHQ / ET Open</strong></td><td>공개 탐지 룰 검색</td><td>공개</td></tr>
   <tr><td><strong>URLhaus</strong></td><td>악성 URL 피드</td><td>공개 API</td></tr>
   <tr><td><strong>MalwareBazaar</strong></td><td>악성코드 해시 피드</td><td>공개 API</td></tr>
@@ -747,7 +757,7 @@
   <li>콘텐츠 해시 기반 벌크 커밋 감지 → 메타데이터 패치 무시</li>
   <li>EPSS 점수 배치 조회</li>
   <li>NVD CVSS/CWE 보강 (선택)</li>
-  <li>PoC(Proof-of-Concept) 공개 여부 감지</li>
+  <li>PoC(Proof-of-Concept) 공개 여부 감지 (nomi-sec → trickest/cve 이중 검색)</li>
   <li>VulnCheck KEV 추가 소스 (선택)</li>
   <li>GitHub Advisory DB 패키지 정보 조회</li>
 </ul>
@@ -763,19 +773,51 @@
 
 <h4>탐지 룰 자동 생성</h4>
 <table>
-  <tr><th>엔진</th><th>공개 룰 소스</th><th>AI 생성</th></tr>
-  <tr><td><strong>Sigma</strong></td><td>SigmaHQ</td><td>O</td></tr>
-  <tr><td><strong>Snort 2.9</strong></td><td>ET Open, Community</td><td>O</td></tr>
-  <tr><td><strong>Snort 3</strong></td><td>Community</td><td>O</td></tr>
-  <tr><td><strong>Suricata 5</strong></td><td>ET Open</td><td>O</td></tr>
-  <tr><td><strong>Suricata 7</strong></td><td>ET Open</td><td>O</td></tr>
-  <tr><td><strong>YARA</strong></td><td>Yara-Rules</td><td>O</td></tr>
+  <tr><th>엔진</th><th>공개 룰 소스</th><th>AI 생성</th><th>비고</th></tr>
+  <tr><td><strong>Sigma</strong></td><td>SigmaHQ</td><td>O (필수)</td><td>SKIP 시 강제 재시도</td></tr>
+  <tr><td><strong>Snort 2.9</strong></td><td>ET Open, Community</td><td>O (AV:N 우선)</td><td>네트워크 공격벡터 시 우선 생성</td></tr>
+  <tr><td><strong>Snort 3</strong></td><td>Community</td><td>O (AV:N 우선)</td><td></td></tr>
+  <tr><td><strong>Suricata 5</strong></td><td>ET Open</td><td>O (AV:N 우선)</td><td></td></tr>
+  <tr><td><strong>Suricata 7</strong></td><td>ET Open</td><td>O (AV:N 우선)</td><td></td></tr>
+  <tr><td><strong>YARA</strong></td><td>Yara-Rules</td><td>O (AV:L 우선)</td><td>로컬 공격벡터 시 우선 생성</td></tr>
 </table>
 <ul>
-  <li>공개 룰 우선 사용, 없을 경우 AI가 생성</li>
+  <li>공개 룰 우선 사용, 없을 경우 AI가 생성 (공개 룰은 공격벡터 무관하게 항상 적용)</li>
   <li>AI 생성 룰은 정규식 기반 구문 검증 + 환각 방지 가드 적용</li>
   <li>공식 룰 발견 시 기존 AI 룰을 대체하고 Slack으로 재알림</li>
+  <li><strong>Sigma는 필수 생성</strong>: AI가 SKIP 반환 시 관대한 프롬프트로 1회 강제 재시도</li>
+  <li><strong>nuclei-templates 연동</strong>: projectdiscovery/nuclei-templates의 CVE 탐지 템플릿을 AI 룰 생성 프롬프트에 참고 데이터로 포함 → 구체적 지표 추출 품질 향상</li>
 </ul>
+
+<h4>CVSS 공격벡터 기반 AI 룰 선택</h4>
+<p>CVSS 벡터의 Attack Vector(AV) 값을 파싱하여 적합한 룰 타입을 자동 결정합니다:</p>
+<table>
+  <tr><th>공격벡터</th><th>Sigma</th><th>Snort/Suricata (AI)</th><th>YARA (AI)</th></tr>
+  <tr><td><code>AV:N</code> 네트워크</td><td>필수 생성</td><td>✅ 우선 생성</td><td>공개 룰만 (AI 생성 ✕)</td></tr>
+  <tr><td><code>AV:A</code> 인접</td><td>필수 생성</td><td>✅ 우선 생성</td><td>공개 룰만 (AI 생성 ✕)</td></tr>
+  <tr><td><code>AV:L</code> 로컬</td><td>필수 생성</td><td>공개 룰만 (AI 생성 ✕)</td><td>✅ 우선 생성</td></tr>
+  <tr><td><code>AV:P</code> 물리적</td><td>필수 생성</td><td>공개 룰만 (AI 생성 ✕)</td><td>✅ 우선 생성</td></tr>
+  <tr><td>UNKNOWN</td><td>필수 생성</td><td>✅ 생성</td><td>✅ 생성</td></tr>
+</table>
+
+<h4>AI 룰 생성 게이트 (Exploitation Evidence Gate)</h4>
+<p>모든 고위험 CVE에 AI 룰을 생성하면 TPD(일간 토큰)를 낭비합니다. 실제 익스플로잇 근거가 있는 CVE만 AI 룰을 생성하고, 나머지는 공개 룰 검색만 수행합니다:</p>
+<table>
+  <tr><th>조건</th><th>판단</th><th>설명</th></tr>
+  <tr><td><strong>KEV 등재</strong></td><td>AI 룰 생성</td><td>CISA 또는 VulnCheck KEV에 등록된 CVE — 실제 악용 확인</td></tr>
+  <tr><td><strong>EPSS &ge; 0.2</strong></td><td>AI 룰 생성</td><td>익스플로잇 확률 20% 이상 — 높은 악용 가능성</td></tr>
+  <tr><td><strong>PoC 존재</strong></td><td>AI 룰 생성</td><td>nomi-sec 또는 trickest/cve에서 공개 PoC 확인</td></tr>
+  <tr><td><strong>위 모두 해당 없음</strong></td><td>공개 룰만 검색</td><td>SigmaHQ, ET Open, Yara-Rules 공개 저장소만 검색 (AI 호출 0건)</td></tr>
+</table>
+<blockquote><p><code>config.py</code>의 <code>RULE_GENERATION.require_exploitation_evidence</code>를 <code>False</code>로 설정하면 기존 동작(모든 CVE에 AI 룰 생성)으로 복원됩니다.</p></blockquote>
+
+<h4>PoC 소스 (이중 검색)</h4>
+<table>
+  <tr><th>소스</th><th>검색 방법</th><th>비고</th></tr>
+  <tr><td><strong>nomi-sec/PoC-in-GitHub</strong></td><td>연도별 JSON 파일 직접 조회</td><td>1차 검색 (GitHub PoC 저장소 수집)</td></tr>
+  <tr><td><strong>trickest/cve</strong></td><td>연도별 마크다운 파일에서 URL 추출</td><td>2차 fallback (nomi-sec 미발견 시)</td></tr>
+  <tr><td><strong>nuclei-templates</strong></td><td>tarball 다운로드 후 cves/ 디렉토리 검색</td><td>AI 프롬프트 참고용 (PoC 판정 아님)</td></tr>
+</table>
 
 <h4>알림 트리거 조건</h4>
 <table>
@@ -1008,8 +1050,23 @@ cd Argus-AI-Threat-Intelligence</code></pre>
   <tr><td><code>bulk_commit_threshold</code></td><td>100</td><td>벌크 커밋 판단 기준 (파일 수)</td></tr>
 </table>
 
+<h4>AI 룰 생성 게이트 설정 (<code>RULE_GENERATION</code>)</h4>
+<table>
+  <tr><th>설정</th><th>현재 값</th><th>설명</th></tr>
+  <tr><td><code>epss_threshold</code></td><td><code>0.2</code></td><td>EPSS가 이 값 이상이면 AI 룰 생성</td></tr>
+  <tr><td><code>require_exploitation_evidence</code></td><td><code>True</code></td><td>Kill switch — <code>False</code> 시 모든 CVE에 AI 룰 생성 (기존 동작)</td></tr>
+</table>
+
+<h4>Groq API 파라미터</h4>
+<table>
+  <tr><th>용도</th><th>temperature</th><th>top_p</th><th>max_tokens</th><th>reasoning_effort</th></tr>
+  <tr><td><strong>AI 분석</strong> (root cause, scenario)</td><td>0.3</td><td>0.9</td><td>8,192</td><td><code>high</code></td></tr>
+  <tr><td><strong>룰 생성</strong> (Sigma, Snort, YARA)</td><td>0.2</td><td>0.85</td><td>2,048</td><td><code>low</code> (TPD 절감)</td></tr>
+</table>
+<p>룰 생성은 템플릿 기반 작업이므로 <code>reasoning_effort: low</code>로 추론 토큰을 60-80% 절감합니다. AI 분석은 복잡한 논리 추론이 필요하므로 <code>high</code>를 유지합니다.</p>
+
 <h3>Phase 1 Rate Limiter (<code>src/rate_limiter.py</code>)</h3>
-<p>Thread-Safe Rate Limiter v3.0이 10개 API 엔드포인트를 관리합니다:</p>
+<p>Thread-Safe Rate Limiter v3.1이 10개 API 엔드포인트 + TPD(일간 토큰)를 관리합니다:</p>
 <table>
   <tr><th>API</th><th>한도</th><th>윈도우</th><th>최소 간격</th></tr>
   <tr><td><code>github</code></td><td>5,000/h</td><td>3,600s</td><td>0.5s</td></tr>
@@ -1025,8 +1082,23 @@ cd Argus-AI-Threat-Intelligence</code></pre>
 </table>
 <ul>
   <li>사용률 80% 이상 시 속도 조절, 90% 이상 시 추가 대기</li>
-  <li>429 응답 시 <code>Retry-After</code> 헤더 파싱 후 자동 대기</li>
-  <li>실행 종료 시 API별 사용량 요약 출력</li>
+  <li>429 응답 시 <code>Retry-After</code> 파싱 후 자동 대기 (분+초 복합 형식 지원: <code>10m3.072s</code> → 603초)</li>
+  <li>실행 종료 시 API별 사용량 + TPD 사용량 요약 출력</li>
+</ul>
+
+<h4>Groq TPD (Tokens Per Day) 트래킹</h4>
+<p>Groq Free Tier의 일간 토큰 한도(200,000 TPD)를 추적하여 429 에러를 사전 방지합니다:</p>
+<table>
+  <tr><th>항목</th><th>값</th><th>설명</th></tr>
+  <tr><td><code>TPD 한도</code></td><td>200,000</td><td>Groq Free Tier 일간 토큰 제한</td></tr>
+  <tr><td><code>TPD 리셋</code></td><td>24시간</td><td>실행 시점 기준 자동 리셋</td></tr>
+  <tr><td><code>사전 차단 임계값</code></td><td>15,000</td><td>잔여 토큰이 이 값 미만이면 호출 SKIP</td></tr>
+</table>
+<ul>
+  <li><strong>TPD 소진 감지</strong>: API 응답의 <code>usage.total_tokens</code>로 실시간 누적 추적</li>
+  <li><strong>429 TPD 에러</strong>: <code>"tokens per day"</code> 포함 시 대기 없이 즉시 소진 마킹 (무한 루프 방지)</li>
+  <li><strong>조기 종료</strong>: TPD 소진 시 남은 AI 분석/룰 생성/Issue 생성을 SKIP → 다음 실행에서 자동 재처리</li>
+  <li><strong>90% 경고</strong>: TPD 사용률 90% 도달 시 경고 로그 출력</li>
 </ul>
 
 <h3>Phase 2 설정 (<code>src/blacklist_ip/config.py</code> Settings dataclass)</h3>
@@ -1203,17 +1275,30 @@ Apache Struts의 Content-Type 헤더를 통한 OGNL
 
 5. 병렬 CVE 처리 (3 workers)
    ├─ 추가 위협 인텔리전스 (NVD, PoC, Advisory)
+   │   └─ PoC 이중 검색: nomi-sec → trickest/cve fallback
    ├─ 자산 매칭 (affected → description fallback)
    ├─ 알림 트리거 판정 (신규/KEV/EPSS/CVSS)
    ├─ 한국어 번역 (Google Gemini)
-   ├─ 고위험 시 GitHub Issue + AI 분석 + 룰 생성
+   ├─ ⚡ TPD 잔량 체크 → 소진 시 Issue 생성 SKIP (다음 실행에서 재처리)
+   ├─ 고위험 시 GitHub Issue 생성
+   │   ├─ AI 룰 생성 게이트 판정
+   │   │   ├─ KEV 등재 / EPSS ≥ 0.2 / PoC 존재 → AI 분석 + 룰 생성
+   │   │   └─ 근거 없음 → 공개 룰만 검색 (AI 호출 0건, TPD 절약)
+   │   ├─ AI 룰 생성 시: nuclei-templates + ExploitDB 참고 데이터 활용
+   │   ├─ CVSS 공격벡터(AV) 파싱 → 적합한 룰 타입 자동 결정
+   │   ├─ AV:N → Sigma(필수) + Snort/Suricata(우선)
+   │   ├─ AV:L → Sigma(필수) + YARA(우선)
+   │   └─ Sigma SKIP 시 관대한 프롬프트로 1회 강제 재시도
    ├─ Slack 알림
    └─ Supabase DB 업데이트
 
-6. Slack 배치 요약 전송
+6. TPD 소진 여부 확인
+   └─ 소진 시 경고 로그 출력 ("다음 실행에서 자동 재처리")
+
+7. Slack 배치 요약 전송
    └─ 대시보드 바로가기 버튼 포함 (GitHub Pages)
 
-7. Rate Limit 사용 요약 출력</div>
+8. Rate Limit 사용 요약 출력 (RPM + TPD)</div>
 
 <h3>Phase 2 실행 흐름</h3>
 <div class="pipeline">Step 1/5: Tier 1 피드 수집
