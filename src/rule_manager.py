@@ -20,9 +20,10 @@ class RuleManager:
     _code_search_blocked = False
     _code_search_fail_count = 0
     _CODE_SEARCH_MAX_FAILS = 3  # 3회 연속 실패 시 차단 (단일 실패로 전체 차단 방지)
-    # SigmaHQ/Yara-Rules tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
+    # SigmaHQ/Yara-Rules/Nuclei tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
     _sigma_files: Dict[str, str] = {}
     _yara_files: Dict[str, str] = {}
+    _nuclei_files: Dict[str, str] = {}
 
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
@@ -320,6 +321,52 @@ class RuleManager:
                 return content
 
         logger.debug(f"❌ Yara-Rules 로컬: {cve_id} 없음")
+        return None
+
+    def _download_nuclei_repo(self):
+        """nuclei-templates tarball 다운로드 후 cves/ 디렉토리의 YAML 파일 캐시"""
+        if RuleManager._nuclei_files:
+            return
+
+        logger.info("📥 nuclei-templates 다운로드 중...")
+        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
+
+        try:
+            rate_limit_manager.check_and_wait("ruleset_download")
+            response = requests.get(
+                "https://github.com/projectdiscovery/nuclei-templates/archive/refs/heads/main.tar.gz",
+                headers=headers, timeout=120
+            )
+            response.raise_for_status()
+            rate_limit_manager.record_call("ruleset_download")
+
+            count = 0
+            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
+                for member in tar.getmembers():
+                    if member.isfile() and member.name.endswith('.yaml') and '/cves/' in member.name:
+                        f = tar.extractfile(member)
+                        if f:
+                            content = f.read().decode('utf-8', errors='ignore')
+                            RuleManager._nuclei_files[member.name] = content
+                            count += 1
+
+            logger.info(f"  ✅ nuclei-templates 로드 완료 ({count}개 CVE 템플릿)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ nuclei-templates 다운로드 실패: {e}")
+
+    def _search_local_nuclei(self, cve_id: str) -> Optional[str]:
+        """nuclei-templates 로컬 캐시에서 CVE ID 검색"""
+        if not RuleManager._nuclei_files:
+            self._download_nuclei_repo()
+
+        cve_lower = cve_id.lower()
+        for filepath, content in RuleManager._nuclei_files.items():
+            if cve_lower in filepath.lower() or cve_lower in content.lower():
+                filename = filepath.split('/')[-1]
+                logger.info(f"✅ nuclei-templates에서 발견: {filename}")
+                return content
+
+        logger.debug(f"❌ nuclei-templates: {cve_id} 없음")
         return None
 
     # ====================================================================
@@ -698,6 +745,15 @@ Root Cause: {root_cause}
 Attack Scenario: {attack_scenario}
 """
 
+        # Nuclei 템플릿 참고
+        nuclei_section = ""
+        if cve_data.get('_nuclei_template'):
+            nuclei_section = f"""
+[Nuclei Template (Community Detection)]
+Existing detection template. Extract concrete indicators:
+{cve_data['_nuclei_template']}
+"""
+
         # Exploit-DB 참고 코드
         exploit_section = ""
         if cve_data.get('_exploit_db_snippet'):
@@ -727,7 +783,7 @@ CWE: {', '.join(cve_data.get('cwe', []))}
 
 [References]
 {references_str}
-{analysis_section}{exploit_section}
+{analysis_section}{nuclei_section}{exploit_section}
 [CRITICAL REQUIREMENTS]
 1. **Observable Gate**: If no concrete indicator exists in ANY of the above sources, return exactly: SKIP
 2. **No Hallucination**: Use ONLY what's in the description, references, analysis, and exploit code
@@ -873,6 +929,12 @@ tags:
         attack_vector = self._parse_attack_vector(cve_data.get('cvss_vector', ''))
         logger.info(f"룰 수집 시작: {cve_id} (Attack Vector: {attack_vector})")
 
+        # ===== Nuclei-templates 참고 데이터 (AI 룰 생성 품질 향상용) =====
+        nuclei_template = self._search_local_nuclei(cve_id)
+        if nuclei_template:
+            cve_data['_nuclei_template'] = nuclei_template[:3000]
+            logger.info(f"  📄 Nuclei 템플릿 발견: {cve_id}")
+
         # ===== Exploit-DB 참고 데이터 (AI 룰 생성 품질 향상용) =====
         # AI 룰 생성 전에 먼저 수집하여 프롬프트에 포함
         exploit_code = self._search_github("offensive-security/exploitdb", f"{cve_id}")
@@ -972,7 +1034,7 @@ tags:
         return rules
     
     def search_public_only(self, cve_id: str) -> Dict:
-        rules = {"sigma": None, "network": [], "yara": None}
+        rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
 
         logger.info(f"공개 룰 검색 (AI 미사용): {cve_id}")
 

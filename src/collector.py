@@ -509,30 +509,65 @@ class Collector:
             return cve_data
     
     def check_poc_exists(self, cve_id: str) -> Dict:
-        """PoC-in-GitHub 확인 (nomi-sec/PoC-in-GitHub)"""
+        """PoC 존재 여부 확인 (nomi-sec → trickest/cve fallback)"""
+        # 1차: nomi-sec/PoC-in-GitHub
+        result = self._check_nomi_sec(cve_id)
+        if result['has_poc']:
+            return result
+
+        # 2차: trickest/cve (fallback)
+        result = self._check_trickest(cve_id)
+        return result
+
+    def _check_nomi_sec(self, cve_id: str) -> Dict:
+        """nomi-sec/PoC-in-GitHub에서 PoC 확인"""
         try:
             parts = cve_id.split('-')
             year = parts[1]
-            
+
             rate_limit_manager.check_and_wait("github")
-            
+
             url = f"https://raw.githubusercontent.com/nomi-sec/PoC-in-GitHub/master/{year}/{cve_id}.json"
             response = requests.get(url, timeout=10)
             rate_limit_manager.record_call("github")
-            
+
             if response.status_code == 200:
                 poc_data = response.json()
                 poc_urls = []
                 if isinstance(poc_data, list):
                     poc_urls = [p.get('html_url', '') for p in poc_data[:3] if p.get('html_url')]
-                
-                logger.info(f"  🔥 PoC 발견: {cve_id} ({len(poc_urls)}개)")
+
+                logger.info(f"  🔥 PoC 발견 (nomi-sec): {cve_id} ({len(poc_urls)}개)")
                 return {"has_poc": True, "poc_count": len(poc_data) if isinstance(poc_data, list) else 1, "poc_urls": poc_urls}
-            
+
             return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-            
+
         except Exception as e:
-            logger.debug(f"PoC 확인 실패 ({cve_id}): {e}")
+            logger.debug(f"nomi-sec PoC 확인 실패 ({cve_id}): {e}")
+            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
+
+    def _check_trickest(self, cve_id: str) -> Dict:
+        """trickest/cve에서 PoC 확인 (마크다운 파일 기반)"""
+        try:
+            parts = cve_id.split('-')
+            year = parts[1]
+
+            url = f"https://raw.githubusercontent.com/trickest/cve/main/{year}/{cve_id}.md"
+            response = requests.get(url, timeout=10)
+
+            if response.status_code == 200:
+                content = response.text
+                # 마크다운에서 GitHub PoC URL 추출
+                poc_urls = re.findall(r'https://github\.com/[^\s\)]+', content)
+                poc_urls = list(dict.fromkeys(poc_urls))[:3]  # 중복 제거, 최대 3개
+
+                logger.info(f"  🔥 PoC 발견 (trickest): {cve_id} ({len(poc_urls)}개)")
+                return {"has_poc": True, "poc_count": len(poc_urls) or 1, "poc_urls": poc_urls}
+
+            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
+
+        except Exception as e:
+            logger.debug(f"trickest PoC 확인 실패 ({cve_id}): {e}")
             return {"has_poc": False, "poc_count": 0, "poc_urls": []}
     
     def check_github_advisory(self, cve_id: str) -> Dict:

@@ -205,10 +205,16 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         analyzer = Analyzer()
         analysis = analyzer.analyze_cve(cve_data)
         
-        # Step 2: 룰 생성/수집
-        logger.info(f"룰 수집 시작: {cve_data['id']}")
+        # Step 2: AI 룰 생성 게이트 판단 + 룰 수집
         rule_manager = RuleManager()
-        rules = rule_manager.get_rules(cve_data, analysis)
+        should_ai, ai_reason = _should_generate_ai_rules(cve_data)
+        if should_ai:
+            logger.info(f"🤖 AI 룰 생성: {cve_data['id']} ({ai_reason})")
+            rules = rule_manager.get_rules(cve_data, analysis)
+        else:
+            logger.info(f"📂 공개 룰만: {cve_data['id']} ({ai_reason})")
+            rules = rule_manager.search_public_only(cve_data['id'])
+            rules['skip_reasons']['ai_generation'] = f"AI SKIP: {ai_reason}"
         
         # Step 3: 공식 룰 존재 여부 확인
         has_official = any([
@@ -332,6 +338,11 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # 탐지 룰 현황 섹션 (항상 표시)
     skip_reasons = rules.get('skip_reasons', {})
     ai_status_section = "## 📋 탐지 룰 현황\n\n"
+
+    # AI 룰 생성 SKIP 안내
+    if skip_reasons.get('ai_generation'):
+        ai_status_section += f"> ℹ️ {skip_reasons['ai_generation']}\n"
+        ai_status_section += "> 공개 룰 저장소(SigmaHQ, ET Open, Yara-Rules)만 검색되었습니다.\n\n"
 
     # Sigma 상태
     if rules.get('sigma'):
@@ -554,6 +565,34 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
         return True, "🔺 CVSS 위험도 상향", True
     
     return False, "", is_high_risk
+
+def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
+    """
+    AI 룰 생성 게이트: 익스플로잇 근거가 있는 CVE만 AI 룰 생성.
+    TPD를 낭비하지 않기 위해 KEV/EPSS/PoC 근거 확인.
+
+    Returns:
+        (생성 여부, 사유 문자열)
+    """
+    # Kill switch: False면 모든 CVE에 AI 룰 생성 (기존 동작)
+    if not config.RULE_GENERATION.get("require_exploitation_evidence", True):
+        return True, "master switch OFF"
+
+    # 1. KEV 등재 → 실제 악용 확인
+    if cve_data.get('is_kev') or cve_data.get('is_vulncheck_kev'):
+        return True, "KEV 등재"
+
+    # 2. EPSS >= threshold → 높은 악용 확률
+    threshold = config.RULE_GENERATION.get("epss_threshold", 0.2)
+    epss_score = cve_data.get('epss', 0.0)
+    if epss_score >= threshold:
+        return True, f"EPSS {epss_score:.4f} >= {threshold}"
+
+    # 3. PoC 존재 → 공격 코드 공개됨
+    if cve_data.get('has_poc') and cve_data.get('poc_count', 0) > 0:
+        return True, "PoC 존재"
+
+    return False, "익스플로잇 근거 부족"
 
 # ==============================================================================
 # [5] 공식 룰 재발견
