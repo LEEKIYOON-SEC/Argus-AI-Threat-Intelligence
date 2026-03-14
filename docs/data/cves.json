@@ -1,5 +1,55 @@
 [
   {
+    "id": "CVE-2026-26795",
+    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
+    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 M.get_system_log 함수 내 모듈 파라미터를 통해 명령어 삽입 취약점이 발견되었습니다. 공격자는 조작된 입력을 통해 임의의 명령어를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00171,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/250",
+    "date": "2026-03-14T04:56:38.598685+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-26795 Command Injection via get_system_log Module Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the command injection vulnerability in GL-iNet GL-AR300M16 get_system_log function by sending malicious payloads in the `module` parameter.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains:\n            - \"/logread\"\n            - \"/get_system_log\"\n    selection_param:\n        uri|contains: \"module=\"\n    selection_payload:\n        uri|contains|any:\n            - \";\"\n            - \"|\"\n            - \"`\"\n            - \"$(\"\n            - \"&&\"\n            - \"||\"\n            - \">/\"\n            - \"<\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.26795\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-26795 Command Injection via M.get_system_log module parameter\";\n    flow:to_server,established;\n    content:\"/get_system_log\"; http_uri;\n    content:\"module=\"; http_client_body;\n    pcre:\"/module=.*?([;|&`])/i\";\n    reference:cve,2026-26795;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-3935",
     "title": "Google Chrome WebAppInstalls 보안 UI 취약점",
     "description": "Google Chrome 146.0.7680.71 이전 버전에서 WebAppInstalls 관련 보안 UI 오류로 인해 공격자가 제작된 HTML 페이지를 통해 UI 스푸핑 공격을 수행할 수 있었습니다. (Chromium 보안 심각도: 중간)",
@@ -50,6 +100,56 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26792",
+    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
+    "description": "GL-iNet GL-AR300M16 v4.3.11 펌웨어에서 `set_upgrade` 함수를 통해 명령어 삽입 취약점이 발견되었습니다. `modem_url` 등 여러 파라미터를 조작하여 임의 명령 실행이 가능합니다. 공격자는 특수 제작된 입력을 통해 시스템을 제어할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00171,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/249",
+    "date": "2026-03-14T04:56:21.0373+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-26792 Command Injection Attempt via set_upgrade\nstatus: experimental\ndescription: Detects attempts to exploit command injection vulnerabilities in the set_upgrade function of GL-iNet GL-AR300M16 by sending malicious payloads in parameters such as modem_url, target_version, current_version, firmware_upload, hash_type, hash_value, or upgrade_type.\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/set_upgrade'\n    selection_parameters:\n        uri|contains|any:\n            - 'modem_url='\n            - 'target_version='\n            - 'current_version='\n            - 'firmware_upload='\n            - 'hash_type='\n            - 'hash_value='\n            - 'upgrade_type='\n    selection_payload:\n        uri|contains|any:\n            - ';'\n            - '|'\n            - '&'\n            - '`'\n            - '$('\n            - '&&'\n            - '||'\n            - '$('\n    condition: all of selection_endpoint, selection_parameters, selection_payload\nlevel: high\ntags:\n    - cve.2026.26792\n    - attack.initial_access\n    - attack.execution\n    - attack.t1190\n    - attack.t1059\n    - attack.t1495",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-26792 Command Injection via set_upgrade parameters\";\n    flow:to_server,established;\n    http_method;\n    content:\"POST\"; http_method;\n    content:\"/set_upgrade\"; http_uri;\n    content:\"modem_url=\"; http_client_body;\n    pcre:\"/modem_url=.*[;|&].*/i\";\n    reference:cve,2026-26792;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "URL 파라미터"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-3932",
@@ -104,6 +204,980 @@
     "severity": "None"
   },
   {
+    "id": "CVE-2026-3928",
+    "title": "Google Chrome 확장 프로그램 정책 미흡으로 인한 UI 스푸핑 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 확장 프로그램 정책이 제대로 적용되지 않아, 악성 확장 프로그램을 설치한 사용자가 UI 스푸핑 공격에 노출될 수 있었습니다. 공격자는 조작된 Chrome 확장 프로그램을 통해 사용자 인터페이스를 위조할 수 있습니다. (Chromium 보안 심각도: 중간)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:45:35.7519+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3940",
+    "title": "Google Chrome DevTools 정책 미흡으로 인한 탐색 제한 우회 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전의 DevTools에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:12.452179+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3939",
+    "title": "Google Chrome PDF 탐색 제한 우회 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 PDF 파일의 정책 적용이 미흡하여, 악성 PDF 파일을 통해 원격 공격자가 탐색 제한을 우회할 수 있는 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:11.419521+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3938",
+    "title": "Google Chrome 클립보드 정책 미흡으로 인한 정보 유출 취약점",
+    "description": "Google Chrome 146.0.7680.71 이전 버전에서 클립보드 정책이 제대로 적용되지 않아, 악성 HTML 페이지를 통해 원격 공격자가 교차 출처 데이터를 유출할 수 있었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Insufficient policy enforcement"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:06.494143+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3937",
+    "title": "Android Chrome 다운로드 보안 UI 취약점",
+    "description": "Android Chrome 146.0.7680.71 이전 버전에서 제작된 HTML 페이지를 통해 원격 공격자가 UI 스푸핑을 수행할 수 있는 보안 UI 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Incorrect security UI"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T22:46:03.263901+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-3910",
+    "title": "Chrome V8의 부적절한 구현으로 인한 원격 코드 실행 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전의 V8 엔진에서 부적절한 구현으로 인해, 공격자가 특수 제작된 HTML 페이지를 통해 샌드박스 내에서 임의 코드를 실행할 수 있었습니다. (Chromium 보안 심각도: 높음)",
+    "cvss": 8.8,
+    "epss": 0.0008,
+    "is_kev": true,
+    "cwe": [
+      "Inappropriate implementation"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:58:03.353201+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3909",
+    "title": "Chrome Skia의 경계 외 쓰기 취약점",
+    "description": "Google Chrome 146.0.7680.75 이전 버전에서 Skia의 경계 외 쓰기 취약점이 발견되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00068,
+    "is_kev": true,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:58:03.090532+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32746",
+    "title": "GNU inetutils telnetd의 범위 초과 쓰기 취약점",
+    "description": "GNU inetutils 2.7 이하 버전의 telnetd에서 LINEMODE SLC(Set Local Characters) 서브옵션 처리 과정 중 add_slc 함수가 버퍼 오버플로우 검사를 수행하지 않아 범위 초과 쓰기 취약점이 발생할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "inetutils",
+        "versions": "2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T17:54:25.667099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-32598",
+    "title": "OneUptime: 비밀번호 재설정 토큰 INFO 레벨로 로깅",
+    "description": "OneUptime은 온라인 서비스 모니터링 및 관리 솔루션입니다. 10.0.24 이전 버전에서는 비밀번호 재설정 과정에서 일반 텍스트 토큰을 포함한 전체 재설정 URL이 기본적으로 활성화된 INFO 레벨로 로깅되었습니다. 애플리케이션 로그에 접근 가능한 경우, 재설정 토큰을 가로채 계정 탈취가 가능합니다. 해당 취약점은 10.0.24에서 수정되었습니다.",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-532"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.24 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:32.578399+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32320",
+    "title": "Ella Core: 잘못된 형식의 PathSwitchRequest로 인한 AMF DoS 공격 (빈 NR 보안 기능 비트 문자열)",
+    "description": "Ella Core는 비공개 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 NR 암호화 또는 무결성 보호 알고리즘 비트 문자열의 길이가 0인 PathSwitchRequest를 처리할 때 패닉이 발생하여 서비스 거부(DoS)를 유발합니다. 공격자는 제작된 NGAP 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자의 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 이 취약점은 1.5.1에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:50:43.837839+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-32319",
+    "title": "Ella Core: 인증되지 않은 AMF DoS - 잘못된 형식의 InitialUEMessage 및 작은 크기의 NAS 페이로드",
+    "description": "Ella Core는 사설 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 7바이트 미만의 길이의 손상된 NGAP/NAS 메시지를 처리할 때 패닉이 발생합니다. 공격자는 조작된 NAS 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자에게 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 1.5.1에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "ellanetworks",
+        "product": "core",
+        "versions": "< 1.5.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:08.727557+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32308",
+    "title": "OneUptime: Mermaid 다이어그램 렌더링을 통한 저장형 XSS (securityLevel: \"loose\")",
+    "description": "OneUptime은 온라인 서비스 모니터링 솔루션입니다. 10.0.23 이전 버전에서 Markdown 뷰어 컴포넌트가 securityLevel: \"loose\"로 Mermaid 다이어그램을 렌더링하며, SVG 출력을 innerHTML을 통해 삽입합니다. 이 설정은 Mermaid 다이어그램 내의 상호작용 이벤트 바인딩을 허용하여 Mermaid의 클릭 지시어를 통해 임의의 JavaScript를 실행하는 XSS 취약점을 발생시킵니다. 인시던트 설명, 상태 페이지 공지, 모니터 노트 등 Markdown을 렌더링하는 모든 필드가 취약합니다. 이 문제는 10.0.23에서 해결되었습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.23 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:29.459824+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32306",
+    "title": "OneUptime ClickHouse SQL Injection 취약점 (집계 쿼리 파라미터)",
+    "description": "OneUptime 10.0.23 이전 버전에서 집계 API가 사용자 제어 파라미터(aggregationType, aggregateColumnName, aggregationTimestampColumnName)를 검증 없이 ClickHouse SQL 쿼리에 직접 삽입합니다. 인증된 사용자는 임의의 SQL 코드를 삽입하여 데이터베이스 전체 읽기, 데이터 수정, 잠재적인 원격 코드 실행이 가능합니다. 10.0.23 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "OneUptime",
+        "product": "oneuptime",
+        "versions": "< 10.0.23 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T21:51:27.184208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31806",
+    "title": "FreeRDP의 nsc_process_message() 함수 힙 버퍼 오버플로우 취약점",
+    "description": "FreeRDP 3.24.0 이전 버전에서 RDP 서버로부터 전송된 SURFACE_BITS_COMMAND 메시지를 처리하는 과정에서, 서버가 제공하는 bmp.width 및 bmp.height 값이 실제 데스크톱 크기에 대해 제대로 검증되지 않습니다. 악의적인 RDP 서버는 예상보다 큰 값을 전송하여 힙 버퍼 오버플로우를 발생시킬 수 있으며, 공격자는 이를 통해 인접한 힙 메모리를 덮어쓸 수 있습니다. 3.24.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeRDP",
+        "product": "FreeRDP",
+        "versions": "< 3.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/245",
+    "date": "2026-03-13T17:54:20.781005+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27940",
+    "title": "llama.cpp의 `mem_size` 계산 시 정수 오버플로우를 통한 힙 버퍼 오버플로우 - CVE-2025-53630 수정 우회",
+    "description": "llama.cpp는 C/C++으로 구현된 LLM 모델 추론 라이브러리입니다. b8146 이전 버전에서 gguf.cpp의 gguf_init_from_file_impl() 함수에 정수 오버플로우 취약점이 존재하여 힙 할당 크기가 부족해집니다. 이후 fread() 함수를 통해 버퍼 경계를 넘어 528바이트 이상의 공격자 제어 데이터를 쓰게 되며, 이는 CVE-2025-53630과 유사한 버그를 우회하는 것입니다. b8146에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "ggml-org",
+        "product": "llama.cpp",
+        "versions": "< b8146 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T17:16:03.713325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20675",
+    "title": "악성 이미지 처리 시 정보 유출 문제 해결",
+    "description": "개선된 경계 검사를 통해 문제가 해결되었습니다. watchOS 26.3, tvOS 26.3, macOS Tahoe 26.3, macOS Sonoma 14.8.4, macOS Sequoia 15.7.4, iOS 18.7.5, iPadOS 18.7.5, visionOS 26.3 등에 해당 수정 사항이 적용되었습니다. 악성으로 제작된 이미지 처리는 사용자 정보 유출을 야기할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00013,
+    "is_kev": false,
+    "cwe": [
+      "Processing a maliciously crafted image may lead to disclosure of user information"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "watchOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "visionOS",
+        "versions": "unspecified 부터 26.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T04:55:38.111324+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26794",
+    "title": "GL-iNet GL-AR300M16 v4.3.11 SQL Injection 취약점",
+    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 `add_group()` 함수를 통해 SQL Injection 취약점이 발견되었습니다. 공격자는 조작된 HTTP 요청을 사용하여 임의의 SQL 데이터베이스 작업을 수행할 수 있습니다. 이는 보안에 심각한 위협이 될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:15:02.343995+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-26791",
+    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
+    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 `enable_echo_server` 함수 내 `string port` 파라미터를 통해 명령어 삽입 취약점이 발견되었습니다. 공격자는 조작된 입력을 통해 임의의 명령어를 실행할 수 있습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:15:01.074558+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-20616",
+    "title": "경계 외 쓰기 문제 해결",
+    "description": "개선된 경계 검사를 통해 경계 외 쓰기 문제가 해결되었습니다. 이 문제는 iOS 18.7.5 및 iPadOS 18.7.5, macOS Tahoe 26.3, macOS Sonoma 14.8.4, visionOS 26.3에 포함되어 있습니다. 악의적으로 조작된 USD 파일을 처리하면 앱이 예기치 않게 종료될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00048,
+    "is_kev": false,
+    "cwe": [
+      "Processing a maliciously crafted USD file may lead to unexpected app termination"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "visionOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 14.8 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T04:55:32.863847+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-20611",
+    "title": "경계 외 접근 문제 해결",
+    "description": "개선된 경계 검사를 통해 경계 외 접근 문제가 해결되었습니다. watchOS 26.3, tvOS 26.3, macOS Tahoe 26.3, macOS Sonoma 14.8.4, macOS Sequoia 15.7.4, iOS 18.7.5, iPadOS 18.7.5, visionOS 26.3 등에 해당 수정 사항이 적용되었습니다. 악성 미디어 파일을 처리할 경우 앱이 예기치 않게 종료되거나 프로세스 메모리가 손상될 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.00012,
+    "is_kev": false,
+    "cwe": [
+      "Processing a maliciously crafted media file may lead to unexpected app termination or corrupt process memory"
+    ],
+    "affected": [
+      {
+        "vendor": "Apple",
+        "product": "macOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "watchOS",
+        "versions": "unspecified 부터 26.3 이전"
+      },
+      {
+        "vendor": "Apple",
+        "product": "visionOS",
+        "versions": "unspecified 부터 26.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T04:55:32.723943+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2026-1948",
+    "title": "NEX-Forms – 워드프레스 궁극적인 폼 플러그인 <= 9.1.9 - 인증된 사용자의 라이선스 비활성화 권한 부족",
+    "description": "NEX-Forms 플러그인은 9.1.9 버전까지 `deactivate_license()` 함수에서 권한 검사가 누락되어 데이터 무단 수정 취약점이 존재합니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "webaways",
+        "product": "NEX-Forms – Ultimate Forms Plugin for WordPress",
+        "versions": "* 부터 9.1.9 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T04:55:31.844294+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-0957",
+    "title": "Digilent DASYLab의 경계 외 쓰기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 존재합니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/240",
+    "date": "2026-03-13T15:06:11.148085+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0957 Digilent DASYLab Malicious File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious or corrupted DASYLab project file, which may trigger the out-of-bounds write vulnerability (CVE-2026-0957).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_file:\n        CommandLine|contains: '.dsy'\n    selection_user_interaction:\n        ParentImage|contains: 'explorer.exe'\n    condition: all of selection_*\nlevel: high\ntags:\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - cve.2026.0957\n    - cwe.787\n    - dasylab\n    - digilent\n    - windows\n    - sigma\n    - exploit\n    - out_of_bounds_write",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0956",
+    "title": "Digilent DASYLab 경계 외 읽기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 있습니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T16:00:17.780281+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0955",
+    "title": "Digilent DASYLab 손상된 파일 열기 시 경계 외 읽기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 경계 외 읽기 메모리 손상 취약점이 존재합니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T16:00:19.82951+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0954",
+    "title": "Digilent DASYLab 손상된 DSB 파일 열기 시 경계 외 쓰기 취약점",
+    "description": "Digilent DASYLab에서 손상된 DSB 파일을 로드할 때 발생하는 메모리 손상 취약점입니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 DSB 파일을 사용자를 유도하여 열도록 해야 악용이 가능하며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/239",
+    "date": "2026-03-13T15:05:44.280086+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0954 Digilent DASYLab .DSB File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious .DSB file, which may exploit CVE-2026-0954 (out-of-bounds write).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_argument:\n        CommandLine|contains: '.dsb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.0954\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - mitre\n    - windows\n    - process_creation",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0385",
+    "title": "Android용 Microsoft Edge (Chromium 기반) 스푸핑 취약점",
+    "description": "Android용 Microsoft Edge 브라우저의 Chromium 기반 엔진에서 스푸핑 취약점이 발견되었습니다.",
+    "cvss": 5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "Spoofing"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Edge for Android",
+        "versions": "1.0.0 부터 146.0.3856.59 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T22:47:46.042422+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-66955",
+    "title": "Asseco SEE Live 2.0의 로컬 파일 포함 취약점",
+    "description": "Asseco SEE Live 2.0의 연락처, 이메일, SMS, 팩스 구성 요소에서 인증된 원격 사용자가 `downloadAttachment` 및 `downloadAttachmentFromPath` API 호출의 \"path\" 파라미터를 통해 호스트의 파일에 접근할 수 있는 로컬 파일 포함 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:43.644742+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/TheWoodenBench/CVE-2025-66955"
+    ],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-70873",
+    "title": "SQLite zipfile 확장 기능의 정보 유출 취약점",
+    "description": "SQLite 3.51.1 버전 이하의 zipfile 확장 기능 내 zipfileInflate 함수에서 조작된 ZIP 파일을 통해 공격자가 힙 메모리를 획득할 수 있는 정보 유출 취약점이 발견되었습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:14:03.312163+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-61154",
+    "title": "LibreDWG 힙 버퍼 오버플로우 취약점",
+    "description": "LibreDWG v0.13.3.7571 ~ v0.13.3.7835 버전에서 발견된 힙 버퍼 오버플로우 취약점을 통해, 악성 DWG 파일을 사용하여 서비스 거부(DoS) 공격을 유발할 수 있습니다. 취약점은 decode.c 파일의 decompress_R2004_section 함수에서 발생합니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T19:56:39.968026+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2019-25488",
+    "title": "Jettweb Hazir Rent A Car Script V4 SQL Injection 취약점",
+    "description": "Jettweb Hazir Rent A Car Script V4 관리자 패널에 인증되지 않은 공격자가 GET 파라미터를 통해 SQL injection을 수행할 수 있는 다수의 취약점이 존재합니다. 'tur', 'id', 'ozellikdil' 파라미터를 악용하여 데이터베이스 정보를 탈취하거나 서비스 거부 공격을 유발할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Rent A Car Scripti",
+        "versions": "4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:24.665164+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25482",
+    "title": "Jettweb PHP 렌터카 사이트 스크립트 V2 SQL Injection 취약점",
+    "description": "Jettweb PHP 렌터카 사이트 스크립트 V2에서 `arac_kategori_id` 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 악성 SQL 페이로드를 POST 요청으로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Rent A Car Sitesi Scripti",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/216",
+    "date": "2026-03-12T16:18:27.934562+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25481",
+    "title": "iScripts ReserveLogic 최신 SQL Injection 취약점 - 검색 엔드포인트",
+    "description": "iScripts ReserveLogic에서 인증되지 않은 공격자가 `jqSearchDestination` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 조작된 SQL 페이로드를 포함한 POST 요청을 검색 엔드포인트로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Iscripts",
+        "product": "iScripts ReserveLogic",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/215",
+    "date": "2026-03-12T16:18:27.61971+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25473",
+    "title": "Clinic Pro SQL Injection 취약점 - monthly_expense_overview 월 파라미터",
+    "description": "Clinic Pro에서 인증된 공격자가 `monthly_expense_overview` 엔드포인트의 `month` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. Boolean 기반, Time 기반, Error 기반 SQL Injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. POST 요청을 통해 조작된 `month` 값을 전송하여 공격이 가능합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Softwebinternational",
+        "product": "Clinic Pro",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:17.300537+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25479",
+    "title": "Inout RealEstate 최신 SQL Injection 취약점 (agentlistdetails)",
+    "description": "Inout RealEstate에서 인증되지 않은 공격자가 city 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 city 파라미터에 담아 agents/agentlistdetails 엔드포인트에 POST 요청을 보내 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout RealEstate",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:18:19.369119+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2025-7195",
     "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
     "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
@@ -140,56 +1214,264 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-32746",
-    "title": "GNU inetutils telnetd의 범위 초과 쓰기 취약점",
-    "description": "GNU inetutils 2.7 이하 버전의 telnetd에서 LINEMODE SLC(Set Local Characters) 서브옵션 처리 과정 중 add_slc 함수가 버퍼 오버플로우 검사를 수행하지 않아 범위 초과 쓰기 취약점이 발생할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
+    "id": "CVE-2026-27996",
+    "title": "WordPress Lingvico 테마 <= 1.0.14 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Lingvico 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
     "is_kev": false,
     "cwe": [
-      "CWE-120"
+      "CWE-98"
     ],
     "affected": [
       {
-        "vendor": "GNU",
-        "product": "inetutils",
-        "versions": "2.7 이하"
+        "vendor": "ThemeREX",
+        "product": "Lingvico",
+        "versions": "<= 1.0.14 이하"
       }
     ],
     "report_url": null,
-    "date": "2026-03-13T17:54:25.667099+00:00",
+    "date": "2026-03-06T21:01:37.215606+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28093",
+    "title": "WordPress Ozisti 테마 <= 1.1.10 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Ozisti 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Ozisti",
+        "versions": "<= 1.1.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:52:10.911426+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28091",
+    "title": "WordPress Coleo 테마 <= 1.1.7 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Coleo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Coleo 버전 n/a부터 <= 1.1.7까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Coleo",
+        "versions": "<= 1.1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:51:54.916244+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28089",
+    "title": "WordPress Daiquiri 테마 <= 1.2.4 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Daiquiri 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Daiquiri",
+        "versions": "<= 1.2.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:51:54.836401+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28087",
+    "title": "WordPress Filmax 테마 <= 1.1.11 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Filmax 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Filmax",
+        "versions": "<= 1.1.11 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:29:17.603628+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28085",
+    "title": "WordPress Mahogany 테마 <= 2.9 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Mahogany 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Mahogany 테마 버전 n/a부터 2.9 이하에서 영향을 받습니다. 공격자는 이 취약점을 이용하여 임의의 로컬 파일을 포함할 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Mahogany",
+        "versions": "<= 2.9 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:27:15.598735+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28067",
+    "title": "WordPress Bassein 테마 <= 1.0.15 - 로컬 파일 포함 취약점",
+    "description": "ThemeREX Bassein 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0.00053,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "ThemeREX",
+        "product": "Bassein",
+        "versions": "<= 1.0.15 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:26:14.59729+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25072",
+    "title": "XikeStor SKS8310-8X 예측 가능한 세션 식별자",
+    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /goform/SetLogin 엔드포인트에 예측 가능한 세션 식별자 취약점이 존재합니다. 공격자는 예측 가능한 쿠키 값을 이용하여 세션 식별자를 예측하고, URL에 노출된 세션 파라미터를 악용하여 인증된 사용자 세션에 무단으로 접근할 수 있습니다. 이 취약점을 통해 원격 공격자가 세션을 가로챌 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-330"
+    ],
+    "affected": [
+      {
+        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
+        "product": "XikeStor SKS8310-8X",
+        "versions": "1.04.B07 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T02:53:08.174308+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25071",
+    "title": "XikeStor SKS8310-8X 스위치 설정 파일 무인증 접근 취약점",
+    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /switch_config.src 엔드포인트에 인증 절차가 없어, 공격자가 장치 설정 파일을 다운로드할 수 있는 취약점이 발견되었습니다. 자격 증명 없이 해당 엔드포인트에 접근하여 VLAN 설정 및 IP 주소 정보 등 민감한 설정을 탈취할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
+        "product": "XikeStor SKS8310-8X",
+        "versions": "1.04.B07 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T02:53:20.231893+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25070",
+    "title": "XikeStor SKS8310-8X PingTestSet 명령어 삽입 취약점",
+    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /goform/PingTestSet 엔드포인트에 OS 명령어 삽입 취약점이 존재합니다. 인증되지 않은 원격 공격자가 destIp 파라미터를 통해 악성 명령어를 삽입하여 네트워크 스위치에서 root 권한으로 임의의 운영체제 명령을 실행할 수 있습니다. 이는 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
+        "product": "XikeStor SKS8310-8X",
+        "versions": "1.04.B07 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T02:48:28.077225+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-3928",
-    "title": "Google Chrome 확장 프로그램 정책 미흡으로 인한 UI 스푸핑 취약점",
-    "description": "Google Chrome 146.0.7680.71 이전 버전에서 확장 프로그램 정책이 제대로 적용되지 않아, 악성 확장 프로그램을 설치한 사용자가 UI 스푸핑 공격에 노출될 수 있었습니다. 공격자는 조작된 Chrome 확장 프로그램을 통해 사용자 인터페이스를 위조할 수 있습니다. (Chromium 보안 심각도: 중간)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Insufficient policy enforcement"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T22:45:35.7519+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2026-28063",
@@ -2116,32 +3398,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-0385",
-    "title": "Android용 Microsoft Edge (Chromium 기반) 스푸핑 취약점",
-    "description": "Android용 Microsoft Edge 브라우저의 Chromium 기반 엔진에서 스푸핑 취약점이 발견되었습니다.",
-    "cvss": 5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Spoofing"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Edge for Android",
-        "versions": "1.0.0 부터 146.0.3856.59 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T22:47:46.042422+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-30785",
     "title": "RustDesk, 읽기 가능한 머신 ID 및 고정된 0 Nonce로 로컬 비밀번호 암호화 취약점 (XSalsa20-Poly1305)",
     "description": "RustDesk 클라이언트(Windows, MacOS, Linux)에서 객체 프로토타입 속성 조작('프로토타입 오염') 및 취약한 비밀번호 해시 사용으로 인해 민감한 데이터 유출이 가능합니다. hbb_common 및 machine-uid 모듈의 특정 함수(symmetric_crypt, encrypt/decrypt_str_or_original, get_uuid, get_machine_id)에서 문제가 발생합니다.",
@@ -3282,32 +4538,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-3909",
-    "title": "Chrome Skia의 경계 외 쓰기 취약점",
-    "description": "Google Chrome 146.0.7680.75 이전 버전에서 Skia의 경계 외 쓰기 취약점이 발견되었습니다.",
-    "cvss": 8.8,
-    "epss": 0.00068,
-    "is_kev": true,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:58:03.090532+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-13460",
     "title": "IBM Aspera Console 정보 유출",
     "description": "IBM Aspera Console 3.3.0부터 3.4.8 버전에서 응답 불일치로 인해 공격자가 사용자 이름을 열거할 수 있습니다.",
@@ -3384,32 +4614,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3910",
-    "title": "Chrome V8의 부적절한 구현으로 인한 원격 코드 실행 취약점",
-    "description": "Google Chrome 146.0.7680.75 이전 버전의 V8 엔진에서 부적절한 구현으로 인해, 공격자가 특수 제작된 HTML 페이지를 통해 샌드박스 내에서 임의 코드를 실행할 수 있었습니다. (Chromium 보안 심각도: 높음)",
-    "cvss": 8.8,
-    "epss": 0.0008,
-    "is_kev": true,
-    "cwe": [
-      "Inappropriate implementation"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.75 부터 146.0.7680.75 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:58:03.353201+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-32617",
@@ -7529,41 +8733,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-31806",
-    "title": "FreeRDP의 nsc_process_message() 함수 힙 버퍼 오버플로우 취약점",
-    "description": "FreeRDP 3.24.0 이전 버전에서 RDP 서버로부터 전송된 SURFACE_BITS_COMMAND 메시지를 처리하는 과정에서, 서버가 제공하는 bmp.width 및 bmp.height 값이 실제 데스크톱 크기에 대해 제대로 검증되지 않습니다. 악의적인 RDP 서버는 예상보다 큰 값을 전송하여 힙 버퍼 오버플로우를 발생시킬 수 있으며, 공격자는 이를 통해 인접한 힙 메모리를 덮어쓸 수 있습니다. 3.24.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "FreeRDP",
-        "product": "FreeRDP",
-        "versions": "< 3.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/245",
-    "date": "2026-03-13T17:54:20.781005+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-29078",
     "title": "Lexbor ISO‑2022‑JP 인코더 정수 언더플로우",
     "description": "Lexbor 웹 브라우저 엔진 라이브러리의 ISO‑2022‑JP 인코더는 2.7.0 이전 버전에서 반복문 간 임시 크기 변수를 재설정하지 못합니다. 오래된 크기 값(3)으로 인해 `ctx->buffer_used -= size` 연산에서 정수 언더플로우가 발생하여 `SIZE_MAX`로 래핑됩니다. 이후 음수 길이로 `memcpy`가 호출되어 스택에서 경계 외 읽기 및 힙에 경계 외 쓰기가 발생합니다. DOM 트리의 내용으로 부분적으로 제어 가능한 데이터가 사용됩니다. 이 취약점은 2.7.0에서 수정되었습니다.",
@@ -9340,140 +10509,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-0957",
-    "title": "Digilent DASYLab의 경계 외 쓰기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 존재합니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/240",
-    "date": "2026-03-13T15:06:11.148085+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0957 Digilent DASYLab Malicious File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious or corrupted DASYLab project file, which may trigger the out-of-bounds write vulnerability (CVE-2026-0957).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_file:\n        CommandLine|contains: '.dsy'\n    selection_user_interaction:\n        ParentImage|contains: 'explorer.exe'\n    condition: all of selection_*\nlevel: high\ntags:\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - cve.2026.0957\n    - cwe.787\n    - dasylab\n    - digilent\n    - windows\n    - sigma\n    - exploit\n    - out_of_bounds_write",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0955",
-    "title": "Digilent DASYLab 손상된 파일 열기 시 경계 외 읽기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 경계 외 읽기 메모리 손상 취약점이 존재합니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T16:00:19.82951+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0954",
-    "title": "Digilent DASYLab 손상된 DSB 파일 열기 시 경계 외 쓰기 취약점",
-    "description": "Digilent DASYLab에서 손상된 DSB 파일을 로드할 때 발생하는 메모리 손상 취약점입니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 DSB 파일을 사용자를 유도하여 열도록 해야 악용이 가능하며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/239",
-    "date": "2026-03-13T15:05:44.280086+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0954 Digilent DASYLab .DSB File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious .DSB file, which may exploit CVE-2026-0954 (out-of-bounds write).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_argument:\n        CommandLine|contains: '.dsb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.0954\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - mitre\n    - windows\n    - process_creation",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0956",
-    "title": "Digilent DASYLab 경계 외 읽기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 있습니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T16:00:17.780281+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-69621",
     "title": "Comic Book Reader v1.0.95 임의 파일 덮어쓰기 취약점",
     "description": "Comic Book Reader v1.0.95 버전의 파일 가져오기 과정에서 임의 파일 덮어쓰기 취약점이 발견되었습니다. 공격자는 이를 통해 중요한 내부 파일을 덮어써 임의 코드 실행 또는 민감 정보 유출을 유발할 수 있습니다.",
@@ -9822,34 +10857,6 @@
       "https://github.com/TheWoodenBench/CVE-2025-66956"
     ],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-66955",
-    "title": "Asseco SEE Live 2.0의 로컬 파일 포함 취약점",
-    "description": "Asseco SEE Live 2.0의 연락처, 이메일, SMS, 팩스 구성 요소에서 인증된 원격 사용자가 `downloadAttachment` 및 `downloadAttachmentFromPath` API 호출의 \"path\" 파라미터를 통해 호스트의 파일에 접근할 수 있는 로컬 파일 포함 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:43.644742+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/TheWoodenBench/CVE-2025-66955"
-    ],
-    "severity": "None"
   },
   {
     "id": "CVE-2026-32446",
@@ -14306,33 +15313,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-27940",
-    "title": "llama.cpp의 `mem_size` 계산 시 정수 오버플로우를 통한 힙 버퍼 오버플로우 - CVE-2025-53630 수정 우회",
-    "description": "llama.cpp는 C/C++으로 구현된 LLM 모델 추론 라이브러리입니다. b8146 이전 버전에서 gguf.cpp의 gguf_init_from_file_impl() 함수에 정수 오버플로우 취약점이 존재하여 힙 할당 크기가 부족해집니다. 이후 fread() 함수를 통해 버퍼 경계를 넘어 528바이트 이상의 공격자 제어 데이터를 쓰게 되며, 이는 CVE-2025-53630과 유사한 버그를 우회하는 것입니다. b8146에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122",
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "ggml-org",
-        "product": "llama.cpp",
-        "versions": "< b8146 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T17:16:03.713325+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-21672",
     "title": "Windows 기반 Veeam Backup & Replication 서버의 로컬 권한 상승 취약점",
     "description": "Windows 기반 Veeam Backup & Replication 서버에서 로컬 권한 상승을 허용하는 취약점이 발견되었습니다.",
@@ -15584,58 +16564,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-32320",
-    "title": "Ella Core: 잘못된 형식의 PathSwitchRequest로 인한 AMF DoS 공격 (빈 NR 보안 기능 비트 문자열)",
-    "description": "Ella Core는 비공개 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 NR 암호화 또는 무결성 보호 알고리즘 비트 문자열의 길이가 0인 PathSwitchRequest를 처리할 때 패닉이 발생하여 서비스 거부(DoS)를 유발합니다. 공격자는 제작된 NGAP 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자의 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 이 취약점은 1.5.1에서 수정되었습니다.",
-    "cvss": 6.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "ellanetworks",
-        "product": "core",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:50:43.837839+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32319",
-    "title": "Ella Core: 인증되지 않은 AMF DoS - 잘못된 형식의 InitialUEMessage 및 작은 크기의 NAS 페이로드",
-    "description": "Ella Core는 사설 네트워크용 5G 코어입니다. 1.5.1 버전 이전에는 7바이트 미만의 길이의 손상된 NGAP/NAS 메시지를 처리할 때 패닉이 발생합니다. 공격자는 조작된 NAS 메시지를 전송하여 프로세스를 중단시키고 모든 연결된 가입자에게 서비스 중단을 일으킬 수 있습니다. 인증은 필요하지 않습니다. 1.5.1에서 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "ellanetworks",
-        "product": "core",
-        "versions": "< 1.5.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:08.727557+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-14242",
     "title": "vsftpd: ls 명령어 파라미터 파싱 시 정수 오버플로우를 통한 서비스 거부 (DoS)",
     "description": "vsftpd에서 발견된 취약점으로, 원격 인증된 공격자가 특정 바이트 시퀀스를 포함하는 STAT 명령어를 전송하여 ls 명령어 파라미터 파싱 시 정수 오버플로우를 발생시켜 서비스 거부(DoS) 공격을 유발할 수 있습니다.",
@@ -16239,84 +17167,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32598",
-    "title": "OneUptime: 비밀번호 재설정 토큰 INFO 레벨로 로깅",
-    "description": "OneUptime은 온라인 서비스 모니터링 및 관리 솔루션입니다. 10.0.24 이전 버전에서는 비밀번호 재설정 과정에서 일반 텍스트 토큰을 포함한 전체 재설정 URL이 기본적으로 활성화된 INFO 레벨로 로깅되었습니다. 애플리케이션 로그에 접근 가능한 경우, 재설정 토큰을 가로채 계정 탈취가 가능합니다. 해당 취약점은 10.0.24에서 수정되었습니다.",
-    "cvss": 6.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-532"
-    ],
-    "affected": [
-      {
-        "vendor": "OneUptime",
-        "product": "oneuptime",
-        "versions": "< 10.0.24 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:32.578399+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-32308",
-    "title": "OneUptime: Mermaid 다이어그램 렌더링을 통한 저장형 XSS (securityLevel: \"loose\")",
-    "description": "OneUptime은 온라인 서비스 모니터링 솔루션입니다. 10.0.23 이전 버전에서 Markdown 뷰어 컴포넌트가 securityLevel: \"loose\"로 Mermaid 다이어그램을 렌더링하며, SVG 출력을 innerHTML을 통해 삽입합니다. 이 설정은 Mermaid 다이어그램 내의 상호작용 이벤트 바인딩을 허용하여 Mermaid의 클릭 지시어를 통해 임의의 JavaScript를 실행하는 XSS 취약점을 발생시킵니다. 인시던트 설명, 상태 페이지 공지, 모니터 노트 등 Markdown을 렌더링하는 모든 필드가 취약합니다. 이 문제는 10.0.23에서 해결되었습니다.",
-    "cvss": 7.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "OneUptime",
-        "product": "oneuptime",
-        "versions": "< 10.0.23 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:29.459824+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-32306",
-    "title": "OneUptime ClickHouse SQL Injection 취약점 (집계 쿼리 파라미터)",
-    "description": "OneUptime 10.0.23 이전 버전에서 집계 API가 사용자 제어 파라미터(aggregationType, aggregateColumnName, aggregationTimestampColumnName)를 검증 없이 ClickHouse SQL 쿼리에 직접 삽입합니다. 인증된 사용자는 임의의 SQL 코드를 삽입하여 데이터베이스 전체 읽기, 데이터 수정, 잠재적인 원격 코드 실행이 가능합니다. 10.0.23 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "OneUptime",
-        "product": "oneuptime",
-        "versions": "< 10.0.23 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T21:51:27.184208+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2019-25257",
@@ -17911,32 +18761,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-70873",
-    "title": "SQLite zipfile 확장 기능의 정보 유출 취약점",
-    "description": "SQLite 3.51.1 버전 이하의 zipfile 확장 기능 내 zipfileInflate 함수에서 조작된 ZIP 파일을 통해 공격자가 힙 메모리를 획득할 수 있는 정보 유출 취약점이 발견되었습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:14:03.312163+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2025-70128",
     "title": "PluXml 댓글 기능의 저장형 XSS 취약점",
     "description": "PluXml 5.8.22 버전 이하에서 댓글의 \"link\" 필드에 대한 입력값 검증 미흡으로 저장형 XSS 취약점이 존재합니다. 공격자는 <script> 요소를 사용하여 악성 JavaScript 코드를 삽입하고, 이는 관리자 패널의 \"댓글\" 섹션에서 실행될 수 있습니다. 이 취약점은 관리자, 모더레이터, 매니저 권한 사용자에게 영향을 미치며, /core/admin/comments.php 파일과 관련됩니다.",
@@ -18169,32 +18993,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-61154",
-    "title": "LibreDWG 힙 버퍼 오버플로우 취약점",
-    "description": "LibreDWG v0.13.3.7571 ~ v0.13.3.7835 버전에서 발견된 힙 버퍼 오버플로우 취약점을 통해, 악성 DWG 파일을 사용하여 서비스 거부(DoS) 공격을 유발할 수 있습니다. 취약점은 decode.c 파일의 decompress_R2004_section 함수에서 발생합니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:56:39.968026+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2025-13913",
@@ -19315,110 +20113,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-26795",
-    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
-    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 M.get_system_log 함수 내 모듈 파라미터를 통해 명령어 삽입 취약점이 발견되었습니다. 공격자는 조작된 입력을 통해 임의의 명령어를 실행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:15:07.597529+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-26794",
-    "title": "GL-iNet GL-AR300M16 v4.3.11 SQL Injection 취약점",
-    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 `add_group()` 함수를 통해 SQL Injection 취약점이 발견되었습니다. 공격자는 조작된 HTTP 요청을 사용하여 임의의 SQL 데이터베이스 작업을 수행할 수 있습니다. 이는 보안에 심각한 위협이 될 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:15:02.343995+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-26792",
-    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
-    "description": "GL-iNet GL-AR300M16 v4.3.11 펌웨어에서 `set_upgrade` 함수를 통해 명령어 삽입 취약점이 발견되었습니다. `modem_url` 등 여러 파라미터를 조작하여 임의 명령 실행이 가능합니다. 공격자는 특수 제작된 입력을 통해 시스템을 제어할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:15:02.102148+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-26791",
-    "title": "GL-iNet GL-AR300M16 v4.3.11 명령어 삽입 취약점",
-    "description": "GL-iNet GL-AR300M16 v4.3.11 버전에서 `enable_echo_server` 함수 내 `string port` 파라미터를 통해 명령어 삽입 취약점이 발견되었습니다. 공격자는 조작된 입력을 통해 임의의 명령어를 실행할 수 있습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T19:15:01.074558+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
   },
   {
     "id": "CVE-2026-25529",
@@ -21381,154 +22075,6 @@
     ],
     "report_url": null,
     "date": "2026-03-12T16:19:04.151237+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25482",
-    "title": "Jettweb PHP 렌터카 사이트 스크립트 V2 SQL Injection 취약점",
-    "description": "Jettweb PHP 렌터카 사이트 스크립트 V2에서 `arac_kategori_id` 파라미터를 통해 SQL injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있습니다. 악성 SQL 페이로드를 POST 요청으로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Jettweb",
-        "product": "Hazir Rent A Car Sitesi Scripti",
-        "versions": "2.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/216",
-    "date": "2026-03-12T16:18:27.934562+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25481",
-    "title": "iScripts ReserveLogic 최신 SQL Injection 취약점 - 검색 엔드포인트",
-    "description": "iScripts ReserveLogic에서 인증되지 않은 공격자가 `jqSearchDestination` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 조작된 SQL 페이로드를 포함한 POST 요청을 검색 엔드포인트로 전송하여 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Iscripts",
-        "product": "iScripts ReserveLogic",
-        "versions": "* (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/215",
-    "date": "2026-03-12T16:18:27.61971+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25488",
-    "title": "Jettweb Hazir Rent A Car Script V4 SQL Injection 취약점",
-    "description": "Jettweb Hazir Rent A Car Script V4 관리자 패널에 인증되지 않은 공격자가 GET 파라미터를 통해 SQL injection을 수행할 수 있는 다수의 취약점이 존재합니다. 'tur', 'id', 'ozellikdil' 파라미터를 악용하여 데이터베이스 정보를 탈취하거나 서비스 거부 공격을 유발할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Jettweb",
-        "product": "Rent A Car Scripti",
-        "versions": "4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:18:24.665164+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25479",
-    "title": "Inout RealEstate 최신 SQL Injection 취약점 (agentlistdetails)",
-    "description": "Inout RealEstate에서 인증되지 않은 공격자가 city 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 city 파라미터에 담아 agents/agentlistdetails 엔드포인트에 POST 요청을 보내 민감한 데이터베이스 정보를 탈취할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Inoutscripts",
-        "product": "Inout RealEstate",
-        "versions": "* (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:18:19.369119+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25473",
-    "title": "Clinic Pro SQL Injection 취약점 - monthly_expense_overview 월 파라미터",
-    "description": "Clinic Pro에서 인증된 공격자가 `monthly_expense_overview` 엔드포인트의 `month` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. Boolean 기반, Time 기반, Error 기반 SQL Injection 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. POST 요청을 통해 조작된 `month` 값을 전송하여 공격이 가능합니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Softwebinternational",
-        "product": "Clinic Pro",
-        "versions": "* (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:18:17.300537+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -27485,32 +28031,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-3940",
-    "title": "Google Chrome DevTools 정책 미흡으로 인한 탐색 제한 우회 취약점",
-    "description": "Google Chrome 146.0.7680.71 이전 버전의 DevTools에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 낮음)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Insufficient policy enforcement"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T22:46:12.452179+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2026-3941",
     "title": "Google Chrome DevTools 정책 미흡으로 인한 탐색 제한 우회 가능성",
     "description": "Google Chrome 146.0.7680.71 이전 버전의 DevTools에서 정책 적용이 미흡하여, 악의적인 HTML 페이지를 통해 원격 공격자가 탐색 제한을 우회할 수 있었습니다. (Chromium 보안 심각도: 낮음)",
@@ -27529,84 +28049,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T22:46:15.763494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-3939",
-    "title": "Google Chrome PDF 탐색 제한 우회 취약점",
-    "description": "Google Chrome 146.0.7680.71 이전 버전에서 PDF 파일의 정책 적용이 미흡하여, 악성 PDF 파일을 통해 원격 공격자가 탐색 제한을 우회할 수 있는 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Insufficient policy enforcement"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T22:46:11.419521+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-3938",
-    "title": "Google Chrome 클립보드 정책 미흡으로 인한 정보 유출 취약점",
-    "description": "Google Chrome 146.0.7680.71 이전 버전에서 클립보드 정책이 제대로 적용되지 않아, 악성 HTML 페이지를 통해 원격 공격자가 교차 출처 데이터를 유출할 수 있었습니다. (크로미움 보안 심각도: 낮음)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Insufficient policy enforcement"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T22:46:06.494143+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
-    "id": "CVE-2026-3937",
-    "title": "Android Chrome 다운로드 보안 UI 취약점",
-    "description": "Android Chrome 146.0.7680.71 이전 버전에서 제작된 HTML 페이지를 통해 원격 공격자가 UI 스푸핑을 수행할 수 있는 보안 UI 취약점이 발견되었습니다. (크로미움 보안 심각도: 낮음)",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "Incorrect security UI"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "146.0.7680.71 부터 146.0.7680.71 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T22:46:03.263901+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -66479,84 +66921,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25072",
-    "title": "XikeStor SKS8310-8X 예측 가능한 세션 식별자",
-    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /goform/SetLogin 엔드포인트에 예측 가능한 세션 식별자 취약점이 존재합니다. 공격자는 예측 가능한 쿠키 값을 이용하여 세션 식별자를 예측하고, URL에 노출된 세션 파라미터를 악용하여 인증된 사용자 세션에 무단으로 접근할 수 있습니다. 이 취약점을 통해 원격 공격자가 세션을 가로챌 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-330"
-    ],
-    "affected": [
-      {
-        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
-        "product": "XikeStor SKS8310-8X",
-        "versions": "1.04.B07 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T02:53:08.174308+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25071",
-    "title": "XikeStor SKS8310-8X 스위치 설정 파일 무인증 접근 취약점",
-    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /switch_config.src 엔드포인트에 인증 절차가 없어, 공격자가 장치 설정 파일을 다운로드할 수 있는 취약점이 발견되었습니다. 자격 증명 없이 해당 엔드포인트에 접근하여 VLAN 설정 및 IP 주소 정보 등 민감한 설정을 탈취할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
-        "product": "XikeStor SKS8310-8X",
-        "versions": "1.04.B07 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T02:53:20.231893+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25070",
-    "title": "XikeStor SKS8310-8X PingTestSet 명령어 삽입 취약점",
-    "description": "XikeStor SKS8310-8X 네트워크 스위치 펌웨어 1.04.B07 버전 이하에서 /goform/PingTestSet 엔드포인트에 OS 명령어 삽입 취약점이 존재합니다. 인증되지 않은 원격 공격자가 destIp 파라미터를 통해 악성 명령어를 삽입하여 네트워크 스위치에서 root 권한으로 임의의 운영체제 명령을 실행할 수 있습니다. 이는 원격 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "Anhui Seeker Electronic Technology Co., LTD.",
-        "product": "XikeStor SKS8310-8X",
-        "versions": "1.04.B07 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T02:48:28.077225+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-28041",
     "title": "WordPress Grit 테마 <= 1.0.1 - 로컬 파일 포함 취약점",
     "description": "AncoraThemes Grit 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
@@ -67313,32 +67677,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T18:28:44.745147+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27996",
-    "title": "WordPress Lingvico 테마 <= 1.0.14 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Lingvico 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Lingvico",
-        "versions": "<= 1.0.14 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T21:01:37.215606+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -69937,136 +70275,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28093",
-    "title": "WordPress Ozisti 테마 <= 1.1.10 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Ozisti 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Ozisti",
-        "versions": "<= 1.1.10 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:52:10.911426+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28091",
-    "title": "WordPress Coleo 테마 <= 1.1.7 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Coleo 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Coleo 버전 n/a부터 <= 1.1.7까지 영향을 받습니다. 공격자는 이 취약점을 이용하여 서버의 임의 파일을 포함할 수 있습니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Coleo",
-        "versions": "<= 1.1.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:51:54.916244+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28089",
-    "title": "WordPress Daiquiri 테마 <= 1.2.4 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Daiquiri 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Daiquiri",
-        "versions": "<= 1.2.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:51:54.836401+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28087",
-    "title": "WordPress Filmax 테마 <= 1.1.11 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Filmax 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Filmax",
-        "versions": "<= 1.1.11 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:29:17.603628+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28085",
-    "title": "WordPress Mahogany 테마 <= 2.9 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Mahogany 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다. Mahogany 테마 버전 n/a부터 2.9 이하에서 영향을 받습니다. 공격자는 이 취약점을 이용하여 임의의 로컬 파일을 포함할 수 있습니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Mahogany",
-        "versions": "<= 2.9 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:27:15.598735+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-1394",
     "title": "Zigbee 라이브러리의 서비스 거부(DoS) 취약점",
     "description": "Ember ZNet 스택의 패킷 버퍼 관리자에서 경계 외 메모리 읽기 오류가 발생할 수 있습니다.",
@@ -70096,32 +70304,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28067",
-    "title": "WordPress Bassein 테마 <= 1.0.15 - 로컬 파일 포함 취약점",
-    "description": "ThemeREX Bassein 테마의 PHP include/require 문에서 파일 이름 제어 미흡으로 인해 로컬 파일 포함 취약점이 발생합니다.",
-    "cvss": 8.1,
-    "epss": 0.00053,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "ThemeREX",
-        "product": "Bassein",
-        "versions": "<= 1.0.15 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:26:14.59729+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-29049",
