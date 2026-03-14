@@ -1,31 +1,5 @@
 [
   {
-    "id": "CVE-2026-1870",
-    "title": "Elementor용 Thim Kit <= 1.3.7 - 인증되지 않은 개인 강좌 정보 유출 취약점",
-    "description": "Elementor용 Thim Kit 플러그인의 'thim-ekit/archive-course/get-courses' REST endpoint에서 입력값 검증이 누락되어 인증되지 않은 공격자가 개인 또는 초안 LearnPress 강좌 콘텐츠를 유출할 수 있습니다. 이는 1.3.7 버전 이하에서 발생합니다. params_url 페이로드의 post_status를 조작하여 악용 가능합니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "thimpress",
-        "product": "Thim Kit for Elementor – Pre-built Templates & Widgets for Elementor",
-        "versions": "* 부터 1.3.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-14T13:57:11.071995+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2025-7195",
     "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
     "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
@@ -60,6 +34,330 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-1870",
+    "title": "Elementor용 Thim Kit <= 1.3.7 - 인증되지 않은 개인 강좌 정보 유출 취약점",
+    "description": "Elementor용 Thim Kit 플러그인의 'thim-ekit/archive-course/get-courses' REST endpoint에서 입력값 검증이 누락되어 인증되지 않은 공격자가 개인 또는 초안 LearnPress 강좌 콘텐츠를 유출할 수 있습니다. 이는 1.3.7 버전 이하에서 발생합니다. params_url 페이로드의 post_status를 조작하여 악용 가능합니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "thimpress",
+        "product": "Thim Kit for Elementor – Pre-built Templates & Widgets for Elementor",
+        "versions": "* 부터 1.3.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T13:57:11.071995+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-28485",
+    "title": "OpenClaw 2026.1.5 < 2026.2.12 - 브라우저 제어 HTTP 엔드포인트의 인증 누락",
+    "description": "OpenClaw 2026.1.5 버전은 2026.2.12 이전까지 /agent/act 브라우저 제어 HTTP 경로에 필수 인증을 적용하지 않아, 권한 없는 로컬 호출자가 특권 작업을 수행할 수 있습니다. 로컬 네트워크 공격자 또는 로컬 프로세스가 인증되지 않은 엔드포인트로 요청을 보내 임의의 브라우저 컨텍스트 작업을 실행하고 중요한 세션 데이터를 액세스할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.1.5 부터 2026.2.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T00:22:03.636188+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2020",
+    "title": "JS Archive List <= 6.1.7 - 인증된 사용자를 통한 PHP 객체 주입 취약점 (Contributor+ 권한 필요)",
+    "description": "WordPress용 JS Archive List 플러그인은 'included' 쇼트코드 속성을 통해 6.1.7 버전 이하에서 PHP 객체 주입 취약점을 가지고 있습니다. 신뢰할 수 없는 입력값이 'included' 파라미터를 통해 역직렬화되는 것이 원인입니다. 인증된 공격자(Contributor 권한 이상)는 PHP 객체를 주입할 수 있으며, 추가 플러그인이나 테마를 통해 POP 체인이 존재할 경우 임의 파일 삭제, 민감 정보 탈취, 코드 실행 등이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "skatox",
+        "product": "JS Archive List",
+        "versions": "* 부터 6.1.7 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/88",
+    "date": "2026-03-07T02:48:21.226886+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-14353",
+    "title": "ZIP 코드 기반 콘텐츠 보호 플러그인 <= 1.0.2 - 'zipcode' 파라미터를 통한 인증되지 않은 SQL Injection",
+    "description": "워드프레스 ZIP 코드 기반 콘텐츠 보호 플러그인이 1.0.2 버전 이하에서 'zipcode' 파라미터를 통해 SQL Injection에 취약합니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생하며, 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 추출할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "presstigers",
+        "product": "ZIP Code Based Content Protection",
+        "versions": "* 부터 1.0.2 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/87",
+    "date": "2026-03-07T02:47:09.830897+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20128",
+    "title": "Cisco Catalyst SD-WAN Manager 정보 유출 취약점",
+    "description": "Cisco Catalyst SD-WAN Manager의 데이터 수집 에이전트(DCA) 기능에 인증된 로컬 공격자가 DCA 사용자 권한을 획득할 수 있는 취약점이 존재합니다. 공격자는 유효한 vmanage 자격 증명을 사용하여 파일 시스템에서 DCA 비밀번호 파일을 읽어 악용할 수 있습니다. 20.18 버전 이후의 릴리스는 해당 취약점의 영향을 받지 않습니다.",
+    "cvss": 7.5,
+    "epss": 0.00019,
+    "is_kev": false,
+    "cwe": [
+      "CWE-257"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Catalyst SD-WAN Manager",
+        "versions": "20.1.12 (단일 버전), 19.2.1 (단일 버전), 18.4.4 (단일 버전), 18.4.5 (단일 버전), 20.1.1.1 (단일 버전), 20.1.1 (단일 버전), 19.3.0 (단일 버전), 19.2.2 (단일 버전), 19.2.099 (단일 버전), 18.3.6 (단일 버전), 18.3.7 (단일 버전), 19.2.0 (단일 버전), 18.3.8 (단일 버전), 19.0.0 (단일 버전), 19.1.0 (단일 버전), 18.4.302 (단일 버전), 18.4.303 (단일 버전), 19.2.097 (단일 버전), 19.2.098 (단일 버전), 17.2.10 (단일 버전), 18.3.6.1 (단일 버전), 19.0.1a (단일 버전), 18.2.0 (단일 버전), 18.4.3 (단일 버전), 18.4.1 (단일 버전), 17.2.8 (단일 버전), 18.3.3.1 (단일 버전), 18.4.0 (단일 버전), 18.3.1 (단일 버전), 17.2.6 (단일 버전), 17.2.9 (단일 버전), 18.3.4 (단일 버전), 17.2.5 (단일 버전), 18.3.1.1 (단일 버전), 18.3.5 (단일 버전), 18.4.0.1 (단일 버전), 18.3.3 (단일 버전), 17.2.7 (단일 버전), 18.3.0 (단일 버전), 19.2.3 (단일 버전), 18.4.501_ES (단일 버전), 20.3.1 (단일 버전), 20.1.2 (단일 버전), 19.2.929 (단일 버전), 19.2.31 (단일 버전), 20.3.2 (단일 버전), 19.2.32 (단일 버전), 20.3.2.1 (단일 버전), 20.3.2.1_927 (단일 버전), 18.4.6 (단일 버전), 20.3.2_928 (단일 버전), 20.3.2_929 (단일 버전), 20.4.1.0.1 (단일 버전), 20.3.2.1_930 (단일 버전), 19.2.4 (단일 버전), 20.5.0.1.1 (단일 버전), 20.4.1.1 (단일 버전), 20.3.3 (단일 버전), 19.2.4.0.1 (단일 버전), 20.3.2_937 (단일 버전), 20.5.1 (단일 버전), 20.1.3 (단일 버전), 20.3.3.0.4 (단일 버전), 20.3.3.1.2 (단일 버전), 20.3.3.1.1 (단일 버전), 20.4.1.2 (단일 버전), 20.3.3.0.2 (단일 버전), 20.4.1.1.5 (단일 버전), 20.4.1.0.02 (단일 버전), 20.3.3.1.7 (단일 버전), 20.3.3.1.5 (단일 버전), 20.5.1.0.1 (단일 버전), 20.3.3.1.10 (단일 버전), 20.3.3.0.8 (단일 버전), 20.4.2 (단일 버전), 20.3.4 (단일 버전), 20.3.3.0.14 (단일 버전), 19.2.4.0.8 (단일 버전), 19.2.4.0.9 (단일 버전), 20.3.4.0.1 (단일 버전), 20.3.2.0.5 (단일 버전), 20.5.1.0.2 (단일 버전), 20.6.1.1 (단일 버전), 20.6.0.18.3 (단일 버전), 20.3.2.0.6 (단일 버전), 20.6.0.18.4 (단일 버전), 20.4.2.0.2 (단일 버전), 20.3.3.0.16 (단일 버전), 20.6.1.0.1 (단일 버전), 20.3.4.0.6 (단일 버전), 20.7.1EFT2 (단일 버전), 20.3.4.0.9 (단일 버전), 20.3.4.0.11 (단일 버전), 20.3.3.0.18 (단일 버전), 20.6.2.1 (단일 버전), 20.3.4.1 (단일 버전), 20.4.2.1 (단일 버전), 20.4.2.1.1 (단일 버전), 20.3.4.1.1 (단일 버전), 20.3.813 (단일 버전), 20.3.4.0.19 (단일 버전), 20.4.2.2.1 (단일 버전), 20.5.1.2 (단일 버전), 20.3.814 (단일 버전), 20.4.2.2 (단일 버전), 20.6.2.2 (단일 버전), 20.3.4.2.1 (단일 버전), 20.3.4.1.2 (단일 버전), 20.3.4.0.20 (단일 버전), 20.6.2.2.3 (단일 버전), 20.4.2.2.2 (단일 버전), 20.6.2.0.4 (단일 버전), 20.3.4.0.24 (단일 버전), 20.6.2.2.7 (단일 버전), 20.3.4.2.2 (단일 버전), 20.4.2.2.4 (단일 버전), 20.3.5.0.8 (단일 버전), 20.3.5.0.9 (단일 버전), 20.3.5.0.7 (단일 버전), 20.6.3.0.2 (단일 버전), 20.9.1EFT2 (단일 버전), 20.3.6 (단일 버전), 20.3.7 (단일 버전), 20.4.2.3 (단일 버전), 20.3.5.1 (단일 버전), 20.3.4.3 (단일 버전), 20.3.3.2 (단일 버전), 20.3.7.1 (단일 버전), 20.3.4.0.25 (단일 버전), 20.6.2.2.4 (단일 버전), 20.6.1.2 (단일 버전), 20.1.3.1 (단일 버전), 20.6.5.1.4 (단일 버전), 20.3.8 (단일 버전), 20.12.501 (단일 버전), 26.1.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:06:06.801381+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-30630",
+    "title": "io/fs의 Glob에서 특정 경로 관련 스택 오버플로우",
+    "description": "Go 1.17.12 및 1.18.4 이전 버전에서 io/fs의 Glob 함수 내 무제한 재귀 호출로 인해, 경로 구분자가 과도하게 포함된 경로를 통해 스택 오버플로우를 유발하여 패닉을 발생시킬 수 있습니다. 이는 공격자가 악용할 수 있는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0.00038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674: Uncontrolled Recursion"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "io/fs",
+        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:01:54.5277+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28695",
+    "title": "Twig SSTI를 이용한 인증된 RCE - create() 함수 + Symfony Process 가젯",
+    "description": "Craft CMS 5.8.21에서 Twig create() 함수와 Symfony Process 가젯 체인을 이용한 인증된 관리자 권한의 원격 코드 실행(RCE) 취약점이 발견되었습니다. create() 함수는 임의의 PHP 클래스를 인스턴스화할 수 있으며, symfony/process 의존성과 결합하여 RCE를 가능하게 합니다. 이는 CVE-2025-57811에 대한 이전 패치를 우회하며, 5.9.0-beta.1 및 4.17.0-beta.1에서 해결되었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.8.7, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T06:11:23.902829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-2252",
+    "title": "XML 외부 개체(XXE) 취약점을 이용한 서버 측 요청 위조(SSRF)",
+    "description": "XML 외부 개체(XXE) 취약점을 통해 악의적인 사용자가 조작된 XML 입력을 통해 서버 측 요청 위조(SSRF) 공격을 수행할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00052,
+    "is_kev": false,
+    "cwe": [
+      "CWE-611",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Xerox",
+        "product": "FreeFlow Core",
+        "versions": "8.0.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T16:04:59.105076+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-37008",
+    "title": "업데이트 패키지 검증 우회 취약점",
+    "description": "복구 모듈에 업데이트 패키지 사용 전 검증을 우회하는 취약점이 존재합니다.",
+    "cvss": 7.5,
+    "epss": 0.0006,
+    "is_kev": false,
+    "cwe": [
+      "Verification bypass vulnerability"
+    ],
+    "affected": [
+      {
+        "vendor": "Huawei",
+        "product": "HarmonyOS",
+        "versions": "2.0 (단일 버전)"
+      },
+      {
+        "vendor": "Huawei",
+        "product": "EMUI",
+        "versions": "12.0.0 (단일 버전), 11.0.1 (단일 버전), 11.0.0 (단일 버전)"
+      },
+      {
+        "vendor": "Huawei",
+        "product": "Magic UI",
+        "versions": "4.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:13:17.6037+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-20792",
+    "title": "Chargemap chargemap.com 과도한 인증 시도 제한 미흡",
+    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
+    "cvss": 7.5,
+    "epss": 0.00069,
+    "is_kev": false,
+    "cwe": [
+      "CWE-307"
+    ],
+    "affected": [
+      {
+        "vendor": "Chargemap",
+        "product": "chargemap.com",
+        "versions": "All versions (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/84",
+    "date": "2026-03-05T20:02:55.649139+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-30633",
+    "title": "encoding/xml에서 특정 문서 언마샬링 시 스택 오버플로우 발생",
+    "description": "Go 1.17.12 및 1.18.4 이전 버전의 encoding/xml에서 'any' 필드 태그를 사용하는 중첩 필드를 가진 Go 구조체로 XML 문서를 언마샬링할 때, 제어되지 않은 재귀 호출로 인해 스택 오버플로우가 발생하여 패닉을 유발할 수 있습니다. 이는 공격자가 악성 XML 문서를 통해 공격을 수행할 수 있게 합니다.",
+    "cvss": 7.5,
+    "epss": 0.00096,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674: Uncontrolled Recursion"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "encoding/xml",
+        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:02:06.579649+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2022-30635",
@@ -54906,32 +55204,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28485",
-    "title": "OpenClaw 2026.1.5 < 2026.2.12 - 브라우저 제어 HTTP 엔드포인트의 인증 누락",
-    "description": "OpenClaw 2026.1.5 버전은 2026.2.12 이전까지 /agent/act 브라우저 제어 HTTP 경로에 필수 인증을 적용하지 않아, 권한 없는 로컬 호출자가 특권 작업을 수행할 수 있습니다. 로컬 네트워크 공격자 또는 로컬 프로세스가 인증되지 않은 엔드포인트로 요청을 보내 임의의 브라우저 컨텍스트 작업을 실행하고 중요한 세션 데이터를 액세스할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.1.5 부터 2026.2.12 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T00:22:03.636188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28481",
     "title": "OpenClaw < 2026.2.1 - MS Teams 첨부 파일 다운로더 접미사 매칭을 통한 Bearer 토큰 유출",
     "description": "OpenClaw 2026.1.30 버전 이하에서 MS Teams 첨부 파일 다운로더(선택적 확장 기능 활성화 필요)를 통해 허용된 접미사 도메인으로 Bearer 토큰이 유출되는 정보 유출 취약점이 발견되었습니다. 401 또는 403 응답 후 다운로드를 재시도할 때, 애플리케이션이 허용적인 접미사 기반 허용 목록과 일치하는 신뢰할 수 없는 호스트에 Authorization Bearer 토큰을 전송하여 토큰 탈취를 가능하게 합니다. 해당 취약점은 2026.2.1 버전에서 패치되었습니다.",
@@ -55661,41 +55933,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-2020",
-    "title": "JS Archive List <= 6.1.7 - 인증된 사용자를 통한 PHP 객체 주입 취약점 (Contributor+ 권한 필요)",
-    "description": "WordPress용 JS Archive List 플러그인은 'included' 쇼트코드 속성을 통해 6.1.7 버전 이하에서 PHP 객체 주입 취약점을 가지고 있습니다. 신뢰할 수 없는 입력값이 'included' 파라미터를 통해 역직렬화되는 것이 원인입니다. 인증된 공격자(Contributor 권한 이상)는 PHP 객체를 주입할 수 있으며, 추가 플러그인이나 테마를 통해 POP 체인이 존재할 경우 임의 파일 삭제, 민감 정보 탈취, 코드 실행 등이 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "skatox",
-        "product": "JS Archive List",
-        "versions": "* 부터 6.1.7 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/88",
-    "date": "2026-03-07T02:48:21.226886+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-23799",
     "title": "WordPress Tutor LMS 플러그인 <= 3.9.5 - 접근 제어 취약점",
     "description": "Themeum Tutor LMS 튜터에 잘못 구성된 접근 제어 보안 수준으로 인해 권한 확인 취약점이 존재합니다.",
@@ -55937,41 +56174,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-14353",
-    "title": "ZIP 코드 기반 콘텐츠 보호 플러그인 <= 1.0.2 - 'zipcode' 파라미터를 통한 인증되지 않은 SQL Injection",
-    "description": "워드프레스 ZIP 코드 기반 콘텐츠 보호 플러그인이 1.0.2 버전 이하에서 'zipcode' 파라미터를 통해 SQL Injection에 취약합니다. 사용자 입력값에 대한 적절한 이스케이핑 및 SQL 쿼리 준비 부족으로 인해 발생하며, 인증되지 않은 공격자가 데이터베이스에서 민감한 정보를 추출할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "presstigers",
-        "product": "ZIP Code Based Content Protection",
-        "versions": "* 부터 1.0.2 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/87",
-    "date": "2026-03-07T02:47:09.830897+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: URL 파라미터)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2025-47377",
@@ -58135,32 +58337,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2022-30633",
-    "title": "encoding/xml에서 특정 문서 언마샬링 시 스택 오버플로우 발생",
-    "description": "Go 1.17.12 및 1.18.4 이전 버전의 encoding/xml에서 'any' 필드 태그를 사용하는 중첩 필드를 가진 Go 구조체로 XML 문서를 언마샬링할 때, 제어되지 않은 재귀 호출로 인해 스택 오버플로우가 발생하여 패닉을 유발할 수 있습니다. 이는 공격자가 악성 XML 문서를 통해 공격을 수행할 수 있게 합니다.",
-    "cvss": 7.5,
-    "epss": 0.00096,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674: Uncontrolled Recursion"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "encoding/xml",
-        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:02:06.579649+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3819",
@@ -61107,32 +61283,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-20128",
-    "title": "Cisco Catalyst SD-WAN Manager 정보 유출 취약점",
-    "description": "Cisco Catalyst SD-WAN Manager의 데이터 수집 에이전트(DCA) 기능에 인증된 로컬 공격자가 DCA 사용자 권한을 획득할 수 있는 취약점이 존재합니다. 공격자는 유효한 vmanage 자격 증명을 사용하여 파일 시스템에서 DCA 비밀번호 파일을 읽어 악용할 수 있습니다. 20.18 버전 이후의 릴리스는 해당 취약점의 영향을 받지 않습니다.",
-    "cvss": 7.5,
-    "epss": 0.00019,
-    "is_kev": false,
-    "cwe": [
-      "CWE-257"
-    ],
-    "affected": [
-      {
-        "vendor": "Cisco",
-        "product": "Cisco Catalyst SD-WAN Manager",
-        "versions": "20.1.12 (단일 버전), 19.2.1 (단일 버전), 18.4.4 (단일 버전), 18.4.5 (단일 버전), 20.1.1.1 (단일 버전), 20.1.1 (단일 버전), 19.3.0 (단일 버전), 19.2.2 (단일 버전), 19.2.099 (단일 버전), 18.3.6 (단일 버전), 18.3.7 (단일 버전), 19.2.0 (단일 버전), 18.3.8 (단일 버전), 19.0.0 (단일 버전), 19.1.0 (단일 버전), 18.4.302 (단일 버전), 18.4.303 (단일 버전), 19.2.097 (단일 버전), 19.2.098 (단일 버전), 17.2.10 (단일 버전), 18.3.6.1 (단일 버전), 19.0.1a (단일 버전), 18.2.0 (단일 버전), 18.4.3 (단일 버전), 18.4.1 (단일 버전), 17.2.8 (단일 버전), 18.3.3.1 (단일 버전), 18.4.0 (단일 버전), 18.3.1 (단일 버전), 17.2.6 (단일 버전), 17.2.9 (단일 버전), 18.3.4 (단일 버전), 17.2.5 (단일 버전), 18.3.1.1 (단일 버전), 18.3.5 (단일 버전), 18.4.0.1 (단일 버전), 18.3.3 (단일 버전), 17.2.7 (단일 버전), 18.3.0 (단일 버전), 19.2.3 (단일 버전), 18.4.501_ES (단일 버전), 20.3.1 (단일 버전), 20.1.2 (단일 버전), 19.2.929 (단일 버전), 19.2.31 (단일 버전), 20.3.2 (단일 버전), 19.2.32 (단일 버전), 20.3.2.1 (단일 버전), 20.3.2.1_927 (단일 버전), 18.4.6 (단일 버전), 20.3.2_928 (단일 버전), 20.3.2_929 (단일 버전), 20.4.1.0.1 (단일 버전), 20.3.2.1_930 (단일 버전), 19.2.4 (단일 버전), 20.5.0.1.1 (단일 버전), 20.4.1.1 (단일 버전), 20.3.3 (단일 버전), 19.2.4.0.1 (단일 버전), 20.3.2_937 (단일 버전), 20.5.1 (단일 버전), 20.1.3 (단일 버전), 20.3.3.0.4 (단일 버전), 20.3.3.1.2 (단일 버전), 20.3.3.1.1 (단일 버전), 20.4.1.2 (단일 버전), 20.3.3.0.2 (단일 버전), 20.4.1.1.5 (단일 버전), 20.4.1.0.02 (단일 버전), 20.3.3.1.7 (단일 버전), 20.3.3.1.5 (단일 버전), 20.5.1.0.1 (단일 버전), 20.3.3.1.10 (단일 버전), 20.3.3.0.8 (단일 버전), 20.4.2 (단일 버전), 20.3.4 (단일 버전), 20.3.3.0.14 (단일 버전), 19.2.4.0.8 (단일 버전), 19.2.4.0.9 (단일 버전), 20.3.4.0.1 (단일 버전), 20.3.2.0.5 (단일 버전), 20.5.1.0.2 (단일 버전), 20.6.1.1 (단일 버전), 20.6.0.18.3 (단일 버전), 20.3.2.0.6 (단일 버전), 20.6.0.18.4 (단일 버전), 20.4.2.0.2 (단일 버전), 20.3.3.0.16 (단일 버전), 20.6.1.0.1 (단일 버전), 20.3.4.0.6 (단일 버전), 20.7.1EFT2 (단일 버전), 20.3.4.0.9 (단일 버전), 20.3.4.0.11 (단일 버전), 20.3.3.0.18 (단일 버전), 20.6.2.1 (단일 버전), 20.3.4.1 (단일 버전), 20.4.2.1 (단일 버전), 20.4.2.1.1 (단일 버전), 20.3.4.1.1 (단일 버전), 20.3.813 (단일 버전), 20.3.4.0.19 (단일 버전), 20.4.2.2.1 (단일 버전), 20.5.1.2 (단일 버전), 20.3.814 (단일 버전), 20.4.2.2 (단일 버전), 20.6.2.2 (단일 버전), 20.3.4.2.1 (단일 버전), 20.3.4.1.2 (단일 버전), 20.3.4.0.20 (단일 버전), 20.6.2.2.3 (단일 버전), 20.4.2.2.2 (단일 버전), 20.6.2.0.4 (단일 버전), 20.3.4.0.24 (단일 버전), 20.6.2.2.7 (단일 버전), 20.3.4.2.2 (단일 버전), 20.4.2.2.4 (단일 버전), 20.3.5.0.8 (단일 버전), 20.3.5.0.9 (단일 버전), 20.3.5.0.7 (단일 버전), 20.6.3.0.2 (단일 버전), 20.9.1EFT2 (단일 버전), 20.3.6 (단일 버전), 20.3.7 (단일 버전), 20.4.2.3 (단일 버전), 20.3.5.1 (단일 버전), 20.3.4.3 (단일 버전), 20.3.3.2 (단일 버전), 20.3.7.1 (단일 버전), 20.3.4.0.25 (단일 버전), 20.6.2.2.4 (단일 버전), 20.6.1.2 (단일 버전), 20.1.3.1 (단일 버전), 20.6.5.1.4 (단일 버전), 20.3.8 (단일 버전), 20.12.501 (단일 버전), 26.1.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T06:06:06.801381+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-20122",
@@ -67352,32 +67502,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2022-30630",
-    "title": "io/fs의 Glob에서 특정 경로 관련 스택 오버플로우",
-    "description": "Go 1.17.12 및 1.18.4 이전 버전에서 io/fs의 Glob 함수 내 무제한 재귀 호출로 인해, 경로 구분자가 과도하게 포함된 경로를 통해 스택 오버플로우를 유발하여 패닉을 발생시킬 수 있습니다. 이는 공격자가 악용할 수 있는 취약점입니다.",
-    "cvss": 7.5,
-    "epss": 0.00038,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674: Uncontrolled Recursion"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "io/fs",
-        "versions": "1.17.12 이전, 1.18.0-0 부터 1.18.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:01:54.5277+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-2433",
     "title": "RSS 집계기 – RSS 가져오기, 뉴스 피드, 피드-게시물, 자동 블로깅 <= 5.0.11 - 인증되지 않은 DOM 기반 반사형 XSS (postMessage)",
     "description": "WordPress용 RSS 집계기 플러그인이 5.0.11 버전까지 DOM 기반 XSS 취약점을 가지고 있습니다. 이는 플러그인의 admin-shell.js 파일이 origin 검증 없이 전역 메시지 이벤트 리스너를 등록하고, 사용자 제어 URL을 URL 스키마 검증 없이 window.open()에 직접 전달하기 때문입니다. 인증되지 않은 공격자가 악성 웹사이트를 통해 관리자 세션에서 임의의 JavaScript를 실행할 수 있습니다.",
@@ -67428,95 +67552,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28695",
-    "title": "Twig SSTI를 이용한 인증된 RCE - create() 함수 + Symfony Process 가젯",
-    "description": "Craft CMS 5.8.21에서 Twig create() 함수와 Symfony Process 가젯 체인을 이용한 인증된 관리자 권한의 원격 코드 실행(RCE) 취약점이 발견되었습니다. create() 함수는 임의의 PHP 클래스를 인스턴스화할 수 있으며, symfony/process 의존성과 결합하여 RCE를 가능하게 합니다. 이는 CVE-2025-57811에 대한 이전 패치를 우회하며, 5.9.0-beta.1 및 4.17.0-beta.1에서 해결되었습니다.",
-    "cvss": 7.5,
-    "epss": 0.00043,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1336"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.8.7, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T06:11:23.902829+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-2252",
-    "title": "XML 외부 개체(XXE) 취약점을 이용한 서버 측 요청 위조(SSRF)",
-    "description": "XML 외부 개체(XXE) 취약점을 통해 악의적인 사용자가 조작된 XML 입력을 통해 서버 측 요청 위조(SSRF) 공격을 수행할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00052,
-    "is_kev": false,
-    "cwe": [
-      "CWE-611",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Xerox",
-        "product": "FreeFlow Core",
-        "versions": "8.0.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T16:04:59.105076+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2022-37008",
-    "title": "업데이트 패키지 검증 우회 취약점",
-    "description": "복구 모듈에 업데이트 패키지 사용 전 검증을 우회하는 취약점이 존재합니다.",
-    "cvss": 7.5,
-    "epss": 0.0006,
-    "is_kev": false,
-    "cwe": [
-      "Verification bypass vulnerability"
-    ],
-    "affected": [
-      {
-        "vendor": "Huawei",
-        "product": "HarmonyOS",
-        "versions": "2.0 (단일 버전)"
-      },
-      {
-        "vendor": "Huawei",
-        "product": "EMUI",
-        "versions": "12.0.0 (단일 버전), 11.0.1 (단일 버전), 11.0.0 (단일 버전)"
-      },
-      {
-        "vendor": "Huawei",
-        "product": "Magic UI",
-        "versions": "4.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:13:17.6037+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-30842",
@@ -71533,41 +71568,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-20792",
-    "title": "Chargemap chargemap.com 과도한 인증 시도 제한 미흡",
-    "description": "WebSocket API에 인증 요청 횟수 제한이 없어, 공격자가 합법적인 충전기 데이터를 방해하거나 경로를 변경하여 서비스 거부 공격을 수행할 수 있습니다. 또한, 무차별 대입 공격을 통해 무단 액세스 권한을 획득할 위험이 있습니다. 속도 제한 기능 부재가 보안 취약점으로 작용합니다.",
-    "cvss": 7.5,
-    "epss": 0.00069,
-    "is_kev": false,
-    "cwe": [
-      "CWE-307"
-    ],
-    "affected": [
-      {
-        "vendor": "Chargemap",
-        "product": "chargemap.com",
-        "versions": "All versions (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/84",
-    "date": "2026-03-05T20:02:55.649139+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-20791",
