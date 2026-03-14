@@ -36,6 +36,268 @@
     "severity": "Medium"
   },
   {
+    "id": "CVE-2026-29783",
+    "title": "GitHub Copilot CLI의 위험한 셸 확장 패턴으로 임의 명령 실행 가능",
+    "description": "GitHub Copilot CLI 0.0.422 버전 이하에서 조작된 bash 파라미터 확장 패턴을 통해 임의 코드 실행이 가능합니다. 공격자는 프롬프트 주입 등을 통해 셸 도구에 전달되는 명령어를 제어하여 안전 검사를 우회하고 숨겨진 명령을 실행할 수 있습니다. 0.0.423 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "github",
+        "product": "copilot-cli",
+        "versions": "<= 0.0.422 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:02:27.93871+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30851",
+    "title": "Caddy forward_auth copy_headers 헤더 제거 실패로 인한 ID 주입 및 권한 상승 취약점",
+    "description": "Caddy 서버 플랫폼의 2.10.0 버전부터 2.11.2 이전 버전까지, forward_auth copy_headers 기능이 클라이언트에서 제공하는 헤더를 제거하지 않아 ID 주입 및 권한 상승 공격에 취약합니다. 해당 문제는 2.11.2 버전에서 패치되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "caddyserver",
+        "product": "caddy",
+        "versions": ">= 2.10.0, < 2.11.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:29.163193+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28678",
+    "title": "dsa-hub-server: 민감 데이터의 평문 저장",
+    "description": "DSA Study Hub는 인터랙티브 교육 웹 애플리케이션입니다. server/routes/auth.js의 사용자 인증 시스템에서 인증 토큰(JWT)이 암호화 보호 없이 HTTP 쿠키에 저장되는 취약점이 발견되었습니다. 해당 문제는 커밋 d527fba를 통해 수정되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-311",
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "toxicbishop",
+        "product": "DSA-with-tsx",
+        "versions": "< d527fba (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:59.589183+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29194",
+    "title": "Netmaker: 호스트 토큰 검증 시 권한 부족",
+    "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구축합니다. 1.5.0 버전 이전에는 호스트 JWT 토큰 검증 과정에서 권한 확인이 제대로 이루어지지 않아, `hostAllowed=true`로 설정된 경로에서 유효한 호스트 토큰만으로 다른 호스트의 리소스에 접근, 수정, 삭제가 가능했습니다. 1.5.0 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "gravitl",
+        "product": "netmaker",
+        "versions": "< 1.5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:47:04.780993+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29196",
+    "title": "Netmaker: 네트워크 접근 권한이 있는 서비스 사용자가 WireGuard 개인 키를 포함한 설정 파일에 접근 가능",
+    "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구축합니다. 1.5.0 버전 이전에는 platform-user 역할을 가진 사용자가 API를 통해 네트워크 내 모든 WireGuard 설정의 개인 키를 획득할 수 있었습니다. UI는 접근을 제한하지만, API 엔드포인트는 요청 사용자의 소유 여부와 관계없이 전체 레코드를 반환했습니다. 해당 문제는 1.5.0 버전에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "gravitl",
+        "product": "netmaker",
+        "versions": "< 1.5.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:49.014769+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30855",
+    "title": "WeKnora: 테넌트 관리의 권한 관리 취약점",
+    "description": "WeKnora는 문서 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.3.2 버전 이전에는 테넌트 관리 엔드포인트의 권한 우회로 인해 인증된 모든 사용자가 ID를 통해 모든 테넌트를 읽고, 수정하고, 삭제할 수 있었습니다. 공개된 계정 등록으로 인해 비인증된 공격자도 계정을 등록하여 시스템을 악용할 수 있으며, 이는 테넌트 간 계정 탈취 및 파괴로 이어질 수 있습니다. 해당 문제는 0.3.2 버전에서 수정되었습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Tencent",
+        "product": "WeKnora",
+        "versions": "< 0.3.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:27.097555+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30832",
+    "title": "소프트 서브: 검증되지 않은 LFS 엔드포인트를 통한 SSRF 취약점 (리포 임포트)",
+    "description": "소프트 서브는 명령줄용 자체 호스팅 Git 서버입니다. 0.6.0 버전부터 0.11.4 이전 버전까지, 인증된 SSH 사용자가 조작된 --lfs-endpoint URL을 사용하여 리포 임포트를 실행하면 서버가 내부/사설 IP 주소로 HTTP 요청을 보내도록 강제할 수 있습니다. 공격자는 가짜 LFS 서버를 호스팅하여 내부 서비스에 대한 전체 읽기 권한을 얻을 수 있습니다. 0.11.4 버전에서 패치되었습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "charmbracelet",
+        "product": "soft-serve",
+        "versions": ">= 0.6.0, < 0.11.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:47:11.448592+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30863",
+    "title": "Parse Server: JWT 수신자 검증 우회 취약점 (Google, Apple, Facebook 인증 어댑터)",
+    "description": "Parse Server의 Google, Apple, Facebook 인증 어댑터에서 JWT 검증 시 수신자(audience) 검증을 건너뛰는 취약점이 발견되었습니다. 수신자 설정이 없을 경우, 다른 애플리케이션에서 발급된 유효한 JWT를 사용하여 Parse Server에 인증이 가능합니다. 8.6.10 및 9.5.0-alpha.11 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": "< 8.6.10 (단일 버전), < 9.5.0-alpha.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:57.179933+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3381",
+    "title": "Compress::Raw::Zlib 2.219 이하 버전의 잠재적 zlib 보안 취약점",
+    "description": "Perl용 Compress::Raw::Zlib 2.219 버전 이하에는 보안 취약점이 있는 zlib 라이브러리가 포함되어 있을 수 있습니다. 2.220 버전은 7ASecurity의 zlib 감사 결과에 따른 zlib 1.3.2를 포함하며, CVE-2026-27171을 해결합니다.",
+    "cvss": 9.8,
+    "epss": 0.00055,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1395"
+    ],
+    "affected": [
+      {
+        "vendor": "PMQS",
+        "product": "Compress::Raw::Zlib",
+        "versions": "2.219 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:47:11.678914+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30861",
+    "title": "WeKnora: MCP Stdio 구성 유효성 검사에서 발생하는 명령 삽입을 통한 원격 코드 실행 (RCE)",
+    "description": "WeKnora는 심층 문서 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.2.5 버전부터 0.2.10 이전 버전까지, MCP stdio 구성 유효성 검사에서 인증되지 않은 원격 코드 실행(RCE) 취약점이 존재합니다. 공격자는 계정 생성이 자유로워 명령 삽입 취약점을 악용하여 애플리케이션 권한으로 임의 명령을 실행하고 시스템을 완전히 손상시킬 수 있으며, 0.2.10 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Tencent",
+        "product": "WeKnora",
+        "versions": ">= 0.2.5, < 0.2.10 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T16:46:43.392782+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-24696",
     "title": "Everon api.everon.io 과도한 인증 시도 제한 미흡",
     "description": "WebSocket API에 인증 요청 횟수 제한이 없어 DoS 공격에 취약합니다. 합법적인 충전기 텔레메트리 데이터를 차단하거나 변조할 수 있으며, 무차별 대입 공격을 통해 무단 접근을 시도할 수 있습니다. 속도 제한 기능 부재가 문제의 원인입니다.",
@@ -36976,32 +37238,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3381",
-    "title": "Compress::Raw::Zlib 2.219 이하 버전의 잠재적 zlib 보안 취약점",
-    "description": "Perl용 Compress::Raw::Zlib 2.219 버전 이하에는 보안 취약점이 있는 zlib 라이브러리가 포함되어 있을 수 있습니다. 2.220 버전은 7ASecurity의 zlib 감사 결과에 따른 zlib 1.3.2를 포함하며, CVE-2026-27171을 해결합니다.",
-    "cvss": 9.8,
-    "epss": 0.00055,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1395"
-    ],
-    "affected": [
-      {
-        "vendor": "PMQS",
-        "product": "Compress::Raw::Zlib",
-        "versions": "2.219 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:47:11.678914+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-30974",
     "title": "Copyparty volflag `nohtml` SVG 파일 내 JavaScript 실행 차단 실패",
     "description": "Copyparty는 휴대용 파일 서버입니다. v1.20.11 이전 버전에서는 `nohtml` 설정이 사용자 업로드 HTML 파일의 JavaScript 실행을 막는 기능이었지만, SVG 이미지에는 적용되지 않았습니다. 권한이 있는 사용자가 JavaScript가 포함된 SVG 파일을 업로드하여 열람하는 사용자의 환경에서 실행될 수 있었습니다. 해당 문제는 v1.20.11에서 수정되었습니다.",
@@ -57043,32 +57279,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-29196",
-    "title": "Netmaker: 네트워크 접근 권한이 있는 서비스 사용자가 WireGuard 개인 키를 포함한 설정 파일에 접근 가능",
-    "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구축합니다. 1.5.0 버전 이전에는 platform-user 역할을 가진 사용자가 API를 통해 네트워크 내 모든 WireGuard 설정의 개인 키를 획득할 수 있었습니다. UI는 접근을 제한하지만, API 엔드포인트는 요청 사용자의 소유 여부와 관계없이 전체 레코드를 반환했습니다. 해당 문제는 1.5.0 버전에서 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "gravitl",
-        "product": "netmaker",
-        "versions": "< 1.5.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:49.014769+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29195",
     "title": "Netmaker: 사용자 업데이트를 통한 관리자에서 슈퍼 관리자로 권한 상승",
     "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구축합니다. 1.5.0 버전 이전에는 관리자 역할의 사용자가 계정 업데이트 시 슈퍼 관리자 역할을 할당하는 것을 방지하는 유효성 검사가 사용자 업데이트 핸들러(PUT /api/users/{username})에 부족했습니다. 코드는 관리자가 다른 사용자에게 관리자 역할을 할당하는 것을 올바르게 차단하지만, 슈퍼 관리자 역할에 대한 동일한 검사를 포함하지 않습니다. 이 문제는 1.5.0 버전에서 수정되었습니다.",
@@ -57093,32 +57303,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-29194",
-    "title": "Netmaker: 호스트 토큰 검증 시 권한 부족",
-    "description": "Netmaker는 WireGuard를 사용하여 네트워크를 구축합니다. 1.5.0 버전 이전에는 호스트 JWT 토큰 검증 과정에서 권한 확인이 제대로 이루어지지 않아, `hostAllowed=true`로 설정된 경로에서 유효한 호스트 토큰만으로 다른 호스트의 리소스에 접근, 수정, 삭제가 가능했습니다. 1.5.0 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "gravitl",
-        "product": "netmaker",
-        "versions": "< 1.5.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:47:04.780993+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-29190",
@@ -57172,33 +57356,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28678",
-    "title": "dsa-hub-server: 민감 데이터의 평문 저장",
-    "description": "DSA Study Hub는 인터랙티브 교육 웹 애플리케이션입니다. server/routes/auth.js의 사용자 인증 시스템에서 인증 토큰(JWT)이 암호화 보호 없이 HTTP 쿠키에 저장되는 취약점이 발견되었습니다. 해당 문제는 커밋 d527fba를 통해 수정되었습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-311",
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "toxicbishop",
-        "product": "DSA-with-tsx",
-        "versions": "< d527fba (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:59.589183+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-27363",
@@ -66225,58 +66382,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30832",
-    "title": "소프트 서브: 검증되지 않은 LFS 엔드포인트를 통한 SSRF 취약점 (리포 임포트)",
-    "description": "소프트 서브는 명령줄용 자체 호스팅 Git 서버입니다. 0.6.0 버전부터 0.11.4 이전 버전까지, 인증된 SSH 사용자가 조작된 --lfs-endpoint URL을 사용하여 리포 임포트를 실행하면 서버가 내부/사설 IP 주소로 HTTP 요청을 보내도록 강제할 수 있습니다. 공격자는 가짜 LFS 서버를 호스팅하여 내부 서비스에 대한 전체 읽기 권한을 얻을 수 있습니다. 0.11.4 버전에서 패치되었습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "charmbracelet",
-        "product": "soft-serve",
-        "versions": ">= 0.6.0, < 0.11.4 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:47:11.448592+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-30863",
-    "title": "Parse Server: JWT 수신자 검증 우회 취약점 (Google, Apple, Facebook 인증 어댑터)",
-    "description": "Parse Server의 Google, Apple, Facebook 인증 어댑터에서 JWT 검증 시 수신자(audience) 검증을 건너뛰는 취약점이 발견되었습니다. 수신자 설정이 없을 경우, 다른 애플리케이션에서 발급된 유효한 JWT를 사용하여 Parse Server에 인증이 가능합니다. 8.6.10 및 9.5.0-alpha.11 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": "< 8.6.10 (단일 버전), < 9.5.0-alpha.11 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:57.179933+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-30850",
     "title": "Parse Server: 파일 메타데이터 엔드포인트가 `beforeFind` / `afterFind` 트리거 권한 부여를 우회합니다.",
     "description": "Parse Server 8.6.9 및 9.5.0-alpha.9 미만 버전에서 파일 메타데이터 엔드포인트(GET /files/:appId/metadata/:filename)가 `beforeFind` / `afterFind` 파일 트리거를 적용하지 않습니다. 접근 제어 게이트로 사용되는 트리거를 완전히 우회하여 권한 없는 사용자가 파일 메타데이터에 접근할 수 있습니다. 해당 문제는 8.6.9 및 9.5.0-alpha.9 버전에서 수정되었습니다.",
@@ -66353,32 +66458,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30861",
-    "title": "WeKnora: MCP Stdio 구성 유효성 검사에서 발생하는 명령 삽입을 통한 원격 코드 실행 (RCE)",
-    "description": "WeKnora는 심층 문서 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.2.5 버전부터 0.2.10 이전 버전까지, MCP stdio 구성 유효성 검사에서 인증되지 않은 원격 코드 실행(RCE) 취약점이 존재합니다. 공격자는 계정 생성이 자유로워 명령 삽입 취약점을 악용하여 애플리케이션 권한으로 임의 명령을 실행하고 시스템을 완전히 손상시킬 수 있으며, 0.2.10 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "Tencent",
-        "product": "WeKnora",
-        "versions": ">= 0.2.5, < 0.2.10 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:43.392782+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-30859",
@@ -66485,32 +66564,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-30855",
-    "title": "WeKnora: 테넌트 관리의 권한 관리 취약점",
-    "description": "WeKnora는 문서 이해 및 의미 검색을 위한 LLM 기반 프레임워크입니다. 0.3.2 버전 이전에는 테넌트 관리 엔드포인트의 권한 우회로 인해 인증된 모든 사용자가 ID를 통해 모든 테넌트를 읽고, 수정하고, 삭제할 수 있었습니다. 공개된 계정 등록으로 인해 비인증된 공격자도 계정을 등록하여 시스템을 악용할 수 있으며, 이는 테넌트 간 계정 탈취 및 파괴로 이어질 수 있습니다. 해당 문제는 0.3.2 버전에서 수정되었습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Tencent",
-        "product": "WeKnora",
-        "versions": "< 0.3.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:27.097555+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30852",
     "title": "Caddy: vars_regexp에서 사용자 입력 이중 확장으로 인한 환경 변수 및 파일 유출",
     "description": "Caddy 서버 플랫폼 2.7.5 버전부터 2.11.2 이전 버전에서 `vars_regexp` 매처가 사용자 제어 입력을 이중 확장하여 환경 변수 및 파일 내용을 유출하는 취약점이 발견되었습니다. 공격자는 요청 헤더에 `{env.DATABASE_URL}` 또는 `{file./etc/passwd}`와 같은 플레이스홀더를 삽입하여 서버가 이를 평가하도록 유도할 수 있습니다. 해당 문제는 2.11.2 버전에서 수정되었습니다.",
@@ -66536,33 +66589,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-30851",
-    "title": "Caddy forward_auth copy_headers 헤더 제거 실패로 인한 ID 주입 및 권한 상승 취약점",
-    "description": "Caddy 서버 플랫폼의 2.10.0 버전부터 2.11.2 이전 버전까지, forward_auth copy_headers 기능이 클라이언트에서 제공하는 헤더를 제거하지 않아 ID 주입 및 권한 상승 공격에 취약합니다. 해당 문제는 2.11.2 버전에서 패치되었습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287",
-      "CWE-345"
-    ],
-    "affected": [
-      {
-        "vendor": "caddyserver",
-        "product": "caddy",
-        "versions": ">= 2.10.0, < 2.11.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T16:46:29.163193+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-28447",
@@ -67308,32 +67334,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T05:22:13.86475+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29783",
-    "title": "GitHub Copilot CLI의 위험한 셸 확장 패턴으로 임의 명령 실행 가능",
-    "description": "GitHub Copilot CLI 0.0.422 버전 이하에서 조작된 bash 파라미터 확장 패턴을 통해 임의 코드 실행이 가능합니다. 공격자는 프롬프트 주입 등을 통해 셸 도구에 전달되는 명령어를 제어하여 안전 검사를 우회하고 숨겨진 명령을 실행할 수 있습니다. 0.0.423 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "github",
-        "product": "copilot-cli",
-        "versions": "<= 0.0.422 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:02:27.93871+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
