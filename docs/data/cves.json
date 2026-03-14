@@ -1,31 +1,5 @@
 [
   {
-    "id": "CVE-2025-54920",
-    "title": "Apache Spark: Spark History Server 코드 실행 취약점",
-    "description": "Apache Spark 3.5.7 및 4.0.1 이전 버전에서 Spark History Web UI의 Jackson 역직렬화 허용 범위 문제로 인해 코드 실행 취약점이 발생합니다. 공격자는 Spark 이벤트 로그 디렉터리에 접근하여 악성 JSON 페이로드를 삽입하고 임의 클래스의 역직렬화를 유발하여 History Server가 실행되는 호스트에서 명령을 실행할 수 있습니다. 3.5.7 또는 4.0.1 이상으로 업그레이드하여 문제를 해결하는 것이 좋습니다.",
-    "cvss": 0,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Spark",
-        "versions": "3.5.7 이전, 4.0.0 부터 4.0.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-14T09:51:00.088111+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "None"
-  },
-  {
     "id": "CVE-2025-7195",
     "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
     "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
@@ -60,6 +34,298 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-54920",
+    "title": "Apache Spark: Spark History Server 코드 실행 취약점",
+    "description": "Apache Spark 3.5.7 및 4.0.1 이전 버전에서 Spark History Web UI의 Jackson 역직렬화 허용 범위 문제로 인해 코드 실행 취약점이 발생합니다. 공격자는 Spark 이벤트 로그 디렉터리에 접근하여 악성 JSON 페이로드를 삽입하고 임의 클래스의 역직렬화를 유발하여 History Server가 실행되는 호스트에서 명령을 실행할 수 있습니다. 3.5.7 또는 4.0.1 이상으로 업그레이드하여 문제를 해결하는 것이 좋습니다.",
+    "cvss": 0,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Spark",
+        "versions": "3.5.7 이전, 4.0.0 부터 4.0.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-14T09:51:00.088111+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2025-70616",
+    "title": "Wincor Nixdorf wnBios64.sys 커널 드라이버 스택 버퍼 오버플로우 취약점",
+    "description": "Wincor Nixdorf wnBios64.sys 커널 드라이버(1.2.0.0 버전)의 IOCTL 핸들러(코드 0x80102058)에서 스택 버퍼 오버플로우 취약점이 발견되었습니다. 사용자 제어 Options 파라미터에 대한 경계 검사가 누락되어 40바이트 스택 버퍼에 데이터를 복사하는 과정에서 오버플로우가 발생할 수 있습니다. 악용 시 커널 코드 실행, 권한 상승, 또는 시스템 충돌을 야기할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T12:38:58.794502+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-48613",
+    "title": "VBMeta 재서명 취약점",
+    "description": "VBMeta는 동일한 테스트 키로 서명된 원본 이미지를 사용하여 테스트 키로 VBMeta를 수정하고 재서명할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
+    "cvss": 7.8,
+    "epss": 5e-05,
+    "is_kev": false,
+    "cwe": [
+      "Unknown"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Android",
+        "versions": "Android SoC (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T05:12:48.160196+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28727",
+    "title": "안전하지 않은 Unix 소켓 권한으로 인한 로컬 권한 상승",
+    "description": "안전하지 않은 Unix 소켓 권한으로 인해 로컬 권한 상승 취약점이 발생합니다.",
+    "cvss": 7.8,
+    "epss": 0.00011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect 17",
+        "versions": "unspecified 부터 41186 이전"
+      },
+      {
+        "vendor": "Acronis",
+        "product": "Acronis Cyber Protect Cloud Agent",
+        "versions": "unspecified 부터 41124 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-07T06:14:10.691896+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2022-30580",
+    "title": "Windows의 os/exec에서 빈 Cmd.Path로 인한 의도치 않은 바이너리 실행 가능성",
+    "description": "Go 1.17.11 및 1.18.3 이전 버전의 os/exec 패키지 내 Cmd.Start 함수에서 코드 삽입 취약점이 발견되었습니다. Cmd.Path가 설정되지 않은 상태에서 Cmd.Run, Cmd.Start, Cmd.Output, Cmd.CombinedOutput을 호출할 때, 작업 디렉터리에 \"..com\" 또는 \"..exe\"로 이름이 지정된 모든 바이너리가 실행될 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0006,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94: Improper Control of Generation of Code ('Code Injection')"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "os/exec",
+        "versions": "1.17.11 이전, 1.18.0-0 부터 1.18.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T17:58:51.52088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28405",
+    "title": "MarkUs: 제출된 HTML 미리보기의 저장된 XSS 취약점으로 강사 권한 악용 가능",
+    "description": "MarkUs는 학생 과제 제출 및 채점을 위한 웹 애플리케이션입니다. 2.9.1 버전 이전에는 특정 경로에서 학생이 제출한 파일 내용을 필터링 없이 렌더링하여 XSS 공격에 취약했습니다. 해당 문제는 2.9.1 버전에서 수정되었습니다.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "MarkUsProject",
+        "product": "Markus",
+        "versions": "< 2.9.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T21:07:02.945592+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30831",
+    "title": "Rocket.Chat: 2FA 우회 및 비활성화된 사용자 로그인 취약점 (EE ddp-streamer)",
+    "description": "Rocket.Chat의 엔터프라이즈 DDP Streamer 서비스에서 인증 취약점이 발견되었습니다. 7.10.8 이전 버전 등에서 2단계 인증(2FA)을 우회하거나 비활성화된 사용자가 로그인할 수 있는 문제가 있습니다. 해당 문제는 7.10.8, 7.11.5, 7.12.5, 7.13.4, 8.0.2, 8.1.1, 8.2.0 버전에 패치되었습니다.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-304"
+    ],
+    "affected": [
+      {
+        "vendor": "RocketChat",
+        "product": "Rocket.Chat",
+        "versions": "< 7.10.8 (단일 버전), < 7.11.5 (단일 버전), < 7.12.5 (단일 버전), < 7.13.4 (단일 버전), < 8.0.2 (단일 버전), < 8.1.1 (단일 버전), < 8.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T18:18:22.614439+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3561",
+    "title": "Philips Hue Bridge hk_hap 특성 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
+    "description": "Philips Hue Bridge의 네트워크 인접 공격자가 임의 코드를 실행할 수 있는 취약점입니다. 인증 우회 가능하며, PUT 요청 처리 시 사용자 데이터 길이 검증 미흡으로 힙 기반 버퍼 오버플로우가 발생합니다. ZDI-CAN-28479.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Philips",
+        "product": "Hue Bridge",
+        "versions": "1.73.1973146020 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:57:35.307776+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3557",
+    "title": "Philips Hue Bridge hap_pair_verify_handler Sub-TLV 파싱 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
+    "description": "Philips Hue Bridge의 취약점을 통해 네트워크 인접 공격자가 임의 코드를 실행할 수 있습니다. 인증 우회 가능하며, hk_hap 서비스의 hap_pair_verify_handler 함수 내 사용자 데이터 길이 검증 미흡으로 발생합니다. root 권한으로 코드 실행이 가능합니다.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Philips",
+        "product": "Hue Bridge",
+        "versions": "1.73.1973146020 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:57:22.384238+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3555",
+    "title": "필립스 휴 브리지 Zigbee 스택 사용자 정의 명령어 처리기 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
+    "description": "필립스 휴 브리지의 Zigbee 스택 내 사용자 정의 명령어 처리 과정에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 네트워크 인접 공격자가 필립스 휴 브리지에서 임의 코드를 실행할 수 있습니다. 단, 장치 페어링 과정을 사용자가 시작해야 악용이 가능합니다.",
+    "cvss": 8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Philips",
+        "product": "Hue Bridge",
+        "versions": "1.73.1973146020 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T20:57:21.407907+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21536",
+    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
+    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Devices Pricing Program",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:31:38.894088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-32302",
@@ -4627,32 +4893,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-21536",
-    "title": "Microsoft 장치 가격 프로그램 원격 코드 실행 취약점",
-    "description": "Microsoft 장치 가격 프로그램에 원격 코드 실행 취약점이 존재합니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Devices Pricing Program",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:31:38.894088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-13491",
     "title": "IBM App Connect Enterprise 인증 컨테이너 정보 공개",
     "description": "IBM App Connect Enterprise 인증 컨테이너 버전 11.2.0~11.6.0, 12.1.0~12.19.0 및 12.0 LTS 버전 12.0.0~12.0.19에서 신뢰할 수 없는 검색 경로로 인해 공격자가 민감한 파일에 접근하거나 설정을 변경할 수 있습니다.",
@@ -6227,84 +6467,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3561",
-    "title": "Philips Hue Bridge hk_hap 특성 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
-    "description": "Philips Hue Bridge의 네트워크 인접 공격자가 임의 코드를 실행할 수 있는 취약점입니다. 인증 우회 가능하며, PUT 요청 처리 시 사용자 데이터 길이 검증 미흡으로 힙 기반 버퍼 오버플로우가 발생합니다. ZDI-CAN-28479.",
-    "cvss": 8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Philips",
-        "product": "Hue Bridge",
-        "versions": "1.73.1973146020 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:57:35.307776+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3557",
-    "title": "Philips Hue Bridge hap_pair_verify_handler Sub-TLV 파싱 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
-    "description": "Philips Hue Bridge의 취약점을 통해 네트워크 인접 공격자가 임의 코드를 실행할 수 있습니다. 인증 우회 가능하며, hk_hap 서비스의 hap_pair_verify_handler 함수 내 사용자 데이터 길이 검증 미흡으로 발생합니다. root 권한으로 코드 실행이 가능합니다.",
-    "cvss": 8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Philips",
-        "product": "Hue Bridge",
-        "versions": "1.73.1973146020 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:57:22.384238+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3555",
-    "title": "필립스 휴 브리지 Zigbee 스택 사용자 정의 명령어 처리기 힙 기반 버퍼 오버플로우 원격 코드 실행 취약점",
-    "description": "필립스 휴 브리지의 Zigbee 스택 내 사용자 정의 명령어 처리 과정에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 이 취약점을 악용하면 네트워크 인접 공격자가 필립스 휴 브리지에서 임의 코드를 실행할 수 있습니다. 단, 장치 페어링 과정을 사용자가 시작해야 악용이 가능합니다.",
-    "cvss": 8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Philips",
-        "product": "Hue Bridge",
-        "versions": "1.73.1973146020 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T20:57:21.407907+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3086",
@@ -60420,37 +60582,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28727",
-    "title": "안전하지 않은 Unix 소켓 권한으로 인한 로컬 권한 상승",
-    "description": "안전하지 않은 Unix 소켓 권한으로 인해 로컬 권한 상승 취약점이 발생합니다.",
-    "cvss": 7.8,
-    "epss": 0.00011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect 17",
-        "versions": "unspecified 부터 41186 이전"
-      },
-      {
-        "vendor": "Acronis",
-        "product": "Acronis Cyber Protect Cloud Agent",
-        "versions": "unspecified 부터 41124 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-07T06:14:10.691896+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24385",
     "title": "WordPress Podlove Web Player 플러그인 <= 5.9.1 - PHP 객체 주입 취약점",
     "description": "gerritvanaaken의 Podlove Web Player 플러그인(podlove-web-player)에서 신뢰할 수 없는 데이터의 역직렬화로 인한 객체 주입 취약점이 발견되었습니다.",
@@ -67484,137 +67615,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T16:12:48.171005+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-70616",
-    "title": "Wincor Nixdorf wnBios64.sys 커널 드라이버 스택 버퍼 오버플로우 취약점",
-    "description": "Wincor Nixdorf wnBios64.sys 커널 드라이버(1.2.0.0 버전)의 IOCTL 핸들러(코드 0x80102058)에서 스택 버퍼 오버플로우 취약점이 발견되었습니다. 사용자 제어 Options 파라미터에 대한 경계 검사가 누락되어 40바이트 스택 버퍼에 데이터를 복사하는 과정에서 오버플로우가 발생할 수 있습니다. 악용 시 커널 코드 실행, 권한 상승, 또는 시스템 충돌을 야기할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T12:38:58.794502+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-48613",
-    "title": "VBMeta 재서명 취약점",
-    "description": "VBMeta는 동일한 테스트 키로 서명된 원본 이미지를 사용하여 테스트 키로 VBMeta를 수정하고 재서명할 수 있습니다. 이는 추가적인 실행 권한 없이 로컬 권한 상승으로 이어질 수 있습니다. 사용자 상호 작용 없이 악용이 가능합니다.",
-    "cvss": 7.8,
-    "epss": 5e-05,
-    "is_kev": false,
-    "cwe": [
-      "Unknown"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Android",
-        "versions": "Android SoC (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T05:12:48.160196+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2022-30580",
-    "title": "Windows의 os/exec에서 빈 Cmd.Path로 인한 의도치 않은 바이너리 실행 가능성",
-    "description": "Go 1.17.11 및 1.18.3 이전 버전의 os/exec 패키지 내 Cmd.Start 함수에서 코드 삽입 취약점이 발견되었습니다. Cmd.Path가 설정되지 않은 상태에서 Cmd.Run, Cmd.Start, Cmd.Output, Cmd.CombinedOutput을 호출할 때, 작업 디렉터리에 \"..com\" 또는 \"..exe\"로 이름이 지정된 모든 바이너리가 실행될 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0006,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94: Improper Control of Generation of Code ('Code Injection')"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "os/exec",
-        "versions": "1.17.11 이전, 1.18.0-0 부터 1.18.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T17:58:51.52088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28405",
-    "title": "MarkUs: 제출된 HTML 미리보기의 저장된 XSS 취약점으로 강사 권한 악용 가능",
-    "description": "MarkUs는 학생 과제 제출 및 채점을 위한 웹 애플리케이션입니다. 2.9.1 버전 이전에는 특정 경로에서 학생이 제출한 파일 내용을 필터링 없이 렌더링하여 XSS 공격에 취약했습니다. 해당 문제는 2.9.1 버전에서 수정되었습니다.",
-    "cvss": 8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "MarkUsProject",
-        "product": "Markus",
-        "versions": "< 2.9.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T21:07:02.945592+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30831",
-    "title": "Rocket.Chat: 2FA 우회 및 비활성화된 사용자 로그인 취약점 (EE ddp-streamer)",
-    "description": "Rocket.Chat의 엔터프라이즈 DDP Streamer 서비스에서 인증 취약점이 발견되었습니다. 7.10.8 이전 버전 등에서 2단계 인증(2FA)을 우회하거나 비활성화된 사용자가 로그인할 수 있는 문제가 있습니다. 해당 문제는 7.10.8, 7.11.5, 7.12.5, 7.13.4, 8.0.2, 8.1.1, 8.2.0 버전에 패치되었습니다.",
-    "cvss": 8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287",
-      "CWE-304"
-    ],
-    "affected": [
-      {
-        "vendor": "RocketChat",
-        "product": "Rocket.Chat",
-        "versions": "< 7.10.8 (단일 버전), < 7.11.5 (단일 버전), < 7.12.5 (단일 버전), < 7.13.4 (단일 버전), < 8.0.2 (단일 버전), < 8.1.1 (단일 버전), < 8.2.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T18:18:22.614439+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
