@@ -1,5 +1,66 @@
 [
   {
+    "id": "CVE-2026-4172",
+    "title": "TRENDnet TEW-632BRP HTTP POST 요청 ping_response.cgi 스택 기반 오버플로우",
+    "description": "TRENDnet TEW-632BRP 1.010B32 버전에서 /ping_response.cgi 파일의 HTTP POST 요청 처리 과정에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ping_ipaddr 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되었습니다. 해당 벤더는 취약점 공개에 대해 응답하지 않았습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "TRENDnet",
+        "product": "TEW-632BRP",
+        "versions": "1.010B32 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/254",
+    "date": "2026-03-15T08:57:32.416305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4171",
+    "title": "CodeGenieApp 서버리스-익스프레스 API 엔드포인트 TodoList.ts 권한 우회 취약점",
+    "description": "CodeGenieApp 서버리스-익스프레스 4.17.1 버전 이하에서 TodoList.ts 파일의 userId 인자 조작을 통해 권한 우회 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점에 대해 공급업체에 알렸으나 응답이 없습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639",
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "CodeGenieApp",
+        "product": "serverless-express",
+        "versions": "4.17.0 (단일 버전), 4.17.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T08:57:20.36344+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-4170",
     "title": "Topsec TopACM HTTP 요청 nmc_sync.php OS 명령어 삽입 취약점",
     "description": "Topsec TopACM 3.0에서 HTTP 요청 처리기의 /view/systemConfig/management/nmc_sync.php 파일의 template_path 인자 조작을 통해 OS 명령어 삽입이 가능합니다. 원격으로 공격이 가능하며, 공개된 익스플로잇이 존재합니다. 해당 취약점에 대해 벤더에 알렸으나 응답이 없습니다.",
@@ -34,33 +95,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-4169",
-    "title": "Tecnick TCExam XML Export tce_xml_users.php F_xml_export_users 크로스 사이트 스크립팅 취약점",
-    "description": "Tecnick TCExam 16.6.0 버전 이하에서 XML Export 컴포넌트의 tce_xml_users.php 파일 내 F_xml_export_users 함수에 크로스 사이트 스크립팅 취약점이 발견되었습니다. 원격 공격 가능성이 있으며, 16.6.1 버전으로 업데이트하면 해결됩니다. 개발사는 취약점의 영향력에 대해 의문을 제기하고 있지만, 업그레이드를 권장합니다.",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79",
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Tecnick",
-        "product": "TCExam",
-        "versions": "16.0 (단일 버전), 16.1 (단일 버전), 16.2 (단일 버전), 16.3 (단일 버전), 16.4 (단일 버전), 16.5 (단일 버전), 16.6.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-15T07:15:52.304+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2025-7195",
     "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
     "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
@@ -89,6 +123,308 @@
     ],
     "report_url": null,
     "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-23667",
+    "title": "방송 DVR 권한 상승 취약점",
+    "description": "방송용 디지털 비디오 레코더(DVR)에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 22H2",
+        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T19:11:08.236487+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-1286",
+    "title": "CWE-502: 신뢰할 수 없는 데이터 역직렬화 취약점",
+    "description": "관리자 권한 사용자가 악성 프로젝트 파일을 열 때 기밀성 및 무결성 손상, 잠재적인 원격 코드 실행으로 이어질 수 있는 취약점이 존재합니다. 신뢰할 수 없는 데이터의 역직렬화 과정에서 발생하는 문제입니다. 워크스테이션에 영향을 미칠 수 있습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Schneider Electric",
+        "product": "EcoStruxure™ Foxboro DCS",
+        "versions": "Versions prior to CS8.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T18:04:44.276628+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-15558",
+    "title": "Docker Desktop Docker 플러그인 제어되지 않은 검색 경로 요소 로컬 권한 상승 취약점",
+    "description": "Windows Docker CLI는 기본적으로 존재하지 않는 C:\\ProgramData\\Docker\\cli-plugins 디렉터리에서 플러그인 바이너리를 검색합니다. 공격자는 이 디렉터리를 생성하고 악성 CLI 플러그인 바이너리를 위치시켜 Docker Desktop 실행 또는 CLI 플러그인 기능 호출 시 실행되도록 하여 권한 상승을 유발할 수 있습니다. Docker Compose 등 plugin-manager 코드를 사용하는 Windows 바이너리에만 영향을 미칩니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Docker",
+        "product": "Docker CLI",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Docker",
+        "product": "Compose",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:22:23.12847+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50188",
+    "title": "Chamilo LMS의 오류 기반 SQL Injection 취약점",
+    "description": "Chamilo LMS 1.11.30 이전 버전에서 GET 파라미터 값에 대한 유효성 검증이 미흡하여, /plugin/vchamilo/views/syncparams.php 및 /plugin/vchamilo/ajax/service.php 스크립트를 통해 임의의 SQL 구문을 삽입하여 데이터베이스 쿼리 로직을 변경하는 공격이 가능합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:06:05.926898+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-52998",
+    "title": "Chamilo: PHAR 역직렬화 우회",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 데이터 역직렬화 과정에서 위변조가 가능했습니다. 공격자는 임의의 클래스 객체를 생성하고 속성을 완전히 제어하여 웹 애플리케이션의 동작 방식을 변경할 수 있습니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T17:33:51.446358+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-50191",
+    "title": "Chamilo: POST userFile을 통한 오류 기반 SQL Injection 취약점 (/main/exercise/hotpotatoes.php 스크립트)",
+    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/exercise/hotpotatoes.php 스크립트를 통해 POST userFile 파라미터에 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "chamilo",
+        "product": "chamilo-lms",
+        "versions": "< 1.11.30 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-02T20:03:29.603172+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28447",
+    "title": "OpenClaw 2026.1.29-beta.1 < 2026.2.1 - 패키지 이름 통한 플러그인 설치 경로 탐색 취약점",
+    "description": "OpenClaw 2026.1.29-beta.1 버전(2026.2.1 이전)은 플러그인 설치 시 패키지 이름에 경로 탐색 취약점이 존재합니다. 악의적인 패키지 이름을 사용하여 확장 디렉터리 외부 파일 쓰기가 가능합니다. 공격자는 '..'과 같은 경로 탐색 시퀀스를 포함한 패키지 이름을 제작하여 피해자가 플러그인 설치 명령을 실행할 때 악용할 수 있습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.1.29-beta.1 부터 2026.2.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:41:01.902274+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25527",
+    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
+    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 `numguest` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 `search/searchdetailed` 엔드포인트로 POST 요청하여 인증을 우회하고, 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Inoutscripts",
+        "product": "Inout EasyRooms Ultimate Edition",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:14.938178+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25520",
+    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 인증 우회",
+    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1의 관리자 패널에 인증 우회 취약점이 존재합니다. 공격자는 부적절한 SQL 쿼리 검증을 이용하여 인증 없이 관리자 권한을 획득할 수 있습니다. `admingiris.php` 로그인 폼의 사용자 이름 및 비밀번호 필드에 SQL injection 페이로드를 제출하여 인증을 우회하고 관리자 인터페이스에 접근할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Jettweb",
+        "product": "Hazir Haber Sitesi Scripti",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:01.649826+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25521",
+    "title": "XooGallery 최신 버전의 gal.php를 통한 SQL Injection 취약점",
+    "description": "XooGallery 최신 버전에서 gal_id 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 gal.php에 악성 gal_id 값을 전송하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Xooscripts",
+        "product": "XooGallery",
+        "versions": "* (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:04.151237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4169",
+    "title": "Tecnick TCExam XML Export tce_xml_users.php F_xml_export_users 크로스 사이트 스크립팅 취약점",
+    "description": "Tecnick TCExam 16.6.0 버전 이하에서 XML Export 컴포넌트의 tce_xml_users.php 파일 내 F_xml_export_users 함수에 크로스 사이트 스크립팅 취약점이 발견되었습니다. 원격 공격 가능성이 있으며, 16.6.1 버전으로 업데이트하면 해결됩니다. 개발사는 취약점의 영향력에 대해 의문을 제기하고 있지만, 업그레이드를 권장합니다.",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Tecnick",
+        "product": "TCExam",
+        "versions": "16.0 (단일 버전), 16.1 (단일 버전), 16.2 (단일 버전), 16.3 (단일 버전), 16.4 (단일 버전), 16.5 (단일 버전), 16.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T07:15:52.304+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -9842,42 +10178,6 @@
     ],
     "report_url": null,
     "date": "2026-03-10T20:53:32.216871+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23667",
-    "title": "방송 DVR 권한 상승 취약점",
-    "description": "방송용 디지털 비디오 레코더(DVR)에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 22H2",
-        "versions": "10.0.19045.0 부터 10.0.19045.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T19:11:08.236487+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -24995,32 +25295,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2019-25520",
-    "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 인증 우회",
-    "description": "Jettweb PHP 뉴스 사이트 스크립트 V1의 관리자 패널에 인증 우회 취약점이 존재합니다. 공격자는 부적절한 SQL 쿼리 검증을 이용하여 인증 없이 관리자 권한을 획득할 수 있습니다. `admingiris.php` 로그인 폼의 사용자 이름 및 비밀번호 필드에 SQL injection 페이로드를 제출하여 인증을 우회하고 관리자 인터페이스에 접근할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Jettweb",
-        "product": "Hazir Haber Sitesi Scripti",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:01.649826+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25518",
     "title": "Jettweb PHP 뉴스 사이트 스크립트 V1 SQL Injection 취약점",
     "description": "Jettweb PHP 뉴스 사이트 스크립트 V1에서 인증되지 않은 공격자가 `arama.php`를 통해 SQL injection 공격을 수행할 수 있습니다. `poll` 파라미터를 이용해 악성 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하고, 민감한 정보를 탈취하거나 데이터베이스 내용을 변경할 수 있습니다. POST 요청을 통해 공격이 가능합니다.",
@@ -27866,58 +28140,6 @@
     ],
     "report_url": null,
     "date": "2026-03-12T16:19:17.44186+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25527",
-    "title": "Inout EasyRooms Ultimate Edition v1.0 SQL Injection 취약점",
-    "description": "Inout EasyRooms Ultimate Edition v1.0에서 인증되지 않은 공격자가 `numguest` 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 악성 SQL 페이로드를 `search/searchdetailed` 엔드포인트로 POST 요청하여 인증을 우회하고, 민감한 데이터를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Inoutscripts",
-        "product": "Inout EasyRooms Ultimate Edition",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:14.938178+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25521",
-    "title": "XooGallery 최신 버전의 gal.php를 통한 SQL Injection 취약점",
-    "description": "XooGallery 최신 버전에서 gal_id 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 gal.php에 악성 gal_id 값을 전송하여 데이터베이스 쿼리를 조작할 수 있습니다. 이를 통해 민감한 데이터베이스 정보를 탈취하거나 데이터베이스 내용을 수정할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Xooscripts",
-        "product": "XooGallery",
-        "versions": "* (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:04.151237+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -48342,32 +48564,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-1286",
-    "title": "CWE-502: 신뢰할 수 없는 데이터 역직렬화 취약점",
-    "description": "관리자 권한 사용자가 악성 프로젝트 파일을 열 때 기밀성 및 무결성 손상, 잠재적인 원격 코드 실행으로 이어질 수 있는 취약점이 존재합니다. 신뢰할 수 없는 데이터의 역직렬화 과정에서 발생하는 문제입니다. 워크스테이션에 영향을 미칠 수 있습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "Schneider Electric",
-        "product": "EcoStruxure™ Foxboro DCS",
-        "versions": "Versions prior to CS8.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T18:04:44.276628+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-67078",
     "title": "Omnispace Agora Project XSS 취약점",
     "description": "Omnispace Agora Project 25.10 이전 버전에서 파일 컨트롤러의 notify 파라미터를 통해 임의 코드 실행이 가능한 XSS 취약점이 발견되었습니다. 이 취약점을 악용하면 공격자가 오류 표시 기능을 이용하여 악성 코드를 실행할 수 있습니다.",
@@ -68044,32 +68240,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-28447",
-    "title": "OpenClaw 2026.1.29-beta.1 < 2026.2.1 - 패키지 이름 통한 플러그인 설치 경로 탐색 취약점",
-    "description": "OpenClaw 2026.1.29-beta.1 버전(2026.2.1 이전)은 플러그인 설치 시 패키지 이름에 경로 탐색 취약점이 존재합니다. 악의적인 패키지 이름을 사용하여 확장 디렉터리 외부 파일 쓰기가 가능합니다. 공격자는 '..'과 같은 경로 탐색 시퀀스를 포함한 패키지 이름을 제작하여 피해자가 플러그인 설치 명령을 실행할 때 악용할 수 있습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.1.29-beta.1 부터 2026.2.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:41:01.902274+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-38001",
     "title": "net_sched: hfsc: eltree에 클래스 중복 추가 문제 해결",
     "description": "Linux 커널의 net_sched: hfsc에서 HFSC와 NETEM을 함께 사용할 때 발생하는 Use-After-Free (UAF) 취약점이 해결되었습니다. 기존 패치는 불완전하여 HFSC_RSC 플래그를 통해 eltree에 클래스가 두 번 추가될 수 있었으며, 이로 인해 무한 루프 또는 UAF가 발생할 수 있었습니다. HFSC_RSC 플래그가 설정된 경우 hfsc_enqueue에서 클래스가 eltree에 이미 존재하는지 명시적으로 확인하도록 수정되었습니다.",
@@ -75618,37 +75788,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2025-15558",
-    "title": "Docker Desktop Docker 플러그인 제어되지 않은 검색 경로 요소 로컬 권한 상승 취약점",
-    "description": "Windows Docker CLI는 기본적으로 존재하지 않는 C:\\ProgramData\\Docker\\cli-plugins 디렉터리에서 플러그인 바이너리를 검색합니다. 공격자는 이 디렉터리를 생성하고 악성 CLI 플러그인 바이너리를 위치시켜 Docker Desktop 실행 또는 CLI 플러그인 기능 호출 시 실행되도록 하여 권한 상승을 유발할 수 있습니다. Docker Compose 등 plugin-manager 코드를 사용하는 Windows 바이너리에만 영향을 미칩니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "Docker",
-        "product": "Docker CLI",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Docker",
-        "product": "Compose",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:22:23.12847+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25384",
     "title": "Smoothwall Express 3.1 'portfw.cgi' 크로스 사이트 스크립팅 취약점",
     "description": "Smoothwall Express 3.1 SP4 버전의 portfw.cgi 스크립트에 여러 개의 반사형 XSS 취약점이 존재합니다. 공격자는 검증되지 않은 파라미터(EXT, SRC_PORT_SEL 등)를 통해 악성 스크립트를 삽입하여 사용자의 브라우저에서 임의의 JavaScript 코드를 실행할 수 있습니다. POST 요청을 사용하여 공격이 가능합니다.",
@@ -83057,84 +83196,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2025-50188",
-    "title": "Chamilo LMS의 오류 기반 SQL Injection 취약점",
-    "description": "Chamilo LMS 1.11.30 이전 버전에서 GET 파라미터 값에 대한 유효성 검증이 미흡하여, /plugin/vchamilo/views/syncparams.php 및 /plugin/vchamilo/ajax/service.php 스크립트를 통해 임의의 SQL 구문을 삽입하여 데이터베이스 쿼리 로직을 변경하는 공격이 가능합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:06:05.926898+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-50191",
-    "title": "Chamilo: POST userFile을 통한 오류 기반 SQL Injection 취약점 (/main/exercise/hotpotatoes.php 스크립트)",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 /main/exercise/hotpotatoes.php 스크립트를 통해 POST userFile 파라미터에 오류 기반 SQL Injection 취약점이 존재합니다. 해당 문제는 1.11.30 버전에서 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T20:03:29.603172+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-52998",
-    "title": "Chamilo: PHAR 역직렬화 우회",
-    "description": "Chamilo는 학습 관리 시스템입니다. 1.11.30 버전 이전에서 데이터 역직렬화 과정에서 위변조가 가능했습니다. 공격자는 임의의 클래스 객체를 생성하고 속성을 완전히 제어하여 웹 애플리케이션의 동작 방식을 변경할 수 있습니다. 해당 문제는 1.11.30 버전에 패치되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "chamilo",
-        "product": "chamilo-lms",
-        "versions": "< 1.11.30 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-02T17:33:51.446358+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-20436",
