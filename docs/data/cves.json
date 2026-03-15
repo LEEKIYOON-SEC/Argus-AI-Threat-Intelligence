@@ -1,23 +1,24 @@
 [
   {
-    "id": "CVE-2025-14287",
-    "title": "mlflow/mlflow 명령어 삽입 취약점",
-    "description": "mlflow/mlflow v3.7.0 이전 버전에서 명령어 삽입 취약점이 발견되었습니다. 사용자 제공 컨테이너 이미지 이름을 필터링 없이 셸 명령에 직접 삽입하여 `os.system()`으로 실행하기 때문입니다. 공격자는 CLI의 `--container` 파라미터를 통해 악성 입력을 제공하여 임의 명령을 실행할 수 있습니다.",
-    "cvss": 7.5,
+    "id": "CVE-2026-4172",
+    "title": "TRENDnet TEW-632BRP HTTP POST 요청 ping_response.cgi 스택 기반 오버플로우",
+    "description": "TRENDnet TEW-632BRP 1.010B32 버전에서 /ping_response.cgi 파일의 HTTP POST 요청 처리 과정에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ping_ipaddr 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되었습니다. 해당 벤더는 취약점 공개에 대해 응답하지 않았습니다.",
+    "cvss": 8.6,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-94"
+      "CWE-121",
+      "CWE-119"
     ],
     "affected": [
       {
-        "vendor": "mlflow",
-        "product": "mlflow/mlflow",
-        "versions": "unspecified 부터 latest 이하"
+        "vendor": "TRENDnet",
+        "product": "TEW-632BRP",
+        "versions": "1.010B32 (단일 버전)"
       }
     ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/255",
-    "date": "2026-03-15T09:51:40.259328+00:00",
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/254",
+    "date": "2026-03-15T08:57:32.416305+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -33,25 +34,52 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-4171",
-    "title": "CodeGenieApp 서버리스-익스프레스 API 엔드포인트 TodoList.ts 권한 우회 취약점",
-    "description": "CodeGenieApp 서버리스-익스프레스 4.17.1 버전 이하에서 TodoList.ts 파일의 userId 인자 조작을 통해 권한 우회 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점에 대해 공급업체에 알렸으나 응답이 없습니다.",
-    "cvss": 5.3,
+    "id": "CVE-2026-4175",
+    "title": "Aureus ERP Chatter 메시지 content-text-entry.blade.php 크로스 사이트 스크립팅 취약점",
+    "description": "Aureus ERP 1.3.0-BETA2 버전 이하에서 Chatter Message Handler 컴포넌트의 content-text-entry.blade.php 파일 내 미확인 함수에서 크로스 사이트 스크립팅 취약점이 발견되었습니다. subject/body 인자 조작을 통해 원격으로 공격이 가능하며, 1.3.0-BETA1 버전으로 업그레이드하면 해결됩니다. (패치: 2135ee7efff4090e70050b63015ab5e268760ec8)",
+    "cvss": 5.1,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-639",
-      "CWE-285"
+      "CWE-79",
+      "CWE-94"
     ],
     "affected": [
       {
-        "vendor": "CodeGenieApp",
-        "product": "serverless-express",
-        "versions": "4.17.0 (단일 버전), 4.17.1 (단일 버전)"
+        "vendor": "Aureus",
+        "product": "ERP",
+        "versions": "1.3.0-BETA2 (단일 버전)"
       }
     ],
     "report_url": null,
-    "date": "2026-03-15T08:57:20.36344+00:00",
+    "date": "2026-03-15T10:51:55.897259+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4174",
+    "title": "Radare2 Mach-O 파일 mach0.c walk_exports_trie 리소스 소비",
+    "description": "Radare2 5.9.9 버전에서 Mach-O 파일 파서의 walk_exports_trie 함수에 리소스 소비 취약점이 발견되었습니다. 로컬 환경에서 공격이 가능하며, 공개된 익스플로잇이 존재합니다. 6.1.2 버전으로 업그레이드하면 해당 문제를 해결할 수 있습니다 (패치: 4371ae84c99c46b48cb21badbbef06b30757aba0).",
+    "cvss": 4.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Radare2",
+        "versions": "5.9.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T10:51:55.896151+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -87,25 +115,24 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-4172",
-    "title": "TRENDnet TEW-632BRP HTTP POST 요청 ping_response.cgi 스택 기반 오버플로우",
-    "description": "TRENDnet TEW-632BRP 1.010B32 버전에서 /ping_response.cgi 파일의 HTTP POST 요청 처리 과정에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ping_ipaddr 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되었습니다. 해당 벤더는 취약점 공개에 대해 응답하지 않았습니다.",
-    "cvss": 8.6,
+    "id": "CVE-2025-14287",
+    "title": "mlflow/mlflow 명령어 삽입 취약점",
+    "description": "mlflow/mlflow v3.7.0 이전 버전에서 명령어 삽입 취약점이 발견되었습니다. 사용자 제공 컨테이너 이미지 이름을 필터링 없이 셸 명령에 직접 삽입하여 `os.system()`으로 실행하기 때문입니다. 공격자는 CLI의 `--container` 파라미터를 통해 악성 입력을 제공하여 임의 명령을 실행할 수 있습니다.",
+    "cvss": 7.5,
     "epss": 0,
     "is_kev": false,
     "cwe": [
-      "CWE-121",
-      "CWE-119"
+      "CWE-94"
     ],
     "affected": [
       {
-        "vendor": "TRENDnet",
-        "product": "TEW-632BRP",
-        "versions": "1.010B32 (단일 버전)"
+        "vendor": "mlflow",
+        "product": "mlflow/mlflow",
+        "versions": "unspecified 부터 latest 이하"
       }
     ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/254",
-    "date": "2026-03-15T08:57:32.416305+00:00",
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/255",
+    "date": "2026-03-15T09:51:40.259328+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -149,6 +176,410 @@
     ],
     "report_url": null,
     "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25178",
+    "title": "WinSock 권한 상승 취약점을 이용한 Windows 보조 기능 드라이버",
+    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:57.416213+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24295",
+    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
+    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362",
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:42.404284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24285",
+    "title": "Win32k 권한 상승 취약점",
+    "description": "Win32k 구성 요소의 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office for Android",
+        "versions": "16.0.1 부터 16.0.19822.20000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:30.86565+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-23671",
+    "title": "Windows Bluetooth RFCOM 프로토콜 드라이버 권한 상승 취약점",
+    "description": "Windows Bluetooth RFCOM 프로토콜 드라이버의 취약점을 통해 권한 상승이 가능합니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362",
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:56:28.362138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30901",
+    "title": "Windows용 Zoom Rooms - 부적절한 입력 유효성 검사",
+    "description": "Windows용 Zoom Rooms 6.6.5 이전 버전에서 키오스크 모드 사용 시, 인증된 사용자가 로컬 접근을 통해 권한 상승을 유발할 수 있는 입력 유효성 검사 오류가 존재합니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Zoom Communications Inc.",
+        "product": "Zoom Rooms",
+        "versions": "6.6.5 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T15:09:56.604319+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3729",
+    "title": "Tenda F453 PPTPDClient fromPptpUserAdd 스택 기반 오버플로우",
+    "description": "Tenda F453 1.0.0.3/3.As 버전에서 /goform/PPTPDClient 파일의 fromPptpUserAdd 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. username/opttype 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전), 3.As (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/110",
+    "date": "2026-03-08T10:46:43.232925+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3729 Exploitation Attempt via PPTPDClient Buffer Overflow\nstatus: experimental\ndescription: Detects attempts to exploit the stack‑based buffer overflow in the fromPptpUserAdd function of Tenda F453 by sending overly long or malicious values to the `username` or `opttype` parameters of `/goform/PPTPDClient`.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/PPTPDClient\"\n    selection_method:\n        request_method|contains: \"POST\"\n    selection_username_long:\n        cs-body|contains|regex: \"(?i)username=.{200,}\"\n    selection_opttype_long:\n        cs-body|contains|regex: \"(?i)opttype=.{200,}\"\n    selection_malicious_chars:\n        cs-body|contains|any:\n            - \"%u\"\n            - \"%n\"\n            - \"%x\"\n            - \"%s\"\n            - \"%p\"\n            - \"%d\"\n            - \"%c\"\n    condition: all of selection_endpoint, selection_method, (selection_username_long or selection_opttype_long), selection_malicious_chars\nlevel: high\ntags:\n    - cve.2026.3729\n    - attack.initial_access\n    - attack.t1210\n    - attack.t1059\n    - attack.t1499\n    - vulnerability\n    - tenda\n    - buffer_overflow",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3729 Remote Buffer Overflow Attempt via /goform/PPTPDClient username/opttype parameters\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/PPTPDClient\"; nocase;\n    http_client_body; content:\"username=\"; nocase;\n    http_client_body; pcre:\"/username=[A-Za-z0-9]{200,}/i\";\n    http_client_body; content:\"opttype=\"; nocase;\n    reference:cve,2026-3729;\n    reference:url,https://vuldb.com/?id.349707;\n    classtype:web-application-attack;\n    sid:9000123;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/3.As.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3727",
+    "title": "Tenda F453 QuickIndex 스택 기반 오버플로우",
+    "description": "Tenda F453 1.0.0.3 버전에서 QuickIndex의 sub_3C6C0 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. mit_linktype/PPPOEPassword 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/112",
+    "date": "2026-03-08T10:47:37.278292+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3727 Buffer Overflow Attempt via PPPOEPassword Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the stack-based buffer overflow in Tenda F453 firmware (v1.0.0.3) by sending overly long values to the mit_linktype/PPPOEPassword parameter of the /goform/QuickIndex endpoint.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/goform/QuickIndex'\n    selection_param:\n        uri|contains: 'PPPOEPassword'\n        # also catch POST body if used\n        cs-body|contains: 'PPPOEPassword'\n    selection_payload:\n        # Detect unusually long payloads that may trigger the overflow\n        uri|regex: '.{500,}'\n        cs-body|regex: '.{500,}'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3727\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453\n    - severity.high",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3727 Buffer Overflow Attempt via mit_linktype/PPPOEPassword parameter\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/QuickIndex\"; nocase;\n    http_client_body; content:\"mit_linktype=\"; nocase;\n    http_client_body; content:\"PPPOEPassword=\"; nocase;\n    reference:cve,2026-3727;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/goform/QuickIndex.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3728",
+    "title": "Tenda F453 setcfm 함수 스택 기반 오버플로우 취약점",
+    "description": "Tenda F453 1.0.0.3/1.If 버전에서 /goform/setcfm 파일의 fromSetCfm 함수 관련 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. funcname/funcpara1 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전), 1.If (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/111",
+    "date": "2026-03-08T10:47:04.379683+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-3728 by sending overly long or suspicious values to the `funcname` or `funcpara1` parameters of the `/goform/setcfm` endpoint on Tenda F453 routers.\nauthor: Senior Detection Engineer\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/setcfm\"\n    selection_parameters:\n        uri|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n        cs-body|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n    selection_payload:\n        # Look for unusually long values or typical overflow patterns (e.g., long sequences of A/Z/0)\n        uri|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n        cs-body|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n    condition: all of selection_endpoint and selection_parameters and selection_payload\nlevel: high\ntags:\n    - cve.2026.3728\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\";\n    flow:to_server,established;\n    content:\"/goform/setcfm\"; http_uri;\n    content:\"funcname=\"; http_client_body;\n    content:\"funcpara1=\"; http_client_body;\n    reference:cve,2026-3728;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/1.If.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25533",
+    "title": "Netartmedia PHP Business Directory 4.2 SQL Injection 취약점",
+    "description": "Netartmedia PHP Business Directory 4.2 버전에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회할 수 있습니다. 공격자는 `loginaction.php` 엔드포인트로 조작된 SQL 페이로드를 POST 요청으로 전송합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Phpbusinessdirectory",
+        "product": "Netartmedia PHP Business Directory",
+        "versions": "4.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:30.172793+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25532",
+    "title": "Netartmedia 채용 포털 6.1 SQL Injection 취약점",
+    "description": "Netartmedia 채용 포털 6.1에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 이용하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회하는 데 사용될 수 있습니다. 공격자는 조작된 SQL 페이로드를 Email 필드에 담아 POST 요청을 보낼 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia Jobs Portal",
+        "versions": "6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:27.671586+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4171",
+    "title": "CodeGenieApp 서버리스-익스프레스 API 엔드포인트 TodoList.ts 권한 우회 취약점",
+    "description": "CodeGenieApp 서버리스-익스프레스 4.17.1 버전 이하에서 TodoList.ts 파일의 userId 인자 조작을 통해 권한 우회 취약점이 발견되었습니다. 원격으로 공격이 가능하며, 익스플로잇이 공개되어 악용될 수 있습니다. 해당 취약점에 대해 공급업체에 알렸으나 응답이 없습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639",
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "CodeGenieApp",
+        "product": "serverless-express",
+        "versions": "4.17.0 (단일 버전), 4.17.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T08:57:20.36344+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -9312,42 +9743,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25178",
-    "title": "WinSock 권한 상승 취약점을 이용한 Windows 보조 기능 드라이버",
-    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:57.416213+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-25177",
     "title": "Active Directory 도메인 서비스 권한 상승 취약점",
     "description": "Active Directory 도메인 서비스의 권한 상승 취약점이 발견되었습니다.",
@@ -9791,43 +10186,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-24295",
-    "title": "Windows 장치 연결 서비스 권한 상승 취약점",
-    "description": "Windows 장치 연결 서비스의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362",
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:42.404284+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24294",
     "title": "Windows SMB 서버 권한 상승 취약점",
     "description": "Windows SMB 서버의 취약점을 통해 권한 상승이 가능합니다.",
@@ -10120,42 +10478,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-24285",
-    "title": "Win32k 권한 상승 취약점",
-    "description": "Win32k 구성 요소의 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office for Android",
-        "versions": "16.0.1 부터 16.0.19822.20000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:30.86565+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24283",
     "title": "다수의 UNC 공급자 커널 드라이버 권한 상승 취약점",
     "description": "UNC 공급자 커널 드라이버에서 권한 상승 취약점이 발견되었습니다.",
@@ -10349,43 +10671,6 @@
         "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23671",
-    "title": "Windows Bluetooth RFCOM 프로토콜 드라이버 권한 상승 취약점",
-    "description": "Windows Bluetooth RFCOM 프로토콜 드라이버의 취약점을 통해 권한 상승이 가능합니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362",
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:56:28.362138+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -27179,58 +27464,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2019-25533",
-    "title": "Netartmedia PHP Business Directory 4.2 SQL Injection 취약점",
-    "description": "Netartmedia PHP Business Directory 4.2 버전에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회할 수 있습니다. 공격자는 `loginaction.php` 엔드포인트로 조작된 SQL 페이로드를 POST 요청으로 전송합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Phpbusinessdirectory",
-        "product": "Netartmedia PHP Business Directory",
-        "versions": "4.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:30.172793+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2019-25532",
-    "title": "Netartmedia 채용 포털 6.1 SQL Injection 취약점",
-    "description": "Netartmedia 채용 포털 6.1에서 인증되지 않은 공격자가 `loginaction.php`를 통해 SQL injection 공격을 수행할 수 있습니다. 이 취약점은 Email 파라미터를 이용하여 데이터베이스 쿼리를 조작하며, 민감한 데이터베이스 정보를 탈취하거나 인증을 우회하는 데 사용될 수 있습니다. 공격자는 조작된 SQL 페이로드를 Email 필드에 담아 POST 요청을 보낼 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Netartmedia",
-        "product": "Netartmedia Jobs Portal",
-        "versions": "6.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:27.671586+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25529",
     "title": "Placeto CMS Alpha rv.4 페이지 파라미터 SQL Injection 취약점",
     "description": "Placeto CMS Alpha rv.4는 'page' 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함합니다. 인증된 공격자는 boolean 기반, time 기반, union 기반 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. 공격은 admin/edit.php 엔드포인트에 악성 'page' 값을 포함한 GET 요청을 통해 이루어집니다.",
@@ -32121,32 +32354,6 @@
     ],
     "report_url": null,
     "date": "2026-03-11T15:09:56.603305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30901",
-    "title": "Windows용 Zoom Rooms - 부적절한 입력 유효성 검사",
-    "description": "Windows용 Zoom Rooms 6.6.5 이전 버전에서 키오스크 모드 사용 시, 인증된 사용자가 로컬 접근을 통해 권한 상승을 유발할 수 있는 입력 유효성 검사 오류가 존재합니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Zoom Communications Inc.",
-        "product": "Zoom Rooms",
-        "versions": "6.6.5 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T15:09:56.604319+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -67090,108 +67297,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-3728",
-    "title": "Tenda F453 setcfm 함수 스택 기반 오버플로우 취약점",
-    "description": "Tenda F453 1.0.0.3/1.If 버전에서 /goform/setcfm 파일의 fromSetCfm 함수 관련 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. funcname/funcpara1 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전), 1.If (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/111",
-    "date": "2026-03-08T10:47:04.379683+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\nstatus: experimental\ndescription: Detects attempts to exploit CVE-2026-3728 by sending overly long or suspicious values to the `funcname` or `funcpara1` parameters of the `/goform/setcfm` endpoint on Tenda F453 routers.\nauthor: Senior Detection Engineer\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/setcfm\"\n    selection_parameters:\n        uri|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n        cs-body|contains|any:\n            - \"funcname=\"\n            - \"funcpara1=\"\n    selection_payload:\n        # Look for unusually long values or typical overflow patterns (e.g., long sequences of A/Z/0)\n        uri|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n        cs-body|regex: \"(funcname|funcpara1)=[A-Za-z0-9]{100,}\"\n    condition: all of selection_endpoint and selection_parameters and selection_payload\nlevel: high\ntags:\n    - cve.2026.3728\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3728 Remote Buffer Overflow Attempt via /goform/setcfm\";\n    flow:to_server,established;\n    content:\"/goform/setcfm\"; http_uri;\n    content:\"funcname=\"; http_client_body;\n    content:\"funcpara1=\"; http_client_body;\n    reference:cve,2026-3728;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/1.If.)"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3727",
-    "title": "Tenda F453 QuickIndex 스택 기반 오버플로우",
-    "description": "Tenda F453 1.0.0.3 버전에서 QuickIndex의 sub_3C6C0 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. mit_linktype/PPPOEPassword 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/112",
-    "date": "2026-03-08T10:47:37.278292+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3727 Buffer Overflow Attempt via PPPOEPassword Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the stack-based buffer overflow in Tenda F453 firmware (v1.0.0.3) by sending overly long values to the mit_linktype/PPPOEPassword parameter of the /goform/QuickIndex endpoint.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/goform/QuickIndex'\n    selection_param:\n        uri|contains: 'PPPOEPassword'\n        # also catch POST body if used\n        cs-body|contains: 'PPPOEPassword'\n    selection_payload:\n        # Detect unusually long payloads that may trigger the overflow\n        uri|regex: '.{500,}'\n        cs-body|regex: '.{500,}'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3727\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1068\n    - vulnerability.buffer_overflow\n    - product.tenda_f453\n    - severity.high",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3727 Buffer Overflow Attempt via mit_linktype/PPPOEPassword parameter\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/QuickIndex\"; nocase;\n    http_client_body; content:\"mit_linktype=\"; nocase;\n    http_client_body; content:\"PPPOEPassword=\"; nocase;\n    reference:cve,2026-3727;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/goform/QuickIndex.)"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-23238",
     "title": "romfs: sb_set_blocksize() 반환 값 확인",
     "description": "Linux 커널의 romfs에서 `sb_set_blocksize()` 반환 값을 확인하지 않아 블록 장치 구성과 호환되지 않는 블록 크기 요청 시 오류가 발생할 수 있는 취약점이 수정되었습니다.",
@@ -67306,57 +67411,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "None"
-  },
-  {
-    "id": "CVE-2026-3729",
-    "title": "Tenda F453 PPTPDClient fromPptpUserAdd 스택 기반 오버플로우",
-    "description": "Tenda F453 1.0.0.3/3.As 버전에서 /goform/PPTPDClient 파일의 fromPptpUserAdd 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. username/opttype 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전), 3.As (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/110",
-    "date": "2026-03-08T10:46:43.232925+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3729 Exploitation Attempt via PPTPDClient Buffer Overflow\nstatus: experimental\ndescription: Detects attempts to exploit the stack‑based buffer overflow in the fromPptpUserAdd function of Tenda F453 by sending overly long or malicious values to the `username` or `opttype` parameters of `/goform/PPTPDClient`.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/PPTPDClient\"\n    selection_method:\n        request_method|contains: \"POST\"\n    selection_username_long:\n        cs-body|contains|regex: \"(?i)username=.{200,}\"\n    selection_opttype_long:\n        cs-body|contains|regex: \"(?i)opttype=.{200,}\"\n    selection_malicious_chars:\n        cs-body|contains|any:\n            - \"%u\"\n            - \"%n\"\n            - \"%x\"\n            - \"%s\"\n            - \"%p\"\n            - \"%d\"\n            - \"%c\"\n    condition: all of selection_endpoint, selection_method, (selection_username_long or selection_opttype_long), selection_malicious_chars\nlevel: high\ntags:\n    - cve.2026.3729\n    - attack.initial_access\n    - attack.t1210\n    - attack.t1059\n    - attack.t1499\n    - vulnerability\n    - tenda\n    - buffer_overflow",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3729 Remote Buffer Overflow Attempt via /goform/PPTPDClient username/opttype parameters\";\n    flow:to_server,established;\n    http_method; content:\"POST\"; nocase;\n    http_uri; content:\"/goform/PPTPDClient\"; nocase;\n    http_client_body; content:\"username=\"; nocase;\n    http_client_body; pcre:\"/username=[A-Za-z0-9]{200,}/i\";\n    http_client_body; content:\"opttype=\"; nocase;\n    reference:cve,2026-3729;\n    reference:url,https://vuldb.com/?id.349707;\n    classtype:web-application-attack;\n    sid:9000123;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/3.As.)"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3724",
