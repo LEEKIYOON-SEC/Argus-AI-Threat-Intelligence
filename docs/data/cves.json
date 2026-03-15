@@ -1,5 +1,539 @@
 [
   {
+    "id": "CVE-2026-2233",
+    "title": "사용자 프론트엔드: AI 기반 프론트엔드 게시, 사용자 디렉토리, 프로필, 멤버십 & 사용자 등록 <= 4.2.8 - 'post_id' 파라미터를 통한 인증되지 않은 임의 게시물 수정 권한 누락",
+    "description": "워드프레스 플러그인 '사용자 프론트엔드'는 4.2.8 버전까지 `draft_post()` 함수에서 권한 검사가 누락되어 데이터 무단 수정 취약점이 존재합니다. 인증되지 않은 공격자가 'post_id' 파라미터를 통해 임의의 게시물을 수정(예: 게시된 게시물 숨기기, 내용 덮어쓰기)할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wedevs",
+        "product": "User Frontend: AI Powered Frontend Posting, User Directory, Profile, Membership & User Registration",
+        "versions": "* 부터 4.2.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T03:33:09.799743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-31806",
+    "title": "FreeRDP의 nsc_process_message() 함수 힙 버퍼 오버플로우 취약점",
+    "description": "FreeRDP 3.24.0 이전 버전에서 RDP 서버로부터 전송된 SURFACE_BITS_COMMAND 메시지를 처리하는 과정에서, 서버가 제공하는 bmp.width 및 bmp.height 값이 실제 데스크톱 크기에 대해 제대로 검증되지 않습니다. 악의적인 RDP 서버는 예상보다 큰 값을 전송하여 힙 버퍼 오버플로우를 발생시킬 수 있으며, 공격자는 이를 통해 인접한 힙 메모리를 덮어쓸 수 있습니다. 3.24.0 버전에서 해당 취약점이 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeRDP",
+        "product": "FreeRDP",
+        "versions": "< 3.24.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/245",
+    "date": "2026-03-13T17:54:20.781005+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-32746",
+    "title": "GNU inetutils telnetd의 범위 초과 쓰기 취약점",
+    "description": "GNU inetutils 2.7 이하 버전의 telnetd에서 LINEMODE SLC(Set Local Characters) 서브옵션 처리 과정 중 add_slc 함수가 버퍼 오버플로우 검사를 수행하지 않아 범위 초과 쓰기 취약점이 발생할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "inetutils",
+        "versions": "2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T17:54:25.667099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-0957",
+    "title": "Digilent DASYLab의 경계 외 쓰기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 존재합니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/240",
+    "date": "2026-03-13T15:06:11.148085+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0957 Digilent DASYLab Malicious File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious or corrupted DASYLab project file, which may trigger the out-of-bounds write vulnerability (CVE-2026-0957).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_file:\n        CommandLine|contains: '.dsy'\n    selection_user_interaction:\n        ParentImage|contains: 'explorer.exe'\n    condition: all of selection_*\nlevel: high\ntags:\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - cve.2026.0957\n    - cwe.787\n    - dasylab\n    - digilent\n    - windows\n    - sigma\n    - exploit\n    - out_of_bounds_write",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0956",
+    "title": "Digilent DASYLab 경계 외 읽기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 있습니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T16:00:17.780281+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0954",
+    "title": "Digilent DASYLab 손상된 DSB 파일 열기 시 경계 외 쓰기 취약점",
+    "description": "Digilent DASYLab에서 손상된 DSB 파일을 로드할 때 발생하는 메모리 손상 취약점입니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 DSB 파일을 사용자를 유도하여 열도록 해야 악용이 가능하며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/239",
+    "date": "2026-03-13T15:05:44.280086+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0954 Digilent DASYLab .DSB File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious .DSB file, which may exploit CVE-2026-0954 (out-of-bounds write).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_argument:\n        CommandLine|contains: '.dsb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.0954\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - mitre\n    - windows\n    - process_creation",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
+        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-0955",
+    "title": "Digilent DASYLab 손상된 파일 열기 시 경계 외 읽기 취약점",
+    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 경계 외 읽기 메모리 손상 취약점이 존재합니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Digilent",
+        "product": "DASYLab",
+        "versions": "* 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-13T16:00:19.82951+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T23:45:00.316665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2018-25191",
+    "title": "Facturation System 1.0 SQL Injection 취약점",
+    "description": "Facturation System 1.0에서 'mod_id' 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점이 발견되었습니다. 인증된 공격자는 editar_producto.php 엔드포인트에 조작된 SQL 페이로드를 담은 POST 요청을 보내 데이터베이스 정보를 탈취할 수 있습니다. 탈취 가능한 정보에는 사용자 이름, 데이터베이스 이름, 버전 정보 등이 포함됩니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Obedalvarado",
+        "product": "Facturation System",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T14:09:19.569539+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29077",
+    "title": "Frappe: DocShare의 권한 관리 취약점",
+    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.98.0 및 14.100.0 버전 이전에는 문서 공유 시 유효성 검사 부족으로 인해 사용자가 자신이 가지지 않은 권한으로 문서를 공유할 수 있었습니다. 해당 문제는 15.98.0 및 14.100.0 버전에 패치되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284",
+      "CWE-602"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 15.98.0 (단일 버전), < 14.100.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:59:51.797554+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-13350",
+    "title": "Ubuntu 리눅스 커널에서 고아 AF_UNIX 사용 후 해제 취약점",
+    "description": "Ubuntu Linux 6.8 커널은 기존 AF_UNIX 가비지 컬렉터를 유지하면서 upstream 커밋을 백포팅했지만, 고아 MSG_OOB 소켓이 unix_gc()를 호출할 때 버퍼가 여전히 접근 가능한 상태에서 해제되어 use-after-free (UAF) 취약점이 발생합니다. 이는 로컬 권한 상승으로 이어질 수 있으며, 6.8.0-56.58 버전부터 6.8.0-84.84 이전 버전에 영향을 미칩니다. 새로운 GC 스택을 사용하는 빌드 및 mainline Linux 커널은 영향을 받지 않습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Canonical",
+        "product": "Ubuntu Linux",
+        "versions": "6.8.0-56.58 부터 6.8.0-84.84 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T20:19:46.444571+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28548",
+    "title": "이메일 애플리케이션의 부적절한 검증 취약점",
+    "description": "이메일 애플리케이션의 검증 과정에서 보안 취약점이 발견되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "Huawei",
+        "product": "HarmonyOS",
+        "versions": "4.2.0 (단일 버전), 4.0.0 (단일 버전), 3.1.0 (단일 버전), 2.0.0 (단일 버전)"
+      },
+      {
+        "vendor": "Huawei",
+        "product": "EMUI",
+        "versions": "14.2.0 (단일 버전), 14.0.0 (단일 버전), 13.0.0 (단일 버전), 12.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T09:03:07.137287+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28781",
+    "title": "대량 할당을 통한 엔트리 저자 위조 취약점 (Craft CMS)",
+    "description": "Craft CMS 4.17.0-beta.1 및 5.9.0-beta.1 이전 버전에서, 엔트리 생성 시 authorId 속성에 대한 대량 할당이 허용됩니다. \"엔트리 생성\" 권한을 가진 사용자가 POST 요청에 authorIds[] (또는 authorId) 파라미터를 삽입하여 다른 사용자의 저자권을 위조할 수 있습니다. 이 취약점은 4.17.0-beta.1 및 5.9.0-beta.1에서 수정되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639",
+      "CWE-915"
+    ],
+    "affected": [
+      {
+        "vendor": "craftcms",
+        "product": "cms",
+        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T17:20:36.161835+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-25180",
+    "title": "Maitra 1.7.2 SQL Injection 및 데이터베이스 파일 다운로드 취약점",
+    "description": "Maitra 1.7.2 버전에서 인증된 공격자가 outmail 및 inmail 모듈의 mailid 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 또한 애플리케이션 디렉토리에서 SQLite 데이터베이스 파일을 직접 다운로드하여 민감한 메일 추적 데이터 및 자격 증명을 탈취할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Salzertechnologies",
+        "product": "Maitra",
+        "versions": "1.7.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-06T13:58:59.4695+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30962",
+    "title": "Parse Server의 논리적 쿼리 연산자를 통한 보호 필드 우회 취약점",
+    "description": "Parse Server는 Node.js 환경에서 실행 가능한 오픈 소스 백엔드입니다. 9.5.2-alpha.6 및 8.6.19 이전 버전에서 보호 필드 검증이 최상위 쿼리 키만 확인하여, 논리 연산자 내부에 보호 필드 제약 조건을 감싸면 검증을 완전히 우회할 수 있습니다. 인증된 사용자가 보호 필드 값을 추출할 수 있으며, 모든 Parse Server 배포가 기본적으로 취약합니다. 해당 취약점은 9.5.2-alpha.6 및 8.6.19에서 해결되었습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "parse-community",
+        "product": "parse-server",
+        "versions": ">= 9.0.0 < 9.5.2-alpha.6 (단일 버전), < 8.6.19 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-10T21:46:40.972649+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28459",
+    "title": "OpenClaw < 2026.2.12 - 신뢰할 수 없는 sessionFile 경로를 통한 임의 파일 쓰기",
+    "description": "OpenClaw 2026.2.12 이전 버전은 sessionFile 경로 파라미터를 검증하지 않아, 인증된 게이트웨이 클라이언트가 호스트 파일 시스템의 임의 위치에 트랜스크립트 데이터를 쓸 수 있습니다. 공격자는 sessions 디렉토리 외부의 경로를 사용하여 파일을 생성하고 데이터를 반복적으로 추가하여 설정 손상 또는 서비스 거부를 유발할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.2.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-05T23:53:23.884686+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25503",
+    "title": "PHPads 2.0 SQL 삽입 취약점 - click.php3 bannerID",
+    "description": "PHPads 2.0은 click.php3의 bannerID 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL 삽입 취약점을 포함하고 있습니다. 공격자는 SQL 주석 구문 및 extractvalue 함수 등을 사용하여 데이터베이스 이름과 같은 민감한 정보를 탈취할 수 있습니다. 인증되지 않은 공격자도 공격이 가능합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Blondish",
+        "product": "PHPads",
+        "versions": "2.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-04T18:06:23.329472+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3698",
+    "title": "UTT HiPER 810G NTP strcpy 버퍼 오버플로우",
+    "description": "UTT HiPER 810G 1.7.7-171114 버전 이하에서 /goform/NTP 파일의 strcpy 함수에 버퍼 오버플로우 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "UTT",
+        "product": "HiPER 810G",
+        "versions": "1.7.7-171114 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/103",
+    "date": "2026-03-08T03:14:16.271494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/NTP.))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-32774",
     "title": "Vulnogram - 댓글 하이퍼링크를 통한 저장형 XSS 취약점",
     "description": "Vulnogram 1.0.0 버전에서 댓글 하이퍼링크 처리 과정에 저장형 XSS 취약점이 존재합니다. 공격자는 댓글을 통해 악성 스크립트를 삽입하여 피해자의 브라우저에서 임의의 JavaScript 코드를 실행할 수 있습니다. 이를 통해 악의적인 공격이 가능합니다.",
@@ -44,42 +578,6 @@
     ],
     "report_url": null,
     "date": "2026-03-14T22:47:58.876834+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -5946,32 +6444,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-32746",
-    "title": "GNU inetutils telnetd의 범위 초과 쓰기 취약점",
-    "description": "GNU inetutils 2.7 이하 버전의 telnetd에서 LINEMODE SLC(Set Local Characters) 서브옵션 처리 과정 중 add_slc 함수가 버퍼 오버플로우 검사를 수행하지 않아 범위 초과 쓰기 취약점이 발생할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120"
-    ],
-    "affected": [
-      {
-        "vendor": "GNU",
-        "product": "inetutils",
-        "versions": "2.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T17:54:25.667099+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-32598",
     "title": "OneUptime: 비밀번호 재설정 토큰 INFO 레벨로 로깅",
     "description": "OneUptime은 온라인 서비스 모니터링 및 관리 솔루션입니다. 10.0.24 이전 버전에서는 비밀번호 재설정 과정에서 일반 텍스트 토큰을 포함한 전체 재설정 URL이 기본적으로 활성화된 INFO 레벨로 로깅되었습니다. 애플리케이션 로그에 접근 가능한 경우, 재설정 토큰을 가로채 계정 탈취가 가능합니다. 해당 취약점은 10.0.24에서 수정되었습니다.",
@@ -6045,41 +6517,6 @@
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31806",
-    "title": "FreeRDP의 nsc_process_message() 함수 힙 버퍼 오버플로우 취약점",
-    "description": "FreeRDP 3.24.0 이전 버전에서 RDP 서버로부터 전송된 SURFACE_BITS_COMMAND 메시지를 처리하는 과정에서, 서버가 제공하는 bmp.width 및 bmp.height 값이 실제 데스크톱 크기에 대해 제대로 검증되지 않습니다. 악의적인 RDP 서버는 예상보다 큰 값을 전송하여 힙 버퍼 오버플로우를 발생시킬 수 있으며, 공격자는 이를 통해 인접한 힙 메모리를 덮어쓸 수 있습니다. 3.24.0 버전에서 해당 취약점이 수정되었습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "FreeRDP",
-        "product": "FreeRDP",
-        "versions": "< 3.24.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/245",
-    "date": "2026-03-13T17:54:20.781005+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
     "has_poc": false,
     "poc_urls": [],
     "severity": "Critical"
@@ -6296,140 +6733,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-0957",
-    "title": "Digilent DASYLab의 경계 외 쓰기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 존재합니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/240",
-    "date": "2026-03-13T15:06:11.148085+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0957 Digilent DASYLab Malicious File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious or corrupted DASYLab project file, which may trigger the out-of-bounds write vulnerability (CVE-2026-0957).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_file:\n        CommandLine|contains: '.dsy'\n    selection_user_interaction:\n        ParentImage|contains: 'explorer.exe'\n    condition: all of selection_*\nlevel: high\ntags:\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - cve.2026.0957\n    - cwe.787\n    - dasylab\n    - digilent\n    - windows\n    - sigma\n    - exploit\n    - out_of_bounds_write",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0956",
-    "title": "Digilent DASYLab 경계 외 읽기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 발생하는 메모리 손상 취약점이 있습니다. 이 취약점을 통해 정보 유출 또는 임의 코드 실행이 가능할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T16:00:17.780281+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0955",
-    "title": "Digilent DASYLab 손상된 파일 열기 시 경계 외 읽기 취약점",
-    "description": "Digilent DASYLab에서 손상된 파일을 로드할 때 경계 외 읽기 메모리 손상 취약점이 존재합니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 파일을 사용자를 열도록 유도하여 악용할 수 있으며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-13T16:00:19.82951+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-0954",
-    "title": "Digilent DASYLab 손상된 DSB 파일 열기 시 경계 외 쓰기 취약점",
-    "description": "Digilent DASYLab에서 손상된 DSB 파일을 로드할 때 발생하는 메모리 손상 취약점입니다. 이로 인해 정보 유출 또는 임의 코드 실행이 발생할 수 있습니다. 공격자는 악성 DSB 파일을 사용자를 유도하여 열도록 해야 악용이 가능하며, 모든 버전의 Digilent DASYLab에 영향을 미칩니다.",
-    "cvss": 7.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Digilent",
-        "product": "DASYLab",
-        "versions": "* 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/239",
-    "date": "2026-03-13T15:05:44.280086+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-0954 Digilent DASYLab .DSB File Execution Attempt\nstatus: experimental\ndescription: Detects execution of Digilent DASYLab with a potentially malicious .DSB file, which may exploit CVE-2026-0954 (out-of-bounds write).\nauthor: Sigma Rule Generator\ndate: 2026-03-13\nlogsource:\n    product: windows\n    category: process_creation\ndetection:\n    selection_process:\n        Image|endswith: '\\\\DASYLab.exe'\n    selection_argument:\n        CommandLine|contains: '.dsb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.0954\n    - attack.initial_access\n    - attack.execution\n    - attack.t1566.001\n    - attack.t1203\n    - mitre\n    - windows\n    - process_creation",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)",
-        "network": "공격벡터 LOCAL — 네트워크 룰 부적합"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-0385",
@@ -44463,32 +44766,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-30962",
-    "title": "Parse Server의 논리적 쿼리 연산자를 통한 보호 필드 우회 취약점",
-    "description": "Parse Server는 Node.js 환경에서 실행 가능한 오픈 소스 백엔드입니다. 9.5.2-alpha.6 및 8.6.19 이전 버전에서 보호 필드 검증이 최상위 쿼리 키만 확인하여, 논리 연산자 내부에 보호 필드 제약 조건을 감싸면 검증을 완전히 우회할 수 있습니다. 인증된 사용자가 보호 필드 값을 추출할 수 있으며, 모든 Parse Server 배포가 기본적으로 취약합니다. 해당 취약점은 9.5.2-alpha.6 및 8.6.19에서 해결되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "parse-community",
-        "product": "parse-server",
-        "versions": ">= 9.0.0 < 9.5.2-alpha.6 (단일 버전), < 8.6.19 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-10T21:46:40.972649+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-30954",
     "title": "LinkAce의 교차 사용자 태그/목록 연결 IDOR 취약점",
     "description": "LinkAce는 웹사이트 링크를 수집하는 자체 호스팅 아카이브입니다. 2.1.0 버전 이하에서 LinkRepository.php의 processTaxonomy() 메서드를 통해 인증된 사용자가 정수 ID를 전달하여 다른 사용자의 비공개 태그 및 목록을 자신의 링크에 연결할 수 있습니다. 이는 교차 사용자 접근 문제로 이어질 수 있습니다.",
@@ -57677,32 +57954,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2018-25180",
-    "title": "Maitra 1.7.2 SQL Injection 및 데이터베이스 파일 다운로드 취약점",
-    "description": "Maitra 1.7.2 버전에서 인증된 공격자가 outmail 및 inmail 모듈의 mailid 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점이 발견되었습니다. 공격자는 또한 애플리케이션 디렉토리에서 SQLite 데이터베이스 파일을 직접 다운로드하여 민감한 메일 추적 데이터 및 자격 증명을 탈취할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Salzertechnologies",
-        "product": "Maitra",
-        "versions": "1.7.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T13:58:59.4695+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2018-25168",
     "title": "Precurio Intranet Portal 2.0 크로스 사이트 요청 위조 취약점 - 관리자 계정 추가",
     "description": "Precurio Intranet Portal 2.0에 인증되지 않은 공격자가 조작된 POST 요청을 통해 관리자 계정을 생성할 수 있는 크로스 사이트 요청 위조(CSRF) 취약점이 존재합니다. 공격자는 CSRF 토큰이나 사용자 상호작용 없이 /public/admin/user/submitnew 엔드포인트에 요청을 위조하여 새로운 관리자 계정을 추가할 수 있습니다.",
@@ -60172,32 +60423,6 @@
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
       }
     },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28459",
-    "title": "OpenClaw < 2026.2.12 - 신뢰할 수 없는 sessionFile 경로를 통한 임의 파일 쓰기",
-    "description": "OpenClaw 2026.2.12 이전 버전은 sessionFile 경로 파라미터를 검증하지 않아, 인증된 게이트웨이 클라이언트가 호스트 파일 시스템의 임의 위치에 트랜스크립트 데이터를 쓸 수 있습니다. 공격자는 sessions 디렉토리 외부의 경로를 사용하여 파일을 생성하고 데이터를 반복적으로 추가하여 설정 손상 또는 서비스 거부를 유발할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.2.12 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T23:53:23.884686+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
@@ -67218,42 +67443,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-3698",
-    "title": "UTT HiPER 810G NTP strcpy 버퍼 오버플로우",
-    "description": "UTT HiPER 810G 1.7.7-171114 버전 이하에서 /goform/NTP 파일의 strcpy 함수에 버퍼 오버플로우 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "UTT",
-        "product": "HiPER 810G",
-        "versions": "1.7.7-171114 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/103",
-    "date": "2026-03-08T03:14:16.271494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/NTP.))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-3697",
     "title": "Planet ICG-2510 언어 패키지 구성 httpd sub_40C8E4 스택 기반 오버플로우",
     "description": "Planet ICG-2510 1.0_20250811에서 언어 패키지 구성 핸들러의 sub_40C8E4 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 'Language' 인수를 조작하여 원격으로 공격이 가능합니다. 해당 벤더에 통보했으나 응답이 없습니다.",
@@ -67653,32 +67842,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2018-25191",
-    "title": "Facturation System 1.0 SQL Injection 취약점",
-    "description": "Facturation System 1.0에서 'mod_id' 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL Injection 취약점이 발견되었습니다. 인증된 공격자는 editar_producto.php 엔드포인트에 조작된 SQL 페이로드를 담은 POST 요청을 보내 데이터베이스 정보를 탈취할 수 있습니다. 탈취 가능한 정보에는 사용자 이름, 데이터베이스 이름, 버전 정보 등이 포함됩니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Obedalvarado",
-        "product": "Facturation System",
-        "versions": "1.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-06T14:09:19.569539+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28492",
     "title": "파일 브라우저: 공개 공유 링크의 경로 탐색 취약점으로 공유 디렉터리 외부 파일 노출",
     "description": "파일 브라우저는 지정된 디렉터리 내에서 파일을 관리하는 인터페이스를 제공하며, 업로드, 삭제, 미리보기, 이름 변경 및 편집 기능을 지원합니다. 2.61.0 버전 이전에는 공개 공유 링크 생성 시 `http/public.go`의 `withHashFile` 미들웨어가 `filepath.Dir(link.Path)`를 사용하여 BasePathFs 루트를 계산했습니다. 이로 인해 파일 시스템 루트가 공유 디렉터리 자체가 아닌 상위 디렉터리로 설정되어 공유 링크를 가진 누구나 모든 형제 디렉터리의 파일을 탐색하고 다운로드할 수 있었습니다. 해당 문제는 2.61.0 버전에서 수정되었습니다.",
@@ -67697,59 +67860,6 @@
     ],
     "report_url": null,
     "date": "2026-03-05T22:10:11.443455+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29077",
-    "title": "Frappe: DocShare의 권한 관리 취약점",
-    "description": "Frappe는 풀스택 웹 애플리케이션 프레임워크입니다. 15.98.0 및 14.100.0 버전 이전에는 문서 공유 시 유효성 검사 부족으로 인해 사용자가 자신이 가지지 않은 권한으로 문서를 공유할 수 있었습니다. 해당 문제는 15.98.0 및 14.100.0 버전에 패치되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284",
-      "CWE-602"
-    ],
-    "affected": [
-      {
-        "vendor": "frappe",
-        "product": "frappe",
-        "versions": "< 15.98.0 (단일 버전), < 14.100.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:59:51.797554+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-13350",
-    "title": "Ubuntu 리눅스 커널에서 고아 AF_UNIX 사용 후 해제 취약점",
-    "description": "Ubuntu Linux 6.8 커널은 기존 AF_UNIX 가비지 컬렉터를 유지하면서 upstream 커밋을 백포팅했지만, 고아 MSG_OOB 소켓이 unix_gc()를 호출할 때 버퍼가 여전히 접근 가능한 상태에서 해제되어 use-after-free (UAF) 취약점이 발생합니다. 이는 로컬 권한 상승으로 이어질 수 있으며, 6.8.0-56.58 버전부터 6.8.0-84.84 이전 버전에 영향을 미칩니다. 새로운 GC 스택을 사용하는 빌드 및 mainline Linux 커널은 영향을 받지 않습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Canonical",
-        "product": "Ubuntu Linux",
-        "versions": "6.8.0-56.58 부터 6.8.0-84.84 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T20:19:46.444571+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -74046,37 +74156,6 @@
     "severity": "None"
   },
   {
-    "id": "CVE-2026-28548",
-    "title": "이메일 애플리케이션의 부적절한 검증 취약점",
-    "description": "이메일 애플리케이션의 검증 과정에서 보안 취약점이 발견되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-269"
-    ],
-    "affected": [
-      {
-        "vendor": "Huawei",
-        "product": "HarmonyOS",
-        "versions": "4.2.0 (단일 버전), 4.0.0 (단일 버전), 3.1.0 (단일 버전), 2.0.0 (단일 버전)"
-      },
-      {
-        "vendor": "Huawei",
-        "product": "EMUI",
-        "versions": "14.2.0 (단일 버전), 14.0.0 (단일 버전), 13.0.0 (단일 버전), 12.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-05T09:03:07.137287+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28544",
     "title": "인쇄 모듈의 경쟁 조건 취약점",
     "description": "인쇄 모듈에서 경쟁 조건 취약점이 발견되었습니다.",
@@ -77888,32 +77967,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2019-25503",
-    "title": "PHPads 2.0 SQL 삽입 취약점 - click.php3 bannerID",
-    "description": "PHPads 2.0은 click.php3의 bannerID 파라미터를 통해 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있는 SQL 삽입 취약점을 포함하고 있습니다. 공격자는 SQL 주석 구문 및 extractvalue 함수 등을 사용하여 데이터베이스 이름과 같은 민감한 정보를 탈취할 수 있습니다. 인증되지 않은 공격자도 공격이 가능합니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Blondish",
-        "product": "PHPads",
-        "versions": "2.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T18:06:23.329472+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25502",
     "title": "Simple Job Script의 job_type_value 파라미터 Cross-Site Scripting 취약점",
     "description": "Simple Job Script는 jobs 엔드포인트의 job_type_value 파라미터를 조작하여 인증되지 않은 공격자가 악성 스크립트를 삽입할 수 있는 XSS 취약점을 포함합니다. 공격자는 SVG 페이로드를 주입하여 피해자의 브라우저에서 임의의 JavaScript를 실행하고 세션 쿠키를 탈취하거나 권한 없는 작업을 수행할 수 있습니다.",
@@ -77990,33 +78043,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-28781",
-    "title": "대량 할당을 통한 엔트리 저자 위조 취약점 (Craft CMS)",
-    "description": "Craft CMS 4.17.0-beta.1 및 5.9.0-beta.1 이전 버전에서, 엔트리 생성 시 authorId 속성에 대한 대량 할당이 허용됩니다. \"엔트리 생성\" 권한을 가진 사용자가 POST 요청에 authorIds[] (또는 authorId) 파라미터를 삽입하여 다른 사용자의 저자권을 위조할 수 있습니다. 이 취약점은 4.17.0-beta.1 및 5.9.0-beta.1에서 수정되었습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639",
-      "CWE-915"
-    ],
-    "affected": [
-      {
-        "vendor": "craftcms",
-        "product": "cms",
-        "versions": ">= 5.0.0-RC1, < 5.9.0-beta.1 (단일 버전), >= 4.0.0-RC1, < 4.17.0-beta.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-04T17:20:36.161835+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-26673",
