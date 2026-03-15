@@ -1,58 +1,33 @@
 [
   {
-    "id": "CVE-2026-4172",
-    "title": "TRENDnet TEW-632BRP HTTP POST 요청 ping_response.cgi 스택 기반 오버플로우",
-    "description": "TRENDnet TEW-632BRP 1.010B32 버전에서 /ping_response.cgi 파일의 HTTP POST 요청 처리 과정에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ping_ipaddr 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되었습니다. 해당 벤더는 취약점 공개에 대해 응답하지 않았습니다.",
-    "cvss": 8.6,
-    "epss": 0,
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
     "is_kev": false,
     "cwe": [
-      "CWE-121",
-      "CWE-119"
+      "CWE-276"
     ],
     "affected": [
       {
-        "vendor": "TRENDnet",
-        "product": "TEW-632BRP",
-        "versions": "1.010B32 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/254",
-    "date": "2026-03-15T08:57:32.416305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-4175",
-    "title": "Aureus ERP Chatter 메시지 content-text-entry.blade.php 크로스 사이트 스크립팅 취약점",
-    "description": "Aureus ERP 1.3.0-BETA2 버전 이하에서 Chatter Message Handler 컴포넌트의 content-text-entry.blade.php 파일 내 미확인 함수에서 크로스 사이트 스크립팅 취약점이 발견되었습니다. subject/body 인자 조작을 통해 원격으로 공격이 가능하며, 1.3.0-BETA1 버전으로 업그레이드하면 해결됩니다. (패치: 2135ee7efff4090e70050b63015ab5e268760ec8)",
-    "cvss": 5.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79",
-      "CWE-94"
-    ],
-    "affected": [
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
       {
-        "vendor": "Aureus",
-        "product": "ERP",
-        "versions": "1.3.0-BETA2 (단일 버전)"
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
       }
     ],
     "report_url": null,
-    "date": "2026-03-15T10:51:55.897259+00:00",
+    "date": "2026-03-12T23:45:00.316665+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -86,6 +61,180 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4175",
+    "title": "Aureus ERP Chatter 메시지 content-text-entry.blade.php 크로스 사이트 스크립팅 취약점",
+    "description": "Aureus ERP 1.3.0-BETA2 버전 이하에서 Chatter Message Handler 컴포넌트의 content-text-entry.blade.php 파일 내 미확인 함수에서 크로스 사이트 스크립팅 취약점이 발견되었습니다. subject/body 인자 조작을 통해 원격으로 공격이 가능하며, 1.3.0-BETA1 버전으로 업그레이드하면 해결됩니다. (패치: 2135ee7efff4090e70050b63015ab5e268760ec8)",
+    "cvss": 5.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Aureus",
+        "product": "ERP",
+        "versions": "1.3.0-BETA2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-15T10:51:55.897259+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-25179",
+    "title": "WinSock 상승 권한 취약점을 이용한 Windows 보조 기능 드라이버",
+    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1287"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-11T04:57:02.419012+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3732",
+    "title": "Tenda F453 exeCommand strcpy 스택 기반 버퍼 오버플로우",
+    "description": "Tenda F453 1.0.0.3에서 /goform/exeCommand 파일의 strcpy 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. cmdinput 인자 조작을 통해 원격으로 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/113",
+    "date": "2026-03-08T11:37:36.665468+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3732 Remote Buffer Overflow Attempt via cmdinput Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the stack-based buffer overflow in Tenda F453 firmware (1.0.0.3) by sending overly long or suspicious payloads to the /goform/exeCommand endpoint via the cmdinput parameter.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/exeCommand\"\n    selection_param:\n        uri|contains: \"cmdinput\"\n    selection_payload:\n        uri|contains|any:\n            - \"A{100,}\"\n            - \"%u4141\"\n            - \"%2525\"\n            - \"%00\"\n            - \"%0d%0a\"\n            - \"%3c%73%63%72%69%70%74%3e\"\n    selection_method:\n        http_method|contains: \"POST\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3732\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059\n    - attack.t1499\n    - cwe.121\n    - cwe.119",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [
+        {
+          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3732 Buffer Overflow Attempt via cmdinput parameter\";\n    flow:to_server,established;\n    content:\"/goform/exeCommand\"; http_uri;\n    content:\"cmdinput=\"; http_client_body;\n    reference:cve,2026-3732;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
+          "engine": "generic",
+          "source": "AI Generated (Regex Validated)",
+          "verified": false,
+          "indicators": [
+            "파일 경로 (/goform/exeCommand.)"
+          ]
+        }
+      ],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-25536",
+    "title": "Netartmedia PHP 부동산 에이전시 4.0 SQL Injection 취약점",
+    "description": "Netartmedia PHP 부동산 에이전시 4.0 버전에서 `features[]` 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있습니다. 이를 통해 데이터베이스 정보를 탈취하거나 데이터베이스 쿼리를 조작할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Netartmedia",
+        "product": "Netartmedia PHP Real Estate Agency",
+        "versions": "4.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-12T16:19:38.489287+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4172",
+    "title": "TRENDnet TEW-632BRP HTTP POST 요청 ping_response.cgi 스택 기반 오버플로우",
+    "description": "TRENDnet TEW-632BRP 1.010B32 버전에서 /ping_response.cgi 파일의 HTTP POST 요청 처리 과정에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. ping_ipaddr 인자 조작을 통해 원격에서 공격이 가능하며, 관련 익스플로이트가 공개되었습니다. 해당 벤더는 취약점 공개에 대해 응답하지 않았습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "TRENDnet",
+        "product": "TEW-632BRP",
+        "versions": "1.010B32 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/254",
+    "date": "2026-03-15T08:57:32.416305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
   },
   {
     "id": "CVE-2026-4173",
@@ -146,42 +295,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
   },
   {
     "id": "CVE-2026-25178",
@@ -9699,42 +9812,6 @@
     ],
     "report_url": null,
     "date": "2026-03-06T21:53:20.849808+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25179",
-    "title": "WinSock 상승 권한 취약점을 이용한 Windows 보조 기능 드라이버",
-    "description": "WinSock 관련 Windows 보조 기능 드라이버에서 권한 상승 취약점이 발견되었습니다.",
-    "cvss": 7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1287"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.8957 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8511 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7058 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-11T04:57:02.419012+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -27438,32 +27515,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2019-25536",
-    "title": "Netartmedia PHP 부동산 에이전시 4.0 SQL Injection 취약점",
-    "description": "Netartmedia PHP 부동산 에이전시 4.0 버전에서 `features[]` 파라미터를 통해 SQL Injection 취약점이 발견되었습니다. 인증되지 않은 공격자가 악성 코드를 삽입하여 임의의 SQL 쿼리를 실행할 수 있습니다. 이를 통해 데이터베이스 정보를 탈취하거나 데이터베이스 쿼리를 조작할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Netartmedia",
-        "product": "Netartmedia PHP Real Estate Agency",
-        "versions": "4.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T16:19:38.489287+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2019-25529",
     "title": "Placeto CMS Alpha rv.4 페이지 파라미터 SQL Injection 취약점",
     "description": "Placeto CMS Alpha rv.4는 'page' 파라미터를 통해 SQL 코드를 삽입하여 데이터베이스 쿼리를 조작할 수 있는 SQL Injection 취약점을 포함합니다. 인증된 공격자는 boolean 기반, time 기반, union 기반 기법을 사용하여 민감한 데이터베이스 정보를 탈취할 수 있습니다. 공격은 admin/edit.php 엔드포인트에 악성 'page' 값을 포함한 GET 요청을 통해 이루어집니다.",
@@ -35739,57 +35790,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3732",
-    "title": "Tenda F453 exeCommand strcpy 스택 기반 버퍼 오버플로우",
-    "description": "Tenda F453 1.0.0.3에서 /goform/exeCommand 파일의 strcpy 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. cmdinput 인자 조작을 통해 원격으로 공격이 가능합니다. 해당 취약점의 익스플로잇 코드가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/113",
-    "date": "2026-03-08T11:37:36.665468+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3732 Remote Buffer Overflow Attempt via cmdinput Parameter\nstatus: experimental\ndescription: Detects attempts to exploit the stack-based buffer overflow in Tenda F453 firmware (1.0.0.3) by sending overly long or suspicious payloads to the /goform/exeCommand endpoint via the cmdinput parameter.\nauthor: Sigma Rule Generator\ndate: 2026-03-08\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: \"/goform/exeCommand\"\n    selection_param:\n        uri|contains: \"cmdinput\"\n    selection_payload:\n        uri|contains|any:\n            - \"A{100,}\"\n            - \"%u4141\"\n            - \"%2525\"\n            - \"%00\"\n            - \"%0d%0a\"\n            - \"%3c%73%63%72%69%70%74%3e\"\n    selection_method:\n        http_method|contains: \"POST\"\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3732\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1059\n    - attack.t1499\n    - cwe.121\n    - cwe.119",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [
-        {
-          "code": "# ⚠️ AI-Generated - Review Required\nalert tcp $EXTERNAL_NET any -> $HTTP_SERVERS $HTTP_PORTS (\n    msg:\"CVE-2026-3732 Buffer Overflow Attempt via cmdinput parameter\";\n    flow:to_server,established;\n    content:\"/goform/exeCommand\"; http_uri;\n    content:\"cmdinput=\"; http_client_body;\n    reference:cve,2026-3732;\n    classtype:web-application-attack;\n    sid:9000001;\n    rev:1;\n)",
-          "engine": "generic",
-          "source": "AI Generated (Regex Validated)",
-          "verified": false,
-          "indicators": [
-            "파일 경로 (/goform/exeCommand.)"
-          ]
-        }
-      ],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-3731",
