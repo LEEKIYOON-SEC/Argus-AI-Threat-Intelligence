@@ -1,5 +1,160 @@
 [
   {
+    "id": "CVE-2026-4206",
+    "title": "D-Link DNS-1550-04 dsk_mgr.cgi ScanDisk_run_e2fsck 명령어 삽입 취약점",
+    "description": "D-Link DNS 시리즈 장비(DNS-120, DNS-320 등)의 /cgi-bin/dsk_mgr.cgi 파일 내 FMT_rebuild_diskmgr 등 특정 함수에서 명령어 삽입 취약점이 발견되었습니다. 원격에서 공격이 가능하며, 관련 익스플로잇이 공개되어 악용될 수 있습니다. 20260205까지의 펌웨어 버전에 해당됩니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-77",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "D-Link",
+        "product": "DNS-120",
+        "versions": "20260205 (단일 버전)"
+      },
+      {
+        "vendor": "D-Link",
+        "product": "DNR-202L",
+        "versions": "20260205 (단일 버전)"
+      },
+      {
+        "vendor": "D-Link",
+        "product": "DNS-315L",
+        "versions": "20260205 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-16T03:40:04.176034+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-7195",
+    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
+    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "operator-framework",
+        "product": "operator-sdk",
+        "versions": "0.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.17",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "RHEL-9-CNV-4.18",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-16T03:40:04.123544+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-3400",
+    "title": "Tenda AC15 TextEditingConversion 스택 기반 버퍼 오버플로우",
+    "description": "Tenda AC15 펌웨어 15.13.07.13 버전 이하에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. /goform/TextEditingConversion 파일의 wpapsk_crypto2_4g 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 공격에 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "AC15",
+        "versions": "15.13.07.0 (단일 버전), 15.13.07.1 (단일 버전), 15.13.07.2 (단일 버전), 15.13.07.3 (단일 버전), 15.13.07.4 (단일 버전), 15.13.07.5 (단일 버전), 15.13.07.6 (단일 버전), 15.13.07.7 (단일 버전), 15.13.07.8 (단일 버전), 15.13.07.9 (단일 버전), 15.13.07.10 (단일 버전), 15.13.07.11 (단일 버전), 15.13.07.12 (단일 버전), 15.13.07.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/40",
+    "date": "2026-03-01T23:56:10.403211+00:00",
+    "rule_engines": [
+      "yara"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": {
+        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3400_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3400 (Tenda AC15 stack buffer overflow in /goform/TextEditingConversion via wpapsk_crypto2_4g parameter)\"\n        author = \"Argus-AI\"\n        reference = \"https://vuldb.com/?id.348295\"\n        cve = \"CVE-2026-3400\"\n        product = \"Tenda AC15\"\n    strings:\n        $s1 = \"/goform/TextEditingConversion\" ascii\n        $s2 = \"wpapsk_crypto2_4g\" ascii\n        $s3 = \"Tenda AC15\" ascii\n    condition:\n        any of ($s*)\n}",
+        "source": "AI Generated (Compiled)",
+        "verified": false,
+        "indicators": [
+          "파일 경로 (/goform/TextEditingConversion.)"
+        ]
+      },
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/TextEditingConversion.))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3399",
+    "title": "Tenda F453 httpd GstDhcpSetSer 버퍼 오버플로우",
+    "description": "Tenda F453 1.0.0.3에서 httpd 컴포넌트의 /goform/GstDhcpSetSer 파일 내 fromGstDhcpSetSer 함수에서 버퍼 오버플로우 취약점이 발견되었습니다. dips 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점에 대한 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "F453",
+        "versions": "1.0.0.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/39",
+    "date": "2026-03-01T23:55:28.344023+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))",
+        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
+        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-4195",
     "title": "D-Link DNS-1550-04 wizard_mgr.cgi 명령어 삽입 취약점",
     "description": "D-Link DNS 장비 다수 모델(DNS-120, DNS-320 등, DNS-1550-04 포함)에서 /cgi-bin/wizard_mgr.cgi 파일의 취약점을 통해 명령어 삽입 공격이 가능합니다. 원격에서 공격이 실행될 수 있으며, 관련 익스플로잇이 공개되어 악용될 위험이 있습니다. 20260205 이전 펌웨어 버전에 해당됩니다.",
@@ -93,42 +248,6 @@
     ],
     "report_url": null,
     "date": "2026-03-15T23:47:34.01504+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-7195",
-    "title": "Operator-SDK: /etc/passwd 파일의 잘못된 권한으로 인한 권한 상승",
-    "description": "Operator-SDK 초기 버전은 임의의 UID를 사용하는 환경에서 오퍼레이터 컨테이너를 실행할 수 있도록 안전하지 않은 방법을 제공했습니다. 0.15.2 이전 버전은 빌드 시 /etc/passwd 파일의 권한을 664로 변경하는 user_setup 스크립트를 포함했습니다. 공격자는 영향을 받는 컨테이너 내에서 root 그룹 멤버십을 이용하여 /etc/passwd 파일을 수정하고, 임의의 UID를 가진 사용자를 추가하여 root 권한을 획득할 수 있습니다.",
-    "cvss": 6.4,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "operator-framework",
-        "product": "operator-sdk",
-        "versions": "0.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.17",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "RHEL-9-CNV-4.18",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-12T23:45:00.316665+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -68448,86 +68567,6 @@
     "has_poc": false,
     "poc_urls": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-3400",
-    "title": "Tenda AC15 TextEditingConversion 스택 기반 버퍼 오버플로우",
-    "description": "Tenda AC15 펌웨어 15.13.07.13 버전 이하에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. /goform/TextEditingConversion 파일의 wpapsk_crypto2_4g 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점에 대한 익스플로잇이 공개되어 공격에 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "AC15",
-        "versions": "15.13.07.0 (단일 버전), 15.13.07.1 (단일 버전), 15.13.07.2 (단일 버전), 15.13.07.3 (단일 버전), 15.13.07.4 (단일 버전), 15.13.07.5 (단일 버전), 15.13.07.6 (단일 버전), 15.13.07.7 (단일 버전), 15.13.07.8 (단일 버전), 15.13.07.9 (단일 버전), 15.13.07.10 (단일 버전), 15.13.07.11 (단일 버전), 15.13.07.12 (단일 버전), 15.13.07.13 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/40",
-    "date": "2026-03-01T23:56:10.403211+00:00",
-    "rule_engines": [
-      "yara"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": {
-        "code": "// ⚠️ AI-Generated - Review Required\nrule CVE_2026_3400_Indicator {\n    meta:\n        description = \"Detects CVE-2026-3400 (Tenda AC15 stack buffer overflow in /goform/TextEditingConversion via wpapsk_crypto2_4g parameter)\"\n        author = \"Argus-AI\"\n        reference = \"https://vuldb.com/?id.348295\"\n        cve = \"CVE-2026-3400\"\n        product = \"Tenda AC15\"\n    strings:\n        $s1 = \"/goform/TextEditingConversion\" ascii\n        $s2 = \"wpapsk_crypto2_4g\" ascii\n        $s3 = \"Tenda AC15\" ascii\n    condition:\n        any of ($s*)\n}",
-        "source": "AI Generated (Compiled)",
-        "verified": false,
-        "indicators": [
-          "파일 경로 (/goform/TextEditingConversion.)"
-        ]
-      },
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/TextEditingConversion.))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3399",
-    "title": "Tenda F453 httpd GstDhcpSetSer 버퍼 오버플로우",
-    "description": "Tenda F453 1.0.0.3에서 httpd 컴포넌트의 /goform/GstDhcpSetSer 파일 내 fromGstDhcpSetSer 함수에서 버퍼 오버플로우 취약점이 발견되었습니다. dips 인자 조작을 통해 발생하며, 원격에서 공격이 가능합니다. 해당 취약점에 대한 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "F453",
-        "versions": "1.0.0.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/39",
-    "date": "2026-03-01T23:55:28.344023+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "yara": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))",
-        "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
-        "network": "공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: 파일 경로 (/goform/GstDhcpSetSer))"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-25073",
