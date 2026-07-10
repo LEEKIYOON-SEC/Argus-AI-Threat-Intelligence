@@ -170,7 +170,12 @@ Do NOT add intro/outro.
                 )]
             )
         )
-        rate_limit_manager.record_call("gemini")
+        # Gemini 토큰 사용량 기록 (프리티어 잔여량 가시화)
+        gemini_tokens = 0
+        usage = getattr(response, "usage_metadata", None)
+        if usage is not None:
+            gemini_tokens = getattr(usage, "total_token_count", 0) or 0
+        rate_limit_manager.record_call("gemini", tokens_used=gemini_tokens)
 
         text = response.text.strip()
         title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
@@ -275,9 +280,12 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
-    # 참고 자료
-    ref_list = "\n".join([f"- {r}" for r in cve_data['references']])
-    
+    # 참고 자료 (Exploit-DB는 PoC 원문 대신 링크만 게시 — 불변 원칙 8-②)
+    ref_items = list(cve_data['references'])
+    if cve_data.get('_exploit_db_url'):
+        ref_items.append(f"{cve_data['_exploit_db_url']} (Exploit-DB PoC)")
+    ref_list = "\n".join([f"- {r}" for r in ref_items])
+
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
     
@@ -520,13 +528,18 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         notifier.send_alert(current_state, alert_reason, report_url)
         
         # Step 8: DB 저장 (content_hash 포함)
+        # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
+        # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
+        # (불변 원칙 2, 8-②)
+        clean_state = {k: v for k, v in current_state.items() if not k.startswith("_")}
+
         db_data = {
             "id": cve_id,
             "cvss_score": current_state['cvss'],
             "epss_score": current_state['epss'],
             "is_kev": current_state['is_kev'],
             "last_alert_at": datetime.datetime.now(KST).isoformat(),
-            "last_alert_state": current_state,
+            "last_alert_state": clean_state,
             "report_url": report_url,
             "updated_at": datetime.datetime.now(KST).isoformat(),
             "content_hash": raw_data.get('content_hash')

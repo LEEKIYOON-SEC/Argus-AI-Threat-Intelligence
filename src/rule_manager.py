@@ -1,8 +1,12 @@
 import os
-import requests
-import tarfile
+import csv
 import io
+import json
 import re
+import tarfile
+import threading
+import time
+import requests
 import yaml
 import yara
 from groq import Groq
@@ -15,24 +19,63 @@ from rate_limiter import rate_limit_manager
 class RuleManagerError(Exception):
     pass
 
+
+# ─────────────────────────────────────────────
+# 디스크 캐시 (24h TTL)
+# 매시간 실행에서 룰셋/인덱스를 재다운로드하지 않도록 로컬 파일로 캐시.
+# GitHub Actions에서는 actions/cache가 이 디렉토리를 일 단위로 보존한다.
+# ─────────────────────────────────────────────
+_CACHE_DIR = os.environ.get(
+    "ARGUS_CACHE_DIR",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".cache", "rulesets")
+)
+_CACHE_TTL_HOURS = 24
+
+
+def _cache_get(name: str, ttl_hours: int = _CACHE_TTL_HOURS) -> Optional[bytes]:
+    path = os.path.join(_CACHE_DIR, name)
+    try:
+        if os.path.exists(path):
+            age = time.time() - os.path.getmtime(path)
+            if age < ttl_hours * 3600:
+                with open(path, "rb") as f:
+                    return f.read()
+    except OSError as e:
+        logger.debug(f"캐시 읽기 실패 ({name}): {e}")
+    return None
+
+
+def _cache_put(name: str, content: bytes) -> None:
+    try:
+        os.makedirs(_CACHE_DIR, exist_ok=True)
+        path = os.path.join(_CACHE_DIR, name)
+        with open(path, "wb") as f:
+            f.write(content)
+    except OSError as e:
+        logger.debug(f"캐시 쓰기 실패 ({name}): {e}")
+
+
 class RuleManager:
-    # GitHub Code Search API 차단 상태 (클래스 수준 - 모든 인스턴스 공유)
-    _code_search_blocked = False
-    _code_search_fail_count = 0
-    _CODE_SEARCH_MAX_FAILS = 3  # 3회 연속 실패 시 차단 (단일 실패로 전체 차단 방지)
-    # SigmaHQ/Yara-Rules/Nuclei tarball 캐시 (클래스 수준 - 한 번 다운로드 후 재사용)
+    # 룰셋/인덱스 캐시 (클래스 수준 - 모든 인스턴스·워커 공유)
     _sigma_files: Dict[str, str] = {}
     _yara_files: Dict[str, str] = {}
-    _nuclei_files: Dict[str, str] = {}
+    _network_rules_cache: Dict[str, str] = {}
+    # nuclei-templates CVE 인덱스: CVE-ID → 템플릿 파일 경로
+    _nuclei_index: Dict[str, str] = {}
+    _nuclei_index_loaded = False
+    # Exploit-DB 인덱스: CVE-ID → (파일 경로, EDB-ID)
+    _exploitdb_index: Dict[str, Tuple[str, str]] = {}
+    _exploitdb_index_loaded = False
+    # 병렬 워커 간 중복 다운로드 방지
+    _download_lock = threading.Lock()
+
+    _NUCLEI_RAW_BASE = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/"
+    _EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
         self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         self.model = config.MODEL_PHASE_1
-
-        # 룰셋 캐시 (엔진별로 구분)
-        # 예: {"Snort 2.9 Community": "rule_content", "Snort 3 ET Open": "rule_content"}
-        self.rules_cache: Dict[str, str] = {}
 
         logger.info("✅ RuleManager 초기화 완료 (정규식 검증 모드)")
 
@@ -53,71 +96,18 @@ class RuleManager:
     # ====================================================================
     # [1] 공개 룰 검색
     # ====================================================================
-    
-    def _search_github(self, repo: str, query: str) -> Optional[str]:
-        # Circuit breaker: 이미 403이 한 번 발생했으면 이번 실행 내 모든 검색 스킵
-        if RuleManager._code_search_blocked:
-            return None
 
-        logger.debug(f"GitHub 검색: {repo} / {query}")
-
-        url = f"https://api.github.com/search/code?q=repo:{repo} {query}"
-        headers = {
-            "Authorization": f"token {self.gh_token}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-
-        try:
-            rate_limit_manager.check_and_wait("github_search")
-            response = requests.get(url, headers=headers, timeout=10)
-            rate_limit_manager.record_call("github_search")
-
-            # 403/429는 rate limit → 누적 카운트 후 임계치 도달 시 차단
-            if response.status_code in (403, 429):
-                RuleManager._code_search_fail_count += 1
-                if RuleManager._code_search_fail_count >= RuleManager._CODE_SEARCH_MAX_FAILS:
-                    logger.warning(f"⚠️ GitHub Code Search {RuleManager._code_search_fail_count}회 연속 실패 → 이번 실행 내 검색 중단")
-                    RuleManager._code_search_blocked = True
-                else:
-                    logger.warning(f"⚠️ GitHub Code Search rate limit ({response.status_code}), 실패 {RuleManager._code_search_fail_count}/{RuleManager._CODE_SEARCH_MAX_FAILS}")
-                return None
-
-            response.raise_for_status()
-
-            data = response.json()
-
-            if data.get('total_count', 0) > 0:
-                item = data['items'][0]
-                logger.info(f"✅ 공개 룰 발견: {item['html_url']}")
-
-                raw_url = item['html_url'].replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
-
-                raw_response = requests.get(raw_url, timeout=10)
-                raw_response.raise_for_status()
-
-                return raw_response.text
-
-            logger.debug(f"❌ 공개 룰 없음: {repo}")
-            return None
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"GitHub 검색 실패: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"예상치 못한 에러: {e}")
-            return None
-    
     def _fetch_network_rules(self, cve_id: str) -> List[Dict[str, str]]:
         logger.debug(f"네트워크 룰셋 검색 시작: {cve_id}")
-        
+
         found_rules = []
-        
+
         # 캐시가 비어있으면 룰셋 다운로드 (첫 실행 시)
-        if not self.rules_cache:
+        if not RuleManager._network_rules_cache:
             self._download_all_rulesets()
-        
+
         # 각 룰셋에서 CVE 검색
-        for ruleset_name, ruleset_content in self.rules_cache.items():
+        for ruleset_name, ruleset_content in RuleManager._network_rules_cache.items():
             for line in ruleset_content.splitlines():
                 # CVE ID가 포함되어 있고, 주석이 아니고, alert 키워드가 있는 줄
                 if cve_id in line and "alert" in line and not line.strip().startswith("#"):
@@ -141,71 +131,59 @@ class RuleManager:
         return found_rules
     
     def _download_all_rulesets(self):
-        logger.info("📥 네트워크 룰셋 다운로드 중...")
-        
-        # ===== 1. Snort Community Rules =====
-        
-        # 1-1. Snort 2.9 Community
-        try:
-            logger.debug("  - Snort 2.9 Community 다운로드 중...")
-            response = requests.get(
-                "https://www.snort.org/downloads/community/community-rules.tar.gz",
-                timeout=15
-            )
-            if response.status_code == 200:
-                with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                    for member in tar.getmembers():
-                        if "community.rules" in member.name:
-                            f = tar.extractfile(member)
-                            content = f.read().decode('utf-8', errors='ignore')
-                            self.rules_cache["Snort 2.9 Community"] = content
-                            logger.info("  ✅ Snort 2.9 Community 로드 완료")
-                            break
-        except Exception as e:
-            logger.warning(f"  ⚠️ Snort 2.9 Community 다운로드 실패: {e}")
-        
-        # 1-2. Snort 3 Community
-        try:
-            logger.debug("  - Snort 3 Community 다운로드 중...")
-            response = requests.get(
-                "https://www.snort.org/downloads/community/snort3-community-rules.tar.gz",
-                timeout=15
-            )
-            if response.status_code == 200:
-                with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                    for member in tar.getmembers():
-                        if "snort3-community.rules" in member.name:
-                            f = tar.extractfile(member)
-                            content = f.read().decode('utf-8', errors='ignore')
-                            self.rules_cache["Snort 3 Community"] = content
-                            logger.info("  ✅ Snort 3 Community 로드 완료")
-                            break
-        except Exception as e:
-            logger.warning(f"  ⚠️ Snort 3 Community 다운로드 실패: {e}")
-        
-        # ===== 2. Emerging Threats Open =====
-        
-        et_rulesets = [
-            ("Snort 2.9 ET Open", "https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules"),
-            ("Suricata 5 ET Open", "https://rules.emergingthreats.net/open/suricata-5.0/emerging-all.rules"),
-            ("Suricata 7 ET Open", "https://rules.emergingthreats.net/open/suricata-7.0/emerging-all.rules"),
-            # edge는 불안정할 수 있어서 선택적으로 추가 (주석 처리)
-            # ("Snort Edge ET Open", "https://rules.emergingthreats.net/open/snort-edge/emerging-all.rules"),
-        ]
-        
-        for name, url in et_rulesets:
-            try:
-                logger.debug(f"  - {name} 다운로드 중...")
-                response = requests.get(url, timeout=15)
-                if response.status_code == 200:
-                    self.rules_cache[name] = response.text
+        with RuleManager._download_lock:
+            if RuleManager._network_rules_cache:
+                return
+
+            logger.info("📥 네트워크 룰셋 로드 중...")
+
+            # (이름, URL, tarball 내 추출 대상 파일명 — None이면 plain text)
+            sources = [
+                ("Snort 2.9 Community", "https://www.snort.org/downloads/community/community-rules.tar.gz", "community.rules"),
+                ("Snort 3 Community", "https://www.snort.org/downloads/community/snort3-community-rules.tar.gz", "snort3-community.rules"),
+                ("Snort 2.9 ET Open", "https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules", None),
+                ("Suricata 5 ET Open", "https://rules.emergingthreats.net/open/suricata-5.0/emerging-all.rules", None),
+                ("Suricata 7 ET Open", "https://rules.emergingthreats.net/open/suricata-7.0/emerging-all.rules", None),
+            ]
+
+            for name, url, member_hint in sources:
+                cache_key = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-') + ".rules"
+
+                cached = _cache_get(cache_key)
+                if cached is not None:
+                    RuleManager._network_rules_cache[name] = cached.decode('utf-8', errors='ignore')
+                    logger.info(f"  ✅ {name} 캐시 로드")
+                    continue
+
+                try:
+                    logger.debug(f"  - {name} 다운로드 중...")
+                    response = requests.get(url, timeout=60)
+                    if response.status_code != 200:
+                        logger.debug(f"  ⚠️ {name} 다운로드 실패: HTTP {response.status_code}")
+                        continue
+
+                    if member_hint:
+                        content = None
+                        with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
+                            for member in tar.getmembers():
+                                if member_hint in member.name:
+                                    f = tar.extractfile(member)
+                                    if f:
+                                        content = f.read().decode('utf-8', errors='ignore')
+                                    break
+                        if content is None:
+                            logger.debug(f"  ⚠️ {name}: tarball에서 {member_hint} 미발견")
+                            continue
+                    else:
+                        content = response.text
+
+                    RuleManager._network_rules_cache[name] = content
+                    _cache_put(cache_key, content.encode('utf-8'))
                     logger.info(f"  ✅ {name} 로드 완료")
-                else:
-                    logger.debug(f"  ⚠️ {name} 다운로드 실패: HTTP {response.status_code}")
-            except Exception as e:
-                logger.debug(f"  ⚠️ {name} 다운로드 실패: {e}")
-        
-        logger.info(f"✅ 룰셋 다운로드 완료 ({len(self.rules_cache)}개 소스)")
+                except Exception as e:
+                    logger.warning(f"  ⚠️ {name} 다운로드 실패: {e}")
+
+            logger.info(f"✅ 네트워크 룰셋 로드 완료 ({len(RuleManager._network_rules_cache)}개 소스)")
     
     def _detect_engine_type(self, ruleset_name: str) -> str:
         name_lower = ruleset_name.lower()
@@ -231,67 +209,75 @@ class RuleManager:
     # [1-2] SigmaHQ / Yara-Rules tarball 로컬 검색
     # ====================================================================
 
-    def _download_sigma_repo(self):
-        """SigmaHQ/sigma tarball 다운로드 후 rules/*.yml 파일 캐시"""
-        if RuleManager._sigma_files:
-            return
+    def _fetch_tarball(self, cache_key: str, url: str, display_name: str) -> Optional[bytes]:
+        """tarball을 디스크 캐시 우선으로 가져온다 (miss 시 다운로드 후 캐시)"""
+        data = _cache_get(cache_key)
+        if data is not None:
+            logger.info(f"📥 {display_name} 캐시 로드")
+            return data
 
-        logger.info("📥 SigmaHQ 룰셋 다운로드 중...")
+        logger.info(f"📥 {display_name} 다운로드 중...")
         headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
-
         try:
             rate_limit_manager.check_and_wait("ruleset_download")
-            response = requests.get(
-                "https://api.github.com/repos/SigmaHQ/sigma/tarball",
-                headers=headers, timeout=60
-            )
+            response = requests.get(url, headers=headers, timeout=60)
             response.raise_for_status()
             rate_limit_manager.record_call("ruleset_download")
-
-            count = 0
-            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                for member in tar.getmembers():
-                    if member.isfile() and member.name.endswith('.yml') and '/rules' in member.name:
-                        f = tar.extractfile(member)
-                        if f:
-                            content = f.read().decode('utf-8', errors='ignore')
-                            RuleManager._sigma_files[member.name] = content
-                            count += 1
-
-            logger.info(f"  ✅ SigmaHQ 로드 완료 ({count}개 룰)")
+            _cache_put(cache_key, response.content)
+            return response.content
         except Exception as e:
-            logger.warning(f"  ⚠️ SigmaHQ 다운로드 실패: {e}")
+            logger.warning(f"  ⚠️ {display_name} 다운로드 실패: {e}")
+            return None
+
+    def _download_sigma_repo(self):
+        """SigmaHQ/sigma tarball(디스크 캐시)에서 rules/*.yml 파일 캐시"""
+        with RuleManager._download_lock:
+            if RuleManager._sigma_files:
+                return
+
+            data = self._fetch_tarball("sigmahq.tar.gz", "https://api.github.com/repos/SigmaHQ/sigma/tarball", "SigmaHQ 룰셋")
+            if data is None:
+                return
+
+            try:
+                count = 0
+                with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+                    for member in tar.getmembers():
+                        if member.isfile() and member.name.endswith('.yml') and '/rules' in member.name:
+                            f = tar.extractfile(member)
+                            if f:
+                                content = f.read().decode('utf-8', errors='ignore')
+                                RuleManager._sigma_files[member.name] = content
+                                count += 1
+
+                logger.info(f"  ✅ SigmaHQ 로드 완료 ({count}개 룰)")
+            except Exception as e:
+                logger.warning(f"  ⚠️ SigmaHQ 압축 해제 실패: {e}")
 
     def _download_yara_repo(self):
-        """Yara-Rules/rules tarball 다운로드 후 *.yar 파일 캐시"""
-        if RuleManager._yara_files:
-            return
+        """Yara-Rules/rules tarball(디스크 캐시)에서 *.yar 파일 캐시"""
+        with RuleManager._download_lock:
+            if RuleManager._yara_files:
+                return
 
-        logger.info("📥 Yara-Rules 룰셋 다운로드 중...")
-        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
+            data = self._fetch_tarball("yara-rules.tar.gz", "https://api.github.com/repos/Yara-Rules/rules/tarball", "Yara-Rules 룰셋")
+            if data is None:
+                return
 
-        try:
-            rate_limit_manager.check_and_wait("ruleset_download")
-            response = requests.get(
-                "https://api.github.com/repos/Yara-Rules/rules/tarball",
-                headers=headers, timeout=60
-            )
-            response.raise_for_status()
-            rate_limit_manager.record_call("ruleset_download")
+            try:
+                count = 0
+                with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
+                    for member in tar.getmembers():
+                        if member.isfile() and (member.name.endswith('.yar') or member.name.endswith('.yara')):
+                            f = tar.extractfile(member)
+                            if f:
+                                content = f.read().decode('utf-8', errors='ignore')
+                                RuleManager._yara_files[member.name] = content
+                                count += 1
 
-            count = 0
-            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                for member in tar.getmembers():
-                    if member.isfile() and (member.name.endswith('.yar') or member.name.endswith('.yara')):
-                        f = tar.extractfile(member)
-                        if f:
-                            content = f.read().decode('utf-8', errors='ignore')
-                            RuleManager._yara_files[member.name] = content
-                            count += 1
-
-            logger.info(f"  ✅ Yara-Rules 로드 완료 ({count}개 룰)")
-        except Exception as e:
-            logger.warning(f"  ⚠️ Yara-Rules 다운로드 실패: {e}")
+                logger.info(f"  ✅ Yara-Rules 로드 완료 ({count}개 룰)")
+            except Exception as e:
+                logger.warning(f"  ⚠️ Yara-Rules 압축 해제 실패: {e}")
 
     def _search_local_sigma(self, cve_id: str) -> Optional[str]:
         """SigmaHQ 로컬 캐시에서 CVE ID 검색"""
@@ -323,56 +309,143 @@ class RuleManager:
         logger.debug(f"❌ Yara-Rules 로컬: {cve_id} 없음")
         return None
 
-    def _download_nuclei_repo(self):
-        """nuclei-templates tarball 다운로드 후 cves/ 디렉토리의 YAML 파일 캐시"""
-        if RuleManager._nuclei_files:
-            return
+    def _load_nuclei_index(self):
+        """nuclei-templates의 CVE 인덱스(cves.json, ~2MB)만 로드.
 
-        logger.info("📥 nuclei-templates 다운로드 중...")
-        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
+        전체 tarball(수백MB) 대신 인덱스로 CVE→템플릿 경로를 매핑하고,
+        해당 CVE의 템플릿 파일 하나만 raw로 조회한다 (불변 원칙 4 — 컨텍스트 유지, 수집 비용만 절감).
+        """
+        with RuleManager._download_lock:
+            if RuleManager._nuclei_index_loaded:
+                return
+            RuleManager._nuclei_index_loaded = True
+
+            raw = _cache_get("nuclei-cve-index.jsonl")
+            if raw is None:
+                logger.info("📥 nuclei CVE 인덱스 다운로드 중...")
+                try:
+                    rate_limit_manager.check_and_wait("ruleset_download")
+                    response = requests.get(RuleManager._NUCLEI_RAW_BASE + "cves.json", timeout=30)
+                    response.raise_for_status()
+                    rate_limit_manager.record_call("ruleset_download")
+                    raw = response.content
+                    _cache_put("nuclei-cve-index.jsonl", raw)
+                except Exception as e:
+                    logger.warning(f"  ⚠️ nuclei CVE 인덱스 다운로드 실패: {e}")
+                    return
+            else:
+                logger.info("📥 nuclei CVE 인덱스 캐시 로드")
+
+            for line in raw.decode('utf-8', errors='ignore').splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                entry_id = str(entry.get("ID", "")).upper()
+                file_path = entry.get("file_path", "")
+                if entry_id.startswith("CVE-") and file_path:
+                    RuleManager._nuclei_index[entry_id] = file_path
+
+            logger.info(f"  ✅ nuclei CVE 인덱스 로드 완료 ({len(RuleManager._nuclei_index)}개 CVE)")
+
+    def _search_nuclei(self, cve_id: str) -> Optional[str]:
+        """nuclei CVE 인덱스 조회 후 해당 템플릿 파일 하나만 raw로 가져온다"""
+        self._load_nuclei_index()
+
+        file_path = RuleManager._nuclei_index.get(cve_id.upper())
+        if not file_path:
+            logger.debug(f"❌ nuclei-templates: {cve_id} 없음")
+            return None
 
         try:
-            rate_limit_manager.check_and_wait("ruleset_download")
-            response = requests.get(
-                "https://github.com/projectdiscovery/nuclei-templates/archive/refs/heads/main.tar.gz",
-                headers=headers, timeout=120
-            )
+            response = requests.get(RuleManager._NUCLEI_RAW_BASE + file_path, timeout=15)
             response.raise_for_status()
-            rate_limit_manager.record_call("ruleset_download")
-
-            count = 0
-            with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                for member in tar.getmembers():
-                    if member.isfile() and member.name.endswith('.yaml') and '/cves/' in member.name:
-                        f = tar.extractfile(member)
-                        if f:
-                            content = f.read().decode('utf-8', errors='ignore')
-                            RuleManager._nuclei_files[member.name] = content
-                            count += 1
-
-            logger.info(f"  ✅ nuclei-templates 로드 완료 ({count}개 CVE 템플릿)")
+            logger.info(f"✅ nuclei-templates에서 발견: {file_path.split('/')[-1]}")
+            return response.text
         except Exception as e:
-            logger.warning(f"  ⚠️ nuclei-templates 다운로드 실패: {e}")
+            logger.warning(f"⚠️ nuclei 템플릿 조회 실패 ({cve_id}): {e}")
+            return None
 
-    def _search_local_nuclei(self, cve_id: str) -> Optional[str]:
-        """nuclei-templates 로컬 캐시에서 CVE ID 검색"""
-        if not RuleManager._nuclei_files:
-            self._download_nuclei_repo()
+    # ====================================================================
+    # [1-3] Exploit-DB CSV 매핑 (Code Search API 대체)
+    # ====================================================================
 
-        cve_lower = cve_id.lower()
-        for filepath, content in RuleManager._nuclei_files.items():
-            if cve_lower in filepath.lower() or cve_lower in content.lower():
-                filename = filepath.split('/')[-1]
-                logger.info(f"✅ nuclei-templates에서 발견: {filename}")
-                return content
+    def _load_exploitdb_index(self):
+        """Exploit-DB의 files_exploits.csv(CVE→exploit 파일 매핑)만 캐시.
 
-        logger.debug(f"❌ nuclei-templates: {cve_id} 없음")
-        return None
+        GitHub Code Search(분당 10회, 거의 항상 429) 대신 CSV 인덱스로
+        CVE→exploit 파일을 안정적으로 매핑한다 (불변 원칙 4).
+        codes 컬럼에 "CVE-YYYY-NNNN;OSVDB-..." 형태로 CVE가 들어있다.
+        """
+        with RuleManager._download_lock:
+            if RuleManager._exploitdb_index_loaded:
+                return
+            RuleManager._exploitdb_index_loaded = True
+
+            raw = _cache_get("exploitdb-files.csv")
+            if raw is None:
+                logger.info("📥 Exploit-DB CSV 인덱스 다운로드 중...")
+                try:
+                    rate_limit_manager.check_and_wait("ruleset_download")
+                    response = requests.get(RuleManager._EXPLOITDB_RAW_BASE + "files_exploits.csv", timeout=60)
+                    response.raise_for_status()
+                    rate_limit_manager.record_call("ruleset_download")
+                    raw = response.content
+                    _cache_put("exploitdb-files.csv", raw)
+                except Exception as e:
+                    logger.warning(f"  ⚠️ Exploit-DB CSV 다운로드 실패: {e}")
+                    return
+            else:
+                logger.info("📥 Exploit-DB CSV 인덱스 캐시 로드")
+
+            try:
+                reader = csv.DictReader(io.StringIO(raw.decode('utf-8', errors='ignore')))
+                cve_re = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
+                for row in reader:
+                    codes = row.get("codes", "") or ""
+                    file_path = row.get("file", "") or ""
+                    edb_id = row.get("id", "") or ""
+                    if not file_path:
+                        continue
+                    for cve in cve_re.findall(codes):
+                        # 최초 매핑만 유지 (CSV는 대체로 오래된 것부터 정렬)
+                        RuleManager._exploitdb_index.setdefault(cve.upper(), (file_path, edb_id))
+                logger.info(f"  ✅ Exploit-DB 인덱스 로드 완료 ({len(RuleManager._exploitdb_index)}개 CVE 매핑)")
+            except Exception as e:
+                logger.warning(f"  ⚠️ Exploit-DB CSV 파싱 실패: {e}")
+
+    def _search_exploitdb(self, cve_id: str) -> Optional[Dict[str, str]]:
+        """Exploit-DB 인덱스 조회 후 exploit 파일 원문을 가져온다.
+
+        반환: {"code": <원문>, "url": <exploit-db.com 링크>, "edb_id": <ID>}
+        원문(code)은 AI 프롬프트 컨텍스트 전용, url만 Issue/대시보드에 게시 (불변 원칙 8-②).
+        """
+        self._load_exploitdb_index()
+
+        mapping = RuleManager._exploitdb_index.get(cve_id.upper())
+        if not mapping:
+            logger.debug(f"❌ Exploit-DB: {cve_id} 없음")
+            return None
+
+        file_path, edb_id = mapping
+        edb_url = f"https://www.exploit-db.com/exploits/{edb_id}" if edb_id else None
+        try:
+            response = requests.get(RuleManager._EXPLOITDB_RAW_BASE + file_path, timeout=15)
+            response.raise_for_status()
+            logger.info(f"✅ Exploit-DB PoC 발견: EDB-{edb_id} ({file_path.split('/')[-1]})")
+            return {"code": response.text, "url": edb_url, "edb_id": edb_id}
+        except Exception as e:
+            logger.warning(f"⚠️ Exploit-DB 파일 조회 실패 ({cve_id}): {e}")
+            # 파일 조회 실패해도 링크는 유효하므로 반환
+            return {"code": "", "url": edb_url, "edb_id": edb_id} if edb_url else None
 
     # ====================================================================
     # [2] 룰 검증 (정규식 기반)
     # ====================================================================
-    
+
     def _validate_sigma(self, code: str) -> bool:
         """
         Sigma 룰 검증 (강화)
@@ -930,16 +1003,20 @@ tags:
         logger.info(f"룰 수집 시작: {cve_id} (Attack Vector: {attack_vector})")
 
         # ===== Nuclei-templates 참고 데이터 (AI 룰 생성 품질 향상용) =====
-        nuclei_template = self._search_local_nuclei(cve_id)
+        nuclei_template = self._search_nuclei(cve_id)
         if nuclei_template:
             cve_data['_nuclei_template'] = nuclei_template[:3000]
             logger.info(f"  📄 Nuclei 템플릿 발견: {cve_id}")
 
         # ===== Exploit-DB 참고 데이터 (AI 룰 생성 품질 향상용) =====
-        # AI 룰 생성 전에 먼저 수집하여 프롬프트에 포함
-        exploit_code = self._search_github("offensive-security/exploitdb", f"{cve_id}")
-        if exploit_code:
-            cve_data['_exploit_db_snippet'] = exploit_code[:3000]
+        # AI 룰 생성 전에 먼저 수집하여 프롬프트에 포함.
+        # PoC 원문은 프롬프트 컨텍스트 전용, Issue/대시보드에는 링크(_exploit_db_url)만 게시 (불변 원칙 8-②)
+        exploit_info = self._search_exploitdb(cve_id)
+        if exploit_info:
+            if exploit_info.get("code"):
+                cve_data['_exploit_db_snippet'] = exploit_info["code"][:3000]
+            if exploit_info.get("url"):
+                cve_data['_exploit_db_url'] = exploit_info["url"]
             logger.info(f"  📄 Exploit-DB PoC 발견: {cve_id}")
 
         # ===== Sigma (필수 — 항상 생성 시도) =====

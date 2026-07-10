@@ -26,9 +26,18 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      # 룰셋/인덱스 tarball·CSV 디스크 캐시 (일 단위 키) — 매시간 재다운로드 제거
+      - name: Cache rulesets
+        uses: actions/cache@v4
+        with:
+          path: .cache/rulesets
+          key: rulesets-${{ github.run_id }}
+          restore-keys: |
+            rulesets-
+
       - name: Install dependencies
         run: pip install -r requirements.txt
- 
+
       - name: Run Argus CVE pipeline
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
