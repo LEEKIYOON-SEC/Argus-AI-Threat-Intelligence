@@ -2,6 +2,7 @@ import os
 import datetime
 from supabase import create_client, Client
 from typing import Dict, List, Optional
+from tenacity import retry, stop_after_attempt, wait_exponential
 from logger import logger
 
 class DatabaseError(Exception):
@@ -13,34 +14,42 @@ class ArgusDB:
         """데이터베이스 연결 초기화"""
         url = os.environ.get("SUPABASE_URL")
         key = os.environ.get("SUPABASE_KEY")
-        
+
         if not url or not key:
             raise DatabaseError("SUPABASE_URL 또는 SUPABASE_KEY가 설정되지 않음")
-        
+
         try:
             self.client: Client = create_client(url, key)
             logger.info("Supabase 연결 성공")
         except Exception as e:
             raise DatabaseError(f"Supabase 연결 실패: {e}")
-    
+
+    @retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(multiplier=1, min=2, max=10)
+    )
+    def _execute(self, query):
+        """Supabase 쿼리 실행 + 일시적 장애 재시도 (지수 백오프)"""
+        return query.execute()
+
     def get_cve(self, cve_id: str) -> Optional[Dict]:
         try:
-            response = self.client.table("cves").select("*").eq("id", cve_id).execute()
-            
+            response = self._execute(self.client.table("cves").select("*").eq("id", cve_id))
+
             if response.data:
                 logger.debug(f"CVE 발견: {cve_id}")
                 return response.data[0]
             else:
                 logger.debug(f"신규 CVE: {cve_id}")
                 return None
-                
+
         except Exception as e:
             logger.error(f"CVE 조회 실패 ({cve_id}): {e}")
             return None
-    
+
     def upsert_cve(self, data: Dict) -> bool:
         try:
-            self.client.table("cves").upsert(data).execute()
+            self._execute(self.client.table("cves").upsert(data))
             logger.debug(f"CVE 저장 성공: {data.get('id')}")
             return True
         except Exception as e:
@@ -61,18 +70,20 @@ class ArgusDB:
         """
         try:
             # Case 1: AI 룰만 있는 CVE
-            ai_response = self.client.table("cves") \
-                .select("*") \
-                .eq("has_official_rules", False) \
-                .not_.is_("rules_snapshot", "null") \
-                .execute()
+            ai_response = self._execute(
+                self.client.table("cves")
+                .select("*")
+                .eq("has_official_rules", False)
+                .not_.is_("rules_snapshot", "null")
+            )
 
             # Case 2: 룰이 아예 없는 고위험 CVE (CVSS >= 7.0)
-            norule_response = self.client.table("cves") \
-                .select("*") \
-                .is_("rules_snapshot", "null") \
-                .gte("cvss_score", 7.0) \
-                .execute()
+            norule_response = self._execute(
+                self.client.table("cves")
+                .select("*")
+                .is_("rules_snapshot", "null")
+                .gte("cvss_score", 7.0)
+            )
 
             all_records = {}
             for record in (ai_response.data or []):
@@ -156,7 +167,9 @@ class ArgusDB:
         try:
             for i in range(0, len(cve_ids), 50):
                 chunk = cve_ids[i:i+50]
-                response = self.client.table("cves").select("id, content_hash").in_("id", chunk).execute()
+                response = self._execute(
+                    self.client.table("cves").select("id, content_hash").in_("id", chunk)
+                )
                 for row in (response.data or []):
                     if row.get('content_hash'):
                         result[row['id']] = row['content_hash']
@@ -171,11 +184,12 @@ class ArgusDB:
         """대시보드용 CVE 데이터 조회 (최근 N일)"""
         try:
             cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat()
-            response = self.client.table("cves") \
-                .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at") \
-                .gte("updated_at", cutoff) \
-                .order("updated_at", desc=True) \
-                .execute()
+            response = self._execute(
+                self.client.table("cves")
+                .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at")
+                .gte("updated_at", cutoff)
+                .order("updated_at", desc=True)
+            )
             return response.data or []
         except Exception as e:
             logger.error(f"대시보드 CVE 조회 실패: {e}")

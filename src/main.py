@@ -170,7 +170,12 @@ Do NOT add intro/outro.
                 )]
             )
         )
-        rate_limit_manager.record_call("gemini")
+        # Gemini 토큰 사용량 기록 (프리티어 잔여량 가시화)
+        gemini_tokens = 0
+        usage = getattr(response, "usage_metadata", None)
+        if usage is not None:
+            gemini_tokens = getattr(usage, "total_token_count", 0) or 0
+        rate_limit_manager.record_call("gemini", tokens_used=gemini_tokens)
 
         text = response.text.strip()
         title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
@@ -190,6 +195,23 @@ Do NOT add intro/outro.
 # ==============================================================================
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
+
+def _rule_trust_badge(rule_info: Dict) -> str:
+    """룰 신뢰 등급(trust tier) 배지"""
+    trust = rule_info.get('trust') or ('official-verified' if rule_info.get('verified') else 'ai-draft')
+    if trust == 'official-verified':
+        return "🟢 **공식 검증 (official-verified)**"
+    if trust == 'ai-validated':
+        return "🔷 **AI 생성 · 자기검증 통과 (ai-validated)**"
+    return "🔶 **AI 생성 - 검토 필요 (ai-draft)**"
+
+
+def _rule_license_note(rule_info: Dict) -> str:
+    """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
+    lic = rule_info.get('license')
+    if not lic:
+        return ""
+    return f"\n> **License:** {lic} — 원 룰의 출처·author·라이선스 고지를 보존합니다.\n"
 
 def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Optional[Dict]]:
     token = os.environ.get("GH_TOKEN")
@@ -260,9 +282,33 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     else: color = "CCCCCC"
     
     kev_color = "FF0000" if cve_data['is_kev'] else "CCCCCC"
-    
+
     badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{kev_color})"
-    
+
+    # P5 위협 신호 배지
+    if cve_data.get('ssvc_exploitation') == 'active':
+        badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
+    if cve_data.get('has_metasploit_module'):
+        badges += " ![Metasploit](https://img.shields.io/badge/Metasploit-Weaponized-8B0000)"
+    if cve_data.get('has_public_exploit'):
+        badges += " ![ExploitDB](https://img.shields.io/badge/ExploitDB-Public-orange)"
+
+    # 위협 신호 상세 (출처 표기 — Metasploit metadata는 BSD-3-Clause)
+    signal_lines = []
+    ssvc = cve_data.get('ssvc') or {}
+    if ssvc:
+        parts = [f"{k}={v}" for k, v in ssvc.items()]
+        signal_lines.append(f"- **CISA SSVC** (vulnrichment, CC0): {', '.join(parts)}")
+    if cve_data.get('has_metasploit_module'):
+        mods = cve_data.get('metasploit_modules', [])
+        mod_str = ", ".join(f"`{m}`" for m in mods) if mods else "존재"
+        signal_lines.append(f"- **Metasploit 모듈** (Metasploit Framework, Rapid7, BSD-3-Clause): {mod_str}")
+    if cve_data.get('has_public_exploit'):
+        edb_url = cve_data.get('_exploit_db_url')
+        link = f" — [Exploit-DB]({edb_url})" if edb_url else ""
+        signal_lines.append(f"- **공개 익스플로잇**: ExploitDB 등재{link}")
+    threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
+
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     
     # 영향받는 자산 테이블
@@ -275,9 +321,12 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
-    # 참고 자료
-    ref_list = "\n".join([f"- {r}" for r in cve_data['references']])
-    
+    # 참고 자료 (Exploit-DB는 PoC 원문 대신 링크만 게시 — 불변 원칙 8-②)
+    ref_items = list(cve_data['references'])
+    if cve_data.get('_exploit_db_url'):
+        ref_items.append(f"{cve_data['_exploit_db_url']} (Exploit-DB PoC)")
+    ref_list = "\n".join([f"- {r}" for r in ref_items])
+
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
     
@@ -293,47 +342,40 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         
         # Sigma 룰
         if rules.get('sigma'):
-            is_verified = rules['sigma'].get('verified')
-            badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
-            
+            info = rules['sigma']
+            badge = _rule_trust_badge(info)
+            extra = _rule_license_note(info)
+
             # AI 생성 룰이면 지표 정보 표시
-            indicator_info = ""
-            if not is_verified and rules['sigma'].get('indicators'):
-                indicators = rules['sigma']['indicators']
-                if indicators:
-                    indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-            
-            rules_section += f"### Sigma Rule ({rules['sigma']['source']}) {badge}\n{indicator_info}```yaml\n{rules['sigma']['code']}\n```\n\n"
-        
+            if not info.get('verified') and info.get('indicators'):
+                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
+
+            rules_section += f"### Sigma Rule ({info['source']}) {badge}\n{extra}```yaml\n{info['code']}\n```\n\n"
+
         # 네트워크 룰 (Snort/Suricata - 여러 개 가능)
         if rules.get('network'):
             for idx, net_rule in enumerate(rules['network'], 1):
-                is_verified = net_rule.get('verified')
-                badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
+                badge = _rule_trust_badge(net_rule)
                 engine_name = net_rule.get('engine', 'unknown').upper()
-                
+                extra = _rule_license_note(net_rule)
+
                 # AI 생성 룰이면 지표 정보 표시
-                indicator_info = ""
-                if not is_verified and net_rule.get('indicators'):
-                    indicators = net_rule['indicators']
-                    if indicators:
-                        indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-                
-                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{indicator_info}```bash\n{net_rule['code']}\n```\n\n"
-        
+                if not net_rule.get('verified') and net_rule.get('indicators'):
+                    extra += f"\n> **Based on:** {', '.join(net_rule['indicators'])}\n"
+
+                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{extra}```bash\n{net_rule['code']}\n```\n\n"
+
         # Yara 룰
         if rules.get('yara'):
-            is_verified = rules['yara'].get('verified')
-            badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
-            
+            info = rules['yara']
+            badge = _rule_trust_badge(info)
+            extra = _rule_license_note(info)
+
             # AI 생성 룰이면 지표 정보 표시
-            indicator_info = ""
-            if not is_verified and rules['yara'].get('indicators'):
-                indicators = rules['yara']['indicators']
-                if indicators:
-                    indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-            
-            rules_section += f"### Yara Rule ({rules['yara']['source']}) {badge}\n{indicator_info}```yara\n{rules['yara']['code']}\n```\n\n"
+            if not info.get('verified') and info.get('indicators'):
+                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
+
+            rules_section += f"### Yara Rule ({info['source']}) {badge}\n{extra}```yara\n{info['code']}\n```\n\n"
     
     # 탐지 룰 현황 섹션 (항상 표시)
     skip_reasons = rules.get('skip_reasons', {})
@@ -347,9 +389,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # Sigma 상태
     if rules.get('sigma'):
         if rules['sigma'].get('verified'):
-            ai_status_section += "**Sigma Rule** ✅ 공식 룰 발견\n\n"
+            ai_status_section += "**Sigma Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
         else:
-            ai_status_section += "**Sigma Rule** ✅ AI 생성 완료\n\n"
+            ai_status_section += f"**Sigma Rule** ✅ AI 생성 완료 ({rules['sigma'].get('trust', 'ai-draft')})\n\n"
     else:
         skip_reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Sigma Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -358,9 +400,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     if rules.get('network'):
         verified_count = sum(1 for r in rules['network'] if r.get('verified'))
         if verified_count > 0:
-            ai_status_section += f"**Snort/Suricata Rule** ✅ 공식 룰 발견 ({verified_count}개 엔진)\n\n"
+            ai_status_section += f"**Snort/Suricata Rule** ✅ 공식 룰 발견 ({verified_count}개 엔진, official-verified)\n\n"
         else:
-            ai_status_section += "**Snort/Suricata Rule** ✅ AI 생성 완료\n\n"
+            net_trust = rules['network'][0].get('trust', 'ai-draft') if rules['network'] else 'ai-draft'
+            ai_status_section += f"**Snort/Suricata Rule** ✅ AI 생성 완료 ({net_trust})\n\n"
     else:
         skip_reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Snort/Suricata Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -368,9 +411,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # Yara 상태
     if rules.get('yara'):
         if rules['yara'].get('verified'):
-            ai_status_section += "**Yara Rule** ✅ 공식 룰 발견\n\n"
+            ai_status_section += "**Yara Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
         else:
-            ai_status_section += "**Yara Rule** ✅ AI 생성 완료\n\n"
+            ai_status_section += f"**Yara Rule** ✅ AI 생성 완료 ({rules['yara'].get('trust', 'ai-draft')})\n\n"
     else:
         skip_reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Yara Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -385,6 +428,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 {badges}
 **취약점 유형 (CWE):** {cwe_str}
 
+{threat_signals}
 ## 📦 영향 받는 자산
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
@@ -425,18 +469,18 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
     
     # Sigma
     if rules.get('sigma') and rules['sigma'].get('verified'):
-        comment += f"### Sigma Rule ({rules['sigma']['source']})\n```yaml\n{rules['sigma']['code']}\n```\n\n"
-    
+        comment += f"### Sigma Rule ({rules['sigma']['source']})\n{_rule_license_note(rules['sigma'])}```yaml\n{rules['sigma']['code']}\n```\n\n"
+
     # Network (여러 개 가능)
     if rules.get('network'):
         for idx, net_rule in enumerate(rules['network'], 1):
             if net_rule.get('verified'):
                 engine = net_rule.get('engine', 'unknown').upper()
-                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n```bash\n{net_rule['code']}\n```\n\n"
-    
+                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
+
     # Yara
     if rules.get('yara') and rules['yara'].get('verified'):
-        comment += f"### Yara Rule ({rules['yara']['source']})\n```yara\n{rules['yara']['code']}\n```\n\n"
+        comment += f"### Yara Rule ({rules['yara']['source']})\n{_rule_license_note(rules['yara'])}```yara\n{rules['yara']['code']}\n```\n\n"
     
     notifier = SlackNotifier()
     return notifier.update_github_issue(issue_url, comment)
@@ -480,7 +524,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "poc_urls": raw_data.get('poc_urls', []),
             "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
             "github_advisory": raw_data.get('github_advisory', {}),
-            "nvd_cpe": raw_data.get('nvd_cpe', [])
+            "nvd_cpe": raw_data.get('nvd_cpe', []),
+            # P5 데이터 소스 확대 신호
+            "ssvc": raw_data.get('ssvc', {}),
+            "ssvc_exploitation": (raw_data.get('ssvc') or {}).get('exploitation'),
+            "has_public_exploit": raw_data.get('has_public_exploit', False),
+            "has_metasploit_module": raw_data.get('has_metasploit_module', False),
+            "metasploit_modules": raw_data.get('metasploit_modules', []),
         }
         
         # Step 4: 알림 필요성 판단
@@ -520,13 +570,18 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         notifier.send_alert(current_state, alert_reason, report_url)
         
         # Step 8: DB 저장 (content_hash 포함)
+        # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
+        # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
+        # (불변 원칙 2, 8-②)
+        clean_state = {k: v for k, v in current_state.items() if not k.startswith("_")}
+
         db_data = {
             "id": cve_id,
             "cvss_score": current_state['cvss'],
             "epss_score": current_state['epss'],
             "is_kev": current_state['is_kev'],
             "last_alert_at": datetime.datetime.now(KST).isoformat(),
-            "last_alert_state": current_state,
+            "last_alert_state": clean_state,
             "report_url": report_url,
             "updated_at": datetime.datetime.now(KST).isoformat(),
             "content_hash": raw_data.get('content_hash')
@@ -546,24 +601,42 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         return None
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
-    is_high_risk = current['cvss'] >= 7.0 or current['is_kev']
-    
+    # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
+    is_high_risk = (
+        current['cvss'] >= 7.0
+        or current['is_kev']
+        or current.get('has_metasploit_module')
+        or current.get('ssvc_exploitation') == 'active'
+    )
+
     # 신규 CVE
     if last is None:
         return True, "신규 취약점", is_high_risk
-    
+
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
         return True, "🚨 KEV 등재", True
-    
+
+    # Metasploit 모듈 신규 등장 → 무기화됨
+    if current.get('has_metasploit_module') and not last.get('has_metasploit_module'):
+        return True, "🧨 Metasploit 모듈 공개 (무기화)", True
+
+    # SSVC Exploitation active 전환 → 실제 악용 확인
+    if current.get('ssvc_exploitation') == 'active' and last.get('ssvc_exploitation') != 'active':
+        return True, "🎯 SSVC Exploitation=Active (실제 악용)", True
+
+    # ExploitDB 공개 익스플로잇 신규 등장
+    if current.get('has_public_exploit') and not last.get('has_public_exploit'):
+        return True, "💥 ExploitDB 공개 익스플로잇", True
+
     # EPSS 급증
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
         return True, "📈 EPSS 급증", True
-    
+
     # CVSS 상향
     if current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
         return True, "🔺 CVSS 위험도 상향", True
-    
+
     return False, "", is_high_risk
 
 def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
@@ -582,13 +655,25 @@ def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
     if cve_data.get('is_kev') or cve_data.get('is_vulncheck_kev'):
         return True, "KEV 등재"
 
-    # 2. EPSS >= threshold → 높은 악용 확률
+    # 2. SSVC Exploitation=active → CISA 확인 실제 악용 (P5, CC0)
+    if cve_data.get('ssvc_exploitation') == 'active':
+        return True, "SSVC Exploitation=active"
+
+    # 3. Metasploit 모듈 존재 → 무기화됨 (P5)
+    if cve_data.get('has_metasploit_module'):
+        return True, "Metasploit 모듈 존재"
+
+    # 4. ExploitDB 공개 익스플로잇 (P5)
+    if cve_data.get('has_public_exploit'):
+        return True, "ExploitDB 공개 익스플로잇"
+
+    # 5. EPSS >= threshold → 높은 악용 확률
     threshold = config.RULE_GENERATION.get("epss_threshold", 0.2)
     epss_score = cve_data.get('epss', 0.0)
     if epss_score >= threshold:
         return True, f"EPSS {epss_score:.4f} >= {threshold}"
 
-    # 3. PoC 존재 → 공격 코드 공개됨
+    # 6. PoC 존재 → 공격 코드 공개됨
     if cve_data.get('has_poc') and cve_data.get('poc_count', 0) > 0:
         return True, "PoC 존재"
 
@@ -710,7 +795,7 @@ def check_for_official_rules() -> None:
 # [6] 메인 실행 로직
 # ==============================================================================
 
-def main():
+def _main():
     start_time = time.time()
     logger.info("=" * 60)
     logger.info(f"Argus Phase 1 시작 (Model: {config.MODEL_PHASE_1})")
@@ -798,6 +883,32 @@ def main():
 
     # Step 10: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
+
+
+def _notify_pipeline_failure(error: Exception) -> None:
+    """파이프라인 최상위 실패를 Slack에 알림 (알림 자체의 실패는 무시하고 넘어감)"""
+    try:
+        webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
+        if not webhook_url:
+            return
+        payload = {
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": "🔴 Argus 파이프라인 실패"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"```{type(error).__name__}: {error}```"}},
+            ]
+        }
+        requests.post(webhook_url, json=payload, timeout=10)
+    except Exception:
+        pass
+
+
+def main():
+    try:
+        _main()
+    except Exception as e:
+        logger.error(f"파이프라인 최상위 실패: {e}", exc_info=True)
+        _notify_pipeline_failure(e)
+
 
 if __name__ == "__main__":
     main()

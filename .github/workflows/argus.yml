@@ -1,8 +1,11 @@
 name: Argus CVE Monitor
  
 on:
-  schedule:
-    - cron: '18 * * * *'
+  # TEMP(Phase 0): 대청소 작업 중 매시간 자동 커밋이 작업 브랜치 푸시와
+  # 경쟁 상태를 일으키지 않도록 스케줄 트리거를 임시 비활성화.
+  # Phase 0 작업이 main에 병합된 후 아래 주석을 해제해 복원할 것.
+  # schedule:
+  #   - cron: '18 * * * *'
   workflow_dispatch:  # 수동 실행 가능
  
 permissions:
@@ -12,18 +15,29 @@ permissions:
 jobs:
   argus-run:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
- 
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
- 
+          cache: 'pip'
+
+      # 룰셋/인덱스 tarball·CSV 디스크 캐시 (일 단위 키) — 매시간 재다운로드 제거
+      - name: Cache rulesets
+        uses: actions/cache@v4
+        with:
+          path: .cache/rulesets
+          key: rulesets-${{ github.run_id }}
+          restore-keys: |
+            rulesets-
+
       - name: Install dependencies
         run: pip install -r requirements.txt
- 
+
       - name: Run Argus CVE pipeline
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -45,7 +59,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/
+          git add docs/data/cves.json docs/data/stats.json
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else

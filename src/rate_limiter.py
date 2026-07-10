@@ -45,12 +45,6 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=0.5
             ),
-            # GitHub Search API: 인증 사용자 10회/분
-            "github_search": RateLimitInfo(
-                limit=8,
-                window_seconds=60,
-                min_interval=7.0
-            ),
             # Groq Free Tier: RPM 30 + TPM 8000
             "groq": RateLimitInfo(
                 limit=15,
@@ -107,9 +101,12 @@ class RateLimitManager:
             "rate_limit_hits": 0
         }
 
-        # TPD (Tokens Per Day) 트래킹 — Groq 일간 토큰 한도 관리
+        # TPD (Tokens Per Day) 트래킹 — 프리티어 일간 토큰 한도 관리
+        # Gemini/Groq를 나눈 것은 프리티어 사용량 분산 전략 (불변 원칙 5).
+        # 양쪽 잔여량을 함께 추적해 실행 요약에서 확인한다.
         self._tpd_limits: Dict[str, int] = {
-            "groq": 200_000,  # Free Tier: 200K TPD
+            "groq": 200_000,    # Groq Free Tier: 200K TPD
+            "gemini": 1_000_000,  # Gemini Free Tier: 가시화용 대략치 (일간 토큰)
         }
         self._tpd_used: Dict[str, int] = {}
         self._tpd_reset_at: Dict[str, datetime] = {}

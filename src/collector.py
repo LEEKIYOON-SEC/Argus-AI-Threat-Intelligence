@@ -10,6 +10,7 @@ from typing import List, Dict, Set, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from logger import logger
 from rate_limiter import rate_limit_manager
+import enrichment_sources
 
 class CollectorError(Exception):
     """데이터 수집 관련 에러"""
@@ -362,6 +363,7 @@ class Collector:
                 "cwe": [],
                 "references": [],
                 "affected": [],
+                "ssvc": {},
                 "content_hash": content_hash
             }
             
@@ -397,8 +399,11 @@ class Collector:
             for ref in cna.get('references', []):
                 if 'url' in ref:
                     data['references'].append(ref['url'])
-            
-            logger.debug(f"Enriched {cve_id}: CVSS={data['cvss']}, State={data['state']}")
+
+            # CISA vulnrichment (ADP 컨테이너) — 이미 받은 레코드에서 파싱 (추가 네트워크 0, CC0)
+            self._enrich_from_adp(json_data, data)
+
+            logger.debug(f"Enriched {cve_id}: CVSS={data['cvss']}, State={data['state']}, SSVC={data['ssvc'].get('exploitation','-')}")
             return data
             
         except requests.exceptions.HTTPError as e:
@@ -411,10 +416,52 @@ class Collector:
             logger.error(f"{cve_id} enrichment failed: {e}")
             return self._error_response(cve_id)
     
+    def _enrich_from_adp(self, json_data: Dict, data: Dict) -> None:
+        """CISA vulnrichment(ADP 컨테이너)에서 SSVC·CVSS·CWE 보강.
+
+        cvelistV5 레코드에 이미 포함된 containers.adp를 파싱하므로 추가 네트워크 비용 0.
+        CC0 1.0 라이선스 — 제한 없이 사용/재배포 가능 (P5 최우선 소스).
+        SSVC Exploitation(none/poc/active)은 "실제 악용 중" 여부의 1급 신호.
+        """
+        try:
+            adp_containers = json_data.get('containers', {}).get('adp', []) or []
+        except AttributeError:
+            return
+
+        for container in adp_containers:
+            provider = (container.get('providerMetadata') or {}).get('shortName', '')
+            # CISA-ADP 컨테이너만 사용 (다른 ADP는 신뢰도/구조 상이)
+            if provider != 'CISA-ADP':
+                continue
+
+            for metric in container.get('metrics', []) or []:
+                # SSVC 결정 정보
+                other = metric.get('other') or {}
+                if other.get('type') == 'ssvc':
+                    for opt in (other.get('content', {}) or {}).get('options', []) or []:
+                        for key, val in opt.items():
+                            data['ssvc'][key.lower().replace(' ', '_')] = val
+                # CVSS 보강 (cna에 없을 때만)
+                if data['cvss'] == 0.0:
+                    for key in ('cvssV4_0', 'cvssV3_1', 'cvssV3_0'):
+                        if key in metric:
+                            data['cvss'] = metric[key].get('baseScore', 0.0)
+                            data['cvss_vector'] = metric[key].get('vectorString', 'N/A')
+                            logger.info(f"  ADP CVSS 보강: {data['id']} → {data['cvss']}")
+                            break
+
+            # CWE 보강 (cna에 없을 때만)
+            if not data['cwe']:
+                for pt in container.get('problemTypes', []) or []:
+                    for desc in pt.get('descriptions', []) or []:
+                        cwe_id = desc.get('cweId', '')
+                        if cwe_id:
+                            data['cwe'].append(cwe_id)
+
     # ====================================================================
     # [5] 추가 위협 인텔리전스 수집
     # ====================================================================
-    
+
     def fetch_vulncheck_kev(self) -> bool:
         """VulnCheck KEV 목록 다운로드 (CISA KEV보다 커버리지 넓음)"""
         api_key = os.environ.get("VULNCHECK_API_KEY")
@@ -633,11 +680,22 @@ class Collector:
         
         # 3. VulnCheck KEV (이미 fetch한 세트에서 조회)
         cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
-        
+
         # 4. GitHub Advisory
         advisory = self.check_github_advisory(cve_id)
         cve_data['github_advisory'] = advisory
-        
+
+        # 5. ExploitDB 공개 익스플로잇 (has_public_exploit — 1급 신호, 캐시 인덱스 조회)
+        cve_data['has_public_exploit'] = enrichment_sources.has_public_exploit(cve_id)
+
+        # 6. Metasploit 모듈 ("무기화됨" 신호, BSD-3-Clause)
+        msf_modules = enrichment_sources.metasploit_modules(cve_id)
+        cve_data['has_metasploit_module'] = bool(msf_modules)
+        # 대시보드/Issue 배지용으로 상위 모듈명만 보존 (출처: Metasploit Framework)
+        cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
+        if msf_modules:
+            logger.info(f"  🧨 Metasploit 모듈 발견: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+
         return cve_data
     
     def _error_response(self, cve_id: str) -> Dict:
