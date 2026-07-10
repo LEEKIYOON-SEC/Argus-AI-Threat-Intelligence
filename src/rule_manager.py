@@ -687,7 +687,7 @@ class RuleManager:
         return has_enough, reason, indicator_details
     
     def _self_check_rule(self, rule_type: str, rule_code: str, cve_data: Dict) -> Tuple[str, str]:
-        """AI 생성 룰 자기검증 (저비용 1회, reasoning_effort: low)
+        """AI 생성 룰 자기검증 (저비용 1회, non-thinking 모드로 토큰 절감)
 
         생성된 룰이 CVE 설명과 실제로 일치하는지, 명백한 FP 위험은 없는지 검토.
         TPD 게이트 뒤에 배치되어 토큰 예산 안전.
@@ -719,12 +719,14 @@ REASON: <one short sentence>"""
 
         try:
             rate_limit_manager.check_and_wait("groq")
+            # 단순 PASS/FAIL 판정 → non-thinking으로 빠르고 저렴하게 (TPD 절감)
             response = self.groq_client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 temperature=0.0,
                 max_completion_tokens=512,
-                reasoning_effort="low"
+                reasoning_effort="none",
+                reasoning_format="parsed"
             )
             tokens_used = 0
             if hasattr(response, 'usage') and response.usage:
@@ -787,7 +789,8 @@ REASON: <one short sentence>"""
                 temperature=config.GROQ_RULE_PARAMS["temperature"],
                 top_p=config.GROQ_RULE_PARAMS["top_p"],
                 max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
-                reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
+                reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"],
+                reasoning_format=config.GROQ_RULE_PARAMS["reasoning_format"]
             )
             # 토큰 사용량 기록 (TPD 트래킹)
             tokens_used = 0
@@ -820,7 +823,8 @@ REASON: <one short sentence>"""
                         temperature=config.GROQ_RULE_PARAMS["temperature"],
                         top_p=config.GROQ_RULE_PARAMS["top_p"],
                         max_completion_tokens=config.GROQ_RULE_PARAMS["max_completion_tokens"],
-                        reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"]
+                        reasoning_effort=config.GROQ_RULE_PARAMS["reasoning_effort"],
+                        reasoning_format=config.GROQ_RULE_PARAMS["reasoning_format"]
                     )
                     retry_tokens = 0
                     if hasattr(retry_resp, 'usage') and retry_resp.usage:

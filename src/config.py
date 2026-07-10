@@ -11,23 +11,31 @@ class ArgusConfig:
     # ==========================================
     # [1] AI 모델 설정
     # ==========================================
-    MODEL_PHASE_0 = "gemma-3-27b-it"  # 빠른 번역/요약
-    MODEL_PHASE_1 = "openai/gpt-oss-120b"  # 심층 분석
-    
-    # [분석용] Groq 파라미터 - 복잡한 CVE 분석
+    MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
+    MODEL_PHASE_1 = "qwen/qwen3.6-27b"  # 심층 분석 + 룰 생성 (Groq, 사고형 모델)
+
+    # Qwen3.6은 사고형(thinking) 모델 — reasoning_effort는 "default"(thinking) / "none"(non-thinking)만 지원.
+    # reasoning_format="parsed": 사고 과정을 응답의 reasoning 필드로 분리해 content엔 최종 답변만 남김
+    # (JSON/룰 코드 파싱이 <think> 태그로 깨지지 않도록).
+    # temperature/top_p는 Qwen 공식 권장값 — 사고 모드에서 너무 낮은 temp는 반복(degeneration) 유발.
+
+    # [분석용] Groq 파라미터 - 복잡한 CVE 분석 (사고 모드)
     GROQ_ANALYSIS_PARAMS = {
-        "temperature": 0.3,  # 낮을수록 일관된 출력 (hallucination 감소)
-        "top_p": 0.9,
-        "max_completion_tokens": 8192,  # 긴 분석을 위해 증가
-        "reasoning_effort": "high"
+        "temperature": 0.6,  # Qwen 사고 모드 권장 (코딩/정밀 작업)
+        "top_p": 0.95,
+        "max_completion_tokens": 8192,  # 사고 토큰 + 긴 분석
+        "reasoning_effort": "default",  # 심층 분석은 항상 thinking
+        "reasoning_format": "parsed"
     }
-    
-    # [룰 생성용] Groq 파라미터 - 정확한 코드 생성
+
+    # [룰 생성용] Groq 파라미터 - 정확한 코드 생성 (사고 모드)
+    # 우선 thinking으로 룰 품질 극대화. TPD(일간 토큰) 부족 시 "none"으로 전환 가능.
     GROQ_RULE_PARAMS = {
-        "temperature": 0.2,  # 더 엄격하게 (코드는 창의성보다 정확성)
-        "top_p": 0.85,
-        "max_completion_tokens": 2048,
-        "reasoning_effort": "low"  # 룰은 템플릿 기반 → 추론 토큰 절감 (TPD 1/3~1/5)
+        "temperature": 0.6,  # Qwen 사고 모드 권장
+        "top_p": 0.95,
+        "max_completion_tokens": 4096,  # 사고 토큰 + 룰 출력 여유 (기존 2048 → 4096)
+        "reasoning_effort": "default",  # 룰 생성도 thinking (사용자 선택)
+        "reasoning_format": "parsed"
     }
     
     # ==========================================

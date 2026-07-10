@@ -46,6 +46,8 @@ class Analyzer:
 
             if config.GROQ_ANALYSIS_PARAMS.get("reasoning_effort"):
                 api_params["reasoning_effort"] = config.GROQ_ANALYSIS_PARAMS["reasoning_effort"]
+            if config.GROQ_ANALYSIS_PARAMS.get("reasoning_format"):
+                api_params["reasoning_format"] = config.GROQ_ANALYSIS_PARAMS["reasoning_format"]
 
             # TPD 소진 시 AI 분석 SKIP → fallback
             if rate_limit_manager.is_tpd_exhausted("groq"):
