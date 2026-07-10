@@ -16,6 +16,22 @@ from logger import logger
 from config import config
 from rate_limiter import rate_limit_manager
 
+# pySigma: Sigma 룰 실제 파싱 검증 (오프라인, 무료 pip) — 미설치 시 구조 검사만 수행
+try:
+    from sigma.collection import SigmaCollection
+    _PYSIGMA_AVAILABLE = True
+except ImportError:
+    SigmaCollection = None
+    _PYSIGMA_AVAILABLE = False
+
+# suricataparser: Snort/Suricata 룰 실제 파싱 검증 (순수 Python) — 미설치 시 정규식 폴백
+try:
+    import suricataparser
+    _SURICATAPARSER_AVAILABLE = True
+except ImportError:
+    suricataparser = None
+    _SURICATAPARSER_AVAILABLE = False
+
 class RuleManagerError(Exception):
     pass
 
@@ -72,12 +88,30 @@ class RuleManager:
     _NUCLEI_RAW_BASE = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/"
     _EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 
+    # 공식 룰 재게시 시 보존해야 할 출처·라이선스 고지 (불변 원칙 8-①)
+    _SOURCE_LICENSES = [
+        ("SigmaHQ", "DRL 1.1 — 재게시 시 author 표기 보존 의무"),
+        ("ET Open", "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)"),
+        ("Community", "GPLv2 (Snort Community Rules)"),
+        ("Yara-Rules", "GPL-2.0 — 출처·라이선스 표기 유지"),
+    ]
+
+    @staticmethod
+    def _license_for_source(source: str) -> Optional[str]:
+        """룰 출처 문자열에서 라이선스 고지 문구를 찾는다"""
+        for key, lic in RuleManager._SOURCE_LICENSES:
+            if key.lower() in source.lower():
+                return lic
+        return None
+
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
         self.groq_client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         self.model = config.MODEL_PHASE_1
 
-        logger.info("✅ RuleManager 초기화 완료 (정규식 검증 모드)")
+        sigma_mode = "pySigma" if _PYSIGMA_AVAILABLE else "구조 검사"
+        net_mode = "suricataparser" if _SURICATAPARSER_AVAILABLE else "정규식"
+        logger.info(f"✅ RuleManager 초기화 완료 (Sigma: {sigma_mode}, Network: {net_mode}, Yara: 컴파일)")
 
     @staticmethod
     def _parse_attack_vector(cvss_vector: str) -> str:
@@ -450,14 +484,15 @@ class RuleManager:
         """
         Sigma 룰 검증 (강화)
 
-        7단계 검증:
+        구조 검사(사전 필터) + pySigma 실제 파싱(최종 게이트):
         1. YAML 파싱
         2. 필수 필드 존재 (title, logsource, detection)
         3. logsource에 product 또는 category
         4. detection에 condition 필드
         5. detection에 최소 1개 selection 존재
         6. selection이 단순 파라미터만이 아닌지 (semantic check)
-        7. level 필드 존재
+        7. level 필드 존재 및 유효값 (critical/high/medium/low/informational)
+        8. pySigma SigmaCollection.from_yaml 파싱 — 필드 modifier·condition 참조까지 실검증
         """
         try:
             data = yaml.safe_load(code)
@@ -505,6 +540,28 @@ class RuleManager:
                 if isinstance(sel, dict) and len(sel) == 1:
                     logger.warning("Sigma: 단일 조건 detection - false positive 위험 높음 (허용하되 경고)")
 
+            # level 필드 검사
+            level = data.get('level')
+            valid_levels = {'critical', 'high', 'medium', 'low', 'informational'}
+            if not level or str(level).lower() not in valid_levels:
+                logger.warning(f"Sigma: level 필드 누락 또는 유효하지 않음 - {level!r}")
+                return False
+
+            # 최종 게이트: pySigma 실제 파싱 (modifier 유효성 + condition 참조 해석)
+            if _PYSIGMA_AVAILABLE:
+                try:
+                    collection = SigmaCollection.from_yaml(code)
+                    for parsed_rule in collection.rules:
+                        # condition은 지연 파싱이므로 명시적으로 해석 강제
+                        # → 존재하지 않는 selection 참조(AI 환각) 검출
+                        for cond in parsed_rule.detection.parsed_condition:
+                            cond.parse()
+                except Exception as e:
+                    logger.warning(f"Sigma: pySigma 파싱 실패 - {e}")
+                    return False
+            else:
+                logger.debug("pySigma 미설치 — 구조 검사까지만 수행")
+
             logger.debug("✅ Sigma 검증 통과")
             return True
 
@@ -536,7 +593,46 @@ class RuleManager:
     
     def _validate_network_rule(self, code: str) -> bool:
         """
-        네트워크 룰 검증 (Snort/Suricata - 정규식 기반)
+        네트워크 룰 검증 (Snort/Suricata)
+
+        suricataparser(순수 Python 룰 파서)로 실제 파싱하는 것이 1차 게이트.
+        미설치 환경에서는 기존 정규식 휴리스틱으로 폴백.
+
+        Args:
+            code: Snort 또는 Suricata 룰 문자열
+
+        Returns:
+            검증 통과 여부
+        """
+        code = code.strip()
+
+        if _SURICATAPARSER_AVAILABLE:
+            # AI가 여러 줄로 포매팅한 룰을 단일 라인으로 정규화 (파서는 한 줄 룰 기준)
+            normalized = re.sub(r'\s*\n\s*', ' ', code)
+            try:
+                rule = suricataparser.parse_rule(normalized)
+            except Exception as e:
+                logger.warning(f"네트워크 룰: 파싱 실패 - {e}")
+                return False
+
+            if rule is None:
+                logger.warning("네트워크 룰: suricataparser 파싱 불가 (구조 오류)")
+                return False
+            if not getattr(rule, 'sid', None):
+                logger.warning("네트워크 룰: sid 옵션 누락")
+                return False
+            if not getattr(rule, 'msg', None):
+                logger.warning("네트워크 룰: msg 옵션 누락")
+                return False
+
+            logger.debug("✅ 네트워크 룰 파서 검증 통과 (suricataparser)")
+            return True
+
+        return self._validate_network_rule_regex(code)
+
+    def _validate_network_rule_regex(self, code: str) -> bool:
+        """
+        네트워크 룰 검증 폴백 (정규식 기반 — suricataparser 미설치 환경 전용)
 
         6단계 검증 과정:
         1. 기본 구조 (alert tcp ...)
@@ -545,14 +641,7 @@ class RuleManager:
         4. sid 필드 (필수)
         5. 일반적인 문법 오류 (빈 괄호, 연속 세미콜론 등)
         6. 괄호 균형
-        
-        Args:
-            code: Snort 또는 Suricata 룰 문자열
-        
-        Returns:
-            검증 통과 여부
         """
-        code = code.strip()
         
         # 1단계: 기본 구조 검증
         if not re.match(r'^(alert|log|pass|drop|reject|sdrop)\s+(tcp|udp|icmp|ip)\s', code, re.IGNORECASE):
@@ -673,34 +762,98 @@ class RuleManager:
         
         return has_enough, reason, indicator_details
     
+    def _self_check_rule(self, rule_type: str, rule_code: str, cve_data: Dict) -> Tuple[str, str]:
+        """AI 생성 룰 자기검증 (저비용 1회, reasoning_effort: low)
+
+        생성된 룰이 CVE 설명과 실제로 일치하는지, 명백한 FP 위험은 없는지 검토.
+        TPD 게이트 뒤에 배치되어 토큰 예산 안전.
+
+        Returns:
+            ("PASS" | "FAIL" | "SKIP", 사유)
+            - PASS: 일치 확인 → trust: ai-validated
+            - FAIL: 불일치 → 룰 폐기, skip_reasons에 사유 기록
+            - SKIP: 검증 수행 불가(TPD 부족 등) → trust: ai-draft로 유지
+        """
+        if rate_limit_manager.is_tpd_exhausted("groq", required_tokens=3000):
+            return "SKIP", "Groq TPD 부족으로 자기검증 생략"
+
+        prompt = f"""You are a detection engineering reviewer. Review this {rule_type} rule generated for {cve_data['id']}.
+
+[CVE Description]
+{cve_data['description'][:1500]}
+
+[Generated Rule]
+{rule_code[:2500]}
+
+Check strictly:
+1. Does the detection logic actually match the vulnerability described (attack vector, component, parameter, payload)?
+2. Is there an obvious false-positive risk (e.g., detection is only a generic keyword, a bare parameter name, or unrelated patterns)?
+
+Respond in EXACTLY this format (no other text):
+VERDICT: PASS or FAIL
+REASON: <one short sentence>"""
+
+        try:
+            rate_limit_manager.check_and_wait("groq")
+            response = self.groq_client.chat.completions.create(
+                model=self.model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.0,
+                max_completion_tokens=512,
+                reasoning_effort="low"
+            )
+            tokens_used = 0
+            if hasattr(response, 'usage') and response.usage:
+                tokens_used = response.usage.total_tokens
+            rate_limit_manager.record_call("groq", tokens_used=tokens_used)
+
+            text = (response.choices[0].message.content or "").strip()
+            reason_match = re.search(r'REASON:\s*(.+)', text)
+            reason = reason_match.group(1).strip() if reason_match else text[:200]
+
+            if re.search(r'VERDICT:\s*PASS', text, re.IGNORECASE):
+                return "PASS", reason
+            if re.search(r'VERDICT:\s*FAIL', text, re.IGNORECASE):
+                return "FAIL", reason
+            return "SKIP", f"자기검증 응답 형식 불명확: {text[:120]}"
+
+        except Exception as e:
+            logger.warning(f"자기검증 호출 실패 ({rule_type}): {e}")
+            return "SKIP", f"자기검증 호출 실패: {e}"
+
     @retry(stop=stop_after_attempt(3), wait=wait_fixed(2))
-    def _generate_ai_rule(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> Optional[Tuple[str, List[str]]]:
+    def _generate_ai_rule(self, rule_type: str, cve_data: Dict, analysis: Optional[Dict] = None) -> Optional[Tuple[str, List[str], str]]:
         """
         AI 기반 탐지 룰 생성
-        
+
         공개 룰이 없고, 구체적 지표가 충분할 때만 AI에게 룰을 생성하도록 요청.
-        
+        생성 후 구문 검증 → 자기검증 패스를 거쳐 trust 등급을 부여한다.
+
         Returns:
-            (룰 코드, 발견된 지표 목록) 또는 None
+            (룰 코드, 발견된 지표 목록, trust: "ai-validated"|"ai-draft") 또는 None
         """
         logger.debug(f"AI {rule_type} 생성 시도")
-        
+        # 실패/생략 시 구체적 사유 (skip_reasons 고도화용)
+        self._last_skip_detail = None
+
         # Observable Gate (Sigma는 예외 - 로그 기반이라 관대하게)
         indicator_details = []
         if rule_type not in ["Sigma", "sigma"]:
             has_indicators, reason, indicator_details = self._check_observables(cve_data)
             if not has_indicators:
                 logger.info(f"⛔ {rule_type} 생성 SKIP: {reason}")
+                self._last_skip_detail = f"구체적 탐지 지표 부족 ({reason})"
                 return None
             else:
                 logger.debug(f"✅ Observable Gate 통과: {reason}")
-        
+
         prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
 
         try:
             # TPD 소진 시 룰 생성 SKIP
             if rate_limit_manager.is_tpd_exhausted("groq"):
                 logger.warning(f"⛔ {rule_type} 생성 SKIP: Groq TPD 소진")
+                self._last_skip_detail = "Groq TPD 소진으로 AI 생성 생략 (다음 실행에서 재처리)"
                 return None
 
             rate_limit_manager.check_and_wait("groq")
@@ -731,6 +884,7 @@ class RuleManager:
                     if rate_limit_manager.is_tpd_exhausted("groq"):
                         logger.warning(f"⛔ Sigma 재시도 SKIP: Groq TPD 소진")
                         self._sigma_retry_done = False
+                        self._last_skip_detail = "Groq TPD 소진으로 Sigma 재시도 생략"
                         return None
 
                     retry_prompt = self._build_rule_prompt(rule_type, cve_data, analysis)
@@ -751,14 +905,26 @@ class RuleManager:
                     retry_content = retry_resp.choices[0].message.content.strip()
                     retry_content = re.sub(r"```[a-z]*\n|```", "", retry_content).strip()
                     if retry_content and retry_content != "SKIP" and self._validate_sigma(retry_content):
-                        logger.info("✅ Sigma 필수 재시도 성공")
                         self._sigma_retry_done = False
-                        return (retry_content, indicator_details)
+                        # 재시도 룰도 자기검증 패스 적용
+                        verdict, check_reason = self._self_check_rule(rule_type, retry_content, cve_data)
+                        if verdict == "FAIL":
+                            logger.warning(f"🗑️ Sigma 필수 재시도 룰 자기검증 불일치로 폐기: {check_reason}")
+                            self._last_skip_detail = f"AI 자기검증 불일치로 폐기 ({check_reason})"
+                            return None
+                        trust = "ai-validated" if verdict == "PASS" else "ai-draft"
+                        logger.info(f"✅ Sigma 필수 재시도 성공 ({trust})")
+                        return (retry_content, indicator_details, trust)
                     self._sigma_retry_done = False
+                    self._last_skip_detail = "Sigma 필수 재시도도 실패 (SKIP 재반환 또는 구문/의미 검증 불통과)"
+                    logger.info(f"⛔ AI가 {rule_type} 생성 거부 (근거 부족)")
+                    return None
                 logger.info(f"⛔ AI가 {rule_type} 생성 거부 (근거 부족)")
+                found = ', '.join(indicator_details) if indicator_details else "없음"
+                self._last_skip_detail = f"AI가 근거 부족으로 생성 거부(SKIP 반환) — 제공 지표: {found}"
                 return None
-            
-            # 검증
+
+            # 검증 (구문/의미)
             is_valid = False
             if rule_type in ["Snort", "Suricata", "snort", "suricata"]:
                 is_valid = self._validate_network_rule(content)
@@ -766,15 +932,27 @@ class RuleManager:
                 is_valid = self._validate_yara(content)
             elif rule_type in ["Sigma", "sigma"]:
                 is_valid = self._validate_sigma(content)
-            
-            if is_valid:
-                logger.info(f"✅ AI {rule_type} 생성 및 검증 성공")
-                return (content, indicator_details)  # 지표 정보 포함
-            else:
+
+            if not is_valid:
                 logger.warning(f"❌ AI {rule_type} 검증 실패")
                 logger.debug(f"실패한 룰:\n{content}")
+                self._last_skip_detail = f"AI 생성 룰이 {rule_type} 구문/의미 검증에 실패해 폐기"
                 return None
-                
+
+            # 자기검증 패스: 룰이 CVE 설명과 일치하는가, FP 위험은? (불일치 시 폐기)
+            verdict, check_reason = self._self_check_rule(rule_type, content, cve_data)
+            if verdict == "FAIL":
+                logger.warning(f"🗑️ AI {rule_type} 자기검증 불일치로 폐기: {check_reason}")
+                self._last_skip_detail = f"AI 자기검증 불일치로 폐기 ({check_reason})"
+                return None
+
+            trust = "ai-validated" if verdict == "PASS" else "ai-draft"
+            if verdict == "PASS":
+                logger.info(f"✅ AI {rule_type} 생성·검증·자기검증 통과 (ai-validated)")
+            else:
+                logger.info(f"✅ AI {rule_type} 생성 및 검증 성공 — 자기검증 생략 → ai-draft ({check_reason})")
+            return (content, indicator_details, trust)
+
         except Exception as e:
             logger.error(f"AI 룰 생성 에러: {e}")
             raise
@@ -955,7 +1133,7 @@ rule CVE_XXXX_Indicator {
    - Example for SQL Injection in coupon_code parameter:
      - selection_endpoint: uri|contains the vulnerable endpoint path or plugin path
      - selection_param: uri|contains OR cs-body|contains the parameter name
-     - selection_payload: uri|contains|any OR cs-body|contains|any with SQL injection patterns
+     - selection_payload: uri|contains OR cs-body|contains with a LIST of SQL injection patterns (list values are OR-ed by default; do NOT invent modifiers like |any)
      - condition: all of selection_*
 
 4. **POST body awareness**:
@@ -976,7 +1154,7 @@ detection:
     selection_param:
         uri|contains: 'param_name'
     selection_payload:
-        uri|contains|any:
+        uri|contains:
             - "UNION"
             - "SELECT"
             - "'"
@@ -1026,17 +1204,20 @@ tags:
                 "code": public_sigma,
                 "source": "Public (SigmaHQ)",
                 "verified": True,
-                "indicators": None
+                "indicators": None,
+                "trust": "official-verified",
+                "license": self._license_for_source("SigmaHQ")
             }
         else:
             ai_result = self._generate_ai_rule("Sigma", cve_data, analysis)
             if ai_result:
-                ai_sigma, indicators = ai_result
+                ai_sigma, indicators, trust = ai_result
                 rules['sigma'] = {
                     "code": f"# ⚠️ AI-Generated - Review Required\n{ai_sigma}",
                     "source": "AI Generated (Validated)",
                     "verified": False,
-                    "indicators": indicators
+                    "indicators": indicators,
+                    "trust": trust
                 }
             else:
                 rules['skip_reasons']['sigma'] = self._get_skip_reason("Sigma", cve_data)
@@ -1046,24 +1227,28 @@ tags:
 
         if network_rules:
             for rule_info in network_rules:
+                source_str = f"Public ({rule_info['source']})"
                 rules['network'].append({
                     "code": rule_info["code"],
-                    "source": f"Public ({rule_info['source']})",
+                    "source": source_str,
                     "engine": rule_info["engine"],
                     "verified": True,
-                    "indicators": None
+                    "indicators": None,
+                    "trust": "official-verified",
+                    "license": self._license_for_source(source_str)
                 })
         elif attack_vector in ("NETWORK", "ADJACENT", "UNKNOWN"):
             # 네트워크 공격벡터 → AI Snort/Suricata 생성 (우선)
             ai_result = self._generate_ai_rule("Snort", cve_data, analysis)
             if ai_result:
-                ai_network, indicators = ai_result
+                ai_network, indicators, trust = ai_result
                 rules['network'].append({
                     "code": f"# ⚠️ AI-Generated - Review Required\n{ai_network}",
-                    "source": "AI Generated (Regex Validated)",
+                    "source": "AI Generated (Parser Validated)",
                     "engine": "generic",
                     "verified": False,
-                    "indicators": indicators
+                    "indicators": indicators,
+                    "trust": trust
                 })
             else:
                 rules['skip_reasons']['network'] = self._get_skip_reason("Snort", cve_data)
@@ -1079,18 +1264,21 @@ tags:
                 "code": public_yara,
                 "source": "Public (Yara-Rules)",
                 "verified": True,
-                "indicators": None
+                "indicators": None,
+                "trust": "official-verified",
+                "license": self._license_for_source("Yara-Rules")
             }
         elif attack_vector in ("LOCAL", "PHYSICAL"):
             # 로컬/물리적 공격벡터 → AI YARA 생성 (파일/바이너리 분석에 적합)
             ai_result = self._generate_ai_rule("Yara", cve_data, analysis)
             if ai_result:
-                ai_yara, indicators = ai_result
+                ai_yara, indicators, trust = ai_result
                 rules['yara'] = {
                     "code": f"// ⚠️ AI-Generated - Review Required\n{ai_yara}",
                     "source": "AI Generated (Compiled)",
                     "verified": False,
-                    "indicators": indicators
+                    "indicators": indicators,
+                    "trust": trust
                 }
             else:
                 rules['skip_reasons']['yara'] = self._get_skip_reason("Yara", cve_data)
@@ -1122,19 +1310,24 @@ tags:
                 "code": public_sigma,
                 "source": "Public (SigmaHQ)",
                 "verified": True,
-                "indicators": None
+                "indicators": None,
+                "trust": "official-verified",
+                "license": self._license_for_source("SigmaHQ")
             }
 
         # Snort/Suricata (기존 tarball 방식 유지)
         network_rules = self._fetch_network_rules(cve_id)
         if network_rules:
             for rule_info in network_rules:
+                source_str = f"Public ({rule_info['source']})"
                 rules['network'].append({
                     "code": rule_info["code"],
-                    "source": f"Public ({rule_info['source']})",
+                    "source": source_str,
                     "engine": rule_info["engine"],
                     "verified": True,
-                    "indicators": None
+                    "indicators": None,
+                    "trust": "official-verified",
+                    "license": self._license_for_source(source_str)
                 })
 
         # Yara (tarball 로컬 검색 - Code Search API 사용 안 함)
@@ -1144,7 +1337,9 @@ tags:
                 "code": public_yara,
                 "source": "Public (Yara-Rules)",
                 "verified": True,
-                "indicators": None
+                "indicators": None,
+                "trust": "official-verified",
+                "license": self._license_for_source("Yara-Rules")
             }
 
         # 결과 요약
@@ -1161,13 +1356,33 @@ tags:
         return rules
     
     def _get_skip_reason(self, rule_type: str, cve_data: Dict) -> str:
-        """룰 생성 실패 사유 판별"""
-        if rule_type in ["Sigma", "sigma"]:
-            return "공개 룰 미발견, AI가 근거 부족으로 생성 거부"
-        
-        has_indicators, reason, indicator_details = self._check_observables(cve_data)
-        if not has_indicators:
-            return f"공개 룰 미발견, 구체적 탐지 지표 부족 ({reason})"
-        else:
-            details_str = ', '.join(indicator_details) if indicator_details else reason
-            return f"공개 룰 미발견, AI가 근거 부족으로 생성 거부 (발견된 지표: {details_str})"
+        """룰 생성 실패 사유 판별 — 확인한 공개 저장소·컨텍스트 소스·부족 지표를 구체적으로 명시"""
+        repo_map = {
+            "sigma": "SigmaHQ",
+            "snort": "ET Open/Snort Community",
+            "suricata": "ET Open/Snort Community",
+            "yara": "Yara-Rules",
+        }
+        searched_repo = repo_map.get(rule_type.lower(), "공개 저장소")
+
+        # AI 프롬프트에 어떤 컨텍스트 소스가 들어갔는지
+        sources = [
+            f"nuclei {'✅' if cve_data.get('_nuclei_template') else '❌'}",
+            f"ExploitDB {'✅' if cve_data.get('_exploit_db_snippet') else '❌'}",
+            "description ✅",
+        ]
+        sources_str = ", ".join(sources)
+
+        # 직전 AI 생성 시도가 남긴 구체적 사유 (TPD 생략/검증 실패/자기검증 폐기 등)
+        detail = getattr(self, '_last_skip_detail', None)
+        if not detail:
+            has_indicators, obs_reason, indicator_details = self._check_observables(cve_data)
+            if rule_type in ["Sigma", "sigma"]:
+                detail = "AI가 근거 부족으로 생성 거부"
+            elif not has_indicators:
+                detail = f"구체적 탐지 지표 부족 ({obs_reason})"
+            else:
+                found = ', '.join(indicator_details) if indicator_details else obs_reason
+                detail = f"AI가 근거 부족으로 생성 거부 (발견된 지표: {found})"
+
+        return f"공개 룰 미발견({searched_repo}); {detail}; 확인한 컨텍스트: [{sources_str}]"

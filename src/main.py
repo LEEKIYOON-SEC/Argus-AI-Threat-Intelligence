@@ -196,6 +196,23 @@ Do NOT add intro/outro.
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
 
+def _rule_trust_badge(rule_info: Dict) -> str:
+    """룰 신뢰 등급(trust tier) 배지"""
+    trust = rule_info.get('trust') or ('official-verified' if rule_info.get('verified') else 'ai-draft')
+    if trust == 'official-verified':
+        return "🟢 **공식 검증 (official-verified)**"
+    if trust == 'ai-validated':
+        return "🔷 **AI 생성 · 자기검증 통과 (ai-validated)**"
+    return "🔶 **AI 생성 - 검토 필요 (ai-draft)**"
+
+
+def _rule_license_note(rule_info: Dict) -> str:
+    """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
+    lic = rule_info.get('license')
+    if not lic:
+        return ""
+    return f"\n> **License:** {lic} — 원 룰의 출처·author·라이선스 고지를 보존합니다.\n"
+
 def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Optional[Dict]]:
     token = os.environ.get("GH_TOKEN")
     repo = os.environ.get("GITHUB_REPOSITORY")
@@ -301,47 +318,40 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         
         # Sigma 룰
         if rules.get('sigma'):
-            is_verified = rules['sigma'].get('verified')
-            badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
-            
+            info = rules['sigma']
+            badge = _rule_trust_badge(info)
+            extra = _rule_license_note(info)
+
             # AI 생성 룰이면 지표 정보 표시
-            indicator_info = ""
-            if not is_verified and rules['sigma'].get('indicators'):
-                indicators = rules['sigma']['indicators']
-                if indicators:
-                    indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-            
-            rules_section += f"### Sigma Rule ({rules['sigma']['source']}) {badge}\n{indicator_info}```yaml\n{rules['sigma']['code']}\n```\n\n"
-        
+            if not info.get('verified') and info.get('indicators'):
+                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
+
+            rules_section += f"### Sigma Rule ({info['source']}) {badge}\n{extra}```yaml\n{info['code']}\n```\n\n"
+
         # 네트워크 룰 (Snort/Suricata - 여러 개 가능)
         if rules.get('network'):
             for idx, net_rule in enumerate(rules['network'], 1):
-                is_verified = net_rule.get('verified')
-                badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
+                badge = _rule_trust_badge(net_rule)
                 engine_name = net_rule.get('engine', 'unknown').upper()
-                
+                extra = _rule_license_note(net_rule)
+
                 # AI 생성 룰이면 지표 정보 표시
-                indicator_info = ""
-                if not is_verified and net_rule.get('indicators'):
-                    indicators = net_rule['indicators']
-                    if indicators:
-                        indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-                
-                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{indicator_info}```bash\n{net_rule['code']}\n```\n\n"
-        
+                if not net_rule.get('verified') and net_rule.get('indicators'):
+                    extra += f"\n> **Based on:** {', '.join(net_rule['indicators'])}\n"
+
+                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{extra}```bash\n{net_rule['code']}\n```\n\n"
+
         # Yara 룰
         if rules.get('yara'):
-            is_verified = rules['yara'].get('verified')
-            badge = "🟢 **공식 검증**" if is_verified else "🔶 **AI 생성 - 검토 필요**"
-            
+            info = rules['yara']
+            badge = _rule_trust_badge(info)
+            extra = _rule_license_note(info)
+
             # AI 생성 룰이면 지표 정보 표시
-            indicator_info = ""
-            if not is_verified and rules['yara'].get('indicators'):
-                indicators = rules['yara']['indicators']
-                if indicators:
-                    indicator_info = f"\n> **Based on:** {', '.join(indicators)}\n"
-            
-            rules_section += f"### Yara Rule ({rules['yara']['source']}) {badge}\n{indicator_info}```yara\n{rules['yara']['code']}\n```\n\n"
+            if not info.get('verified') and info.get('indicators'):
+                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
+
+            rules_section += f"### Yara Rule ({info['source']}) {badge}\n{extra}```yara\n{info['code']}\n```\n\n"
     
     # 탐지 룰 현황 섹션 (항상 표시)
     skip_reasons = rules.get('skip_reasons', {})
@@ -355,9 +365,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # Sigma 상태
     if rules.get('sigma'):
         if rules['sigma'].get('verified'):
-            ai_status_section += "**Sigma Rule** ✅ 공식 룰 발견\n\n"
+            ai_status_section += "**Sigma Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
         else:
-            ai_status_section += "**Sigma Rule** ✅ AI 생성 완료\n\n"
+            ai_status_section += f"**Sigma Rule** ✅ AI 생성 완료 ({rules['sigma'].get('trust', 'ai-draft')})\n\n"
     else:
         skip_reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Sigma Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -366,9 +376,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     if rules.get('network'):
         verified_count = sum(1 for r in rules['network'] if r.get('verified'))
         if verified_count > 0:
-            ai_status_section += f"**Snort/Suricata Rule** ✅ 공식 룰 발견 ({verified_count}개 엔진)\n\n"
+            ai_status_section += f"**Snort/Suricata Rule** ✅ 공식 룰 발견 ({verified_count}개 엔진, official-verified)\n\n"
         else:
-            ai_status_section += "**Snort/Suricata Rule** ✅ AI 생성 완료\n\n"
+            net_trust = rules['network'][0].get('trust', 'ai-draft') if rules['network'] else 'ai-draft'
+            ai_status_section += f"**Snort/Suricata Rule** ✅ AI 생성 완료 ({net_trust})\n\n"
     else:
         skip_reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Snort/Suricata Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -376,9 +387,9 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # Yara 상태
     if rules.get('yara'):
         if rules['yara'].get('verified'):
-            ai_status_section += "**Yara Rule** ✅ 공식 룰 발견\n\n"
+            ai_status_section += "**Yara Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
         else:
-            ai_status_section += "**Yara Rule** ✅ AI 생성 완료\n\n"
+            ai_status_section += f"**Yara Rule** ✅ AI 생성 완료 ({rules['yara'].get('trust', 'ai-draft')})\n\n"
     else:
         skip_reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
         ai_status_section += f"**Yara Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
@@ -433,18 +444,18 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
     
     # Sigma
     if rules.get('sigma') and rules['sigma'].get('verified'):
-        comment += f"### Sigma Rule ({rules['sigma']['source']})\n```yaml\n{rules['sigma']['code']}\n```\n\n"
-    
+        comment += f"### Sigma Rule ({rules['sigma']['source']})\n{_rule_license_note(rules['sigma'])}```yaml\n{rules['sigma']['code']}\n```\n\n"
+
     # Network (여러 개 가능)
     if rules.get('network'):
         for idx, net_rule in enumerate(rules['network'], 1):
             if net_rule.get('verified'):
                 engine = net_rule.get('engine', 'unknown').upper()
-                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n```bash\n{net_rule['code']}\n```\n\n"
-    
+                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
+
     # Yara
     if rules.get('yara') and rules['yara'].get('verified'):
-        comment += f"### Yara Rule ({rules['yara']['source']})\n```yara\n{rules['yara']['code']}\n```\n\n"
+        comment += f"### Yara Rule ({rules['yara']['source']})\n{_rule_license_note(rules['yara'])}```yara\n{rules['yara']['code']}\n```\n\n"
     
     notifier = SlackNotifier()
     return notifier.update_github_issue(issue_url, comment)
