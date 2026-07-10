@@ -95,6 +95,12 @@ def export_cves(client, days: int = 90) -> list:
         entry["has_poc"] = state_poc
         entry["poc_urls"] = state.get("poc_urls", [])[:3]
 
+        # P5 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit)
+        entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
+        entry["has_public_exploit"] = state.get("has_public_exploit", False)
+        entry["has_metasploit_module"] = state.get("has_metasploit_module", False)
+        entry["metasploit_modules"] = state.get("metasploit_modules", [])[:3]
+
         # 심각도 등급 계산
         score = entry["cvss"]
         if score >= 9.0:
@@ -118,6 +124,12 @@ def _build_cve_tags(cve: dict) -> list:
     tags = []
     if cve.get("is_kev"):
         tags.append("KEV")
+    if cve.get("ssvc_exploitation") == "active":
+        tags.append("SSVC-Active")
+    if cve.get("has_metasploit_module"):
+        tags.append("Weaponized")
+    if cve.get("has_public_exploit"):
+        tags.append("Public-Exploit")
     if cve.get("has_poc"):
         tags.append("PoC")
     if cve.get("cvss", 0) >= 9.0:

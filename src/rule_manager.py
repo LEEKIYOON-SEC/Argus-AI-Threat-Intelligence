@@ -1,11 +1,9 @@
 import os
-import csv
 import io
 import json
 import re
 import tarfile
 import threading
-import time
 import requests
 import yaml
 import yara
@@ -36,39 +34,14 @@ class RuleManagerError(Exception):
     pass
 
 
-# ─────────────────────────────────────────────
-# 디스크 캐시 (24h TTL)
-# 매시간 실행에서 룰셋/인덱스를 재다운로드하지 않도록 로컬 파일로 캐시.
-# GitHub Actions에서는 actions/cache가 이 디렉토리를 일 단위로 보존한다.
-# ─────────────────────────────────────────────
-_CACHE_DIR = os.environ.get(
-    "ARGUS_CACHE_DIR",
-    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".cache", "rulesets")
+# 디스크 캐시(24h TTL)·ExploitDB 인덱스는 enrichment_sources와 공유한다.
+# (매시간 실행에서 재다운로드 방지 + collector와 동일 캐시 파일 재사용)
+from enrichment_sources import (
+    cache_get as _cache_get,
+    cache_put as _cache_put,
+    exploitdb_entry as _shared_exploitdb_entry,
+    EXPLOITDB_RAW_BASE as _EXPLOITDB_RAW_BASE_SHARED,
 )
-_CACHE_TTL_HOURS = 24
-
-
-def _cache_get(name: str, ttl_hours: int = _CACHE_TTL_HOURS) -> Optional[bytes]:
-    path = os.path.join(_CACHE_DIR, name)
-    try:
-        if os.path.exists(path):
-            age = time.time() - os.path.getmtime(path)
-            if age < ttl_hours * 3600:
-                with open(path, "rb") as f:
-                    return f.read()
-    except OSError as e:
-        logger.debug(f"캐시 읽기 실패 ({name}): {e}")
-    return None
-
-
-def _cache_put(name: str, content: bytes) -> None:
-    try:
-        os.makedirs(_CACHE_DIR, exist_ok=True)
-        path = os.path.join(_CACHE_DIR, name)
-        with open(path, "wb") as f:
-            f.write(content)
-    except OSError as e:
-        logger.debug(f"캐시 쓰기 실패 ({name}): {e}")
 
 
 class RuleManager:
@@ -79,14 +52,11 @@ class RuleManager:
     # nuclei-templates CVE 인덱스: CVE-ID → 템플릿 파일 경로
     _nuclei_index: Dict[str, str] = {}
     _nuclei_index_loaded = False
-    # Exploit-DB 인덱스: CVE-ID → (파일 경로, EDB-ID)
-    _exploitdb_index: Dict[str, Tuple[str, str]] = {}
-    _exploitdb_index_loaded = False
     # 병렬 워커 간 중복 다운로드 방지
     _download_lock = threading.Lock()
 
     _NUCLEI_RAW_BASE = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/"
-    _EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
+    _EXPLOITDB_RAW_BASE = _EXPLOITDB_RAW_BASE_SHARED
 
     # 공식 룰 재게시 시 보존해야 할 출처·라이선스 고지 (불변 원칙 8-①)
     _SOURCE_LICENSES = [
@@ -404,62 +374,16 @@ class RuleManager:
             return None
 
     # ====================================================================
-    # [1-3] Exploit-DB CSV 매핑 (Code Search API 대체)
+    # [1-3] Exploit-DB CSV 매핑 (Code Search API 대체 — 인덱스는 enrichment_sources 공유)
     # ====================================================================
 
-    def _load_exploitdb_index(self):
-        """Exploit-DB의 files_exploits.csv(CVE→exploit 파일 매핑)만 캐시.
-
-        GitHub Code Search(분당 10회, 거의 항상 429) 대신 CSV 인덱스로
-        CVE→exploit 파일을 안정적으로 매핑한다 (불변 원칙 4).
-        codes 컬럼에 "CVE-YYYY-NNNN;OSVDB-..." 형태로 CVE가 들어있다.
-        """
-        with RuleManager._download_lock:
-            if RuleManager._exploitdb_index_loaded:
-                return
-            RuleManager._exploitdb_index_loaded = True
-
-            raw = _cache_get("exploitdb-files.csv")
-            if raw is None:
-                logger.info("📥 Exploit-DB CSV 인덱스 다운로드 중...")
-                try:
-                    rate_limit_manager.check_and_wait("ruleset_download")
-                    response = requests.get(RuleManager._EXPLOITDB_RAW_BASE + "files_exploits.csv", timeout=60)
-                    response.raise_for_status()
-                    rate_limit_manager.record_call("ruleset_download")
-                    raw = response.content
-                    _cache_put("exploitdb-files.csv", raw)
-                except Exception as e:
-                    logger.warning(f"  ⚠️ Exploit-DB CSV 다운로드 실패: {e}")
-                    return
-            else:
-                logger.info("📥 Exploit-DB CSV 인덱스 캐시 로드")
-
-            try:
-                reader = csv.DictReader(io.StringIO(raw.decode('utf-8', errors='ignore')))
-                cve_re = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
-                for row in reader:
-                    codes = row.get("codes", "") or ""
-                    file_path = row.get("file", "") or ""
-                    edb_id = row.get("id", "") or ""
-                    if not file_path:
-                        continue
-                    for cve in cve_re.findall(codes):
-                        # 최초 매핑만 유지 (CSV는 대체로 오래된 것부터 정렬)
-                        RuleManager._exploitdb_index.setdefault(cve.upper(), (file_path, edb_id))
-                logger.info(f"  ✅ Exploit-DB 인덱스 로드 완료 ({len(RuleManager._exploitdb_index)}개 CVE 매핑)")
-            except Exception as e:
-                logger.warning(f"  ⚠️ Exploit-DB CSV 파싱 실패: {e}")
-
     def _search_exploitdb(self, cve_id: str) -> Optional[Dict[str, str]]:
-        """Exploit-DB 인덱스 조회 후 exploit 파일 원문을 가져온다.
+        """Exploit-DB 인덱스(enrichment_sources 공유) 조회 후 exploit 파일 원문을 가져온다.
 
         반환: {"code": <원문>, "url": <exploit-db.com 링크>, "edb_id": <ID>}
         원문(code)은 AI 프롬프트 컨텍스트 전용, url만 Issue/대시보드에 게시 (불변 원칙 8-②).
         """
-        self._load_exploitdb_index()
-
-        mapping = RuleManager._exploitdb_index.get(cve_id.upper())
+        mapping = _shared_exploitdb_entry(cve_id)
         if not mapping:
             logger.debug(f"❌ Exploit-DB: {cve_id} 없음")
             return None

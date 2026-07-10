@@ -282,9 +282,33 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     else: color = "CCCCCC"
     
     kev_color = "FF0000" if cve_data['is_kev'] else "CCCCCC"
-    
+
     badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{kev_color})"
-    
+
+    # P5 위협 신호 배지
+    if cve_data.get('ssvc_exploitation') == 'active':
+        badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
+    if cve_data.get('has_metasploit_module'):
+        badges += " ![Metasploit](https://img.shields.io/badge/Metasploit-Weaponized-8B0000)"
+    if cve_data.get('has_public_exploit'):
+        badges += " ![ExploitDB](https://img.shields.io/badge/ExploitDB-Public-orange)"
+
+    # 위협 신호 상세 (출처 표기 — Metasploit metadata는 BSD-3-Clause)
+    signal_lines = []
+    ssvc = cve_data.get('ssvc') or {}
+    if ssvc:
+        parts = [f"{k}={v}" for k, v in ssvc.items()]
+        signal_lines.append(f"- **CISA SSVC** (vulnrichment, CC0): {', '.join(parts)}")
+    if cve_data.get('has_metasploit_module'):
+        mods = cve_data.get('metasploit_modules', [])
+        mod_str = ", ".join(f"`{m}`" for m in mods) if mods else "존재"
+        signal_lines.append(f"- **Metasploit 모듈** (Metasploit Framework, Rapid7, BSD-3-Clause): {mod_str}")
+    if cve_data.get('has_public_exploit'):
+        edb_url = cve_data.get('_exploit_db_url')
+        link = f" — [Exploit-DB]({edb_url})" if edb_url else ""
+        signal_lines.append(f"- **공개 익스플로잇**: ExploitDB 등재{link}")
+    threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
+
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
     
     # 영향받는 자산 테이블
@@ -404,6 +428,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 {badges}
 **취약점 유형 (CWE):** {cwe_str}
 
+{threat_signals}
 ## 📦 영향 받는 자산
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
@@ -499,7 +524,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "poc_urls": raw_data.get('poc_urls', []),
             "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
             "github_advisory": raw_data.get('github_advisory', {}),
-            "nvd_cpe": raw_data.get('nvd_cpe', [])
+            "nvd_cpe": raw_data.get('nvd_cpe', []),
+            # P5 데이터 소스 확대 신호
+            "ssvc": raw_data.get('ssvc', {}),
+            "ssvc_exploitation": (raw_data.get('ssvc') or {}).get('exploitation'),
+            "has_public_exploit": raw_data.get('has_public_exploit', False),
+            "has_metasploit_module": raw_data.get('has_metasploit_module', False),
+            "metasploit_modules": raw_data.get('metasploit_modules', []),
         }
         
         # Step 4: 알림 필요성 판단
@@ -570,24 +601,42 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         return None
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
-    is_high_risk = current['cvss'] >= 7.0 or current['is_kev']
-    
+    # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
+    is_high_risk = (
+        current['cvss'] >= 7.0
+        or current['is_kev']
+        or current.get('has_metasploit_module')
+        or current.get('ssvc_exploitation') == 'active'
+    )
+
     # 신규 CVE
     if last is None:
         return True, "신규 취약점", is_high_risk
-    
+
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
         return True, "🚨 KEV 등재", True
-    
+
+    # Metasploit 모듈 신규 등장 → 무기화됨
+    if current.get('has_metasploit_module') and not last.get('has_metasploit_module'):
+        return True, "🧨 Metasploit 모듈 공개 (무기화)", True
+
+    # SSVC Exploitation active 전환 → 실제 악용 확인
+    if current.get('ssvc_exploitation') == 'active' and last.get('ssvc_exploitation') != 'active':
+        return True, "🎯 SSVC Exploitation=Active (실제 악용)", True
+
+    # ExploitDB 공개 익스플로잇 신규 등장
+    if current.get('has_public_exploit') and not last.get('has_public_exploit'):
+        return True, "💥 ExploitDB 공개 익스플로잇", True
+
     # EPSS 급증
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
         return True, "📈 EPSS 급증", True
-    
+
     # CVSS 상향
     if current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
         return True, "🔺 CVSS 위험도 상향", True
-    
+
     return False, "", is_high_risk
 
 def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
@@ -606,13 +655,25 @@ def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
     if cve_data.get('is_kev') or cve_data.get('is_vulncheck_kev'):
         return True, "KEV 등재"
 
-    # 2. EPSS >= threshold → 높은 악용 확률
+    # 2. SSVC Exploitation=active → CISA 확인 실제 악용 (P5, CC0)
+    if cve_data.get('ssvc_exploitation') == 'active':
+        return True, "SSVC Exploitation=active"
+
+    # 3. Metasploit 모듈 존재 → 무기화됨 (P5)
+    if cve_data.get('has_metasploit_module'):
+        return True, "Metasploit 모듈 존재"
+
+    # 4. ExploitDB 공개 익스플로잇 (P5)
+    if cve_data.get('has_public_exploit'):
+        return True, "ExploitDB 공개 익스플로잇"
+
+    # 5. EPSS >= threshold → 높은 악용 확률
     threshold = config.RULE_GENERATION.get("epss_threshold", 0.2)
     epss_score = cve_data.get('epss', 0.0)
     if epss_score >= threshold:
         return True, f"EPSS {epss_score:.4f} >= {threshold}"
 
-    # 3. PoC 존재 → 공격 코드 공개됨
+    # 6. PoC 존재 → 공격 코드 공개됨
     if cve_data.get('has_poc') and cve_data.get('poc_count', 0) > 0:
         return True, "PoC 존재"
 
