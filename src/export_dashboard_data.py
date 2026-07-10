@@ -75,12 +75,17 @@ def export_cves(client, days: int = 90) -> list:
                 "versions": aff.get("versions", ""),
             })
 
-        # 탐지 룰 정보
+        # 탐지 룰 정보 (네트워크 룰은 "network" 리스트에 저장되며 각 항목이 engine을 가짐)
         rules = row.get("rules_snapshot") or {}
         rule_engines = []
-        for engine in ["sigma", "snort", "suricata", "yara"]:
-            if rules.get(engine):
+        if rules.get("sigma"):
+            rule_engines.append("sigma")
+        for net_rule in (rules.get("network") or []):
+            engine = net_rule.get("engine") or "network"
+            if engine not in rule_engines:
                 rule_engines.append(engine)
+        if rules.get("yara"):
+            rule_engines.append("yara")
         entry["rule_engines"] = rule_engines
         entry["has_official_rules"] = row.get("has_official_rules", False)
         entry["rules"] = rules
