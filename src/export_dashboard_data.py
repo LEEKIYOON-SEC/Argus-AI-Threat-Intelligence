@@ -179,6 +179,21 @@ def export_stats(cve_data: list) -> dict:
     }
 
 
+def apply_retention_policy(client, days: int = 180) -> int:
+    """최근 N일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
+
+    상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없이
+    Supabase free tier(500MB) 용량을 방어한다 (불변 원칙 2).
+    """
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    response = client.table("cves") \
+        .update({"rules_snapshot": None, "last_alert_state": None}) \
+        .lt("updated_at", cutoff) \
+        .not_.is_("last_alert_state", "null") \
+        .execute()
+    return len(response.data or [])
+
+
 def _generate_sample_data(data_dir: str):
     """Supabase 자격증명 없을 때 빈 샘플 데이터 생성 (대시보드가 에러 없이 로드되도록)"""
     print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
@@ -208,7 +223,7 @@ def main():
         return
 
     # CVE 데이터
-    print("[1/2] CVE 데이터 export...", flush=True)
+    print("[1/3] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
@@ -216,12 +231,20 @@ def main():
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 통계
-    print("[2/2] 통계 집계...", flush=True)
+    print("[2/3] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
     print(f"  Stats → {stats_path}", flush=True)
+
+    # DB 보존 정책 (180일 지난 레코드의 대용량 필드 정리)
+    print("[3/3] DB 보존 정책 적용...", flush=True)
+    try:
+        cleaned = apply_retention_policy(client)
+        print(f"  {cleaned}건 정리 (rules_snapshot/last_alert_state null 처리)", flush=True)
+    except Exception as e:
+        print(f"  [!] DB 보존 정책 적용 실패: {e}", flush=True)
 
     print("=== Export 완료 ===", flush=True)
 

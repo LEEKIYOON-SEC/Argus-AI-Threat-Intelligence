@@ -710,7 +710,7 @@ def check_for_official_rules() -> None:
 # [6] 메인 실행 로직
 # ==============================================================================
 
-def main():
+def _main():
     start_time = time.time()
     logger.info("=" * 60)
     logger.info(f"Argus Phase 1 시작 (Model: {config.MODEL_PHASE_1})")
@@ -798,6 +798,32 @@ def main():
 
     # Step 10: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
+
+
+def _notify_pipeline_failure(error: Exception) -> None:
+    """파이프라인 최상위 실패를 Slack에 알림 (알림 자체의 실패는 무시하고 넘어감)"""
+    try:
+        webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
+        if not webhook_url:
+            return
+        payload = {
+            "blocks": [
+                {"type": "header", "text": {"type": "plain_text", "text": "🔴 Argus 파이프라인 실패"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"```{type(error).__name__}: {error}```"}},
+            ]
+        }
+        requests.post(webhook_url, json=payload, timeout=10)
+    except Exception:
+        pass
+
+
+def main():
+    try:
+        _main()
+    except Exception as e:
+        logger.error(f"파이프라인 최상위 실패: {e}", exc_info=True)
+        _notify_pipeline_failure(e)
+
 
 if __name__ == "__main__":
     main()
