@@ -540,39 +540,46 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         # Step 4: 알림 필요성 판단
         last_record = db.get_cve(cve_id)
         last_state = last_record.get('last_alert_state') if last_record else None
-        
+        is_new_to_db = last_record is None
+
         should_alert, alert_reason, is_high_risk = _should_send_alert(
             current_state, last_state
         )
-        
-        if not should_alert:
-            # 알림 불필요, DB만 업데이트 (content_hash도 갱신)
+
+        # 기존 CVE인데 알림 트리거 없음 → 최소 갱신만(재번역/알림 없음, 값싼 경로)
+        if not should_alert and not is_new_to_db:
             db.upsert_cve({
                 "id": cve_id,
                 "updated_at": datetime.datetime.now(KST).isoformat(),
                 "content_hash": raw_data.get('content_hash')
             })
             return {"cve_id": cve_id, "status": "handled"}
-        
+
+        # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
+        # 두 경우 모두 한국어 번역해 저장(대시보드 한글화). Slack/Issue/AI 룰은 알림 대상만.
         # Step 5: 한국어 번역
-        logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+        if should_alert:
+            logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+        else:
+            logger.debug(f"신규 저위험 추적 저장: {cve_id}")
         title_ko, desc_ko = generate_korean_summary(current_state)
         current_state['title_ko'] = title_ko
         current_state['desc_ko'] = desc_ko
-        
-        # Step 6: High Risk면 GitHub Issue 생성
+
+        # Step 6: 고위험 알림 대상만 GitHub Issue + AI 룰 생성 (Groq는 희소 자원 = TPD 200K)
         report_url = None
         rules_info = None
-        if is_high_risk:
+        if should_alert and is_high_risk:
             # TPD 소진 시 AI 분석/룰 생성 SKIP (Issue 미생성, 다음 실행에서 재처리)
             if rate_limit_manager.is_tpd_exhausted("groq"):
                 logger.warning(f"⚠️ {cve_id}: Groq TPD 소진 → Issue 생성 SKIP (다음 실행에서 재처리)")
             else:
                 report_url, rules_info = create_github_issue(current_state, alert_reason)
-        
-        # Step 7: Slack 알림
-        notifier.send_alert(current_state, alert_reason, report_url)
-        
+
+        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함)
+        if should_alert:
+            notifier.send_alert(current_state, alert_reason, report_url)
+
         # Step 8: DB 저장 (content_hash 포함)
         # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
         # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
@@ -584,21 +591,23 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "cvss_score": current_state['cvss'],
             "epss_score": current_state['epss'],
             "is_kev": current_state['is_kev'],
-            "last_alert_at": datetime.datetime.now(KST).isoformat(),
             "last_alert_state": clean_state,
-            "report_url": report_url,
             "updated_at": datetime.datetime.now(KST).isoformat(),
             "content_hash": raw_data.get('content_hash')
         }
-        
+        if should_alert:
+            db_data["last_alert_at"] = datetime.datetime.now(KST).isoformat()
+            db_data["report_url"] = report_url
+
         if rules_info:
             db_data["has_official_rules"] = rules_info.get('has_official', False)
             db_data["rules_snapshot"] = rules_info.get('rules')
             db_data["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
-        
+
         db.upsert_cve(db_data)
 
-        return {"cve_id": cve_id, "status": "success"}
+        # 고위험 알림 = success, 저위험 추적 = handled (둘 다 워터마크 전진 대상)
+        return {"cve_id": cve_id, "status": "success" if should_alert else "handled"}
 
     except Exception as e:
         logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)
@@ -614,9 +623,12 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
         or current.get('ssvc_exploitation') == 'active'
     )
 
-    # 신규 CVE
+    # 신규 CVE: 고위험만 알림(Slack/Issue). 저위험 신규는 대시보드 추적만 하고
+    # 알림을 보내지 않는다(`*/*` 전체 감시에서 알림 노이즈·Groq 부하 차단).
     if last is None:
-        return True, "신규 취약점", is_high_risk
+        if is_high_risk:
+            return True, "🆕 신규 고위험 취약점", True
+        return False, "", False
 
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
