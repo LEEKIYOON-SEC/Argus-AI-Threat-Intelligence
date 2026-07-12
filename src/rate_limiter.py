@@ -45,11 +45,11 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=0.5
             ),
-            # Groq Free Tier: RPM 30 + TPM 8000
+            # Groq Free Tier: RPM 30 / TPM 8000 / TPD 200K
             "groq": RateLimitInfo(
-                limit=15,
+                limit=30,
                 window_seconds=60,
-                min_interval=5.0
+                min_interval=2.0
             ),
             "epss": RateLimitInfo(
                 limit=60,
@@ -116,7 +116,21 @@ class RateLimitManager:
             self._tpd_reset_at[api] = datetime.now() + timedelta(hours=24)
             self._tpd_exhausted[api] = False
 
-        logger.info("Rate Limit Manager v3.1 초기화 완료 (Thread-Safe + TPD 트래킹)")
+        # TPM (Tokens Per Minute) 선제 관리 — Groq 무료 TPM(8,000) 초과로 인한 429 폭주 방지.
+        # Groq은 (입력 + max_completion_tokens)를 TPM에 선예약하므로, 이번 분 누적이 한도에
+        # 근접하면 다음 호출을 분 리셋까지 대기시켜 "Request too large"/429를 사전 차단한다.
+        self._tpm_limits: Dict[str, int] = {
+            "groq": 8_000,  # Groq Free Tier: 8K TPM
+        }
+        self._tpm_reserve: Dict[str, int] = {
+            "groq": 5_000,  # 호출당 예약 추정(분석 max_completion 3072 + 입력 여유). 이만큼 headroom 필요
+        }
+        self._tpm_used: Dict[str, int] = {api: 0 for api in self._tpm_limits}
+        self._tpm_reset_at: Dict[str, datetime] = {
+            api: datetime.now() + timedelta(seconds=60) for api in self._tpm_limits
+        }
+
+        logger.info("Rate Limit Manager v3.2 초기화 완료 (Thread-Safe + TPD/TPM 트래킹)")
     
     def check_and_wait(self, api_name: str) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단."""
@@ -173,7 +187,28 @@ class RateLimitManager:
                 logger.debug(f"{api_name} 사용률: {usage:.1f}% - 속도 조절")
                 time.sleep(extra_wait)
                 self.stats["total_wait_time"] += extra_wait
-        
+
+            # TPM 선제 관리: 이번 분 예약분이 한도에 근접하면 분 리셋까지 대기 (429 폭주 사전 차단)
+            if api_name in self._tpm_limits:
+                now = datetime.now()
+                if now >= self._tpm_reset_at[api_name]:
+                    self._tpm_used[api_name] = 0
+                    self._tpm_reset_at[api_name] = now + timedelta(seconds=60)
+                reserve = self._tpm_reserve.get(api_name, 0)
+                tpm_limit = self._tpm_limits[api_name]
+                if self._tpm_used[api_name] + reserve > tpm_limit:
+                    wait_time = (self._tpm_reset_at[api_name] - now).total_seconds()
+                    if wait_time > 0:
+                        logger.warning(
+                            f"⏳ {api_name} TPM 예약 한도 근접 "
+                            f"({self._tpm_used[api_name]}/{tpm_limit}), {wait_time:.0f}초 대기(분 리셋)"
+                        )
+                        time.sleep(wait_time + 0.5)
+                        self.stats["total_waits"] += 1
+                        self.stats["total_wait_time"] += wait_time
+                    self._tpm_used[api_name] = 0
+                    self._tpm_reset_at[api_name] = datetime.now() + timedelta(seconds=60)
+
         return True
     
     def record_call(self, api_name: str, tokens_used: int = 0):
@@ -186,6 +221,14 @@ class RateLimitManager:
             info.last_call_at = time.time()
             self.stats["total_calls"] += 1
             logger.debug(f"{api_name} 호출 기록: {info.used}/{info.limit} ({info.usage_percent:.1f}%)")
+
+            # TPM 트래킹 (분 윈도우) — 실제 소비 토큰 누적
+            if tokens_used > 0 and api_name in self._tpm_limits:
+                now = datetime.now()
+                if now >= self._tpm_reset_at[api_name]:
+                    self._tpm_used[api_name] = 0
+                    self._tpm_reset_at[api_name] = now + timedelta(seconds=60)
+                self._tpm_used[api_name] += tokens_used
 
             # TPD 트래킹
             if tokens_used > 0 and api_name in self._tpd_limits:
