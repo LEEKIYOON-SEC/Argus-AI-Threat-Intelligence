@@ -1,5 +1,924 @@
 [
   {
+    "id": "CVE-2026-15502",
+    "title": "AojiaoZero Antaris PayPal IPN 결제 ipn.php _rewardPurchase SQL 인젝션",
+    "description": "AojiaoZero Antaris 1.0의 PayPal IPN 결제 핸들러(/ipn.php) 내 _rewardPurchase 함수에서 SQL 인젝션 취약점이 발견되었습니다. 공격자가 item_number 인자를 조작하여 원격으로 공격을 수행할 수 있으며, 벤더사는 현재 이에 응답하지 않고 있습니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "AojiaoZero",
+        "product": "Antaris",
+        "versions": "1.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-15501",
+    "title": "AstrBotDevs AstrBot MCP 테스트 엔드포인트(ToolsRoute.test_mcp_connection) 서버 측 요청 위조(SSRF) 취약점",
+    "description": "AstrBot 4.25.2 이하 버전의 MCP 테스트 엔드포인트에서 SSRF 취약점이 발견되었습니다. `mcp_server_config.url` 인자 조작을 통해 원격 공격이 가능하며, 현재 익스플로잇이 공개된 상태입니다.",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "AstrBotDevs",
+        "product": "AstrBot",
+        "versions": "4.25.0 (단일 버전), 4.25.1 (단일 버전), 4.25.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-61876",
+    "title": "LuCI DHCPv6 임대 호스트 이름 저장형 교차 사이트 스크립팅(XSS)",
+    "description": "LuCI가 DHCPv6 임대 호스트 이름을 적절히 인코딩하지 않아 발생하는 저장형 XSS 취약점입니다. 인접 네트워크의 공격자가 악성 스크립트가 포함된 FQDN을 전송하여, 관리자가 DHCP 임대 페이지를 조회할 때 브라우저에서 스크립트를 실행할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openwrt",
+        "product": "luci",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1036",
+    "date": "2026-07-12T14:02:47.271373+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61875",
+    "title": "luci-app-upnp Stored XSS via UPnP Port Mapping Description",
+    "description": "luci-app-upnp contains a stored cross-site scripting vulnerability that allows unauthenticated LAN clients to inject JavaScript via UPnP IGD AddPortMapping SOAP requests. Attackers can send malicious ",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openwrt",
+        "product": "luci",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1035",
+    "date": "2026-07-12T14:02:00.509683+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-61874",
+    "title": "filebrowser before 2.63.17 Stale Public Share via Trailing-Slash Delete",
+    "description": "filebrowser versions before 2.63.17 fail to normalize paths before querying the share index in DeleteWithPathPrefix, allowing authenticated users to leave stale public shares behind. Attackers can del",
+    "cvss": 2.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "filebrowser",
+        "product": "filebrowser",
+        "versions": "2.63.17 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-59260",
+    "title": "OpenWrt luci-app-samba4 smbd를 통한 read ACL 원격 코드 실행 취약점",
+    "description": "OpenWrt luci-app-samba4의 read ACL이 /usr/sbin/smbd에 실행 권한을 부여하여, 인증된 사용자가 임의의 인수로 Samba 데몬을 실행할 수 있습니다. 이를 통해 공격자는 root 권한의 smbd 프로세스에 임의의 전역 옵션을 전달하여 명령어를 실행할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "openwrt",
+        "product": "luci",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1034",
+    "date": "2026-07-12T14:01:46.724531+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56336",
+    "title": "Capgo - Information Disclosure via Unauthenticated SSO check-domain Endpoint",
+    "description": "Capgo before 12.128.2 contains an information disclosure vulnerability in the unauthenticated /private/sso/check-domain endpoint that returns internal org_id and provider_id values. Attackers can enum",
+    "cvss": 6.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-56313",
+    "title": "Capgo - SSO 프리링크 엔드포인트를 통한 조직 간 계정 중단 취약점",
+    "description": "Capgo 12.128.2 미만 버전의 SSO 프리링크 엔드포인트에서 타 조직 사용자의 비밀번호 인증 정보를 삭제할 수 있는 취약점이 발견되었습니다. 공격자는 특정 권한을 이용해 이메일 도메인이 일치하는 사용자의 이메일 인증을 제거함으로써, 피해자가 공격자의 SSO를 사용하거나 비밀번호를 재설정하도록 강제할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1033",
+    "date": "2026-07-12T14:01:14.208069+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56308",
+    "title": "Capgo - Insufficient Authentication in Email Change Endpoint",
+    "description": "Capgo before 12.128.2 allows email address changes without requiring current password re-authentication or verification of the existing email address. An attacker with access to a valid session cookie",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-640"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1032",
+    "date": "2026-07-12T14:00:43.13822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56271",
+    "title": "Flowise - Weak Default JWT Secrets in Authentication Middleware",
+    "description": "Flowise before 3.1.0 (affected versions 3.0.13 and earlier) uses weak hardcoded default JWT secrets ('auth_token', 'refresh_token') and default audience and issuer values ('AUDIENCE', 'ISSUER') in the",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-321"
+    ],
+    "affected": [
+      {
+        "vendor": "Flowise",
+        "product": "Flowise",
+        "versions": "3.1.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1031",
+    "date": "2026-07-12T13:59:56.456911+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-56260",
+    "title": "Crawl4AI - output_path 파라미터를 통한 임의 파일 쓰기 취약점",
+    "description": "Crawl4AI 0.8.7 미만 버전의 Docker API 서버 /screenshot 및 /pdf 엔드포인트에서 임의 파일 쓰기 취약점이 발견되었습니다. output_path 파라미터의 검증 부재로 인해 공격자가 서버 파일을 임의로 덮어쓰거나 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Crawl4AI",
+        "product": "Crawl4AI",
+        "versions": "0.8.7 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1030",
+    "date": "2026-07-12T13:59:42.553194+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56259",
+    "title": "Crawl4AI - base_url 및 환경 변수 해석을 통한 LLM 자격 증명 유출",
+    "description": "Crawl4AI 0.8.8 미만 버전의 Docker API 서버에서 자격 증명 유출 취약점이 발견되었습니다. 공격자는 인증되지 않은 엔드포인트(/md, /llm, /llm/job)에 악성 base_url과 환경 변수 설정을 전달하여 API 키 및 JWT SECRET_KEY 등 서버 비밀 정보를 탈취하고 인증을 우회할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Crawl4AI",
+        "product": "Crawl4AI",
+        "versions": "0.8.8 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1029",
+    "date": "2026-07-12T13:59:05.574275+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56252",
+    "title": "Capgo - Scope Isolation Failure in Webhook Test Endpoint",
+    "description": "Capgo before 12.128.2 contains a scope isolation vulnerability in the POST /webhooks/test endpoint that allows app-scoped API keys to invoke org-scoped webhook operations. Attackers with app-scoped cr",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-56241",
+    "title": "Capgo - 오래된 org_users.user_right로 인한 RBAC 강등 후 권한 유지 취약점",
+    "description": "Capgo 12.128.2 이전 버전에서 역할 바인딩 삭제 시 `org_users.user_right` 컬럼이 초기화되지 않아, 강등된 super_admin 사용자가 특정 RPC 권한을 계속 유지하는 권한 상승 취약점이 존재합니다. 공격자는 이를 악용해 조직 전체의 비준수 번들을 무단으로 조회하고 대량 삭제할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1028",
+    "date": "2026-07-12T13:58:19.035068+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56238",
+    "title": "Capgo - PostgREST global_stats 엔드포인트를 통한 인증되지 않은 정보 노출",
+    "description": "Capgo 12.128.2 미만 버전의 Supabase PostgREST global_stats 엔드포인트에서 정보 노출 취약점이 발견되었습니다. 공격자는 공개 API 키만으로 MRR, 총 매출, 고객 수 및 운영 텔레메트리와 같은 민감한 재무 및 운영 지표를 무단으로 조회할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Capgo",
+        "product": "Capgo",
+        "versions": "12.128.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1027",
+    "date": "2026-07-12T13:57:43.363249+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-15500",
+    "title": "AstrBotDevs AstrBot market_list Endpoint plugin.py get_online_plugins server-side request forgery",
+    "description": "A weakness has been identified in AstrBotDevs AstrBot up to 4.25.2. Affected by this vulnerability is the function get_online_plugins of the file astrbot/dashboard/routes/plugin.py of the component ma",
+    "cvss": 5.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "AstrBotDevs",
+        "product": "AstrBot",
+        "versions": "4.25.0 (단일 버전), 4.25.1 (단일 버전), 4.25.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4038",
+    "title": "Aimogen Pro <= 2.7.5 - 인증되지 않은 권한 상승 (임의 함수 호출)",
+    "description": "Aimogen Pro 워드프레스 플러그인은 2.7.5 버전 이하에서 'aiomatic_call_ai_function_realtime' 함수에 기능 확인이 없어 임의 함수 호출 취약점이 존재합니다. 이를 통해 인증되지 않은 공격자가 'update_option'과 같은 워드프레스 함수를 호출하여 등록 시 기본 역할을 관리자로 변경하고 사용자 등록을 활성화하여 관리자 권한을 획득할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "CodeRevolution",
+        "product": "Aimogen Pro - All-in-One AI Content Writer, Editor, ChatBot & Automation Toolkit",
+        "versions": "* 부터 2.7.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-03-20T05:00:49.293466+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-22738",
+    "title": "SimpleVectorStore의 이스케이프되지 않은 필터 키를 통한 SpEL Injection으로 인한 원격 코드 실행",
+    "description": "Spring AI의 SimpleVectorStore에서 사용자 제공 값이 필터 표현식 키로 사용될 때 SpEL Injection 취약점이 존재합니다. 악의적인 공격자는 이를 악용하여 임의의 코드를 실행할 수 있습니다. SimpleVectorStore를 사용하고 사용자 입력을 필터 표현식 키로 전달하는 애플리케이션만 영향을 받습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Spring",
+        "product": "Spring AI",
+        "versions": "1.0.0 부터 1.0.5 이전, 1.1.0 부터 1.1.4 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/804",
+    "date": "2026-03-27T05:52:37.808004+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-33057",
+    "title": "Mesop의 인증되지 않은 원격 코드 실행 취약점 (/exec-py 경로)",
+    "description": "Mesop은 Python 기반 UI 프레임워크로, 1.2.2 버전 이하에서 ai/ testing 모듈 내의 웹 엔드포인트가 인증 없이 신뢰할 수 없는 Python 코드를 실행합니다. 이를 통해 공격자는 서버에 대한 원격 코드 실행 권한을 얻을 수 있습니다. 1.2.3 버전에서 해당 문제가 해결되었습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "mesop-dev",
+        "product": "mesop",
+        "versions": "< 1.2.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/494",
+    "date": "2026-03-20T07:58:33.327252+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3891",
+    "title": "WooCommerce용 Pix 플러그인 <= 1.5.0 - 인증되지 않은 임의 파일 업로드",
+    "description": "WooCommerce용 Pix 플러그인이 버전 1.5.0 이하에서 권한 확인 및 파일 유형 검증이 누락되어 임의 파일 업로드 취약점이 존재합니다. 인증되지 않은 공격자가 영향을 받는 서버에 임의 파일을 업로드하여 원격 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "linknacional",
+        "product": "Pix for WooCommerce",
+        "versions": "* 부터 1.5.0 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/233",
+    "date": "2026-03-13T07:59:15.00163+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3891 Arbitrary File Upload Attempt via Pix for WooCommerce\nstatus: experimental\ndescription: Detects unauthenticated arbitrary file upload attempts targeting the vulnerable `lkn_pix_for_woocommerce_c6_save_settings` function in the Pix for WooCommerce plugin (<= 1.5.0). The rule looks for POST requests to WordPress admin‑ajax endpoint with the specific action parameter and suspicious file payloads (e.g., PHP shells).\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/wp-admin/admin-ajax.php'\n    selection_action:\n        cs-body|contains: 'action=lkn_pix_for_woocommerce_c6_save_settings'\n    selection_multipart:\n        cs-body|contains: 'multipart/form-data'\n    selection_file_payload:\n        cs-body|contains|any:\n            - 'filename=\"shell.php'\n            - 'filename=\"shell.php5'\n            - 'filename=\"shell.phtml'\n            - 'filename=\"shell.asp'\n            - 'filename=\"shell.jsp'\n            - 'filename=\"shell.cgi'\n            - 'filename=\"shell.sh'\n            - 'filename=\"shell.rb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3891\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1100\n    - cwe.434\n    - wordpress\n    - plugin\n    - pix_for_woocommerce",
+        "source": "AI Generated (Validated)",
+        "verified": false,
+        "indicators": []
+      },
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-8094",
+    "title": "Other issue in the WebRTC component",
+    "description": "Other issue in the WebRTC component. This vulnerability was fixed in Firefox ESR 140.10.2 and Thunderbird 140.10.2.",
+    "cvss": 9.8,
+    "epss": 7e-05,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Mozilla",
+        "product": "Firefox",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Mozilla",
+        "product": "Thunderbird",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-05-08T23:26:42.948246+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30457",
+    "title": "Daylight Studio FuelCMS v1.5.2 /parser/dwoo 컴포넌트 임의 코드 실행 취약점",
+    "description": "Daylight Studio FuelCMS v1.5.2 버전의 /parser/dwoo 컴포넌트에 존재하는 취약점을 통해 공격자가 악성 PHP 코드를 삽입하여 임의의 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00018,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/854",
+    "date": "2026-03-28T03:19:15.093798+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-32767",
+    "title": "SiYuan: 검색 API를 통한 권한 우회로 임의 SQL 실행 가능",
+    "description": "SiYuan 개인 지식 관리 시스템 3.6.0 버전 이하에서 /api/search/fullTextSearchBlock 엔드포인트에 권한 우회 취약점이 존재합니다. method 파라미터를 2로 설정하면 사용자 입력값이 별도의 권한 확인 없이 SQLite 데이터베이스에 직접 SQL 쿼리로 전달됩니다. 인증된 사용자(Reader 역할 포함)는 이를 통해 임의의 SQL 구문을 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00047,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "< 3.6.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/510",
+    "date": "2026-03-20T15:09:17.196838+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-70888",
+    "title": "mtrojnar Osslsigncode 권한 상승 취약점",
+    "description": "mtrojnar Osslsigncode v2.10 이하 버전에서 osslsigncode.c 컴포넌트의 취약점을 통해 원격 공격자가 권한을 상승시킬 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00048,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/859",
+    "date": "2026-03-28T03:21:16.699+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-59707",
+    "title": "N2W 취약점 - 원격 코드 실행 및 계정 정보 탈취 가능성",
+    "description": "N2W 4.3.2 이전 버전 및 4.4.x 버전(4.4.1 이전)에서 스푸핑 취약점으로 인해 원격 코드 실행 및 계정 정보 탈취가 발생할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.0005,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/805",
+    "date": "2026-03-27T05:52:52.746684+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-59706",
+    "title": "N2W 원격 코드 실행 취약점",
+    "description": "N2W 4.3.2 이전 및 4.4.0 이전 버전에서 API 요청 파라미터 검증이 제대로 이루어지지 않아 원격 코드 실행이 가능합니다.",
+    "cvss": 9.8,
+    "epss": 0.0005,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/808",
+    "date": "2026-03-27T05:54:24.909696+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-15499",
     "title": "AstrBotDevs AstrBot 예약 작업 cron_tools.py FutureTaskTool.call 권한 부여 미흡",
     "description": "AstrBot 4.25.2 이하 버전의 Scheduled Task Handler에서 권한 부여 미흡 취약점이 발견되었습니다. payload[\"note\"] 인자 조작을 통해 원격 공격이 가능하며, 현재 익스플로잇 코드가 공개된 상태입니다.",
@@ -59608,80 +60527,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-30457",
-    "title": "Daylight Studio FuelCMS v1.5.2 /parser/dwoo 컴포넌트 임의 코드 실행 취약점",
-    "description": "Daylight Studio FuelCMS v1.5.2 버전의 /parser/dwoo 컴포넌트에 존재하는 취약점을 통해 공격자가 악성 PHP 코드를 삽입하여 임의의 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00018,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/854",
-    "date": "2026-03-28T03:19:15.093798+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-70888",
-    "title": "mtrojnar Osslsigncode 권한 상승 취약점",
-    "description": "mtrojnar Osslsigncode v2.10 이하 버전에서 osslsigncode.c 컴포넌트의 취약점을 통해 원격 공격자가 권한을 상승시킬 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00048,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/859",
-    "date": "2026-03-28T03:21:16.699+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-14622",
     "title": "jairiidriss restaurant-website-php-mysql AJAX Endpoint ajax_files missing authentication",
     "description": "A vulnerability was found in jairiidriss restaurant-website-php-mysql up to 521428b5b612449df0cf4a5d15ee40cba67f3d35. This vulnerability affects unknown code of the file /admin/ajax_files of the compo",
@@ -60284,44 +61129,6 @@
         "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
         "sigma": "공개 룰 미발견, AI가 근거 부족으로 생성 거부",
         "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-32767",
-    "title": "SiYuan: 검색 API를 통한 권한 우회로 임의 SQL 실행 가능",
-    "description": "SiYuan 개인 지식 관리 시스템 3.6.0 버전 이하에서 /api/search/fullTextSearchBlock 엔드포인트에 권한 우회 취약점이 존재합니다. method 파라미터를 2로 설정하면 사용자 입력값이 별도의 권한 확인 없이 SQLite 데이터베이스에 직접 SQL 쿼리로 전달됩니다. 인증된 사용자(Reader 역할 포함)는 이를 통해 임의의 SQL 구문을 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00047,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "siyuan-note",
-        "product": "siyuan",
-        "versions": "< 3.6.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/510",
-    "date": "2026-03-20T15:09:17.196838+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
       }
     },
     "has_poc": false,
@@ -62103,227 +62910,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-4038",
-    "title": "Aimogen Pro <= 2.7.5 - 인증되지 않은 권한 상승 (임의 함수 호출)",
-    "description": "Aimogen Pro 워드프레스 플러그인은 2.7.5 버전 이하에서 'aiomatic_call_ai_function_realtime' 함수에 기능 확인이 없어 임의 함수 호출 취약점이 존재합니다. 이를 통해 인증되지 않은 공격자가 'update_option'과 같은 워드프레스 함수를 호출하여 등록 시 기본 역할을 관리자로 변경하고 사용자 등록을 활성화하여 관리자 권한을 획득할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "CodeRevolution",
-        "product": "Aimogen Pro - All-in-One AI Content Writer, Editor, ChatBot & Automation Toolkit",
-        "versions": "* 부터 2.7.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-03-20T05:00:49.293466+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-22738",
-    "title": "SimpleVectorStore의 이스케이프되지 않은 필터 키를 통한 SpEL Injection으로 인한 원격 코드 실행",
-    "description": "Spring AI의 SimpleVectorStore에서 사용자 제공 값이 필터 표현식 키로 사용될 때 SpEL Injection 취약점이 존재합니다. 악의적인 공격자는 이를 악용하여 임의의 코드를 실행할 수 있습니다. SimpleVectorStore를 사용하고 사용자 입력을 필터 표현식 키로 전달하는 애플리케이션만 영향을 받습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Spring",
-        "product": "Spring AI",
-        "versions": "1.0.0 부터 1.0.5 이전, 1.1.0 부터 1.1.4 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/804",
-    "date": "2026-03-27T05:52:37.808004+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-33057",
-    "title": "Mesop의 인증되지 않은 원격 코드 실행 취약점 (/exec-py 경로)",
-    "description": "Mesop은 Python 기반 UI 프레임워크로, 1.2.2 버전 이하에서 ai/ testing 모듈 내의 웹 엔드포인트가 인증 없이 신뢰할 수 없는 Python 코드를 실행합니다. 이를 통해 공격자는 서버에 대한 원격 코드 실행 권한을 얻을 수 있습니다. 1.2.3 버전에서 해당 문제가 해결되었습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "mesop-dev",
-        "product": "mesop",
-        "versions": "< 1.2.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/494",
-    "date": "2026-03-20T07:58:33.327252+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-3891",
-    "title": "WooCommerce용 Pix 플러그인 <= 1.5.0 - 인증되지 않은 임의 파일 업로드",
-    "description": "WooCommerce용 Pix 플러그인이 버전 1.5.0 이하에서 권한 확인 및 파일 유형 검증이 누락되어 임의 파일 업로드 취약점이 존재합니다. 인증되지 않은 공격자가 영향을 받는 서버에 임의 파일을 업로드하여 원격 코드 실행으로 이어질 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-434"
-    ],
-    "affected": [
-      {
-        "vendor": "linknacional",
-        "product": "Pix for WooCommerce",
-        "versions": "* 부터 1.5.0 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/233",
-    "date": "2026-03-13T07:59:15.00163+00:00",
-    "rule_engines": [
-      "sigma"
-    ],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": {
-        "code": "# ⚠️ AI-Generated - Review Required\ntitle: CVE-2026-3891 Arbitrary File Upload Attempt via Pix for WooCommerce\nstatus: experimental\ndescription: Detects unauthenticated arbitrary file upload attempts targeting the vulnerable `lkn_pix_for_woocommerce_c6_save_settings` function in the Pix for WooCommerce plugin (<= 1.5.0). The rule looks for POST requests to WordPress admin‑ajax endpoint with the specific action parameter and suspicious file payloads (e.g., PHP shells).\nlogsource:\n    product: webserver\n    category: webserver_access\ndetection:\n    selection_endpoint:\n        uri|contains: '/wp-admin/admin-ajax.php'\n    selection_action:\n        cs-body|contains: 'action=lkn_pix_for_woocommerce_c6_save_settings'\n    selection_multipart:\n        cs-body|contains: 'multipart/form-data'\n    selection_file_payload:\n        cs-body|contains|any:\n            - 'filename=\"shell.php'\n            - 'filename=\"shell.php5'\n            - 'filename=\"shell.phtml'\n            - 'filename=\"shell.asp'\n            - 'filename=\"shell.jsp'\n            - 'filename=\"shell.cgi'\n            - 'filename=\"shell.sh'\n            - 'filename=\"shell.rb'\n    condition: all of selection_*\nlevel: high\ntags:\n    - cve.2026.3891\n    - attack.initial_access\n    - attack.t1190\n    - attack.t1100\n    - cwe.434\n    - wordpress\n    - plugin\n    - pix_for_woocommerce",
-        "source": "AI Generated (Validated)",
-        "verified": false,
-        "indicators": []
-      },
-      "network": [],
-      "skip_reasons": {
-        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
-        "network": "공개 룰 미발견, 구체적 탐지 지표 부족 (구체적 지표 부족)"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-59707",
-    "title": "N2W 취약점 - 원격 코드 실행 및 계정 정보 탈취 가능성",
-    "description": "N2W 4.3.2 이전 버전 및 4.4.x 버전(4.4.1 이전)에서 스푸핑 취약점으로 인해 원격 코드 실행 및 계정 정보 탈취가 발생할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.0005,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/805",
-    "date": "2026-03-27T05:52:52.746684+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-59706",
-    "title": "N2W 원격 코드 실행 취약점",
-    "description": "N2W 4.3.2 이전 및 4.4.0 이전 버전에서 API 요청 파라미터 검증이 제대로 이루어지지 않아 원격 코드 실행이 가능합니다.",
-    "cvss": 9.8,
-    "epss": 0.0005,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/808",
-    "date": "2026-03-27T05:54:24.909696+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-14605",
     "title": "RT-Thread ls1c CAN ls1c_can.h recvmsg stack-based overflow",
     "description": "A vulnerability was identified in RT-Thread up to 5.0.2. Affected by this vulnerability is the function recvmsg in the library bsp/loongson/ls1cdev/libraries/ls1c_can.h of the component ls1c CAN Handl",
@@ -63815,41 +64401,6 @@
     ],
     "report_url": null,
     "date": "2026-03-13T17:01:35.596978+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-8094",
-    "title": "Other issue in the WebRTC component",
-    "description": "Other issue in the WebRTC component. This vulnerability was fixed in Firefox ESR 140.10.2 and Thunderbird 140.10.2.",
-    "cvss": 9.8,
-    "epss": 7e-05,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Mozilla",
-        "product": "Firefox",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Mozilla",
-        "product": "Thunderbird",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-05-08T23:26:42.948246+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
