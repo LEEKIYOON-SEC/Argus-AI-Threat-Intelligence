@@ -61,11 +61,11 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=2.0
             ),
-            # Gemini Free Tier: 30 RPM, 15K TPM
+            # Gemma 4 Free Tier: RPM 15 / TPM 무제한 / RPD 1,500
             "gemini": RateLimitInfo(
-                limit=25,
+                limit=15,
                 window_seconds=60,
-                min_interval=2.5
+                min_interval=4.0
             ),
             # NVD API: API키 있으면 50req/30초
             "nvd": RateLimitInfo(
@@ -106,7 +106,6 @@ class RateLimitManager:
         # 양쪽 잔여량을 함께 추적해 실행 요약에서 확인한다.
         self._tpd_limits: Dict[str, int] = {
             "groq": 200_000,    # Groq Free Tier: 200K TPD
-            "gemini": 1_000_000,  # Gemini Free Tier: 가시화용 대략치 (일간 토큰)
         }
         self._tpd_used: Dict[str, int] = {}
         self._tpd_reset_at: Dict[str, datetime] = {}
@@ -130,7 +129,17 @@ class RateLimitManager:
             api: datetime.now() + timedelta(seconds=60) for api in self._tpm_limits
         }
 
-        logger.info("Rate Limit Manager v3.2 초기화 완료 (Thread-Safe + TPD/TPM 트래킹)")
+        # RPD (Requests Per Day) 트래킹 — Gemma 4 무료는 TPM이 무제한이라 일간 요청 수(1,500)가
+        # 실질적 일간 상한이다(토큰이 아님). 호출당 1건 누적, 90% 도달 시 경고.
+        self._rpd_limits: Dict[str, int] = {
+            "gemini": 1_500,  # Gemma 4 Free Tier: RPD 1,500
+        }
+        self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
+        self._rpd_reset_at: Dict[str, datetime] = {
+            api: datetime.now() + timedelta(hours=24) for api in self._rpd_limits
+        }
+
+        logger.info("Rate Limit Manager v3.3 초기화 완료 (Thread-Safe + TPD/TPM/RPD 트래킹)")
     
     def check_and_wait(self, api_name: str) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단."""
@@ -221,6 +230,20 @@ class RateLimitManager:
             info.last_call_at = time.time()
             self.stats["total_calls"] += 1
             logger.debug(f"{api_name} 호출 기록: {info.used}/{info.limit} ({info.usage_percent:.1f}%)")
+
+            # RPD 트래킹 (일 윈도우) — 토큰과 무관하게 호출 1건마다 누적 (Gemma는 TPM 무제한)
+            if api_name in self._rpd_limits:
+                now = datetime.now()
+                if now >= self._rpd_reset_at[api_name]:
+                    self._rpd_used[api_name] = 0
+                    self._rpd_reset_at[api_name] = now + timedelta(hours=24)
+                    logger.info(f"🔄 {api_name} RPD 리셋")
+                self._rpd_used[api_name] += 1
+                rpd_limit = self._rpd_limits[api_name]
+                rpd_pct = (self._rpd_used[api_name] / rpd_limit) * 100
+                logger.debug(f"{api_name} RPD: {self._rpd_used[api_name]:,}/{rpd_limit:,} ({rpd_pct:.1f}%)")
+                if rpd_pct >= 90:
+                    logger.warning(f"⚠️ {api_name} RPD 90% 도달! ({self._rpd_used[api_name]:,}/{rpd_limit:,})")
 
             # TPM 트래킹 (분 윈도우) — 실제 소비 토큰 누적
             if tokens_used > 0 and api_name in self._tpm_limits:
@@ -396,6 +419,16 @@ class RateLimitManager:
                 logger.info(
                     f"  {api + ' TPD':18s}: {used:,}/{limit:,} "
                     f"[{tpd_bar}] {tpd_pct:5.1f}%{exhausted}"
+                )
+        # RPD 요약 (Gemma 일간 요청 수)
+        for api, limit in self._rpd_limits.items():
+            used = self._rpd_used.get(api, 0)
+            if used > 0:
+                rpd_pct = (used / limit) * 100
+                rpd_bar = self._create_usage_bar(rpd_pct)
+                logger.info(
+                    f"  {api + ' RPD':18s}: {used:,}/{limit:,} "
+                    f"[{rpd_bar}] {rpd_pct:5.1f}%"
                 )
         logger.info("-" * 60)
         logger.info(f"  총 API 호출: {self.stats['total_calls']}회")

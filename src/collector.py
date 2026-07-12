@@ -16,6 +16,45 @@ class CollectorError(Exception):
     """데이터 수집 관련 에러"""
     pass
 
+
+# ─────────────────────────────────────────────
+# 워터마크(진행 지점 북마크) — 누락 0 수집의 핵심
+# GitHub Actions 무료 cron은 불규칙(수시간~수일 지연)이라 "최근 N시간" 고정 창은
+# 실행 간격이 창보다 크면 그 사이 CVE를 영구 누락한다. 대신 "마지막으로 처리한
+# 시각"을 파일에 기록하고, 다음 실행이 그 시각 이후 전부를 조회해 빈틈을 없앤다.
+# 파일은 워크플로가 매 실행 docs/data/를 커밋하므로 git으로 영속된다(DB 불필요).
+# ─────────────────────────────────────────────
+_STATE_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    "docs", "data", "pipeline_state.json"
+)
+_BOOTSTRAP_HOURS = 24  # 상태 파일이 없을 때(최초 실행) 소급 조회 기간
+
+
+def read_watermark() -> datetime.datetime:
+    """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
+    try:
+        with open(_STATE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        wm = data.get("last_processed_until")
+        if wm:
+            return datetime.datetime.fromisoformat(wm.replace("Z", "+00:00"))
+    except (OSError, ValueError, json.JSONDecodeError) as e:
+        logger.info(f"워터마크 없음/파싱 실패({e}) → 최근 {_BOOTSTRAP_HOURS}h 부트스트랩")
+    return datetime.datetime.now(pytz.UTC) - datetime.timedelta(hours=_BOOTSTRAP_HOURS)
+
+
+def write_watermark(dt_utc: datetime.datetime) -> None:
+    """처리 완료 지점(UTC)을 상태 파일에 기록."""
+    try:
+        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
+        payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
+        with open(_STATE_PATH, "w", encoding="utf-8") as f:
+            json.dump(payload, f)
+        logger.info(f"워터마크 저장: {payload['last_processed_until']}")
+    except OSError as e:
+        logger.warning(f"워터마크 저장 실패: {e}")
+
 class Collector:
     # 벌크 메인테넌스 커밋 감지 패턴
     BULK_PATTERNS = re.compile(
@@ -181,105 +220,106 @@ class Collector:
             logger.debug(f"{cve_id} raw JSON 조회 실패: {e}")
             return None
 
+    @staticmethod
+    def _commit_ts(commit: dict) -> str:
+        c = commit.get("commit", {})
+        return (c.get("committer", {}) or {}).get("date") or (c.get("author", {}) or {}).get("date") or ""
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    def fetch_recent_cves(self, hours: int = 2, db=None) -> List[dict]:
-        """GitHub CVEProject에서 최근 CVE 수집 (스마트 필터링).
+    def fetch_cves_since(self, since_dt: datetime.datetime, db=None, max_commit_pages: int = 300) -> List[dict]:
+        """워터마크(since_dt) 이후 커밋에서 변경된 CVE를 빠짐없이 수집.
 
-        3단계 필터링:
-        1. 커밋에서 CVE ID 추출 + 벌크 커밋 감지
-        2. 일반 커밋 CVE → 전부 처리 대상
-        3. 벌크 커밋 CVE → 콘텐츠 해시 비교 → 메타데이터만 변경된 것 스킵
+        고정 시간창(누락 위험) 대신 '마지막 처리 지점' 이후 전부를 조회한다.
+        스케줄이 아무리 불규칙해도(수시간·수일 지연) 빈틈이 생기지 않는다.
 
         Returns:
-            List[dict]: [{"cve_id": str, "is_new": bool}, ...]
+            List[dict]: [{"cve_id", "commit_ts"(datetime), "is_new"(bool)}], commit_ts 오름차순.
+            is_new=False → DB에 같은 content_hash로 이미 존재(재처리 불필요, 워터마크 전진엔 포함).
         """
-        now = datetime.datetime.now(pytz.UTC)
-        since_str = (now - datetime.timedelta(hours=hours)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        since_str = since_dt.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+        logger.info(f"CVE 수집(워터마크 기반): {since_str} 이후")
 
-        url = f"https://api.github.com/repos/CVEProject/cvelistV5/commits?since={since_str}"
-
-        try:
+        # 1) 커밋 목록 전체 페이지네이션 (오래된 것까지 포함) — 목록은 파일 미포함이라 저비용
+        commits = []
+        page = 1
+        while page <= max_commit_pages:
             rate_limit_manager.check_and_wait("github")
-            logger.info(f"Fetching CVEs from last {hours} hours...")
-
-            response = requests.get(url, headers=self.headers, timeout=15)
-            response.raise_for_status()
+            resp = requests.get(
+                "https://api.github.com/repos/CVEProject/cvelistV5/commits",
+                headers=self.headers,
+                params={"since": since_str, "per_page": 100, "page": page},
+                timeout=15,
+            )
+            resp.raise_for_status()
             rate_limit_manager.record_call("github")
+            batch = resp.json()
+            if not batch:
+                break
+            commits.extend(batch)
+            if len(batch) < 100:
+                break
+            page += 1
+        else:
+            logger.warning(f"⚠️ 커밋 페이지 상한({max_commit_pages}) 도달 — 비정상적으로 긴 공백 가능")
 
-            commits = response.json()
-
-            seen = set()
-            normal_cve_ids = []
-            bulk_cve_ids = []
-            result = []
-            skipped = 0
-
-            # Phase 1: 모든 커밋에서 CVE ID 수집 + 벌크 여부 태깅
-            for commit in commits:
-                rate_limit_manager.check_and_wait("github")
-
-                commit_response = requests.get(commit['url'], headers=self.headers, timeout=10)
-                commit_response.raise_for_status()
-                rate_limit_manager.record_call("github")
-
-                commit_detail = commit_response.json()
-                is_bulk = self._is_bulk_commit(commit_detail)
-
-                for file_info in commit_detail.get('files', []):
-                    cve_id = self._extract_cve_id(file_info['filename'])
-                    if not cve_id or cve_id in seen:
-                        continue
-                    seen.add(cve_id)
-
-                    if is_bulk:
-                        bulk_cve_ids.append(cve_id)
-                    else:
-                        normal_cve_ids.append(cve_id)
-
-            # Phase 2: 일반 커밋 CVE → 전부 처리 대상
-            for cve_id in normal_cve_ids:
-                result.append({"cve_id": cve_id, "is_new": True})
-
-            # Phase 3: 벌크 커밋 CVE → 배치 해시 비교로 필터링
-            if bulk_cve_ids:
-                if db:
-                    existing_hashes = db.batch_get_content_hashes(bulk_cve_ids)
-                    logger.info(f"벌크 커밋 CVE {len(bulk_cve_ids)}건 중 DB 해시 {len(existing_hashes)}건 발견")
-
-                    for cve_id in bulk_cve_ids:
-                        old_hash = existing_hashes.get(cve_id)
-                        if old_hash is None:
-                            # DB에 없음 → 신규 CVE, 반드시 처리
-                            result.append({"cve_id": cve_id, "is_new": True})
-                            continue
-
-                        # DB에 있음 → raw JSON 가져와서 해시 비교
-                        raw_json = self._fetch_raw_cve_json(cve_id)
-                        if raw_json is None:
-                            continue
-                        new_hash = self._compute_content_hash(raw_json)
-                        if new_hash != old_hash:
-                            result.append({"cve_id": cve_id, "is_new": False})
-                        else:
-                            skipped += 1
-                else:
-                    # DB 없으면 벌크 커밋도 모두 처리
-                    for cve_id in bulk_cve_ids:
-                        result.append({"cve_id": cve_id, "is_new": True})
-
-            logger.info(f"스마트 필터링 결과: {len(result)}건 처리 대상 "
-                       f"(일반 {len(normal_cve_ids)}건, 벌크 {len(bulk_cve_ids)}건 중 {skipped}건 스킵)")
-            return result
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"GitHub API error: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error in fetch_recent_cves: {e}")
+        if not commits:
+            logger.info("신규 커밋 없음")
             return []
+
+        # 2) 오래된 순(FIFO) 정렬
+        commits.sort(key=self._commit_ts)
+
+        # 3) 커밋별 파일 → CVE, 각 CVE의 최신 커밋 시각 매핑
+        cve_ts: Dict[str, datetime.datetime] = {}
+        for commit in commits:
+            rate_limit_manager.check_and_wait("github")
+            cr = requests.get(commit["url"], headers=self.headers, timeout=10)
+            cr.raise_for_status()
+            rate_limit_manager.record_call("github")
+            detail = cr.json()
+            try:
+                ts = datetime.datetime.fromisoformat(self._commit_ts(commit).replace("Z", "+00:00"))
+            except (ValueError, AttributeError):
+                ts = datetime.datetime.now(pytz.UTC)
+            for file_info in detail.get("files", []):
+                cid = self._extract_cve_id(file_info.get("filename", ""))
+                if not cid:
+                    continue
+                prev = cve_ts.get(cid)
+                if prev is None or ts > prev:
+                    cve_ts[cid] = ts
+
+        if not cve_ts:
+            return []
+
+        # 4) DB 중복 제거 (일반/벌크 구분 없이 전부) — content_hash 같으면 이미 처리됨
+        all_ids = list(cve_ts.keys())
+        existing = db.batch_get_content_hashes(all_ids) if db else {}
+        result = []
+        skipped = 0
+        for cid, ts in cve_ts.items():
+            old_hash = existing.get(cid)
+            if old_hash is None:
+                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
+                continue
+            raw_json = self._fetch_raw_cve_json(cid)
+            if raw_json is None:
+                # 조회 실패 → 안전하게 처리 대상(재시도)으로 (누락 방지 우선)
+                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
+                continue
+            if self._compute_content_hash(raw_json) != old_hash:
+                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
+            else:
+                result.append({"cve_id": cid, "commit_ts": ts, "is_new": False})
+                skipped += 1
+
+        result.sort(key=lambda x: x["commit_ts"])
+        new_count = len(result) - skipped
+        logger.info(f"수집 결과: 후보 {len(result)}건 (신규/변경 {new_count}, 이미처리 {skipped})")
+        return result
     
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
         """Affected 정보 파싱"""

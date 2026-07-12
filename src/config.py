@@ -57,9 +57,12 @@ class ArgusConfig:
         "batch_size": 10,  # 배치 처리 크기
         "cve_fetch_hours": 2,  # 최근 N시간 내 CVE 수집
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
-        # 무료 티어: 단일 워커 + non-thinking 현실 완주량. 나머지는 다음 실행에서 재처리(신규 우선).
-        # 유료 전환 시 50으로 복원.
-        "max_cves_per_run": 15,
+        # 실행당 처리 상한. 대부분 CVE는 저위험 = 번역+DB저장(값싼 경로)이고,
+        # 무거운 Groq 룰 생성은 고위험만(is_high_risk 게이트) 타므로 상한을 높여도 안전하다.
+        # 15는 Groq TPM 보호용으로 과하게 낮았음 → 유입(~150건/일) 대비 백로그 누적.
+        # 50 × cron(~8회/일) = 400건/일 > 유입 → 백로그 해소. 30분 타임아웃 내 완주.
+        # (타임아웃으로 killed 되어도 워터마크 미저장 → 다음 실행 재수집, 누락 0.)
+        "max_cves_per_run": 50,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기 (2h × 10건 = 하루 120건)
         "bulk_commit_threshold": 100  # 벌크 커밋 판단 기준 (파일 수)
     }

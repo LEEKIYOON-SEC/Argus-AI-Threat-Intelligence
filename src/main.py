@@ -500,13 +500,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         
         if raw_data.get('state') != 'PUBLISHED':
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
-            return None
-        
+            return {"cve_id": cve_id, "status": "handled"}
+
         # Step 2: 자산 필터링 (affected vendor/product 우선, description 보조)
         is_target, match_info = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
-            return None
+            return {"cve_id": cve_id, "status": "handled"}
 
         # Step 2.5: 추가 위협 인텔리전스 (NVD, PoC, VulnCheck, Advisory)
         raw_data = collector.enrich_threat_intel(raw_data)
@@ -540,39 +540,46 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         # Step 4: 알림 필요성 판단
         last_record = db.get_cve(cve_id)
         last_state = last_record.get('last_alert_state') if last_record else None
-        
+        is_new_to_db = last_record is None
+
         should_alert, alert_reason, is_high_risk = _should_send_alert(
             current_state, last_state
         )
-        
-        if not should_alert:
-            # 알림 불필요, DB만 업데이트 (content_hash도 갱신)
+
+        # 기존 CVE인데 알림 트리거 없음 → 최소 갱신만(재번역/알림 없음, 값싼 경로)
+        if not should_alert and not is_new_to_db:
             db.upsert_cve({
                 "id": cve_id,
                 "updated_at": datetime.datetime.now(KST).isoformat(),
                 "content_hash": raw_data.get('content_hash')
             })
-            return None
-        
+            return {"cve_id": cve_id, "status": "handled"}
+
+        # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
+        # 두 경우 모두 한국어 번역해 저장(대시보드 한글화). Slack/Issue/AI 룰은 알림 대상만.
         # Step 5: 한국어 번역
-        logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+        if should_alert:
+            logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+        else:
+            logger.debug(f"신규 저위험 추적 저장: {cve_id}")
         title_ko, desc_ko = generate_korean_summary(current_state)
         current_state['title_ko'] = title_ko
         current_state['desc_ko'] = desc_ko
-        
-        # Step 6: High Risk면 GitHub Issue 생성
+
+        # Step 6: 고위험 알림 대상만 GitHub Issue + AI 룰 생성 (Groq는 희소 자원 = TPD 200K)
         report_url = None
         rules_info = None
-        if is_high_risk:
+        if should_alert and is_high_risk:
             # TPD 소진 시 AI 분석/룰 생성 SKIP (Issue 미생성, 다음 실행에서 재처리)
             if rate_limit_manager.is_tpd_exhausted("groq"):
                 logger.warning(f"⚠️ {cve_id}: Groq TPD 소진 → Issue 생성 SKIP (다음 실행에서 재처리)")
             else:
                 report_url, rules_info = create_github_issue(current_state, alert_reason)
-        
-        # Step 7: Slack 알림
-        notifier.send_alert(current_state, alert_reason, report_url)
-        
+
+        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함)
+        if should_alert:
+            notifier.send_alert(current_state, alert_reason, report_url)
+
         # Step 8: DB 저장 (content_hash 포함)
         # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
         # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
@@ -584,25 +591,28 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "cvss_score": current_state['cvss'],
             "epss_score": current_state['epss'],
             "is_kev": current_state['is_kev'],
-            "last_alert_at": datetime.datetime.now(KST).isoformat(),
             "last_alert_state": clean_state,
-            "report_url": report_url,
             "updated_at": datetime.datetime.now(KST).isoformat(),
             "content_hash": raw_data.get('content_hash')
         }
-        
+        if should_alert:
+            db_data["last_alert_at"] = datetime.datetime.now(KST).isoformat()
+            db_data["report_url"] = report_url
+
         if rules_info:
             db_data["has_official_rules"] = rules_info.get('has_official', False)
             db_data["rules_snapshot"] = rules_info.get('rules')
             db_data["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
-        
+
         db.upsert_cve(db_data)
-        
-        return {"cve_id": cve_id, "status": "success"}
-        
+
+        # 고위험 알림 = success, 저위험 추적 = handled (둘 다 워터마크 전진 대상)
+        return {"cve_id": cve_id, "status": "success" if should_alert else "handled"}
+
     except Exception as e:
         logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)
-        return None
+        # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
+        return {"cve_id": cve_id, "status": "failed"}
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
     # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
@@ -613,9 +623,12 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
         or current.get('ssvc_exploitation') == 'active'
     )
 
-    # 신규 CVE
+    # 신규 CVE: 고위험만 알림(Slack/Issue). 저위험 신규는 대시보드 추적만 하고
+    # 알림을 보내지 않는다(`*/*` 전체 감시에서 알림 노이즈·Groq 부하 차단).
     if last is None:
-        return True, "신규 취약점", is_high_risk
+        if is_high_risk:
+            return True, "🆕 신규 고위험 취약점", True
+        return False, "", False
 
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
@@ -820,72 +833,86 @@ def _main():
     # Step 3: 공식 룰 재발견
     check_for_official_rules()
     
-    # Step 4: KEV 및 최신 CVE 수집 (스마트 필터링 적용)
+    # Step 4: KEV 및 최신 CVE 수집 (워터마크 기반 — 누락 0)
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
-    target_cves = collector.fetch_recent_cves(
-        hours=config.PERFORMANCE["cve_fetch_hours"],
-        db=db
-    )
 
-    if not target_cves:
-        logger.info("처리할 CVE 없음")
+    run_start_utc = datetime.datetime.now(datetime.timezone.utc)
+    watermark = collector.read_watermark()
+    # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
+    since_dt = watermark - datetime.timedelta(minutes=5)
+    fetched = collector.fetch_cves_since(since_dt, db=db)
+
+    if not fetched:
+        # 신규 커밋 없음 → 워터마크를 실행 시작 시각으로 전진 후 종료
+        collector.write_watermark(run_start_utc)
+        logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
-    # Step 5: 우선순위 정렬 + 배치 제한
-    # 신규 CVE(is_new=True)를 먼저 처리
-    target_cves.sort(key=lambda x: (not x['is_new'],))
+    # Step 5: FIFO(커밋 오래된 순) — fetch가 이미 정렬. 신규만 처리 대상, 상한 적용.
+    new_items = [c for c in fetched if c['is_new']]
+    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
+    to_process = new_items[:max_per_run]
+    deferred = new_items[max_per_run:]
+    if deferred:
+        logger.warning(f"신규 {len(new_items)}건 중 {len(to_process)}건 처리, {len(deferred)}건 다음 실행으로 이월(워터마크 뒤에 보존)")
 
-    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 50)
-    if len(target_cves) > max_per_run:
-        logger.warning(f"CVE {len(target_cves)}건 중 상위 {max_per_run}건만 처리 (할당량 보호)")
-        target_cves = target_cves[:max_per_run]
-
-    target_cve_ids = [c['cve_id'] for c in target_cves]
+    target_cve_ids = [c['cve_id'] for c in to_process]
 
     # Step 6: EPSS 수집
     collector.fetch_epss(target_cve_ids)
-
     logger.info(f"분석 대상: {len(target_cve_ids)}건")
 
-    # Step 7: 병렬 처리로 CVE 분석
-    results = []
+    # Step 7: CVE 분석 (무료 티어 = 단일 워커)
+    status_by_id = {}
     max_workers = config.PERFORMANCE["max_workers"]
-
-    logger.info(f"병렬 처리 시작 (워커: {max_workers}명)")
+    logger.info(f"처리 시작 (워커: {max_workers}명)")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_cve = {
             executor.submit(process_single_cve, cve_id, collector, db, notifier): cve_id
             for cve_id in target_cve_ids
         }
-
         for future in as_completed(future_to_cve):
             cve_id = future_to_cve[future]
             try:
-                result = future.result()
-                if result:
-                    results.append(result)
+                result = future.result() or {}
+                status_by_id[cve_id] = result.get("status", "failed")
             except Exception as e:
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
+                status_by_id[cve_id] = "failed"
+
+    # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
+    # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.
+    unhandled_ts = [c['commit_ts'] for c in to_process if status_by_id.get(c['cve_id']) == 'failed']
+    unhandled_ts += [c['commit_ts'] for c in deferred]
+    if unhandled_ts:
+        new_watermark = min(unhandled_ts)  # 이 시각 이후는 다음 실행에서 재수집
+    else:
+        # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
+        new_watermark = max(c['commit_ts'] for c in fetched)
+    collector.write_watermark(new_watermark)
+
+    success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
     # TPD 소진 경고
     if rate_limit_manager.is_tpd_exhausted("groq"):
         logger.warning("🚫 Groq TPD 소진으로 일부 CVE의 AI 분석/룰 생성이 SKIP됨 → 다음 실행에서 자동 재처리")
 
-    # Step 8: Slack 배치 요약 전송
+    # Step 9: Slack 배치 요약 전송
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     dashboard_url = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/" if '/' in repo else None
     notifier.send_batch_summary(dashboard_url=dashboard_url)
 
-    # Step 9: 결과 요약
+    # Step 10: 결과 요약
     elapsed = time.time() - start_time
     logger.info("=" * 60)
-    logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
+    logger.info(f"처리 완료: 알림 {success_count}건 / 처리 {len(target_cve_ids)}건 / 이월 {len(deferred)}건")
+    logger.info(f"워터마크: {new_watermark.isoformat()}")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
 
-    # Step 10: Rate Limit 사용 요약
+    # Step 11: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
 
 
