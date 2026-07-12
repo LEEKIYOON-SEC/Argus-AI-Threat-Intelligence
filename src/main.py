@@ -158,43 +158,61 @@ Task: Translate Title and Summarize Description into Korean.
 Do NOT add intro/outro.
 """
     
-    try:
-        rate_limit_manager.check_and_wait("gemini")
-        response = gemini_client.models.generate_content(
-            model=config.MODEL_PHASE_0,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                # 번역은 짧음(제목 + 3줄). 출력 상한을 두지 않으면 gemma-4가
-                # 폭주 생성 → 서버 타임아웃(500 INTERNAL)을 유발한다.
-                max_output_tokens=1024,
-                temperature=0.3,
-                safety_settings=[types.SafetySetting(
-                    category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                    threshold="BLOCK_NONE"
-                )]
-            )
-        )
-        # Gemini 토큰 사용량 기록 (프리티어 잔여량 가시화)
-        gemini_tokens = 0
-        usage = getattr(response, "usage_metadata", None)
-        if usage is not None:
-            gemini_tokens = getattr(usage, "total_token_count", 0) or 0
-        rate_limit_manager.record_call("gemini", tokens_used=gemini_tokens)
+    fallback = (cve_data['title'], cve_data['description'][:200])
 
-        text = response.text.strip()
-        title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
-        
-        for line in text.split('\n'):
-            if line.startswith("제목:"):
-                title_ko = line.replace("제목:", "").strip()
-            if line.startswith("내용:"):
-                desc_ko = line.replace("내용:", "").strip()
-        
-        return title_ko, desc_ko
-        
-    except Exception as e:
-        logger.warning(f"번역 실패: {e}, 원본 사용")
-        return cve_data['title'], cve_data['description'][:200]
+    # 무료 Gemma는 과부하 시 503(high demand)/500(INTERNAL) 같은 일시 서버 오류를 낸다.
+    # 이는 우리 한도(429)가 아니라 구글 서버측 문제라 짧은 백오프 재시도로 대부분 회복된다.
+    # 그 외(안전 차단·잘못된 요청 등)는 재시도해도 무의미하므로 즉시 영문 폴백.
+    max_attempts = 3
+    for attempt in range(1, max_attempts + 1):
+        try:
+            rate_limit_manager.check_and_wait("gemini")
+            response = gemini_client.models.generate_content(
+                model=config.MODEL_PHASE_0,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    # 번역은 짧음(제목 + 3줄). 출력 상한을 두지 않으면 gemma-4가
+                    # 폭주 생성 → 서버 타임아웃(500 INTERNAL)을 유발한다.
+                    max_output_tokens=1024,
+                    temperature=0.3,
+                    safety_settings=[types.SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold="BLOCK_NONE"
+                    )]
+                )
+            )
+            # Gemini 토큰 사용량 기록 (프리티어 잔여량 가시화)
+            gemini_tokens = 0
+            usage = getattr(response, "usage_metadata", None)
+            if usage is not None:
+                gemini_tokens = getattr(usage, "total_token_count", 0) or 0
+            rate_limit_manager.record_call("gemini", tokens_used=gemini_tokens)
+
+            text = response.text.strip()
+            title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
+
+            for line in text.split('\n'):
+                if line.startswith("제목:"):
+                    title_ko = line.replace("제목:", "").strip()
+                if line.startswith("내용:"):
+                    desc_ko = line.replace("내용:", "").strip()
+
+            return title_ko, desc_ko
+
+        except Exception as e:
+            msg = str(e)
+            transient = any(t in msg for t in (
+                "500", "503", "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
+            ))
+            if transient and attempt < max_attempts:
+                wait = 2 * attempt  # 2s, 4s
+                logger.warning(f"번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
+                time.sleep(wait)
+                continue
+            logger.warning(f"번역 실패: {e}, 원본 사용")
+            return fallback
+
+    return fallback
 
 # ==============================================================================
 # [3] GitHub Issue 생성/업데이트
@@ -556,15 +574,17 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             return {"cve_id": cve_id, "status": "handled"}
 
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
-        # 두 경우 모두 한국어 번역해 저장(대시보드 한글화). Slack/Issue/AI 룰은 알림 대상만.
-        # Step 5: 한국어 번역
+        # Step 5: 한국어 번역 — 고위험 알림 대상만 번역한다.
+        # `*/*` 전체 감시에서 저위험까지 번역하면 무료 Gemma를 실행당 수십 회 두드려
+        # 503(high demand) 폭주 + 실행 지연을 유발한다. 저위험 신규는 영문으로 저장하고
+        # 대시보드가 영문 폴백(export title_ko or title)으로 정상 표시한다.
         if should_alert:
             logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+            title_ko, desc_ko = generate_korean_summary(current_state)
+            current_state['title_ko'] = title_ko
+            current_state['desc_ko'] = desc_ko
         else:
-            logger.debug(f"신규 저위험 추적 저장: {cve_id}")
-        title_ko, desc_ko = generate_korean_summary(current_state)
-        current_state['title_ko'] = title_ko
-        current_state['desc_ko'] = desc_ko
+            logger.debug(f"신규 저위험 추적 저장(영문): {cve_id}")
 
         # Step 6: 고위험 알림 대상만 GitHub Issue + AI 룰 생성 (Groq는 희소 자원 = TPD 200K)
         report_url = None
