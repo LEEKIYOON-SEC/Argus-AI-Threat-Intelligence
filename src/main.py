@@ -164,6 +164,10 @@ Do NOT add intro/outro.
             model=config.MODEL_PHASE_0,
             contents=prompt,
             config=types.GenerateContentConfig(
+                # 번역은 짧음(제목 + 3줄). 출력 상한을 두지 않으면 gemma-4가
+                # 폭주 생성 → 서버 타임아웃(500 INTERNAL)을 유발한다.
+                max_output_tokens=1024,
+                temperature=0.3,
                 safety_settings=[types.SafetySetting(
                     category="HARM_CATEGORY_DANGEROUS_CONTENT",
                     threshold="BLOCK_NONE"
