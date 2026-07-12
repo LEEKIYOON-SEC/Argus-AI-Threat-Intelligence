@@ -1,5 +1,506 @@
 [
   {
+    "id": "CVE-2026-10668",
+    "title": "Host-triggerable control-endpoint wedge (DoS) in Nuvoton NuMaker HSUSBD UDC driver",
+    "description": "The Nuvoton NuMaker HSUSBD USB device-controller driver (drivers/usb/udc/udc_numaker.c) armed the control Data IN stage unconditionally (base->CEPTXCNT = len in numaker_hsusbd_ep_trigger). Because the",
+    "cvss": 2.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "4.4.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-10667",
+    "title": "Zephyr `CONFIG_USERSPACE` 동적 커널 객체 추적 내 SMP Use-After-Free 취약점 (비특권 사용자 스레드에서 접근 가능)",
+    "description": "SMP 시스템에서 커널 객체 리스트의 반복 작업과 제거 작업이 서로 다른 스핀락을 사용함에 따라 Use-After-Free 취약점이 발생합니다. 비특권 사용자 스레드가 시스템 콜을 통해 이를 유발하여 커널 메모리 오염",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "1.14.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1040",
+    "date": "2026-07-12T17:29:58.441915+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-10666",
+    "title": "`subsys/net/ip/utils.c` 내 `net_ipaddr_parse()`의 IPv4 주소 및 포트 파싱 중 스택 버퍼 오버플로우",
+    "description": "`parse_ipv4()` 함수가 IPv4 주소의 포트 부분을 고정 크기 버퍼에 복사할 때 길이를 검증하지 않아 스택 버퍼 오버플로우가 발생합니다. 이를 통해 메모리 오염, 서비스 거부(DoS) 또는 제어 흐름 하이재킹이 가능하며, Zephyr v1.9.0부터 v4.4.0까지 영향을 미칩니다. 해당 문제는 포트 길이 검증 로직을 추가하여 해결되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "1.9.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1039",
+    "date": "2026-07-12T17:29:20.067047+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-10665",
+    "title": "제한 없는 수신 패킷 길이에 의한 WireGuard 수신 경로의 힙 버퍼 오버플로우",
+    "description": "Zephyr의 WireGuard 서브시스템에서 수신 패킷 길이에 대한 상한선 검사 미비로 인해 힙 버퍼 오버플로우가 발생할 수 있습니다. 공격자가 버퍼 크기를 초과하는 패킷을 전송하면 인증 전 단계에서 원격 메모리 오염 및 서비스 거부(DoS)를 유발할 수 있으며, 이는 패킷 길이 검증 로직 추가 및 함수 호출 수정으로 해결되었습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "4.4.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1038",
+    "date": "2026-07-12T17:28:42.826855+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-10664",
+    "title": "Out-of-bounds write in nRF70 Wi-Fi driver power-save event handler (unbounded TWT flow count)",
+    "description": "The nRF70 Wi-Fi driver's power-save event handler nrf_wifi_event_proc_get_power_save_info() in drivers/wifi/nrf_wifi/src/wifi_mgmt.c copied TWT (Target Wake Time) flow entries from an nrf_wifi_umac_ev",
+    "cvss": 5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "4.4.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-10663",
+    "title": "실험적 USB 호스트 스택의 루트 USB 장치 Use-after-free 및 double-free 취약점",
+    "description": "`usbh_device_disconnect()` 함수가 루트 USB 장치 객체를 해제한 후 `ctx->root` 포인터를 초기화하지 않아 발생합니다. 장치 제거 이벤트가 중복 발생할 경우 댕글링 포인터를 통해 Use-after-free 및 double-free가 유발되어 시스템 충돌이나 메모리 오염이 발생할 수 있습니다.",
+    "cvss": 6.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "4.4.0 부터 4.5.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": null,
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-13869",
+    "title": "N/A",
+    "description": "Use after free in Device in Google Chrome on Windows prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTM",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T19:35:08.399057+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13861",
+    "title": "N/A",
+    "description": "Use after free in Core in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chro",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T19:32:05.397396+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13854",
+    "title": "N/A",
+    "description": "Use after free in Ozone in Google Chrome on Linux prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML p",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T19:31:04.403721+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13792",
+    "title": "N/A",
+    "description": "Use after free in Touchbar in Google Chrome on Mac prior to 150.0.7871.47 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T21:17:12.890247+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13853",
+    "title": "N/A",
+    "description": "Use after free in Journeys in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T19:28:01.395468+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13789",
+    "title": "N/A",
+    "description": "Use after free in GPU in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chrom",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T21:15:10.884767+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13846",
+    "title": "N/A",
+    "description": "Use after free in USB in Google Chrome on Mac prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page.",
+    "cvss": 9.6,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T19:18:52.375088+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13843",
+    "title": "N/A",
+    "description": "Insufficient validation of untrusted input in Chrome for iOS in Google Chrome on iOS prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a ",
+    "cvss": 9.6,
+    "epss": 0.00217,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T21:23:47.174482+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-14397",
+    "title": "N/A",
+    "description": "Out of bounds write in ANGLE in Google Chrome on Mac prior to 150.0.7871.46 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medi",
+    "cvss": 9.6,
+    "epss": 0.00223,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.46 부터 150.0.7871.46 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-03T04:30:21.602415+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13780",
+    "title": "N/A",
+    "description": "Insufficient validation of untrusted input in ANGLE in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape v",
+    "cvss": 9.6,
+    "epss": 0.00223,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T21:02:58.914305+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-58596",
     "title": "마이크로소프트 엣지(크로미움 기반) 권한 상승 취약점",
     "description": "마이크로소프트 엣지(크로미움 기반)에서 권한 상승 취약점이 발견되었습니다.",
@@ -67895,36 +68396,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-14397",
-    "title": "N/A",
-    "description": "Out of bounds write in ANGLE in Google Chrome on Mac prior to 150.0.7871.46 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: Medi",
-    "cvss": 9.6,
-    "epss": 0.00223,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.46 부터 150.0.7871.46 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-03T04:30:21.602415+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-14405",
     "title": "N/A",
     "description": "Uninitialized Use in V8 in Google Chrome prior to 150.0.7871.46 allowed a remote attacker to execute arbitrary code inside a sandbox via a crafted HTML page. (Chromium security severity: Low)",
@@ -74817,36 +75288,6 @@
     "severity": "Medium"
   },
   {
-    "id": "CVE-2026-13780",
-    "title": "N/A",
-    "description": "Insufficient validation of untrusted input in ANGLE in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape v",
-    "cvss": 9.6,
-    "epss": 0.00223,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T21:02:58.914305+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-41121",
     "title": "N/A",
     "description": "Dell Device Management Agent, versions prior to DDMA 26.05, contain an Improper Link Resolution Before File Access ('Link Following’) vulnerability. A low privileged attacker with local access could p",
@@ -74976,36 +75417,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-13843",
-    "title": "N/A",
-    "description": "Insufficient validation of untrusted input in Chrome for iOS in Google Chrome on iOS prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a ",
-    "cvss": 9.6,
-    "epss": 0.00217,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T21:23:47.174482+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-14363",
@@ -75266,66 +75677,6 @@
     ],
     "report_url": null,
     "date": "2026-07-01T21:20:15.875121+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-13792",
-    "title": "N/A",
-    "description": "Use after free in Touchbar in Google Chrome on Mac prior to 150.0.7871.47 allowed a remote attacker to potentially perform a sandbox escape via a crafted HTML page. (Chromium security severity: High)",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T21:17:12.890247+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-13789",
-    "title": "N/A",
-    "description": "Use after free in GPU in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chrom",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T21:15:10.884767+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -76268,96 +76619,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-13869",
-    "title": "N/A",
-    "description": "Use after free in Device in Google Chrome on Windows prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTM",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T19:35:08.399057+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-13861",
-    "title": "N/A",
-    "description": "Use after free in Core in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (Chro",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T19:32:05.397396+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-13854",
-    "title": "N/A",
-    "description": "Use after free in Ozone in Google Chrome on Linux prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML p",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T19:31:04.403721+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-13866",
     "title": "N/A",
     "description": "Inappropriate implementation in Input in Google Chrome on Android prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to bypass site isolation via a crafted HTML ",
@@ -76416,36 +76677,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-13853",
-    "title": "N/A",
-    "description": "Use after free in Journeys in Google Chrome prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page. (",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T19:28:01.395468+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-13852",
@@ -76536,36 +76767,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-13846",
-    "title": "N/A",
-    "description": "Use after free in USB in Google Chrome on Mac prior to 150.0.7871.47 allowed a remote attacker who had compromised the renderer process to potentially perform a sandbox escape via a crafted HTML page.",
-    "cvss": 9.6,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Google",
-        "product": "Chrome",
-        "versions": "150.0.7871.47 부터 150.0.7871.47 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T19:18:52.375088+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-13847",
