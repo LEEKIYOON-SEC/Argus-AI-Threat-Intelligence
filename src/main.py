@@ -500,13 +500,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         
         if raw_data.get('state') != 'PUBLISHED':
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
-            return None
-        
+            return {"cve_id": cve_id, "status": "handled"}
+
         # Step 2: 자산 필터링 (affected vendor/product 우선, description 보조)
         is_target, match_info = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
-            return None
+            return {"cve_id": cve_id, "status": "handled"}
 
         # Step 2.5: 추가 위협 인텔리전스 (NVD, PoC, VulnCheck, Advisory)
         raw_data = collector.enrich_threat_intel(raw_data)
@@ -552,7 +552,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
                 "updated_at": datetime.datetime.now(KST).isoformat(),
                 "content_hash": raw_data.get('content_hash')
             })
-            return None
+            return {"cve_id": cve_id, "status": "handled"}
         
         # Step 5: 한국어 번역
         logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
@@ -597,12 +597,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             db_data["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
         
         db.upsert_cve(db_data)
-        
+
         return {"cve_id": cve_id, "status": "success"}
-        
+
     except Exception as e:
         logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)
-        return None
+        # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
+        return {"cve_id": cve_id, "status": "failed"}
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
     # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
@@ -820,72 +821,86 @@ def _main():
     # Step 3: 공식 룰 재발견
     check_for_official_rules()
     
-    # Step 4: KEV 및 최신 CVE 수집 (스마트 필터링 적용)
+    # Step 4: KEV 및 최신 CVE 수집 (워터마크 기반 — 누락 0)
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
-    target_cves = collector.fetch_recent_cves(
-        hours=config.PERFORMANCE["cve_fetch_hours"],
-        db=db
-    )
 
-    if not target_cves:
-        logger.info("처리할 CVE 없음")
+    run_start_utc = datetime.datetime.now(datetime.timezone.utc)
+    watermark = collector.read_watermark()
+    # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
+    since_dt = watermark - datetime.timedelta(minutes=5)
+    fetched = collector.fetch_cves_since(since_dt, db=db)
+
+    if not fetched:
+        # 신규 커밋 없음 → 워터마크를 실행 시작 시각으로 전진 후 종료
+        collector.write_watermark(run_start_utc)
+        logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
-    # Step 5: 우선순위 정렬 + 배치 제한
-    # 신규 CVE(is_new=True)를 먼저 처리
-    target_cves.sort(key=lambda x: (not x['is_new'],))
+    # Step 5: FIFO(커밋 오래된 순) — fetch가 이미 정렬. 신규만 처리 대상, 상한 적용.
+    new_items = [c for c in fetched if c['is_new']]
+    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
+    to_process = new_items[:max_per_run]
+    deferred = new_items[max_per_run:]
+    if deferred:
+        logger.warning(f"신규 {len(new_items)}건 중 {len(to_process)}건 처리, {len(deferred)}건 다음 실행으로 이월(워터마크 뒤에 보존)")
 
-    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 50)
-    if len(target_cves) > max_per_run:
-        logger.warning(f"CVE {len(target_cves)}건 중 상위 {max_per_run}건만 처리 (할당량 보호)")
-        target_cves = target_cves[:max_per_run]
-
-    target_cve_ids = [c['cve_id'] for c in target_cves]
+    target_cve_ids = [c['cve_id'] for c in to_process]
 
     # Step 6: EPSS 수집
     collector.fetch_epss(target_cve_ids)
-
     logger.info(f"분석 대상: {len(target_cve_ids)}건")
 
-    # Step 7: 병렬 처리로 CVE 분석
-    results = []
+    # Step 7: CVE 분석 (무료 티어 = 단일 워커)
+    status_by_id = {}
     max_workers = config.PERFORMANCE["max_workers"]
-
-    logger.info(f"병렬 처리 시작 (워커: {max_workers}명)")
+    logger.info(f"처리 시작 (워커: {max_workers}명)")
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         future_to_cve = {
             executor.submit(process_single_cve, cve_id, collector, db, notifier): cve_id
             for cve_id in target_cve_ids
         }
-
         for future in as_completed(future_to_cve):
             cve_id = future_to_cve[future]
             try:
-                result = future.result()
-                if result:
-                    results.append(result)
+                result = future.result() or {}
+                status_by_id[cve_id] = result.get("status", "failed")
             except Exception as e:
                 logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
+                status_by_id[cve_id] = "failed"
+
+    # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
+    # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.
+    unhandled_ts = [c['commit_ts'] for c in to_process if status_by_id.get(c['cve_id']) == 'failed']
+    unhandled_ts += [c['commit_ts'] for c in deferred]
+    if unhandled_ts:
+        new_watermark = min(unhandled_ts)  # 이 시각 이후는 다음 실행에서 재수집
+    else:
+        # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
+        new_watermark = max(c['commit_ts'] for c in fetched)
+    collector.write_watermark(new_watermark)
+
+    success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
     # TPD 소진 경고
     if rate_limit_manager.is_tpd_exhausted("groq"):
         logger.warning("🚫 Groq TPD 소진으로 일부 CVE의 AI 분석/룰 생성이 SKIP됨 → 다음 실행에서 자동 재처리")
 
-    # Step 8: Slack 배치 요약 전송
+    # Step 9: Slack 배치 요약 전송
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     dashboard_url = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/" if '/' in repo else None
     notifier.send_batch_summary(dashboard_url=dashboard_url)
 
-    # Step 9: 결과 요약
+    # Step 10: 결과 요약
     elapsed = time.time() - start_time
     logger.info("=" * 60)
-    logger.info(f"처리 완료: {len(results)}/{len(target_cve_ids)}건 성공")
+    logger.info(f"처리 완료: 알림 {success_count}건 / 처리 {len(target_cve_ids)}건 / 이월 {len(deferred)}건")
+    logger.info(f"워터마크: {new_watermark.isoformat()}")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)
 
-    # Step 10: Rate Limit 사용 요약
+    # Step 11: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
 
 
