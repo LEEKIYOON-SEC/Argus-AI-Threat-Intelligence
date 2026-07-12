@@ -10,7 +10,7 @@ from google import genai
 from google.genai import types
 from logger import logger
 from config import config
-from collector import Collector
+from collector import Collector, read_watermark, write_watermark
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
@@ -838,14 +838,14 @@ def _main():
     collector.fetch_vulncheck_kev()
 
     run_start_utc = datetime.datetime.now(datetime.timezone.utc)
-    watermark = collector.read_watermark()
+    watermark = read_watermark()
     # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
     since_dt = watermark - datetime.timedelta(minutes=5)
     fetched = collector.fetch_cves_since(since_dt, db=db)
 
     if not fetched:
         # 신규 커밋 없음 → 워터마크를 실행 시작 시각으로 전진 후 종료
-        collector.write_watermark(run_start_utc)
+        write_watermark(run_start_utc)
         logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
@@ -891,7 +891,7 @@ def _main():
     else:
         # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
         new_watermark = max(c['commit_ts'] for c in fetched)
-    collector.write_watermark(new_watermark)
+    write_watermark(new_watermark)
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
