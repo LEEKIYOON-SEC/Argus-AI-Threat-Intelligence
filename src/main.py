@@ -148,7 +148,14 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
 
     return False, None
 
-def generate_korean_summary(cve_data: Dict) -> Tuple[str, str]:
+def generate_korean_summary(cve_data: Dict, retry_on_transient: bool = False) -> Tuple[str, str]:
+    """CVE 제목/설명을 한국어로 번역. 실패 시 영문 원본 폴백.
+
+    retry_on_transient: 고위험/에스컬레이션 CVE는 True로 호출 → 무료 Gemma의 일시
+        서버 오류(503 high demand / 500 INTERNAL)에 대해 백오프 재시도로 한글화를
+        보장한다. 저위험(False)은 재시도 없이 오류 시 즉시 영문 폴백(중요도 낮음 +
+        Gemma 부하 억제). 어느 경우든 비일시 오류(안전차단·400·429)는 즉시 폴백.
+    """
     prompt = f"""
 Task: Translate Title and Summarize Description into Korean.
 [Input] Title: {cve_data['title']} / Desc: {cve_data['description']}
@@ -157,13 +164,13 @@ Task: Translate Title and Summarize Description into Korean.
 내용: [Korean Summary (Max 3 lines)]
 Do NOT add intro/outro.
 """
-    
+
     fallback = (cve_data['title'], cve_data['description'][:200])
 
     # 무료 Gemma는 과부하 시 503(high demand)/500(INTERNAL) 같은 일시 서버 오류를 낸다.
-    # 이는 우리 한도(429)가 아니라 구글 서버측 문제라 짧은 백오프 재시도로 대부분 회복된다.
-    # 그 외(안전 차단·잘못된 요청 등)는 재시도해도 무의미하므로 즉시 영문 폴백.
-    max_attempts = 3
+    # 이는 우리 한도(429)가 아니라 구글 서버측 문제. 고위험만 백오프 재시도로 회복하고
+    # 저위험은 즉시 폴백. 그 외(안전 차단·잘못된 요청 등)는 재시도해도 무의미.
+    max_attempts = 3 if retry_on_transient else 1
     for attempt in range(1, max_attempts + 1):
         try:
             rate_limit_manager.check_and_wait("gemini")
@@ -204,7 +211,7 @@ Do NOT add intro/outro.
             transient = any(t in msg for t in (
                 "500", "503", "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
             ))
-            if transient and attempt < max_attempts:
+            if retry_on_transient and transient and attempt < max_attempts:
                 wait = 2 * attempt  # 2s, 4s
                 logger.warning(f"번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
                 time.sleep(wait)
@@ -574,17 +581,17 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             return {"cve_id": cve_id, "status": "handled"}
 
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
-        # Step 5: 한국어 번역 — 고위험 알림 대상만 번역한다.
-        # `*/*` 전체 감시에서 저위험까지 번역하면 무료 Gemma를 실행당 수십 회 두드려
-        # 503(high demand) 폭주 + 실행 지연을 유발한다. 저위험 신규는 영문으로 저장하고
-        # 대시보드가 영문 폴백(export title_ko or title)으로 정상 표시한다.
+        # Step 5: 한국어 번역 — 신규/에스컬레이션 모두 번역해 대시보드를 한글화한다.
+        # 단, 일시오류(503 high demand 등) 재시도는 고위험/에스컬레이션(should_alert)만 한다.
+        # 저위험은 오류 시 재시도 없이 즉시 영문 폴백(중요도 낮음 + Gemma 부하 억제).
+        # → 실패분 중 '고위험이 영문으로 남는' 일을 방지하면서 저위험 부하는 줄인다.
         if should_alert:
             logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
-            title_ko, desc_ko = generate_korean_summary(current_state)
-            current_state['title_ko'] = title_ko
-            current_state['desc_ko'] = desc_ko
         else:
-            logger.debug(f"신규 저위험 추적 저장(영문): {cve_id}")
+            logger.debug(f"신규 저위험 번역: {cve_id}")
+        title_ko, desc_ko = generate_korean_summary(current_state, retry_on_transient=should_alert)
+        current_state['title_ko'] = title_ko
+        current_state['desc_ko'] = desc_ko
 
         # Step 6: 고위험 알림 대상만 GitHub Issue + AI 룰 생성 (Groq는 희소 자원 = TPD 200K)
         report_url = None
