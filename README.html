@@ -457,13 +457,13 @@
 <!-- Header -->
 <div class="header">
   <h1>Argus — AI Threat Intelligence Platform</h1>
-  <div class="subtitle">AI 바이브 코딩으로 만든, 소규모 보안팀을 위한 CVE 자동 대응 파이프라인</div>
+  <div class="subtitle">AI를 활용해 개발한, 소규모 보안팀을 위한 End-to-End CVE 대응 파이프라인</div>
   <div class="description">
-    보안 전담 인력이나 상용 위협 인텔리전스 솔루션이 없는 소규모 조직에서도, 신규 취약점(CVE)이 공개된 순간
-    <strong>수집 → AI 분석 → 탐지 룰 생성 → 담당자 알림</strong>까지 사람 개입 없이 자동으로 이어지도록 설계한 프로젝트입니다.
-    NVD·CISA KEV·EPSS·PoC 저장소·공개 룰셋 등 흩어진 소스를 하나의 파이프라인으로 묶어, 담당자가 여러 사이트를 일일이
-    확인하지 않고도 <strong>대시보드 한 곳에서 위험도를 판단하고 즉시 초기 대응</strong>할 수 있게 합니다.
-    전 구간을 무료 서비스(free tier)로만 구성해 <strong>운영 비용 0원</strong>으로 유지하며, AI 주도 개발로 구축 시간과 대응 시간을 함께 줄였습니다.
+    보안 전담 인력이나 상용 Threat Intelligence 솔루션이 없는 소규모 조직에서도, 신규 취약점(CVE) 공개부터
+    <strong>수집 → AI 분석 → 탐지 룰 생성 → 담당자 알림</strong>까지 하나의 파이프라인으로 자동 처리하도록 설계한 프로젝트입니다.
+    NVD, CISA KEV, EPSS, PoC 저장소, 공개 룰셋 등 분산된 데이터를 통합하여 담당자가 여러 사이트를 직접 확인하지 않아도
+    <strong>대시보드 한 곳에서 위험도를 판단하고 초기 대응</strong>할 수 있게 합니다.
+    전체 파이프라인은 Free Tier 환경에서 운영되도록 설계했으며, AI를 활용해 구축과 운영에 필요한 시간을 줄였습니다.
   </div>
   <div class="badges">
     <span class="badge badge-blue">Python</span>
@@ -487,7 +487,7 @@
   </div>
   <div class="highlight">
     <div class="h-num">$0</div>
-    <div class="h-label">전 구간 무료 티어 운영</div>
+    <div class="h-label">전 구간 Free Tier 환경 운영</div>
   </div>
   <div class="highlight">
     <div class="h-num">6종</div>
@@ -525,22 +525,22 @@
 
 <p>Argus는 CVE 취약점을 수집·분석하고 탐지 룰을 자동 생성하는 <strong>CVE 전용 위협 인텔리전스 파이프라인</strong>입니다.
 GitHub Actions 스케줄러로 주기 실행되며, 결과는 Slack과 GitHub Issue로 알림되고 GitHub Pages 대시보드에 누적됩니다.
-개인이 AI 바이브 코딩으로 개발했지만 실제 회사 자산 점검에 활용하는 것을 전제로, <strong>데이터 소스 라이선스와 무료 AI 데이터 취급(내부 정보 보호)</strong>까지 설계에 반영했습니다.</p>
+실제 운영 환경에서의 활용을 고려해 <strong>데이터 소스 라이선스와 Free Tier AI 서비스 데이터 취급(내부 정보 보호)</strong>까지 설계 단계부터 반영했습니다.</p>
 
 <h3>왜 만들었나</h3>
 <p>소규모 조직의 보안 담당자는 대개 겸직이고, 상용 TI(Threat Intelligence) 구독이나 SOC 인력이 없습니다.
-그 결과 취약점 공개와 초기 대응 사이의 공백이 위험 구간이 됩니다. Argus는 이 공백을 <strong>"공개 → 자동 분석 → 룰 → 알림"</strong>으로 메워,
+그 결과 취약점 공개부터 초기 대응까지의 공백이 가장 큰 위험 요소가 됩니다. Argus는 이 공백을 <strong>"공개 → 자동 분석 → 룰 → 알림"</strong>으로 메워,
 전담 인력 없이도 하루 안에 위험도를 파악하고 탐지 룰을 확보하도록 돕는 것을 목표로 합니다.</p>
 
 <h3>핵심 가치</h3>
 <ul>
-  <li><strong>누락 0 설계</strong>: "마지막 처리 지점(워터마크)" 이후 전체를 조회하는 방식으로, 스케줄이 수 시간~수일 밀려도 그 사이 CVE를 빠뜨리지 않음</li>
-  <li><strong>완전 자동화</strong>: CVE 공개 → AI 분석 → 탐지 룰 → 담당자 알림까지 사람 개입 없이 동작</li>
-  <li><strong>AI 위협 분석</strong>: LLM 기반 근본 원인 분석, MITRE ATT&amp;CK 공격 시나리오, 영향도 평가, 대응 권고 자동 생성</li>
+  <li><strong>워터마크 기반 무누락 수집</strong>: "마지막 처리 지점(워터마크)" 이후 전체를 조회하는 방식으로, 스케줄이 수 시간~수일 밀려도 그 사이 CVE를 빠뜨리지 않음</li>
+  <li><strong>End-to-End 자동화</strong>: CVE 공개 → AI 분석 → 탐지 룰 → 담당자 알림까지 사람 개입 없이 동작</li>
+  <li><strong>AI 기반 위협 분석</strong>: LLM 기반 근본 원인 분석, MITRE ATT&amp;CK 공격 시나리오, 영향도 평가, 대응 권고 자동 생성</li>
   <li><strong>다중 엔진 탐지 룰</strong>: Sigma(필수) · Snort/Suricata(네트워크) · YARA(로컬)를 CVSS 공격 벡터에 맞춰 자동 선택 → 보안 장비에 바로 적용</li>
-  <li><strong>익스플로잇 근거 게이트</strong>: KEV·SSVC Active·PoC·EPSS 등 실제 악용 근거가 있는 CVE에만 AI 룰을 생성해 무료 토큰 절약</li>
-  <li><strong>무료 티어 완주 설계</strong>: Gemma/Groq 이중 서비스 · 단일 워커 · 분/일 토큰(TPM/TPD/RPD) 선제 관리로 429 없이 안정 실행</li>
-  <li><strong>라이선스 준수</strong>: 공개 룰 재게시 시 출처·author 보존, PoC 원문 미게시(링크만), 무료 AI에 내부 자산 정보 미전송</li>
+  <li><strong>익스플로잇 근거 게이트</strong>: KEV·SSVC Active·PoC·EPSS 등 실제 악용 근거가 있는 CVE에만 AI 룰을 생성해 토큰 절약</li>
+  <li><strong>Free Tier 최적화</strong>: Gemma/Groq 이중 서비스 · 단일 워커 · 분/일 토큰(TPM/TPD/RPD) 선제 관리로 429 없이 안정 실행</li>
+  <li><strong>라이선스 준수</strong>: 공개 룰 재게시 시 출처·author 보존, PoC 원문 미게시(링크만), Free Tier AI 서비스에 내부 자산 정보 미전송</li>
 </ul>
 
 <hr>
@@ -620,7 +620,7 @@ GitHub Actions 스케줄러로 주기 실행되며, 결과는 Slack과 GitHub Is
 <!-- Reliability -->
 <h2 id="reliability">Zero-Omission 수집 (워터마크)</h2>
 
-<p>보안 모니터링에서 가장 치명적인 결함은 <strong>취약점 누락</strong>입니다. GitHub Actions 무료 cron은 정시 실행을 보장하지 않아
+<p>보안 모니터링에서 가장 치명적인 결함은 <strong>취약점 누락</strong>입니다. GitHub Actions cron은 정시 실행을 보장하지 않아
 평균 수 시간, 때로는 하루 이상 지연됩니다. "최근 N시간" 같은 고정 시간창 방식은 실행 간격이 창보다 길어지는 순간
 그 사이에 공개된 CVE를 <strong>영구히 놓칩니다</strong>.</p>
 
@@ -634,11 +634,13 @@ git에 커밋되는 상태 파일(<code>docs/data/pipeline_state.json</code>)에
   <tr><td><strong>미처리분 보존</strong></td><td>실패·상한 초과로 이월된 CVE의 최소 커밋 시각 <em>앞</em>까지만 워터마크 전진 → 다음 실행에서 재수집</td></tr>
   <tr><td><strong>중복 제거</strong></td><td><code>content_hash</code> 비교로 이미 처리한 CVE는 재처리 안 함 (알림 중복 없음)</td></tr>
   <tr><td><strong>경계 겹침</strong></td><td>워터마크에서 5분 겹쳐 조회해 경계 커밋 누락 방지 (중복은 해시가 흡수)</td></tr>
+  <tr><td><strong>벌크 커밋 대응</strong></td><td>커밋당 변경 파일 목록을 페이지네이션으로 전부 조회 → 수백~수천 파일 일괄 커밋에서도 CVE 누락 없음</td></tr>
+  <tr><td><strong>캐치업 상한</strong></td><td>초장기 공백(수일+)은 실행당 12시간 창으로 나눠 따라잡음 → 조회량 폭증으로 인한 타임아웃 반복 방지</td></tr>
   <tr><td><strong>타임아웃 안전</strong></td><td>워터마크는 실행 <em>끝</em>에 저장 → 30분 타임아웃으로 강제 종료돼도 다음 실행이 그대로 재수집</td></tr>
 </table>
 
 <div class="callout reliab">
-  <strong>결과:</strong> 실행 주기가 1시간이든 3일이든, 처리에 실패하든 타임아웃으로 죽든 — 공개된 CVE는 언젠가 반드시 처리됩니다. 스케줄 신뢰성에 무관한 <strong>누락 0</strong> 보장.
+  <strong>결과:</strong> 실행 주기가 1시간이든 3일이든, 처리에 실패하든 타임아웃으로 죽든 — 공개된 CVE는 언젠가 반드시 처리됩니다. 스케줄 신뢰성에 무관한 <strong>누락 없는 수집</strong> 보장.
 </div>
 
 <hr>
@@ -696,7 +698,7 @@ git에 커밋되는 상태 파일(<code>docs/data/pipeline_state.json</code>)에
 </table>
 
 <h4>AI 룰 생성 게이트 (Exploitation Evidence Gate)</h4>
-<p>모든 고위험 CVE에 AI 룰을 생성하면 무료 토큰(TPD)이 빠르게 소진됩니다. <strong>실제 악용 근거가 있는 CVE에만</strong> AI 룰을 생성하고, 나머지는 공개 룰 검색만 수행합니다.</p>
+<p>모든 고위험 CVE에 AI 룰을 생성하면 토큰(TPD)이 빠르게 소진됩니다. <strong>실제 악용 근거가 있는 CVE에만</strong> AI 룰을 생성하고, 나머지는 공개 룰 검색만 수행합니다.</p>
 <table>
   <tr><th>근거</th><th>판단</th><th>설명</th></tr>
   <tr><td><strong>KEV 등재</strong></td><td>AI 룰 생성</td><td>CISA / VulnCheck KEV — 실제 악용 확인</td></tr>
@@ -733,31 +735,31 @@ git에 커밋되는 상태 파일(<code>docs/data/pipeline_state.json</code>)에
 <!-- Free-Tier Engineering -->
 <h2 id="free-tier">Free-Tier Engineering</h2>
 
-<p>"100% 무료 운영"은 단순한 비용 절감이 아니라 이 프로젝트의 설계 제약입니다. 무료 티어의 촘촘한 한도 안에서 파이프라인이
+<p>"Free Tier 기반 운영"은 단순한 비용 절감이 아니라 이 프로젝트의 설계 제약입니다. Free Tier 환경의 촘촘한 한도 안에서 파이프라인이
 <strong>중단 없이 완주</strong>하도록 여러 전략을 조합했습니다.</p>
 
 <h4>이중 AI 서비스로 사용량 분산</h4>
-<p>번역은 Google Gemma 4, 심층 분석·룰 생성은 Groq Qwen3.6로 분리합니다. 한쪽으로 몰면 일간 토큰이 더 빨리 소진되므로, 서로 다른 무료 티어를 병행해 처리량을 늘립니다.</p>
+<p>번역은 Google Gemma 4, 심층 분석·룰 생성은 Groq Qwen3.6로 분리합니다. 한쪽으로 몰면 일간 토큰이 더 빨리 소진되므로, 서로 다른 Free Tier 환경을 병행해 처리량을 늘립니다.</p>
 <table>
   <tr><th>모델</th><th>서비스</th><th>역할</th><th>일간 한도</th></tr>
   <tr><td><code>gemma-4-31b-it</code></td><td>Google AI Studio</td><td>번역·요약</td><td>RPD 1,500 (요청 수)</td></tr>
   <tr><td><code>qwen/qwen3.6-27b</code></td><td>Groq</td><td>분석·룰 생성</td><td>TPD 200,000 (토큰)</td></tr>
 </table>
 
-<h4>Groq 무료 티어(TPM 8,000) 대응</h4>
-<p>Groq는 요청마다 <code>(입력 + max_completion_tokens)</code>를 분당 토큰(TPM)에 <strong>선예약</strong>합니다. 사고형(thinking) 추론은 단일 요청이 8K TPM을 넘겨 무조건 실패하므로, 무료 티어에서는 <code>reasoning_effort: none</code> + 작은 출력 상한(분석 3,072 / 룰 2,048)으로 구성해 429 폭주를 구조적으로 차단합니다.</p>
+<h4>Groq Free Tier 환경(TPM 8,000) 대응</h4>
+<p>Groq는 요청마다 <code>(입력 + max_completion_tokens)</code>를 분당 토큰(TPM)에 <strong>선예약</strong>합니다. 사고형(thinking) 추론은 단일 요청이 8K TPM을 넘겨 무조건 실패하므로, Free Tier 환경에서는 <code>reasoning_effort: none</code> + 작은 출력 상한(분석 3,072 / 룰 2,048)으로 구성해 429 폭주를 구조적으로 차단합니다.</p>
 
 <h4>선제적 속도·토큰 관리 (Rate Limiter v3.3)</h4>
 <ul>
   <li><strong>TPM 선제 가드</strong>: 이번 분 누적 토큰 + 예약분이 8K에 근접하면 분 리셋까지 대기 → "Request too large" 사전 차단</li>
   <li><strong>TPD 추적</strong>: Groq 일간 200K 토큰을 실시간 누적, 소진 시 남은 AI 호출을 SKIP하고 다음 실행에서 재처리</li>
   <li><strong>RPD 추적</strong>: Gemma는 TPM이 무제한이라 일간 <em>요청 수</em>(1,500)가 실질 상한 → 요청 단위로 누적·경고</li>
-  <li><strong>단일 워커</strong>: 병렬 처리는 8K TPM을 동시에 소진해 오히려 429를 유발 → 무료 티어에선 워커 1로 고정</li>
+  <li><strong>단일 워커</strong>: 병렬 처리는 8K TPM을 동시에 소진해 오히려 429를 유발 → Free Tier 환경에선 워커 1로 고정</li>
 </ul>
 
 <h4>부하·노이즈 최소화</h4>
 <ul>
-  <li><strong>번역은 전체, 재시도는 고위험만</strong>: 모든 신규 CVE를 번역해 대시보드를 한글화하되, 무료 Gemma의 일시 오류(503 high demand / 500)에 대한 백오프 재시도는 고위험/에스컬레이션에만 적용 → 중요한 CVE의 한글화는 보장하고 저위험은 즉시 영문 폴백해 부하를 억제</li>
+  <li><strong>번역은 전체, 재시도는 고위험만</strong>: 모든 신규 CVE를 번역해 대시보드를 한글화하되, Free Tier 환경 Gemma의 일시 오류(503 high demand / 500)에 대한 백오프 재시도는 고위험/에스컬레이션에만 적용 → 중요한 CVE의 한글화는 보장하고 저위험은 즉시 영문 폴백해 부하를 억제</li>
   <li><strong>알림·룰은 고위험만</strong>: 무거운 Groq 룰 생성과 Slack/Issue는 고위험에만 → 희소 자원인 Groq TPD 보존</li>
   <li><strong>DB 용량 최소화</strong>: 상세 리포트(AI 분석 전문·룰 원문)는 GitHub Issue에 저장, DB에는 요약+링크만 → Supabase free tier(500MB) 방어</li>
 </ul>
@@ -767,7 +769,7 @@ git에 커밋되는 상태 파일(<code>docs/data/pipeline_state.json</code>)에
 <!-- Dashboard -->
 <h2 id="dashboard">Dashboard</h2>
 
-<p>GitHub Pages 기반 정적 대시보드로, 브라우저가 Supabase를 직접 호출하지 않고 <code>docs/data/*.json</code>만 로드합니다(free tier 안전).</p>
+<p>GitHub Pages 기반의 정적 대시보드로, 브라우저가 Supabase를 직접 호출하지 않고 <code>docs/data/*.json</code>만 로드합니다(free tier 안전).</p>
 <ul>
   <li>심각도 분포 · 벤더 TOP 10 · 일별 추이 · KEV 카운트</li>
   <li><strong>월별 필터 + 고위험 CSV 다운로드</strong> — 월 단위 Critical/High 목록을 CSV로 내보내기</li>
@@ -862,7 +864,7 @@ pip install -r requirements.txt</code></pre>
   <tr><th>설정</th><th>현재 값</th><th>설명</th></tr>
   <tr><td><code>MODEL_PHASE_0</code></td><td><code>gemma-4-31b-it</code></td><td>번역/요약 (Gemini API)</td></tr>
   <tr><td><code>MODEL_PHASE_1</code></td><td><code>qwen/qwen3.6-27b</code></td><td>분석·룰 생성 (Groq)</td></tr>
-  <tr><td><code>max_workers</code></td><td>1</td><td>무료 8K TPM 보호 (유료 시 3~5 복원)</td></tr>
+  <tr><td><code>max_workers</code></td><td>1</td><td>Free Tier 환경 8K TPM 보호 (유료 시 3~5 복원)</td></tr>
   <tr><td><code>max_cves_per_run</code></td><td>50</td><td>실행당 처리 상한 (초과분은 워터마크 뒤 이월)</td></tr>
   <tr><td><code>max_rule_recheck</code></td><td>10</td><td>공식 룰 재확인 배치 크기</td></tr>
   <tr><td><code>rule_check_interval_days</code></td><td>7</td><td>공식 룰 재확인 주기</td></tr>
@@ -876,7 +878,7 @@ pip install -r requirements.txt</code></pre>
   <tr><td><code>require_exploitation_evidence</code></td><td><code>True</code></td><td>Kill switch — <code>False</code> 시 모든 CVE에 AI 룰 생성</td></tr>
 </table>
 
-<h4>Groq API 파라미터 (무료 티어 · non-thinking)</h4>
+<h4>Groq API 파라미터 (Free Tier 환경 · non-thinking)</h4>
 <table>
   <tr><th>용도</th><th>temp</th><th>top_p</th><th>max_completion</th><th>reasoning_effort</th></tr>
   <tr><td><strong>AI 분석</strong></td><td>0.3</td><td>0.9</td><td>3,072</td><td><code>none</code></td></tr>
@@ -995,7 +997,7 @@ Apache Struts OGNL 인젝션을 통한 원격 코드 실행
    │     ├─ AV 파싱 → 엔진 선택 (Sigma 필수 · AV:N→네트워크 · AV:L→YARA)
    │     └─ 파서/컴파일 자기검증 → trust 등급 부여
    ├─ [T2 신규 저위험] 번역 + DB 추적 (알림·룰 없음)
-   └─ [T3 기존·무변화] content_hash만 갱신
+   └─ [T3 기존·무변화] content_hash·위험 점수(CVSS/EPSS/KEV)만 갱신
       (Groq TPD 소진 시 AI 단계 SKIP → 다음 실행 재처리)
 
 6. 워터마크 전진
@@ -1028,9 +1030,8 @@ Apache Struts OGNL 인젝션을 통한 원격 코드 실행
 <!-- License & Compliance -->
 <h2 id="license">License &amp; Compliance</h2>
 
-<p>개인이 개발했지만 회사 자산 점검에 활용하고 결과를 공개 대시보드/Issue에 재게시하므로, 데이터 소스별 라이선스와
-무료 AI 서비스에 대한 데이터 취급(내부 정보 유출 방지)을 설계 단계부터 준수합니다. Argus가 처리하는 데이터는
-모두 공개된 CVE 정보이며 개인정보(PII)는 다루지 않습니다.</p>
+<p>개인이 개발했지만 회사 자산 점검에 활용하고 결과를 공개 대시보드/Issue에 재게시하므로, 데이터 소스 라이선스와
+Free Tier AI 서비스 데이터 취급(내부 정보 보호)을 설계 단계부터 준수합니다.</p>
 
 <h3>준수 원칙</h3>
 <div class="callout">
@@ -1038,8 +1039,8 @@ Apache Struts OGNL 인젝션을 통한 원격 코드 실행
   (예: SigmaHQ DRL 1.1은 author 표기 의무 — 룰 YAML의 <code>author</code> 필드 보존으로 충족).<br><br>
   <strong>② PoC 원문·기관 공지 원문은 재게시 금지, 링크만.</strong> Exploit-DB PoC 코드와 KrCERT/KISA 공지 원문은
   대시보드/Issue에 재게시하지 않고 링크·요약만 제공합니다. AI 프롬프트의 내부 컨텍스트로만 활용합니다.<br><br>
-  <strong>③ 무료 AI에 회사 내부 자산 정보 미전송.</strong> 무료 티어(Gemma/Groq)에는 <strong>공개된 CVE 데이터만</strong> 전송합니다.
-  무료 티어 입출력은 서비스 제공자의 제품 개선에 사용될 수 있으므로, 회사 내부 자산·인프라 정보는 프롬프트에 절대 넣지 않습니다.
+  <strong>③ Free Tier AI 서비스에 회사 내부 자산 정보 미전송.</strong> Free Tier 환경(Gemma/Groq)에는 <strong>공개된 CVE 데이터만</strong> 전송합니다.
+  Free Tier 환경 입출력은 서비스 제공자의 제품 개선에 사용될 수 있으므로, 회사 내부 자산·인프라 정보는 프롬프트에 절대 넣지 않습니다.
 </div>
 
 <h3>데이터 소스 라이선스</h3>
@@ -1080,7 +1081,7 @@ SOFTWARE.
 </div>
 
 <div class="footer">
-  Argus — AI Threat Intelligence Platform · Built with AI Vibe Coding · 100% Free-Tier
+  Argus — AI Threat Intelligence Platform · 100% Free-Tier
 </div>
 
 </body>
