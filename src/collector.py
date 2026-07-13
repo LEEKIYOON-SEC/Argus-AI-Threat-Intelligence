@@ -229,18 +229,26 @@ class Collector:
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    def fetch_cves_since(self, since_dt: datetime.datetime, db=None, max_commit_pages: int = 300) -> List[dict]:
-        """워터마크(since_dt) 이후 커밋에서 변경된 CVE를 빠짐없이 수집.
+    def fetch_cves_since(self, since_dt: datetime.datetime, db=None, max_commit_pages: int = 300,
+                         until_dt: Optional[datetime.datetime] = None) -> List[dict]:
+        """워터마크(since_dt) 이후(선택적으로 until_dt까지) 커밋에서 변경된 CVE를 빠짐없이 수집.
 
         고정 시간창(누락 위험) 대신 '마지막 처리 지점' 이후 전부를 조회한다.
         스케줄이 아무리 불규칙해도(수시간·수일 지연) 빈틈이 생기지 않는다.
+        until_dt는 초장기 공백 캐치업 시 한 실행의 조회량을 상한하기 위한 것 —
+        창 밖(이후) 커밋은 다음 실행이 전진된 워터마크에서 이어서 수집한다.
 
         Returns:
             List[dict]: [{"cve_id", "commit_ts"(datetime), "is_new"(bool)}], commit_ts 오름차순.
             is_new=False → DB에 같은 content_hash로 이미 존재(재처리 불필요, 워터마크 전진엔 포함).
         """
         since_str = since_dt.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        logger.info(f"CVE 수집(워터마크 기반): {since_str} 이후")
+        params_base = {"since": since_str, "per_page": 100}
+        if until_dt is not None:
+            params_base["until"] = until_dt.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
+            logger.info(f"CVE 수집(워터마크 기반): {since_str} ~ {params_base['until']}")
+        else:
+            logger.info(f"CVE 수집(워터마크 기반): {since_str} 이후")
 
         # 1) 커밋 목록 전체 페이지네이션 (오래된 것까지 포함) — 목록은 파일 미포함이라 저비용
         commits = []
@@ -250,7 +258,7 @@ class Collector:
             resp = requests.get(
                 "https://api.github.com/repos/CVEProject/cvelistV5/commits",
                 headers=self.headers,
-                params={"since": since_str, "per_page": 100, "page": page},
+                params={**params_base, "page": page},
                 timeout=15,
             )
             resp.raise_for_status()
@@ -273,24 +281,35 @@ class Collector:
         commits.sort(key=self._commit_ts)
 
         # 3) 커밋별 파일 → CVE, 각 CVE의 최신 커밋 시각 매핑
+        # GitHub 커밋 상세 API는 files를 페이지당 최대 300개로 자르므로, 벌크 커밋
+        # (수백~수천 파일)에서 301번째 이후 CVE가 조용히 누락되지 않게 페이지네이션한다.
         cve_ts: Dict[str, datetime.datetime] = {}
         for commit in commits:
-            rate_limit_manager.check_and_wait("github")
-            cr = requests.get(commit["url"], headers=self.headers, timeout=10)
-            cr.raise_for_status()
-            rate_limit_manager.record_call("github")
-            detail = cr.json()
             try:
                 ts = datetime.datetime.fromisoformat(self._commit_ts(commit).replace("Z", "+00:00"))
             except (ValueError, AttributeError):
                 ts = datetime.datetime.now(pytz.UTC)
-            for file_info in detail.get("files", []):
-                cid = self._extract_cve_id(file_info.get("filename", ""))
-                if not cid:
-                    continue
-                prev = cve_ts.get(cid)
-                if prev is None or ts > prev:
-                    cve_ts[cid] = ts
+            file_page = 1
+            while True:
+                rate_limit_manager.check_and_wait("github")
+                cr = requests.get(
+                    commit["url"], headers=self.headers,
+                    params={"page": file_page}, timeout=10,
+                )
+                cr.raise_for_status()
+                rate_limit_manager.record_call("github")
+                files = cr.json().get("files", []) or []
+                for file_info in files:
+                    cid = self._extract_cve_id(file_info.get("filename", ""))
+                    if not cid:
+                        continue
+                    prev = cve_ts.get(cid)
+                    if prev is None or ts > prev:
+                        cve_ts[cid] = ts
+                # 300개 미만이면 마지막 페이지 (300 = 커밋 상세 files 페이지 상한)
+                if len(files) < 300:
+                    break
+                file_page += 1
 
         if not cve_ts:
             return []

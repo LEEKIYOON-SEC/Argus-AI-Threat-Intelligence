@@ -54,8 +54,6 @@ class ArgusConfig:
         # 무료 티어(8K TPM): 병렬 워커가 분당 토큰을 동시 소진해 429 폭주 → 단일 워커.
         # 유료(Developer) 전환 시 3~5로 복원.
         "max_workers": 1,
-        "batch_size": 10,  # 배치 처리 크기
-        "cve_fetch_hours": 2,  # 최근 N시간 내 CVE 수집
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
         # 실행당 처리 상한. 대부분 CVE는 저위험 = 번역+DB저장(값싼 경로)이고,
         # 무거운 Groq 룰 생성은 고위험만(is_high_risk 게이트) 타므로 상한을 높여도 안전하다.

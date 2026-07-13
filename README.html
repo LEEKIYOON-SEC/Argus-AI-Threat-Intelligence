@@ -89,6 +89,34 @@
   .badge-red { background: #fee2e2; color: #991b1b; }
   .badge-gray { background: #f1f5f9; color: #475569; }
 
+  /* Highlight strip */
+  .highlights {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin: 8px 0 40px;
+  }
+  .highlight {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 14px;
+    text-align: center;
+    background: linear-gradient(180deg, #ffffff, #f8fafc);
+  }
+  .highlight .h-num {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.3px;
+  }
+  .highlight .h-label {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
   /* TOC */
   .toc {
     background: var(--accent-light);
@@ -231,49 +259,6 @@
     height: 24px;
     background: #cbd5e1;
   }
-  .arch-connector-h {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    position: relative;
-    height: 24px;
-    margin: 0 60px;
-  }
-  .arch-connector-h::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 2px;
-    height: 12px;
-    background: #cbd5e1;
-  }
-  .arch-connector-h::after {
-    content: '';
-    position: absolute;
-    top: 12px;
-    left: 16.66%;
-    right: 16.66%;
-    height: 2px;
-    background: #cbd5e1;
-  }
-  .arch-branches {
-    display: flex;
-    justify-content: center;
-    position: relative;
-    height: 14px;
-    margin: 0 60px;
-  }
-  .arch-branches .branch-line {
-    position: absolute;
-    top: 0;
-    width: 2px;
-    height: 14px;
-    background: #cbd5e1;
-  }
-  .arch-branches .branch-line:nth-child(1) { left: 16.66%; }
-  .arch-branches .branch-line:nth-child(2) { left: 50%; }
-  .arch-branches .branch-line:nth-child(3) { left: 83.33%; }
 
   .arch-phases {
     display: grid;
@@ -286,8 +271,6 @@
     border: 1px solid var(--border);
   }
   .arch-phase.p1 { border-color: #93c5fd; }
-  .arch-phase.p2 { border-color: #6ee7b7; }
-  .arch-phase.p3 { border-color: #c4b5fd; }
 
   .arch-phase-header {
     padding: 10px 14px;
@@ -296,8 +279,6 @@
     text-align: center;
   }
   .arch-phase.p1 .arch-phase-header { background: #dbeafe; color: #1e40af; }
-  .arch-phase.p2 .arch-phase-header { background: #dcfce7; color: #166534; }
-  .arch-phase.p3 .arch-phase-header { background: #ede9fe; color: #5b21b6; }
 
   .arch-phase-sub {
     font-size: 11px;
@@ -350,6 +331,24 @@
   }
   blockquote p { margin: 0; }
 
+  /* Callout (compliance / reliability) */
+  .callout {
+    border: 1px solid #fcd34d;
+    background: #fffbeb;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 16px 0 20px;
+    font-size: 13.5px;
+    color: #713f12;
+  }
+  .callout strong { color: #713f12; }
+  .callout.reliab {
+    border-color: #6ee7b7;
+    background: #ecfdf5;
+    color: #065f46;
+  }
+  .callout.reliab strong { color: #065f46; }
+
   /* Slack examples */
   .slack-example {
     background: #1a1d21;
@@ -388,20 +387,6 @@
   .sql-block .val { color: #fbbf24; }
   .sql-block .comment { color: #64748b; font-style: italic; }
 
-  /* Scoring formula */
-  .formula-box {
-    background: linear-gradient(135deg, #f0f9ff, #eff6ff);
-    border: 1px solid #bfdbfe;
-    border-radius: 8px;
-    padding: 18px 20px;
-    margin: 12px 0 20px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12.5px;
-    line-height: 1.7;
-    color: #1e3a5f;
-    white-space: pre-wrap;
-  }
-
   /* Pipeline flow */
   .pipeline {
     background: #f8fafc;
@@ -424,40 +409,6 @@
     margin: 40px 0;
   }
 
-  /* Phase cards */
-  .phase-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin: 16px 0 24px;
-  }
-  .phase-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-  }
-  .phase-card.p1 { border-top: 3px solid #2563eb; }
-  .phase-card.p2 { border-top: 3px solid #059669; }
-  .phase-card.p3 { border-top: 3px solid #7c3aed; }
-  .phase-card .phase-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--heading);
-    margin-bottom: 4px;
-  }
-  .phase-card .phase-desc {
-    font-size: 12px;
-    color: #64748b;
-    line-height: 1.5;
-  }
-  .phase-card .phase-schedule {
-    margin-top: 8px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748b;
-  }
-
   /* License */
   .license {
     background: #f8fafc;
@@ -470,6 +421,15 @@
     margin-top: 12px;
   }
 
+  .footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 12.5px;
+    color: #94a3b8;
+  }
+
   /* Print */
   @media print {
     body { padding: 24px 16px; font-size: 13px; max-width: 100%; }
@@ -477,20 +437,18 @@
     .header h1 { font-size: 26px; }
     h2 { font-size: 18px; margin-top: 28px; }
     h3 { font-size: 15px; }
-    pre, .slack-example, .sql-block, .formula-box, .pipeline {
+    pre, .slack-example, .sql-block, .pipeline, .callout {
       font-size: 11px;
       padding: 12px;
     }
     table { font-size: 12px; }
     th, td { padding: 6px 8px; }
     .toc-grid { grid-template-columns: repeat(4, 1fr); }
-    .phase-grid { gap: 8px; }
     .arch-phases { gap: 8px; }
-    .arch-connector-h { margin: 0 40px; }
-    .arch-branches { margin: 0 40px; }
     .arch-step { padding: 6px 10px; }
     .arch-step-title { font-size: 11px; }
     .arch-step-items li { font-size: 11px; }
+    .highlights { gap: 8px; }
   }
 </style>
 </head>
@@ -498,26 +456,46 @@
 
 <!-- Header -->
 <div class="header">
-  <h1>Argus - AI Threat Intelligence Platform</h1>
-  <div class="subtitle">AI-Driven Vibe Coding으로 구현한 자동화된 보안 위협 탐지 파이프라인</div>
+  <h1>Argus — AI Threat Intelligence Platform</h1>
+  <div class="subtitle">AI를 활용해 개발한, 소규모 보안팀을 위한 End-to-End CVE 대응 파이프라인</div>
   <div class="description">
-    Argus는 AI 바이브 코딩을 활용하여 보안 운영(SecOps)의 핵심 과정을 자동화한 프로젝트입니다.
-    CVE 취약점 모니터링, LLM 기반 위협 분석, 탐지 룰 자동 생성까지 — 기존에 보안 담당자가 NVD, KEV, EPSS, PoC 저장소, 룰셋 등 여러 소스를 개별적으로 확인하며 수동으로 수행하던 위협 식별과 대응 과정을 하나의 파이프라인으로 통합하였습니다.
-    이를 통해 분산된 위협 정보를 단일 대시보드에서 확인하고, 상용 솔루션 없이도 신속한 초기 대응이 가능하도록 설계하였습니다.
-    AI 주도 개발 방식을 적용하여 개발 비용과 위협 대응 시간을 동시에 절감하였습니다.
+    보안 전담 인력이나 상용 Threat Intelligence 솔루션이 없는 소규모 조직에서도, 신규 취약점(CVE) 공개부터
+    <strong>수집 → AI 분석 → 탐지 룰 생성 → 담당자 알림</strong>까지 하나의 파이프라인으로 자동 처리하도록 설계한 프로젝트입니다.
+    NVD, CISA KEV, EPSS, PoC 저장소, 공개 룰셋 등 분산된 데이터를 통합하여 담당자가 여러 사이트를 직접 확인하지 않아도
+    <strong>대시보드 한 곳에서 위험도를 판단하고 초기 대응</strong>할 수 있게 합니다.
+    전체 파이프라인은 Free Tier 환경에서 운영되도록 설계했으며, AI를 활용해 구축과 운영에 필요한 시간을 줄였습니다.
   </div>
   <div class="badges">
     <span class="badge badge-blue">Python</span>
     <span class="badge badge-blue">GitHub Actions</span>
-    <span class="badge badge-green">Groq LLM</span>
-    <span class="badge badge-green">Google Gemini</span>
+    <span class="badge badge-green">Groq · Qwen3.6</span>
+    <span class="badge badge-green">Google Gemma 4</span>
     <span class="badge badge-purple">Supabase</span>
     <span class="badge badge-orange">Slack</span>
     <span class="badge badge-red">Sigma</span>
-    <span class="badge badge-red">Snort</span>
-    <span class="badge badge-red">Suricata</span>
+    <span class="badge badge-red">Snort / Suricata</span>
     <span class="badge badge-red">YARA</span>
     <span class="badge badge-gray">GitHub Pages</span>
+  </div>
+</div>
+
+<!-- Highlight strip -->
+<div class="highlights">
+  <div class="highlight">
+    <div class="h-num">0건</div>
+    <div class="h-label">워터마크 기반 CVE 누락</div>
+  </div>
+  <div class="highlight">
+    <div class="h-num">$0</div>
+    <div class="h-label">전 구간 Free Tier 환경 운영</div>
+  </div>
+  <div class="highlight">
+    <div class="h-num">6종</div>
+    <div class="h-label">탐지 룰 엔진 자동 생성</div>
+  </div>
+  <div class="highlight">
+    <div class="h-num">2×</div>
+    <div class="h-label">Gemma / Groq 사용량 분산</div>
   </div>
 </div>
 
@@ -527,33 +505,42 @@
   <div class="toc-grid">
     <a href="#overview">Overview</a>
     <a href="#architecture">Architecture</a>
+    <a href="#reliability">Zero-Omission 수집</a>
     <a href="#features">Features</a>
+    <a href="#free-tier">Free-Tier Engineering</a>
     <a href="#dashboard">Dashboard</a>
     <a href="#project-structure">Project Structure</a>
     <a href="#setup">Setup</a>
     <a href="#configuration">Configuration</a>
     <a href="#usage">Usage</a>
-    <a href="#slack-alert-examples">Slack Alert Examples</a>
+    <a href="#slack-alert-examples">Slack Alerts</a>
     <a href="#pipeline-details">Pipeline Details</a>
     <a href="#supabase-schema">Supabase Schema</a>
-    <a href="#license">License</a>
+    <a href="#license">License &amp; Compliance</a>
   </div>
 </div>
 
 <!-- Overview -->
 <h2 id="overview">Overview</h2>
 
-<p>Argus는 CVE 취약점을 수집·분석하고 탐지 룰을 자동 생성하는 CVE 전용 위협 인텔리전스 파이프라인입니다. 매 시 정각 GitHub Actions로 실행되며, 결과는 Slack과 GitHub Issue로 알림되고 GitHub Pages 대시보드에 누적됩니다.</p>
+<p>Argus는 CVE 취약점을 수집·분석하고 탐지 룰을 자동 생성하는 <strong>CVE 전용 위협 인텔리전스 파이프라인</strong>입니다.
+GitHub Actions 스케줄러로 주기 실행되며, 결과는 Slack과 GitHub Issue로 알림되고 GitHub Pages 대시보드에 누적됩니다.
+실제 운영 환경에서의 활용을 고려해 <strong>데이터 소스 라이선스와 Free Tier AI 서비스 데이터 취급(내부 정보 보호)</strong>까지 설계 단계부터 반영했습니다.</p>
+
+<h3>왜 만들었나</h3>
+<p>소규모 조직의 보안 담당자는 대개 겸직이고, 상용 TI(Threat Intelligence) 구독이나 SOC 인력이 없습니다.
+그 결과 취약점 공개부터 초기 대응까지의 공백이 가장 큰 위험 요소가 됩니다. Argus는 이 공백을 <strong>"공개 → 자동 분석 → 룰 → 알림"</strong>으로 메워,
+전담 인력 없이도 하루 안에 위험도를 파악하고 탐지 룰을 확보하도록 돕는 것을 목표로 합니다.</p>
 
 <h3>핵심 가치</h3>
 <ul>
-  <li><strong>자동화</strong>: CVE 발표 → 분석 → 탐지 룰 → 보안 담당자 알림까지 사람 개입 없이 동작</li>
-  <li><strong>AI 분석</strong>: LLM 기반 근본 원인 분석, 공격 시나리오 생성, 맞춤형 탐지 룰 자동 생성</li>
-  <li><strong>다중 엔진 룰</strong>: Sigma(필수), Snort/Suricata(AV:N), YARA(AV:L) — CVSS 공격벡터 기반 자동 선택으로 실무 보안 장비에 바로 적용 가능</li>
-  <li><strong>AI 룰 생성 게이트</strong>: KEV 등재, EPSS &ge; 0.2, PoC 존재 등 익스플로잇 근거가 있는 CVE만 AI 룰 생성 → TPD 낭비 방지</li>
-  <li><strong>PoC 소스 확장</strong>: nomi-sec/PoC-in-GitHub + trickest/cve 이중 검색, nuclei-templates로 AI 프롬프트 품질 향상</li>
-  <li><strong>스마트 필터링</strong>: 콘텐츠 해시 기반 벌크 커밋 감지로 메타데이터 패치 무시, 실제 변경된 CVE만 처리</li>
-  <li><strong>Thread-Safe Rate Limiting</strong>: 10개 API 엔드포인트별 속도 제어 + Groq TPD(일간 토큰) 트래킹, 429 자동 대응, TPD 소진 시 조기 종료</li>
+  <li><strong>워터마크 기반 무누락 수집</strong>: "마지막 처리 지점(워터마크)" 이후 전체를 조회하는 방식으로, 스케줄이 수 시간~수일 밀려도 그 사이 CVE를 빠뜨리지 않음</li>
+  <li><strong>End-to-End 자동화</strong>: CVE 공개 → AI 분석 → 탐지 룰 → 담당자 알림까지 사람 개입 없이 동작</li>
+  <li><strong>AI 기반 위협 분석</strong>: LLM 기반 근본 원인 분석, MITRE ATT&amp;CK 공격 시나리오, 영향도 평가, 대응 권고 자동 생성</li>
+  <li><strong>다중 엔진 탐지 룰</strong>: Sigma(필수) · Snort/Suricata(네트워크) · YARA(로컬)를 CVSS 공격 벡터에 맞춰 자동 선택 → 보안 장비에 바로 적용</li>
+  <li><strong>익스플로잇 근거 게이트</strong>: KEV·SSVC Active·PoC·EPSS 등 실제 악용 근거가 있는 CVE에만 AI 룰을 생성해 토큰 절약</li>
+  <li><strong>Free Tier 최적화</strong>: Gemma/Groq 이중 서비스 · 단일 워커 · 분/일 토큰(TPM/TPD/RPD) 선제 관리로 429 없이 안정 실행</li>
+  <li><strong>라이선스 준수</strong>: 공개 룰 재게시 시 출처·author 보존, PoC 원문 미게시(링크만), Free Tier AI 서비스에 내부 자산 정보 미전송</li>
 </ul>
 
 <hr>
@@ -562,166 +549,219 @@
 <h2 id="architecture">Architecture</h2>
 
 <div class="arch">
-  <!-- Scheduler -->
   <div class="arch-scheduler">
-    <div class="arch-scheduler-box">GitHub Actions (Scheduler)</div>
+    <div class="arch-scheduler-box">GitHub Actions (Scheduler · cron)</div>
   </div>
   <div class="arch-connector"><div class="line"></div></div>
 
-  <!-- CVE Pipeline -->
-  <div class="arch-phases" style="grid-template-columns: 1fr; max-width: 320px; margin: 0 auto;">
-
+  <div class="arch-phases" style="grid-template-columns: 1fr; max-width: 340px; margin: 0 auto;">
     <div class="arch-phase p1">
       <div class="arch-phase-header">
-        CVE Scanner
-        <span class="arch-phase-sub">매 시 정각</span>
+        CVE Pipeline
+        <span class="arch-phase-sub">watermark 기반 · 누락 0</span>
       </div>
       <div class="arch-step">
         <div class="arch-step-title">1. 데이터 수집</div>
         <ul class="arch-step-items">
-          <li>CISA KEV</li>
-          <li>CVE Project</li>
-          <li>EPSS / NVD</li>
-          <li>스마트 필터링</li>
+          <li>CISA KEV / VulnCheck KEV</li>
+          <li>CVE Project (워터마크 이후 전체)</li>
+          <li>EPSS · NVD · vulnrichment(SSVC)</li>
+          <li>content_hash 중복 제거</li>
         </ul>
       </div>
       <div class="arch-step">
-        <div class="arch-step-title">2. AI 분석</div>
+        <div class="arch-step-title">2. AI 분석 &amp; 번역</div>
         <ul class="arch-step-items">
-          <li>Groq LLM (high)</li>
-          <li>번역 (Gemini)</li>
-          <li>TPD 소진 시 fallback</li>
+          <li>Groq Qwen3.6 (근본원인·시나리오)</li>
+          <li>Gemma 4 한국어 번역</li>
+          <li>TPD/TPM 소진 시 안전 SKIP</li>
         </ul>
       </div>
       <div class="arch-step">
         <div class="arch-step-title">3. 룰 생성 (AV 기반)</div>
         <ul class="arch-step-items">
           <li>Sigma (필수)</li>
-          <li>AV:N → Snort/Suricata</li>
+          <li>AV:N → Snort / Suricata</li>
           <li>AV:L → YARA</li>
         </ul>
       </div>
       <div class="arch-step">
         <div class="arch-step-title">4. 알림 &amp; 저장</div>
         <ul class="arch-step-items">
-          <li>Slack + 대시보드</li>
-          <li>GitHub Issue</li>
-          <li>Supabase</li>
+          <li>Slack 알림 + 배치 요약</li>
+          <li>GitHub Issue (상세 리포트)</li>
+          <li>Supabase → 대시보드 Export</li>
         </ul>
       </div>
     </div>
-
   </div>
 </div>
 
 <h3>외부 서비스 연동</h3>
 <table>
   <tr><th>서비스</th><th>용도</th><th>인증</th></tr>
-  <tr><td><strong>CISA KEV</strong></td><td>알려진 익스플로잇 취약점 목록</td><td>공개 API</td></tr>
-  <tr><td><strong>CVE Project</strong></td><td>최신 CVE 메타데이터</td><td>GitHub Token</td></tr>
+  <tr><td><strong>CVE Project (cvelistV5)</strong></td><td>최신 CVE 메타데이터 (Commits API)</td><td>GitHub Token</td></tr>
+  <tr><td><strong>CISA KEV</strong></td><td>알려진 악용 취약점 목록</td><td>공개 API</td></tr>
+  <tr><td><strong>CISA vulnrichment</strong></td><td>SSVC 판정 · CVSS/CWE 보강 (ADP)</td><td>공개</td></tr>
   <tr><td><strong>EPSS (FIRST.org)</strong></td><td>익스플로잇 예측 점수</td><td>공개 API</td></tr>
-  <tr><td><strong>NVD</strong></td><td>CVSS, CWE 상세 정보</td><td>API Key (선택)</td></tr>
-  <tr><td><strong>Groq</strong></td><td>LLM 기반 AI 분석/룰 생성</td><td>API Key</td></tr>
-  <tr><td><strong>Google Gemini</strong></td><td>한국어 번역</td><td>API Key</td></tr>
+  <tr><td><strong>NVD</strong></td><td>CVSS · CWE 상세</td><td>API Key (선택)</td></tr>
+  <tr><td><strong>VulnCheck KEV</strong></td><td>확장 KEV 소스</td><td>API Key (선택)</td></tr>
+  <tr><td><strong>Groq (Qwen3.6)</strong></td><td>LLM 심층 분석 · 룰 생성</td><td>API Key</td></tr>
+  <tr><td><strong>Google Gemma 4</strong></td><td>한국어 번역/요약</td><td>API Key</td></tr>
   <tr><td><strong>Supabase</strong></td><td>PostgreSQL 데이터베이스</td><td>URL + Key</td></tr>
-  <tr><td><strong>Slack</strong></td><td>알림 및 리포트 전송</td><td>Webhook URL</td></tr>
-  <tr><td><strong>GitHub API</strong></td><td>Issue 생성, 룰 검색</td><td>Token</td></tr>
-  <tr><td><strong>nomi-sec/PoC-in-GitHub</strong></td><td>PoC 공개 여부 확인 (1차)</td><td>공개</td></tr>
-  <tr><td><strong>trickest/cve</strong></td><td>PoC 공개 여부 확인 (2차 fallback)</td><td>공개</td></tr>
-  <tr><td><strong>nuclei-templates</strong></td><td>CVE 탐지 템플릿 (AI 프롬프트 참고용)</td><td>공개</td></tr>
-  <tr><td><strong>SigmaHQ / ET Open</strong></td><td>공개 탐지 룰 검색</td><td>공개</td></tr>
+  <tr><td><strong>Slack</strong></td><td>알림 및 배치 요약</td><td>Webhook URL</td></tr>
+  <tr><td><strong>nomi-sec · trickest/cve</strong></td><td>PoC 공개 여부 이중 검색</td><td>공개</td></tr>
+  <tr><td><strong>nuclei-templates</strong></td><td>탐지 지표 (AI 프롬프트 참고용)</td><td>공개</td></tr>
+  <tr><td><strong>SigmaHQ · ET Open · Yara-Rules</strong></td><td>공개 탐지 룰 검색</td><td>공개</td></tr>
 </table>
+
+<hr>
+
+<!-- Reliability -->
+<h2 id="reliability">Zero-Omission 수집 (워터마크)</h2>
+
+<p>보안 모니터링에서 가장 치명적인 결함은 <strong>취약점 누락</strong>입니다. GitHub Actions cron은 정시 실행을 보장하지 않아
+평균 수 시간, 때로는 하루 이상 지연됩니다. "최근 N시간" 같은 고정 시간창 방식은 실행 간격이 창보다 길어지는 순간
+그 사이에 공개된 CVE를 <strong>영구히 놓칩니다</strong>.</p>
+
+<p>Argus는 시간창 대신 <strong>워터마크(마지막 처리 지점) 북마크</strong> 방식을 사용합니다. 마지막으로 처리한 커밋 시각을
+git에 커밋되는 상태 파일(<code>docs/data/pipeline_state.json</code>)에 기록하고, 다음 실행은 그 지점 이후 <strong>전부</strong>를 조회합니다.
+스케줄이 아무리 밀려도 빈틈이 생기지 않으며, 데이터베이스를 추가로 쓰지 않습니다(불변 원칙: DB 최소화).</p>
+
+<table>
+  <tr><th>메커니즘</th><th>동작</th></tr>
+  <tr><td><strong>FIFO 처리</strong></td><td>커밋 시각 오름차순으로 처리 → 워터마크가 항상 "처리 완료 지점"만 전진</td></tr>
+  <tr><td><strong>미처리분 보존</strong></td><td>실패·상한 초과로 이월된 CVE의 최소 커밋 시각 <em>앞</em>까지만 워터마크 전진 → 다음 실행에서 재수집</td></tr>
+  <tr><td><strong>중복 제거</strong></td><td><code>content_hash</code> 비교로 이미 처리한 CVE는 재처리 안 함 (알림 중복 없음)</td></tr>
+  <tr><td><strong>경계 겹침</strong></td><td>워터마크에서 5분 겹쳐 조회해 경계 커밋 누락 방지 (중복은 해시가 흡수)</td></tr>
+  <tr><td><strong>벌크 커밋 대응</strong></td><td>커밋당 변경 파일 목록을 페이지네이션으로 전부 조회 → 수백~수천 파일 일괄 커밋에서도 CVE 누락 없음</td></tr>
+  <tr><td><strong>캐치업 상한</strong></td><td>초장기 공백(수일+)은 실행당 12시간 창으로 나눠 따라잡음 → 조회량 폭증으로 인한 타임아웃 반복 방지</td></tr>
+  <tr><td><strong>타임아웃 안전</strong></td><td>워터마크는 실행 <em>끝</em>에 저장 → 30분 타임아웃으로 강제 종료돼도 다음 실행이 그대로 재수집</td></tr>
+</table>
+
+<div class="callout reliab">
+  <strong>결과:</strong> 실행 주기가 1시간이든 3일이든, 처리에 실패하든 타임아웃으로 죽든 — 공개된 CVE는 언젠가 반드시 처리됩니다. 스케줄 신뢰성에 무관한 <strong>누락 없는 수집</strong> 보장.
+</div>
 
 <hr>
 
 <!-- Features -->
 <h2 id="features">Features</h2>
 
-<h3>CVE Scanner</h3>
-
 <h4>데이터 수집</h4>
 <ul>
-  <li>CISA KEV 실시간 추적</li>
-  <li>최근 2시간 내 발표된 CVE 자동 수집 (스마트 필터링 적용)</li>
-  <li>콘텐츠 해시 기반 벌크 커밋 감지 → 메타데이터 패치 무시</li>
-  <li>EPSS 점수 배치 조회</li>
-  <li>NVD CVSS/CWE 보강 (선택)</li>
-  <li>PoC(Proof-of-Concept) 공개 여부 감지 (nomi-sec → trickest/cve 이중 검색)</li>
-  <li>VulnCheck KEV 추가 소스 (선택)</li>
+  <li>워터마크 이후 모든 커밋을 페이지네이션 조회 → CVE별 최신 커밋 시각 매핑</li>
+  <li>CISA KEV · VulnCheck KEV 실시간 추적</li>
+  <li>EPSS 점수 배치 조회, NVD CVSS/CWE 보강(선택)</li>
+  <li>CISA vulnrichment(ADP)에서 SSVC 판정(Exploitation/Automatable) 추출 — CC0, P5 최우선 소스</li>
+  <li>PoC 공개 여부 이중 검색: nomi-sec/PoC-in-GitHub → trickest/cve fallback</li>
+  <li>ExploitDB · Metasploit 모듈 존재 신호 수집 (무기화 판단)</li>
   <li>GitHub Advisory DB 패키지 정보 조회</li>
 </ul>
 
-<h4>AI 분석 (Groq LLM)</h4>
+<h4>AI 분석 (Groq · Qwen3.6)</h4>
 <ul>
   <li>취약점 근본 원인 분석</li>
   <li>MITRE ATT&amp;CK 기반 공격 시나리오 생성</li>
-  <li>비즈니스 영향도 평가</li>
-  <li>대응 방안 권고</li>
-  <li>탐지 룰 생성 가능성 판단 (Observable Gate)</li>
+  <li>비즈니스 영향도 평가 및 대응 방안 권고</li>
+  <li>탐지 룰 생성 가능성 판단(Observable Gate) 및 자기검증 패스</li>
 </ul>
 
-<h4>탐지 룰 자동 생성</h4>
+<h4>탐지 룰 자동 생성 (3단계 파이프라인)</h4>
+<p>불변 원칙: <strong>① 공개 룰 존재 확인 → ② 없으면 AI가 수집 데이터 기반 고정확도 룰 생성 → ③ 생성 불가 시 불가 사유(<code>skip_reasons</code>) 명시</strong>.</p>
 <table>
-  <tr><th>엔진</th><th>공개 룰 소스</th><th>AI 생성</th><th>비고</th></tr>
-  <tr><td><strong>Sigma</strong></td><td>SigmaHQ</td><td>O (필수)</td><td>SKIP 시 강제 재시도</td></tr>
-  <tr><td><strong>Snort 2.9</strong></td><td>ET Open, Community</td><td>O (AV:N 우선)</td><td>네트워크 공격벡터 시 우선 생성</td></tr>
-  <tr><td><strong>Snort 3</strong></td><td>Community</td><td>O (AV:N 우선)</td><td></td></tr>
-  <tr><td><strong>Suricata 5</strong></td><td>ET Open</td><td>O (AV:N 우선)</td><td></td></tr>
-  <tr><td><strong>Suricata 7</strong></td><td>ET Open</td><td>O (AV:N 우선)</td><td></td></tr>
-  <tr><td><strong>YARA</strong></td><td>Yara-Rules</td><td>O (AV:L 우선)</td><td>로컬 공격벡터 시 우선 생성</td></tr>
+  <tr><th>엔진</th><th>공개 룰 소스</th><th>검증 방식</th><th>AI 생성</th></tr>
+  <tr><td><strong>Sigma</strong></td><td>SigmaHQ (DRL 1.1)</td><td>pySigma 실 파이프라인 변환 + level 검사</td><td>필수 (SKIP 시 1회 강제 재시도)</td></tr>
+  <tr><td><strong>Snort 2 / 3</strong></td><td>ET Open · Community</td><td>suricataparser 파싱 검증</td><td>AV:N/A 우선</td></tr>
+  <tr><td><strong>Suricata 5 / 7</strong></td><td>ET Open</td><td>suricataparser 파싱 검증</td><td>AV:N/A 우선</td></tr>
+  <tr><td><strong>YARA</strong></td><td>Yara-Rules (GPL-2.0)</td><td>yara-python 실제 컴파일 검증</td><td>AV:L/P 우선</td></tr>
 </table>
-<ul>
-  <li>공개 룰 우선 사용, 없을 경우 AI가 생성 (공개 룰은 공격벡터 무관하게 항상 적용)</li>
-  <li>AI 생성 룰은 정규식 기반 구문 검증 + 환각 방지 가드 적용</li>
-  <li>공식 룰 발견 시 기존 AI 룰을 대체하고 Slack으로 재알림</li>
-  <li><strong>Sigma는 필수 생성</strong>: AI가 SKIP 반환 시 관대한 프롬프트로 1회 강제 재시도</li>
-  <li><strong>nuclei-templates 연동</strong>: projectdiscovery/nuclei-templates의 CVE 탐지 템플릿을 AI 룰 생성 프롬프트에 참고 데이터로 포함 → 구체적 지표 추출 품질 향상</li>
-</ul>
 
-<h4>CVSS 공격벡터 기반 AI 룰 선택</h4>
-<p>CVSS 벡터의 Attack Vector(AV) 값을 파싱하여 적합한 룰 타입을 자동 결정합니다:</p>
+<h4>룰 신뢰 등급 (Trust Tier)</h4>
 <table>
-  <tr><th>공격벡터</th><th>Sigma</th><th>Snort/Suricata (AI)</th><th>YARA (AI)</th></tr>
-  <tr><td><code>AV:N</code> 네트워크</td><td>필수 생성</td><td>✅ 우선 생성</td><td>공개 룰만 (AI 생성 ✕)</td></tr>
-  <tr><td><code>AV:A</code> 인접</td><td>필수 생성</td><td>✅ 우선 생성</td><td>공개 룰만 (AI 생성 ✕)</td></tr>
-  <tr><td><code>AV:L</code> 로컬</td><td>필수 생성</td><td>공개 룰만 (AI 생성 ✕)</td><td>✅ 우선 생성</td></tr>
-  <tr><td><code>AV:P</code> 물리적</td><td>필수 생성</td><td>공개 룰만 (AI 생성 ✕)</td><td>✅ 우선 생성</td></tr>
-  <tr><td>UNKNOWN</td><td>필수 생성</td><td>✅ 생성</td><td>✅ 생성</td></tr>
+  <tr><th>등급</th><th>의미</th></tr>
+  <tr><td><strong>🟢 official-verified</strong></td><td>공개 저장소의 검증된 공식 룰 (출처·author·라이선스 고지 보존)</td></tr>
+  <tr><td><strong>🔷 ai-validated</strong></td><td>AI 생성 + 파서/컴파일 자기검증 통과</td></tr>
+  <tr><td><strong>🔶 ai-draft</strong></td><td>AI 생성 · 사람 검토 필요</td></tr>
+</table>
+<blockquote><p>공식 룰이 나중에 발견되면 기존 AI 룰을 대체하고 Slack으로 재알림합니다 (성공 7일 / 실패 1일 쿨다운).</p></blockquote>
+
+<h4>CVSS 공격 벡터 기반 룰 선택</h4>
+<p>CVSS 벡터의 Attack Vector(AV)를 파싱해 AI 룰 타입을 자동 결정합니다. 공개 룰은 공격 벡터와 무관하게 항상 적용합니다.</p>
+<table>
+  <tr><th>공격 벡터</th><th>Sigma</th><th>Snort/Suricata (AI)</th><th>YARA (AI)</th></tr>
+  <tr><td><code>AV:N</code> 네트워크</td><td>필수</td><td>✅ 우선 생성</td><td>공개 룰만</td></tr>
+  <tr><td><code>AV:A</code> 인접</td><td>필수</td><td>✅ 우선 생성</td><td>공개 룰만</td></tr>
+  <tr><td><code>AV:L</code> 로컬</td><td>필수</td><td>공개 룰만</td><td>✅ 우선 생성</td></tr>
+  <tr><td><code>AV:P</code> 물리</td><td>필수</td><td>공개 룰만</td><td>✅ 우선 생성</td></tr>
+  <tr><td>UNKNOWN</td><td>필수</td><td>✅ 생성</td><td>✅ 생성</td></tr>
 </table>
 
 <h4>AI 룰 생성 게이트 (Exploitation Evidence Gate)</h4>
-<p>모든 고위험 CVE에 AI 룰을 생성하면 TPD(일간 토큰)를 낭비합니다. 실제 익스플로잇 근거가 있는 CVE만 AI 룰을 생성하고, 나머지는 공개 룰 검색만 수행합니다:</p>
+<p>모든 고위험 CVE에 AI 룰을 생성하면 토큰(TPD)이 빠르게 소진됩니다. <strong>실제 악용 근거가 있는 CVE에만</strong> AI 룰을 생성하고, 나머지는 공개 룰 검색만 수행합니다.</p>
 <table>
-  <tr><th>조건</th><th>판단</th><th>설명</th></tr>
-  <tr><td><strong>KEV 등재</strong></td><td>AI 룰 생성</td><td>CISA 또는 VulnCheck KEV에 등록된 CVE — 실제 악용 확인</td></tr>
-  <tr><td><strong>EPSS &ge; 0.2</strong></td><td>AI 룰 생성</td><td>익스플로잇 확률 20% 이상 — 높은 악용 가능성</td></tr>
-  <tr><td><strong>PoC 존재</strong></td><td>AI 룰 생성</td><td>nomi-sec 또는 trickest/cve에서 공개 PoC 확인</td></tr>
-  <tr><td><strong>위 모두 해당 없음</strong></td><td>공개 룰만 검색</td><td>SigmaHQ, ET Open, Yara-Rules 공개 저장소만 검색 (AI 호출 0건)</td></tr>
-</table>
-<blockquote><p><code>config.py</code>의 <code>RULE_GENERATION.require_exploitation_evidence</code>를 <code>False</code>로 설정하면 기존 동작(모든 CVE에 AI 룰 생성)으로 복원됩니다.</p></blockquote>
-
-<h4>PoC 소스 (이중 검색)</h4>
-<table>
-  <tr><th>소스</th><th>검색 방법</th><th>비고</th></tr>
-  <tr><td><strong>nomi-sec/PoC-in-GitHub</strong></td><td>연도별 JSON 파일 직접 조회</td><td>1차 검색 (GitHub PoC 저장소 수집)</td></tr>
-  <tr><td><strong>trickest/cve</strong></td><td>연도별 마크다운 파일에서 URL 추출</td><td>2차 fallback (nomi-sec 미발견 시)</td></tr>
-  <tr><td><strong>nuclei-templates</strong></td><td>tarball 다운로드 후 cves/ 디렉토리 검색</td><td>AI 프롬프트 참고용 (PoC 판정 아님)</td></tr>
+  <tr><th>근거</th><th>판단</th><th>설명</th></tr>
+  <tr><td><strong>KEV 등재</strong></td><td>AI 룰 생성</td><td>CISA / VulnCheck KEV — 실제 악용 확인</td></tr>
+  <tr><td><strong>SSVC Exploitation=active</strong></td><td>AI 룰 생성</td><td>CISA 확인 실제 악용 (CC0)</td></tr>
+  <tr><td><strong>Metasploit 모듈</strong></td><td>AI 룰 생성</td><td>무기화됨</td></tr>
+  <tr><td><strong>ExploitDB 공개 익스플로잇</strong></td><td>AI 룰 생성</td><td>공격 코드 공개</td></tr>
+  <tr><td><strong>EPSS ≥ 0.2</strong></td><td>AI 룰 생성</td><td>익스플로잇 확률 20%+</td></tr>
+  <tr><td><strong>PoC 존재</strong></td><td>AI 룰 생성</td><td>nomi-sec / trickest 공개 PoC</td></tr>
+  <tr><td><strong>근거 없음</strong></td><td>공개 룰만 검색</td><td>AI 호출 0건 (TPD 절약)</td></tr>
 </table>
 
-<h4>알림 트리거 조건</h4>
+<h4>알림 트리거 (고위험·에스컬레이션만)</h4>
+<p><code>*/*</code> 전체 감시에서 모든 신규 CVE에 알림을 보내면 노이즈가 큽니다. Slack/Issue 알림은 <strong>고위험 또는 위험도 상승 이벤트</strong>에만 발송하고, 저위험 신규 CVE는 대시보드에 조용히 추적합니다.</p>
 <table>
-  <tr><th>트리거</th><th>조건</th><th>설명</th></tr>
-  <tr><td><code>신규 취약점</code></td><td>최초 발견된 CVE</td><td>DB에 없는 새 CVE</td></tr>
-  <tr><td><code>KEV 등재</code></td><td>CISA KEV 등록</td><td>기존 CVE가 KEV 등재</td></tr>
-  <tr><td><code>EPSS 급증</code></td><td>EPSS &gt;= 10% 이고 증가폭 &gt; 5%p</td><td>익스플로잇 가능성 급증</td></tr>
-  <tr><td><code>CVSS 위험도 상향</code></td><td>CVSS 점수가 7.0 이상으로 상승</td><td>위험도 재평가</td></tr>
+  <tr><th>트리거</th><th>조건</th></tr>
+  <tr><td><code>🆕 신규 고위험</code></td><td>최초 발견 + CVSS ≥ 7.0 또는 KEV/Metasploit/SSVC-active</td></tr>
+  <tr><td><code>🚨 KEV 등재</code></td><td>기존 CVE가 KEV 신규 등재</td></tr>
+  <tr><td><code>🧨 Metasploit 공개</code></td><td>Metasploit 모듈 신규 등장 (무기화)</td></tr>
+  <tr><td><code>🎯 SSVC Active</code></td><td>SSVC Exploitation이 active로 전환 (실제 악용)</td></tr>
+  <tr><td><code>💥 ExploitDB</code></td><td>공개 익스플로잇 신규 등장</td></tr>
+  <tr><td><code>📈 EPSS 급증</code></td><td>EPSS ≥ 10% 이고 증가폭 &gt; 5%p</td></tr>
+  <tr><td><code>🔺 CVSS 상향</code></td><td>CVSS가 7.0 이상으로 재평가</td></tr>
 </table>
 
 <h4>자산 매칭 (assets.json)</h4>
 <ul>
   <li>1차: CVE <code>affected</code> 필드의 구조화된 vendor/product 매칭</li>
   <li>2차: description 텍스트 검색 (fallback)</li>
-  <li>와일드카드(<code>*</code>) 지원으로 전체 모니터링 가능</li>
+  <li>와일드카드(<code>*</code>) 지원 — 전체 CVE 모니터링 가능</li>
+</ul>
+
+<hr>
+
+<!-- Free-Tier Engineering -->
+<h2 id="free-tier">Free-Tier Engineering</h2>
+
+<p>"Free Tier 기반 운영"은 단순한 비용 절감이 아니라 이 프로젝트의 설계 제약입니다. Free Tier 환경의 촘촘한 한도 안에서 파이프라인이
+<strong>중단 없이 완주</strong>하도록 여러 전략을 조합했습니다.</p>
+
+<h4>이중 AI 서비스로 사용량 분산</h4>
+<p>번역은 Google Gemma 4, 심층 분석·룰 생성은 Groq Qwen3.6로 분리합니다. 한쪽으로 몰면 일간 토큰이 더 빨리 소진되므로, 서로 다른 Free Tier 환경을 병행해 처리량을 늘립니다.</p>
+<table>
+  <tr><th>모델</th><th>서비스</th><th>역할</th><th>일간 한도</th></tr>
+  <tr><td><code>gemma-4-31b-it</code></td><td>Google AI Studio</td><td>번역·요약</td><td>RPD 1,500 (요청 수)</td></tr>
+  <tr><td><code>qwen/qwen3.6-27b</code></td><td>Groq</td><td>분석·룰 생성</td><td>TPD 200,000 (토큰)</td></tr>
+</table>
+
+<h4>Groq Free Tier 환경(TPM 8,000) 대응</h4>
+<p>Groq는 요청마다 <code>(입력 + max_completion_tokens)</code>를 분당 토큰(TPM)에 <strong>선예약</strong>합니다. 사고형(thinking) 추론은 단일 요청이 8K TPM을 넘겨 무조건 실패하므로, Free Tier 환경에서는 <code>reasoning_effort: none</code> + 작은 출력 상한(분석 3,072 / 룰 2,048)으로 구성해 429 폭주를 구조적으로 차단합니다.</p>
+
+<h4>선제적 속도·토큰 관리 (Rate Limiter v3.3)</h4>
+<ul>
+  <li><strong>TPM 선제 가드</strong>: 이번 분 누적 토큰 + 예약분이 8K에 근접하면 분 리셋까지 대기 → "Request too large" 사전 차단</li>
+  <li><strong>TPD 추적</strong>: Groq 일간 200K 토큰을 실시간 누적, 소진 시 남은 AI 호출을 SKIP하고 다음 실행에서 재처리</li>
+  <li><strong>RPD 추적</strong>: Gemma는 TPM이 무제한이라 일간 <em>요청 수</em>(1,500)가 실질 상한 → 요청 단위로 누적·경고</li>
+  <li><strong>단일 워커</strong>: 병렬 처리는 8K TPM을 동시에 소진해 오히려 429를 유발 → Free Tier 환경에선 워커 1로 고정</li>
+</ul>
+
+<h4>부하·노이즈 최소화</h4>
+<ul>
+  <li><strong>번역은 전체, 재시도는 고위험만</strong>: 모든 신규 CVE를 번역해 대시보드를 한글화하되, Free Tier 환경 Gemma의 일시 오류(503 high demand / 500)에 대한 백오프 재시도는 고위험/에스컬레이션에만 적용 → 중요한 CVE의 한글화는 보장하고 저위험은 즉시 영문 폴백해 부하를 억제</li>
+  <li><strong>알림·룰은 고위험만</strong>: 무거운 Groq 룰 생성과 Slack/Issue는 고위험에만 → 희소 자원인 Groq TPD 보존</li>
+  <li><strong>DB 용량 최소화</strong>: 상세 리포트(AI 분석 전문·룰 원문)는 GitHub Issue에 저장, DB에는 요약+링크만 → Supabase free tier(500MB) 방어</li>
 </ul>
 
 <hr>
@@ -729,11 +769,14 @@
 <!-- Dashboard -->
 <h2 id="dashboard">Dashboard</h2>
 
-<p>GitHub Pages 기반 정적 대시보드로, Supabase 직접 호출 없이 <code>docs/data/*.json</code> 파일을 로드합니다.</p>
-<table>
-  <tr><th>페이지</th><th>URL</th><th>설명</th></tr>
-  <tr><td><strong>CVE 대시보드</strong> (메인)</td><td><code>/</code> → <code>/cve.html</code></td><td>CVE 심각도 분포, 벤더 TOP 10, 일별 추이</td></tr>
-</table>
+<p>GitHub Pages 기반의 정적 대시보드로, 브라우저가 Supabase를 직접 호출하지 않고 <code>docs/data/*.json</code>만 로드합니다(free tier 안전).</p>
+<ul>
+  <li>심각도 분포 · 벤더 TOP 10 · 일별 추이 · KEV 카운트</li>
+  <li><strong>월별 필터 + 고위험 CSV 다운로드</strong> — 월 단위 Critical/High 목록을 CSV로 내보내기</li>
+  <li><strong>탐지 룰 모달</strong> — 엔진별 룰 렌더링 + 신뢰 등급(trust) 배지 + 원클릭 복사</li>
+  <li><strong>클라이언트 사이드 Export</strong> — CSV / JSON / STIX 2.1</li>
+  <li>최신 CVE 우선 정렬, 상세 리포트(GitHub Issue) 링크</li>
+</ul>
 <blockquote><p><code>index.html</code>은 <code>cve.html</code>로 자동 리디렉트됩니다.</p></blockquote>
 
 <hr>
@@ -743,78 +786,72 @@
 
 <pre><code>Argus-AI-Threat-Intelligence/
 ├── .github/workflows/
-│   └── argus.yml                     # CVE 스캔 워크플로우 (매 시 정각)
+│   └── argus.yml                     # CVE 스캔 워크플로우 (cron + 수동 실행)
 │
 ├── src/
-│   ├── main.py                       # 메인 파이프라인
-│   ├── collector.py                  # CVE 데이터 수집기 (스마트 필터링)
-│   ├── analyzer.py                   # AI 분석 엔진 (Groq LLM)
-│   ├── rule_manager.py               # 탐지 룰 수집/생성 관리
-│   ├── notifier.py                   # Slack 알림 (CVE 알림, 공식 룰 알림)
-│   ├── database.py                   # Supabase 인터페이스
-│   ├── config.py                     # 설정 관리 (ArgusConfig 클래스)
+│   ├── main.py                       # 메인 파이프라인 (워터마크 전진, 3단계 처리)
+│   ├── collector.py                  # CVE 수집기 (워터마크 · content_hash 중복 제거)
+│   ├── enrichment_sources.py         # 공유 위협 신호 (vulnrichment/SSVC, ExploitDB, MSF)
+│   ├── analyzer.py                   # AI 분석 엔진 (Groq Qwen3.6)
+│   ├── rule_manager.py               # 탐지 룰 수집/생성/검증 (Sigma·Snort·YARA)
+│   ├── notifier.py                   # Slack 알림 (개별 · 배치 요약 · 공식 룰)
+│   ├── database.py                   # Supabase 인터페이스 (tenacity 재시도)
+│   ├── config.py                     # 설정 (ArgusConfig)
+│   ├── rate_limiter.py               # Thread-Safe 속도/토큰 관리 (v3.3, TPM/TPD/RPD)
 │   ├── logger.py                     # 로깅
-│   ├── rate_limiter.py               # Thread-Safe API 속도 제한 (v3.0)
-│   └── export_dashboard_data.py      # 대시보드 데이터 Export (CVE 전용)
+│   └── export_dashboard_data.py      # 대시보드 데이터 Export + 보존 정책
 │
 ├── docs/                             # GitHub Pages 대시보드
 │   ├── index.html                    # → cve.html 리디렉트
 │   ├── cve.html                      # CVE 대시보드 (메인)
-│   ├── css/style.css                 # 공통 스타일
-│   ├── js/
-│   │   ├── chart.js                  # 차트 유틸리티
-│   │   └── cve-dashboard.js          # CVE 대시보드 로직
-│   └── data/                         # Export된 JSON 데이터 (자동 생성)
-│       └── cves.json / stats.json
+│   ├── css/ · js/                    # 스타일 · 대시보드 로직
+│   └── data/
+│       ├── cves.json / stats.json    # Export된 대시보드 데이터
+│       └── pipeline_state.json       # 워터마크 상태 (마지막 처리 지점)
 │
 ├── assets.json                       # 모니터링 대상 자산 정의
 ├── requirements.txt                  # Python 의존성
-└── README.md</code></pre>
+└── README.html</code></pre>
 
 <hr>
 
 <!-- Setup -->
 <h2 id="setup">Setup</h2>
 
-<h3>1. 저장소 클론</h3>
+<h3>1. 저장소 클론 &amp; 의존성 설치</h3>
 <pre><code>git clone https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence.git
-cd Argus-AI-Threat-Intelligence</code></pre>
-
-<h3>2. 의존성 설치</h3>
-<pre><code>pip install -r requirements.txt</code></pre>
-
+cd Argus-AI-Threat-Intelligence
+pip install -r requirements.txt</code></pre>
 <table>
   <tr><th>패키지</th><th>용도</th></tr>
   <tr><td><code>requests</code></td><td>HTTP API 호출</td></tr>
-  <tr><td><code>groq</code></td><td>Groq LLM API 클라이언트</td></tr>
-  <tr><td><code>google-genai</code></td><td>Google Gemini 번역</td></tr>
-  <tr><td><code>supabase</code></td><td>Supabase 데이터베이스</td></tr>
-  <tr><td><code>PyYAML</code></td><td>YAML 설정 파싱</td></tr>
+  <tr><td><code>groq</code></td><td>Groq LLM (Qwen3.6) 클라이언트</td></tr>
+  <tr><td><code>google-genai</code></td><td>Google Gemma 4 번역</td></tr>
+  <tr><td><code>supabase</code></td><td>PostgreSQL 데이터베이스</td></tr>
+  <tr><td><code>pysigma</code></td><td>Sigma 룰 실 파이프라인 검증</td></tr>
+  <tr><td><code>suricataparser</code></td><td>Snort/Suricata 룰 파싱 검증</td></tr>
   <tr><td><code>yara-python</code></td><td>YARA 룰 컴파일 검증</td></tr>
+  <tr><td><code>PyYAML</code></td><td>YAML 파싱</td></tr>
   <tr><td><code>tenacity</code></td><td>API 재시도 로직</td></tr>
   <tr><td><code>pytz</code></td><td>시간대 관리</td></tr>
 </table>
 
-<h3>3. GitHub Secrets 설정</h3>
-<p>GitHub 저장소 Settings &gt; Secrets and variables &gt; Actions에 다음 시크릿을 등록합니다.</p>
-
+<h3>2. GitHub Secrets 설정</h3>
+<p>저장소 Settings &gt; Secrets and variables &gt; Actions에 등록합니다.</p>
 <h4>필수</h4>
 <table>
   <tr><th>Secret</th><th>설명</th></tr>
-  <tr><td><code>GH_TOKEN</code></td><td>GitHub Personal Access Token (Issue 생성, 룰 검색)</td></tr>
-  <tr><td><code>SUPABASE_URL</code></td><td>Supabase 프로젝트 URL</td></tr>
-  <tr><td><code>SUPABASE_KEY</code></td><td>Supabase anon/service key</td></tr>
-  <tr><td><code>SLACK_WEBHOOK_URL</code></td><td>Slack Incoming Webhook URL</td></tr>
-  <tr><td><code>GROQ_API_KEY</code></td><td>Groq API 키</td></tr>
-  <tr><td><code>GEMINI_API_KEY</code></td><td>Google Gemini API 키</td></tr>
+  <tr><td><code>GH_TOKEN</code></td><td>GitHub PAT (CVE 조회, Issue 생성, 룰 검색)</td></tr>
+  <tr><td><code>SUPABASE_URL</code> / <code>SUPABASE_KEY</code></td><td>Supabase 프로젝트 접속 정보</td></tr>
+  <tr><td><code>SLACK_WEBHOOK_URL</code></td><td>Slack Incoming Webhook</td></tr>
+  <tr><td><code>GROQ_API_KEY</code></td><td>Groq API 키 (Qwen3.6)</td></tr>
+  <tr><td><code>GEMINI_API_KEY</code></td><td>Google AI Studio API 키 (Gemma 4)</td></tr>
 </table>
-<blockquote><p><code>GITHUB_REPOSITORY</code>: GitHub Actions 환경에서 자동 제공됩니다. 로컬 실행 시 미설정하면 GitHub Issue 생성만 스킵됩니다.</p></blockquote>
-
 <h4>선택</h4>
 <table>
-  <tr><th>Secret</th><th>용도</th><th>미설정 시 동작</th></tr>
-  <tr><td><code>NVD_API_KEY</code></td><td>NVD API (CVSS/CWE 상세 조회)</td><td>NVD 보강 없이 진행</td></tr>
-  <tr><td><code>VULNCHECK_API_KEY</code></td><td>VulnCheck API (확장 KEV 소스)</td><td>VulnCheck 소스 없이 진행</td></tr>
+  <tr><th>Secret</th><th>용도</th><th>미설정 시</th></tr>
+  <tr><td><code>NVD_API_KEY</code></td><td>NVD CVSS/CWE 상세</td><td>NVD 보강 생략</td></tr>
+  <tr><td><code>VULNCHECK_API_KEY</code></td><td>확장 KEV 소스</td><td>VulnCheck 생략</td></tr>
 </table>
 
 <hr>
@@ -822,42 +859,40 @@ cd Argus-AI-Threat-Intelligence</code></pre>
 <!-- Configuration -->
 <h2 id="configuration">Configuration</h2>
 
-<h3>설정 (<code>src/config.py</code> ArgusConfig 클래스)</h3>
+<h3>AI 모델 &amp; 성능 (<code>src/config.py</code>)</h3>
 <table>
   <tr><th>설정</th><th>현재 값</th><th>설명</th></tr>
-  <tr><td><code>MODEL_PHASE_0</code></td><td><code>gemma-3-27b-it</code></td><td>번역/요약용 모델</td></tr>
-  <tr><td><code>MODEL_PHASE_1</code></td><td><code>openai/gpt-oss-120b</code></td><td>심층 분석용 모델</td></tr>
-  <tr><td><code>max_workers</code></td><td>3</td><td>병렬 CVE 처리 워커 수</td></tr>
-  <tr><td><code>cve_fetch_hours</code></td><td>2</td><td>최근 N시간 내 CVE 수집</td></tr>
-  <tr><td><code>max_cves_per_run</code></td><td>50</td><td>한 실행당 최대 처리 CVE 수</td></tr>
+  <tr><td><code>MODEL_PHASE_0</code></td><td><code>gemma-4-31b-it</code></td><td>번역/요약 (Gemini API)</td></tr>
+  <tr><td><code>MODEL_PHASE_1</code></td><td><code>qwen/qwen3.6-27b</code></td><td>분석·룰 생성 (Groq)</td></tr>
+  <tr><td><code>max_workers</code></td><td>1</td><td>Free Tier 환경 8K TPM 보호 (유료 시 3~5 복원)</td></tr>
+  <tr><td><code>max_cves_per_run</code></td><td>50</td><td>실행당 처리 상한 (초과분은 워터마크 뒤 이월)</td></tr>
   <tr><td><code>max_rule_recheck</code></td><td>10</td><td>공식 룰 재확인 배치 크기</td></tr>
   <tr><td><code>rule_check_interval_days</code></td><td>7</td><td>공식 룰 재확인 주기</td></tr>
   <tr><td><code>bulk_commit_threshold</code></td><td>100</td><td>벌크 커밋 판단 기준 (파일 수)</td></tr>
 </table>
 
-<h4>AI 룰 생성 게이트 설정 (<code>RULE_GENERATION</code>)</h4>
+<h4>AI 룰 생성 게이트 (<code>RULE_GENERATION</code>)</h4>
 <table>
-  <tr><th>설정</th><th>현재 값</th><th>설명</th></tr>
+  <tr><th>설정</th><th>값</th><th>설명</th></tr>
   <tr><td><code>epss_threshold</code></td><td><code>0.2</code></td><td>EPSS가 이 값 이상이면 AI 룰 생성</td></tr>
-  <tr><td><code>require_exploitation_evidence</code></td><td><code>True</code></td><td>Kill switch — <code>False</code> 시 모든 CVE에 AI 룰 생성 (기존 동작)</td></tr>
+  <tr><td><code>require_exploitation_evidence</code></td><td><code>True</code></td><td>Kill switch — <code>False</code> 시 모든 CVE에 AI 룰 생성</td></tr>
 </table>
 
-<h4>Groq API 파라미터</h4>
+<h4>Groq API 파라미터 (Free Tier 환경 · non-thinking)</h4>
 <table>
-  <tr><th>용도</th><th>temperature</th><th>top_p</th><th>max_tokens</th><th>reasoning_effort</th></tr>
-  <tr><td><strong>AI 분석</strong> (root cause, scenario)</td><td>0.3</td><td>0.9</td><td>8,192</td><td><code>high</code></td></tr>
-  <tr><td><strong>룰 생성</strong> (Sigma, Snort, YARA)</td><td>0.2</td><td>0.85</td><td>2,048</td><td><code>low</code> (TPD 절감)</td></tr>
+  <tr><th>용도</th><th>temp</th><th>top_p</th><th>max_completion</th><th>reasoning_effort</th></tr>
+  <tr><td><strong>AI 분석</strong></td><td>0.3</td><td>0.9</td><td>3,072</td><td><code>none</code></td></tr>
+  <tr><td><strong>룰 생성</strong></td><td>0.2</td><td>0.85</td><td>2,048</td><td><code>none</code></td></tr>
 </table>
-<p>룰 생성은 템플릿 기반 작업이므로 <code>reasoning_effort: low</code>로 추론 토큰을 60-80% 절감합니다. AI 분석은 복잡한 논리 추론이 필요하므로 <code>high</code>를 유지합니다.</p>
+<p><code>reasoning_format: parsed</code>로 최종 답변만 <code>content</code>에 남겨 JSON/룰 파싱 안정성을 확보합니다. 유료(Developer) 전환 시 <code>reasoning_effort: default</code> + 출력 상향으로 사고형(thinking)을 복원할 수 있습니다.</p>
 
-<h3>Rate Limiter (<code>src/rate_limiter.py</code>)</h3>
-<p>Thread-Safe Rate Limiter v3.1이 10개 API 엔드포인트 + TPD(일간 토큰)를 관리합니다:</p>
+<h3>Rate Limiter (<code>src/rate_limiter.py</code> v3.3)</h3>
+<p>Thread-Safe로 API별 속도 + 분/일 토큰을 관리합니다.</p>
 <table>
   <tr><th>API</th><th>한도</th><th>윈도우</th><th>최소 간격</th></tr>
   <tr><td><code>github</code></td><td>5,000/h</td><td>3,600s</td><td>0.5s</td></tr>
-  <tr><td><code>github_search</code></td><td>8/min</td><td>60s</td><td>7.0s</td></tr>
-  <tr><td><code>groq</code></td><td>15/min</td><td>60s</td><td>5.0s</td></tr>
-  <tr><td><code>gemini</code></td><td>25/min</td><td>60s</td><td>2.5s</td></tr>
+  <tr><td><code>groq</code></td><td>30/min</td><td>60s</td><td>2.0s</td></tr>
+  <tr><td><code>gemini</code></td><td>15/min</td><td>60s</td><td>4.0s</td></tr>
   <tr><td><code>epss</code></td><td>60/min</td><td>60s</td><td>1.0s</td></tr>
   <tr><td><code>kev</code></td><td>10/h</td><td>3,600s</td><td>2.0s</td></tr>
   <tr><td><code>nvd</code></td><td>40/30s</td><td>30s</td><td>1.0s</td></tr>
@@ -865,199 +900,169 @@ cd Argus-AI-Threat-Intelligence</code></pre>
   <tr><td><code>github_advisory</code></td><td>100/h</td><td>3,600s</td><td>0.5s</td></tr>
   <tr><td><code>ruleset_download</code></td><td>20/h</td><td>3,600s</td><td>2.0s</td></tr>
 </table>
-<ul>
-  <li>사용률 80% 이상 시 속도 조절, 90% 이상 시 추가 대기</li>
-  <li>429 응답 시 <code>Retry-After</code> 파싱 후 자동 대기 (분+초 복합 형식 지원: <code>10m3.072s</code> → 603초)</li>
-  <li>실행 종료 시 API별 사용량 + TPD 사용량 요약 출력</li>
-</ul>
-
-<h4>Groq TPD (Tokens Per Day) 트래킹</h4>
-<p>Groq Free Tier의 일간 토큰 한도(200,000 TPD)를 추적하여 429 에러를 사전 방지합니다:</p>
 <table>
-  <tr><th>항목</th><th>값</th><th>설명</th></tr>
-  <tr><td><code>TPD 한도</code></td><td>200,000</td><td>Groq Free Tier 일간 토큰 제한</td></tr>
-  <tr><td><code>TPD 리셋</code></td><td>24시간</td><td>실행 시점 기준 자동 리셋</td></tr>
-  <tr><td><code>사전 차단 임계값</code></td><td>15,000</td><td>잔여 토큰이 이 값 미만이면 호출 SKIP</td></tr>
+  <tr><th>토큰 관리</th><th>대상</th><th>한도</th><th>동작</th></tr>
+  <tr><td><strong>TPM</strong> (분당 토큰)</td><td>Groq</td><td>8,000</td><td>예약분이 한도 근접 시 분 리셋까지 대기</td></tr>
+  <tr><td><strong>TPD</strong> (일간 토큰)</td><td>Groq</td><td>200,000</td><td>소진 시 AI 호출 SKIP → 다음 실행 재처리</td></tr>
+  <tr><td><strong>RPD</strong> (일간 요청)</td><td>Gemma</td><td>1,500</td><td>요청 단위 누적, 90% 경고</td></tr>
 </table>
 <ul>
-  <li><strong>TPD 소진 감지</strong>: API 응답의 <code>usage.total_tokens</code>로 실시간 누적 추적</li>
-  <li><strong>429 TPD 에러</strong>: <code>"tokens per day"</code> 포함 시 대기 없이 즉시 소진 마킹 (무한 루프 방지)</li>
-  <li><strong>조기 종료</strong>: TPD 소진 시 남은 AI 분석/룰 생성/Issue 생성을 SKIP → 다음 실행에서 자동 재처리</li>
-  <li><strong>90% 경고</strong>: TPD 사용률 90% 도달 시 경고 로그 출력</li>
+  <li>사용률 80%↑ 속도 조절, 90%↑ 추가 대기</li>
+  <li>429 시 <code>Retry-After</code> 파싱 자동 대기 (분+초 복합: <code>10m3.072s</code> → 603초)</li>
+  <li>실행 종료 시 API·TPM·TPD·RPD 사용량 요약 출력</li>
 </ul>
 
 <hr>
 
 <!-- Usage -->
 <h2 id="usage">Usage</h2>
-
-<h3>CVE Scanner</h3>
-<p><strong>GitHub Actions:</strong> 매 시 정각 자동 실행 (수동 실행도 가능: Actions 탭 &gt; <code>Argus CVE Monitor</code> &gt; Run workflow)</p>
+<p><strong>GitHub Actions:</strong> cron 자동 실행 (수동: Actions 탭 &gt; <code>Argus CVE Monitor</code> &gt; Run workflow)</p>
 <p><strong>로컬 실행:</strong></p>
-<pre><code>export GH_TOKEN="..."
-export SUPABASE_URL="..."
-export SUPABASE_KEY="..."
-export SLACK_WEBHOOK_URL="..."
-export GROQ_API_KEY="..."
-export GEMINI_API_KEY="..."
+<pre><code>export GH_TOKEN="..." SUPABASE_URL="..." SUPABASE_KEY="..."
+export SLACK_WEBHOOK_URL="..." GROQ_API_KEY="..." GEMINI_API_KEY="..."
 
-python src/main.py</code></pre>
-
-<h3>Dashboard Data Export</h3>
-<pre><code>export SUPABASE_URL="..."
-export SUPABASE_KEY="..."
-
-python src/export_dashboard_data.py</code></pre>
+python src/main.py                    # CVE 파이프라인
+python src/export_dashboard_data.py   # 대시보드 데이터 Export</code></pre>
 <blockquote><p>Supabase 자격증명이 없으면 빈 샘플 데이터가 생성되어 대시보드가 에러 없이 로드됩니다.</p></blockquote>
 
 <hr>
 
 <!-- Slack Alert Examples -->
-<h2 id="slack-alert-examples">Slack Alert Examples</h2>
+<h2 id="slack-alert-examples">Slack Alerts</h2>
 
-<h3>1. 신규 CVE 알림</h3>
-<div class="slack-example"><span class="s-title">[NEW] 신규 CVE: CVE-2024-12345</span>
+<h3>1. 신규 고위험 CVE 알림</h3>
+<div class="slack-example"><span class="s-title">[🆕 신규 고위험 취약점] CVE-2024-12345</span>
 <span class="s-sep">───────────────────────────────</span>
 Apache Struts OGNL 인젝션을 통한 원격 코드 실행
 
 영향받는 제품:
-  Vendor: Apache
-  Product: Struts
-  Versions: 2.3.5 ~ 2.5.30
-  Patch: 2.5.31
+  Vendor: Apache / Product: Struts
+  Versions: 2.3.5 ~ 2.5.30  (Patch: 2.5.31)
 <span class="s-sep">───────────────────────────────</span>
   <span class="s-label">CVSS</span>        <span class="s-label">EPSS</span>       <span class="s-label">KEV</span>       <span class="s-label">CWE</span>
   <span class="s-red">9.8</span>         <span class="s-value">85.2%</span>      <span class="s-red">YES</span>       <span class="s-blue">CWE-917</span>
 <span class="s-sep">───────────────────────────────</span>
-Apache Struts의 Content-Type 헤더를 통한 OGNL
-인젝션으로 원격 코드 실행이 가능합니다...
-
   <span class="s-link">[AI 상세 분석 리포트 →]</span>  (GitHub Issue 링크)</div>
 
-<h3>2. CVE 배치 요약 알림</h3>
+<h3>2. CVE 배치 요약</h3>
 <div class="slack-example"><span class="s-title">  Argus CVE 배치 요약</span>
 <span class="s-sep">───────────────────────────────</span>
-총 탐지: <span class="s-value">12건</span>
+총 알림: <span class="s-value">8건</span>   (저위험 다수는 대시보드에서만 추적)
 
-  <span class="s-red">Critical</span>  <span class="s-value">High</span>     <span class="s-blue">Medium</span>   <span class="s-label">Low</span>
-     3          5          3         1
+  <span class="s-red">Critical</span>  <span class="s-value">High</span>
+     3          5
 <span class="s-sep">───────────────────────────────</span>
 고위험 CVE:
   1. CVE-2024-12345 (<span class="s-red">CVSS 9.8</span>) - Apache Struts RCE
   2. CVE-2024-67890 (<span class="s-red">CVSS 9.1</span>) - OpenSSL Buffer Overflow
-  3. CVE-2024-11111 (<span class="s-red">CVSS 8.8</span>) - Linux Kernel LPE
 
-  <span class="s-link">[📊 대시보드에서 전체 확인 →]</span>  (GitHub Pages 링크)</div>
+  <span class="s-link">[📊 대시보드에서 전체 확인 →]</span></div>
 
-<h3>3. 공식 룰 발견 알림</h3>
+<h3>3. 공식 룰 발견</h3>
 <div class="slack-example"><span class="s-title">  공식 룰 발견: CVE-2021-44228</span>
 <span class="s-sep">───────────────────────────────</span>
-이전에 AI 생성 룰로 보고된 취약점에 대한
-공식 검증된 룰이 발견되었습니다.
-<span class="s-sep">───────────────────────────────</span>
+이전 AI 생성 룰이 공식 검증 룰로 대체되었습니다.
 
-  <span class="s-green">Sigma</span> (Public SigmaHQ)
-  ┌─────────────────────────────┐
-  │ title: Log4Shell Detection  │
-  │ status: stable              │
-  └─────────────────────────────┘
+  <span class="s-green">Sigma</span> (SigmaHQ · DRL 1.1 · author 보존)
+  <span class="s-green">SNORT2 / SURICATA</span> (ET Open)
 
-  <span class="s-green">SNORT2</span> (Public Snort 2.9 ET Open)
-  ┌─────────────────────────────┐
-  │ alert tcp $EXTERNAL_NET ... │
-  └─────────────────────────────┘
-
-총 <span class="s-value">6개 엔진</span>의 공식 룰 발견.
-위 룰을 복사하여 보안 장비에 등록하세요.
-
-  <span class="s-link">[전체 룰 + 상세 리포트 보기 →]</span></div>
+  <span class="s-link">[전체 룰 + 상세 리포트 →]</span></div>
 
 <hr>
 
 <!-- Pipeline Details -->
 <h2 id="pipeline-details">Pipeline Details</h2>
-
-<h3>CVE 파이프라인 실행 흐름</h3>
 <div class="pipeline">1. Health Check
-   └─ 환경 변수 검증 (6개 필수), assets.json 로드
+   └─ 환경 변수 검증(6개 필수) · assets.json 로드
 
-2. 공식 룰 재탐색 (Official Rule Re-discovery)
-   ├─ AI 룰만 있는 CVE → 공식 룰 교체
-   ├─ 룰 없는 고위험 CVE → 새 공식 룰 적용
-   ├─ 배치 제한: 10건/실행
-   └─ 쿨다운: 성공 7일 / 실패 1일 (빠른 재시도)
+2. 공식 룰 재탐색
+   ├─ AI 룰만 있는 CVE → 공식 룰 교체 / 룰 없는 고위험 → 새 공식 룰
+   └─ 배치 10건, 쿨다운(성공 7일 / 실패 1일)
 
-3. 데이터 수집 (스마트 필터링)
+3. 워터마크 수집 (누락 0)
+   ├─ read_watermark() → 마지막 처리 지점 로드 (없으면 24h 부트스트랩)
    ├─ CISA KEV + VulnCheck KEV
-   ├─ 최근 2시간 CVE 수집 (GitHub Commits API)
-   │   ├─ Phase 1: 커밋별 CVE ID 추출 + 벌크 감지
-   │   ├─ Phase 2: 일반 커밋 CVE → 전부 처리
-   │   └─ Phase 3: 벌크 커밋 CVE → 콘텐츠 해시 비교 → 스킵
-   └─ EPSS 점수 배치 조회
+   ├─ 워터마크 이후 커밋 전체 조회 → CVE별 최신 커밋시각
+   ├─ content_hash로 이미 처리분(is_new=False) 제거
+   └─ EPSS 배치 조회
 
-4. 우선순위 정렬 + 배치 제한
-   ├─ 신규 CVE 우선 처리
-   └─ 최대 50건/실행
+4. FIFO 정렬 + 상한
+   └─ 커밋 오래된 순, 신규만 처리, 실행당 50건 (초과분 이월)
 
-5. 병렬 CVE 처리 (3 workers)
-   ├─ 추가 위협 인텔리전스 (NVD, PoC, Advisory)
-   │   └─ PoC 이중 검색: nomi-sec → trickest/cve fallback
-   ├─ 자산 매칭 (affected → description fallback)
-   ├─ 알림 트리거 판정 (신규/KEV/EPSS/CVSS)
-   ├─ 한국어 번역 (Google Gemini)
-   ├─ ⚡ TPD 잔량 체크 → 소진 시 Issue 생성 SKIP (다음 실행에서 재처리)
-   ├─ 고위험 시 GitHub Issue 생성
-   │   ├─ AI 룰 생성 게이트 판정
-   │   │   ├─ KEV 등재 / EPSS ≥ 0.2 / PoC 존재 → AI 분석 + 룰 생성
-   │   │   └─ 근거 없음 → 공개 룰만 검색 (AI 호출 0건, TPD 절약)
-   │   ├─ AI 룰 생성 시: nuclei-templates + ExploitDB 참고 데이터 활용
-   │   ├─ CVSS 공격벡터(AV) 파싱 → 적합한 룰 타입 자동 결정
-   │   ├─ AV:N → Sigma(필수) + Snort/Suricata(우선)
-   │   ├─ AV:L → Sigma(필수) + YARA(우선)
-   │   └─ Sigma SKIP 시 관대한 프롬프트로 1회 강제 재시도
-   ├─ Slack 알림
-   └─ Supabase DB 업데이트
+5. CVE 처리 (단일 워커)  ── 3단계 라우팅
+   ├─ 위협 인텔리전스 보강 (NVD·SSVC·PoC·ExploitDB·MSF)
+   ├─ 알림 판정
+   ├─ [T1 고위험/에스컬레이션] 번역(재시도) + Slack + Issue + AI 룰
+   │     ├─ 룰 생성 게이트(KEV/SSVC/MSF/ExploitDB/EPSS/PoC)
+   │     ├─ AV 파싱 → 엔진 선택 (Sigma 필수 · AV:N→네트워크 · AV:L→YARA)
+   │     └─ 파서/컴파일 자기검증 → trust 등급 부여
+   ├─ [T2 신규 저위험] 번역 + DB 추적 (알림·룰 없음)
+   └─ [T3 기존·무변화] content_hash·위험 점수(CVSS/EPSS/KEV)만 갱신
+      (Groq TPD 소진 시 AI 단계 SKIP → 다음 실행 재처리)
 
-6. TPD 소진 여부 확인
-   └─ 소진 시 경고 로그 출력 ("다음 실행에서 자동 재처리")
+6. 워터마크 전진
+   └─ 미처리(실패+이월) 최소 커밋시각 앞까지만 전진 → 저장
 
-7. Slack 배치 요약 전송
-   └─ 대시보드 바로가기 버튼 포함 (GitHub Pages)
-
-8. Rate Limit 사용 요약 출력 (RPM + TPD)</div>
-
-<h3>Dashboard Export 흐름</h3>
-<div class="pipeline">Step 1/2: CVE 데이터 export (Supabase → cves.json, 페이지네이션)
-Step 2/2: 통계 집계 (stats.json)</div>
+7. Slack 배치 요약 + Rate Limit 요약(RPM·TPM·TPD·RPD)</div>
 
 <hr>
 
 <!-- Supabase Schema -->
 <h2 id="supabase-schema">Supabase Schema</h2>
-
-<div class="sql-block"><span class="comment">-- CVE 이력</span>
+<div class="sql-block"><span class="comment">-- CVE 이력 (상세 리포트는 GitHub Issue에, DB는 요약+링크만)</span>
 <span class="kw">CREATE TABLE</span> cves (
-  id              <span class="type">TEXT</span> <span class="kw">PRIMARY KEY</span>,
-  cvss_score      <span class="type">REAL</span>,
-  epss_score      <span class="type">REAL</span>,
-  is_kev          <span class="type">BOOLEAN</span>,
+  id                 <span class="type">TEXT</span> <span class="kw">PRIMARY KEY</span>,
+  cvss_score         <span class="type">REAL</span>,
+  epss_score         <span class="type">REAL</span>,
+  is_kev             <span class="type">BOOLEAN</span>,
   has_official_rules <span class="type">BOOLEAN</span> <span class="kw">DEFAULT</span> <span class="val">FALSE</span>,
-  last_alert_at   <span class="type">TIMESTAMPTZ</span>,
-  last_alert_state <span class="type">JSONB</span>,
-  rules_snapshot  <span class="type">JSONB</span>,
-  report_url      <span class="type">TEXT</span>,
+  last_alert_at      <span class="type">TIMESTAMPTZ</span>,
+  last_alert_state   <span class="type">JSONB</span>,
+  rules_snapshot     <span class="type">JSONB</span>,
+  report_url         <span class="type">TEXT</span>,
   last_rule_check_at <span class="type">TIMESTAMPTZ</span>,
-  content_hash    <span class="type">TEXT</span>,
-  updated_at      <span class="type">TIMESTAMPTZ</span>
+  content_hash       <span class="type">TEXT</span>,
+  updated_at         <span class="type">TIMESTAMPTZ</span>
 );</div>
 
 <hr>
 
-<!-- License -->
-<h2 id="license">License</h2>
+<!-- License & Compliance -->
+<h2 id="license">License &amp; Compliance</h2>
+
+<p>개인이 개발했지만 회사 자산 점검에 활용하고 결과를 공개 대시보드/Issue에 재게시하므로, 데이터 소스 라이선스와
+Free Tier AI 서비스 데이터 취급(내부 정보 보호)을 설계 단계부터 준수합니다.</p>
+
+<h3>준수 원칙</h3>
+<div class="callout">
+  <strong>① 룰 재게시 시 출처·author·라이선스 고지 보존.</strong> 공개 룰을 재게시할 때 원 저작자 표기를 유지합니다
+  (예: SigmaHQ DRL 1.1은 author 표기 의무 — 룰 YAML의 <code>author</code> 필드 보존으로 충족).<br><br>
+  <strong>② PoC 원문·기관 공지 원문은 재게시 금지, 링크만.</strong> Exploit-DB PoC 코드와 KrCERT/KISA 공지 원문은
+  대시보드/Issue에 재게시하지 않고 링크·요약만 제공합니다. AI 프롬프트의 내부 컨텍스트로만 활용합니다.<br><br>
+  <strong>③ Free Tier AI 서비스에 회사 내부 자산 정보 미전송.</strong> Free Tier 환경(Gemma/Groq)에는 <strong>공개된 CVE 데이터만</strong> 전송합니다.
+  Free Tier 환경 입출력은 서비스 제공자의 제품 개선에 사용될 수 있으므로, 회사 내부 자산·인프라 정보는 프롬프트에 절대 넣지 않습니다.
+</div>
+
+<h3>데이터 소스 라이선스</h3>
+<table>
+  <tr><th>소스</th><th>라이선스</th><th>사용 방식</th></tr>
+  <tr><td>CVE (cvelistV5)</td><td>CVE ToU</td><td>복제·재배포 허용, 저작권 고지 유지</td></tr>
+  <tr><td>NVD</td><td>Public Domain (미 정부 저작물)</td><td>제한 없음</td></tr>
+  <tr><td>CISA KEV · vulnrichment</td><td>CC0 1.0</td><td>제한 없음 (SSVC P5 최우선 소스)</td></tr>
+  <tr><td>EPSS (FIRST)</td><td>MIT</td><td>상업적 사용 포함 무료, attribution 권장</td></tr>
+  <tr><td>nuclei-templates</td><td>MIT</td><td>제한 없음 (프롬프트 참고)</td></tr>
+  <tr><td>SigmaHQ 룰</td><td>DRL 1.1</td><td>재배포 허용 · <strong>author 표기 필수</strong></td></tr>
+  <tr><td>ET Open</td><td>MIT (일부 레거시 GPLv2)</td><td>재게시 시 헤더 고지 보존</td></tr>
+  <tr><td>Yara-Rules</td><td>GPL-2.0</td><td>재게시 시 출처 링크 + 라이선스 표기</td></tr>
+  <tr><td>Metasploit metadata</td><td>BSD-3-Clause</td><td>제한 없음</td></tr>
+  <tr><td>Exploit-DB</td><td>제출자별 (다수 미명시)</td><td><strong>PoC 원문 재게시 금지, 링크만</strong></td></tr>
+  <tr><td>KrCERT/KISA</td><td>KOGL 표시 없을 수 있음</td><td><strong>원문 재게시 금지, 링크+요약</strong></td></tr>
+</table>
+
+<h3>프로젝트 라이선스</h3>
 <div class="license">
 <strong>MIT License</strong><br><br>
-Copyright (c) 2025 LEEKIYOON-SEC<br><br>
+Copyright (c) 2026 LEEKIYOON-SEC<br><br>
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
@@ -1073,6 +1078,10 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+</div>
+
+<div class="footer">
+  Argus — AI Threat Intelligence Platform · 100% Free-Tier
 </div>
 
 </body>
