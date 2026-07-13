@@ -1,4 +1,5 @@
 import os
+import re
 import datetime
 import time
 import requests
@@ -208,8 +209,9 @@ Do NOT add intro/outro.
 
         except Exception as e:
             msg = str(e)
-            transient = any(t in msg for t in (
-                "500", "503", "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
+            # 상태 코드는 단어 경계로 매칭 — "limit: 1500" 같은 숫자에 "500"이 오탐되지 않게
+            transient = bool(re.search(r'\b(500|503)\b', msg)) or any(t in msg for t in (
+                "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
             ))
             if retry_on_transient and transient and attempt < max_attempts:
                 wait = 2 * attempt  # 2s, 4s
@@ -572,13 +574,18 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         )
 
         # 기존 CVE인데 알림 트리거 없음 → 최소 갱신만(재번역/알림 없음, 값싼 경로)
+        # cvss/epss/is_kev 스칼라도 함께 갱신 — 7.0 미만 재평가가 대시보드에 반영되도록
         if not should_alert and not is_new_to_db:
-            db.upsert_cve({
+            saved = db.upsert_cve({
                 "id": cve_id,
+                "cvss_score": current_state['cvss'],
+                "epss_score": current_state['epss'],
+                "is_kev": current_state['is_kev'],
                 "updated_at": datetime.datetime.now(KST).isoformat(),
                 "content_hash": raw_data.get('content_hash')
             })
-            return {"cve_id": cve_id, "status": "handled"}
+            # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
+            return {"cve_id": cve_id, "status": "handled" if saved else "failed"}
 
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
         # Step 5: 한국어 번역 — 신규/에스컬레이션 모두 번역해 대시보드를 한글화한다.
@@ -631,7 +638,12 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             db_data["rules_snapshot"] = rules_info.get('rules')
             db_data["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
 
-        db.upsert_cve(db_data)
+        saved = db.upsert_cve(db_data)
+        if not saved:
+            # 저장 실패 = DB/대시보드에 영구 미반영 위험 → failed로 워터마크가 붙잡아 재처리.
+            # (T1은 알림이 이미 나갔으므로 재실행 시 content_hash 미저장 → 재처리되지만
+            #  escalation 비교 기준(last_state)이 그대로라 중복 알림은 '신규' 케이스에 한정됨)
+            return {"cve_id": cve_id, "status": "failed"}
 
         # 고위험 알림 = success, 저위험 추적 = handled (둘 다 워터마크 전진 대상)
         return {"cve_id": cve_id, "status": "success" if should_alert else "handled"}
@@ -868,11 +880,17 @@ def _main():
     watermark = read_watermark()
     # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
     since_dt = watermark - datetime.timedelta(minutes=5)
-    fetched = collector.fetch_cves_since(since_dt, db=db)
+    # 초장기 공백(수일+) 캐치업 상한: 한 실행의 조회 창을 최대 12시간으로 제한.
+    # 무제한 조회는 커밋 상세 호출 폭증 → 30분 타임아웃 → 워터마크 미저장 → 같은 작업
+    # 반복(진행 불가)으로 이어질 수 있다. 창 밖 커밋은 다음 실행이 전진된 워터마크에서
+    # 이어서 수집하므로 누락은 없다 (실행당 12h씩 따라잡음).
+    catchup_horizon = watermark + datetime.timedelta(hours=12)
+    until_dt = catchup_horizon if catchup_horizon < run_start_utc else None
+    fetched = collector.fetch_cves_since(since_dt, db=db, until_dt=until_dt)
 
     if not fetched:
-        # 신규 커밋 없음 → 워터마크를 실행 시작 시각으로 전진 후 종료
-        write_watermark(run_start_utc)
+        # 창 내 신규 커밋 없음 → 창 끝까지만 전진 (창 이후 커밋은 다음 실행이 수집)
+        write_watermark(min(catchup_horizon, run_start_utc))
         logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 

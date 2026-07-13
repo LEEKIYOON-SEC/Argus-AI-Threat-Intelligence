@@ -64,7 +64,9 @@ def export_cves(client, days: int = 90) -> list:
             "cwe": state.get("cwe", []),
             "affected": [],
             "report_url": row.get("report_url"),
-            "date": row.get("last_alert_at", row.get("updated_at", "")),
+            # Supabase는 null 컬럼도 키를 포함해 반환하므로 .get의 default가 발동하지 않음
+            # → or 체인으로 폴백 (알림 없는 추적 CVE는 updated_at 사용)
+            "date": row.get("last_alert_at") or row.get("updated_at") or "",
         }
 
         # affected 정보 간략화
