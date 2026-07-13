@@ -1,5 +1,1886 @@
 [
   {
+    "id": "CVE-2026-57211",
+    "title": "RabbitMQ: Windows 관리 UI의 UNC SSRF 취약점",
+    "description": "Windows 환경의 RabbitMQ 관리 플러그인에서 경로 검증 전 URL 인코딩된 백슬래시가 처리되어, 공격자가 제어하는 UNC 경로로 DNS 및 SMB 요청이 전송될 수 있는 SSRF 취약점이 존재합니다. 이 문제는 4.1.11 및 4.2.6 버전에서 수정되었습니다.",
+    "cvss": 6.5,
+    "epss": 0.00278,
+    "is_kev": false,
+    "cwe": [
+      "CWE-36",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "rabbitmq",
+        "product": "rabbitmq-server",
+        "versions": ">= 4.2.0, < 4.2.6 (단일 버전), >= 4.1.0, < 4.1.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:36:16.194379+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-55884",
+    "title": "Tilt: 네트워크에 노출된 Tilt HUD 서버의 인증 누락",
+    "description": "Tilt 0.20.8~0.37.3 버전의 HUD 서버에서 인증 미들웨어가 누락되어, 외부 네트워크 노출 시 인증되지 않은 사용자가 리소스를 조작하거나 세션 토큰을 탈취할 수 있는 취약점이 발견되었습니다. 해당 문제는 0.37.4 버전에서 수정되었습니다.",
+    "cvss": 9.2,
+    "epss": 0.00397,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "tilt-dev",
+        "product": "tilt",
+        "versions": ">= 0.20.8, < 0.37.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:35:49.877998+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-55879",
+    "title": "OpenReplay: 비인증 저장형 XSS를 통한 대시보드 계정 탈취",
+    "description": "OpenReplay 1.24.0~1.25.0 미만 버전의 트래킹 SDK에서 입력값 인코딩 미비로 인한 저장형 XSS 취약점이 발견되었습니다. 공격자는 이를 이용해 대시보드 내 세션 JWT를 탈취하여 계정을 점유할 수 있으며, 해당 문제는 1.25.0 버전에서 수정되었습니다.",
+    "cvss": 9.3,
+    "epss": 0.00274,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "openreplay",
+        "product": "openreplay",
+        "versions": ">= 1.24.0, < 1.25.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:35:22.46502+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-55659",
+    "title": "Grist: 서버 렌더링 페이지의 안전하지 않은 값 보간으로 인한 XSS 취약점",
+    "description": "Grist 1.7.15 이전 버전에서 사용자 입력값이 적절히 이스케이프되지 않아 XSS 취약점이 발생했습니다. 공격자는 이를 통해 피해자의 세션에서 데이터를 수정하거나 공유 설정을 변경하여 소유자 권한을 획득할 수 있습니다. 해당 문제는 1.7.15 버전에서 수정되었습니다.",
+    "cvss": 7.7,
+    "epss": 0.00275,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79",
+      "CWE-116"
+    ],
+    "affected": [
+      {
+        "vendor": "gristlabs",
+        "product": "grist-core",
+        "versions": "< 1.7.15 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:34:53.554286+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55476",
+    "title": "Snipe-IT: 보호되지 않은 cancel_by_admin 파라미터를 통한 권한 없는 자산 요청 취소 취약점",
+    "description": "Snipe-IT 8.6.0 미만 버전에서 cancel_by_admin 파라미터의 권한 검증 미흡으로 인해, 인증된 사용자가 타인의 자산 요청을 무단으로 취소할 수 있는 취약점이 존재합니다. 해당 문제는 8.6.0 버전에서 수정되었습니다.",
+    "cvss": 5.3,
+    "epss": 0.002,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:34:24.178044+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-55475",
+    "title": "Snipe-IT: 가져오기 생성자(created_by) 값 덮어쓰기 가능 취약점",
+    "description": "Snipe-IT 8.6.1 이전 버전의 Importer API에서 CSV 가져오기 권한이 있는 사용자가 `created_by` 값을 덮어써 소유권 메타데이터를 무단 수정할 수 있는 취약점이 존재합니다. 이 문제는 8.6.1 버전에서 해결되었습니다.",
+    "cvss": 5.7,
+    "epss": 0.00195,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:33:59.383921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-55377",
+    "title": "Logto: WebAuthn 등록 검증을 통한 계정 센터 MFA 관리 스텝업 우회",
+    "description": "Logto 1.41.0 이전 버전에서 WebAuthn 등록 검증 레코드를 이용해 MFA 관리 스텝업 인증을 우회할 수 있는 취약점이 발견되었습니다. API 베어러 토큰만으로 생성된 검증 레코드가 신원 확인된 것으로 처리되어, 기존 인증 수단 없이 MFA 설정을 변경할 수 있었습니다. 이 문제는 1.41.0 버전에서 수정되었습니다.",
+    "cvss": 8.1,
+    "epss": 0.00259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "logto-io",
+        "product": "logto",
+        "versions": "< 1.41.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:33:32.956603+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55229",
+    "title": "Gotenberg: LibreOffice 문서 처리를 통한 SSRF 취약점",
+    "description": "Gotenberg 8.34.0 미만 버전의 `/forms/libreoffice/convert` 엔드포인트에서 특수하게 제작된 문서를 통해 외부 HTTP(S) 및 로컬 파일 리소스를 요청하는 취약점이 발견되었습니다. 이를 통해 블라인드 SSRF 및 제한적인 로컬 파일 노출이 가능하며, 해당 문제는 8.34.0 버전에서 수정되었습니다.",
+    "cvss": 7.5,
+    "epss": 0.00355,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "gotenberg",
+        "product": "gotenberg",
+        "versions": "< 8.34.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:33:03.512278+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55187",
+    "title": "Mailpit: IPv6 전환 메커니즘을 통한 링크 체크 API의 불완전한 SSRF 보호 (CVE-2026-27808 후속)",
+    "description": "Mail",
+    "cvss": 5.8,
+    "epss": 0.00282,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "axllent",
+        "product": "mailpit",
+        "versions": "< 1.30.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:32:38.250941+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-4740",
+    "title": "RHACM: Open Cluster Management(OCM)의 부적절한 쿠버네티스 클라이언트 인증서 갱신 검증을 통한 클러스터 간 권한 상승",
+    "description": "Red Hat ACM의 기반 기술인 OCM에서 인증서 갱신 검증 미흡으로 인한 취약점이 발견되었습니다. 관리형 클러스터 관리자가 위조된 인증서로 OCM 컨트롤러의 승인을 받아 클러스터 간 권한 상승이 가능하며, 이를 통해 허브 클러스터를 포함한 다른 관리형 클러스터의 제어권을 획득할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0.00112,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:32:05.166616+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-49394",
+    "title": "Frappe: update_page를 통한 권한 우회 취약점",
+    "description": "Frappe 16.19.0 이전 버전의 Workspace 내 update_page 엔드포인트에서 권한 우회가 가능했습니다. 이는 공개 워크스페이스에 대한 수정 권한 확인 절차가 누락되어 발생한 문제이며, 16.19.0 버전에서 수정되었습니다.",
+    "cvss": 7.1,
+    "epss": 0.00307,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 16.19.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:31:32.541257+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-49213",
+    "title": "TypeBot: HTTP 요청 실행 시 IPv6 미지정 주소를 통한 SSRF 보호 우회",
+    "description": "TypeBot 3.17.2 미만 버전의 SSRF 검증 로직이 IPv6 미지정 주소(::)를 차단하지 않는 취약점이 발견되었습니다. 이를 통해 권한이 있는 사용자가 서버 내부의 로컬 HTTP 서비스에 접근할 수 있으며, 해당 문제는 3.17.2 버전에서 수정되었습니다.",
+    "cvss": 8.1,
+    "epss": 0.00319,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "baptisteArno",
+        "product": "typebot.io",
+        "versions": "< 3.17.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:31:08.268387+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47199",
+    "title": "Frappe: check_safe_sql_query의 SELECT INTO OUTFILE 허용 취약점",
+    "description": "Frappe의 check_safe_sql_query 함수가 SELECT INTO OUTFILE 쿼리를 허용하는 취약점이 발견되었습니다. DB 권한 설정이 미흡하고 MySQL FILE 권한이 있는 셀프 호스팅 사이트에서 악용될 수 있으며, 버전 16.18.3 및 15.108.0에서 수정되었습니다.",
+    "cvss": 2.3,
+    "epss": 0.00401,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "frappe",
+        "product": "frappe",
+        "versions": "< 15.108.0 (단일 버전), >= 16.0.0-beta.1, < 16.18.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:30:43.436039+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-44383",
+    "title": "Hydro-Québec Le Circuit Electrique 충전소 백엔드의 불충분한 세션 만료",
+    "description": "동일한 충전소 ID로 백엔드에 중복 연결이 가능하여, 공격자가 다수의 악성 OCPP 클라이언트를 배포해 백엔드 시스템에 과부하를 일으킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00563,
+    "is_kev": false,
+    "cwe": [
+      "CWE-613"
+    ],
+    "affected": [
+      {
+        "vendor": "Hydro-Québec",
+        "product": "Le Circuit Electrique charging station backend",
+        "versions": "June_2026 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:30:16.759355+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42012",
+    "title": "Gnutls: URI 및 SRV SAN의 부적절한 처리로 인한 인증서 검증 우회",
+    "description": "Gnutls에서 URI 또는 SRV SAN이 포함된 특수 인증서를 통해 검증 프로세스가 Common Name(CN) 확인 방식으로 잘못 전환되는 취약점이 발견되었습니다. 이를 통해 공격자는 정당한 서비스를 사칭하거나 민감한 정보를 가로챌 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00354,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:29:57.218332+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3576",
+    "title": "Planyo 온라인 예약 시스템 3.0 이하 버전 - 'ulap_url' 파라미터를 통한 비인증 서버 측 요청 위조(SSRF)",
+    "description": "WordPress용 Planyo Online Reservation System 플러그인 3.0 이하 버전에서 비인증 SSRF 취약점이 발견되었습니다. URL 스킴 검증 미흡으로 `file://` 프로토콜을 이용한 로컬 파일 포함(LFI) 공격이 가능하며, 이를 통해 `wp-config.php` 등 서버 내 민감한 파일이 유출될 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0.00357,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "xtreeme",
+        "product": "Planyo online reservation system",
+        "versions": "3.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:29:33.03102+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-15096",
+    "title": "Themify Builder 7.7.6 이하 - 맵 모듈 'b_width_map' 필드를 통한 인증된 사용자(기여자 이상) 저장형 XSS 취약점",
+    "description": "WordPress용 Themify Builder 플러그인 7.7.6 이하 버전에서 입력값 검증 및 출력 이스케이프 미흡으로 인한 저장형 XSS 취약점이 발견되었습니다. 기여자 이상의 권한을 가진 공격자가 맵 모듈의 'b_width_map' 필드에 임의의 스크립트를 삽입하여 사용자 방문 시 실행시킬 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.00193,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "themifyme",
+        "product": "Themify Builder",
+        "versions": "7.7.6 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:29:02.785743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-15072",
+    "title": "KiviCare 4.5.0 이하 - KCQueryBuilder의 'orderby' 파라미터를 통한 인증된(의사 권한 이상) SQL 인젝션",
+    "description": "WordPress용 KiviCare 플러그인 4.5.0 이하 버전의 'orderby' 파라미터에서 입력값 검증 부족으로 인한 SQL 인젝션 취약점이 발견되었습니다. 의사, 접수원 또는 클리닉 관리자 권한을 가진 인증된 공격자가 이를 악용해 데이터베이스의 민감한 정보를 추출할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.00281,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "iqonicdesign",
+        "product": "KiviCare – Clinic & Patient Management System (EHR)",
+        "versions": "4.5.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:28:31.896158+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-15010",
+    "title": "bbp style pack 6.4.5 이하 버전 - 토픽 폼 추가 필드를 통한 인증된 사용자(구독자 이상) 저장형 XSS 취약점",
+    "description": "WordPress bbp Style Pack 플러그인 6.4.5 이하 버전의 토픽 폼 추가 필드에서 입력값 검증 및 출력 이스케이프 미흡으로 인한 저장형 XSS 취약점이 발견되었습니다. 구독자 이상의 권한을 가진 공격자가 임의의 스크립트를 삽입하여, 해당 페이지를 방문하는 모든 사용자의 브라우저에서 실행되게 할 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "robin-w",
+        "product": "bbp style pack",
+        "versions": "6.4.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:28:04.137559+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-14480",
+    "title": "OpenPLC v3 파일 이름 또는 경로의 외부 제어 취약점",
+    "description": "OpenPLC Runtime v3의 웹 UI 업로드 기능에서 경로 검증 미흡으로 인해 인증된 사용자가 임의의 파일을 작성할 수 있는 취약점이 존재합니다. 공격자가 악성 .cpp 파일을 소스 디렉토리에 작성할 경우, 프로그램 컴파일 및 실행 시 임의의 네이티브 코드를 실행할 수 있습니다.",
+    "cvss": 9.9,
+    "epss": 0.00616,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenPLC",
+        "product": "OpenPLC",
+        "versions": "v3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:27:31.523954+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13756",
+    "title": "WP Grid Builder <= 2.3.3 - 'key' 파라미터를 통한 인증된 사용자(구독자 이상)의 권한 상승 취약점",
+    "description": "WP Grid Builder 2.3.3 이하 버전의 REST 엔드포인트에서 권한 확인 및 메타 키 검증 미흡으로 인한 권한 상승 취약점이 발견되었습니다. 구독자 이상의 권한을 가진 사용자가 조작된 페이로드를 통해 자신의 `wp_capabilities` 메타 데이터를 수정하여 관리자 권한을 획득할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00309,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "WP Grid Builder",
+        "product": "WP Grid Builder",
+        "versions": "2.3.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:27:06.552638+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-13378",
+    "title": "Form Vibes 1.5.2 이하 - Contact Form 7 폼 필드를 통한 인증되지 않은 저장형 XSS 취약점",
+    "description": "WordPress의 Form Vibes 플러그인 1.5.2 이하 버전에서 입력값 검증 및 출력 이스케이핑 미흡으로 인한 저장형 XSS 취약점이 발견되었습니다. 이를 통해 인증되지 않은 공격자가 임의의 웹 스크립트를 삽입하여 사용자가 해당 페이지 접속 시 실행되게 할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0.00259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "wpvibes",
+        "product": "Form Vibes – Save Contact Form 7 & Elementor Form Entries to Database",
+        "versions": "1.5.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:26:40.193042+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-13242",
+    "title": "Geolocation Field - 심각 - SQL 인젝션 - SA-CONTRIB-2026-062",
+    "description": "Drupal Geolocation Field에서 특수 요소의 부적절한 중화로 인한 SQL 인젝션 취약점이 발견되었습니다. 이 문제는 Geolocation Field 버전 0.0.0부터 3.15.0까지 영향을 미칩니다.",
+    "cvss": 6.5,
+    "epss": 0.00157,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Drupal",
+        "product": "Geolocation Field",
+        "versions": "0.0.0 부터 3.15.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:26:11.298166+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-12994",
+    "title": "WCFM – Frontend Manager for WooCommerce 6.7.27 이하 버전 - wcfm-my-account-enquiry-manage 컨트롤러를 통한 인증되지 않은 임의의 문의 답변 삽입 취약점",
+    "description": "WCFM 플러그인 6.7.27 이하 버전에서 권한 검증 미흡으로 인한 인증 우회 취약점이 발견되었습니다. 공격자는 이를 통해 임의의 문의 답변을 삽입하고 기록을 변조하거나, 고객 및 판매자에게 원치 않는 알림 메일을 발송할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00361,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wclovers",
+        "product": "WCFM – Frontend Manager for WooCommerce",
+        "versions": "6.7.27 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:25:47.820194+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-12948",
+    "title": "Stored Cross-Site Scripting (XSS)",
+    "description": "A stored cross-site scripting (XSS) vulnerability in the web management interface of the Digi PortServer TS, Digi One SP, Digi One SP IA, and Digi One IA allows a remote, authenticated administrator t",
+    "cvss": 4.8,
+    "epss": 0.00269,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Digi International",
+        "product": "Digi PortServer TS",
+        "versions": "82000747_V1 부터 82000747_AB 이하"
+      },
+      {
+        "vendor": "Digi International",
+        "product": "Digi One SP",
+        "versions": "82000747_V1 부터 82000747_AB 이하"
+      },
+      {
+        "vendor": "Digi International",
+        "product": "Digi One SP IA",
+        "versions": "82000747_V1 부터 82000747_AB 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-07T15:18:39.913311+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-12352",
+    "title": "Incorrect Authorization",
+    "description": "This vulnerability allows an unauthenticated actor to bypass authentication and gain access to restricted resources on the device.",
+    "cvss": 5.9,
+    "epss": 0.00259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Digi International",
+        "product": "PortServer TS 1/2/4",
+        "versions": "82000747_V1 부터 82000747_AB 이하"
+      },
+      {
+        "vendor": "Digi International",
+        "product": "Digi One SP / SP IA / IA",
+        "versions": "82000774-W 부터 93000459_AB 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-07T15:18:38.246157+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-11591",
+    "title": "Widgets for Google Reviews 13.3 이하 버전 - 'fomo-title' 및 'fomo-text' 파라미터를 통한 인증된(편집자 이상) 저장형 교차 사이트 스크립팅(Stored XSS)",
+    "description": "WordPress의 Widgets for Google Reviews 플러그인 13.3 이하 버전에서 입력값 검증 및 출력 이스케이프 부족으로 인한 저장형 XSS 취약점이 발견되었습니다. 편집자 이상의 권한을 가진 공격자가 임의의 스크립트를 삽입할 수 있으며, 이는 멀티사이트 환경 또는 unfiltered_html 설정이 비활성화된 설치 환경에 영향을 미칩니다.",
+    "cvss": 4.4,
+    "epss": 0.00251,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "trustindex",
+        "product": "Widgets for Google Reviews",
+        "versions": "13.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:25:11.89963+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-14512",
+    "title": "Glib: GIO 속성 이스케이핑의 정수 오버플로로 인한 힙 버퍼 오버플로",
+    "description": "Glib의 GIO `escape_byte_string()` 함수가 악성 파일 또는 원격 파일 시스템 속성 값을 처리할 때 정수 오버플로가 발생할 수 있는 취약점이 발견되었습니다. 이를 통해 힙 버퍼 오버플로 및 서비스 거부(DoS) 공격이 가능합니다.",
+    "cvss": 6.5,
+    "epss": 0.00524,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "GNOME",
+        "product": "glib",
+        "versions": "2.86.3 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:24:43.298652+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-7620",
+    "title": "Notification for Telegram 3.5.1 이하 - nftb_cron_action_set AJAX 액션을 통한 인증된 사용자(구독자 이상)의 크론 수정 권한 누락",
+    "description": "Notification for Telegram 플러그인 3.5.1 이하 버전에서 권한 검증 미흡으로 인한 권한 우회 취약점이 발견되었습니다. 이를 통해 구독자 이상의 권한을 가진 사용자가 nftb_cron_hook 크론 이벤트를 무단으로 생성, 수정 또는 재스케줄링하여 백그라운드 작업 예약 로직을 조작할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0.00272,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "rainafarai",
+        "product": "Notification for Telegram",
+        "versions": "3.5.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:24:19.699878+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-6801",
+    "title": "Context Blog 1.3.5 이하 - 'postID' 파라미터를 통한 비인증 민감 정보 노출",
+    "description": "WordPress의 Context Blog 테마 1.3.5 이하 버전에서 `context_blog_modal_popup`을 통한 민감 정보 노출 취약점이 발견되었습니다. 이를 통해 인증되지 않은 공격자가 비밀번호로 보호된 게시물의 내용을 추출할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00239,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "postmagthemes",
+        "product": "Context Blog",
+        "versions": "1.3.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:23:52.603804+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-61971",
+    "title": "WordPress User Profile Picture 플러그인 2.6.3 이하 버전 - 안전하지 않은 직접 객체 참조(IDOR) 취약점",
+    "description": "Cozmoslabs의 User Profile Picture 플러그인 2.6.3 이하 버전에서 사용자 제어 키를 통한 권한 우회 취약점이 발견되었습니다. 이는 잘못 설정된 액세스 제어 보안 수준을 악용하여 발생합니다.",
+    "cvss": 2.7,
+    "epss": 0.00314,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Cozmoslabs",
+        "product": "User Profile Picture",
+        "versions": "2.6.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:23:29.437378+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Low"
+  },
+  {
+    "id": "CVE-2026-61952",
+    "title": "WordPress WooCommerce Bulk Edit Products – WP Sheet Editor 플러그인 1.8.21 이하 버전 - 권한 제어 취약점",
+    "description": "WooCommerce Bulk Edit Products – WP Sheet Editor 플러그인에서 권한 부여 누락 취약점이 발견되었습니다. 이를 통해 잘못 설정된 액세스 제어 보안 수준을 악용할 수 있으며, 1.8.21 이하 모든 버전에서 영향을 받습니다.",
+    "cvss": 4.9,
+    "epss": 0.00331,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Jose Vega",
+        "product": "WooCommerce Bulk Edit Products – WP Sheet Editor",
+        "versions": "1.8.21 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:23:08.115694+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-61459",
+    "title": "MCP 서버 쿠버네티스 3.9.0 미만 버전의 kubectl 구조화 도구를 통한 인자 주입 취약점",
+    "description": "3.9.0 미만 버전의 kubectl 구조화 도구에서 인자 주입 취약점이 발견되었습니다. 공격자가 파라미터에 대시(-)를 사용하여 보안 검사를 우회하고 `--server` 플래그를 주입함으로써, 베어러 토큰을 외부로 유출시키고 클러스터 전체를 장악할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00421,
+    "is_kev": false,
+    "cwe": [
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "Flux159",
+        "product": "mcp-server-kubernetes",
+        "versions": "3.9.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:22:45.100665+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-5743",
+    "title": "Mixed Media Gallery Blocks 3.3.3.1 이하 - sliderMaxHeight 블록 속성을 통한 인증된(작성자 권한 이상) 저장형 XSS 취약점",
+    "description": "WordPress의 SimpLy Gallery Block & Lightbox 플러그인 3.3.3.2 이하 버전에서 저장형 XSS 취약점이 발견되었습니다. 입력값 검증 및 출력 이스케이프 미흡으로 인해, 작성자 권한 이상의 공격자가 악성 스크립트를 삽입하여 페이지 방문자에게 실행시킬 수 있습니다.",
+    "cvss": 6.4,
+    "epss": 0.00259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "gallerycreator",
+        "product": "SimpLy Gallery",
+        "versions": "3.3.3.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:22:17.575121+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-57816",
+    "title": "WordPress Funnel Builder by FunnelKit 플러그인 3.15.0.8 이하 버전 - 교차 사이트 스크립팅(XSS) 취약점",
+    "description": "FunnelKit의 Funnel Builder 플러그인에서 입력값 중화 미흡으로 인한 반사형 XSS 취약점이 발견되었습니다. 이 문제는 3.15.0.8 이하의 모든 버전에서 발생합니다.",
+    "cvss": 7.1,
+    "epss": 0.00251,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "FunnelKit",
+        "product": "Funnel Builder by FunnelKit",
+        "versions": "3.15.0.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:21:46.523339+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-57810",
+    "title": "WordPress APIExperts Square for WooCommerce 플러그인 4.7.4 이하 버전 - SQL 인젝션 취약점",
+    "description": "APIExperts Square for WooCommerce 플러그인에서 특수 요소의 부적절한 처리로 인해 Blind SQL 인젝션 취약점이 발생합니다. 이 문제는 4.7.4 이하 버전의 모든 플러그인에 영향을 미칩니다.",
+    "cvss": 8.5,
+    "epss": 0.00357,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Saad Iqbal",
+        "product": "APIExperts Square for WooCommerce",
+        "versions": "4.7.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:21:23.821662+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-57807",
+    "title": "WordPress OAuth Single Sign On - SSO (OAuth Client) 플러그인 38.5.8 이하 버전 - 인증 결함 취약점",
+    "description": "miniOrange Security Software의 OAuth Single Sign On - SSO (OAuth Client) 플러그인에서 대체 경로를 통한 인증 우회 취약점이 발견되었습니다. 이를 통해 비밀번호 복구 기능을 악용할 수 있으며, 38.5.8 이하 모든 버전이 영향을 받습니다.",
+    "cvss": 9.8,
+    "epss": 0.00429,
+    "is_kev": false,
+    "cwe": [
+      "CWE-288"
+    ],
+    "affected": [
+      {
+        "vendor": "miniOrange Security Software Pvt Ltd.",
+        "product": "OAuth Single Sign On - SSO (OAuth Client)",
+        "versions": "38.5.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:21:02.093564+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57800",
+    "title": "WordPress Overworld 테마 1.5 이하 버전 - 로컬 파일 포함(LFI) 취약점",
+    "description": "Edge-Themes의 Overworld 테마 1.5 이하 버전에서 PHP include/require 문의 파일 이름 제어 미흡으로 인해 로컬 파일 포함(LFI) 취약점이 발생할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00496,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "Edge-Themes",
+        "product": "Overworld",
+        "versions": "1.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:20:37.230266+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-57794",
+    "title": "WordPress Golo Framework 플러그인 1.7.3 이하 버전 - 로컬 파일 포함(LFI) 취약점",
+    "description": "uxper Golo Framework 플러그인의 PHP include/require 문에 대한 파일 이름 제어 미흡으로 인해 로컬 파일 포함(LFI) 취약점이 발생합니다. 이 문제는 1.7.3 이하 모든 버전에서 영향을 받습니다.",
+    "cvss": 7.5,
+    "epss": 0.00496,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "uxper",
+        "product": "Golo Framework",
+        "versions": "1.7.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:20:17.266016+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-57214",
+    "title": "RabbitMQ: RabbitMQ 관리 UI의 저장형 XSS 취약점",
+    "description": "RabbitMQ 4.2.5 미만 버전의 관리 UI에서 특정 인자가 적절한 이스케이프 처리 없이 렌더링되어, 권한이 있는 사용자가 타인의 브라우저에서 자바스크립트를 실행할 수 있는 취약점이 발견되었습니다. 이 문제는 4.2.5 버전에서 수정되었습니다.",
+    "cvss": 7.1,
+    "epss": 0.00304,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "rabbitmq",
+        "product": "rabbitmq-server",
+        "versions": ">= 4.2.0, < 4.2.5 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1143",
+    "date": "2026-07-13T23:19:55.624139+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55843",
+    "title": "Snipe-IT: 부적절한 권한 관리",
+    "description": "Snipe-IT 8.6.0 미만 버전에서 권한 요청 필드 처리 오류로 인해 대상 사용자의 권한이 의도치 않게 덮어씌워질 수 있습니다. 이로 인해 관리자나 특정 권한 사용자가 타인의 관리자 및 세부 권한을 제거할 수 있으며, 해당 문제는 8.6.0 버전에서 해결되었습니다.",
+    "cvss": 7,
+    "epss": 0.00298,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1142",
+    "date": "2026-07-13T23:19:32.010083+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55515",
+    "title": "Snipe-IT: 범위가 지정되지 않은 리포트 엔드포인트를 통한 타사 대기 중인 체크아웃 승인 삭제 취약점",
+    "description": "Snipe-IT 8.6.2 이전 버전에서 리포트 삭제 엔드포인트가 자산 접근 권한을 검증하지 않아, 특정 회사의 사용자가 타사의 대기 중인 체크아웃 승인 기록을 삭제할 수 있는 취약점이 존재합니다. 해당 문제는 8.6.2 버전에서 수정되었습니다.",
+    "cvss": 5,
+    "epss": 0.00248,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:19:03.723454+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-55464",
+    "title": "Snipe-IT: 마크다운 사용자 정의 필드를 통한 저장형 XSS",
+    "description": "Snipe-IT 8.6.2 미만 버전에서 마크다운 하이퍼링크의 javascript: URI가 필터링되지 않는 취약점이 존재합니다. assets.edit 권한 사용자가 삽입한 악성 링크를 다른 사용자가 클릭하면 임의의 자바스크립트가 실행될 수 있으며, 이는 8.6.2 버전에서 수정되었습니다.",
+    "cvss": 4.8,
+    "epss": 0.00173,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:18:33.319274+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-55462",
+    "title": "Snipe-IT: 인벤토리 출력 페이지의 권한 우회 취약점",
+    "description": "Snipe-IT 8.6.2 이전 버전에서 권한 검증 미흡으로 인해 `users.view` 권한만 가진 사용자가 접근 제한된 인벤토리 및 비용/주문 메타데이터를 조회할 수 있는 취약점이 발견되었습니다. 해당 문제는 8.6.2 버전에서 수정되었습니다.",
+    "cvss": 4.3,
+    "epss": 0.00252,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "grokability",
+        "product": "snipe-it",
+        "versions": "< 8.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:18:04.130599+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-2354",
+    "title": "Swiss Toolkit For WP 1.4.6 이하 버전 - `upload_extension_files()`를 통한 인증된 사용자(작성자 권한 이상)의 임의 파일 업로드 취약점",
+    "description": "`upload_extension_files()` 함수의 파일 확장자 검증 미흡으로 인해 작성자 권한 이상의 사용자가 임의의 파일을 업로드할 수 있는 취약점이 존재합니다. \"Enhanced Multi-Format Image Support\" 기능이 활성화된 경우, PHP 파일 업로드를 통해 원격 코드 실행(RCE)이 가능할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00553,
+    "is_kev": false,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "wpmessiah",
+        "product": "Swiss Toolkit For WP",
+        "versions": "1.4.6 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1141",
+    "date": "2026-07-13T23:17:40.813077+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-15374",
+    "title": "Eleveo 콜 레코딩 소프트웨어 Group roleAddAction.do 부적절한 권한 부여 취약점",
+    "description": "Eleveo 콜 레코딩 소프트웨어 9.7.0의 Group Interface 컴포넌트(/callrec/roleAddAction.do)에서 부적절한 권한 부여 취약점이 발견되었습니다. 원격 공격자가 이를 조작하여 권한을 획득할 수 있으며, 현재 익스플로잇이 공개되어 악용될 가능성이 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00256,
+    "is_kev": false,
+    "cwe": [
+      "CWE-285",
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "Eleveo",
+        "product": "Call Recording Software",
+        "versions": "9.7.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:17:11.746303+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-13262",
+    "title": "Majestic Support 1.1.9 이하 버전 - 'val' 파라미터를 통한 인증된 사용자(구독자 이상) SQL 인젝션",
+    "description": "WordPress용 Majestic Support 플러그인 1.1.9 이하 버전에서 'val' 파라미터의 입력값 검증 미흡으로 인한 SQL 인젝션 취약점이 발견되었습니다. 공격자는 이를 통해 데이터베이스의 민감한 정보를 추출할 수 있으며, 구독자 권한 이상의 인증된 사용자라면 누구나 공격이 가능합니다.",
+    "cvss": 6.5,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "ahmadmj",
+        "product": "Majestic Support – The Leading-Edge Help Desk & Customer Support Plugin",
+        "versions": "1.1.9 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:16:42.966513+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-13250",
+    "title": "Solace Extra 1.5.3 이하 버전 - delete_previously_imported AJAX 액션을 통한 인증되지 않은 사용자의 임의 콘텐츠 삭제 취약점",
+    "description": "WordPress용 Solace Extra 플러그인 1.5.3 이하 버전에서 권한 확인 누락으로 인한 인증 우회 취약점이 발견되었습니다. 이를 통해 인증되지 않은 공격자가 스타터 템플릿으로 가져온 포스트, 페이지, 미디어, 상품 등 모든 콘텐츠를 영구적으로 삭제할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00273,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "solacewp",
+        "product": "Solace Extra",
+        "versions": "1.5.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:16:15.9485+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-13039",
+    "title": "Eventin 4.0.26 - 4.1.15 - REST API를 통한 미인증 결제 우회 권한 누락 취약점",
+    "description": "WordPress용 Eventin 플러그인(4.0.26~4.1.15)에서 권한 검증 미흡으로 인한 결제 우회 취약점이 발견되었습니다. 공격자가 조작된 ID를 제출해 미결제 주문을 완료 처리함으로써, 실제 결제 없이 유료 이벤트 액세스와 티켓을 획득할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00257,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "arraytics",
+        "product": "Eventin – Event Calendar, Event Registration, Tickets & Booking (AI Powered)",
+        "versions": "4.0.26 부터 4.1.15 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T23:15:45.185808+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-10263",
+    "title": "N/A",
+    "description": "Arm C1-Ultra, C1-Premium, Neoverse V3 & V3AE, Neoverse V2, Neoverse V1, Neoverse-N2, Neoverse-N1, Cortex-X925, Cortex-X4, Cortex-X3, Cortex-X2, Cortex-X1 & X1C, Cortex-A710, Cortex-A78, A78AE & A78C, ",
+    "cvss": 9.1,
+    "epss": 0.00463,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362"
+    ],
+    "affected": [
+      {
+        "vendor": "Arm",
+        "product": "C1-Ultra",
+        "versions": "0 (단일 버전)"
+      },
+      {
+        "vendor": "Arm",
+        "product": "C1-Premium",
+        "versions": "0 (단일 버전)"
+      },
+      {
+        "vendor": "Arm",
+        "product": "Neoverse V3",
+        "versions": "0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-03T13:19:53.513313+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-42508",
+    "title": "golang.org/x/crypto/ssh/knownhosts의 @revoked 상태 미적용으로 인한 인증 우회",
+    "description": "CA의 취소된 'SignatureKey'에 대한 확인 누락으로 인증 우회가 가능했던 문제를 해결했습니다. 이제 'key'와 'key.SignatureKey' 모두 @revoked 상태를 확인합니다.",
+    "cvss": 9.1,
+    "epss": 0.00487,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295: Improper Certificate Validation"
+    ],
+    "affected": [
+      {
+        "vendor": "golang.org/x/crypto",
+        "product": "golang.org/x/crypto/ssh/knownhosts",
+        "versions": "0.52.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T19:55:24.95541+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-4567",
+    "title": "Tenda A15 UploadCfg 스택 기반 오버플로우",
+    "description": "Tenda A15 15.13.07.13 버전에서 /cgi-bin/UploadCfg 파일의 UploadCfg 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. File 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "A15",
+        "versions": "15.13.07.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/592",
+    "date": "2026-03-23T03:26:28.007493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57739",
+    "title": "워드프레스 AcyMailing SMTP Newsletter 플러그인 10.11.0 이하 버전 - SQL 인젝션 취약점",
+    "description": "AcyMailing SMTP Newsletter 플러그인에서 특수 요소의 부적절한 처리로 인해 Blind SQL 인젝션 취약점이 발생합니다. 이 문제는 10.11.0 이하 버전에서 영향을 받습니다.",
+    "cvss": 9.3,
+    "epss": 0.004,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "AcyMailing Newsletter Team",
+        "product": "AcyMailing SMTP Newsletter",
+        "versions": "10.11.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T22:20:36.664111+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-1268",
+    "title": "EMF 리코드 처리의 경계 초과 취약점",
+    "description": "제네릭 플러스 PCL6, UFR II, LIPS4, LIPSLX, PS 프린터 드라이버 등 다양한 프린터 드라이버에서 EMF 리코드 처리 과정 중 경계 초과 취약점이 발견되었습니다.",
+    "cvss": 9.4,
+    "epss": 0.00441,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Canon Inc.",
+        "product": "Generic Plus PCL6 Printer Driver",
+        "versions": "3.12 and earlier (단일 버전)"
+      },
+      {
+        "vendor": "Canon Inc.",
+        "product": "Generic Plus UFR II Printer Driver",
+        "versions": "3.12 and earlier (단일 버전)"
+      },
+      {
+        "vendor": "Canon Inc.",
+        "product": "Generic Plus LIPS4 Printer Driver",
+        "versions": "3.12 and earlier (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/277",
+    "date": "2026-03-15T23:47:28.995678+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57813",
+    "title": "WordPress MailOptin 플러그인 1.2.77.3 이하 버전 - 권한 상승 취약점",
+    "description": "MailOptin 플러그인의 잘못된 권한 할당으로 인해 권한 상승이 가능합니다. 이 문제는 1.2.77.3 이하 모든 버전에서 발생합니다.",
+    "cvss": 9.8,
+    "epss": 0.00483,
+    "is_kev": false,
+    "cwe": [
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "properfraction",
+        "product": "MailOptin",
+        "versions": "1.2.77.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T22:25:23.00089+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-59518",
+    "title": "WordPress Directorist 플러그인 8.8.2 이하 버전 - PHP 객체 주입 취약점",
+    "description": "wpWax Directorist 플러그인의 신뢰할 수 없는 데이터 역직렬화 과정에서 PHP 객체 주입 취약점이 발생합니다. 이 문제는 8.8.2 이하 버전의 Directorist 플러그인에 영향을 미칩니다.",
+    "cvss": 9.8,
+    "epss": 0.00564,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "wpWax",
+        "product": "Directorist",
+        "versions": "8.8.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T22:26:26.414625+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57738",
+    "title": "워드프레스 777 테마 1.13.0 이하 버전 - PHP 객체 주입 취약점",
+    "description": "axiomthemes의 777 테마에서 신뢰할 수 없는 데이터의 역직렬화로 인해 PHP 객체 주입이 가능한 취약점이 발견되었습니다. 이 문제는 1.13.0 이하 버전의 모든 777 테마에 영향을 미칩니다.",
+    "cvss": 9.8,
+    "epss": 0.00564,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "axiomthemes",
+        "product": "777",
+        "versions": "1.13.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T22:20:13.400642+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57401",
+    "title": "WordPress SureDash 플러그인 1.8.0 이하 - 임의 파일 삭제 취약점",
+    "description": "Brainstorm Force의 SureDash 플러그인 1.8.0 이하 버전에서 경로 탐색(Path Traversal) 취약점이 발견되었습니다. 이로 인해 제한된 디렉토리에 대한 경로 제한이 미흡하여 임의의 파일을 삭제할 수 있는 위험이 있습니다.",
+    "cvss": 9.9,
+    "epss": 0.00548,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Brainstorm Force",
+        "product": "SureDash",
+        "versions": "1.8.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-13T22:15:20.131391+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-4606",
+    "title": "GeoVision ERM 부적절한 권한 할당으로 인한 SYSTEM 레벨 권한 획득",
+    "description": "GeoVision Edge Recording Manager (ERM) v2.3.1이 SYSTEM 레벨 권한으로 애플리케이션 구성 요소를 실행하여 로컬 사용자가 운영체제에 대한 완전한 제어 권한을 얻을 수 있습니다. 설치 시 생성되는 Windows 서비스 및 애플리케이션 실행 과정에서 발생하는 문제이며, 파일 열기/저장 기능 등을 통해 시스템 파일 변조 및 삭제가 가능합니다. 이는 로컬 권한 상승 및 시스템 전체 손상을 초래할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-250"
+    ],
+    "affected": [
+      {
+        "vendor": "GeoVision",
+        "product": "GV-Edge Recording Manager",
+        "versions": "2.3.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/594",
+    "date": "2026-03-23T03:26:36.515525+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-12126",
     "title": "WCFM Marketplace 3.7.3 이하 버전 - 첨부 파일 'post_title'을 통한 인증된(Vendor 이상) 저장형 교차 사이트 스크립팅(Stored XSS)",
     "description": "WCFM Marketplace 플러그인 3.7.3 이하 버전에서 입력값 검증 및 출력 이스케이프 미흡으로 인한 저장형 XSS 취약점이 발견되었습니다. Vendor 권한 이상의 공격자가 REST API를 통해 악성 제목의 미디어 파일을 업로드하면, 권한 있는 사용자가 미디어 대시보드를 로드할 때 해당 스크립트가 실행됩니다.",
@@ -335,36 +2216,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-59518",
-    "title": "WordPress Directorist 플러그인 8.8.2 이하 버전 - PHP 객체 주입 취약점",
-    "description": "wpWax Directorist 플러그인의 신뢰할 수 없는 데이터 역직렬화 과정에서 PHP 객체 주입 취약점이 발생합니다. 이 문제는 8.8.2 이하 버전의 Directorist 플러그인에 영향을 미칩니다.",
-    "cvss": 9.8,
-    "epss": 0.00564,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "wpWax",
-        "product": "Directorist",
-        "versions": "8.8.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T22:26:26.414625+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-59516",
     "title": "WordPress ICS Calendar 플러그인 12.1.1 이하 버전 - 교차 사이트 스크립팅(XSS) 취약점",
     "description": "Room 34 Creative Services, LLC의 ICS Calendar 플러그인에서 입력값 중화 미흡으로 인한 반사형 XSS 취약점이 발견되었습니다. 이 문제는 12.1.1 이하 버전의 모든 버전에서 발생합니다.",
@@ -423,36 +2274,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-57813",
-    "title": "WordPress MailOptin 플러그인 1.2.77.3 이하 버전 - 권한 상승 취약점",
-    "description": "MailOptin 플러그인의 잘못된 권한 할당으로 인해 권한 상승이 가능합니다. 이 문제는 1.2.77.3 이하 모든 버전에서 발생합니다.",
-    "cvss": 9.8,
-    "epss": 0.00483,
-    "is_kev": false,
-    "cwe": [
-      "CWE-266"
-    ],
-    "affected": [
-      {
-        "vendor": "properfraction",
-        "product": "MailOptin",
-        "versions": "1.2.77.3 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T22:25:23.00089+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-57812",
@@ -783,66 +2604,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-57739",
-    "title": "워드프레스 AcyMailing SMTP Newsletter 플러그인 10.11.0 이하 버전 - SQL 인젝션 취약점",
-    "description": "AcyMailing SMTP Newsletter 플러그인에서 특수 요소의 부적절한 처리로 인해 Blind SQL 인젝션 취약점이 발생합니다. 이 문제는 10.11.0 이하 버전에서 영향을 받습니다.",
-    "cvss": 9.3,
-    "epss": 0.004,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "AcyMailing Newsletter Team",
-        "product": "AcyMailing SMTP Newsletter",
-        "versions": "10.11.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T22:20:36.664111+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-57738",
-    "title": "워드프레스 777 테마 1.13.0 이하 버전 - PHP 객체 주입 취약점",
-    "description": "axiomthemes의 777 테마에서 신뢰할 수 없는 데이터의 역직렬화로 인해 PHP 객체 주입이 가능한 취약점이 발견되었습니다. 이 문제는 1.13.0 이하 버전의 모든 777 테마에 영향을 미칩니다.",
-    "cvss": 9.8,
-    "epss": 0.00564,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "axiomthemes",
-        "product": "777",
-        "versions": "1.13.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T22:20:13.400642+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-57727",
@@ -1203,36 +2964,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-57401",
-    "title": "WordPress SureDash 플러그인 1.8.0 이하 - 임의 파일 삭제 취약점",
-    "description": "Brainstorm Force의 SureDash 플러그인 1.8.0 이하 버전에서 경로 탐색(Path Traversal) 취약점이 발견되었습니다. 이로 인해 제한된 디렉토리에 대한 경로 제한이 미흡하여 임의의 파일을 삭제할 수 있는 위험이 있습니다.",
-    "cvss": 9.9,
-    "epss": 0.00548,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "Brainstorm Force",
-        "product": "SureDash",
-        "versions": "1.8.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T22:15:20.131391+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-57400",
@@ -4664,36 +6395,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42508",
-    "title": "golang.org/x/crypto/ssh/knownhosts의 @revoked 상태 미적용으로 인한 인증 우회",
-    "description": "CA의 취소된 'SignatureKey'에 대한 확인 누락으로 인증 우회가 가능했던 문제를 해결했습니다. 이제 'key'와 'key.SignatureKey' 모두 @revoked 상태를 확인합니다.",
-    "cvss": 9.1,
-    "epss": 0.00487,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295: Improper Certificate Validation"
-    ],
-    "affected": [
-      {
-        "vendor": "golang.org/x/crypto",
-        "product": "golang.org/x/crypto/ssh/knownhosts",
-        "versions": "0.52.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-13T19:55:24.95541+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-42258",
@@ -51337,46 +53038,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-12948",
-    "title": "Stored Cross-Site Scripting (XSS)",
-    "description": "A stored cross-site scripting (XSS) vulnerability in the web management interface of the Digi PortServer TS, Digi One SP, Digi One SP IA, and Digi One IA allows a remote, authenticated administrator t",
-    "cvss": 4.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Digi International",
-        "product": "Digi PortServer TS",
-        "versions": "82000747_V1 부터 82000747_AB 이하"
-      },
-      {
-        "vendor": "Digi International",
-        "product": "Digi One SP",
-        "versions": "82000747_V1 부터 82000747_AB 이하"
-      },
-      {
-        "vendor": "Digi International",
-        "product": "Digi One SP IA",
-        "versions": "82000747_V1 부터 82000747_AB 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-07T15:18:39.913311+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-13573",
     "title": "llvm llvm-project ValueSymbolTable ValueSymbolTable.cpp insert stack-based overflow",
     "description": "A vulnerability was found in llvm llvm-project up to 22.1.6. This affects the function llvm::StringMap::insert in the library /lib/IR/ValueSymbolTable.cpp of the component ValueSymbolTable Module. The",
@@ -51396,41 +53057,6 @@
     ],
     "report_url": null,
     "date": "2026-06-29T18:10:52.177717+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-12352",
-    "title": "Incorrect Authorization",
-    "description": "This vulnerability allows an unauthenticated actor to bypass authentication and gain access to restricted resources on the device.",
-    "cvss": 5.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Digi International",
-        "product": "PortServer TS 1/2/4",
-        "versions": "82000747_V1 부터 82000747_AB 이하"
-      },
-      {
-        "vendor": "Digi International",
-        "product": "Digi One SP / SP IA / IA",
-        "versions": "82000774-W 부터 93000459_AB 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-07T15:18:38.246157+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -57191,128 +58817,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-4567",
-    "title": "Tenda A15 UploadCfg 스택 기반 오버플로우",
-    "description": "Tenda A15 15.13.07.13 버전에서 /cgi-bin/UploadCfg 파일의 UploadCfg 함수에 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. File 인자 조작을 통해 원격으로 공격이 가능하며, 관련 익스플로이트가 공개되어 악용될 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "A15",
-        "versions": "15.13.07.13 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/592",
-    "date": "2026-03-23T03:26:28.007493+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-1268",
-    "title": "EMF 리코드 처리의 경계 초과 취약점",
-    "description": "제네릭 플러스 PCL6, UFR II, LIPS4, LIPSLX, PS 프린터 드라이버 등 다양한 프린터 드라이버에서 EMF 리코드 처리 과정 중 경계 초과 취약점이 발견되었습니다.",
-    "cvss": 9.4,
-    "epss": 0.00441,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Canon Inc.",
-        "product": "Generic Plus PCL6 Printer Driver",
-        "versions": "3.12 and earlier (단일 버전)"
-      },
-      {
-        "vendor": "Canon Inc.",
-        "product": "Generic Plus UFR II Printer Driver",
-        "versions": "3.12 and earlier (단일 버전)"
-      },
-      {
-        "vendor": "Canon Inc.",
-        "product": "Generic Plus LIPS4 Printer Driver",
-        "versions": "3.12 and earlier (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/277",
-    "date": "2026-03-15T23:47:28.995678+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-4606",
-    "title": "GeoVision ERM 부적절한 권한 할당으로 인한 SYSTEM 레벨 권한 획득",
-    "description": "GeoVision Edge Recording Manager (ERM) v2.3.1이 SYSTEM 레벨 권한으로 애플리케이션 구성 요소를 실행하여 로컬 사용자가 운영체제에 대한 완전한 제어 권한을 얻을 수 있습니다. 설치 시 생성되는 Windows 서비스 및 애플리케이션 실행 과정에서 발생하는 문제이며, 파일 열기/저장 기능 등을 통해 시스템 파일 변조 및 삭제가 가능합니다. 이는 로컬 권한 상승 및 시스템 전체 손상을 초래할 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-250"
-    ],
-    "affected": [
-      {
-        "vendor": "GeoVision",
-        "product": "GV-Edge Recording Manager",
-        "versions": "2.3.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/594",
-    "date": "2026-03-23T03:26:36.515525+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-43866",
@@ -78616,46 +80120,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-10263",
-    "title": "N/A",
-    "description": "Arm C1-Ultra, C1-Premium, Neoverse V3 & V3AE, Neoverse V2, Neoverse V1, Neoverse-N2, Neoverse-N1, Cortex-X925, Cortex-X4, Cortex-X3, Cortex-X2, Cortex-X1 & X1C, Cortex-A710, Cortex-A78, A78AE & A78C, ",
-    "cvss": 9.1,
-    "epss": 0.00463,
-    "is_kev": false,
-    "cwe": [
-      "CWE-362"
-    ],
-    "affected": [
-      {
-        "vendor": "Arm",
-        "product": "C1-Ultra",
-        "versions": "0 (단일 버전)"
-      },
-      {
-        "vendor": "Arm",
-        "product": "C1-Premium",
-        "versions": "0 (단일 버전)"
-      },
-      {
-        "vendor": "Arm",
-        "product": "Neoverse V3",
-        "versions": "0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-03T13:19:53.513313+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-69223",
