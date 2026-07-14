@@ -1,5 +1,2098 @@
 [
   {
+    "id": "CVE-2025-21848",
+    "title": "nfp: bpf: nfp_app_ctrl_msg_alloc() 반환 값 검사 추가",
+    "description": "nfp_bpf_cmsg_alloc() 함수 내에서 nfp_app_ctrl_msg_alloc()의 반환 값을 확인하는 로직을 추가하여, 널 포인터 역참조(null pointer dereference) 취약점을 해결했습니다.",
+    "cvss": 5.5,
+    "epss": 0.0021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 d64c6ca420019712e194fe095b55f87363e22a9a 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 e976ea6c5e1b005c64467cbf94a8577aae9c7d81 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 924b239f9704566e0d86abd894d2d64bd73c11eb 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 1358d8e07afdf21d49ca6f00c56048442977e00a 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 29ccb1e4040da6ff02b7e64efaa2f8e6bf06020d 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 897c32cd763fd11d0b6ed024c52f44d2475bb820 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 bd97f60750bb581f07051f98e31dfda59d3a783b 이전, ff3d43f7568c82b335d7df2d40a31447c3fce10c 부터 878e7b11736e062514e58f3b445ff343e6705537 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:07:31.004167+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21846",
+    "title": "acct: 마지막 쓰기 작업을 워크큐(workqueue)에서 수행",
+    "description": "`acct(2)` 시스템 호출이 `exit_fs()` 이후 특정 파일에 쓰기를 시도할 때 `current->fs` 접근으로 인해 발생하는 NULL 역참조 취약점을 해결했습니다. 이를 위해 마지막 쓰기 작업을 호출자의 권한을 유지하며 워크큐에서 수행하도록 코드를 재구성했습니다.",
+    "cvss": 5.5,
+    "epss": 0.0021,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 8acbf4a88c6a98c8ed00afd1a7d1abcca9b4735e 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 b03782ae707cc45e65242c7cddd8e28f1c22cde5 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 5d5b936cfa4b0d5670ca7420ef165a074bc008eb 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 5ee8da9bea70dda492d61f075658939af33d8410 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 5c928e14a2ccd99462f2351ead627b58075bb736 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 5a59ced8ffc71973d42c82484a719c8f6ac8f7f7 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 a8136afca090412a36429cb6c2543c714d9c0f84 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 56d5f3eba3f5de0efdd556de4ef381e109b973a9 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.12 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:07:08.575247+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21814",
+    "title": "ptp: info->enable 콜백이 항상 설정되도록 보장",
+    "description": "ioctl 및 sysfs 핸들러가 `->enable` 콜백을 무조건 호출하여, 이를 구현하지 않은 일부 드라이버에서 NULL 역참조가 발생하는 문제가 해결되었습니다. 드라이버에서 별도의 콜백을 지정하지 않은 경우 더미 콜백을 사용하도록 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.00213,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d94ba80ebbea17f036cecb104398fbcd788aa742 부터 fdc1e72487781dd7705bcbe30878bee7d5d1f3e8 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 9df3a9284f39bfd51a9f72a6a165c79e2aa5066b 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 1334c64a5d1de6666e0c9f984db6745083df1eb4 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 5d1041c76de656f9f8d5a192218039a9acf9bd00 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 81846070cba17125a866e8023c01d3465b153339 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 8441aea46445252df5d2eed6deb6d5246fc24002 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 755caf4ee1c615ee5717862e427124370f46b1f3 이전, d94ba80ebbea17f036cecb104398fbcd788aa742 부터 fd53aa40e65f518453115b6f56183b0c201db26b 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:06:44.265144+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21802",
+    "title": "net: hns3: 드라이버 병렬 언로드 시 발생하는 oops 수정",
+    "description": "hclge 드라이버 언로드 중 SRIOV 비활성화 과정에서 hns3 드라이버가 동시에 언로드되어 ae_dev 노드가 제거될 때 발생하는 oops 문제를 수정했습니다. 기존 락 사용 시 데드락 위험이 있어, 언로드 프로세스 보호를 위한 새로운 뮤텍스를 도입했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00186,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d36b15e3e7b5937cb1f6ac590a85facc3a320642 부터 622d92a67656e5c4d2d6ccac02d688ed995418c6 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 8c640dd3d900cc8988a39c007591f1deee776df4 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 e876522659012ef2e73834a0b9f1cbe3f74d5fad 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 b5a8bc47aa0a4aa8bca5466dfa2d12dbb5b3cd0c 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 82736bb83fb0221319c85c2e9917d0189cd84e1e 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 cafe9a27e22736d4a01b3933e36225f9857c7988 이전, 0dd8a25f355b4df2d41c08df1716340854c7d4c5 부터 92e5995773774a3e70257e9c95ea03518268bea5 이전, b06ad258e01389ca3ff13bc180f3fcd6a608f1cd (단일 버전), c4b64011e458aa2b246cd4e42012cfd83d2d9a5c (단일 버전), 9b5a29f0acefa3eb1dbe2fa302b393eeff64d933 (단일 버전), 5.10.76 부터 5.10.235 이전, 4.19.214 부터 4.20 이전, 5.4.156 부터 5.5 이전, 5.14.15 부터 5.15 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.15 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:06:21.155372+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21796",
+    "title": "nfsd: acl_access/acl_default 해제 후 초기화",
+    "description": "acl_default 획득 실패 시 acl_access가 해제된 posix_acl 포인터를 계속 유지하여 Use-After-Free(UAF) 및 커널 패닉이 발생하는 문제가 있었습니다. 이를 방지하기 위해 posix_acl_release 호출 후 해당 포인터들을 초기화하도록 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0.00227,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 8a1737ae42c928384ab6447f6ee1a882510e85fa 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 6f7cfee1a316891890c505563aa54f3476db52fd 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 2e59b2b68782519560b3d6a41dd66a3d01a01cd3 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 55d947315fb5f67a35e4e1d3e01bb886b9c6decf 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 f8d871523142f7895f250a856f8c4a4181614510 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 1fd94884174bd20beb1773990fd3b1aa877688d9 이전, a257cdd0e2179630d3201c32ba14d7fcb3c3a055 부터 7faf14a7b0366f153284db0ad3347c457ea70136 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.13 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:05:58.946147+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21795",
+    "title": "NFSD: nfsd4_shutdown_callback의 행(hang) 현상 수정",
+    "description": "nfs4_client가 courtesy 상태일 때 콜백을 전송하면 cl_cb_inflight가 0이 되지 않아 nfsd4_shutdown_callback에서 약 15분간 행 현상이 발생합니다. 이를 해결하기 위해 해당 상태에서 RPC 호출을 건너뛰도록 nfsd4_run_cb_work를 수정했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00221,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "67ef9e5fd737eab2495f2586df7e9ea30caa1b77 부터 abed68027ea3ab893ac85cc46a00e2e64a324239 이전, 26540b8940a2e21582afa61a6fb8af87310bac72 부터 efa8a261c575f816c7e79a87aeb3ef8a0bd6b221 이전, 66af25799940b26efd41ea6e648f75c41a48a2c2 부터 38d345f612503b850c2973e5a879f88e441b34d7 이전, 66af25799940b26efd41ea6e648f75c41a48a2c2 부터 23ad7797c74cd8f7f90617f1e59a8703e2b43908 이전, 66af25799940b26efd41ea6e648f75c41a48a2c2 부터 cedfbb92cf97a6bff3d25633001d9c44442ee854 이전, 66af25799940b26efd41ea6e648f75c41a48a2c2 부터 e88d2451cd42e025465d6b51fd716a47b0b3800d 이전, 66af25799940b26efd41ea6e648f75c41a48a2c2 부터 036ac2778f7b28885814c6fbc07e156ad1624d03 이전, 5.10.220 부터 5.10.235 이전, 5.15.154 부터 5.15.179 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.19 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:05:30.832287+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21780",
+    "title": "drm/amdgpu: smu_sys_set_pp_table() 내 버퍼 오버플로 공격 방지",
+    "description": "리눅스 커널의 smu_sys_set_pp_table() 함수에서 발생할 수 있는 버퍼 오버플로 취약점이 해결되었습니다. 악의적인 사용자가 sysfs를 통해 작은 크기의 pptable을 제공한 후 더 큰 pptable을 제공하여 발생할 수 있는 공격을 방지합니다.",
+    "cvss": 7.8,
+    "epss": 0.00247,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "137d63abbf6a0859e79b662e81d21170ecb75e59 부터 3484ea33157bc7334f57e64826ec5a4bf992151a 이전, 137d63abbf6a0859e79b662e81d21170ecb75e59 부터 e43a8b9c4d700ffec819c5043a48769b3e7d9cab 이전, 137d63abbf6a0859e79b662e81d21170ecb75e59 부터 2498d2db1d35e88a2060ea191ae75dce853dd084 이전, 137d63abbf6a0859e79b662e81d21170ecb75e59 부터 231075c5a8ea54f34b7c4794687baa980814e6de 이전, 137d63abbf6a0859e79b662e81d21170ecb75e59 부터 1abb2648698bf10783d2236a6b4a7ca5e8021699 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:05:05.927545+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/pawan-shivarkar/List-of-CVE-s-",
+      "https://github.com/runwhen-contrib/helm-charts",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21767",
+    "title": "clocksource: 원자적 컨텍스트 내 get_random_u32() 호출 방지를 위해 migrate_disable() 사용",
+    "description": "PREEMPT_RT 커널에서 preemption이 비활성화된 상태로 get_random_u32()가 호출되어 슬리핑 락 획득 시 오류가 발생하는 문제가 있었습니다. 이를 해결하기 위해 migrate_disable()을 사용하여 원자적 컨텍스트 생성을 방지하고, 측정 직전에만 preempt_disable()을 호출하도록 수정했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00156,
+    "is_kev": false,
+    "cwe": [
+      "CWE-667"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d9b40ebd448e437ffbc65f013836f98252279a82 부터 d9c217fadfcff7a8df58567517d1e4253f3fd243 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 60f54f0d4ea530950549a8263e6fdd70a40490a4 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 852805b6cbdb69c298a8fc9fbe79994c95106e04 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 8783ceeee797d9aa9cfe150690fb9d0bac8cc459 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 cc3d79e7c806cb57d71c28a4a35e7d7fb3265faa 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 0fb534187d2355f6c8f995321e76d1ccd1262ac1 이전, 7560c02bdffb7c52d1457fa551b9e745d4b9e754 부터 6bb05a33337b2c842373857b63de5c9bf1ae2a09 이전, 193e14e68e907b2a7a936a7726accbaa4df25a4d (단일 버전), 155d3c5d24ee13cafa6236b49fc02b240a511d59 (단일 버전), 5.10.50 부터 5.10.235 이전, 5.12.17 부터 5.13 이전, 5.13.2 부터 5.14 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.14 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:04:41.463511+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21766",
+    "title": "ipv4: __ip_rt_update_pmtu()에서 RCU 보호 사용",
+    "description": "리눅스 커널의 취약점이 해결되었습니다. __ip_rt_update_pmtu() 함수가 참조하는 net 구조체가 소멸되지 않도록 RCU 보호 기능을 적용했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00197,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 ce3c6165fce0f06305c806696882a3ad4b90e33f 이전, 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 ea07480b23225942208f1b754fea1e7ec486d37e 이전, 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 9b1766d1ff5fe496aabe9fc5f4e34e53f35c11c4 이전, 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 4583748b65dee4d61bd50a2214715b4237bc152a 이전, 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 a39f61d212d822b3062d7f70fa0588e50e55664e 이전, 2fbc6e89b2f1403189e624cabaf73e189c5e50c6 부터 139512191bd06f1b496117c76372b2ce372c9a41 이전, f415c264176e6095e9dee823e09c5bdd0ee0d337 (단일 버전), 98776a365da509ad923083ae54b38ee521c52742 (단일 버전), 860e2cc78c697c95bc749abb20047239fa1722ea (단일 버전), 2b1be6c925cdf4638811765a9160796291494b89 (단일 버전), 4.14.200 부터 4.15 이전, 4.19.148 부터 4.20 이전, 5.4.68 부터 5.5 이전, 5.8.12 부터 5.9 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:04:17.307874+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21765",
+    "title": "ipv6: ip6_default_advmss()에서 RCU 보호 사용",
+    "description": "리눅스 커널의 ip6_default_advmss() 함수가 참조하는 net 구조체가 소멸하지 않도록 RCU 보호를 적용하여 관련 취약점을 해결했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00207,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 78ad057472d8c76e0602402269222f9f9c698790 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 d02f30d220ef9511568a48dba8a9004c65f8d904 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 28de355b63ad42309ed5a03ee7c436c90512265b 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 84212387caadb211cd9dadd6fd5563bd37dc1f5e 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 4176a68b0db8fc74ac14fcd00ba8231371051dc2 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 713a40c892f40300d63691d9f85b2a23b48fe1e8 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 550ed693f47370502a71b85382e7f9e6417300b8 이전, 5578689a4e3c04f2d43ea39736fd3fa396d80c6e 부터 3c8ffcd248da34fc41e52a46e51505900115fc2a 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.26 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:03:55.330284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21764",
+    "title": "ndisc: ndisc_alloc_skb()에 RCU 보호 적용",
+    "description": "ndisc_alloc_skb() 함수가 RTNL 또는 RCU 락 없이 호출될 때 발생할 수 있는 Use-After-Free(UAF) 취약점을 방지하기 위해 RCU 보호 기능을 추가했습니다.",
+    "cvss": 7.8,
+    "epss": 0.00234,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 96fc896d0e5b37c12808df797397fb16f3080879 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 c30893ef3d9cde8e7e8e4fd06b53d2c935bbccb1 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 b870256dd2a5648d5ed2f22316b3ac29a7e5ed63 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 3c2d705f5adf5d860aaef90cb4211c0fde2ba66d 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 9e0ec817eb41a55327a46cd3ce331a9868d60304 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 bbec88e4108e8d6fb468d3817fa652140a44ff28 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 cd1065f92eb7ff21b9ba5308a86f33d1670bf926 이전, de09334b9326632bbf1a74bfd8b01866cbbf2f61 부터 628e6d18930bbd21f2d4562228afe27694f66da9 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:03:35.77747+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21760",
+    "title": "ndisc: ndisc_send_skb()의 RCU 보호 범위 확장",
+    "description": "ndisc_send_skb() 함수가 RTNL 또는 RCU 락 없이 호출될 수 있는 문제를 해결했습니다. rcu_read_lock()을 조기에 호출하여 dev_net_rcu()를 사용 가능하게 함으로써 잠재적인 UAF(Use-After-Free) 취약점을 방지했습니다.",
+    "cvss": 7.8,
+    "epss": 0.09117,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1762f7e88eb34f653b4a915be99a102e347dd45e 부터 10a1f3fece2f0d23a3a618b72b2b4e6f408ef7d1 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 4d576202b90b1b95a7c428a80b536f91b8201bcc 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 e24d225e4cb8cf108bde00b76594499b98f0a74d 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 a9319d800b5701e7f5e3fa71a5b7c4831fc20d6d 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 ae38982f521621c216fc2f5182cd091f4734641d 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 789230e5a8c1097301afc802e242c79bc8835c67 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 04e05112f10354ffc3bb6cc796d553bab161594c 이전, 1762f7e88eb34f653b4a915be99a102e347dd45e 부터 ed6ae1f325d3c43966ec1b62ac1459e2b8e45640 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.26 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:03:14.749852+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21758",
+    "title": "ipv6: mcast: mld_newpack()에 RCU 보호 추가",
+    "description": "mld_newpack() 함수가 RTNL이나 RCU 보호 없이 호출될 수 있는 취약점을 해결했습니다. GFP_KERNEL 할당 문제로 sock_alloc_send_skb() 대신 alloc_skb()를 사용하며, RCU 보호 하에 소켓을 처리하도록 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.13036,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 29fa42197f26a97cde29fa8c40beddf44ea5c8f3 이전, b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 e8af3632a7f2da83e27b083f787bced1faba00b1 이전, b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 1b91c597b0214b1b462eb627ec02658c944623f2 이전, b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 25195f9d5ffcc8079ad743a50c0409dbdc48d98a 이전, b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 d60d493b0e65647e0335e6a7c4547abcea7df8e9 이전, b8ad0cbc58f703972e9e37c4e2a8081dd7e6a551 부터 a527750d877fd334de87eef81f1cb5f0f0ca3373 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.26 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:02:51.471573+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21756",
+    "title": "vsock: 소켓 소멸 시까지 바인딩 상태 유지",
+    "description": "리눅스 커널 vsock에서 전송 계층 재할당 중 소켓 바인딩이 해제되어 발생하는 Use-After-Free 취약점을 해결했습니다. 명시적 bind() 및 connect() 시의 자동 바인딩 상태를 소켓이 완전히 소멸될 때까지 유지하도록 수정했습니다.",
+    "cvss": 7.8,
+    "epss": 0.00844,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 e7754d564579a5db9c5c9f74228df5d6dd6f1173 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 e48fcb403c2d0e574c19683f09399ab4cf67809c 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 42b33381e5e1f2b967dc4fb4221ddb9aaf10d197 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 3f43540166128951cc1be7ab1ce6b7f05c670d8b 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 645ce25aa0e67895b11d89f27bb86c9d444c40f8 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 b1afd40321f1c243cffbcf40ea7ca41aca87fa5e 이전, c0cfa2d8a788fcf45df5bf4070ab2474c88d543a 부터 fcdd2242c0231032fc84e1404315c245ae56322a 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:02:26.797654+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/hoefler02/CVE-2025-21756",
+      "https://github.com/KuanKuanQAQ/cve-testing",
+      "https://github.com/khoatran107/cve-2025-21756"
+    ],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21745",
+    "title": "blk-cgroup: @block_class 클래스의 서브시스템 참조 횟수 누수 수정",
+    "description": "`blkcg_fill_root_iostats()` 함수가 반복문 종료 시 `class_dev_iter_exit()`를 호출하지 않아 발생하던 서브시스템 참조 횟수 누수 문제를 수정했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00218,
+    "is_kev": false,
+    "cwe": [
+      "NVD-CWE-Other"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ef45fe470e1e5410db4af87abc5d5055427945ac 부터 ffb494f1e7a047bd7a41b13796fcfb08fe5beafb 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 38287f779b34dfe959b4b681e909f2d3d52b88be 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 431b6ef2714be4d5babb802114987541a88b43b0 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 993121481b5a87829f1e8163f47158b72679f309 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 2ce09aabe009453d641a2ceb79e6461a2d4f3876 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 67c7f213e052b1aa6caba4a7e25e303bc6997126 이전, ef45fe470e1e5410db4af87abc5d5055427945ac 부터 d1248436cbef1f924c04255367ff4845ccd9025e 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:02:02.366799+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21731",
+    "title": "nbd: 연결 해제 후 재연결 방지",
+    "description": "nbd_config에서 Use-After-Free(UAF) 취약점이 발생하는 문제가 해결되었습니다. 연결 해제 후 재설정 과정에서 recv_work가 다시 큐에 추가되어 발생하며, nbd_genl_disconnect에서 NBD_RT_BOUND를 해제하여 재설정을 방지함으로써 수정되었습니다.",
+    "cvss": 7.8,
+    "epss": 0.00204,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 e70a578487a47d7cf058904141e586684d1c3381 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 6bef6222a3f6c7adb6396f77f25a3579d821b09a 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 e3be8862d73cac833e0fb7602636c19c6cb94b11 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 e7343fa33751cb07c1c56b666bf37cfca357130e 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 d208d2c52b652913b5eefc8ca434b0d6b757f68f 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 a8ee6ecde2b7bfb58c8a3afe8a9d2b848f580739 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 9793bd5ae4bdbdb2dde401a3cab94a6bfd05e302 이전, b7aa3d39385dc2d95899f9e379623fef446a2acd 부터 844b8cdc681612ff24df62cdefddeab5772fadf1 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.12 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:01:40.702422+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21728",
+    "title": "bpf: 선점 불가능한 경우 신호를 비동기적으로 전송",
+    "description": "BPF 프로그램이 선점 불가능한 컨텍스트에서 `bpf_send_signal()` kfunc를 사용할 때, 해당 함수가 슬립(sleep) 상태로 전환되어 발생하는 문제를 해결했습니다. 이를 위해 `irqs_disabled()` 체크를 `!preemptible()`로 변경했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00182,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "fd29a0242f86b2d95ad666aa9f92a3d0f7bfdab6 부터 feba1308bc5e8e04cee751d39fae8a9b407a9034 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 ce51eab2070e295d298f42a2f1db269cd1b56d55 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 e306eaaa3d78b462db5f5b11e0171f9d2b6ca3f4 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 be42a09fe898635b0093c0c8dac1bfabe225c240 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 eeef8e65041a031bd8a747a392c14b76a123a12c 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 78b97783496b454435639937db3303e900a24d3f 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 092fc76b7ab4163e008f9cde596a58dad2108260 이전, 1bc7896e9ef44fd77858b3ef0b8a6840be3a4494 부터 87c544108b612512b254c8f79aa5c0a8546e2cc4 이전, 7930d01afb7281edd9782971e0cca6fe587c7a7b (단일 버전), 5.4.33 부터 5.4.291 이전, 5.5.18 부터 5.6 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:01:14.190622+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21724",
+    "title": "iommufd/iova_bitmap: iova_bitmap_offset_to_index()의 시프트 범위 초과 오류 수정",
+    "description": "iova_bitmap_offset_to_index() 함수에서 32비트 정수 '1'을 시프트할 때 pgshift 값이 31을 초과하면 발생하는 오버플로 및 정의되지 않은 동작 문제를 해결했습니다. 이를 위해 상수를 1UL(unsigned long)로 변경하여 데이터 타입을 일치시켰습니다.",
+    "cvss": 7.8,
+    "epss": 0.0018,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "58ccf0190d19d9a8a41f8a02b9e06742b58df4a1 부터 44d9c94b7a3f29a3e07c4753603a35e9b28842a3 이전, 58ccf0190d19d9a8a41f8a02b9e06742b58df4a1 부터 38ac76fc06bc6826a3e4b12a98efbe98432380a9 이전, 58ccf0190d19d9a8a41f8a02b9e06742b58df4a1 부터 d5d33f01b86af44b23eea61ee309e4ef22c0cdfe 이전, 58ccf0190d19d9a8a41f8a02b9e06742b58df4a1 부터 b1f8453b8ff1ab79a03820ef608256c499769cb6 이전, 58ccf0190d19d9a8a41f8a02b9e06742b58df4a1 부터 e24c1551059268b37f6f40639883eafb281b8b9c 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:00:50.57155+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21718",
+    "title": "net: rose: 사용자 스레드와의 타이머 레이스 조건 수정",
+    "description": "Rose 타이머가 소켓 소유 여부를 확인하지 않고 스핀락만 획득하여 발생하는 레이스 조건을 수정했습니다. 이를 통해 slab-use-after-free 취약점을 해결했으며, 확인 절차 추가 및 필요 시 타이머를 재설정하도록 개선했습니다.",
+    "cvss": 7.0,
+    "epss": 0.00153,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362",
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 52f5aff33ca73b2c2fa93f40a3de308012e63cf4 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 0d5bca3be27bfcf8f980f2fed49b6cbb7dafe4a1 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1409b45d4690308c502c6caf22f01c3c205b4717 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 f55c88e3ca5939a6a8a329024aed8f3d98eea8e4 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 51c128ba038cf1b79d605cbee325919b45ab95a5 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1992fb261c90e9827cf5dc3115d89bb0853252c9 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 58051a284ac18a3bb815aac6289a679903ddcc3f 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 5de7665e0a0746b5ad7943554b34db8f8614a196 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.12 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:00:22.716074+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/runwhen-contrib/helm-charts",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21712",
+    "title": "md/md-bitmap: bitmap_get_stats()를 비트맵 수명 주기와 동기화",
+    "description": "비트맵이 파괴되었거나 완전히 초기화되지 않은 상태에서 `bitmap_get_stats()`가 호출되어 커널 패닉이 발생하는 문제를 해결했습니다. 이를 위해 `bitmap_info.mutex`를 사용하여 해당 함수를 보호함으로써 비트맵 참조 시 발생하는 크래시를 방지했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00193,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 eb2f9d98cd3e94a79fbf8fb90637c5b12e805428 이전, 32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 032fa54f486eac5507976e7e31f079a767bc13a8 이전, 32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 52848a095b55a302af92f52ca0de5b3112059bb8 이전, 32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 237e19519c8ff6949f0ef57c4a0243f5b2b0fa18 이전, 32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 4e9316eee3885bfb311b4759513f2ccf37891c09 이전, 32a7627cf3a35396a8e834faf34e38ae9f3b1309 부터 8d28d0ddb986f56920ac97ae704cc3340a699a30 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.13 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T20:00:03.154822+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21707",
+    "title": "mptcp: 서브옵션 상태 통합",
+    "description": "MPTCP의 서브옵션 상태 관리 시 일부 비트필드가 제대로 초기화되지 않아 발생하는 미초기화 값 사용(KMSAN) 취약점을 해결했습니다. 이를 위해 서브옵션 상태 관리 방식을 통합하여 구조적 취약성을 개선하고 일관성을 확보했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00201,
+    "is_kev": false,
+    "cwe": [
+      "CWE-908"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 3a7fda57b0f91f7ea34476b165f91a92feb17c96 이전, 84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 3b5332d416d151a15742d1b16e7319368e3cc5c6 이전, 84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 7f6c72b8ef8130760710e337dc8fbe7263954884 이전, 84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 6169e942370b4b6f9442d35c51519bf6c346843b 이전, 84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 ba0518f9e8688cd4fcb569e8df2a74874b4f3894 이전, 84dfe3677a6f45b3d0dfdd564e55717a1a5e60cc 부터 c86b000782daba926c627d2fa00c3f60a75e7472 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:59:39.975202+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21706",
+    "title": "mptcp: pm: 서브플로우 엔드포인트에 대해서만 fullmesh 설정",
+    "description": "커널 내 경로 관리자에서 'fullmesh' 플래그가 서브플로우 엔드포인트가 아닌 암시적(implicit) 엔드포인트에도 설정될 수 있는 문제가 발생했습니다. 이로 인해 syzbot에서 커널 경고가 트리거되었으며, 해당 플래그가 서브플로우 엔드포인트에만 적용되도록 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.00195,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "73c762c1f07dacba4fd1cefd15e24b419d42320d 부터 22b0734c9401a74ed4ebd9e8ef0da33e493852eb 이전, 73c762c1f07dacba4fd1cefd15e24b419d42320d 부터 de3b8d41d2547452c4cafb146d003fa4689fbaf2 이전, 73c762c1f07dacba4fd1cefd15e24b419d42320d 부터 8ac344cbd84fda75e05e1f445f7f8fb24dc175e1 이전, 73c762c1f07dacba4fd1cefd15e24b419d42320d 부터 9e3d61620a3cd033319553b980ff3a350adbe1bc 이전, 73c762c1f07dacba4fd1cefd15e24b419d42320d 부터 1bb0d1348546ad059f55c93def34e67cb2a034a6 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.18 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:59:16.236511+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21705",
+    "title": "mptcp: fastopen 연결 해제 처리 방식 수정",
+    "description": "MPTCP의 connect FASTOPEN 오류 발생 시 내부 disconnect() 처리 미흡으로 인한 데이터 스트림 손상 문제를 해결했습니다. 소켓 연결 해제 카운터를 증가시켜, 동일한 소켓 락을 대기하는 다른 스레드들이 정상적으로 오류를 반환하도록 수정했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00195,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "b7bb71dfb541df376c21c24451369fea83c4f327 부터 73e268b4be27b36ae68ea10755cb003f43b38884 이전, c2b2ae3925b65070adb27d5a31a31c376f26dec7 부터 0263fb2e7b7b88075a5d86e74c4384ee4400828d 이전, c2b2ae3925b65070adb27d5a31a31c376f26dec7 부터 84ac44d9fed3a56440971cbd7600a02b70b5b32a 이전, c2b2ae3925b65070adb27d5a31a31c376f26dec7 부터 6ec806762318a4adde0ea63342d42d0feae95079 이전, c2b2ae3925b65070adb27d5a31a31c376f26dec7 부터 619af16b3b57a3a4ee50b9a30add9ff155541e71 이전, 9c998d59a6b1359ad43d1ef38538af5f55fd01a2 (단일 버전), 6.1.36 부터 6.1.129 이전, 6.3.10 부터 6.4 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:58:51.428695+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21701",
+    "title": "net: 장치 등록 해제와 ethnl 작업 간의 경쟁 상태 방지",
+    "description": "장치 등록 해제 중 ethnl 작업을 수행할 때 락(lock)이 파괴되어 경쟁 상태가 발생하는 문제가 해결되었습니다. 이를 위해 `ethnl_ops_begin`의 검사 로직을 강화하여 등록 해제 중인 장치에 대한 모든 작업을 거부하도록 수정했습니다.",
+    "cvss": 7.4,
+    "epss": 0.00165,
+    "is_kev": false,
+    "cwe": [
+      "CWE-362"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "cfd719f04267108f5f5bf802b9d7de69e99a99f9 부터 26bc6076798aa4dc83a07d0a386f9e57c94e8517 이전, dde91ccfa25fd58f64c397d91b81a4b393100ffa 부터 b1cb37a31a482df3dd35a6ac166282dac47664f4 이전, dde91ccfa25fd58f64c397d91b81a4b393100ffa 부터 2f29127e94ae9fdc7497331003d6860e9551cdf3 이전, dde91ccfa25fd58f64c397d91b81a4b393100ffa 부터 b382ab9b885cbb665e0e70a727f101c981b4edf3 이전, dde91ccfa25fd58f64c397d91b81a4b393100ffa 부터 4dc880245f9b529fa8f476b5553c799d2848b47b 이전, dde91ccfa25fd58f64c397d91b81a4b393100ffa 부터 12e070eb6964b341b41677fd260af5a305316a1f 이전, 7c26da3be1e9843a15b5318f90db8a564479d2ac (단일 버전), 5.15.8 부터 5.15.179 이전, 5.10.87 부터 5.11 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:58:28.846567+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-21682",
+    "title": "eth: bnxt: XDP 해제 후 기능 재계산 강제 적용 및 null-deref 수정",
+    "description": "XDP 해제 시 HW-GRO 등의 기능이 자동으로 재활성화되지 않아, 이후 링 설정 변경 시 RSS 해시 테이블 업데이트가 누락되는 문제가 있었습니다. 이로 인해 해제된 링에 접근하며 발생하는 커널 NULL 포인터 역참조(null-deref) 및 크래시 현상을 해결했습니다.",
+    "cvss": 5.5,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1054aee82321483dceabbb9b9e5d6512e8fe684b 부터 076a694a42ae3f0466bc6e4126050eeb7b7d299a 이전, 1054aee82321483dceabbb9b9e5d6512e8fe684b 부터 90336fc3d6f5e716ac39a9ddbbde453e23a5aa65 이전, 1054aee82321483dceabbb9b9e5d6512e8fe684b 부터 08831a894d18abfaabb5bbde7c2069a7fb41dd93 이전, 1054aee82321483dceabbb9b9e5d6512e8fe684b 부터 f0aa6a37a3dbb40b272df5fc6db93c114688adcd 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.16 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:58:04.528246+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21676",
+    "title": "net: fec: page_pool_dev_alloc_pages 오류 처리",
+    "description": "`fec_enet_update_cbd` 함수가 메모리 할당 실패(NULL 반환)를 처리하지 않아 메모리 압박 상황에서 시스템 충돌이 발생하는 문제가 있었습니다. 이를 해결하기 위해 할당 오류 발생 시 현재 패킷을 드롭하도록 수정되었습니다.",
+    "cvss": 5.5,
+    "epss": 0.002,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "95698ff6177b5f1f13f251da60e7348413046ae4 부터 eacdcc14f3c8d4c1447565521e792ddb3a67e08d 이전, 95698ff6177b5f1f13f251da60e7348413046ae4 부터 8a0097db0544b658c159ac787319737712063a23 이전, 95698ff6177b5f1f13f251da60e7348413046ae4 부터 1425cb829556398f594658512d49292f988a2ab0 이전, 95698ff6177b5f1f13f251da60e7348413046ae4 부터 001ba0902046cb6c352494df610718c0763e77a5 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:57:38.834189+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21655",
+    "title": "io_uring/eventfd: io_eventfd_signal()이 또 다른 RCU 기간으로 지연되도록 보장",
+    "description": "io_eventfd_do_signal()이 RCU 콜백에서 호출될 때 참조 횟수가 0이 되면 io_eventfd_free()를 직접 호출하는 문제가 있었습니다. 이를 해결하기 위해 io_eventfd_put()을 사용하여 메모리 해제가 다음 RCU 유예 기간으로 올바르게 지연되도록 수정했습니다.",
+    "cvss": 4.7,
+    "epss": 0.00219,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "21a091b970cdbcf3e8ff829234b51be6f9192766 부터 6b63308c28987c6010b1180c72a6db4df6c68033 이전, 21a091b970cdbcf3e8ff829234b51be6f9192766 부터 8efff2aa2d95dc437ab67c5b4a9f1d3f367baa10 이전, 21a091b970cdbcf3e8ff829234b51be6f9192766 부터 a7085c3ae43b86d4b3d1b8275e6a67f14257e3b7 이전, 21a091b970cdbcf3e8ff829234b51be6f9192766 부터 c9a40292a44e78f71258b8522655bffaf5753bdb 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:57:17.97336+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/oogasawa/Utility-security",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21648",
+    "title": "netfilter: conntrack: 최대 해시 테이블 크기를 INT_MAX로 제한",
+    "description": "conntrack 해시 테이블의 최대 크기를 INT_MAX로 제한하여, 크기 조정 시 `__kvmalloc_node_noprof()`에서 `WARN_ON_ONCE` 경고가 발생하는 문제를 해결했습니다. 해당 크기 조정은 `init_netns`에서만 가능합니다.",
+    "cvss": 5.5,
+    "epss": 0.00209,
+    "is_kev": false,
+    "cwe": [
+      "NVD-CWE-Other"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 a965f7f0ea3ae61b9165bed619d5d6da02c75f80 이전, 9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 b1b2353d768f1b80cd7fe045a70adee576b9b338 이전, 9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 5552b4fd44be3393b930434a7845d8d95a2a3c33 이전, 9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 d5807dd1328bbc86e059c5de80d1bbee9d58ca3d 이전, 9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 f559357d035877b9d0dcd273e0ff83e18e1d46aa 이전, 9cc1c73ad66610bffc80b691136ffc1e9a3b1a58 부터 b541ba7d1f5a5b7b3e2e22dc9e40e18a7d6dbc13 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:56:52.817348+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/oogasawa/Utility-security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-21645",
+    "title": "platform/x86/amd/pmc: i8042가 활성화한 경우에만 IRQ1 웨이크업 비활성화",
+    "description": "i8042가 활성화하지 않은 IRQ1 웨이크업을 비활성화하여 커널 경고(WARN)가 발생하는 문제를 해결했습니다. PMC 중단 핸들러가 i8042와 동일하게 .suspend 핸들러에서만 호출되도록 수정하여 wake_depth 불균형 문제를 방지합니다.",
+    "cvss": 5.5,
+    "epss": 0.0024,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "72e5a83b7c8401856cc3732150af24e43726717a 부터 ab47d72b736e78d3c2370b26e0bfc46eb0918391 이전, 8e60615e8932167057b363c11a7835da7f007106 부터 5cc621085e2b7a9b1905a98f8e5a86bb4aea2016 이전, 8e60615e8932167057b363c11a7835da7f007106 부터 b25778c87a6bce40c31e92364f08aa6240309e25 이전, 8e60615e8932167057b363c11a7835da7f007106 부터 dd410d784402c5775f66faf8b624e85e41c38aaf 이전, 3fc9dc0340e0b5df8059313537b55f82c1e84e94 (단일 버전), 6.1.11 부터 6.1.140 이전, 5.15.95 부터 5.16 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:56:29.721208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/oogasawa/Utility-security",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-13223",
+    "title": "Google Chrome V8 엔진의 타입 혼동 취약점",
+    "description": "142.0.7444.175 이전 버전의 구글 크롬 V8 엔진에서 타입 혼동 취약점이 발견되었습니다. 원격 공격자가 조작된 HTML 페이지를 통해 힙 손상을 유발할 수 있으며, 보안 심각도는 '높음'입니다.",
+    "cvss": 8.8,
+    "epss": 0.04835,
+    "is_kev": true,
+    "cwe": [
+      "CWE-843"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "142.0.7444.175 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:56:02.532536+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-11840",
+    "title": "GNU Binutils ldmisc.c vfinfo 경계 외 읽기 취약점",
+    "description": "GNU Binutils 2.45의 ldmisc.c 파일 내 vfinfo 함수에서 로컬 공격자가 경계 외 읽기를 수행할 수 있는 취약점이 발견되었습니다. 현재 공개된 익스플로잇이 존재하므로, 패치 16357을 적용하여 해결하는 것이 권장됩니다.",
+    "cvss": 4.8,
+    "epss": 0.00256,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:55:41.577147+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11839",
+    "title": "GNU Binutils prdbg.c tg_tag_type 반환 값 취약점",
+    "description": "GNU Binutils 2.45의 prdbg.c 파일 내 tg_tag_type 함수에서 반환 값 미확인 취약점이 발견되었습니다. 로컬 접근을 통해 공격이 가능하며, 현재 익스플로잇이 공개되어 공격에 이용될 위험이 있습니다.",
+    "cvss": 4.8,
+    "epss": 0.00256,
+    "is_kev": false,
+    "cwe": [
+      "CWE-252",
+      "CWE-253"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:55:16.025206+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11495",
+    "title": "GNU Binutils 링커 elf64-x86-64.c elf_x86_64_relocate_section 힙 기반 오버플로우",
+    "description": "GNU Binutils 2.45의 링커 내 elf_x86_64_relocate_section 함수에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격이 가능하며 익스플로잇이 공개된 상태이므로, 제공된 패치를 적용하여 해결하시기 바랍니다.",
+    "cvss": 4.8,
+    "epss": 0.0022,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:54:53.550141+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11494",
+    "title": "GNU Binutils 링커 elfxx-x86.c _bfd_x86_elf_late_size_sections 경계 외 읽기 취약점",
+    "description": "GNU Binutils 2.45의 링커 구성 요소 내 _bfd_x86_elf_late_size_sections 함수에서 경계 외 읽기(Out-of-bounds read) 취약점이 발견되었습니다. 로컬 공격자가 악용 가능하며 익스플로잇이 공개된 상태이므로, 해당 패치를 적용하여 해결해야 합니다.",
+    "cvss": 4.8,
+    "epss": 0.00198,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:54:23.301935+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11414",
+    "title": "GNU Binutils 링커 elflink.c get_link_hash_entry 경계 외 읽기 취약점",
+    "description": "GNU Binutils 2.45 버전의 링커(bfd/elflink.c의 get_link_hash_entry 함수)에서 로컬 경계 외 읽기 취약점이 발견되었습니다. 익스플로잇이 공개된 상태이므로, 보안 패치가 적용된 2.46 버전으로 업데이트하시기 바랍니다.",
+    "cvss": 4.8,
+    "epss": 0.00189,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:53:52.83596+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11413",
+    "title": "GNU Binutils 링커 elflink.c elf_link_add_object_symbols 경계 외 읽기 취약점",
+    "description": "GNU Binutils 2.45 버전의 링커(bfd/elflink.c) 내 elf_link_add_object_symbols 함수에서 로컬 경계 외 읽기 취약점이 발견되었습니다. 공개된 익스플로잇이 존재하므로, 이를 해결하기 위해 2.46 버전으로 업데이트하는 것이 권장됩니다.",
+    "cvss": 4.8,
+    "epss": 0.00203,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:53:25.001417+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11412",
+    "title": "GNU Binutils 링커 elflink.c bfd_elf_gc_record_vtentry 경계 외 읽기 취약점",
+    "description": "GNU Binutils 2.45 링커의 bfd/elflink.c 내 bfd_elf_gc_record_vtentry 함수에서 경계 외 읽기 취약점이 발견되었습니다. 로컬 액세스를 통해 공격이 가능하며, 공개된 익스플로잇이 존재하므로 제공된 패치를 적용할 것을 권장합니다.",
+    "cvss": 4.8,
+    "epss": 0.00189,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:52:56.40985+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11083",
+    "title": "GNU Binutils 링커 elfcode.h elf_swap_shdr 힙 기반 버퍼 오버플로우",
+    "description": "GNU Binutils 2.45의 링커 구성 요소 내 elf_swap_shdr 함수에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 공격자가 이를 악용할 수 있으며 익스플로잇이 공개된 상태입니다. 해당 문제는 2.46 버전에서 수정되었으므로 패치 적용이 권장됩니다.",
+    "cvss": 4.8,
+    "epss": 0.00235,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:52:26.984672+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/raph-rcn/devsecops-juice-shop"
+    ],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-11082",
+    "title": "GNU Binutils 링커 elf-eh-frame.c _bfd_elf_parse_eh_frame 힙 기반 오버플로우",
+    "description": "GNU Binutils 2.45 링커의 _bfd_elf_parse_eh_frame 함수에서 힙 기반 버퍼 오버플로우 취약점이 발견되었습니다. 로컬 실행을 통해 공격이 가능하며 익스플로잇이 공개된 상태입니다. 해당 문제는 2.46 버전에서 수정되었습니다.",
+    "cvss": 4.8,
+    "epss": 0.00234,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "GNU",
+        "product": "Binutils",
+        "versions": "2.45 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:51:56.19073+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/raph-rcn/devsecops-juice-shop"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-10585",
+    "title": "Google Chrome V8 타입 혼동 취약점",
+    "description": "140.0.7339.185 이전 버전의 Google Chrome V8 엔진에서 타입 혼동 취약점이 발견되었습니다. 원격 공격자가 조작된 HTML 페이지를 통해 힙 손상을 유발할 수 있으며, 보안 심각도는 '높음'입니다.",
+    "cvss": 8.8,
+    "epss": 0.05419,
+    "is_kev": true,
+    "cwe": [
+      "CWE-843"
+    ],
+    "affected": [
+      {
+        "vendor": "Google",
+        "product": "Chrome",
+        "versions": "140.0.7339.185 부터 140.0.7339.185 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1185",
+    "date": "2026-07-14T19:51:28.5127+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "yara": "공격벡터 NETWORK — YARA 룰 부적합 (Snort/Suricata 우선)",
+        "sigma": "공개 룰 미발견(SigmaHQ); Groq TPD 소진으로 AI 생성 생략 (다음 실행에서 재처리); 확인한 컨텍스트: [nuclei ❌, ExploitDB ❌, description ✅]",
+        "network": "공개 룰 미발견(ET Open/Snort Community); 구체적 탐지 지표 부족 (구체적 지표 부족); 확인한 컨텍스트: [nuclei ❌, ExploitDB ❌, description ✅]"
+      }
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/AdityaBhatt3010/CVE-2025-10585-The-Chrome-V8-Zero-Day"
+    ],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-62240",
+    "title": "CrewAI 1.15.1 미만 버전 스크레이프 도구의 HTTP 리다이렉트를 통한 SSRF 필터 우회",
+    "description": "CrewAI 1.15.1 이전 버전의 `validate_url` 함수에서 SSRF 취약점이 발견되었습니다. 공격자는 HTTP 리다이렉트나 DNS 리바인딩 기법으로 보안 필터를 우회하여 내부 서비스 및 클라우드 메타데이터 엔드포인트에 접근할 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0.00265,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "crewAIInc",
+        "product": "crewAI",
+        "versions": "1.15.1 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1164",
+    "date": "2026-07-14T09:21:16.548692+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-62239",
+    "title": "hopper/setup.py의 tarfile.extractall을 통한 FlashAttention 심볼릭 링크 공격",
+    "description": "FlashAttention 2.8.3.post1 이하 버전의 `download_and_copy()` 함수에서 심볼릭 링크 검증 없이 아카이브를 추출하는 취약점이 발견되었습니다. 로컬 공격자가 캐시 디렉토리에 심볼릭 링크를 생성하여 추출 경로를 조작함으로써, 빌드 시 피해자 권한으로 임의의 파일을 작성할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00129,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Dao-AILab",
+        "product": "flash-attention",
+        "versions": "2.8.3.post1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:51:08.635229+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-62200",
+    "title": "OpenClaw 2026.6.6 미만 버전의 Git 외부 전송(ext transport)을 통한 인증 우회",
+    "description": "2026.6.1 이전 버전의 호스트 실행 환경 필터링 결함으로 인해 Git 외부 전송 기능이 악용될 수 있습니다. 해당 기능이 활성화된 경우, 권한이 낮은 호출자가 의도된 권한을 초과하여 작업을 수행하거나 유지할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0.00288,
+    "is_kev": false,
+    "cwe": [
+      "CWE-184"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.6.6 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T09:36:20.184706+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-62191",
+    "title": "OpenClaw 2026.6.6 ~ 2026.6.8 메시지 변조를 통한 권한 우회 취약점",
+    "description": "OpenClaw 2026.6.6부터 2026.6.9 이전 버전의 메시지 변조 처리 과정에서 권한 우회 취약점이 발견되었습니다. 공격자는 잘못 설정된 입력 경로를 악용해 인증을 건너뛰고 권한이 필요한 작업을 수행할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00221,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862",
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenClaw",
+        "product": "OpenClaw",
+        "versions": "2026.6.6 부터 2026.6.9 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T09:32:21.778475+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-9561",
+    "title": "Eclipse Kura X-Forwarded-For 헤더를 통한 IP 스푸핑 취약점",
+    "description": "Eclipse Kura 5.6.2 미만 버전에서 X-Forwarded-For 헤더를 신뢰하여 클라이언트 IP를 잘못 인식하는 취약점이 있습니다. 공격자는 이를 통해 IP 기반 무차별 대입 공격 방어 체계를 우회하거나, 타인의 IP를 주입하여 서비스 거부(DoS) 공격을 유발할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00204,
+    "is_kev": false,
+    "cwe": [
+      "CWE-348",
+      "CWE-807",
+      "CWE-345"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse Kura",
+        "versions": "5.0.0 부터 5.6.1 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1184",
+    "date": "2026-07-14T19:51:03.118286+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-8384",
+    "title": "Eclipse Jetty의 HTTP URI 경로 해석 오류",
+    "description": "Eclipse Jetty에서 특정 HTTP URI가 정상적으로 정규화되지 않고 미해결 경로로 반환되는 문제가 있습니다. Jetty 자체는 안전하지만, 해석된 경로에 의존하는 웹 애플리케이션에서 혼선이 발생할 수 있습니다.",
+    "cvss": 5.3,
+    "epss": 0.00191,
+    "is_kev": false,
+    "cwe": [
+      "CWE-647"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse Jetty",
+        "versions": "12.0.0 부터 12.0.34 이하, 12.1.0 부터 12.1.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:50:28.993013+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-6851",
+    "title": "Bitdefender Total Security의 링크 팔로잉을 통한 파일 액세스 전 부적절한 링크 해석 취약점 (VA-13681)",
+    "description": "Windows용 Bitdefender Total Security 및 Internet Security의 File Shredder 모듈에서 심볼릭 링크를 이용한 경쟁 상태(race condition)를 통해 권한 상승이 가능한 취약점이 발견되었습니다. 해당 문제는 두 제품의 27.0.58.315 이전 버전에서 발생합니다.",
+    "cvss": 7,
+    "epss": 0.00121,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Bitdefender",
+        "product": "Total Security",
+        "versions": "27.0.58.315 이전"
+      },
+      {
+        "vendor": "Bitdefender",
+        "product": "Internet Security",
+        "versions": "27.0.58.315 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1183",
+    "date": "2026-07-14T19:50:11.007795+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-6790",
+    "title": "Eclipse Jetty의 HTTP 요청 권한과 Host 헤더 간 검증 부재",
+    "description": "Eclipse Jetty가 최신 RFC(9110, 9112) 기준과 달리 요청 권한과 Host 헤더의 일치 여부를 엄격히 검사하지 않아, URI 생성 및 가상 호스트 선택 등에서 보안 취약점이 발생할 수 있습니다. 이를 해결하기 위해 두 값의 일치 여부를 강제하는 검증 로직이 필요합니다.",
+    "cvss": 5.3,
+    "epss": 0.00196,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse Jetty",
+        "versions": "9.4.0 부터 9.4.60 이하, 10.0.0 부터 10.0.28 이하, 11.0.0 부터 11.0.28 이하, 12.0.0 부터 12.0.34 이하, 12.1.0 부터 12.1.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:49:42.553448+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-62422",
+    "title": "JetBrains YouTrack 직접 데이터베이스 액세스를 통한 인증 우회 취약점",
+    "description": "JetBrains YouTrack의 특정 버전들에서 직접 데이터베이스에 액세스하여 인증을 우회하고 관리자 권한을 획득할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "JetBrains",
+        "product": "YouTrack",
+        "versions": "2026.1.13757,\n2025.3.148033,\n2025.2.148048,\n2025.1.148120,\n2024.3.148430,\n2024.2.148429 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1182",
+    "date": "2026-07-14T19:49:19.839212+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-62393",
+    "title": "아파치 카일린: 작업 정보 조회 시 부적절한 권한 부여",
+    "description": "아파치 카일린의 작업 정보 조회 과정에서 권한 검증 미흡으로 인해 타 프로젝트의 작업에 무단 접근할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 4.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-280"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Kylin",
+        "versions": "4 부터 5.0.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T19:48:56.997607+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2025-23350",
+    "title": "N/A",
+    "description": "NVIDIA ConnectX and BlueField contain a vulnerability in the command interface where a local user with virtual function (VF) access may cause a write out of bounds by crafted input. A successful explo",
+    "cvss": 9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "NVIDIA",
+        "product": "BlueField GA",
+        "versions": "All versions prior to 46.3008 (단일 버전)"
+      },
+      {
+        "vendor": "NVIDIA",
+        "product": "BlueField LTS22",
+        "versions": "All versions prior to 35.8002 (단일 버전)"
+      },
+      {
+        "vendor": "NVIDIA",
+        "product": "BlueField LTS23",
+        "versions": "All versions prior to 39.8002 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-01T16:46:35.69283+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-58289",
+    "title": "Microsoft Edge (Chromium-based) Remote Code Execution Vulnerability",
+    "description": "N/A",
+    "cvss": 9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-843"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Edge (Chromium-based)",
+        "versions": "1.0.0.0 부터 150.0.4078.48 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-04T00:13:15.164846+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-30924",
+    "title": "qui CORS 설정 오류: 임의의 오리진 신뢰 /",
+    "description": "qui는 qBittorrent 인스턴스를 관리하는 웹 인터페이스입니다. 1.14.1 버전 이하에서는 허용적인 CORS 정책을 사용하여 임의의 오리진을 허용하고 Access-Control-Allow-Credentials: true를 반환하여, 로그인된 사용자를 대신하여 외부 웹페이지가 인증된 요청을 수행할 수 있습니다. 공격자는 악성 웹페이지를 통해 사용자의 세션을 이용하여 API 키, 계정 정보 등의 민감한 데이터를 탈취하거나, 외부 프로그램 관리자를 통해 시스템을 완전히 제어할 수 있습니다.",
+    "cvss": 9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-942"
+    ],
+    "affected": [
+      {
+        "vendor": "autobrr",
+        "product": "qui",
+        "versions": "<= 1.14.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/462",
+    "date": "2026-03-19T20:59:13.873177+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57898",
+    "title": "Eclipse BaSyx Java Server SDK의 임의 파일 쓰기 취약점",
+    "description": "Eclipse BaSyx Java Server SDK(2.0.0-milestone-05~12)의 MongoDB 백엔드 사용 시, AAS 썸네일 API를 통해 인증되지 않은 임의 파일 쓰기가 가능하여 원격 코드 실행(RCE)으로 이어질 수 있는 취약점이 발견되었습니다. 해당 문제는 2.0.0-milestone-13 버전에서 수정되었습니다.",
+    "cvss": 9,
+    "epss": 0.00447,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse BaSyx - Java Server SDK",
+        "versions": "2.0.0-milestone-05 부터 2.0.0-milestone-13 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T18:36:12.733631+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-54400",
+    "title": "N/A",
+    "description": "A malicious actor with access to the network and high privileges could exploit an Improper Access Control vulnerability found in UniFi Access Application to escalate privileges on the host device.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Ubiquiti Inc",
+        "product": "UniFi Access Application",
+        "versions": "4.2.29 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-02T16:01:53.349824+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-27436",
+    "title": "WordPress Five Star Business Profile and Schema plugin <= 2.3.19 - Arbitrary Code Execution vulnerability",
+    "description": "Editor Arbitrary Code Execution in Five Star Business Profile and Schema <= 2.3.19 versions.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Rustaurius",
+        "product": "Five Star Business Profile and Schema",
+        "versions": "2.3.19 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-02T13:20:10.158253+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-59083",
+    "title": "Apache Tomcat: RewriteValve의 잘못된 URL 디코딩으로 인한 보안 제어 우회 가능성",
+    "description": "Apache Tomcat의 RewriteValve에서 URL 인코딩 처리 미흡으로 인해 일부 설정에서 보안 제약 사항을 우회할 수 있는 취약점이 발견되었습니다.",
+    "cvss": 9.1,
+    "epss": 0.00156,
+    "is_kev": false,
+    "cwe": [
+      "CWE-177"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Tomcat",
+        "versions": "11.0.0-M1 부터 11.0.23 이하, 10.1.0-M1 부터 10.1.56 이하, 9.0.0.M1 부터 9.0.119 이하, 8.5.0 부터 8.5.100 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T18:36:41.762139+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-37371",
+    "title": "MIT Kerberos 5 GSS 메시지 토큰 처리 중 잘못된 메모리 읽기 취약점",
+    "description": "MIT Kerberos 5(krb5) 1.21.3 미만 버전에서 잘못된 길이 필드가 포함된 메시지 토큰을 전송하여 GSS 메시지 토큰 처리 중 잘못된 메모리 읽기를 유발할 수 있는 취약점이 존재합니다.",
+    "cvss": 9.1,
+    "epss": 0.01863,
+    "is_kev": false,
+    "cwe": [
+      "n/a"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T16:49:44.030604+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Atamik03/API-calc-dz",
+      "https://github.com/Dgporte/ExerciciosDockerPB2025",
+      "https://github.com/runwhen-contrib/helm-charts"
+    ],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-15183",
+    "title": "Snowflake Spark 커넥터의 입력 값 검증 취약점",
+    "description": "Snowflake Spark 커넥터(3.2.1 미만 버전)에서 여러 입력 값 검증 취약점이 발견되었습니다. 공격자는 조작된 URL이나 SQL 주입 등을 통해 OAuth 자격 증명을 탈취하거나 임의의 SQL을 실행할 수 있으며, 이는 데이터 무단 액세스 및 권한 상승으로 이어질 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.00208,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89",
+      "CWE-441",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Snowflake",
+        "product": "Snowflake Spark Connector",
+        "versions": "0.1.0 부터 3.2.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-14T18:33:02.054652+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31946",
+    "title": "OpenOLAT: OIDC 암묵적 흐름에서 위조된 JWT를 통한 인증 우회",
+    "description": "OpenOLAT은 교육, 학습, 평가 및 커뮤니케이션을 위한 웹 기반 오픈 소스 e-러닝 플랫폼입니다. 10.5.4 버전부터 20.2.5 이전 버전까지, OpenOLAT의 OpenID Connect 암묵적 흐름 구현에서 JWT 서명을 확인하지 않습니다. JWT 서명 부분을 무시하고, 제공자의 JWKS 엔드포인트에 대한 암호화 서명 검증 없이 클레임 수준 필드만 검증합니다. 해당 문제는 20.2.5 버전에서 수정되었습니다.",
+    "cvss": 9.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenOLAT",
+        "product": "OpenOLAT",
+        "versions": ">= 10.5.4, < 20.2.5 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/957",
+    "date": "2026-03-30T21:05:03.4717+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {
+        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
+      }
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-62242",
     "title": "Spring Boot Admin Server 4.1.2 미만 버전의 인증되지 않은 인스턴스 등록을 통한 SSRF 취약점",
     "description": "4.1.2 미만 버전에서 인증되지 않은 공격자가 검증되지 않은 healthUrl 및 managementUrl을 통해 인스턴스를 등록할 수 있는 SSRF 취약점이 존재합니다. 이를 통해 내부 주소로 HTTP 요청을 보내고 actuator 프록시를 통해 응답 본문을 조회하여 클라우드 자격 증명을 탈취할 수 있습니다.",
@@ -220,67 +2313,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-59083",
-    "title": "Apache Tomcat: RewriteValve의 잘못된 URL 디코딩으로 인한 보안 제어 우회 가능성",
-    "description": "Apache Tomcat의 RewriteValve에서 URL 인코딩 처리 미흡으로 인해 일부 설정에서 보안 제약 사항을 우회할 수 있는 취약점이 발견되었습니다.",
-    "cvss": 9.1,
-    "epss": 0.00156,
-    "is_kev": false,
-    "cwe": [
-      "CWE-177"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Tomcat",
-        "versions": "11.0.0-M1 부터 11.0.23 이하, 10.1.0-M1 부터 10.1.56 이하, 9.0.0.M1 부터 9.0.119 이하, 8.5.0 부터 8.5.100 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T18:36:41.762139+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-57898",
-    "title": "Eclipse BaSyx Java Server SDK의 임의 파일 쓰기 취약점",
-    "description": "Eclipse BaSyx Java Server SDK(2.0.0-milestone-05~12)의 MongoDB 백엔드 사용 시, AAS 썸네일 API를 통해 인증되지 않은 임의 파일 쓰기가 가능하여 원격 코드 실행(RCE)으로 이어질 수 있는 취약점이 발견되었습니다. 해당 문제는 2.0.0-milestone-13 버전에서 수정되었습니다.",
-    "cvss": 9,
-    "epss": 0.00447,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22",
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "Eclipse Foundation",
-        "product": "Eclipse BaSyx - Java Server SDK",
-        "versions": "2.0.0-milestone-05 부터 2.0.0-milestone-13 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T18:36:12.733631+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-54429",
@@ -560,38 +2592,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-15183",
-    "title": "Snowflake Spark 커넥터의 입력 값 검증 취약점",
-    "description": "Snowflake Spark 커넥터(3.2.1 미만 버전)에서 여러 입력 값 검증 취약점이 발견되었습니다. 공격자는 조작된 URL이나 SQL 주입 등을 통해 OAuth 자격 증명을 탈취하거나 임의의 SQL을 실행할 수 있으며, 이는 데이터 무단 액세스 및 권한 상승으로 이어질 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.00208,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89",
-      "CWE-441",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Snowflake",
-        "product": "Snowflake Spark Connector",
-        "versions": "0.1.0 부터 3.2.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T18:33:02.054652+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-15076",
@@ -3109,40 +5109,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2024-37371",
-    "title": "MIT Kerberos 5 GSS 메시지 토큰 처리 중 잘못된 메모리 읽기 취약점",
-    "description": "MIT Kerberos 5(krb5) 1.21.3 미만 버전에서 잘못된 길이 필드가 포함된 메시지 토큰을 전송하여 GSS 메시지 토큰 처리 중 잘못된 메모리 읽기를 유발할 수 있는 취약점이 존재합니다.",
-    "cvss": 9.1,
-    "epss": 0.01863,
-    "is_kev": false,
-    "cwe": [
-      "n/a"
-    ],
-    "affected": [
-      {
-        "vendor": "n/a",
-        "product": "n/a",
-        "versions": "n/a (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T16:49:44.030604+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/Atamik03/API-calc-dz",
-      "https://github.com/Dgporte/ExerciciosDockerPB2025",
-      "https://github.com/runwhen-contrib/helm-charts"
-    ],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-37370",
@@ -9716,36 +11682,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-62200",
-    "title": "OpenClaw 2026.6.6 미만 버전의 Git 외부 전송(ext transport)을 통한 인증 우회",
-    "description": "2026.6.1 이전 버전의 호스트 실행 환경 필터링 결함으로 인해 Git 외부 전송 기능이 악용될 수 있습니다. 해당 기능이 활성화된 경우, 권한이 낮은 호출자가 의도된 권한을 초과하여 작업을 수행하거나 유지할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-184"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.6.6 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T09:36:20.184706+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-62199",
     "title": "OpenClaw 2026.6.6 미만 버전의 환경 변수 필터링을 통한 인증 우회",
     "description": "호스트 실행 환경 필터링 결함으로 인해 인터프리터 시작 변수가 누락될 수 있는 취약점이 존재합니다. 이를 통해 권한이 낮은 호출자가 조작된 환경 변수를 제공하여 허용된 권한 이상의 동작을 수행하거나 유지할 수 있습니다.",
@@ -9975,37 +11911,6 @@
     ],
     "report_url": null,
     "date": "2026-07-14T09:32:46.758077+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-62191",
-    "title": "OpenClaw 2026.6.6 ~ 2026.6.8 메시지 변조를 통한 권한 우회 취약점",
-    "description": "OpenClaw 2026.6.6부터 2026.6.9 이전 버전의 메시지 변조 처리 과정에서 권한 우회 취약점이 발견되었습니다. 공격자는 잘못 설정된 입력 경로를 악용해 인증을 건너뛰고 권한이 필요한 작업을 수행할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862",
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenClaw",
-        "product": "OpenClaw",
-        "versions": "2026.6.6 부터 2026.6.9 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T09:32:21.778475+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -10748,73 +12653,6 @@
     "has_official_rules": false,
     "rules": {},
     "has_poc": true,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-62240",
-    "title": "CrewAI 1.15.1 미만 버전 스크레이프 도구의 HTTP 리다이렉트를 통한 SSRF 필터 우회",
-    "description": "CrewAI 1.15.1 이전 버전의 `validate_url` 함수에서 SSRF 취약점이 발견되었습니다. 공격자는 HTTP 리다이렉트나 DNS 리바인딩 기법으로 보안 필터를 우회하여 내부 서비스 및 클라우드 메타데이터 엔드포인트에 접근할 수 있습니다.",
-    "cvss": 8.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "crewAIInc",
-        "product": "crewAI",
-        "versions": "1.15.1 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1164",
-    "date": "2026-07-14T09:21:16.548692+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-62239",
-    "title": "hopper/setup.py의 tarfile.extractall을 통한 FlashAttention 심볼릭 링크 공격",
-    "description": "FlashAttention 2.8.3.post1 이하 버전의 `download_and_copy()` 함수에서 심볼릭 링크 검증 없이 아카이브를 추출하는 취약점이 발견되었습니다. 로컬 공격자가 캐시 디렉토리에 심볼릭 링크를 생성하여 추출 경로를 조작함으로써, 빌드 시 피해자 권한으로 임의의 파일을 작성할 수 있습니다.",
-    "cvss": 5.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-59"
-    ],
-    "affected": [
-      {
-        "vendor": "Dao-AILab",
-        "product": "flash-attention",
-        "versions": "2.8.3.post1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-14T09:20:48.540203+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": null,
     "has_public_exploit": false,
@@ -67795,44 +69633,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-31946",
-    "title": "OpenOLAT: OIDC 암묵적 흐름에서 위조된 JWT를 통한 인증 우회",
-    "description": "OpenOLAT은 교육, 학습, 평가 및 커뮤니케이션을 위한 웹 기반 오픈 소스 e-러닝 플랫폼입니다. 10.5.4 버전부터 20.2.5 이전 버전까지, OpenOLAT의 OpenID Connect 암묵적 흐름 구현에서 JWT 서명을 확인하지 않습니다. JWT 서명 부분을 무시하고, 제공자의 JWKS 엔드포인트에 대한 암호화 서명 검증 없이 클레임 수준 필드만 검증합니다. 해당 문제는 20.2.5 버전에서 수정되었습니다.",
-    "cvss": 9.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287",
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenOLAT",
-        "product": "OpenOLAT",
-        "versions": ">= 10.5.4, < 20.2.5 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/957",
-    "date": "2026-03-30T21:05:03.4717+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-53646",
     "title": "FOSSBilling: Client password reset token reuse allows persistent account takeover",
     "description": "FOSSBilling is a free, open-source billing and client management system. In versions 0.5.6 through 0.7.2, when a `ClientPasswordReset` record already exists for a client (from a previous unexpired res",
@@ -91478,36 +93278,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-58289",
-    "title": "Microsoft Edge (Chromium-based) Remote Code Execution Vulnerability",
-    "description": "N/A",
-    "cvss": 9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-843"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Edge (Chromium-based)",
-        "versions": "1.0.0.0 부터 150.0.4078.48 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-04T00:13:15.164846+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-58291",
     "title": "Microsoft Edge (Chromium-based) Information Disclosure Vulnerability",
     "description": "N/A",
@@ -93176,43 +94946,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30924",
-    "title": "qui CORS 설정 오류: 임의의 오리진 신뢰 /",
-    "description": "qui는 qBittorrent 인스턴스를 관리하는 웹 인터페이스입니다. 1.14.1 버전 이하에서는 허용적인 CORS 정책을 사용하여 임의의 오리진을 허용하고 Access-Control-Allow-Credentials: true를 반환하여, 로그인된 사용자를 대신하여 외부 웹페이지가 인증된 요청을 수행할 수 있습니다. 공격자는 악성 웹페이지를 통해 사용자의 세션을 이용하여 API 키, 계정 정보 등의 민감한 데이터를 탈취하거나, 외부 프로그램 관리자를 통해 시스템을 완전히 제어할 수 있습니다.",
-    "cvss": 9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-942"
-    ],
-    "affected": [
-      {
-        "vendor": "autobrr",
-        "product": "qui",
-        "versions": "<= 1.14.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/462",
-    "date": "2026-03-19T20:59:13.873177+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {
-        "ai_generation": "AI SKIP: 익스플로잇 근거 부족"
-      }
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-46465",
@@ -97960,36 +99693,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-54400",
-    "title": "N/A",
-    "description": "A malicious actor with access to the network and high privileges could exploit an Improper Access Control vulnerability found in UniFi Access Application to escalate privileges on the host device.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Ubiquiti Inc",
-        "product": "UniFi Access Application",
-        "versions": "4.2.29 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-02T16:01:53.349824+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-14422",
     "title": "N/A",
     "description": "Out of bounds read and write in Tint in Google Chrome prior to 150.0.7871.46 allowed a remote attacker to potentially perform out of bounds memory access via a crafted HTML page. (Chromium security se",
@@ -100157,36 +101860,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27436",
-    "title": "WordPress Five Star Business Profile and Schema plugin <= 2.3.19 - Arbitrary Code Execution vulnerability",
-    "description": "Editor Arbitrary Code Execution in Five Star Business Profile and Schema <= 2.3.19 versions.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "Rustaurius",
-        "product": "Five Star Business Profile and Schema",
-        "versions": "2.3.19 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-02T13:20:10.158253+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-27425",
@@ -103789,46 +105462,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Medium"
-  },
-  {
-    "id": "CVE-2025-23350",
-    "title": "N/A",
-    "description": "NVIDIA ConnectX and BlueField contain a vulnerability in the command interface where a local user with virtual function (VF) access may cause a write out of bounds by crafted input. A successful explo",
-    "cvss": 9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "NVIDIA",
-        "product": "BlueField GA",
-        "versions": "All versions prior to 46.3008 (단일 버전)"
-      },
-      {
-        "vendor": "NVIDIA",
-        "product": "BlueField LTS22",
-        "versions": "All versions prior to 35.8002 (단일 버전)"
-      },
-      {
-        "vendor": "NVIDIA",
-        "product": "BlueField LTS23",
-        "versions": "All versions prior to 39.8002 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-01T16:46:35.69283+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-23351",
