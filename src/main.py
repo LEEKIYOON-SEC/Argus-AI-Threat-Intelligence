@@ -468,10 +468,11 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled"}
 
-        # Step 2.5: 추가 위협 인텔리전스 (NVD, PoC, VulnCheck, Advisory)
-        raw_data = collector.enrich_threat_intel(raw_data)
+        # Step 2.5: 값싼 위험 신호만 먼저 (메모리/캐시, 네트워크 0) — 고위험 판별용.
+        # 값비싼 위협인텔(NVD/PoC/Advisory)은 고위험으로 판정된 CVE에만 이후 수집 → 처리량 확보.
+        collector.enrich_cheap_signals(raw_data)
 
-        # Step 3: 현재 상태 구성
+        # Step 3: 현재 상태 구성 (값싼 신호까지; PoC/Advisory/NVD-CPE는 고위험만 이후 보강)
         current_state = {
             "id": cve_id,
             "title": raw_data['title'],
@@ -519,6 +520,22 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             })
             # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
             return {"cve_id": cve_id, "status": "handled" if saved else "failed"}
+
+        # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
+        # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
+        if should_alert:
+            raw_data = collector.enrich_threat_intel(raw_data)
+            current_state.update({
+                "cvss": raw_data['cvss'],            # NVD 보정 반영
+                "cvss_vector": raw_data['cvss_vector'],
+                "cwe": raw_data['cwe'],
+                "affected": raw_data['affected'],    # CPE 벤더 보강 반영
+                "has_poc": raw_data.get('has_poc', False),
+                "poc_count": raw_data.get('poc_count', 0),
+                "poc_urls": raw_data.get('poc_urls', []),
+                "github_advisory": raw_data.get('github_advisory', {}),
+                "nvd_cpe": raw_data.get('nvd_cpe', []),
+            })
 
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
         # Step 5: 한국어 번역 — 신규/에스컬레이션 모두 번역해 대시보드를 한글화한다.
@@ -789,8 +806,12 @@ def _main():
         logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
-    # Step 5: FIFO(커밋 오래된 순) — fetch가 이미 정렬. 신규만 처리 대상, 상한 적용.
+    # Step 5: 신규만 처리 대상. 우선순위 = KEV(실제 악용 확인) 먼저, 그 안에서는 커밋 오래된 순(FIFO).
+    # KEV 멤버십은 메모리 세트라 값싸게 판별 가능 → 백로그가 커도 알려진 악용 취약점을 먼저 처리한다.
+    # (CVSS 기반 완전 정렬은 CVE별 fetch가 필요해 백로그 전체엔 비쌈 → KEV 우선으로 핵심만 앞당김.)
     new_items = [c for c in fetched if c['is_new']]
+    kev_set = collector.kev_set
+    new_items.sort(key=lambda c: (0 if c['cve_id'] in kev_set else 1, c['commit_ts']))
     max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
     to_process = new_items[:max_per_run]
     deferred = new_items[max_per_run:]

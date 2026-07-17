@@ -765,41 +765,46 @@ class Collector:
             logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")
         return cve_data
 
-    def enrich_threat_intel(self, cve_data: Dict) -> Dict:
-        """
-        추가 위협 인텔리전스 통합 (NVD + PoC + VulnCheck + Advisory)
-        enrich_cve() 이후에 호출
-        """
+    def enrich_cheap_signals(self, cve_data: Dict) -> Dict:
+        """값싼 위험 신호만 보강 — 메모리 세트/캐시 인덱스 조회 (네트워크 호출 0).
+        위험도 사전판별에 필요한 신호(VulnCheck KEV, ExploitDB, Metasploit)를 채운다.
+        고위험 여부를 값비싼 위협인텔 전에 판정해 저위험을 값싸게 처리하기 위함."""
         cve_id = cve_data['id']
-        logger.info(f"위협 인텔리전스 수집: {cve_id}")
+        # VulnCheck KEV (이미 fetch한 세트에서 조회 — 메모리)
+        cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
+        # ExploitDB 공개 익스플로잇 (캐시 인덱스 조회)
+        cve_data['has_public_exploit'] = enrichment_sources.has_public_exploit(cve_id)
+        # Metasploit 모듈 (캐시 인덱스 조회, "무기화됨" 신호, BSD-3-Clause)
+        msf_modules = enrichment_sources.metasploit_modules(cve_id)
+        cve_data['has_metasploit_module'] = bool(msf_modules)
+        cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
+        if msf_modules:
+            logger.info(f"  🧨 Metasploit 모듈: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+        return cve_data
+
+    def enrich_threat_intel(self, cve_data: Dict) -> Dict:
+        """값비싼 위협 인텔리전스 풀 수집 (NVD + PoC + Advisory, 네트워크 다중 호출).
+        고위험 CVE에만 호출 — 저위험은 enrich_cheap_signals만으로 충분(처리량 확보).
+        enrich_cve() + enrich_cheap_signals() 이후에 호출."""
+        cve_id = cve_data['id']
+        logger.info(f"위협 인텔리전스 수집(고위험): {cve_id}")
+
+        # 값싼 신호가 아직 없으면 채운다 (직접 호출 대비)
+        if 'has_public_exploit' not in cve_data:
+            self.enrich_cheap_signals(cve_data)
 
         # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
         cve_data = self.enrich_from_nvd(cve_data)
         cve_data = self._augment_affected_from_cpe(cve_data)
 
-        # 2. PoC 존재 여부
+        # 2. PoC 존재 여부 (nomi-sec → trickest 네트워크 검색)
         poc_info = self.check_poc_exists(cve_id)
         cve_data['has_poc'] = poc_info['has_poc']
         cve_data['poc_count'] = poc_info['poc_count']
         cve_data['poc_urls'] = poc_info['poc_urls']
-        
-        # 3. VulnCheck KEV (이미 fetch한 세트에서 조회)
-        cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
 
-        # 4. GitHub Advisory
-        advisory = self.check_github_advisory(cve_id)
-        cve_data['github_advisory'] = advisory
-
-        # 5. ExploitDB 공개 익스플로잇 (has_public_exploit — 1급 신호, 캐시 인덱스 조회)
-        cve_data['has_public_exploit'] = enrichment_sources.has_public_exploit(cve_id)
-
-        # 6. Metasploit 모듈 ("무기화됨" 신호, BSD-3-Clause)
-        msf_modules = enrichment_sources.metasploit_modules(cve_id)
-        cve_data['has_metasploit_module'] = bool(msf_modules)
-        # 대시보드/Issue 배지용으로 상위 모듈명만 보존 (출처: Metasploit Framework)
-        cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
-        if msf_modules:
-            logger.info(f"  🧨 Metasploit 모듈 발견: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+        # 3. GitHub Advisory (네트워크)
+        cve_data['github_advisory'] = self.check_github_advisory(cve_id)
 
         return cve_data
     

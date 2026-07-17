@@ -27,14 +27,16 @@ class Analyzer:
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석. Groq 주 모델(Qwen) TPD 소진 시 폴백 모델(GPT-OSS-120B)로 전환.
-        Groq 무료 TPD는 모델별로 따로(각 200K/일)라 폴백으로 하루 예산을 2배로 쓴다."""
+        """CVE 심층 분석. Groq 모델 캐스케이드(compound→mini→gpt-oss→qwen) — 앞 모델의 일일
+        한도 소진 또는 오류 시 다음 모델로 넘어간다. 모델별 한도(RPD/TPD)는 rate_limiter가 추적.
+        compound는 agentic(웹검색)이라 출력이 순수 JSON이 아닐 수 있어, 파싱 실패 시에도
+        다음 모델로 넘겨 견고하게 분석을 확보한다."""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
         base = config.GROQ_ANALYSIS_PARAMS
 
         for model in config.GROQ_MODELS:
-            # 이 모델 TPD 소진이면 다음 모델(폴백)로
+            # 이 모델 일일 한도(RPD/TPD) 소진이면 다음 모델로
             if rate_limit_manager.is_tpd_exhausted(model, required_tokens=6000):
                 continue
             try:
@@ -47,7 +49,7 @@ class Analyzer:
                     "top_p": base["top_p"],
                     "max_completion_tokens": base["max_completion_tokens"],
                 }
-                # reasoning 파라미터는 모델별로 다름 (Qwen=none, GPT-OSS=low)
+                # reasoning 파라미터는 모델별로 다름 (compound=미전송, gpt-oss=low, qwen=none)
                 reasoning = config.GROQ_MODEL_REASONING.get(model, {})
                 if reasoning.get("reasoning_effort"):
                     api_params["reasoning_effort"] = reasoning["reasoning_effort"]
@@ -61,25 +63,23 @@ class Analyzer:
                     tokens_used = response.usage.total_tokens
                 rate_limit_manager.record_call("groq", tokens_used=tokens_used, model=model)
 
-                raw_content = response.choices[0].message.content.strip()
+                raw_content = (response.choices[0].message.content or "").strip()
                 result = self._extract_json(raw_content)
 
                 if result is None or not self._validate_analysis_result(result):
-                    logger.warning(f"{cve_data['id']}: AI 응답 파싱/검증 실패 ({model}) → fallback")
-                    return self._fallback_analysis(cve_data)
+                    # 파싱/검증 실패 → 다음 모델로 재시도 (compound의 비정형 출력 대비)
+                    logger.warning(f"{cve_data['id']}: AI 응답 파싱/검증 실패 ({model}) → 다음 모델 시도")
+                    continue
 
                 logger.info(f"{cve_data['id']}: Analysis complete (model={model})")
                 return result
 
-            except json.JSONDecodeError as e:
-                logger.error(f"{cve_data['id']}: Failed to parse AI JSON response: {e}")
-                raise
             except Exception as e:
                 error_str = str(e)
                 if "429" in error_str or "rate_limit" in error_str.lower():
-                    # TPD(일간 토큰) 소진 → 이 모델 소진 마킹 후 다음 모델(폴백) 시도
-                    if "tokens per day" in error_str.lower() or "tpd" in error_str.lower():
-                        logger.warning(f"{model} TPD 소진 429 → 다음 모델/폴백 전환")
+                    # 일일 한도(TPD/RPD) 소진 → 이 모델 마킹 후 다음 모델
+                    if any(t in error_str.lower() for t in ("tokens per day", "tpd", "requests per day", "rpd", "per day")):
+                        logger.warning(f"{model} 일일 한도 429 → 다음 모델 전환")
                         rate_limit_manager.handle_429("groq", error_message=error_str, model=model)
                         continue
                     # 분/RPM 429 → 대기 후 tenacity 재시도
@@ -92,12 +92,12 @@ class Analyzer:
                 if any(k in error_str.lower() for k in ['timeout', 'connection', 'socket', 'network']):
                     logger.warning(f"{cve_data['id']}: 일시적 에러, 재시도: {e}")
                     raise
-                # 그 외 → fallback
-                logger.error(f"{cve_data['id']}: Analysis error (fallback): {e}", exc_info=True)
-                return self._fallback_analysis(cve_data)
+                # 그 외(모델별 파라미터 미지원 등) → 다음 모델 시도
+                logger.warning(f"{cve_data['id']}: 분석 오류 ({model}: {e}) → 다음 모델 시도")
+                continue
 
-        # 모든 Groq 모델 TPD 소진 → 규칙 기반 fallback (다음 실행에서 재처리됨)
-        logger.warning(f"{cve_data['id']}: 모든 Groq 모델 TPD 소진 → fallback 분석")
+        # 모든 Groq 모델 소진/실패 → 규칙 기반 fallback (다음 실행에서 재처리됨)
+        logger.warning(f"{cve_data['id']}: 모든 Groq 모델 분석 실패 → fallback 분석")
         return self._fallback_analysis(cve_data)
 
     def _extract_json(self, text: str) -> Optional[Dict]:
