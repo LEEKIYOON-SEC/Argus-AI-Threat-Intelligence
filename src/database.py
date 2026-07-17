@@ -180,6 +180,34 @@ class ArgusDB:
             logger.error(f"배치 해시 조회 실패: {e}")
             return result
 
+    def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
+        """외부 피드(KEV/EPSS/Metasploit) 단독 변화로 고위험 승격 가능성이 있는 '현재 저위험' CVE.
+
+        파이프라인은 cvelistV5 커밋(레코드 변경)을 트리거로 재수집하므로, 레코드는 그대로인데
+        외부 피드만 바뀐 CVE는 재수집 큐에 안 올라와 에스컬레이션(재알림)이 누락될 수 있다.
+        이 후보들을 주기적으로 재평가하기 위한 읽기 전용 조회다(스키마 변경 없음).
+
+        현재 저위험 = cvss_score < 7 AND is_kev = false. 최근 N일 내, 최신순 limit건.
+        (이미 고위험인 CVE는 알림이 나갔고, 승격 트리거는 전이 기반이라 재평가 대상에서 제외.)
+        last_alert_state(JSONB)에 비교용 필드가 모두 있으므로 그대로 반환한다.
+        """
+        try:
+            cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat()
+            response = self._execute(
+                self.client.table("cves")
+                .select("id, cvss_score, epss_score, is_kev, last_alert_state, report_url, updated_at")
+                .gte("updated_at", cutoff)
+                .lt("cvss_score", 7.0)
+                .eq("is_kev", False)
+                .not_.is_("last_alert_state", "null")
+                .order("updated_at", desc=True)
+                .limit(limit)
+            )
+            return response.data or []
+        except Exception as e:
+            logger.error(f"에스컬레이션 후보 조회 실패: {e}")
+            return []
+
     def get_all_cves_for_dashboard(self, days: int = 90) -> List[Dict]:
         """대시보드용 CVE 데이터 조회 (최근 N일)"""
         try:

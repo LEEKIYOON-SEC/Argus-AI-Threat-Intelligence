@@ -67,7 +67,13 @@ class ArgusConfig:
         # (타임아웃으로 killed 되어도 워터마크 미저장 → 다음 실행 재수집, 누락 0.)
         "max_cves_per_run": 120,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기
-        "bulk_commit_threshold": 100  # 벌크 커밋 판단 기준 (파일 수)
+        "bulk_commit_threshold": 100,  # 벌크 커밋 판단 기준 (파일 수)
+        # 에스컬레이션 재평가 스윕 — 레코드(cvelistV5) 미변경이라 재수집 큐에 안 올라오는
+        # '현재 저위험' CVE의 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 변화로 인한 고위험 승격
+        # 누락을 메운다. 후보는 최근 N일·최신순 limit건, 실제 승격분만 풀 재처리(상한).
+        "escalation_sweep_days": 30,      # 재평가 대상: 최근 며칠 내 CVE
+        "escalation_candidate_limit": 300,  # 재평가 후보 상한 (EPSS 배치 = 50건/요청)
+        "max_escalation_reprocess": 20    # 한 실행에서 풀 재처리할 승격 CVE 상한
     }
     
     # ==========================================
