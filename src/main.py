@@ -453,6 +453,18 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
 # [4] CVE 처리 (단일)
 # ==============================================================================
 
+# last_alert_state(JSONB)에 저장할 필드 화이트리스트 — DB 용량 최소화.
+# 대시보드 표시용(export_dashboard_data) + 다음 실행 에스컬레이션 비교용(_should_send_alert)만 포함.
+# 제외: id(중복)·cvss_vector·references·poc_count·is_vulncheck_kev·github_advisory·nvd_cpe (미표시/미비교).
+_DASHBOARD_STATE_FIELDS = frozenset({
+    # 대시보드 표시
+    "title", "title_ko", "description", "desc_ko", "cwe", "affected",
+    "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
+    "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
+    "cvss", "epss", "is_kev",
+})
+
 def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Optional[Dict]:
     try:
         # Step 1: CVE 상세 정보 수집
@@ -567,10 +579,10 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             notifier.send_alert(current_state, alert_reason, report_url)
 
         # Step 8: DB 저장 (content_hash 포함)
-        # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
-        # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
-        # (불변 원칙 2, 8-②)
-        clean_state = {k: v for k, v in current_state.items() if not k.startswith("_")}
+        # last_alert_state(JSONB)에는 대시보드 표시 + 다음 실행 에스컬레이션 비교에 필요한 필드만
+        # 저장한다 — DB 용량 최소화(불변 원칙 2). github_advisory/references/nvd_cpe/cvss_vector 등
+        # 대시보드·비교에 안 쓰는 큰 필드와 임시 컨텍스트(_로 시작)는 제외. PoC 원문 미저장(8-②).
+        clean_state = {k: current_state[k] for k in _DASHBOARD_STATE_FIELDS if k in current_state}
 
         db_data = {
             "id": cve_id,
