@@ -195,7 +195,7 @@ class SlackNotifier:
         try:
             blocks = [
                 {"type": "header", "text": {"type": "plain_text", "text": f"✅ 공식 룰 발견: {cve_id}"}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*\n\n이전에 AI 생성 룰로 보고된 취약점에 대한 *공식 검증된 룰*이 발견되었습니다."}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": f"*{title}*\n\n이전 리포트에 공개 탐지 룰이 없던 취약점에 대해 *공식 검증된 룰*이 새로 발견되었습니다."}},
                 {"type": "divider"}
             ]
 

@@ -101,19 +101,14 @@ class RateLimitManager:
             "rate_limit_hits": 0
         }
 
-        # TPD (Tokens Per Day) 트래킹 — 프리티어 일간 토큰 한도 관리
-        # Gemini/Groq를 나눈 것은 프리티어 사용량 분산 전략 (불변 원칙 5).
-        # 양쪽 잔여량을 함께 추적해 실행 요약에서 확인한다.
-        self._tpd_limits: Dict[str, int] = {
-            "groq": 200_000,    # Groq Free Tier: 200K TPD
-        }
-        self._tpd_used: Dict[str, int] = {}
-        self._tpd_reset_at: Dict[str, datetime] = {}
-        self._tpd_exhausted: Dict[str, bool] = {}
-        for api in self._tpd_limits:
-            self._tpd_used[api] = 0
-            self._tpd_reset_at[api] = datetime.now() + timedelta(hours=24)
-            self._tpd_exhausted[api] = False
+        # TPD (Tokens Per Day) 트래킹 — Groq 무료 TPD는 '모델별'로 따로(각 200K/일) 잡힌다.
+        # 주 모델 소진 시 폴백 모델로 넘겨 하루 예산을 2배로 쓰기 위해 모델 문자열을 키로 추적한다.
+        # (rate_limiter 상태는 실행마다 초기화되므로, 실제 일간 소진은 429의 'tokens per day'
+        #  에러로 감지해 해당 모델을 소진 마킹하고 폴백으로 전환한다.)
+        self._tpd_limit: int = 200_000  # Groq Free Tier: 모델당 200K TPD
+        self._tpd_used_model: Dict[str, int] = {}
+        self._tpd_reset_model: Dict[str, datetime] = {}
+        self._tpd_exhausted_model: Dict[str, bool] = {}
 
         # TPM (Tokens Per Minute) 선제 관리 — Groq 무료 TPM(8,000) 초과로 인한 429 폭주 방지.
         # Groq은 (입력 + max_completion_tokens)를 TPM에 선예약하므로, 이번 분 누적이 한도에
@@ -139,8 +134,39 @@ class RateLimitManager:
             api: datetime.now() + timedelta(hours=24) for api in self._rpd_limits
         }
 
-        logger.info("Rate Limit Manager v3.3 초기화 완료 (Thread-Safe + TPD/TPM/RPD 트래킹)")
-    
+        logger.info("Rate Limit Manager v3.4 초기화 완료 (Thread-Safe + 모델별 TPD/TPM/RPD 트래킹)")
+
+    def _ensure_groq_model(self, model: str) -> None:
+        """모델별 TPD 카운터 지연 초기화. 반드시 _lock 보유 상태에서 호출."""
+        if model not in self._tpd_used_model:
+            self._tpd_used_model[model] = 0
+            self._tpd_reset_model[model] = datetime.now() + timedelta(hours=24)
+            self._tpd_exhausted_model[model] = False
+
+    def active_groq_model(self, models, required_tokens: int = 15000):
+        """우선순위 순 models 중 이번 호출을 감당할 TPD 여유가 있는 첫 모델을 반환.
+        모두 소진이면 None. (주 모델 소진 시 폴백 모델로 전환하는 핵심.)"""
+        with self._lock:
+            for model in models:
+                self._ensure_groq_model(model)
+                # 일간 리셋
+                if datetime.now() >= self._tpd_reset_model[model]:
+                    self._tpd_used_model[model] = 0
+                    self._tpd_reset_model[model] = datetime.now() + timedelta(hours=24)
+                    self._tpd_exhausted_model[model] = False
+                if self._tpd_exhausted_model[model]:
+                    continue
+                if self._tpd_used_model[model] + required_tokens <= self._tpd_limit:
+                    return model
+            return None
+
+    def mark_groq_exhausted(self, model: str) -> None:
+        """모델의 TPD 소진 마킹 (429 'tokens per day' 수신 시)."""
+        with self._lock:
+            self._ensure_groq_model(model)
+            self._tpd_exhausted_model[model] = True
+            logger.warning(f"🚫 {model} TPD 소진 마킹 — 이 모델의 나머지 호출은 폴백/SKIP")
+
     def check_and_wait(self, api_name: str) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단."""
         if api_name not in self.limits:
@@ -220,8 +246,9 @@ class RateLimitManager:
 
         return True
     
-    def record_call(self, api_name: str, tokens_used: int = 0):
-        """API 호출 기록 (Thread-Safe). tokens_used가 있으면 TPD도 업데이트."""
+    def record_call(self, api_name: str, tokens_used: int = 0, model: Optional[str] = None):
+        """API 호출 기록 (Thread-Safe). tokens_used가 있으면 TPM/TPD도 업데이트.
+        model이 주어지면(Groq) 해당 모델의 TPD 버킷에 누적한다."""
         if api_name not in self.limits:
             return
         with self._lock:
@@ -253,54 +280,48 @@ class RateLimitManager:
                     self._tpm_reset_at[api_name] = now + timedelta(seconds=60)
                 self._tpm_used[api_name] += tokens_used
 
-            # TPD 트래킹
-            if tokens_used > 0 and api_name in self._tpd_limits:
+            # TPD 트래킹 (모델별) — model이 주어진 Groq 호출만
+            if tokens_used > 0 and model:
+                self._ensure_groq_model(model)
                 now = datetime.now()
-                if now >= self._tpd_reset_at[api_name]:
-                    self._tpd_used[api_name] = 0
-                    self._tpd_reset_at[api_name] = now + timedelta(hours=24)
-                    self._tpd_exhausted[api_name] = False
-                    logger.info(f"🔄 {api_name} TPD 리셋")
+                if now >= self._tpd_reset_model[model]:
+                    self._tpd_used_model[model] = 0
+                    self._tpd_reset_model[model] = now + timedelta(hours=24)
+                    self._tpd_exhausted_model[model] = False
+                    logger.info(f"🔄 {model} TPD 리셋")
 
-                self._tpd_used[api_name] += tokens_used
-                tpd_limit = self._tpd_limits[api_name]
-                tpd_remaining = tpd_limit - self._tpd_used[api_name]
-                tpd_pct = (self._tpd_used[api_name] / tpd_limit) * 100
+                self._tpd_used_model[model] += tokens_used
+                tpd_remaining = self._tpd_limit - self._tpd_used_model[model]
+                tpd_pct = (self._tpd_used_model[model] / self._tpd_limit) * 100
 
-                logger.debug(f"{api_name} TPD: {self._tpd_used[api_name]:,}/{tpd_limit:,} ({tpd_pct:.1f}%, 잔여 {tpd_remaining:,})")
+                logger.debug(f"{model} TPD: {self._tpd_used_model[model]:,}/{self._tpd_limit:,} ({tpd_pct:.1f}%, 잔여 {tpd_remaining:,})")
 
                 if tpd_pct >= 90:
-                    logger.warning(f"⚠️ {api_name} TPD 90% 도달! ({self._tpd_used[api_name]:,}/{tpd_limit:,})")
+                    logger.warning(f"⚠️ {model} TPD 90% 도달! ({self._tpd_used_model[model]:,}/{self._tpd_limit:,})")
 
-    def is_tpd_exhausted(self, api_name: str, required_tokens: int = 15000) -> bool:
-        """TPD 잔량이 부족한지 확인. required_tokens는 다음 호출에 필요한 예상 토큰."""
+    def is_tpd_exhausted(self, model: str, required_tokens: int = 15000) -> bool:
+        """특정 Groq 모델의 TPD 잔량이 부족한지 확인. required_tokens는 다음 호출 예상 토큰."""
         with self._lock:
-            if api_name not in self._tpd_limits:
-                return False
-
-            # 429로 TPD 소진 감지된 경우
-            if self._tpd_exhausted.get(api_name, False):
+            self._ensure_groq_model(model)
+            if datetime.now() >= self._tpd_reset_model[model]:
+                return False  # 리셋 시점 지남 → 여유
+            if self._tpd_exhausted_model[model]:
                 return True
+            return (self._tpd_limit - self._tpd_used_model[model]) < required_tokens
 
-            remaining = self._tpd_limits[api_name] - self._tpd_used[api_name]
-            return remaining < required_tokens
-
-    def mark_tpd_exhausted(self, api_name: str):
-        """429 TPD 에러 수신 시 소진 상태로 마킹"""
-        with self._lock:
-            self._tpd_exhausted[api_name] = True
-            logger.warning(f"🚫 {api_name} TPD 소진 마킹 — 이번 실행의 나머지 Groq 호출 SKIP")
-    
-    def handle_429(self, api_name: str, retry_after: Optional[float] = None, error_message: str = ""):
+    def handle_429(self, api_name: str, retry_after: Optional[float] = None,
+                   error_message: str = "", model: Optional[str] = None):
         """429 Too Many Requests 대응 (Thread-Safe). TPD 소진이면 대기 대신 즉시 마킹."""
         with self._lock:
             self.stats["rate_limit_hits"] += 1
 
-            # TPD(일간 토큰) 소진인 경우 → 대기해도 의미 없음, 즉시 소진 마킹
+            # TPD(일간 토큰) 소진인 경우 → 대기해도 의미 없음, 해당 모델을 즉시 소진 마킹
             if "tokens per day" in error_message.lower() or "tpd" in error_message.lower():
-                self._tpd_exhausted[api_name] = True
+                if model:
+                    self._ensure_groq_model(model)
+                    self._tpd_exhausted_model[model] = True
                 logger.warning(
-                    f"🚫 {api_name} TPD 소진 429! 남은 Groq 호출 SKIP "
+                    f"🚫 {model or api_name} TPD 소진 429! 이 모델은 폴백/SKIP "
                     f"(누적 429: {self.stats['rate_limit_hits']}회)"
                 )
                 self.stats["total_waits"] += 1
@@ -409,15 +430,15 @@ class RateLimitManager:
                     f"  {name:18s}: {info.used:4d}/{info.limit:4d} "
                     f"[{usage_bar}] {info.usage_percent:5.1f}%"
                 )
-        # TPD 요약
-        for api, limit in self._tpd_limits.items():
-            used = self._tpd_used.get(api, 0)
-            if used > 0:
-                tpd_pct = (used / limit) * 100
+        # TPD 요약 (Groq 모델별 — 주 모델/폴백 각각 200K)
+        for model, used in self._tpd_used_model.items():
+            if used > 0 or self._tpd_exhausted_model.get(model, False):
+                tpd_pct = (used / self._tpd_limit) * 100
                 tpd_bar = self._create_usage_bar(tpd_pct)
-                exhausted = " (EXHAUSTED)" if self._tpd_exhausted.get(api, False) else ""
+                exhausted = " (EXHAUSTED)" if self._tpd_exhausted_model.get(model, False) else ""
+                label = (model[:14] + " TPD")
                 logger.info(
-                    f"  {api + ' TPD':18s}: {used:,}/{limit:,} "
+                    f"  {label:18s}: {used:,}/{self._tpd_limit:,} "
                     f"[{tpd_bar}] {tpd_pct:5.1f}%{exhausted}"
                 )
         # RPD 요약 (Gemma 일간 요청 수)

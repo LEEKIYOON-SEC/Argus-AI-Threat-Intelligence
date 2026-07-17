@@ -19,87 +19,86 @@ class Analyzer:
             raise AnalyzerError("GROQ_API_KEY not found")
         
         self.client = Groq(api_key=api_key)
-        self.model = config.MODEL_PHASE_1
-        
-        logger.info(f"Analyzer initialized with model: {self.model}")
+        # 사용 모델은 호출 시 rate_limiter가 TPD 여유에 따라 선택 (주 → 폴백)
+        logger.info(f"Analyzer initialized (models: {config.GROQ_MODELS})")
     
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석 수행 (v3.1 - response_format 호환성 개선)"""
+        """CVE 심층 분석. Groq 주 모델(Qwen) TPD 소진 시 폴백 모델(GPT-OSS-120B)로 전환.
+        Groq 무료 TPD는 모델별로 따로(각 200K/일)라 폴백으로 하루 예산을 2배로 쓴다."""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
+        prompt = self._build_analysis_prompt(cve_data)
+        base = config.GROQ_ANALYSIS_PARAMS
 
-        try:
-            prompt = self._build_analysis_prompt(cve_data)
+        for model in config.GROQ_MODELS:
+            # 이 모델 TPD 소진이면 다음 모델(폴백)로
+            if rate_limit_manager.is_tpd_exhausted(model, required_tokens=6000):
+                continue
+            try:
+                rate_limit_manager.check_and_wait("groq")
 
-            rate_limit_manager.check_and_wait("groq")
+                api_params = {
+                    "model": model,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": base["temperature"],
+                    "top_p": base["top_p"],
+                    "max_completion_tokens": base["max_completion_tokens"],
+                }
+                # reasoning 파라미터는 모델별로 다름 (Qwen=none, GPT-OSS=low)
+                reasoning = config.GROQ_MODEL_REASONING.get(model, {})
+                if reasoning.get("reasoning_effort"):
+                    api_params["reasoning_effort"] = reasoning["reasoning_effort"]
+                if reasoning.get("reasoning_format"):
+                    api_params["reasoning_format"] = reasoning["reasoning_format"]
 
-            api_params = {
-                "model": self.model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": config.GROQ_ANALYSIS_PARAMS["temperature"],
-                "top_p": config.GROQ_ANALYSIS_PARAMS["top_p"],
-                "max_completion_tokens": config.GROQ_ANALYSIS_PARAMS["max_completion_tokens"],
-            }
+                response = self.client.chat.completions.create(**api_params)
 
-            if config.GROQ_ANALYSIS_PARAMS.get("reasoning_effort"):
-                api_params["reasoning_effort"] = config.GROQ_ANALYSIS_PARAMS["reasoning_effort"]
-            if config.GROQ_ANALYSIS_PARAMS.get("reasoning_format"):
-                api_params["reasoning_format"] = config.GROQ_ANALYSIS_PARAMS["reasoning_format"]
+                tokens_used = 0
+                if hasattr(response, 'usage') and response.usage:
+                    tokens_used = response.usage.total_tokens
+                rate_limit_manager.record_call("groq", tokens_used=tokens_used, model=model)
 
-            # TPD 소진 시 AI 분석 SKIP → fallback
-            if rate_limit_manager.is_tpd_exhausted("groq"):
-                logger.warning(f"{cve_data['id']}: Groq TPD 소진 → fallback 분석 사용")
-                return self._fallback_analysis(cve_data)
+                raw_content = response.choices[0].message.content.strip()
+                result = self._extract_json(raw_content)
 
-            response = self.client.chat.completions.create(**api_params)
-
-            # 토큰 사용량 기록 (TPD 트래킹)
-            tokens_used = 0
-            if hasattr(response, 'usage') and response.usage:
-                tokens_used = response.usage.total_tokens
-            rate_limit_manager.record_call("groq", tokens_used=tokens_used)
-
-            raw_content = response.choices[0].message.content.strip()
-            result = self._extract_json(raw_content)
-
-            if result is None:
-                logger.warning(f"{cve_data['id']}: Failed to extract JSON from AI response")
-                logger.debug(f"Raw response: {raw_content[:500]}")
-                return self._fallback_analysis(cve_data)
-
-            if not self._validate_analysis_result(result):
-                logger.warning(f"{cve_data['id']}: Invalid AI response, using fallback")
-                return self._fallback_analysis(cve_data)
-
-            logger.info(f"{cve_data['id']}: Analysis complete (feasibility={result.get('rule_feasibility')})")
-            return result
-
-        except json.JSONDecodeError as e:
-            logger.error(f"{cve_data['id']}: Failed to parse AI JSON response: {e}")
-            raise
-        except Exception as e:
-            error_str = str(e)
-            if "429" in error_str or "rate_limit" in error_str.lower():
-                retry_after = rate_limit_manager.parse_retry_after(error_str)
-                wait_time = retry_after if retry_after else 10
-                # TPD 소진이면 대기 없이 즉시 마킹 → fallback 전환
-                if "tokens per day" in error_str.lower() or "tpd" in error_str.lower():
-                    logger.warning(f"Groq TPD 소진 429 (Analyzer) → fallback 전환")
-                    rate_limit_manager.handle_429("groq", wait_time, error_message=error_str)
+                if result is None or not self._validate_analysis_result(result):
+                    logger.warning(f"{cve_data['id']}: AI 응답 파싱/검증 실패 ({model}) → fallback")
                     return self._fallback_analysis(cve_data)
-                logger.warning(f"Groq 429 수신 (Analyzer), {wait_time:.1f}초 대기")
-                rate_limit_manager.handle_429("groq", wait_time, error_message=error_str)
+
+                logger.info(f"{cve_data['id']}: Analysis complete (model={model})")
+                return result
+
+            except json.JSONDecodeError as e:
+                logger.error(f"{cve_data['id']}: Failed to parse AI JSON response: {e}")
                 raise
-            # 네트워크/타임아웃 에러는 재시도 가능 → raise로 tenacity 재시도
-            if any(keyword in error_str.lower() for keyword in ['timeout', 'connection', 'socket', 'network']):
-                logger.warning(f"{cve_data['id']}: 일시적 에러, 재시도: {e}")
-                raise
-            # 그 외 에러 (API 응답 문제 등)는 fallback
-            logger.error(f"{cve_data['id']}: Analysis error (fallback): {e}", exc_info=True)
-            return self._fallback_analysis(cve_data)
+            except Exception as e:
+                error_str = str(e)
+                if "429" in error_str or "rate_limit" in error_str.lower():
+                    # TPD(일간 토큰) 소진 → 이 모델 소진 마킹 후 다음 모델(폴백) 시도
+                    if "tokens per day" in error_str.lower() or "tpd" in error_str.lower():
+                        logger.warning(f"{model} TPD 소진 429 → 다음 모델/폴백 전환")
+                        rate_limit_manager.handle_429("groq", error_message=error_str, model=model)
+                        continue
+                    # 분/RPM 429 → 대기 후 tenacity 재시도
+                    retry_after = rate_limit_manager.parse_retry_after(error_str)
+                    wait_time = retry_after if retry_after else 10
+                    logger.warning(f"Groq 429 (RPM/TPM), {wait_time:.1f}초 대기 후 재시도")
+                    rate_limit_manager.handle_429("groq", wait_time, error_message=error_str, model=model)
+                    raise
+                # 네트워크/타임아웃 → tenacity 재시도
+                if any(k in error_str.lower() for k in ['timeout', 'connection', 'socket', 'network']):
+                    logger.warning(f"{cve_data['id']}: 일시적 에러, 재시도: {e}")
+                    raise
+                # 그 외 → fallback
+                logger.error(f"{cve_data['id']}: Analysis error (fallback): {e}", exc_info=True)
+                return self._fallback_analysis(cve_data)
+
+        # 모든 Groq 모델 TPD 소진 → 규칙 기반 fallback (다음 실행에서 재처리됨)
+        logger.warning(f"{cve_data['id']}: 모든 Groq 모델 TPD 소진 → fallback 분석")
+        return self._fallback_analysis(cve_data)
 
     def _extract_json(self, text: str) -> Optional[Dict]:
         # 1차 시도: 그대로 파싱
@@ -183,12 +182,12 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
    - If the description only mentions a vulnerability class (e.g., "buffer overflow") without specific function/component details, state that and add "[추정]" before any inference
    - DO NOT fabricate specific function names (e.g., memcpy, strcpy, eval) unless they appear in the description
 
-2. **Attack Scenario (Kill Chain)**
+2. **Attack Scenario (Kill Chain)** — 핵심 산출물, 가장 상세하게 작성
    - Start with "MITRE ATT&CK 기반 공격 흐름:"
-   - Describe a realistic attack flow using MITRE ATT&CK framework
-   - Include specific technique IDs (e.g., T1210, T1059, T1078) with their names
-   - Base the scenario on the CVSS vector and CWE
-   - Mark inferred steps with [추정]
+   - Describe a realistic attack flow using the MITRE ATT&CK framework
+   - Include AT LEAST 3 stages, each with a specific technique ID (e.g., T1210, T1059, T1190, T1078) AND its official name
+   - Base every stage on the CVSS vector (AV/AC/PR/UI) and CWE — the entry stage must be consistent with the Attack Vector
+   - Mark any step inferred from CWE/vector (not from the description) with [추정]
    - Use newline (\n) between each stage in the JSON string value
    - Format EXACTLY as:
      MITRE ATT&CK 기반 공격 흐름:\n**초기 접근(Initial Access)** – 설명 (T코드: 기법명). [추정]\n**실행(Execution)** – 설명 (T코드: 기법명). [추정]\n**영향(Impact)** – 설명 (T코드: 기법명). [추정]
@@ -206,13 +205,6 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
    - Suggest general workarounds based on the vulnerability class
    - Reference the vendor advisory URL if available in References
 
-5. **Detection Rule Feasibility**
-   - Set to **true** ONLY IF at least 3 concrete indicators exist IN THE PROVIDED DATA:
-     * Specific file paths, URL parameters, magic bytes, function names, HTTP headers,
-       registry keys, port numbers, exploit strings, log patterns
-   - Set to **false** if indicators would need to be guessed
-   - **NEVER GUESS OR HALLUCINATE INDICATORS**
-
 [Language & Terminology]
 - Translate ALL output values into Korean (한국어)
 - KEEP technical terms in English or Korean transliteration:
@@ -224,10 +216,9 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
 Return ONLY a valid JSON object:
 {{
   "root_cause": "한국어 설명 (추론 시 [추정] 표기)",
-  "scenario": "한국어 공격 시나리오 (추론 시 [추정] 표기)",
+  "scenario": "한국어 공격 시나리오 (MITRE 기법 ID 3개 이상, 추론 시 [추정] 표기)",
   "impact": "한국어 영향도 평가",
-  "mitigation": ["단계별", "대응", "방안"],
-  "rule_feasibility": true or false
+  "mitigation": ["단계별", "대응", "방안"]
 }}
 
 Do NOT include markdown code fences or any text outside the JSON.
@@ -235,21 +226,17 @@ Do NOT include markdown code fences or any text outside the JSON.
     
     def _validate_analysis_result(self, result: Dict) -> bool:
         """AI 응답 검증"""
-        required_keys = ['root_cause', 'scenario', 'impact', 'mitigation', 'rule_feasibility']
-        
+        required_keys = ['root_cause', 'scenario', 'impact', 'mitigation']
+
         for key in required_keys:
             if key not in result:
                 logger.warning(f"Missing required key: {key}")
                 return False
-        
+
         if not isinstance(result['mitigation'], list):
             logger.warning("mitigation must be a list")
             return False
-        
-        if not isinstance(result['rule_feasibility'], bool):
-            logger.warning("rule_feasibility must be boolean")
-            return False
-        
+
         return True
     
     def _fallback_analysis(self, cve_data: Dict) -> Dict:
@@ -264,6 +251,5 @@ Do NOT include markdown code fences or any text outside the JSON.
                 "제조사 보안 권고문 확인",
                 "영향받는 버전 확인 후 패치 적용",
                 "취약 구간 네트워크 접근 제한"
-            ],
-            "rule_feasibility": False
+            ]
         }
