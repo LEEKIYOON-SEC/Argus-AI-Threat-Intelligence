@@ -13,6 +13,11 @@ class ArgusConfig:
     # ==========================================
     MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
     MODEL_PHASE_1 = "qwen/qwen3.6-27b"  # 심층 분석 + 룰 생성 (Groq, 사고형 모델)
+    MODEL_PHASE_1_FALLBACK = "openai/gpt-oss-120b"  # Qwen TPD 소진 시 폴백 (Groq, 별도 TPD 버킷)
+
+    # Groq 무료 TPD는 모델별로 따로 잡힌다(각 200K/일). 따라서 주 모델(Qwen) 소진 시
+    # 폴백 모델(GPT-OSS-120B)로 넘기면 하루 예산이 사실상 2배가 된다. 우선순위 순서.
+    GROQ_MODELS = [MODEL_PHASE_1, MODEL_PHASE_1_FALLBACK]
 
     # Qwen3.6은 사고형(thinking) 모델 — reasoning_effort는 "default"(thinking) / "none"(non-thinking)만 지원.
     # ⚠️ 무료 티어 제약(TPM 8,000): Groq은 (입력 + max_completion_tokens)를 TPM에 선예약하므로
@@ -21,11 +26,13 @@ class ArgusConfig:
     # 유료(Developer) 전환 시: reasoning_effort "default" + max_completion 상향으로 thinking 복원.
     # reasoning_format="parsed": content에 최종 답변만 남겨 JSON/룰 파싱이 깨지지 않도록(무해, 유지).
 
-    # [분석용] Groq 파라미터 - non-thinking, 8K TPM 적합
+    # [분석용] Groq 파라미터 - non-thinking, 8K TPM 적합 (temp/top_p/max는 모델 공통)
+    # AI 룰 생성 제거로 토큰 예산 확보 → 분석 출력 상향(시나리오/MITRE/벡터 충실).
+    # 입력~1.5K + 4096 ≈ 5.6K < 8K TPM 안전.
     GROQ_ANALYSIS_PARAMS = {
         "temperature": 0.3,  # 일관된 출력 (hallucination 감소)
         "top_p": 0.9,
-        "max_completion_tokens": 3072,  # 입력~1.3K + 3072 ≈ 4.4K < 8K TPM
+        "max_completion_tokens": 4096,  # 분석 집중(룰 예산 회수분)
         "reasoning_effort": "none",  # 무료 티어: non-thinking 필수
         "reasoning_format": "parsed"
     }
@@ -38,14 +45,16 @@ class ArgusConfig:
         "reasoning_effort": "none",  # 무료 티어: non-thinking 필수
         "reasoning_format": "parsed"
     }
-    
-    # ==========================================
-    # [2] AI 룰 생성 게이트
-    # ==========================================
-    RULE_GENERATION = {
-        "epss_threshold": 0.2,  # EPSS >= 0.2이면 AI 룰 생성
-        "require_exploitation_evidence": True,  # False = 기존 동작 (kill switch)
+
+    # 모델별 reasoning 파라미터 오버라이드 — 모델마다 지원하는 값이 다르므로 분리.
+    # GPT-OSS-120B는 "none"을 지원하지 않아 "low"(최소 추론)로 둔다. temp/top_p/max_completion은
+    # 위 ANALYSIS/RULE_PARAMS를 공통 사용하되, reasoning_effort/format만 여기서 덮어쓴다.
+    # 값이 없으면 해당 파라미터를 API 호출에서 생략한다.
+    GROQ_MODEL_REASONING = {
+        "qwen/qwen3.6-27b": {"reasoning_effort": "none", "reasoning_format": "parsed"},
+        "openai/gpt-oss-120b": {"reasoning_effort": "low", "reasoning_format": "parsed"},
     }
+    
 
     # ==========================================
     # [3] 성능 최적화 설정

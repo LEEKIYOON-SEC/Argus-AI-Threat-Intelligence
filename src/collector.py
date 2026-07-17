@@ -720,6 +720,51 @@ class Collector:
             logger.debug(f"GitHub Advisory 실패 ({cve_id}): {e}")
             return {"has_advisory": False}
     
+    @staticmethod
+    def _parse_cpe(cpe: str):
+        """CPE 2.3 문자열에서 (vendor, product, version) 추출.
+        형식: cpe:2.3:a:vendor:product:version:update:... — 미상/와일드카드는 제외."""
+        parts = cpe.split(':')
+        if len(parts) < 6 or not parts[0].startswith('cpe'):
+            return None
+        vendor, product, version = parts[3], parts[4], parts[5]
+        if vendor in ('', '*', '-') or product in ('', '*', '-'):
+            return None
+        return vendor, product, version
+
+    def _augment_affected_from_cpe(self, cve_data: Dict) -> Dict:
+        """CVE 자체 affected에 유효한 벤더가 없을 때 NVD CPE로 벤더/제품을 보강한다.
+        자산 매칭(is_target_asset)이 affected를 1차 소스로 쓰므로 매칭 누락 방지에 직접 기여."""
+        cpes = cve_data.get('nvd_cpe') or []
+        if not cpes:
+            return cve_data
+        existing = cve_data.get('affected', [])
+        has_valid_vendor = any(
+            (a.get('vendor', '').lower() not in ('', 'unknown', 'n/a')) for a in existing
+        )
+        if has_valid_vendor:
+            return cve_data  # CVE 자체 데이터 우선
+        seen, derived = set(), []
+        for cpe in cpes:
+            parsed = self._parse_cpe(cpe)
+            if not parsed:
+                continue
+            vendor, product, version = parsed
+            key = (vendor.lower(), product.lower())
+            if key in seen:
+                continue
+            seen.add(key)
+            derived.append({
+                "vendor": vendor.replace('_', ' '),
+                "product": product.replace('_', ' '),
+                "versions": version if version not in ('*', '-', '') else "정보 없음",
+                "patch_version": None,
+            })
+        if derived:
+            cve_data['affected'] = derived
+            logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")
+        return cve_data
+
     def enrich_threat_intel(self, cve_data: Dict) -> Dict:
         """
         추가 위협 인텔리전스 통합 (NVD + PoC + VulnCheck + Advisory)
@@ -727,10 +772,11 @@ class Collector:
         """
         cve_id = cve_data['id']
         logger.info(f"위협 인텔리전스 수집: {cve_id}")
-        
-        # 1. NVD CVSS/CWE 보충
+
+        # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
         cve_data = self.enrich_from_nvd(cve_data)
-        
+        cve_data = self._augment_affected_from_cpe(cve_data)
+
         # 2. PoC 존재 여부
         poc_info = self.check_poc_exists(cve_id)
         cve_data['has_poc'] = poc_info['has_poc']

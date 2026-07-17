@@ -118,9 +118,13 @@ def parse_cvss_vector(vector_str: str) -> str:
     return "<br>".join(mapped_parts)
 
 def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
+    # 벤더/제품 표기 차이(언더스코어 vs 공백)를 흡수해 매칭 누락 방지
+    def _norm(s: str) -> str:
+        return s.lower().replace('_', ' ').strip()
+
     for target in config.get_target_assets():
-        t_vendor = target.get('vendor', '').lower()
-        t_product = target.get('product', '').lower()
+        t_vendor = _norm(target.get('vendor', ''))
+        t_product = _norm(target.get('product', ''))
 
         # 전체 감시 모드
         if t_vendor == "*" and t_product == "*":
@@ -128,10 +132,10 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
 
         # 1차: affected 필드의 구조화된 vendor/product 매칭
         for affected in cve_data.get('affected', []):
-            a_vendor = affected.get('vendor', '').lower()
-            a_product = affected.get('product', '').lower()
+            a_vendor = _norm(affected.get('vendor', ''))
+            a_product = _norm(affected.get('product', ''))
 
-            # vendor가 N/A, Unknown이면 건너뛰기 (2차에서 description으로 확인)
+            # vendor가 N/A, Unknown이면 건너뛰기 (2·3차에서 확인)
             if a_vendor in ('', 'unknown', 'n/a'):
                 continue
 
@@ -141,8 +145,20 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
             if vendor_match and product_match:
                 return True, f"Matched (affected): {a_vendor}/{a_product}"
 
-        # 2차(보조): description 텍스트 매칭
-        # affected에 정보가 없거나 N/A인 경우를 위한 fallback
+        # 2차: NVD CPE의 vendor/product 매칭 (affected가 비거나 불명일 때 보완)
+        for cpe in cve_data.get('nvd_cpe', []):
+            parts = cpe.split(':')
+            if len(parts) < 5:
+                continue
+            c_vendor, c_product = _norm(parts[3]), _norm(parts[4])
+            if c_vendor in ('', '*', '-'):
+                continue
+            vendor_match = (t_vendor in c_vendor) or (c_vendor in t_vendor)
+            product_match = (t_product == "*") or (t_product in c_product) or (c_product in t_product)
+            if vendor_match and product_match:
+                return True, f"Matched (NVD CPE): {c_vendor}/{c_product}"
+
+        # 3차(보조): description 텍스트 매칭
         desc_lower = cve_data.get('description', '').lower()
         if desc_lower and t_vendor in desc_lower and (t_product == "*" or t_product in desc_lower):
             return True, f"Matched (description): {t_vendor}/{t_product}"
@@ -227,16 +243,6 @@ Do NOT add intro/outro.
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
 
-def _rule_trust_badge(rule_info: Dict) -> str:
-    """룰 신뢰 등급(trust tier) 배지"""
-    trust = rule_info.get('trust') or ('official-verified' if rule_info.get('verified') else 'ai-draft')
-    if trust == 'official-verified':
-        return "🟢 **공식 검증 (official-verified)**"
-    if trust == 'ai-validated':
-        return "🔷 **AI 생성 · 자기검증 통과 (ai-validated)**"
-    return "🔶 **AI 생성 - 검토 필요 (ai-draft)**"
-
-
 def _rule_license_note(rule_info: Dict) -> str:
     """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
     lic = rule_info.get('license')
@@ -253,22 +259,15 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         return None, None
     
     try:
-        # Step 1: AI 분석
+        # Step 1: AI 심층 분석 (핵심 산출물 — 근본원인·공격 시나리오·MITRE·벡터)
         logger.info(f"AI 분석 시작: {cve_data['id']}")
         analyzer = Analyzer()
         analysis = analyzer.analyze_cve(cve_data)
-        
-        # Step 2: AI 룰 생성 게이트 판단 + 룰 수집
+
+        # Step 2: 공개 탐지 룰 검색만 (AI 룰 생성 없음 — 공개 룰 있을 때만 채움)
         rule_manager = RuleManager()
-        should_ai, ai_reason = _should_generate_ai_rules(cve_data)
-        if should_ai:
-            logger.info(f"🤖 AI 룰 생성: {cve_data['id']} ({ai_reason})")
-            rules = rule_manager.get_rules(cve_data, analysis)
-        else:
-            logger.info(f"📂 공개 룰만: {cve_data['id']} ({ai_reason})")
-            rules = rule_manager.search_public_only(cve_data['id'])
-            rules['skip_reasons']['ai_generation'] = f"AI SKIP: {ai_reason}"
-        
+        rules = rule_manager.search_public_only(cve_data['id'])
+
         # Step 3: 공식 룰 존재 여부 확인
         has_official = any([
             rules.get('sigma') and rules['sigma'].get('verified'),
@@ -361,94 +360,28 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
     
-    # 룰 섹션
-    rules_section = ""
+    # 공개 탐지 룰 섹션 — 공개 룰(SigmaHQ/ET Open/Yara-Rules)이 있을 때만 표시.
+    # AI 룰 생성은 제거됨 → 공개 룰이 없으면 없음을 안내(불필요한 '미생성' 나열 제거).
     has_any_rules = rules.get('sigma') or rules.get('network') or rules.get('yara')
-    
     if has_any_rules:
-        rules_section = "## 🛡️ AI 생성 탐지 룰\n\n"
-        
-        if not has_official:
-            rules_section += "> ⚠️ **주의:** AI 생성 룰은 실제 배포 전 보안 전문가의 검토가 필요합니다.\n\n"
-        
-        # Sigma 룰
+        rules_section = ("## 🔎 공개 탐지 룰\n\n"
+                         "> 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 확인된 **공식 검증 룰**입니다. "
+                         "보안 장비 적용 전 자사 환경에 맞게 검토하세요.\n\n")
         if rules.get('sigma'):
             info = rules['sigma']
-            badge = _rule_trust_badge(info)
-            extra = _rule_license_note(info)
-
-            # AI 생성 룰이면 지표 정보 표시
-            if not info.get('verified') and info.get('indicators'):
-                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
-
-            rules_section += f"### Sigma Rule ({info['source']}) {badge}\n{extra}```yaml\n{info['code']}\n```\n\n"
-
-        # 네트워크 룰 (Snort/Suricata - 여러 개 가능)
+            rules_section += f"### Sigma Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yaml\n{info['code']}\n```\n\n"
         if rules.get('network'):
             for idx, net_rule in enumerate(rules['network'], 1):
-                badge = _rule_trust_badge(net_rule)
                 engine_name = net_rule.get('engine', 'unknown').upper()
-                extra = _rule_license_note(net_rule)
-
-                # AI 생성 룰이면 지표 정보 표시
-                if not net_rule.get('verified') and net_rule.get('indicators'):
-                    extra += f"\n> **Based on:** {', '.join(net_rule['indicators'])}\n"
-
-                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) {badge}\n{extra}```bash\n{net_rule['code']}\n```\n\n"
-
-        # Yara 룰
+                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) 🟢 공식 검증\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
         if rules.get('yara'):
             info = rules['yara']
-            badge = _rule_trust_badge(info)
-            extra = _rule_license_note(info)
-
-            # AI 생성 룰이면 지표 정보 표시
-            if not info.get('verified') and info.get('indicators'):
-                extra += f"\n> **Based on:** {', '.join(info['indicators'])}\n"
-
-            rules_section += f"### Yara Rule ({info['source']}) {badge}\n{extra}```yara\n{info['code']}\n```\n\n"
-    
-    # 탐지 룰 현황 섹션 (항상 표시)
-    skip_reasons = rules.get('skip_reasons', {})
-    ai_status_section = "## 📋 탐지 룰 현황\n\n"
-
-    # AI 룰 생성 SKIP 안내
-    if skip_reasons.get('ai_generation'):
-        ai_status_section += f"> ℹ️ {skip_reasons['ai_generation']}\n"
-        ai_status_section += "> 공개 룰 저장소(SigmaHQ, ET Open, Yara-Rules)만 검색되었습니다.\n\n"
-
-    # Sigma 상태
-    if rules.get('sigma'):
-        if rules['sigma'].get('verified'):
-            ai_status_section += "**Sigma Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
-        else:
-            ai_status_section += f"**Sigma Rule** ✅ AI 생성 완료 ({rules['sigma'].get('trust', 'ai-draft')})\n\n"
+            rules_section += f"### Yara Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yara\n{info['code']}\n```\n\n"
     else:
-        skip_reason = skip_reasons.get('sigma', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Sigma Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
+        rules_section = ("## 🔎 공개 탐지 룰\n\n"
+                         "> 현재 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 이 CVE에 대한 탐지 룰은 확인되지 않았습니다. "
+                         "공개 룰이 등록되면 정기 재확인 시 자동 반영됩니다. 그 전에는 위의 분석·공격 시나리오·대응 방안을 참고하세요.\n")
 
-    # Snort/Suricata 상태
-    if rules.get('network'):
-        verified_count = sum(1 for r in rules['network'] if r.get('verified'))
-        if verified_count > 0:
-            ai_status_section += f"**Snort/Suricata Rule** ✅ 공식 룰 발견 ({verified_count}개 엔진, official-verified)\n\n"
-        else:
-            net_trust = rules['network'][0].get('trust', 'ai-draft') if rules['network'] else 'ai-draft'
-            ai_status_section += f"**Snort/Suricata Rule** ✅ AI 생성 완료 ({net_trust})\n\n"
-    else:
-        skip_reason = skip_reasons.get('network', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Snort/Suricata Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
-
-    # Yara 상태
-    if rules.get('yara'):
-        if rules['yara'].get('verified'):
-            ai_status_section += "**Yara Rule** ✅ 공식 룰 발견 (official-verified)\n\n"
-        else:
-            ai_status_section += f"**Yara Rule** ✅ AI 생성 완료 ({rules['yara'].get('trust', 'ai-draft')})\n\n"
-    else:
-        skip_reason = skip_reasons.get('yara', '공개 룰 미발견, AI 생성 실패')
-        ai_status_section += f"**Yara Rule** ❌ 미생성\n> **사유:** {skip_reason}\n\n"
-    
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
     
     body = f"""# 🛡️ {cve_data['title_ko']}
@@ -460,31 +393,31 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 **취약점 유형 (CWE):** {cwe_str}
 
 {threat_signals}
-## 📦 영향 받는 자산
+## 📦 영향 받는 자산 (벤더 / 제품 / 버전)
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
 {affected_rows}
 
 ## 🔍 AI 심층 분석
-| 항목 | 내용 |
-| :--- | :--- |
-| **기술적 원인** | {analysis.get('root_cause', '-')} |
-| **비즈니스 영향** | {analysis.get('impact', '-')} |
+### 기술적 근본 원인
+{analysis.get('root_cause', '-')}
 
-### 🏹 공격 벡터 상세
+### 🎯 공격 벡터 상세
 | 항목 | 내용 |
 | :--- | :--- |
 | **공식 벡터** | `{cve_data.get('cvss_vector', 'N/A')}` |
-| **상세 분석** | {vector_details} |
+| **상세 해석** | {vector_details} |
 
-### 🏹 AI 예상 공격 시나리오
-> {analysis.get('scenario', '정보 없음')}
+### 🏹 공격 시나리오 (MITRE ATT&CK)
+{analysis.get('scenario', '정보 없음')}
 
-## 🛡️ AI 권고 대응 방안
+### 💥 비즈니스 영향
+{analysis.get('impact', '-')}
+
+## 🛡️ 권고 대응 방안
 {mitigation_list}
 
 {rules_section}
-{ai_status_section}
 
 ## 🔗 참고 자료
 {ref_list}
@@ -494,7 +427,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
     comment = f"""## ✅ 공식 탐지 룰 발견
 
-{cve_id}에 대한 **공식 검증된 탐지 룰**이 발견되었습니다. AI 생성 룰을 이것으로 교체하시기 바랍니다.
+{cve_id}에 대한 **공식 검증된 탐지 룰**이 새로 발견되었습니다. 아래 룰을 보안 장비에 참고 적용하세요.
 
 """
     
@@ -600,15 +533,17 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         current_state['title_ko'] = title_ko
         current_state['desc_ko'] = desc_ko
 
-        # Step 6: 고위험 알림 대상만 GitHub Issue + AI 룰 생성 (Groq는 희소 자원 = TPD 200K)
+        # Step 6: 고위험 알림 대상만 GitHub Issue (AI 심층 분석 + 공개 룰) 생성
         report_url = None
         rules_info = None
         if should_alert and is_high_risk:
-            # TPD 소진 시 AI 분석/룰 생성 SKIP (Issue 미생성, 다음 실행에서 재처리)
-            if rate_limit_manager.is_tpd_exhausted("groq"):
-                logger.warning(f"⚠️ {cve_id}: Groq TPD 소진 → Issue 생성 SKIP (다음 실행에서 재처리)")
-            else:
-                report_url, rules_info = create_github_issue(current_state, alert_reason)
+            # 모든 Groq 모델(주+폴백) TPD 소진 시 분석 불가 → Issue 보류.
+            # 이때 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
+            # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
+            if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
+                logger.warning(f"⚠️ {cve_id}: 모든 Groq 모델 TPD 소진 → Issue 보류(다음 실행 재처리)")
+                return {"cve_id": cve_id, "status": "failed"}
+            report_url, rules_info = create_github_issue(current_state, alert_reason)
 
         # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함)
         if should_alert:
@@ -694,46 +629,6 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
         return True, "🔺 CVSS 위험도 상향", True
 
     return False, "", is_high_risk
-
-def _should_generate_ai_rules(cve_data: Dict) -> Tuple[bool, str]:
-    """
-    AI 룰 생성 게이트: 익스플로잇 근거가 있는 CVE만 AI 룰 생성.
-    TPD를 낭비하지 않기 위해 KEV/EPSS/PoC 근거 확인.
-
-    Returns:
-        (생성 여부, 사유 문자열)
-    """
-    # Kill switch: False면 모든 CVE에 AI 룰 생성 (기존 동작)
-    if not config.RULE_GENERATION.get("require_exploitation_evidence", True):
-        return True, "master switch OFF"
-
-    # 1. KEV 등재 → 실제 악용 확인
-    if cve_data.get('is_kev') or cve_data.get('is_vulncheck_kev'):
-        return True, "KEV 등재"
-
-    # 2. SSVC Exploitation=active → CISA 확인 실제 악용 (P5, CC0)
-    if cve_data.get('ssvc_exploitation') == 'active':
-        return True, "SSVC Exploitation=active"
-
-    # 3. Metasploit 모듈 존재 → 무기화됨 (P5)
-    if cve_data.get('has_metasploit_module'):
-        return True, "Metasploit 모듈 존재"
-
-    # 4. ExploitDB 공개 익스플로잇 (P5)
-    if cve_data.get('has_public_exploit'):
-        return True, "ExploitDB 공개 익스플로잇"
-
-    # 5. EPSS >= threshold → 높은 악용 확률
-    threshold = config.RULE_GENERATION.get("epss_threshold", 0.2)
-    epss_score = cve_data.get('epss', 0.0)
-    if epss_score >= threshold:
-        return True, f"EPSS {epss_score:.4f} >= {threshold}"
-
-    # 6. PoC 존재 → 공격 코드 공개됨
-    if cve_data.get('has_poc') and cve_data.get('poc_count', 0) > 0:
-        return True, "PoC 존재"
-
-    return False, "익스플로잇 근거 부족"
 
 # ==============================================================================
 # [5] 공식 룰 재발견
@@ -940,9 +835,9 @@ def _main():
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
-    # TPD 소진 경고
-    if rate_limit_manager.is_tpd_exhausted("groq"):
-        logger.warning("🚫 Groq TPD 소진으로 일부 CVE의 AI 분석/룰 생성이 SKIP됨 → 다음 실행에서 자동 재처리")
+    # TPD 소진 경고 (주+폴백 모두 소진 시)
+    if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
+        logger.warning("🚫 Groq 전 모델 TPD 소진으로 일부 고위험 CVE의 AI 분석이 보류됨 → 다음 실행에서 자동 재처리")
 
     # Step 9: Slack 배치 요약 전송
     repo = os.environ.get("GITHUB_REPOSITORY", "")
