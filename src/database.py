@@ -56,29 +56,31 @@ class ArgusDB:
             logger.error(f"CVE 저장 실패 ({data.get('id')}): {e}")
             return False
     
-    def get_ai_generated_cves(self, days: int = 7) -> List[Dict]:
+    def get_rule_recheck_candidates(self) -> List[Dict]:
         """
-        공식 룰 재확인이 필요한 고위험 CVE 조회.
+        공개(공식) 룰 재확인이 필요한 고위험 CVE 조회.
 
         대상:
-        1. AI 룰만 있는 CVE (has_official_rules=False, rules_snapshot != null) — 공식 룰 교체 필요
-        2. 룰이 아예 없는 고위험 CVE (CVSS >= 7.0 or KEV) — 새로 공식 룰 나왔을 수 있음
+        1. 리포트는 됐지만 공개 룰 미확인 CVE (has_official_rules=False, rules_snapshot != null)
+           — 이후 공개 룰셋에 룰이 등록됐을 수 있음
+        2. rules_snapshot이 없는 고위험 CVE (CVSS >= 7.0) — Issue 생성 실패 등으로
+           룰 검색 기록이 없는 케이스 재확인
 
         쿨다운:
         - 성공 시: 7일 후 재확인
         - 실패 시: 1일 후 재시도 (빠른 복구)
         """
         try:
-            # Case 1: AI 룰만 있는 CVE
-            ai_response = self._execute(
+            # Case 1: 공개 룰 미확인 CVE
+            norules_response = self._execute(
                 self.client.table("cves")
                 .select("*")
                 .eq("has_official_rules", False)
                 .not_.is_("rules_snapshot", "null")
             )
 
-            # Case 2: 룰이 아예 없는 고위험 CVE (CVSS >= 7.0)
-            norule_response = self._execute(
+            # Case 2: 룰 검색 기록이 없는 고위험 CVE (CVSS >= 7.0)
+            norecord_response = self._execute(
                 self.client.table("cves")
                 .select("*")
                 .is_("rules_snapshot", "null")
@@ -86,9 +88,9 @@ class ArgusDB:
             )
 
             all_records = {}
-            for record in (ai_response.data or []):
+            for record in (norules_response.data or []):
                 all_records[record['id']] = record
-            for record in (norule_response.data or []):
+            for record in (norecord_response.data or []):
                 all_records[record['id']] = record
 
             if not all_records:
@@ -150,12 +152,12 @@ class ArgusDB:
                 -(r.get('epss_score', 0) or 0),
             ))
 
-            total = len(ai_response.data or []) + len(norule_response.data or [])
-            logger.info(f"AI 생성 룰 CVE: {total}건 중 재확인 대상: {len(eligible)}건")
+            total = len(norules_response.data or []) + len(norecord_response.data or [])
+            logger.info(f"공개 룰 미확인 CVE: {total}건 중 재확인 대상: {len(eligible)}건")
             return eligible
 
         except Exception as e:
-            logger.error(f"AI 생성 CVE 조회 실패: {e}")
+            logger.error(f"룰 재확인 후보 조회 실패: {e}")
             return []
     
     def batch_get_content_hashes(self, cve_ids: List[str]) -> Dict[str, str]:

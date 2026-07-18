@@ -4,7 +4,6 @@ import datetime
 import time
 import requests
 import pytz
-import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Dict, List, Tuple, Optional
 from google import genai
@@ -164,6 +163,20 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
             return True, f"Matched (description): {t_vendor}/{t_product}"
 
     return False, None
+
+def _needs_cpe_for_matching(cve_data: Dict) -> bool:
+    """자산 매칭에 NVD CPE 선제 조회가 필요한지 판단.
+
+    전체 감시(*/*)면 매칭이 항상 참이라 불필요. 특정 자산 감시인데 CVE의 affected에
+    유효한 벤더가 하나도 없으면(Unknown/N-A), NVD CPE 없이는 벤더 매칭이 불가능해
+    감시 대상 CVE를 놓칠 수 있다 → 이때만 True (NVD 1회 조회 비용 발생)."""
+    targets = config.get_target_assets()
+    if any(t.get('vendor') == '*' and t.get('product') == '*' for t in targets):
+        return False
+    return not any(
+        a.get('vendor', '').lower() not in ('', 'unknown', 'n/a')
+        for a in cve_data.get('affected', [])
+    )
 
 def generate_korean_summary(cve_data: Dict, retry_on_transient: bool = False) -> Tuple[str, str]:
     """CVE 제목/설명을 한국어로 번역. 실패 시 영문 원본 폴백.
@@ -474,7 +487,11 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled"}
 
-        # Step 2: 자산 필터링 (affected vendor/product 우선, description 보조)
+        # Step 2: 자산 필터링 (affected vendor/product 우선, NVD CPE 보조, description 보조)
+        # 특정 자산 감시(*/* 아님) + CVE에 유효 벤더 없음이면 NVD CPE를 선제 조회해 매칭
+        # 소스를 확보한다(자산 매칭 누락 방지). 전체 감시(*/*)에서는 호출 안 함(비용 0).
+        if _needs_cpe_for_matching(raw_data):
+            collector.enrich_from_nvd(raw_data)
         is_target, match_info = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
@@ -508,6 +525,8 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
+            # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
+            "_exploit_db_url": raw_data.get('_exploit_db_url'),
         }
         
         # Step 4: 알림 필요성 판단
@@ -665,12 +684,11 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
 
 def check_for_official_rules() -> None:
     """
-    공식 룰 재발견 체크.
+    공개(공식) 룰 재발견 체크.
 
-    대상:
-    1. AI 룰만 있는 CVE → 공식 룰로 교체
-    2. 룰이 아예 없는 고위험 CVE (CVSS >= 7.0, KEV) → 새로 나온 공식 룰 적용
-    3. 룰 없이 AI 생성도 실패한 CVE → 재시도
+    최초 리포트 시점에는 공개 룰셋(SigmaHQ/ET Open/Yara-Rules)에 룰이 없던 CVE도,
+    시간이 지나면 룰이 등록되는 경우가 많다. 공개 룰 미확인 상태의 고위험 CVE를
+    주기적으로 재검색해, 발견 시 기존 Issue에 댓글 + Slack 알림으로 반영한다.
 
     배치 제한: config 기반 (기본 10건)
     쿨다운: 성공 7일 / 실패 1일 (빠른 재시도)
@@ -682,7 +700,7 @@ def check_for_official_rules() -> None:
         notifier = SlackNotifier()
         rule_manager = RuleManager()
 
-        candidates = db.get_ai_generated_cves()
+        candidates = db.get_rule_recheck_candidates()
 
         if not candidates:
             logger.info("재확인 대상 없음")
@@ -718,8 +736,8 @@ def check_for_official_rules() -> None:
                     found_count += 1
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
 
-                    # Slack 알림
-                    title_ko = record.get('last_alert_state', {}).get('title_ko', cve_id)
+                    # Slack 알림 (보존정책으로 last_alert_state가 null일 수 있음 → or 폴백)
+                    title_ko = (record.get('last_alert_state') or {}).get('title_ko', cve_id)
                     notifier.send_official_rule_update(
                         cve_id=cve_id,
                         title=title_ko,
@@ -808,28 +826,38 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
 
         escalated: List[str] = []
         for record in candidates:
-            cve_id = record['id']
-            last = record.get('last_alert_state')
-            if not last:
+            try:
+                cve_id = record['id']
+                last = record.get('last_alert_state')
+                if not last:
+                    continue
+
+                # current = last 복사 후 외부 피드 4개 필드만 최신값으로 덮어씀.
+                # 레코드 기반 필드(cvss/cwe/affected/ssvc)는 레코드 미변경이라 last 그대로 둔다
+                # → CVSS 상향 트리거는 여기서 안 잡히고(정상: 레코드 변경 경로가 담당) 외부 피드
+                #   전이(KEV/EPSS/ExploitDB/Metasploit)만 판정한다.
+                current = dict(last)
+                # 구버전 state에 cvss/epss 키가 없을 수 있음 → 스칼라 컬럼으로 폴백 (KeyError 방지)
+                current.setdefault('cvss', record.get('cvss_score') or 0.0)
+                base_epss = last.get('epss')
+                if base_epss is None:
+                    base_epss = record.get('epss_score') or 0.0
+                current['is_kev'] = cve_id in collector.kev_set
+                current['epss'] = collector.epss_cache.get(cve_id, base_epss)
+                # ExploitDB/Metasploit 신호는 캐시 인덱스 조회 — collector 로직 재사용(네트워크 0)
+                probe = {'id': cve_id}
+                collector.enrich_cheap_signals(probe)
+                current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
+                current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
+
+                should, reason, _ = _should_send_alert(current, last)
+                if should:
+                    logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
+                    escalated.append(cve_id)
+            except Exception as e:
+                # 한 레코드의 이상 데이터가 스윕 전체를 중단시키지 않게 격리
+                logger.warning(f"{record.get('id', '?')} 에스컬레이션 재평가 실패: {e}")
                 continue
-
-            # current = last 복사 후 외부 피드 4개 필드만 최신값으로 덮어씀.
-            # 레코드 기반 필드(cvss/cwe/affected/ssvc)는 레코드 미변경이라 last 그대로 둔다
-            # → CVSS 상향 트리거는 여기서 안 잡히고(정상: 레코드 변경 경로가 담당) 외부 피드
-            #   전이(KEV/EPSS/ExploitDB/Metasploit)만 판정한다.
-            current = dict(last)
-            current['is_kev'] = cve_id in collector.kev_set
-            current['epss'] = collector.epss_cache.get(cve_id, last.get('epss') or 0.0)
-            # ExploitDB/Metasploit 신호는 캐시 인덱스 조회 — collector 로직 재사용(네트워크 0)
-            probe = {'id': cve_id}
-            collector.enrich_cheap_signals(probe)
-            current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
-            current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
-
-            should, reason, _ = _should_send_alert(current, last)
-            if should:
-                logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
-                escalated.append(cve_id)
 
         if not escalated:
             logger.info(f"에스컬레이션 후보 {len(candidates)}건 재평가 — 승격 없음")

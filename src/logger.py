@@ -1,6 +1,5 @@
 import logging
 import sys
-from datetime import datetime
 
 class ColoredFormatter(logging.Formatter):
     # ANSI 색상 코드
