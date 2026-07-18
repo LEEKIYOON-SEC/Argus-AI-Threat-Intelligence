@@ -593,12 +593,13 @@ class Collector:
         return result
 
     def _check_nomi_sec(self, cve_id: str) -> Dict:
-        """nomi-sec/PoC-in-GitHub에서 PoC 확인"""
+        """nomi-sec/PoC-in-GitHub에서 PoC 확인 (한도 소진 시 장시간 대기 대신 SKIP)"""
         try:
             parts = cve_id.split('-')
             year = parts[1]
 
-            rate_limit_manager.check_and_wait("github")
+            if not rate_limit_manager.check_and_wait("github", max_wait=60):
+                return {"has_poc": False, "poc_count": 0, "poc_urls": []}
 
             url = f"https://raw.githubusercontent.com/nomi-sec/PoC-in-GitHub/master/{year}/{cve_id}.json"
             response = requests.get(url, timeout=10)
@@ -644,9 +645,14 @@ class Collector:
             return {"has_poc": False, "poc_count": 0, "poc_urls": []}
     
     def check_github_advisory(self, cve_id: str) -> Dict:
-        """GitHub Advisory DB에서 패키지 정보 조회"""
+        """GitHub Advisory DB에서 패키지 정보 조회.
+
+        시간당 한도(100회) 소진 시 수십 분 대기 대신 SKIP한다 — advisory는 부가 정보
+        (패키지 목록)라 없어도 리포트가 성립하고, 대기하면 파이프라인 전체(30분 타임아웃)가
+        멈춰 다음 실행까지 실패시킨다. 다음 시간 윈도우의 실행에서 자연 재개."""
         try:
-            rate_limit_manager.check_and_wait("github_advisory")
+            if not rate_limit_manager.check_and_wait("github_advisory", max_wait=30):
+                return {"has_advisory": False}
             
             response = requests.get(
                 f"https://api.github.com/advisories?cve_id={cve_id}",
