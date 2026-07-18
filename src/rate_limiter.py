@@ -45,7 +45,8 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=0.5
             ),
-            # Groq Free Tier: RPM 30 / TPM 8000 / TPD 200K
+            # Groq Free Tier: RPM 30 (분당 요청). 일일 한도는 모델별로 상이 —
+            # compound 계열 RPD 250, gpt-oss/qwen TPD 200K → 모델별 카운터로 별도 추적.
             "groq": RateLimitInfo(
                 limit=30,
                 window_seconds=60,

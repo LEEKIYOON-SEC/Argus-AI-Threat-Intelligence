@@ -1,6 +1,5 @@
 import os
 import io
-import json
 import re
 import tarfile
 import threading
@@ -9,25 +8,8 @@ from typing import Dict, Optional, List
 from logger import logger
 from rate_limiter import rate_limit_manager
 
-# pySigma: Sigma 룰 실제 파싱 검증 (오프라인, 무료 pip) — 미설치 시 구조 검사만 수행
-try:
-    from sigma.collection import SigmaCollection
-    _PYSIGMA_AVAILABLE = True
-except ImportError:
-    SigmaCollection = None
-    _PYSIGMA_AVAILABLE = False
-
-# suricataparser: Snort/Suricata 룰 실제 파싱 검증 (순수 Python) — 미설치 시 정규식 폴백
-try:
-    import suricataparser
-    _SURICATAPARSER_AVAILABLE = True
-except ImportError:
-    suricataparser = None
-    _SURICATAPARSER_AVAILABLE = False
-
-class RuleManagerError(Exception):
-    pass
-
+# AI 룰 생성 제거 이후 RuleManager는 '공개 룰 검색기'다. 공개 룰(SigmaHQ/ET Open/
+# Yara-Rules)은 출처 자체가 검증 주체이므로 별도 파서 검증(pySigma 등)을 하지 않는다.
 
 # 디스크 캐시(24h TTL)는 enrichment_sources와 공유한다.
 # (매시간 실행에서 재다운로드 방지 + collector와 동일 캐시 파일 재사용)

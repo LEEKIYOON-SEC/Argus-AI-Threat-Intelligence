@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 class ConfigError(Exception):
     """설정 관련 에러"""
@@ -55,7 +55,7 @@ class ArgusConfig:
 
 
     # ==========================================
-    # [3] 성능 최적화 설정
+    # [2] 성능 최적화 설정
     # ==========================================
     PERFORMANCE = {
         # TPM이 250K로 상향되어 병렬 워커의 8K TPM 429 폭주 위험이 사라짐 → 병렬 복원.
@@ -67,7 +67,6 @@ class ArgusConfig:
         # (타임아웃으로 killed 되어도 워터마크 미저장 → 다음 실행 재수집, 누락 0.)
         "max_cves_per_run": 120,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기
-        "bulk_commit_threshold": 100,  # 벌크 커밋 판단 기준 (파일 수)
         # 에스컬레이션 재평가 스윕 — 레코드(cvelistV5) 미변경이라 재수집 큐에 안 올라오는
         # '현재 저위험' CVE의 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 변화로 인한 고위험 승격
         # 누락을 메운다. 후보는 최근 N일·최신순 limit건, 실제 승격분만 풀 재처리(상한).
@@ -77,7 +76,7 @@ class ArgusConfig:
     }
     
     # ==========================================
-    # [4] 필수 환경 변수 목록
+    # [3] 필수 환경 변수 목록
     # ==========================================
     REQUIRED_ENV_VARS = [
         "GH_TOKEN",

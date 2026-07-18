@@ -4,7 +4,7 @@ import pytz
 import os
 import re
 import json
-import time
+
 import hashlib
 from typing import List, Dict, Set, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -15,7 +15,6 @@ import enrichment_sources
 class CollectorError(Exception):
     """데이터 수집 관련 에러"""
     pass
-
 
 # ─────────────────────────────────────────────
 # 워터마크(진행 지점 북마크) — 누락 0 수집의 핵심
@@ -30,7 +29,6 @@ _STATE_PATH = os.path.join(
 )
 _BOOTSTRAP_HOURS = 24  # 상태 파일이 없을 때(최초 실행) 소급 조회 기간
 
-
 def read_watermark() -> datetime.datetime:
     """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
     try:
@@ -42,7 +40,6 @@ def read_watermark() -> datetime.datetime:
     except (OSError, ValueError, json.JSONDecodeError) as e:
         logger.info(f"워터마크 없음/파싱 실패({e}) → 최근 {_BOOTSTRAP_HOURS}h 부트스트랩")
     return datetime.datetime.now(pytz.UTC) - datetime.timedelta(hours=_BOOTSTRAP_HOURS)
-
 
 def write_watermark(dt_utc: datetime.datetime) -> None:
     """처리 완료 지점(UTC)을 상태 파일에 기록."""
@@ -56,12 +53,6 @@ def write_watermark(dt_utc: datetime.datetime) -> None:
         logger.warning(f"워터마크 저장 실패: {e}")
 
 class Collector:
-    # 벌크 메인테넌스 커밋 감지 패턴
-    BULK_PATTERNS = re.compile(
-        r'(format|standardize|normalize|batch|bulk|automated|metadata|date.?time|migration|mass.?update|reformat)',
-        re.IGNORECASE
-    )
-
     def __init__(self):
         self.kev_set: Set[str] = set()
         self.vulncheck_kev_set: Set[str] = set()
@@ -70,12 +61,6 @@ class Collector:
             "Authorization": f"token {os.environ.get('GH_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
-        # config import는 순환 참조 방지를 위해 지연
-        try:
-            from config import config
-            self.bulk_threshold = config.PERFORMANCE.get("bulk_commit_threshold", 100)
-        except Exception:
-            self.bulk_threshold = 100
     
     @retry(
         stop=stop_after_attempt(3),
@@ -171,26 +156,6 @@ class Collector:
         }
         canonical = json.dumps(meaningful, sort_keys=True, separators=(',', ':'))
         return hashlib.sha256(canonical.encode()).hexdigest()
-
-    def _is_bulk_commit(self, commit_detail: dict) -> bool:
-        """벌크 메인테넌스 커밋인지 감지.
-
-        조건: 파일 수가 threshold 이상이면 벌크로 간주.
-        커밋 메시지에 벌크 패턴이 있으면 추가 확신.
-        """
-        files = commit_detail.get('files', [])
-        file_count = len(files)
-        message = commit_detail.get('commit', {}).get('message', '')
-
-        # 파일 수만으로 벌크 판단 (threshold 이상이면 항상 벌크)
-        if file_count >= self.bulk_threshold:
-            if self.BULK_PATTERNS.search(message):
-                logger.info(f"벌크 커밋 감지: {file_count}개 파일, 메시지 패턴 매칭")
-            else:
-                logger.info(f"벌크 커밋 감지: {file_count}개 파일 (대량 수정)")
-            return True
-
-        return False
 
     def _extract_cve_id(self, filename: str) -> Optional[str]:
         """파일명에서 CVE ID 추출"""
@@ -553,10 +518,12 @@ class Collector:
             return False
     
     def enrich_from_nvd(self, cve_data: Dict) -> Dict:
-        """NVD에서 CVSS/CWE 보충 (CVEProject에 없을 때)"""
+        """NVD에서 CVSS/CWE 보충 (CVEProject에 없을 때) + CPE 수집"""
         api_key = os.environ.get("NVD_API_KEY")
         cve_id = cve_data['id']
-        
+        # 자산 매칭용 선제 조회와 위협인텔 경로의 이중 호출 방지 플래그 ('_' 접두 → DB 미저장)
+        cve_data['_nvd_enriched'] = True
+
         try:
             rate_limit_manager.check_and_wait("nvd")
             
@@ -772,8 +739,12 @@ class Collector:
         cve_id = cve_data['id']
         # VulnCheck KEV (이미 fetch한 세트에서 조회 — 메모리)
         cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
-        # ExploitDB 공개 익스플로잇 (캐시 인덱스 조회)
-        cve_data['has_public_exploit'] = enrichment_sources.has_public_exploit(cve_id)
+        # ExploitDB 공개 익스플로잇 (캐시 인덱스 조회). PoC 원문은 재게시하지 않고
+        # 링크만 리포트에 싣는다(불변 원칙 8-②) — EDB-ID로 공식 페이지 URL 구성.
+        edb_entry = enrichment_sources.exploitdb_entry(cve_id)
+        cve_data['has_public_exploit'] = edb_entry is not None
+        if edb_entry and edb_entry[1]:
+            cve_data['_exploit_db_url'] = f"https://www.exploit-db.com/exploits/{edb_entry[1]}"
         # Metasploit 모듈 (캐시 인덱스 조회, "무기화됨" 신호, BSD-3-Clause)
         msf_modules = enrichment_sources.metasploit_modules(cve_id)
         cve_data['has_metasploit_module'] = bool(msf_modules)
@@ -794,7 +765,9 @@ class Collector:
             self.enrich_cheap_signals(cve_data)
 
         # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
-        cve_data = self.enrich_from_nvd(cve_data)
+        #    자산 매칭 단계에서 이미 선제 조회했으면 재호출 생략
+        if not cve_data.get('_nvd_enriched'):
+            cve_data = self.enrich_from_nvd(cve_data)
         cve_data = self._augment_affected_from_cpe(cve_data)
 
         # 2. PoC 존재 여부 (nomi-sec → trickest 네트워크 검색)
