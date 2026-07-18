@@ -62,11 +62,18 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=2.0
             ),
-            # Gemma 4 Free Tier: RPM 15 / TPM 무제한 / RPD 1,500
+            # Gemma 4 Free Tier: RPM 15 / TPM 무제한 / RPD 1,500 (번역 전용)
             "gemini": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
+            ),
+            # Gemini flash-lite (분석 비상 폴백 전용) — 번역과 별도 모델·별도 한도.
+            # 보수적 기본값 RPM 10. 실제 한도는 AI Studio 콘솔 확인 후 조정.
+            "gemini_analysis": RateLimitInfo(
+                limit=10,
+                window_seconds=60,
+                min_interval=6.0
             ),
             # NVD API: API키 있으면 50req/30초
             "nvd": RateLimitInfo(
@@ -127,7 +134,8 @@ class RateLimitManager:
         # RPD (Requests Per Day) 트래킹 — Gemma 4 무료는 TPM이 무제한이라 일간 요청 수(1,500)가
         # 실질적 일간 상한이다(토큰이 아님). 호출당 1건 누적, 90% 도달 시 경고.
         self._rpd_limits: Dict[str, int] = {
-            "gemini": 1_500,  # Gemma 4 Free Tier: RPD 1,500
+            "gemini": 1_500,           # Gemma 4 (번역): RPD 1,500
+            "gemini_analysis": 1_000,  # flash-lite (분석 비상): 보수적 기본값 — 콘솔 확인 후 조정
         }
         self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
         self._rpd_reset_at: Dict[str, datetime] = {
@@ -330,6 +338,23 @@ class RateLimitManager:
         """특정 Groq 모델이 다음 호출을 감당 못 하는지(rpd 또는 tpd 소진) 확인."""
         with self._lock:
             return self._groq_model_exhausted(model, required_tokens)
+
+    def is_rpd_exhausted(self, api_name: str) -> bool:
+        """일간 요청 한도(RPD) 추적 대상 API의 소진 여부. 미추적 API는 False."""
+        with self._lock:
+            limit = self._rpd_limits.get(api_name)
+            if limit is None:
+                return False
+            if datetime.now() >= self._rpd_reset_at.get(api_name, datetime.min):
+                return False  # 일간 윈도우 경과 → 다음 record_call에서 리셋됨
+            return self._rpd_used.get(api_name, 0) >= limit
+
+    def mark_rpd_exhausted(self, api_name: str) -> None:
+        """RPD 소진 마킹 (일간 quota 429 수신 시 — 대기 무의미, 즉시 스킵 전환)."""
+        with self._lock:
+            if api_name in self._rpd_limits:
+                self._rpd_used[api_name] = self._rpd_limits[api_name]
+                logger.warning(f"🚫 {api_name} 일일 한도(RPD) 소진 마킹 — SKIP 전환")
 
     def handle_429(self, api_name: str, retry_after: Optional[float] = None,
                    error_message: str = "", model: Optional[str] = None):

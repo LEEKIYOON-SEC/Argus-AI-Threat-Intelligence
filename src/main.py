@@ -585,11 +585,13 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         report_url = None
         rules_info = None
         if should_alert and is_high_risk:
-            # 모든 Groq 모델(주+폴백) TPD 소진 시 분석 불가 → Issue 보류.
-            # 이때 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
+            # 분석 3티어(gpt-oss/qwen + Gemini 비상) 전부 소진 시에만 Issue 보류.
+            # Groq만 소진이면 Gemini 비상 티어로 분석해 알림 지연 없이 진행한다.
+            # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
             # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
-            if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
-                logger.warning(f"⚠️ {cve_id}: 모든 Groq 모델 TPD 소진 → Issue 보류(다음 실행 재처리)")
+            if (rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None
+                    and rate_limit_manager.is_rpd_exhausted("gemini_analysis")):
+                logger.warning(f"⚠️ {cve_id}: 분석 전 티어(Groq+Gemini) 소진 → Issue 보류(다음 실행 재처리)")
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
 
@@ -981,9 +983,12 @@ def _main():
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
-    # TPD 소진 경고 (주+폴백 모두 소진 시)
+    # 분석 티어 소진 경고
     if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
-        logger.warning("🚫 Groq 전 모델 TPD 소진으로 일부 고위험 CVE의 AI 분석이 보류됨 → 다음 실행에서 자동 재처리")
+        if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
+            logger.warning("🚫 분석 전 티어(Groq 2모델 + Gemini 비상) 소진 → 일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
+        else:
+            logger.warning("⚠️ Groq 전 모델 TPD 소진 → 분석이 Gemini 비상 티어(flash-lite)로 수행됨")
 
     # Step 9: Slack 배치 요약 전송
     repo = os.environ.get("GITHUB_REPOSITORY", "")

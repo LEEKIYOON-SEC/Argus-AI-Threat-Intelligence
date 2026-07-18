@@ -14,6 +14,12 @@ class ArgusConfig:
     MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
     MODEL_PHASE_1 = "openai/gpt-oss-120b"  # 심층 분석 주 모델 (Groq, 추론형)
 
+    # 분석 3단(비상 폴백) — Groq 두 모델(TPD 각 200K)이 모두 소진/장애일 때만 사용.
+    # 다른 공급자(Google AI Studio)라 Groq 장애 자체도 커버(이중화). flash-lite는
+    # 번역(Gemma 31B)과 다른 모델이라 AI Studio 한도(모델별)를 나눠 쓰지 않는다.
+    # 추론 깊이는 gpt-oss/qwen보다 낮지만 JSON 모드 지원으로 구조화 분석엔 충분.
+    GEMINI_ANALYSIS_MODEL = "gemini-3.1-flash-lite"
+
     # Groq 심층분석 모델 캐스케이드 — 앞 모델의 일일 한도(TPD)가 소진되면 다음 모델로 자동 전환.
     # gpt-oss-120b와 qwen3.6은 TPD 200K/일이 '각각' 잡혀 실질 일일 예산 400K.
     #
