@@ -453,6 +453,18 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
 # [4] CVE 처리 (단일)
 # ==============================================================================
 
+# last_alert_state(JSONB)에 저장할 필드 화이트리스트 — DB 용량 최소화.
+# 대시보드 표시용(export_dashboard_data) + 다음 실행 에스컬레이션 비교용(_should_send_alert)만 포함.
+# 제외: id(중복)·cvss_vector·references·poc_count·is_vulncheck_kev·github_advisory·nvd_cpe (미표시/미비교).
+_DASHBOARD_STATE_FIELDS = frozenset({
+    # 대시보드 표시
+    "title", "title_ko", "description", "desc_ko", "cwe", "affected",
+    "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
+    "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
+    "cvss", "epss", "is_kev",
+})
+
 def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Optional[Dict]:
     try:
         # Step 1: CVE 상세 정보 수집
@@ -468,10 +480,11 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled"}
 
-        # Step 2.5: 추가 위협 인텔리전스 (NVD, PoC, VulnCheck, Advisory)
-        raw_data = collector.enrich_threat_intel(raw_data)
+        # Step 2.5: 값싼 위험 신호만 먼저 (메모리/캐시, 네트워크 0) — 고위험 판별용.
+        # 값비싼 위협인텔(NVD/PoC/Advisory)은 고위험으로 판정된 CVE에만 이후 수집 → 처리량 확보.
+        collector.enrich_cheap_signals(raw_data)
 
-        # Step 3: 현재 상태 구성
+        # Step 3: 현재 상태 구성 (값싼 신호까지; PoC/Advisory/NVD-CPE는 고위험만 이후 보강)
         current_state = {
             "id": cve_id,
             "title": raw_data['title'],
@@ -520,6 +533,22 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
             return {"cve_id": cve_id, "status": "handled" if saved else "failed"}
 
+        # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
+        # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
+        if should_alert:
+            raw_data = collector.enrich_threat_intel(raw_data)
+            current_state.update({
+                "cvss": raw_data['cvss'],            # NVD 보정 반영
+                "cvss_vector": raw_data['cvss_vector'],
+                "cwe": raw_data['cwe'],
+                "affected": raw_data['affected'],    # CPE 벤더 보강 반영
+                "has_poc": raw_data.get('has_poc', False),
+                "poc_count": raw_data.get('poc_count', 0),
+                "poc_urls": raw_data.get('poc_urls', []),
+                "github_advisory": raw_data.get('github_advisory', {}),
+                "nvd_cpe": raw_data.get('nvd_cpe', []),
+            })
+
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
         # Step 5: 한국어 번역 — 신규/에스컬레이션 모두 번역해 대시보드를 한글화한다.
         # 단, 일시오류(503 high demand 등) 재시도는 고위험/에스컬레이션(should_alert)만 한다.
@@ -550,10 +579,10 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             notifier.send_alert(current_state, alert_reason, report_url)
 
         # Step 8: DB 저장 (content_hash 포함)
-        # 룰 생성 중 주입된 임시 컨텍스트 키(_nuclei_template, _exploit_db_snippet 등)는
-        # AI 프롬프트 전용이므로 DB에 저장하지 않는다 — DB 용량 최소화 + PoC 원문 미저장
-        # (불변 원칙 2, 8-②)
-        clean_state = {k: v for k, v in current_state.items() if not k.startswith("_")}
+        # last_alert_state(JSONB)에는 대시보드 표시 + 다음 실행 에스컬레이션 비교에 필요한 필드만
+        # 저장한다 — DB 용량 최소화(불변 원칙 2). github_advisory/references/nvd_cpe/cvss_vector 등
+        # 대시보드·비교에 안 쓰는 큰 필드와 임시 컨텍스트(_로 시작)는 제외. PoC 원문 미저장(8-②).
+        clean_state = {k: current_state[k] for k in _DASHBOARD_STATE_FIELDS if k in current_state}
 
         db_data = {
             "id": cve_id,
@@ -743,6 +772,86 @@ def check_for_official_rules() -> None:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
 # ==============================================================================
+# [5.5] 에스컬레이션 재평가 스윕 (외부 피드 단독 변화 → 고위험 승격)
+# ==============================================================================
+
+def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> None:
+    """외부 피드(KEV/EPSS/ExploitDB/Metasploit) 단독 변화로 저위험→고위험 승격되는 CVE 재평가.
+
+    파이프라인은 cvelistV5 커밋(레코드 변경)을 트리거로 재수집한다. 따라서 레코드는 그대로인데
+    외부 피드만 바뀐 경우(예: EPSS만 급등, Metasploit 모듈만 신규 공개, KEV 등재가 레코드
+    업데이트를 동반하지 않은 경우)에는 그 CVE가 재수집 큐에 안 올라와 에스컬레이션 재알림이
+    누락될 수 있다. 이 스윕이 그 사각지대를 메운다.
+
+    2단계로 값싸게 처리한다:
+      Phase A (사전필터, 네트워크 0): '현재 저위험' 후보의 최신 외부 신호(KEV 세트 멤버십,
+        EPSS 배치, ExploitDB/Metasploit 캐시 인덱스)로 current를 만들어 저장된 last와
+        _should_send_alert로 비교 — 승격 트리거가 잡히는 CVE만 추린다.
+      Phase B (승격분만): 그 CVE를 process_single_cve로 풀 재처리(레코드 재수집→위협인텔→
+        분석→Issue→Slack→저장). 재처리 안에서 최신 신호로 재판정하므로 알림/저장이 일관된다.
+
+    재알림 중복은 없다: 승격이 성공 저장되면 last_alert_state가 갱신돼 다음 스윕에서 current==last가
+    되어 재트리거되지 않는다. Groq 소진 등으로 저장 전 실패하면 Slack도 안 나가고(게이트가
+    Slack 이전에 조기 반환) last가 그대로라 다음 실행 스윕에서 자연히 재시도된다.
+    """
+    try:
+        logger.info("=== 에스컬레이션 재평가 스윕 시작 ===")
+        days = config.PERFORMANCE.get("escalation_sweep_days", 30)
+        limit = config.PERFORMANCE.get("escalation_candidate_limit", 300)
+        candidates = db.get_escalation_candidates(days=days, limit=limit)
+        if not candidates:
+            logger.info("에스컬레이션 후보 없음")
+            return
+
+        # 외부 피드 최신값 — EPSS만 배치 네트워크(50건/요청), 나머지는 메모리/캐시.
+        collector.fetch_epss([r['id'] for r in candidates])
+
+        escalated: List[str] = []
+        for record in candidates:
+            cve_id = record['id']
+            last = record.get('last_alert_state')
+            if not last:
+                continue
+
+            # current = last 복사 후 외부 피드 4개 필드만 최신값으로 덮어씀.
+            # 레코드 기반 필드(cvss/cwe/affected/ssvc)는 레코드 미변경이라 last 그대로 둔다
+            # → CVSS 상향 트리거는 여기서 안 잡히고(정상: 레코드 변경 경로가 담당) 외부 피드
+            #   전이(KEV/EPSS/ExploitDB/Metasploit)만 판정한다.
+            current = dict(last)
+            current['is_kev'] = cve_id in collector.kev_set
+            current['epss'] = collector.epss_cache.get(cve_id, last.get('epss') or 0.0)
+            # ExploitDB/Metasploit 신호는 캐시 인덱스 조회 — collector 로직 재사용(네트워크 0)
+            probe = {'id': cve_id}
+            collector.enrich_cheap_signals(probe)
+            current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
+            current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
+
+            should, reason, _ = _should_send_alert(current, last)
+            if should:
+                logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
+                escalated.append(cve_id)
+
+        if not escalated:
+            logger.info(f"에스컬레이션 후보 {len(candidates)}건 재평가 — 승격 없음")
+            return
+
+        max_reprocess = config.PERFORMANCE.get("max_escalation_reprocess", 20)
+        to_reprocess = escalated[:max_reprocess]
+        if len(escalated) > len(to_reprocess):
+            logger.warning(f"에스컬레이션 {len(escalated)}건 중 {len(to_reprocess)}건 재처리, 나머지는 다음 실행 스윕에서")
+        logger.info(f"에스컬레이션 {len(to_reprocess)}건 풀 재처리")
+        for cve_id in to_reprocess:
+            try:
+                process_single_cve(cve_id, collector, db, notifier)
+            except Exception as e:
+                logger.error(f"{cve_id} 에스컬레이션 재처리 실패: {e}")
+
+        logger.info(f"=== 에스컬레이션 재평가 스윕 완료 (승격 감지: {len(escalated)}건, 재처리: {len(to_reprocess)}건) ===")
+
+    except Exception as e:
+        logger.error(f"에스컬레이션 스윕 실패: {e}")
+
+# ==============================================================================
 # [6] 메인 실행 로직
 # ==============================================================================
 
@@ -771,6 +880,11 @@ def _main():
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
 
+    # Step 4.5: 에스컬레이션 재평가 스윕 — 레코드 미변경으로 재수집 큐에 안 올라오는 저위험 CVE의
+    # 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 단독 변화 승격을 메운다. KEV 세트가 로드된 직후
+    # 실행해 승격 재알림이 신규 저위험 백로그보다 우선 Groq 예산을 확보하고 타임아웃 전에 완주하게 한다.
+    check_for_escalations(collector, db, notifier)
+
     run_start_utc = datetime.datetime.now(datetime.timezone.utc)
     watermark = read_watermark()
     # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
@@ -789,8 +903,12 @@ def _main():
         logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
-    # Step 5: FIFO(커밋 오래된 순) — fetch가 이미 정렬. 신규만 처리 대상, 상한 적용.
+    # Step 5: 신규만 처리 대상. 우선순위 = KEV(실제 악용 확인) 먼저, 그 안에서는 커밋 오래된 순(FIFO).
+    # KEV 멤버십은 메모리 세트라 값싸게 판별 가능 → 백로그가 커도 알려진 악용 취약점을 먼저 처리한다.
+    # (CVSS 기반 완전 정렬은 CVE별 fetch가 필요해 백로그 전체엔 비쌈 → KEV 우선으로 핵심만 앞당김.)
     new_items = [c for c in fetched if c['is_new']]
+    kev_set = collector.kev_set
+    new_items.sort(key=lambda c: (0 if c['cve_id'] in kev_set else 1, c['commit_ts']))
     max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
     to_process = new_items[:max_per_run]
     deferred = new_items[max_per_run:]

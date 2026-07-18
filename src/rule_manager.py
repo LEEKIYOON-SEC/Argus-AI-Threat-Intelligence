@@ -29,29 +29,21 @@ class RuleManagerError(Exception):
     pass
 
 
-# 디스크 캐시(24h TTL)·ExploitDB 인덱스는 enrichment_sources와 공유한다.
+# 디스크 캐시(24h TTL)는 enrichment_sources와 공유한다.
 # (매시간 실행에서 재다운로드 방지 + collector와 동일 캐시 파일 재사용)
 from enrichment_sources import (
     cache_get as _cache_get,
     cache_put as _cache_put,
-    exploitdb_entry as _shared_exploitdb_entry,
-    EXPLOITDB_RAW_BASE as _EXPLOITDB_RAW_BASE_SHARED,
 )
 
 
 class RuleManager:
-    # 룰셋/인덱스 캐시 (클래스 수준 - 모든 인스턴스·워커 공유)
+    # 룰셋 캐시 (클래스 수준 - 모든 인스턴스·워커 공유)
     _sigma_files: Dict[str, str] = {}
     _yara_files: Dict[str, str] = {}
     _network_rules_cache: Dict[str, str] = {}
-    # nuclei-templates CVE 인덱스: CVE-ID → 템플릿 파일 경로
-    _nuclei_index: Dict[str, str] = {}
-    _nuclei_index_loaded = False
     # 병렬 워커 간 중복 다운로드 방지
     _download_lock = threading.Lock()
-
-    _NUCLEI_RAW_BASE = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/"
-    _EXPLOITDB_RAW_BASE = _EXPLOITDB_RAW_BASE_SHARED
 
     # 공식 룰 재게시 시 보존해야 할 출처·라이선스 고지 (불변 원칙 8-①)
     _SOURCE_LICENSES = [
