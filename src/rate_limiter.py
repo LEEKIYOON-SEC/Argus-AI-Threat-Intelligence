@@ -195,23 +195,28 @@ class RateLimitManager:
             self._tpd_exhausted_model[model] = True
             logger.warning(f"🚫 {model} 일일 한도 소진 마킹 — 다음 모델/SKIP로 전환")
 
-    def check_and_wait(self, api_name: str) -> bool:
-        """API 호출 전 반드시 호출. Lock으로 동시 접근 차단."""
+    def check_and_wait(self, api_name: str, max_wait: Optional[float] = None) -> bool:
+        """API 호출 전 반드시 호출. Lock으로 동시 접근 차단.
+
+        max_wait: 한도 소진 시 리셋까지 이보다 오래 기다려야 하면 대기 대신 False를
+        반환한다(호출부가 해당 보강을 SKIP). 부가 정보 API(advisory/PoC)가 수십 분
+        잠들며 파이프라인 전체(타임아웃 30분)를 막는 것을 방지."""
         if api_name not in self.limits:
             logger.warning(f"알 수 없는 API: {api_name}, Rate Limit 적용 안 됨")
             return True
-        
+
+        exhausted_wait = 0.0
         with self._lock:
             info = self.limits[api_name]
             now = datetime.now()
-            
+
             if now >= info.reset_at:
                 old_used = info.used
                 info.used = 0
                 info.reset_at = now + timedelta(seconds=info.window_seconds)
                 if old_used > 0:
                     logger.debug(f"{api_name} Rate Limit 리셋 (이전 사용: {old_used}/{info.limit})")
-            
+
             if info.min_interval > 0 and info.last_call_at > 0:
                 elapsed = time.time() - info.last_call_at
                 if elapsed < info.min_interval:
@@ -219,23 +224,37 @@ class RateLimitManager:
                     logger.debug(f"{api_name} 최소 간격 대기: {wait_time:.1f}초")
                     time.sleep(wait_time)
                     self.stats["total_wait_time"] += wait_time
-            
+
             if info.is_exhausted:
                 wait_time = info.time_until_reset
                 if wait_time <= 0:
                     wait_time = info.window_seconds
-                
+                if max_wait is not None and wait_time > max_wait:
+                    logger.warning(
+                        f"⏭️ {api_name} 한도 소진 ({info.used}/{info.limit}) — "
+                        f"{wait_time:.0f}초 대기 대신 SKIP (다음 윈도우에서 재개)"
+                    )
+                    return False
+                exhausted_wait = wait_time
                 logger.warning(
                     f"⚠️ {api_name} Rate Limit 도달! "
                     f"({info.used}/{info.limit}) "
                     f"{wait_time:.0f}초 대기 중..."
                 )
-                time.sleep(wait_time + 1)
+
+        # 장시간 대기는 락 밖에서 — 락을 쥔 채 잠들면 모든 API 호출(전 워커)이 봉쇄된다
+        if exhausted_wait > 0:
+            time.sleep(exhausted_wait + 1)
+            with self._lock:
                 self.stats["total_waits"] += 1
-                self.stats["total_wait_time"] += wait_time
+                self.stats["total_wait_time"] += exhausted_wait
+                info = self.limits[api_name]
                 info.used = 0
                 info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
-            
+            return True
+
+        with self._lock:
+            info = self.limits[api_name]
             usage = info.usage_percent
             if usage >= 90:
                 extra_wait = info.min_interval * 2 if info.min_interval > 0 else 5.0

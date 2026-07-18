@@ -1,5 +1,6 @@
 import os
 import re
+import json
 import datetime
 import time
 import requests
@@ -238,11 +239,7 @@ Do NOT add intro/outro.
 
         except Exception as e:
             msg = str(e)
-            # 상태 코드는 단어 경계로 매칭 — "limit: 1500" 같은 숫자에 "500"이 오탐되지 않게
-            transient = bool(re.search(r'\b(500|503)\b', msg)) or any(t in msg for t in (
-                "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
-            ))
-            if retry_on_transient and transient and attempt < max_attempts:
+            if retry_on_transient and _is_transient_gemini_error(msg) and attempt < max_attempts:
                 wait = 2 * attempt  # 2s, 4s
                 logger.warning(f"번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
                 time.sleep(wait)
@@ -251,6 +248,122 @@ Do NOT add intro/outro.
             return fallback
 
     return fallback
+
+
+def _is_transient_gemini_error(msg: str) -> bool:
+    """Gemma 일시 서버 오류(재시도 가치 있음) 판별.
+    상태 코드는 단어 경계로 매칭 — "limit: 1500" 같은 숫자에 "500"이 오탐되지 않게."""
+    return bool(re.search(r'\b(500|503)\b', msg)) or any(t in msg for t in (
+        "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
+    ))
+
+
+def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set) -> Dict[str, Tuple[str, str]]:
+    """여러 CVE의 제목/설명을 Gemma 호출 1번에 N건씩 묶어 일괄 번역.
+
+    개별 호출은 Gemma RPM 15(호출당 4초 간격)에 묶여 실행당 번역만 8분+이 걸리고,
+    풀가동(120건×24회=2,880콜/일)이면 RPD 1,500을 초과해 오후부터 번역이 영문 폴백으로
+    떨어진다. 10건/호출 배치면 시간·일일 예산이 모두 1/10로 줄어 처리 상한을 올릴 수 있다.
+
+    폴백 정책(기존 단건과 동일 원칙): 청크 호출이 최종 실패하면 고위험(high_risk_ids)만
+    단건 재시도로 한글화를 보장하고, 저위험은 즉시 영문 폴백.
+    반환: cve_id → (title_ko, desc_ko). 모든 입력 id에 대해 값이 존재한다.
+    """
+    results: Dict[str, Tuple[str, str]] = {}
+    if not items:
+        return results
+
+    batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
+    total_chunks = (len(items) + batch_size - 1) // batch_size
+    logger.info(f"일괄 번역: {len(items)}건 → Gemma {total_chunks}회 호출 (배치 {batch_size}건)")
+
+    for i in range(0, len(items), batch_size):
+        chunk = items[i:i + batch_size]
+        chunk_has_high = any(it['id'] in high_risk_ids for it in chunk)
+        parsed = _translate_chunk(chunk, retry_on_transient=chunk_has_high)
+        if parsed is not None:
+            results.update(parsed)
+            continue
+        # 청크 최종 실패 → 고위험만 단건 재시도(한글 보장), 저위험은 영문 폴백
+        for it in chunk:
+            if it['id'] in high_risk_ids:
+                results[it['id']] = generate_korean_summary(
+                    {"title": it['title'], "description": it['description']},
+                    retry_on_transient=True)
+            else:
+                results[it['id']] = (it['title'], (it['description'] or '')[:200])
+    return results
+
+
+def _translate_chunk(chunk: List[Dict], retry_on_transient: bool) -> Optional[Dict[str, Tuple[str, str]]]:
+    """청크(≤batch_size건) 1회 Gemma 호출 번역. 성공 시 id→(제목,요약) dict, 실패 시 None.
+    응답 JSON에서 누락된 항목은 영문 폴백으로 채워 반환값은 항상 청크 전체를 커버한다."""
+    numbered = "\n".join(
+        f"{n}. Title: {it['title']} / Desc: {(it['description'] or '')[:700]}"
+        for n, it in enumerate(chunk, 1)
+    )
+    prompt = f"""
+Task: For EACH numbered CVE below, translate the Title into Korean and summarize the Description into Korean (max 3 lines each).
+Keep technical terms in English or Korean transliteration (e.g., "버퍼 오버플로우", "SQL 인젝션"). Do NOT translate them literally.
+Return ONLY a JSON array with exactly {len(chunk)} objects, same order as inputs, no other text:
+[{{"n": 1, "title_ko": "...", "desc_ko": "..."}}, ...]
+
+{numbered}
+"""
+    max_attempts = 3 if retry_on_transient else 1
+    for attempt in range(1, max_attempts + 1):
+        try:
+            rate_limit_manager.check_and_wait("gemini")
+            response = gemini_client.models.generate_content(
+                model=config.MODEL_PHASE_0,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    max_output_tokens=4096,  # ~10건 × 제목+3줄 요약이면 충분
+                    temperature=0.3,
+                    safety_settings=[types.SafetySetting(
+                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                        threshold="BLOCK_NONE"
+                    )]
+                )
+            )
+            tokens = 0
+            usage = getattr(response, "usage_metadata", None)
+            if usage is not None:
+                tokens = getattr(usage, "total_token_count", 0) or 0
+            rate_limit_manager.record_call("gemini", tokens_used=tokens)
+
+            text = (response.text or "").strip()
+            text = re.sub(r"```(?:json)?\s*\n?", "", text).strip()
+            try:
+                arr = json.loads(text)
+            except json.JSONDecodeError:
+                m = re.search(r'\[[\s\S]*\]', text)
+                if not m:
+                    logger.warning(f"일괄 번역 파싱 실패 (JSON 배열 없음, 시도 {attempt})")
+                    return None
+                arr = json.loads(m.group())
+
+            if not isinstance(arr, list):
+                return None
+            by_n = {int(o.get('n', 0)): o for o in arr if isinstance(o, dict)}
+            out: Dict[str, Tuple[str, str]] = {}
+            for n, it in enumerate(chunk, 1):
+                o = by_n.get(n, {})
+                title_ko = (o.get('title_ko') or '').strip() or it['title']
+                desc_ko = (o.get('desc_ko') or '').strip() or (it['description'] or '')[:200]
+                out[it['id']] = (title_ko, desc_ko)
+            return out
+
+        except Exception as e:
+            msg = str(e)
+            if retry_on_transient and _is_transient_gemini_error(msg) and attempt < max_attempts:
+                wait = 2 * attempt
+                logger.warning(f"일괄 번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
+                time.sleep(wait)
+                continue
+            logger.warning(f"일괄 번역 청크 실패: {e}")
+            return None
+    return None
 
 # ==============================================================================
 # [3] GitHub Issue 생성/업데이트
@@ -478,14 +591,21 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "cvss", "epss", "is_kev",
 })
 
-def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Optional[Dict]:
+def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
+    """Phase A — 수집·분류·(알림 대상만) 위협인텔까지. 번역/완성은 별도 단계.
+
+    반환 stage:
+      "done"  → 여기서 처리 종료(비발행/비대상/T3 최소갱신/보류). status 포함.
+      "ready" → 번역(Phase B)·완성(Phase C) 대기. current_state 등 컨텍스트 포함.
+    번역을 배치(Phase B)로 묶기 위한 분리다 — 개별 번역은 Gemma RPM 15에 묶여
+    실행당 8분+를 소모하고 RPD 1,500도 초과해 처리 상한을 올릴 수 없었다."""
     try:
         # Step 1: CVE 상세 정보 수집
         raw_data = collector.enrich_cve(cve_id)
-        
+
         if raw_data.get('state') != 'PUBLISHED':
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
-            return {"cve_id": cve_id, "status": "handled"}
+            return {"cve_id": cve_id, "status": "handled", "stage": "done"}
 
         # Step 2: 자산 필터링 (affected vendor/product 우선, NVD CPE 보조, description 보조)
         # 특정 자산 감시(*/* 아님) + CVE에 유효 벤더 없음이면 NVD CPE를 선제 조회해 매칭
@@ -495,7 +615,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         is_target, match_info = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
-            return {"cve_id": cve_id, "status": "handled"}
+            return {"cve_id": cve_id, "status": "handled", "stage": "done"}
 
         # Step 2.5: 값싼 위험 신호만 먼저 (메모리/캐시, 네트워크 0) — 고위험 판별용.
         # 값비싼 위협인텔(NVD/PoC/Advisory)은 고위험으로 판정된 CVE에만 이후 수집 → 처리량 확보.
@@ -550,7 +670,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
                 "content_hash": raw_data.get('content_hash')
             })
             # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
-            return {"cve_id": cve_id, "status": "handled" if saved else "failed"}
+            return {"cve_id": cve_id, "status": "handled" if saved else "failed", "stage": "done"}
 
         # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
         # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
@@ -569,17 +689,39 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
             })
 
         # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
-        # Step 5: 한국어 번역 — 신규/에스컬레이션 모두 번역해 대시보드를 한글화한다.
-        # 단, 일시오류(503 high demand 등) 재시도는 고위험/에스컬레이션(should_alert)만 한다.
-        # 저위험은 오류 시 재시도 없이 즉시 영문 폴백(중요도 낮음 + Gemma 부하 억제).
-        # → 실패분 중 '고위험이 영문으로 남는' 일을 방지하면서 저위험 부하는 줄인다.
+        # → 번역(Phase B, 배치)과 완성(Phase C)으로 넘긴다.
         if should_alert:
             logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
-        else:
-            logger.debug(f"신규 저위험 번역: {cve_id}")
-        title_ko, desc_ko = generate_korean_summary(current_state, retry_on_transient=should_alert)
-        current_state['title_ko'] = title_ko
-        current_state['desc_ko'] = desc_ko
+        return {
+            "cve_id": cve_id, "stage": "ready",
+            "current_state": current_state, "raw_data": raw_data,
+            "should_alert": should_alert, "alert_reason": alert_reason,
+            "is_high_risk": is_high_risk,
+        }
+
+    except Exception as e:
+        logger.error(f"{cve_id} 준비 실패: {e}", exc_info=True)
+        # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
+        return {"cve_id": cve_id, "status": "failed", "stage": "done"}
+
+
+def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
+                        collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Dict:
+    """Phase C — 번역 결과 반영 후 Issue/Slack/DB 저장. prep은 prepare_single_cve의 ready 반환값.
+
+    translation이 None이면(배치 번역 실패 등) 영문 폴백 — 기존 단건 번역 실패 폴백과 동일 정책."""
+    cve_id = prep["cve_id"]
+    try:
+        current_state = prep["current_state"]
+        raw_data = prep["raw_data"]
+        should_alert = prep["should_alert"]
+        alert_reason = prep["alert_reason"]
+        is_high_risk = prep["is_high_risk"]
+
+        # Step 5b: 번역 반영 (배치 결과 또는 영문 폴백)
+        if translation is None:
+            translation = (current_state['title'], (current_state.get('description') or '')[:200])
+        current_state['title_ko'], current_state['desc_ko'] = translation
 
         # Step 6: 고위험 알림 대상만 GitHub Issue (AI 심층 분석 + 공개 룰) 생성
         report_url = None
@@ -637,6 +779,16 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
         logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)
         # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
         return {"cve_id": cve_id, "status": "failed"}
+
+
+def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Optional[Dict]:
+    """단건 처리 경로 (에스컬레이션 스윕 등 소량 호출용) — prepare → 단건 번역 → finalize.
+    메인 배치 경로(_main Phase A/B/C)와 동일한 로직을 단건으로 잇는 래퍼다."""
+    prep = prepare_single_cve(cve_id, collector, db)
+    if prep.get("stage") != "ready":
+        return {"cve_id": cve_id, "status": prep.get("status", "failed")}
+    translation = generate_korean_summary(prep["current_state"], retry_on_transient=prep["should_alert"])
+    return finalize_single_cve(prep, translation, collector, db, notifier)
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
     # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
@@ -951,24 +1103,53 @@ def _main():
     collector.fetch_epss(target_cve_ids)
     logger.info(f"분석 대상: {len(target_cve_ids)}건")
 
-    # Step 7: CVE 분석 (무료 티어 = 단일 워커)
+    # Step 7: CVE 처리 — 3단계 파이프라인
+    #   Phase A(병렬): 수집·분류·위협인텔 / B(배치): 한국어 번역 / C(병렬): Issue·Slack·저장
+    # 번역을 CVE마다 개별 호출하면 Gemma RPM 15(4초 간격)에 직렬화되어 실행당 8분+를 먹고,
+    # 풀가동 시 일 2,880콜로 RPD 1,500을 초과한다 → 배치(10건/호출)로 시간·예산 모두 1/10.
     status_by_id = {}
     max_workers = config.PERFORMANCE["max_workers"]
-    logger.info(f"처리 시작 (워커: {max_workers}명)")
+    batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
+    logger.info(f"처리 시작 (워커: {max_workers}명, 번역 배치 {batch_size}건/호출)")
 
+    # Phase A: 수집·분류 (병렬)
+    prepared = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_cve = {
-            executor.submit(process_single_cve, cve_id, collector, db, notifier): cve_id
-            for cve_id in target_cve_ids
+        futures = {executor.submit(prepare_single_cve, cid, collector, db): cid for cid in target_cve_ids}
+        for future in as_completed(futures):
+            cid = futures[future]
+            try:
+                prep = future.result() or {}
+            except Exception as e:
+                logger.error(f"{cid} 준비 중 예외 발생: {e}")
+                status_by_id[cid] = "failed"
+                continue
+            if prep.get("stage") == "ready":
+                prepared.append(prep)
+            else:
+                status_by_id[cid] = prep.get("status", "failed")
+
+    # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치))
+    tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
+                 "description": p["current_state"]["description"]} for p in prepared]
+    high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
+    translations = generate_korean_summaries_batch(tr_items, high_risk_ids)
+
+    # Phase C: 완성 — Issue/Slack/저장 (병렬)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = {
+            executor.submit(finalize_single_cve, p, translations.get(p["cve_id"]),
+                            collector, db, notifier): p["cve_id"]
+            for p in prepared
         }
-        for future in as_completed(future_to_cve):
-            cve_id = future_to_cve[future]
+        for future in as_completed(futures):
+            cid = futures[future]
             try:
                 result = future.result() or {}
-                status_by_id[cve_id] = result.get("status", "failed")
+                status_by_id[cid] = result.get("status", "failed")
             except Exception as e:
-                logger.error(f"{cve_id} 처리 중 예외 발생: {e}")
-                status_by_id[cve_id] = "failed"
+                logger.error(f"{cid} 처리 중 예외 발생: {e}")
+                status_by_id[cid] = "failed"
 
     # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
     # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.

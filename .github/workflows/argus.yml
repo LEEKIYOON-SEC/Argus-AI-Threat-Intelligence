@@ -8,6 +8,12 @@ on:
 permissions:
   contents: write
   issues: write
+
+# 동시 실행 방지 — 백로그 해소 중 실행이 길어져 다음 정시 실행과 겹치면
+# 워터마크 경합·중복 처리가 생길 수 있다. 실행 중이면 다음 실행은 대기(취소 아님).
+concurrency:
+  group: argus-pipeline
+  cancel-in-progress: false
  
 jobs:
   argus-run:
