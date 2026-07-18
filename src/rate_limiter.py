@@ -87,9 +87,11 @@ class RateLimitManager:
                 window_seconds=60,
                 min_interval=1.5
             ),
-            # GitHub Advisory API: 일반 GitHub API 한도 공유
+            # GitHub Advisory API: REST 코어 한도(토큰당 5,000/h)를 github 버킷과 공유.
+            # 실측 사용량(수집+enrich+PoC ≈ 1,200/h)을 감안해 900/h까지 허용 — 100/h는
+            # 지나치게 보수적이라 고위험 100건+ 실행에서 매번 소진 로그를 냈다.
             "github_advisory": RateLimitInfo(
-                limit=100,
+                limit=900,
                 window_seconds=3600,
                 min_interval=0.5
             ),
@@ -101,6 +103,8 @@ class RateLimitManager:
         }
         
         self._lock = threading.Lock()
+        # 소진-SKIP 경고 중복 억제 (같은 윈도우 내 반복 경고는 debug로 강등)
+        self._skip_warned_at: Dict[str, datetime] = {}
 
         self.stats = {
             "total_calls": 0,
@@ -230,10 +234,16 @@ class RateLimitManager:
                 if wait_time <= 0:
                     wait_time = info.window_seconds
                 if max_wait is not None and wait_time > max_wait:
-                    logger.warning(
-                        f"⏭️ {api_name} 한도 소진 ({info.used}/{info.limit}) — "
-                        f"{wait_time:.0f}초 대기 대신 SKIP (다음 윈도우에서 재개)"
-                    )
+                    # 같은 윈도우 내 반복 SKIP은 debug로 — 경고 스팸 방지 (첫 회만 warning)
+                    last_warn = self._skip_warned_at.get(api_name)
+                    if last_warn is None or last_warn < info.reset_at - timedelta(seconds=info.window_seconds):
+                        logger.warning(
+                            f"⏭️ {api_name} 한도 소진 ({info.used}/{info.limit}) — "
+                            f"{wait_time:.0f}초 대기 대신 SKIP (이 윈도우의 후속 SKIP 로그는 생략)"
+                        )
+                        self._skip_warned_at[api_name] = now
+                    else:
+                        logger.debug(f"{api_name} 한도 소진 SKIP")
                     return False
                 exhausted_wait = wait_time
                 logger.warning(

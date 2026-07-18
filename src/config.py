@@ -64,11 +64,15 @@ class ArgusConfig:
         "max_workers": 4,
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
         # 실행당 처리 상한. 번역이 배치(translation_batch_size건/호출)라 250건이어도
-        # Gemma 호출은 ~25회(=100초)뿐 — 30분 타임아웃 내 완주하며 백로그(수백~수천)를
+        # Gemma 호출은 ~25회(=100초)뿐 — 시간 예산 내 완주하며 백로그(수백~수천)를
         # 신속 해소한다(일 처리능력 250×24=6,000건 » 유입). RPD도 25×24=600콜/일로 여유.
-        # (타임아웃으로 killed 되어도 워터마크 미저장 → 다음 실행 재수집, 누락 0.)
         "max_cves_per_run": 250,
         "translation_batch_size": 10,  # 일괄 번역: Gemma 호출당 CVE 수
+        # 소프트 데드라인 — GitHub Actions timeout(45분)에 killed 되기 전에 스스로 마무리한다.
+        # 초과 시: 잔여 CVE를 failed로 남기고(워터마크가 붙잡아 다음 실행 재처리) 워터마크
+        # 저장·요약까지 정상 종료. killed 되면 워터마크를 못 써 다음 실행이 수집을 통째로
+        # 반복하므로, '항상 깨끗하게 끝내고 전진'이 핵심. (잡 셋업/export/commit 여유 ~7분)
+        "soft_deadline_minutes": 38,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기
         # 에스컬레이션 재평가 스윕 — 레코드(cvelistV5) 미변경이라 재수집 큐에 안 올라오는
         # '현재 저위험' CVE의 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 변화로 인한 고위험 승격
