@@ -12,25 +12,23 @@ class ArgusConfig:
     # [1] AI 모델 설정
     # ==========================================
     MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
-    MODEL_PHASE_1 = "groq/compound"  # 심층 분석 주 모델 (Groq, agentic — 웹검색으로 정확도↑)
+    MODEL_PHASE_1 = "openai/gpt-oss-120b"  # 심층 분석 주 모델 (Groq, 추론형)
 
-    # Groq 심층분석 모델 캐스케이드 — 앞 모델의 일일 한도가 소진되면 다음 모델로 자동 전환.
-    # Groq 한도는 모델별로 따로 잡히므로 여러 모델을 순차 사용하면 하루 예산이 합산된다.
-    # compound/compound-mini: agentic(웹검색 내장) — TPD 무제한이나 RPD 250/일. 웹검색으로
-    #   CVE를 실제 조회해 분석 정확도가 높지만 순수 JSON이 아닐 수 있어(도구흔적) 폴백 추출로 흡수.
-    # gpt-oss-120b / qwen3.6-27b: 추론형 — TPD 200K/일씩. reasoning 파라미터 지원.
+    # Groq 심층분석 모델 캐스케이드 — 앞 모델의 일일 한도(TPD)가 소진되면 다음 모델로 자동 전환.
+    # gpt-oss-120b와 qwen3.6은 TPD 200K/일이 '각각' 잡혀 실질 일일 예산 400K.
+    #
+    # ⚠️ compound/compound-mini는 제외한다: agentic 시스템이라 내부적으로 기반 모델
+    # (gpt-oss-120b 등)을 호출하며, 토큰이 '기반 모델의 TPD'로 계상된다(429 로그로 확인:
+    # compound 요청이 openai/gpt-oss-120b TPD 200K 한도에 걸림). 즉 예산이 합산되지 않고
+    # 오히려 웹검색 컨텍스트만큼 같은 예산을 더 빨리 소모 + 다단계 실행으로 지연 + 비정형
+    # 출력으로 파싱 재시도까지 유발 → 캐스케이드에 넣을 이유가 없다.
     GROQ_MODELS = [
-        "groq/compound",
-        "groq/compound-mini",
         "openai/gpt-oss-120b",
         "qwen/qwen3.6-27b",
     ]
 
-    # 모델별 일일 소진 기준 (다름!). rpd=요청 수/일, tpd=토큰 수/일. None=해당 기준 무제한.
-    #   compound/mini: RPD 250 (TPD 무제한) / gpt-oss·qwen: TPD 200K (RPD 사실상 무제한)
+    # 모델별 일일 소진 기준. rpd=요청 수/일, tpd=토큰 수/일. None=해당 기준 무제한.
     GROQ_MODEL_LIMITS = {
-        "groq/compound":       {"rpd": 250,  "tpd": None},
-        "groq/compound-mini":  {"rpd": 250,  "tpd": None},
         "openai/gpt-oss-120b": {"rpd": None, "tpd": 200_000},
         "qwen/qwen3.6-27b":    {"rpd": None, "tpd": 200_000},
     }
@@ -44,11 +42,8 @@ class ArgusConfig:
     }
 
     # 모델별 reasoning 파라미터 — 모델마다 지원값이 다르다. 값이 없으면(빈 dict) API 호출에서 생략.
-    #   compound 계열: agentic → reasoning 파라미터 미지원 → 보내지 않음(빈 dict)
     #   gpt-oss-120b: "low"(최소 추론) / qwen3.6: "none"(비추론). reasoning_format="parsed"로 JSON 보호.
     GROQ_MODEL_REASONING = {
-        "groq/compound": {},
-        "groq/compound-mini": {},
         "openai/gpt-oss-120b": {"reasoning_effort": "low", "reasoning_format": "parsed"},
         "qwen/qwen3.6-27b": {"reasoning_effort": "none", "reasoning_format": "parsed"},
     }

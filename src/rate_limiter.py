@@ -45,8 +45,8 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=0.5
             ),
-            # Groq Free Tier: RPM 30 (분당 요청). 일일 한도는 모델별로 상이 —
-            # compound 계열 RPD 250, gpt-oss/qwen TPD 200K → 모델별 카운터로 별도 추적.
+            # Groq Free Tier: RPM 30 (분당 요청). 일일 한도(TPD 200K)는
+            # gpt-oss/qwen 모델별로 별도 카운터로 추적.
             "groq": RateLimitInfo(
                 limit=30,
                 window_seconds=60,
@@ -102,19 +102,19 @@ class RateLimitManager:
             "rate_limit_hits": 0
         }
 
-        # Groq 모델별 일일 한도 트래킹 — 모델마다 소진 기준이 다르다(compound=RPD 250,
-        # gpt-oss·qwen=TPD 200K). 요청 수(_gr_req)와 토큰 수(_tpd_used) 둘 다 모델별로 누적하고,
-        # 둘 중 하나라도 그 모델의 한도를 넘으면 소진으로 보고 다음 모델(캐스케이드)로 넘어간다.
+        # Groq 모델별 일일 한도 트래킹 — gpt-oss·qwen 각각 TPD 200K가 별도로 잡힌다.
+        # 요청 수(_gr_req)와 토큰 수(_tpd_used)를 모델별로 누적하고, 한도를 넘으면 소진으로
+        # 보고 다음 모델(캐스케이드)로 넘어간다. (rpd 기준도 지원하나 현 캐스케이드는 tpd만 사용.)
         # (실행마다 상태 초기화 + 429 감지로 실제 일간 소진 반영.)
         self._tpd_used_model: Dict[str, int] = {}   # 모델별 누적 토큰
         self._gr_req_model: Dict[str, int] = {}     # 모델별 누적 요청 수
         self._tpd_reset_model: Dict[str, datetime] = {}
         self._tpd_exhausted_model: Dict[str, bool] = {}
 
-        # TPM (Tokens Per Minute) 선제 관리 — 이제 TPM 250K이라 여유가 크지만, 안전 상한으로
-        # 캐스케이드 최저값(compound 70K)을 둔다. 호출당 예약(~6K) « 70K라 사실상 발동 안 함.
+        # TPM (Tokens Per Minute) 선제 관리 — gpt-oss/qwen 모두 TPM 250K.
+        # 호출당 예약(~6K) « 250K라 사실상 발동 안 하는 안전장치.
         self._tpm_limits: Dict[str, int] = {
-            "groq": 70_000,  # 캐스케이드 최저 TPM(compound). qwen/gpt-oss는 250K로 더 여유
+            "groq": 250_000,  # gpt-oss-120b / qwen3.6 공통 TPM
         }
         self._tpm_reserve: Dict[str, int] = {
             "groq": 6_000,  # 호출당 예약 추정(입력 + max_completion 4096)
@@ -462,7 +462,7 @@ class RateLimitManager:
             lim = self._groq_model_limits(model)
             rpd, tpd = lim.get("rpd"), lim.get("tpd")
             exhausted = " (EXHAUSTED)" if self._tpd_exhausted_model.get(model, False) else ""
-            if rpd:  # compound 계열: 요청 수 기준
+            if rpd:  # RPD 기준 모델(현재 미사용 — tpd 기준만)
                 pct = req / rpd * 100
                 logger.info(f"  {(model[:14]+' RPD'):18s}: {req:,}/{rpd:,} [{self._create_usage_bar(pct)}] {pct:5.1f}%{exhausted}")
             if tpd:  # 추론형: 토큰 기준

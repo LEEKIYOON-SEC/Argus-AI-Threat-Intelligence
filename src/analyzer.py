@@ -27,10 +27,10 @@ class Analyzer:
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석. Groq 모델 캐스케이드(compound→mini→gpt-oss→qwen) — 앞 모델의 일일
-        한도 소진 또는 오류 시 다음 모델로 넘어간다. 모델별 한도(RPD/TPD)는 rate_limiter가 추적.
-        compound는 agentic(웹검색)이라 출력이 순수 JSON이 아닐 수 있어, 파싱 실패 시에도
-        다음 모델로 넘겨 견고하게 분석을 확보한다."""
+        """CVE 심층 분석. Groq 모델 캐스케이드(gpt-oss-120b→qwen3.6) — 앞 모델의 일일
+        TPD(각 200K, 별도 예산) 소진 또는 오류 시 다음 모델로 넘어간다. 파싱/검증 실패
+        시에도 다음 모델로 넘겨 분석을 견고하게 확보한다.
+        (compound 계열은 기반 모델 TPD를 공유 소모해 예산 이득이 없어 제외 — config 참조.)"""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
         base = config.GROQ_ANALYSIS_PARAMS
@@ -49,7 +49,7 @@ class Analyzer:
                     "top_p": base["top_p"],
                     "max_completion_tokens": base["max_completion_tokens"],
                 }
-                # reasoning 파라미터는 모델별로 다름 (compound=미전송, gpt-oss=low, qwen=none)
+                # reasoning 파라미터는 모델별로 다름 (gpt-oss=low, qwen=none)
                 reasoning = config.GROQ_MODEL_REASONING.get(model, {})
                 if reasoning.get("reasoning_effort"):
                     api_params["reasoning_effort"] = reasoning["reasoning_effort"]
@@ -67,7 +67,7 @@ class Analyzer:
                 result = self._extract_json(raw_content)
 
                 if result is None or not self._validate_analysis_result(result):
-                    # 파싱/검증 실패 → 다음 모델로 재시도 (compound의 비정형 출력 대비)
+                    # 파싱/검증 실패 → 다음 모델로 재시도 (모델 이상 출력 대비 안전장치)
                     logger.warning(f"{cve_data['id']}: AI 응답 파싱/검증 실패 ({model}) → 다음 모델 시도")
                     continue
 
