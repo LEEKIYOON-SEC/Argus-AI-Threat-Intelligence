@@ -1067,17 +1067,26 @@ def _main():
     # 실행해 승격 재알림이 신규 저위험 백로그보다 우선 Groq 예산을 확보하고 타임아웃 전에 완주하게 한다.
     check_for_escalations(collector, db, notifier)
 
+    # 소프트 데드라인 — Actions timeout(45분)에 killed 되면 워터마크를 못 써 다음 실행이
+    # 수집을 통째로 반복한다. 그 전에 스스로 잔여 작업을 failed로 남기고(워터마크가 붙잡음)
+    # 워터마크 저장·요약까지 '항상 깨끗하게' 끝내는 것이 전진의 핵심.
+    soft_deadline_ts = start_time + config.PERFORMANCE.get("soft_deadline_minutes", 38) * 60
+
+    def _over_deadline() -> bool:
+        return time.time() > soft_deadline_ts
+
     run_start_utc = datetime.datetime.now(datetime.timezone.utc)
     watermark = read_watermark()
     # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
     since_dt = watermark - datetime.timedelta(minutes=5)
     # 초장기 공백(수일+) 캐치업 상한: 한 실행의 조회 창을 최대 12시간으로 제한.
-    # 무제한 조회는 커밋 상세 호출 폭증 → 30분 타임아웃 → 워터마크 미저장 → 같은 작업
+    # 무제한 조회는 커밋 상세 호출 폭증 → 타임아웃 → 워터마크 미저장 → 같은 작업
     # 반복(진행 불가)으로 이어질 수 있다. 창 밖 커밋은 다음 실행이 전진된 워터마크에서
     # 이어서 수집하므로 누락은 없다 (실행당 12h씩 따라잡음).
     catchup_horizon = watermark + datetime.timedelta(hours=12)
     until_dt = catchup_horizon if catchup_horizon < run_start_utc else None
-    fetched = collector.fetch_cves_since(since_dt, db=db, until_dt=until_dt)
+    fetched = collector.fetch_cves_since(since_dt, db=db, until_dt=until_dt,
+                                         deadline_ts=soft_deadline_ts)
 
     if not fetched:
         # 창 내 신규 커밋 없음 → 창 끝까지만 전진 (창 이후 커밋은 다음 실행이 수집)
@@ -1112,11 +1121,15 @@ def _main():
     batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
     logger.info(f"처리 시작 (워커: {max_workers}명, 번역 배치 {batch_size}건/호출)")
 
-    # Phase A: 수집·분류 (병렬)
+    # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)
     prepared = []
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(prepare_single_cve, cid, collector, db): cid for cid in target_cve_ids}
         for future in as_completed(futures):
+            if _over_deadline():
+                executor.shutdown(wait=False, cancel_futures=True)
+                logger.warning("⏰ 시간 예산 도달 — Phase A 잔여 취소 (다음 실행에서 재처리)")
+                break
             cid = futures[future]
             try:
                 prep = future.result() or {}
@@ -1129,27 +1142,43 @@ def _main():
             else:
                 status_by_id[cid] = prep.get("status", "failed")
 
-    # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치))
-    tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
-                 "description": p["current_state"]["description"]} for p in prepared]
-    high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
-    translations = generate_korean_summaries_batch(tr_items, high_risk_ids)
+    if _over_deadline():
+        # 번역/완성 없이 종료 — prepared 전부 미완료(failed) 처리해 다음 실행에서 온전히 재처리
+        logger.warning(f"⏰ 시간 예산 도달 — 준비된 {len(prepared)}건 포함 잔여분 다음 실행으로")
+        prepared = []
+    else:
+        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치))
+        tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
+                     "description": p["current_state"]["description"]} for p in prepared]
+        high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
+        translations = generate_korean_summaries_batch(tr_items, high_risk_ids)
 
-    # Phase C: 완성 — Issue/Slack/저장 (병렬)
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(finalize_single_cve, p, translations.get(p["cve_id"]),
-                            collector, db, notifier): p["cve_id"]
-            for p in prepared
-        }
-        for future in as_completed(futures):
-            cid = futures[future]
-            try:
-                result = future.result() or {}
-                status_by_id[cid] = result.get("status", "failed")
-            except Exception as e:
-                logger.error(f"{cid} 처리 중 예외 발생: {e}")
-                status_by_id[cid] = "failed"
+        # Phase C: 완성 — Issue/Slack/저장 (병렬).
+        # 고위험(알림 대상)을 먼저 제출해 데드라인이 닥쳐도 핵심 알림부터 완료되게 한다.
+        prepared.sort(key=lambda p: (0 if p["should_alert"] else 1))
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(finalize_single_cve, p, translations.get(p["cve_id"]),
+                                collector, db, notifier): p["cve_id"]
+                for p in prepared
+            }
+            for future in as_completed(futures):
+                if _over_deadline():
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    logger.warning("⏰ 시간 예산 도달 — Phase C 잔여 취소 (다음 실행에서 재처리)")
+                    break
+                cid = futures[future]
+                try:
+                    result = future.result() or {}
+                    status_by_id[cid] = result.get("status", "failed")
+                except Exception as e:
+                    logger.error(f"{cid} 처리 중 예외 발생: {e}")
+                    status_by_id[cid] = "failed"
+
+    # 안전망: 상태가 기록되지 않은 처리 대상(취소·미완료)은 전부 failed —
+    # 워터마크 계산이 이들을 '처리됨'으로 오인해 건너뛰면 영구 누락이므로 반드시 필요.
+    for c in to_process:
+        status_by_id.setdefault(c['cve_id'], "failed")
 
     # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
     # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.

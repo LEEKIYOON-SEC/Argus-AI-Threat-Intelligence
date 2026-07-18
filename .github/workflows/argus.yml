@@ -18,7 +18,9 @@ concurrency:
 jobs:
   argus-run:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # 파이프라인은 soft_deadline_minutes(38분)에 스스로 마무리·워터마크 저장 후 종료한다.
+    # 이 값은 그게 실패했을 때의 최후 안전장치 (셋업+export+commit 여유 포함).
+    timeout-minutes: 45
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -52,13 +54,17 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: python src/main.py
  
+      # if: always() — 파이프라인이 중간에 실패해도, 이미 정상 저장된 워터마크/대시보드
+      # 데이터는 커밋한다 (워터마크 파일은 _main 말미에만 쓰이므로 잘못 전진할 일 없음).
       - name: Export dashboard data
+        if: always()
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python src/export_dashboard_data.py
- 
+
       - name: Commit and push dashboard data
+        if: always()
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

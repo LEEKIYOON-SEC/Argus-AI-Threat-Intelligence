@@ -4,7 +4,7 @@ import pytz
 import os
 import re
 import json
-
+import time
 import hashlib
 from typing import List, Dict, Set, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -195,13 +195,17 @@ class Collector:
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
     def fetch_cves_since(self, since_dt: datetime.datetime, db=None, max_commit_pages: int = 300,
-                         until_dt: Optional[datetime.datetime] = None) -> List[dict]:
+                         until_dt: Optional[datetime.datetime] = None,
+                         deadline_ts: Optional[float] = None) -> List[dict]:
         """워터마크(since_dt) 이후(선택적으로 until_dt까지) 커밋에서 변경된 CVE를 빠짐없이 수집.
 
         고정 시간창(누락 위험) 대신 '마지막 처리 지점' 이후 전부를 조회한다.
         스케줄이 아무리 불규칙해도(수시간·수일 지연) 빈틈이 생기지 않는다.
         until_dt는 초장기 공백 캐치업 시 한 실행의 조회량을 상한하기 위한 것 —
         창 밖(이후) 커밋은 다음 실행이 전진된 워터마크에서 이어서 수집한다.
+        deadline_ts(time.time() 기준)는 소프트 데드라인 — 커밋 상세 순회가 오름차순이라
+        중간에 멈춰도 안전하다: 워터마크는 '본 것'의 최대 시각까지만 전진하므로
+        못 본 이후 커밋은 다음 실행이 이어서 수집한다(누락 0 유지).
 
         Returns:
             List[dict]: [{"cve_id", "commit_ts"(datetime), "is_new"(bool)}], commit_ts 오름차순.
@@ -250,6 +254,10 @@ class Collector:
         # (수백~수천 파일)에서 301번째 이후 CVE가 조용히 누락되지 않게 페이지네이션한다.
         cve_ts: Dict[str, datetime.datetime] = {}
         for commit in commits:
+            # 소프트 데드라인: 오름차순 순회라 여기서 멈춰도 안전 (본 것까지만 워터마크 전진)
+            if deadline_ts is not None and time.time() > deadline_ts:
+                logger.warning("⏰ 수집 시간 예산 도달 — 지금까지 상세 조회한 커밋까지만 처리 (이후는 다음 실행)")
+                break
             try:
                 ts = datetime.datetime.fromisoformat(self._commit_ts(commit).replace("Z", "+00:00"))
             except (ValueError, AttributeError):
@@ -287,6 +295,11 @@ class Collector:
         for cid, ts in cve_ts.items():
             old_hash = existing.get(cid)
             if old_hash is None:
+                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
+                continue
+            # 데드라인 도달 시 해시 사전검사(원문 fetch) 생략 — 보수적으로 처리 대상 취급
+            # (중복 처리 가능성은 실행당 상한이 흡수, 누락 방지가 우선)
+            if deadline_ts is not None and time.time() > deadline_ts:
                 result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
                 continue
             raw_json = self._fetch_raw_cve_json(cid)
