@@ -63,10 +63,10 @@ class ArgusConfig:
         # (Groq RPM 30 + 고위험당 분석 1회라 병렬로도 RPM 여유. 저위험 fetch 병렬화로 처리량↑.)
         "max_workers": 4,
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
-        # 실행당 처리 상한. 번역이 배치(translation_batch_size건/호출)라 250건이어도
-        # Gemma 호출은 ~25회(=100초)뿐 — 시간 예산 내 완주하며 백로그(수백~수천)를
-        # 신속 해소한다(일 처리능력 250×24=6,000건 » 유입). RPD도 25×24=600콜/일로 여유.
-        "max_cves_per_run": 250,
+        # 실행당 처리 상한. 자산 기준 티어링으로 비자산 저위험(유입의 대부분)은 번역 없이
+        # 마커 저장만 하므로 건당 비용이 급감 — 400건이어도 시간 예산 내 완주.
+        # 일 처리능력 400×24=9,600건 » 유입 → 백로그 신속 해소. (소프트 데드라인이 초과 보호.)
+        "max_cves_per_run": 400,
         "translation_batch_size": 10,  # 일괄 번역: Gemma 호출당 CVE 수
         # 소프트 데드라인 — GitHub Actions timeout(45분)에 killed 되기 전에 스스로 마무리한다.
         # 초과 시: 잔여 CVE를 failed로 남기고(워터마크가 붙잡아 다음 실행 재처리) 워터마크

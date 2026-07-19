@@ -117,18 +117,28 @@ def parse_cvss_vector(vector_str: str) -> str:
     
     return "<br>".join(mapped_parts)
 
-def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
+def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """자산 매칭 판정. 반환: (매칭 여부, 매칭 근거, 매칭 종류).
+
+    매칭 종류(match_type)가 자산 기준 티어링의 핵심이다:
+      "asset"    — 등록된 구체 자산 룰에 매칭 → 저위험도 추적(번역+대시보드)
+      "wildcard" — 구체 룰엔 안 맞고 */*(전체 감시)로만 매칭 → 고위험/에스컬레이션만 수신,
+                   신규 저위험은 마커만 저장(대시보드 비노출)
+      None       — 어느 룰에도 안 맞음 → 처리 안 함
+    구체 룰을 전부 먼저 검사하고, 실패했을 때만 wildcard로 분류한다."""
     # 벤더/제품 표기 차이(언더스코어 vs 공백)를 흡수해 매칭 누락 방지
     def _norm(s: str) -> str:
         return s.lower().replace('_', ' ').strip()
 
+    has_wildcard = False
     for target in config.get_target_assets():
         t_vendor = _norm(target.get('vendor', ''))
         t_product = _norm(target.get('product', ''))
 
-        # 전체 감시 모드
+        # 전체 감시 룰은 기억만 하고 구체 룰부터 검사 (asset 판정이 우선)
         if t_vendor == "*" and t_product == "*":
-            return True, "All Assets (*)"
+            has_wildcard = True
+            continue
 
         # 1차: affected 필드의 구조화된 vendor/product 매칭
         for affected in cve_data.get('affected', []):
@@ -143,7 +153,7 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
             product_match = (t_product == "*") or (t_product in a_product) or (a_product in t_product)
 
             if vendor_match and product_match:
-                return True, f"Matched (affected): {a_vendor}/{a_product}"
+                return True, f"Matched (affected): {a_vendor}/{a_product}", "asset"
 
         # 2차: NVD CPE의 vendor/product 매칭 (affected가 비거나 불명일 때 보완)
         for cpe in cve_data.get('nvd_cpe', []):
@@ -156,14 +166,36 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str]]:
             vendor_match = (t_vendor in c_vendor) or (c_vendor in t_vendor)
             product_match = (t_product == "*") or (t_product in c_product) or (c_product in t_product)
             if vendor_match and product_match:
-                return True, f"Matched (NVD CPE): {c_vendor}/{c_product}"
+                return True, f"Matched (NVD CPE): {c_vendor}/{c_product}", "asset"
 
         # 3차(보조): description 텍스트 매칭
         desc_lower = cve_data.get('description', '').lower()
         if desc_lower and t_vendor in desc_lower and (t_product == "*" or t_product in desc_lower):
-            return True, f"Matched (description): {t_vendor}/{t_product}"
+            return True, f"Matched (description): {t_vendor}/{t_product}", "asset"
 
-    return False, None
+    if has_wildcard:
+        return True, "All Assets (*)", "wildcard"
+    return False, None, None
+
+def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
+    """최근 N일 내 KEV 등재분 중 DB에 없고 이번 처리분에도 없는 CVE 목록 (gap-filler).
+
+    비자산 저위험은 저장하지 않으므로(마커도 30일 후 삭제) 에스컬레이션 스윕(DB 기반)이
+    못 본다. KEV 등재는 '실제 악용 확인'이라 놓치면 안 되는 1급 신호 → 매 실행 이미 받는
+    KEV 목록의 dateAdded로 최근 등재분을 골라 DB 미보유분을 직접 처리 큐에 넣는다.
+    이들은 is_kev=True → 신규 고위험(T1)으로 자연 처리된다."""
+    cutoff = (datetime.datetime.now(datetime.timezone.utc)
+              - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
+    recent = [cid for cid, added in collector.kev_date_added.items()
+              if added and added >= cutoff and cid not in exclude]
+    if not recent:
+        return []
+    existing = db.batch_get_content_hashes(recent)
+    missing = [cid for cid in recent if cid not in existing]
+    if missing:
+        logger.info(f"🚨 KEV gap-filler: 최근 {days}일 등재 {len(recent)}건 중 미보유 {len(missing)}건 추가 수집")
+    return missing
+
 
 def _needs_cpe_for_matching(cve_data: Dict) -> bool:
     """자산 매칭에 NVD CPE 선제 조회가 필요한지 판단.
@@ -612,7 +644,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
         # 소스를 확보한다(자산 매칭 누락 방지). 전체 감시(*/*)에서는 호출 안 함(비용 0).
         if _needs_cpe_for_matching(raw_data):
             collector.enrich_from_nvd(raw_data)
-        is_target, match_info = is_target_asset(raw_data, cve_id)
+        is_target, match_info, match_type = is_target_asset(raw_data, cve_id)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled", "stage": "done"}
@@ -652,25 +684,32 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
         # Step 4: 알림 필요성 판단
         last_record = db.get_cve(cve_id)
         last_state = last_record.get('last_alert_state') if last_record else None
-        is_new_to_db = last_record is None
 
         should_alert, alert_reason, is_high_risk = _should_send_alert(
             current_state, last_state
         )
 
-        # 기존 CVE인데 알림 트리거 없음 → 최소 갱신만(재번역/알림 없음, 값싼 경로)
-        # cvss/epss/is_kev 스칼라도 함께 갱신 — 7.0 미만 재평가가 대시보드에 반영되도록
-        if not should_alert and not is_new_to_db:
-            saved = db.upsert_cve({
-                "id": cve_id,
-                "cvss_score": current_state['cvss'],
-                "epss_score": current_state['epss'],
-                "is_kev": current_state['is_kev'],
-                "updated_at": datetime.datetime.now(KST).isoformat(),
-                "content_hash": raw_data.get('content_hash')
-            })
-            # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
-            return {"cve_id": cve_id, "status": "handled" if saved else "failed", "stage": "done"}
+        # 알림 트리거 없음(저위험/무변화) → 자산 기준 티어링:
+        #   - 추적 중(last_state 보유 = 자산 저위험 추적 or 과거 알림): 최소 갱신(T3).
+        #   - 비자산(wildcard로만 매칭) 미추적: 마커만 저장 — 번역/위협인텔/대시보드 없음.
+        #     마커(상태 없는 행)는 재커밋 시 수집 dedup을 가능케 하고, 레코드가 실제로 바뀌면
+        #     해시가 달라져 재분류된다(last_state가 없어 '신규' 취급 → 고위험 승격 시 풀 알림).
+        #   - 자산 매칭인데 미추적(신규 or 과거 마커): 아래로 진행해 추적 시작(T2, 번역+대시보드).
+        # 어느 경로든 저장 payload는 동일(스칼라+해시) — last_alert_state를 쓰지 않는 것이 마커의 정의.
+        if not should_alert:
+            is_marker_save = last_state is None  # True면 wildcard 마커, False면 T3 최소 갱신
+            if not is_marker_save or match_type == "wildcard":
+                saved = db.upsert_cve({
+                    "id": cve_id,
+                    "cvss_score": current_state['cvss'],
+                    "epss_score": current_state['epss'],
+                    "is_kev": current_state['is_kev'],
+                    "updated_at": datetime.datetime.now(KST).isoformat(),
+                    "content_hash": raw_data.get('content_hash')
+                })
+                # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
+                return {"cve_id": cve_id, "status": "handled" if saved else "failed",
+                        "stage": "done", "skipped_low_wildcard": is_marker_save}
 
         # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
         # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
@@ -1108,9 +1147,15 @@ def _main():
 
     target_cve_ids = [c['cve_id'] for c in to_process]
 
+    # Step 5.5: KEV gap-filler — 최근 등재 KEV 중 DB 미보유분을 큐 앞에 추가.
+    # 워터마크 흐름(to_process/deferred)과 별개라 워터마크 계산에는 불포함 —
+    # 실패해도 다음 실행의 gap-filler가 다시 잡는다(KEV 목록에 남아 있는 한).
+    kev_extra = _recent_kev_missing(collector, db, exclude=set(target_cve_ids))
+    target_cve_ids = kev_extra + target_cve_ids
+
     # Step 6: EPSS 수집
     collector.fetch_epss(target_cve_ids)
-    logger.info(f"분석 대상: {len(target_cve_ids)}건")
+    logger.info(f"분석 대상: {len(target_cve_ids)}건 (KEV gap-filler {len(kev_extra)}건 포함)")
 
     # Step 7: CVE 처리 — 3단계 파이프라인
     #   Phase A(병렬): 수집·분류·위협인텔 / B(배치): 한국어 번역 / C(병렬): Issue·Slack·저장
@@ -1123,6 +1168,7 @@ def _main():
 
     # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)
     prepared = []
+    marker_skips = 0  # 비자산 저위험 마커 처리 수 (백로그 해소 관측용)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(prepare_single_cve, cid, collector, db): cid for cid in target_cve_ids}
         for future in as_completed(futures):
@@ -1137,6 +1183,8 @@ def _main():
                 logger.error(f"{cid} 준비 중 예외 발생: {e}")
                 status_by_id[cid] = "failed"
                 continue
+            if prep.get("skipped_low_wildcard"):
+                marker_skips += 1
             if prep.get("stage") == "ready":
                 prepared.append(prep)
             else:
@@ -1208,7 +1256,8 @@ def _main():
     # Step 10: 결과 요약
     elapsed = time.time() - start_time
     logger.info("=" * 60)
-    logger.info(f"처리 완료: 알림 {success_count}건 / 처리 {len(target_cve_ids)}건 / 이월 {len(deferred)}건")
+    logger.info(f"처리 완료: 알림 {success_count}건 / 처리 {len(target_cve_ids)}건 "
+                f"(비자산 저위험 마커 {marker_skips}건) / 이월 {len(deferred)}건")
     logger.info(f"워터마크: {new_watermark.isoformat()}")
     logger.info(f"소요 시간: {elapsed:.1f}초")
     logger.info("=" * 60)

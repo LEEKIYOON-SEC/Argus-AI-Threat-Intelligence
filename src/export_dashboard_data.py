@@ -35,9 +35,11 @@ def export_cves(client, days: int = 90) -> list:
     page_size = 1000
     offset = 0
     while True:
+        # last_alert_state가 null인 행은 마커(비자산 저위험 dedup용) — 대시보드 비노출
         response = client.table("cves") \
             .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
             .gte("updated_at", cutoff) \
+            .not_.is_("last_alert_state", "null") \
             .order("updated_at", desc=True) \
             .range(offset, offset + page_size - 1) \
             .execute()
@@ -198,11 +200,15 @@ def export_stats(cve_data: list) -> dict:
     }
 
 
-def apply_retention_policy(client, days: int = 180) -> int:
-    """최근 N일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
+def apply_retention_policy(client, days: int = 180, marker_days: int = 30) -> int:
+    """DB 용량 방어 (불변 원칙 2). 두 단계:
 
-    상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없이
-    Supabase free tier(500MB) 용량을 방어한다 (불변 원칙 2).
+    1) 최근 days일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
+       상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없음.
+    2) marker_days일 지난 마커 행 삭제. 마커 = 비자산 저위험 dedup용(last_alert_state·
+       last_alert_at 모두 null). 삭제해도 안전: 이후 레코드가 바뀌면 '신규'로 재분류되어
+       고위험 승격 시 풀 알림이 나가고, KEV 등재는 gap-filler가 DB 유무와 무관하게 잡는다.
+       (last_alert_at 조건으로 1)에서 null화된 과거 알림 행과는 구분 — 그 행들은 보존.)
     """
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
     response = client.table("cves") \
@@ -210,7 +216,20 @@ def apply_retention_policy(client, days: int = 180) -> int:
         .lt("updated_at", cutoff) \
         .not_.is_("last_alert_state", "null") \
         .execute()
-    return len(response.data or [])
+    cleaned = len(response.data or [])
+
+    marker_cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=marker_days)).isoformat()
+    deleted = client.table("cves") \
+        .delete() \
+        .is_("last_alert_state", "null") \
+        .is_("last_alert_at", "null") \
+        .lt("updated_at", marker_cutoff) \
+        .execute()
+    deleted_count = len(deleted.data or [])
+    if deleted_count:
+        print(f"  마커 {deleted_count}건 삭제 ({marker_days}일 경과)", flush=True)
+
+    return cleaned
 
 
 def _generate_sample_data(data_dir: str):
