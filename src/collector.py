@@ -181,7 +181,7 @@ class Collector:
             group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
 
             raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
-            response = requests.get(raw_url, timeout=10)
+            response = requests.get(raw_url, timeout=15)
             response.raise_for_status()
 
             return response.json()
@@ -369,26 +369,46 @@ class Collector:
         
         return results
     
-    @retry(
-        stop=stop_after_attempt(2),
-        wait=wait_exponential(multiplier=1, min=1, max=5)
-    )
     def enrich_cve(self, cve_id: str) -> Dict:
-        """CVE 상세 정보 수집"""
+        """CVE 상세 정보 수집.
+
+        raw.githubusercontent.com은 부하 시 느려 Read timeout이 잦다. 네트워크 오류는
+        지수 백오프로 재시도하고, 최종 실패 시 state='ERROR'를 반환한다 — 호출측
+        (prepare_single_cve)이 이를 'failed'로 처리해 워터마크가 붙잡고 다음 실행에서
+        재수집하므로 누락되지 않는다. (기존엔 @retry가 함수 내부 except에 예외가 삼켜져
+        재시도가 발동하지 않고 ERROR가 handled로 흘러 CVE가 조용히 누락됐다.)
+        """
+        parts = cve_id.split('-')
+        year, id_num = parts[1], parts[2]
+        group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
+        raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
+
+        json_data = None
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
+            try:
+                rate_limit_manager.check_and_wait("github")
+                response = requests.get(raw_url, timeout=20)
+                if response.status_code == 404:
+                    logger.warning(f"{cve_id} not found (404)")
+                    return self._error_response(cve_id, state="NOT_FOUND")
+                response.raise_for_status()
+                rate_limit_manager.record_call("github")
+                json_data = response.json()
+                break
+            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
+                if attempt < max_attempts:
+                    wait = 2 * attempt  # 2s, 4s
+                    logger.warning(f"{cve_id} 수집 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
+                    time.sleep(wait)
+                    continue
+                logger.error(f"{cve_id} 수집 최종 실패(네트워크) → 다음 실행 재수집")
+                return self._error_response(cve_id)
+            except Exception as e:
+                logger.error(f"{cve_id} enrichment failed: {e}")
+                return self._error_response(cve_id)
+
         try:
-            rate_limit_manager.check_and_wait("github")
-            
-            parts = cve_id.split('-')
-            year, id_num = parts[1], parts[2]
-            group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
-            
-            raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
-            
-            response = requests.get(raw_url, timeout=10)
-            response.raise_for_status()
-            rate_limit_manager.record_call("github")
-            
-            json_data = response.json()
             cna = json_data.get('containers', {}).get('cna', {})
 
             # 콘텐츠 해시 계산 (DB 저장용)
@@ -446,15 +466,9 @@ class Collector:
 
             logger.debug(f"Enriched {cve_id}: CVSS={data['cvss']}, State={data['state']}, SSVC={data['ssvc'].get('exploitation','-')}")
             return data
-            
-        except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
-                logger.warning(f"{cve_id} not found (404)")
-            else:
-                logger.error(f"{cve_id} HTTP error: {e}")
-            return self._error_response(cve_id)
+
         except Exception as e:
-            logger.error(f"{cve_id} enrichment failed: {e}")
+            logger.error(f"{cve_id} 파싱 실패: {e}")
             return self._error_response(cve_id)
     
     def _enrich_from_adp(self, json_data: Dict, data: Dict) -> None:
@@ -804,15 +818,16 @@ class Collector:
 
         return cve_data
     
-    def _error_response(self, cve_id: str) -> Dict:
-        """에러 발생 시 기본 응답"""
+    def _error_response(self, cve_id: str, state: str = "ERROR") -> Dict:
+        """수집 실패 응답. state="ERROR"(네트워크 등 일시 실패 → 호출측이 재수집 대상으로
+        처리) / "NOT_FOUND"(404 — 레코드 없음, 재수집 무의미 → handled로 통과)."""
         return {
             "id": cve_id,
             "title": "Error",
             "cvss": 0.0,
             "cvss_vector": "N/A",
             "description": "Error",
-            "state": "ERROR",
+            "state": state,
             "cwe": [],
             "references": [],
             "affected": []
