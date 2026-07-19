@@ -5,14 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Argus · CVE Threat Dashboard</title>
   <meta name="description" content="CVE 취약점 위협 인텔리전스 대시보드 — 실제 악용·무기화·고위험 취약점을 한눈에.">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231f6feb' d='M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5z'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231f6feb' d='M12 1.5 3.5 5v6.2c0 5.4 3.6 10.4 8.5 11.8 4.9-1.4 8.5-6.4 8.5-11.8V5z'/%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.3' stroke-linecap='round' stroke-linejoin='round' d='m8.3 12 2.5 2.5 4.9-5'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="header">
     <div class="container header-inner">
       <a href="cve.html" class="logo">
-        <span class="logo-badge">&#128737;</span>
+        <span class="logo-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
         <span>Argus<small>CVE Threat Intelligence</small></span>
       </a>
       <div class="header-spacer"></div>
@@ -69,31 +71,37 @@
 
     <!-- Filter bar -->
     <section class="filter-bar">
-      <div class="search-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" class="search-input" id="search-input" placeholder="CVE ID · 제품 · 키워드 검색…">
+      <!-- 위쪽: 검색 + 벤더 + 기간 -->
+      <div class="filter-row">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" id="search-input" placeholder="CVE ID · 제품 · 벤더 · 키워드 검색…">
+        </div>
+        <select class="filter-select" id="vendor-filter"><option value="">전체 벤더</option></select>
+        <select class="filter-select" id="month-filter" title="월별 필터"><option value="">전체 기간</option></select>
       </div>
 
-      <div class="seg" id="severity-seg">
-        <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
-        <button class="seg-btn active sev-c-high" data-severity="High"><span class="dot" style="background:var(--sev-high)"></span>High</button>
-        <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
-        <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
-      </div>
+      <!-- 아래: 심각도 + 위협신호(좌) / 다운로드(우) -->
+      <div class="filter-row">
+        <div class="seg" id="severity-seg">
+          <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
+          <button class="seg-btn active sev-c-high" data-severity="High"><span class="dot" style="background:var(--sev-high)"></span>High</button>
+          <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
+          <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
+        </div>
+        <div class="seg">
+          <button class="seg-btn signal" data-signal="kev">🚨 악용 중</button>
+          <button class="seg-btn signal" data-signal="weaponized">🧨 무기화</button>
+          <button class="seg-btn signal" data-signal="poc">🔬 PoC</button>
+        </div>
 
-      <button class="signal-toggle" data-signal="kev">🚨 악용 중</button>
-      <button class="signal-toggle" data-signal="weaponized">🧨 무기화</button>
-      <button class="signal-toggle" data-signal="poc">🔬 PoC</button>
-
-      <select class="filter-select" id="vendor-filter"><option value="">전체 벤더</option></select>
-      <select class="filter-select" id="month-filter" title="월별 필터"><option value="">전체 기간</option></select>
-
-      <div class="filter-spacer"></div>
-      <div class="export-group">
-        <button class="export-btn export-highrisk" onclick="exportHighRiskByMonth()" title="선택 월의 고위험(Critical/High)을 CSV로">고위험 CSV ↓</button>
-        <button class="export-btn" onclick="exportData('csv')" title="필터된 목록 CSV">CSV</button>
-        <button class="export-btn" onclick="exportData('json')" title="필터된 목록 JSON">JSON</button>
-        <button class="export-btn" onclick="exportData('stix')" title="필터된 목록 STIX 2.1">STIX</button>
+        <div class="filter-spacer"></div>
+        <div class="export-group">
+          <button class="export-btn export-highrisk" onclick="exportHighRiskByMonth()" title="선택 월의 고위험(Critical/High)을 CSV로">고위험 CVE ↓</button>
+          <button class="export-btn" onclick="exportData('csv')" title="필터된 목록 CSV">CSV ↓</button>
+          <button class="export-btn" onclick="exportData('json')" title="필터된 목록 JSON">JSON ↓</button>
+          <button class="export-btn" onclick="exportData('stix')" title="필터된 목록 STIX 2.1">STIX ↓</button>
+        </div>
       </div>
     </section>
 
