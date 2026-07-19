@@ -830,12 +830,15 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
     return finalize_single_cve(prep, translation, collector, db, notifier)
 
 def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
-    # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5)
+    # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5).
+    # EPSS ≥ 0.1(전체 상위 ~5%)은 절대 임계치 — 악용 확률이 이미 높은 CVE는 CVSS가
+    # 낮아도 고위험 취급해 비자산(*/*)에서도 수신되게 한다(기준선 없이 판정 가능).
     is_high_risk = (
         current['cvss'] >= 7.0
         or current['is_kev']
         or current.get('has_metasploit_module')
         or current.get('ssvc_exploitation') == 'active'
+        or current.get('epss', 0.0) >= 0.1
     )
 
     # 신규 CVE: 고위험만 알림(Slack/Issue). 저위험 신규는 대시보드 추적만 하고
