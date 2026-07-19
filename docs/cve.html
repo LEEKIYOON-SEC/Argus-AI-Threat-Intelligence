@@ -3,120 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Argus - CVE Dashboard</title>
+  <title>Argus · CVE Threat Dashboard</title>
+  <meta name="description" content="CVE 취약점 위협 인텔리전스 대시보드 — 실제 악용·무기화·고위험 취약점을 한눈에.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231f6feb' d='M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="container header-inner">
       <a href="cve.html" class="logo">
-        <span class="logo-icon">&#128737;</span>
-        <span>Argus Dashboard</span>
+        <span class="logo-badge">&#128737;</span>
+        <span>Argus<small>CVE Threat Intelligence</small></span>
       </a>
-      <nav class="nav">
-        <a href="cve.html" class="active">CVE</a>
-      </nav>
-      <span class="updated-at" id="updated-time">-</span>
+      <div class="header-spacer"></div>
+      <div class="header-meta">
+        <span class="live-dot">자동 수집 중</span>
+        <span class="updated-at">업데이트 <b id="updated-time">-</b></span>
+      </div>
     </div>
   </header>
 
   <main class="container">
-    <!-- Stat Cards -->
-    <div class="stat-cards">
-      <div class="stat-card">
-        <div class="label">Total CVEs</div>
-        <div class="value info" id="stat-total">-</div>
+    <!-- KPI strip (위협 중심) -->
+    <section class="kpi-grid">
+      <div class="kpi is-new">
+        <div class="kpi-label">전체 추적 CVE</div>
+        <div class="kpi-value" id="stat-total">-</div>
+        <div class="kpi-sub" id="stat-24h-sub">최근 24시간 - 건 신규</div>
       </div>
-      <div class="stat-card">
-        <div class="label">High Risk (CVSS 7+)</div>
-        <div class="value high" id="stat-high">-</div>
+      <div class="kpi is-critical">
+        <div class="kpi-label">🔴 Critical</div>
+        <div class="kpi-value c-critical" id="stat-critical">-</div>
+        <div class="kpi-sub">CVSS 9+ · 즉시 대응 권고</div>
       </div>
-      <div class="stat-card">
-        <div class="label">KEV Listed</div>
-        <div class="value kev" id="stat-kev">-</div>
+      <div class="kpi is-kev">
+        <div class="kpi-label">🚨 실제 악용 (KEV)</div>
+        <div class="kpi-value c-kev" id="stat-kev">-</div>
+        <div class="kpi-sub">CISA 확인 · 악용 진행형</div>
       </div>
-      <div class="stat-card">
-        <div class="label">Last 24h</div>
-        <div class="value info" id="stat-24h">-</div>
+      <div class="kpi is-weapon">
+        <div class="kpi-label">🧨 무기화됨</div>
+        <div class="kpi-value c-weapon" id="stat-weapon">-</div>
+        <div class="kpi-sub">Metasploit · ExploitDB 공개</div>
       </div>
-    </div>
+      <div class="kpi">
+        <div class="kpi-label">⚠️ High</div>
+        <div class="kpi-value" id="stat-high">-</div>
+        <div class="kpi-sub">CVSS 7 – 8.9</div>
+      </div>
+    </section>
 
-    <!-- Charts Row -->
-    <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:24px;">
-      <div class="chart-section">
-        <h3>CVE Daily Trend (Last 30 Days)</h3>
-        <div class="chart-container">
-          <canvas id="trend-chart"></canvas>
-        </div>
+    <!-- Panels: trend + distribution -->
+    <section class="panels">
+      <div class="panel">
+        <h3>📈 일별 탐지 추이 <span style="font-weight:500;color:var(--text-faint);text-transform:none;letter-spacing:0;">최근 30일</span></h3>
+        <div class="chart-container"><canvas id="trend-chart"></canvas></div>
       </div>
-      <div class="chart-section">
-        <h3>Severity Distribution</h3>
-        <div id="severity-dist" style="padding-top:16px;"></div>
-        <h3 style="margin-top:20px;">Top Vendors</h3>
-        <div id="vendor-dist" style="padding-top:8px;"></div>
+      <div class="panel">
+        <h3>심각도 분포</h3>
+        <div id="severity-dist"></div>
+        <h3 class="mt">영향 벤더 TOP</h3>
+        <div id="vendor-dist"></div>
       </div>
-    </div>
+    </section>
 
-    <!-- Filter Bar -->
-    <div class="filter-bar">
-      <input type="text" class="search-input" id="search-input" placeholder="CVE ID or keyword...">
-      <select class="filter-select" id="vendor-filter">
-        <option value="">All Vendors</option>
-      </select>
-      <select class="filter-select" id="month-filter" title="월별 필터">
-        <option value="">All Months</option>
-      </select>
-      <div class="severity-filters">
-        <button class="severity-btn active" data-severity="Critical">Critical</button>
-        <button class="severity-btn active" data-severity="High">High</button>
-        <button class="severity-btn active" data-severity="Medium">Medium</button>
-        <button class="severity-btn active" data-severity="Low">Low</button>
+    <!-- Filter bar -->
+    <section class="filter-bar">
+      <div class="search-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" class="search-input" id="search-input" placeholder="CVE ID · 제품 · 키워드 검색…">
       </div>
+
+      <div class="seg" id="severity-seg">
+        <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
+        <button class="seg-btn active sev-c-high" data-severity="High"><span class="dot" style="background:var(--sev-high)"></span>High</button>
+        <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
+        <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
+      </div>
+
+      <button class="signal-toggle" data-signal="kev">🚨 악용 중</button>
+      <button class="signal-toggle" data-signal="weaponized">🧨 무기화</button>
+      <button class="signal-toggle" data-signal="poc">🔬 PoC</button>
+
+      <select class="filter-select" id="vendor-filter"><option value="">전체 벤더</option></select>
+      <select class="filter-select" id="month-filter" title="월별 필터"><option value="">전체 기간</option></select>
+
+      <div class="filter-spacer"></div>
       <div class="export-group">
-        <button class="export-btn export-highrisk" onclick="exportHighRiskByMonth()" title="선택한 월의 고위험(Critical/High) CVE를 CSV로 다운로드">고위험 CSV &#8595;</button>
-        <button class="export-btn" onclick="exportData('csv')" title="필터된 목록을 CSV로 다운로드">CSV &#8595;</button>
-        <button class="export-btn" onclick="exportData('json')" title="필터된 목록을 JSON으로 다운로드">JSON &#8595;</button>
-        <button class="export-btn" onclick="exportData('stix')" title="필터된 목록을 STIX 2.1 번들로 다운로드">STIX 2.1 &#8595;</button>
+        <button class="export-btn export-highrisk" onclick="exportHighRiskByMonth()" title="선택 월의 고위험(Critical/High)을 CSV로">고위험 CSV ↓</button>
+        <button class="export-btn" onclick="exportData('csv')" title="필터된 목록 CSV">CSV</button>
+        <button class="export-btn" onclick="exportData('json')" title="필터된 목록 JSON">JSON</button>
+        <button class="export-btn" onclick="exportData('stix')" title="필터된 목록 STIX 2.1">STIX</button>
       </div>
-    </div>
+    </section>
 
-    <!-- Loading -->
-    <div class="loading" id="loading">Loading...</div>
+    <div class="loading" id="loading">불러오는 중…</div>
 
     <!-- Table -->
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th onclick="sortBy('id')">CVE ID</th>
-            <th>Title</th>
-            <th>Severity</th>
-            <th onclick="sortBy('cvss')">CVSS</th>
-            <th onclick="sortBy('epss')">EPSS</th>
-            <th>KEV</th>
-            <th>Vendor / Product</th>
-            <th onclick="sortBy('date')">Date</th>
-          </tr>
-        </thead>
-        <tbody id="cve-table-body"></tbody>
-      </table>
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th class="cell-sev sortable" data-sort="cvss">심각도</th>
+              <th class="sortable" data-sort="id">CVE ID</th>
+              <th>취약점</th>
+              <th class="sortable" data-sort="cvss">CVSS</th>
+              <th class="sortable" data-sort="epss">EPSS</th>
+              <th>위협 신호</th>
+              <th>영향 벤더</th>
+              <th class="sortable" data-sort="date">탐지일</th>
+            </tr>
+          </thead>
+          <tbody id="cve-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Pagination -->
     <div class="pagination">
-      <button id="prev-btn" onclick="changePage(-1)">&laquo; Prev</button>
+      <button id="prev-btn" onclick="changePage(-1)">&laquo; 이전</button>
       <span class="page-info" id="page-info">-</span>
-      <button id="next-btn" onclick="changePage(1)">Next &raquo;</button>
+      <button id="next-btn" onclick="changePage(1)">다음 &raquo;</button>
     </div>
   </main>
 
   <!-- Detail Modal -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
-      <div class="modal-header">
-        <h2 id="modal-title">CVE Detail</h2>
+      <div class="modal-hero" id="modal-hero">
         <button class="modal-close" onclick="closeModal()">&times;</button>
+        <div class="modal-hero-top">
+          <span class="m-id" id="modal-id">CVE</span>
+          <span id="modal-sev-badge"></span>
+          <span class="sig-badges" id="modal-signals"></span>
+        </div>
+        <h2 id="modal-title">-</h2>
+        <div class="modal-scores" id="modal-scores"></div>
       </div>
       <div class="modal-body" id="modal-body"></div>
     </div>
