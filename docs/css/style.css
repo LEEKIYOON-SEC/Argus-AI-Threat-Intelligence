@@ -136,10 +136,11 @@ main { padding: 28px 0 64px; }
 
 /* ---------- Filter bar ---------- */
 .filter-bar {
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: center; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 16px; box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 11px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
-.search-wrap { position: relative; flex: 1 1 280px; min-width: 220px; }
+.filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.search-wrap { position: relative; flex: 1 1 auto; min-width: 220px; }
 .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-faint); pointer-events: none; }
 .search-input {
   width: 100%; padding: 10px 12px 10px 36px; background: var(--surface-2); border: 1px solid var(--border);
@@ -160,11 +161,10 @@ main { padding: 28px 0 64px; }
 .seg-btn.active.sev-c-medium { color: var(--sev-medium); }
 .seg-btn.active.sev-c-low { color: var(--sev-low); }
 
-.signal-toggle { padding: 7px 12px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-muted); font-size: 12px; font-weight: 600; font-family: inherit; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all .12s; }
-.signal-toggle:hover { border-color: var(--border-strong); color: var(--text); }
-.signal-toggle.active { background: color-mix(in srgb, var(--sig-kev) 16%, var(--surface)); border-color: var(--sig-kev); color: var(--sig-kev); }
-.signal-toggle.active[data-signal="weaponized"] { background: color-mix(in srgb, var(--sig-msf) 16%, var(--surface)); border-color: var(--sig-msf); color: var(--sig-msf); }
-.signal-toggle.active[data-signal="poc"] { background: color-mix(in srgb, var(--sig-poc) 16%, var(--surface)); border-color: var(--sig-poc); color: var(--sig-poc); }
+/* 위협 신호 토글 — 심각도 세그먼트와 동일한 사각형 pill 스타일 */
+.seg-btn.signal.active[data-signal="kev"] { color: var(--sig-kev); }
+.seg-btn.signal.active[data-signal="weaponized"] { color: var(--sig-msf); }
+.seg-btn.signal.active[data-signal="poc"] { color: var(--sig-poc); }
 
 .filter-spacer { flex: 1; }
 .export-group { display: inline-flex; gap: 6px; }
@@ -180,7 +180,7 @@ table { width: 100%; border-collapse: collapse; min-width: 820px; }
 thead th {
   text-align: left; padding: 13px 14px; font-size: 11px; font-weight: 700; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: .04em; background: var(--surface-2); border-bottom: 1px solid var(--border);
-  position: sticky; top: 62px; z-index: 5; white-space: nowrap;
+  white-space: nowrap;
 }
 thead th.sortable { cursor: pointer; user-select: none; }
 thead th.sortable:hover { color: var(--text); }
