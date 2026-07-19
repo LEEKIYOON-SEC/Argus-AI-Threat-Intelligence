@@ -114,9 +114,12 @@ class SlackNotifier:
             logger.error(f"Slack 긴급 알림 실패: {e}")
             return False
 
-    def send_batch_summary(self, dashboard_url: Optional[str] = None) -> bool:
-        """수집된 CVE 결과를 한 번에 요약 전송"""
-        if not self._batch_results:
+    def send_batch_summary(self, dashboard_url: Optional[str] = None, tracked_high: int = 0) -> bool:
+        """수집된 CVE 결과를 한 번에 요약 전송.
+
+        tracked_high: 이번 실행에서 Issue 없이 대시보드 추적만 시작한 High(CVSS 7~8.9
+        단독) 건수 — 알림 노이즈 없이 규모는 파악되도록 요약에 집계한다."""
+        if not self._batch_results and tracked_high == 0:
             logger.info("Slack 배치 알림: 전송할 CVE 없음")
             return True
 
@@ -129,18 +132,22 @@ class SlackNotifier:
 
             # 헤더
             blocks = [
-                {"type": "header", "text": {"type": "plain_text", "text": f"🛡️ Argus CVE 탐지 요약 ({total}건)"}},
+                {"type": "header", "text": {"type": "plain_text", "text": f"🛡️ Argus CVE 탐지 요약 (알림 {total}건)"}},
             ]
 
             # 요약 통계
             summary_lines = [
-                f"*총 탐지:* {total}건",
+                f"*긴급 알림:* {total}건",
                 f"• 🔴 *Critical (CVSS 9+):* {len(critical)}건",
                 f"• 🟠 *High Risk (CVSS 7+):* {len(high_risk)}건",
                 f"• 🚨 *KEV 등재:* {len(kev_list)}건",
             ]
             if poc_list:
                 summary_lines.append(f"• 🔥 *PoC 공개:* {len(poc_list)}건")
+            if tracked_high:
+                summary_lines.append(
+                    f"• 📋 *High(CVSS 7~8.9) 추적 등록:* {tracked_high}건 — 대시보드에서 확인"
+                )
 
             blocks.append({
                 "type": "section",

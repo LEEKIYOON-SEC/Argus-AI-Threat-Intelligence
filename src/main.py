@@ -21,8 +21,15 @@ from rate_limiter import rate_limit_manager
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
 
-# Gemini 클라이언트 (한국어 번역용)
-gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
+# Gemini 클라이언트 (한국어 번역용). HTTP 타임아웃 120초 — 응답이 행에 걸려
+# 파이프라인 전체(시간 예산)를 잡아먹는 것을 방지. 실패는 영문 폴백이 흡수.
+try:
+    gemini_client = genai.Client(
+        api_key=os.environ.get("GEMINI_API_KEY"),
+        http_options=types.HttpOptions(timeout=120_000),
+    )
+except Exception:  # 구버전 SDK 등 http_options 미지원 시
+    gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
 # ==============================================================================
 # [1] CVSS 벡터 해석 매핑
@@ -290,7 +297,8 @@ def _is_transient_gemini_error(msg: str) -> bool:
     ))
 
 
-def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set) -> Dict[str, Tuple[str, str]]:
+def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
+                                    deadline_ts: Optional[float] = None) -> Dict[str, Tuple[str, str]]:
     """여러 CVE의 제목/설명을 Gemma 호출 1번에 N건씩 묶어 일괄 번역.
 
     개별 호출은 Gemma RPM 15(호출당 4초 간격)에 묶여 실행당 번역만 8분+이 걸리고,
@@ -308,17 +316,29 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set) -> Di
     batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
     total_chunks = (len(items) + batch_size - 1) // batch_size
     logger.info(f"일괄 번역: {len(items)}건 → Gemma {total_chunks}회 호출 (배치 {batch_size}건)")
+    started = time.time()
+    deadline_hit = False
 
-    for i in range(0, len(items), batch_size):
+    for chunk_no, i in enumerate(range(0, len(items), batch_size), 1):
         chunk = items[i:i + batch_size]
-        chunk_has_high = any(it['id'] in high_risk_ids for it in chunk)
-        parsed = _translate_chunk(chunk, retry_on_transient=chunk_has_high)
+        # 시간 예산 도달 → 잔여 청크는 영문 폴백 (번역이 실행 전체를 볼모로 잡지 않게).
+        # 알림 대상(high_risk_ids)만 단건 재시도로 한글화를 지키고, 나머지는 즉시 영문.
+        if deadline_ts is not None and time.time() > deadline_ts:
+            if not deadline_hit:
+                logger.warning(f"⏰ 번역 시간 예산 도달 — 잔여 {total_chunks - chunk_no + 1}청크 영문 폴백")
+                deadline_hit = True
+            parsed = None
+        else:
+            chunk_has_high = any(it['id'] in high_risk_ids for it in chunk)
+            parsed = _translate_chunk(chunk, retry_on_transient=chunk_has_high)
+            if chunk_no % 5 == 0 or chunk_no == total_chunks:
+                logger.info(f"일괄 번역 진행: {chunk_no}/{total_chunks} 청크 ({time.time() - started:.0f}초 경과)")
         if parsed is not None:
             results.update(parsed)
             continue
-        # 청크 최종 실패 → 고위험만 단건 재시도(한글 보장), 저위험은 영문 폴백
+        # 청크 실패/예산 초과 → 알림 대상만 단건 재시도(한글 보장), 나머지는 영문 폴백
         for it in chunk:
-            if it['id'] in high_risk_ids:
+            if it['id'] in high_risk_ids and not deadline_hit:
                 results[it['id']] = generate_korean_summary(
                     {"title": it['title'], "description": it['description']},
                     retry_on_transient=True)
@@ -330,12 +350,14 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set) -> Di
 def _translate_chunk(chunk: List[Dict], retry_on_transient: bool) -> Optional[Dict[str, Tuple[str, str]]]:
     """청크(≤batch_size건) 1회 Gemma 호출 번역. 성공 시 id→(제목,요약) dict, 실패 시 None.
     응답 JSON에서 누락된 항목은 영문 폴백으로 채워 반환값은 항상 청크 전체를 커버한다."""
+    # 입력 500자·출력 2줄 요약으로 제한 — 배치당 생성 토큰을 줄여 호출당 소요를 절반 이하로
+    # (관측: 출력이 크면 배치당 ~60초 → 40청크에 40분, 실행 타임아웃의 주범이었음)
     numbered = "\n".join(
-        f"{n}. Title: {it['title']} / Desc: {(it['description'] or '')[:700]}"
+        f"{n}. Title: {it['title']} / Desc: {(it['description'] or '')[:500]}"
         for n, it in enumerate(chunk, 1)
     )
     prompt = f"""
-Task: For EACH numbered CVE below, translate the Title into Korean and summarize the Description into Korean (max 3 lines each).
+Task: For EACH numbered CVE below, translate the Title into Korean and summarize the Description into Korean (max 2 short lines each).
 Keep technical terms in English or Korean transliteration (e.g., "버퍼 오버플로우", "SQL 인젝션"). Do NOT translate them literally.
 Return ONLY a JSON array with exactly {len(chunk)} objects, same order as inputs, no other text:
 [{{"n": 1, "title_ko": "...", "desc_ko": "..."}}, ...]
@@ -350,7 +372,7 @@ Return ONLY a JSON array with exactly {len(chunk)} objects, same order as inputs
                 model=config.MODEL_PHASE_0,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    max_output_tokens=4096,  # ~10건 × 제목+3줄 요약이면 충분
+                    max_output_tokens=2048,  # 10건 × 제목+2줄 요약 상한 — 생성 속도 확보
                     temperature=0.3,
                     safety_settings=[types.SafetySetting(
                         category="HARM_CATEGORY_DANGEROUS_CONTENT",
@@ -681,24 +703,25 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "_exploit_db_url": raw_data.get('_exploit_db_url'),
         }
         
-        # Step 4: 알림 필요성 판단
+        # Step 4: 티어 분류 + 알림 필요성 판단
         last_record = db.get_cve(cve_id)
         last_state = last_record.get('last_alert_state') if last_record else None
 
-        should_alert, alert_reason, is_high_risk = _should_send_alert(
-            current_state, last_state
+        tier = _risk_tier(current_state)
+        should_alert, alert_reason, full_report = _should_send_alert(
+            current_state, last_state, match_type, tier
         )
 
-        # 알림 트리거 없음(저위험/무변화) → 자산 기준 티어링:
-        #   - 추적 중(last_state 보유 = 자산 저위험 추적 or 과거 알림): 최소 갱신(T3).
-        #   - 비자산(wildcard로만 매칭) 미추적: 마커만 저장 — 번역/위협인텔/대시보드 없음.
-        #     마커(상태 없는 행)는 재커밋 시 수집 dedup을 가능케 하고, 레코드가 실제로 바뀌면
-        #     해시가 달라져 재분류된다(last_state가 없어 '신규' 취급 → 고위험 승격 시 풀 알림).
-        #   - 자산 매칭인데 미추적(신규 or 과거 마커): 아래로 진행해 추적 시작(T2, 번역+대시보드).
-        # 어느 경로든 저장 payload는 동일(스칼라+해시) — last_alert_state를 쓰지 않는 것이 마커의 정의.
+        # 알림 트리거 없음 → 자산 기준 티어링:
+        #   - 추적 중(last_state 보유 = 추적 or 과거 알림): 최소 갱신(T3).
+        #   - 비자산(wildcard) 미추적 + low: 마커만 저장 — 번역/위협인텔/대시보드 없음.
+        #     마커(상태 없는 행)는 재커밋 dedup용이며, 레코드가 바뀌면 '신규'로 재분류된다.
+        #   - 그 외(high 티어 전체, 자산 low, 과거 마커의 자산 승격): 아래로 진행해
+        #     추적 시작(번역+대시보드; high는 Slack 배치 요약에 건수 집계).
+        # T3와 마커의 저장 payload는 동일(스칼라+해시) — last_alert_state 부재가 마커의 정의.
         if not should_alert:
-            is_marker_save = last_state is None  # True면 wildcard 마커, False면 T3 최소 갱신
-            if not is_marker_save or match_type == "wildcard":
+            is_tracked = last_state is not None
+            if is_tracked or (match_type == "wildcard" and tier == "low"):
                 saved = db.upsert_cve({
                     "id": cve_id,
                     "cvss_score": current_state['cvss'],
@@ -709,7 +732,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
                 })
                 # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
                 return {"cve_id": cve_id, "status": "handled" if saved else "failed",
-                        "stage": "done", "skipped_low_wildcard": is_marker_save}
+                        "stage": "done", "skipped_low_wildcard": not is_tracked}
 
         # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
         # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
@@ -727,15 +750,15 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
                 "nvd_cpe": raw_data.get('nvd_cpe', []),
             })
 
-        # 여기 도달 = (1) 고위험/에스컬레이션 알림 대상, 또는 (2) 신규 저위험(대시보드 추적).
-        # → 번역(Phase B, 배치)과 완성(Phase C)으로 넘긴다.
+        # 여기 도달 = (1) 알림 대상(critical/자산high/에스컬레이션), 또는 (2) 추적 대상
+        # (high 단독·자산 low). → 번역(Phase B, 배치)과 완성(Phase C)으로 넘긴다.
         if should_alert:
-            logger.info(f"알림 발송 준비: {cve_id} (HighRisk: {is_high_risk})")
+            logger.info(f"알림 발송 준비: {cve_id} ({alert_reason}, Report: {full_report})")
         return {
             "cve_id": cve_id, "stage": "ready",
             "current_state": current_state, "raw_data": raw_data,
             "should_alert": should_alert, "alert_reason": alert_reason,
-            "is_high_risk": is_high_risk,
+            "full_report": full_report, "tier": tier,
         }
 
     except Exception as e:
@@ -755,17 +778,17 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         raw_data = prep["raw_data"]
         should_alert = prep["should_alert"]
         alert_reason = prep["alert_reason"]
-        is_high_risk = prep["is_high_risk"]
+        full_report = prep["full_report"]
 
         # Step 5b: 번역 반영 (배치 결과 또는 영문 폴백)
         if translation is None:
             translation = (current_state['title'], (current_state.get('description') or '')[:200])
         current_state['title_ko'], current_state['desc_ko'] = translation
 
-        # Step 6: 고위험 알림 대상만 GitHub Issue (AI 심층 분석 + 공개 룰) 생성
+        # Step 6: 풀 리포트 대상(critical/자산high)만 GitHub Issue (AI 심층 분석 + 공개 룰) 생성
         report_url = None
         rules_info = None
-        if should_alert and is_high_risk:
+        if should_alert and full_report:
             # 분석 3티어(gpt-oss/qwen + Gemini 비상) 전부 소진 시에만 Issue 보류.
             # Groq만 소진이면 Gemini 비상 티어로 분석해 알림 지연 없이 진행한다.
             # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
@@ -829,25 +852,45 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
     translation = generate_korean_summary(prep["current_state"], retry_on_transient=prep["should_alert"])
     return finalize_single_cve(prep, translation, collector, db, notifier)
 
-def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, bool]:
-    # 무기화·실제 악용 신호는 CVSS와 무관하게 고위험으로 승격 (P5).
-    # EPSS ≥ 0.1(전체 상위 ~5%)은 절대 임계치 — 악용 확률이 이미 높은 CVE는 CVSS가
-    # 낮아도 고위험 취급해 비자산(*/*)에서도 수신되게 한다(기준선 없이 판정 가능).
-    is_high_risk = (
-        current['cvss'] >= 7.0
-        or current['is_kev']
-        or current.get('has_metasploit_module')
-        or current.get('ssvc_exploitation') == 'active'
-        or current.get('epss', 0.0) >= 0.1
-    )
+def _risk_tier(current: Dict) -> str:
+    """위험 3단 티어. 실무 유입에서 CVSS 7점대는 하루 수백 건(CISA ADP가 무점수 CVE에
+    7.x를 일괄 부여)이라, '진짜 긴급'과 'CVSS만 높음'을 분리해야 알림이 의미를 가진다.
 
-    # 신규 CVE: 고위험만 알림(Slack/Issue). 저위험 신규는 대시보드 추적만 하고
-    # 알림을 보내지 않는다(`*/*` 전체 감시에서 알림 노이즈·Groq 부하 차단).
+    critical — 실제 악용/무기화 신호 또는 최상위 심각도. 풀 알림(Issue+AI분석+Slack).
+    high     — CVSS 7~8.9 단독(다른 신호 없음). 번역+대시보드 추적 + Slack 요약 건수만.
+               (자산 등록 CVE는 high도 풀 알림 — 실제 대응 대상이므로.)
+    low      — 그 외. 자산이면 추적, 비자산이면 마커.
+    """
+    if (current['is_kev']
+            or current.get('has_metasploit_module')
+            or current.get('ssvc_exploitation') == 'active'
+            or current.get('epss', 0.0) >= 0.1
+            or current['cvss'] >= 9.0):
+        return "critical"
+    if current['cvss'] >= 7.0:
+        return "high"
+    return "low"
+
+
+def _should_send_alert(current: Dict, last: Optional[Dict],
+                       match_type: Optional[str] = "wildcard",
+                       tier: Optional[str] = None) -> Tuple[bool, str, bool]:
+    """알림 판정. 반환: (알림 여부, 사유, full_report — Issue+AI분석 대상 여부).
+
+    full_report = critical 티어 또는 자산 매칭 high. Slack-only 알림(예: 저위험의
+    ExploitDB 등재 전환)은 알림은 가되 Issue는 만들지 않는다(기존 정책 유지)."""
+    tier = tier or _risk_tier(current)
+    full_report = tier == "critical" or (tier == "high" and match_type == "asset")
+
+    # 신규 CVE: critical(또는 자산 high)만 알림. high 단독은 추적+요약, low는 추적/마커.
     if last is None:
-        if is_high_risk:
-            return True, "🆕 신규 고위험 취약점", True
-        return False, "", False
+        if tier == "critical":
+            return True, "🆕 신규 Critical 취약점", True
+        if tier == "high" and match_type == "asset":
+            return True, "🆕 자산 High 취약점", True
+        return False, "", full_report
 
+    # ── 에스컬레이션(전이) 트리거 — 실제 악용/무기화 신호는 항상 알림 ──
     # KEV 등재
     if current['is_kev'] and not last.get('is_kev'):
         return True, "🚨 KEV 등재", True
@@ -860,19 +903,22 @@ def _should_send_alert(current: Dict, last: Optional[Dict]) -> Tuple[bool, str, 
     if current.get('ssvc_exploitation') == 'active' and last.get('ssvc_exploitation') != 'active':
         return True, "🎯 SSVC Exploitation=Active (실제 악용)", True
 
-    # ExploitDB 공개 익스플로잇 신규 등장
+    # ExploitDB 공개 익스플로잇 신규 등장 (Slack 알림, Issue는 full_report일 때만)
     if current.get('has_public_exploit') and not last.get('has_public_exploit'):
-        return True, "💥 ExploitDB 공개 익스플로잇", True
+        return True, "💥 ExploitDB 공개 익스플로잇", full_report
 
-    # EPSS 급증
+    # EPSS 급증 (≥0.1 도달 = critical 승격)
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
         return True, "📈 EPSS 급증", True
 
-    # CVSS 상향
-    if current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
-        return True, "🔺 CVSS 위험도 상향", True
+    # CVSS 상향: Critical(≥9) 진입은 항상 알림, 7점대 진입은 자산 매칭만 알림
+    # (비자산의 7점대 진입은 추적 승격으로 충분 — 하루 수백 건 노이즈 차단)
+    if current['cvss'] >= 9.0 and last.get('cvss', 0) < 9.0:
+        return True, "🔺 CVSS Critical 상향 (≥9)", True
+    if match_type == "asset" and current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
+        return True, "🔺 자산 CVSS 상향", True
 
-    return False, "", is_high_risk
+    return False, "", full_report
 
 # ==============================================================================
 # [5] 공식 룰 재발견
@@ -1171,7 +1217,7 @@ def _main():
 
     # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)
     prepared = []
-    marker_skips = 0  # 비자산 저위험 마커 처리 수 (백로그 해소 관측용)
+    marker_skips = 0   # 비자산 저위험 마커 처리 수 (백로그 해소 관측용)
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(prepare_single_cve, cid, collector, db): cid for cid in target_cve_ids}
         for future in as_completed(futures):
@@ -1193,16 +1239,28 @@ def _main():
             else:
                 status_by_id[cid] = prep.get("status", "failed")
 
+    # 분류 요약 — "신규 N건 중 무엇이 몇 건인지" 실행마다 즉시 보이게
+    alert_cnt = sum(1 for p in prepared if p["should_alert"])
+    tracked_high = sum(1 for p in prepared if not p["should_alert"] and p.get("tier") == "high")
+    tracked_low = len(prepared) - alert_cnt - tracked_high
+    updated_cnt = sum(1 for s in status_by_id.values() if s == "handled") - marker_skips
+    logger.info(
+        f"📊 분류: 대상 {len(target_cve_ids)}건 → 알림(Critical/자산High) {alert_cnt} / "
+        f"High 추적 {tracked_high} / 자산저위험 추적 {tracked_low} / "
+        f"비자산 마커 {marker_skips} / 기존갱신·스킵 {max(updated_cnt, 0)}"
+    )
+
     if _over_deadline():
         # 번역/완성 없이 종료 — prepared 전부 미완료(failed) 처리해 다음 실행에서 온전히 재처리
         logger.warning(f"⏰ 시간 예산 도달 — 준비된 {len(prepared)}건 포함 잔여분 다음 실행으로")
         prepared = []
     else:
-        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치))
+        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치)) — 시간 예산 전달(초과 시 영문 폴백)
         tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
                      "description": p["current_state"]["description"]} for p in prepared]
         high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
-        translations = generate_korean_summaries_batch(tr_items, high_risk_ids)
+        translations = generate_korean_summaries_batch(tr_items, high_risk_ids,
+                                                       deadline_ts=soft_deadline_ts)
 
         # Phase C: 완성 — Issue/Slack/저장 (병렬).
         # 고위험(알림 대상)을 먼저 제출해 데드라인이 닥쳐도 핵심 알림부터 완료되게 한다.
@@ -1251,10 +1309,10 @@ def _main():
         else:
             logger.warning("⚠️ Groq 전 모델 TPD 소진 → 분석이 Gemini 비상 티어(flash-lite)로 수행됨")
 
-    # Step 9: Slack 배치 요약 전송
+    # Step 9: Slack 배치 요약 전송 (High 추적 건수 포함 — Issue 없이도 규모는 파악되게)
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     dashboard_url = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/" if '/' in repo else None
-    notifier.send_batch_summary(dashboard_url=dashboard_url)
+    notifier.send_batch_summary(dashboard_url=dashboard_url, tracked_high=tracked_high)
 
     # Step 10: 결과 요약
     elapsed = time.time() - start_time
