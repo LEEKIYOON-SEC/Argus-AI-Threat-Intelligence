@@ -21,9 +21,18 @@ class Analyzer:
             raise AnalyzerError("GROQ_API_KEY not found")
 
         self.client = Groq(api_key=api_key)
-        # 3단 비상 폴백용 Gemini 클라이언트 (다른 공급자 — Groq 장애도 커버)
+        # 3단 비상 폴백용 Gemini 클라이언트 (다른 공급자 — Groq 장애도 커버).
+        # HTTP 타임아웃 120초 — 행 방지 (실패는 fallback 분석이 흡수).
         gemini_key = os.environ.get("GEMINI_API_KEY")
-        self.gemini_client = genai.Client(api_key=gemini_key) if gemini_key else None
+        self.gemini_client = None
+        if gemini_key:
+            try:
+                self.gemini_client = genai.Client(
+                    api_key=gemini_key,
+                    http_options=genai_types.HttpOptions(timeout=120_000),
+                )
+            except Exception:
+                self.gemini_client = genai.Client(api_key=gemini_key)
         # 사용 모델은 호출 시 rate_limiter가 TPD 여유에 따라 선택 (주 → 폴백)
         logger.info(f"Analyzer initialized (models: {config.GROQ_MODELS} + 비상 {config.GEMINI_ANALYSIS_MODEL})")
     
