@@ -55,6 +55,7 @@ def write_watermark(dt_utc: datetime.datetime) -> None:
 class Collector:
     def __init__(self):
         self.kev_set: Set[str] = set()
+        self.kev_date_added: Dict[str, str] = {}  # CVE → KEV 등재일 (gap-filler용)
         self.vulncheck_kev_set: Set[str] = set()
         self.epss_cache: Dict[str, float] = {}
         self.headers = {
@@ -80,8 +81,11 @@ class Collector:
             rate_limit_manager.record_call("kev")
             
             data = response.json()
-            self.kev_set = {vuln['cveID'] for vuln in data.get('vulnerabilities', [])}
-            
+            vulns = data.get('vulnerabilities', [])
+            self.kev_set = {vuln['cveID'] for vuln in vulns}
+            # 등재일 매핑 — 최근 등재분 중 DB 미보유 CVE를 잡는 gap-filler에 사용
+            self.kev_date_added = {vuln['cveID']: vuln.get('dateAdded', '') for vuln in vulns}
+
             logger.info(f"Loaded {len(self.kev_set)} KEV entries")
             return True
             

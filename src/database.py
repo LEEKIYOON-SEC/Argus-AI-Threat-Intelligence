@@ -210,17 +210,3 @@ class ArgusDB:
             logger.error(f"에스컬레이션 후보 조회 실패: {e}")
             return []
 
-    def get_all_cves_for_dashboard(self, days: int = 90) -> List[Dict]:
-        """대시보드용 CVE 데이터 조회 (최근 N일)"""
-        try:
-            cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat()
-            response = self._execute(
-                self.client.table("cves")
-                .select("id, cvss_score, epss_score, is_kev, last_alert_at, last_alert_state, report_url, updated_at")
-                .gte("updated_at", cutoff)
-                .order("updated_at", desc=True)
-            )
-            return response.data or []
-        except Exception as e:
-            logger.error(f"대시보드 CVE 조회 실패: {e}")
-            return []
