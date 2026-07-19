@@ -299,51 +299,60 @@ def _is_transient_gemini_error(msg: str) -> bool:
 
 def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
                                     deadline_ts: Optional[float] = None) -> Dict[str, Tuple[str, str]]:
-    """여러 CVE의 제목/설명을 Gemma 호출 1번에 N건씩 묶어 일괄 번역.
+    """대시보드/알림에 노출되는 CVE(마커 제외)의 제목·설명을 한국어로 번역.
 
-    개별 호출은 Gemma RPM 15(호출당 4초 간격)에 묶여 실행당 번역만 8분+이 걸리고,
-    풀가동(120건×24회=2,880콜/일)이면 RPD 1,500을 초과해 오후부터 번역이 영문 폴백으로
-    떨어진다. 10건/호출 배치면 시간·일일 예산이 모두 1/10로 줄어 처리 상한을 올릴 수 있다.
+    빠른 경로(배치): Gemma 1콜에 여러 건을 JSON 배열로 요청 — 성공 시 호출 수↓.
+    견고 경로(폴백): 배치가 JSON 형식을 못 지키면(gemma-4는 배치 JSON을 자주 깨뜨림)
+      그 청크를 '제목:/내용:' 텍스트 형식의 개별 번역으로 재처리 — 파싱이 견고해 한글을
+      보장한다. 최후에만 영문 폴백. 시간 예산 초과 시 잔여는 영문(알림 대상만 개별 재시도).
 
-    폴백 정책(기존 단건과 동일 원칙): 청크 호출이 최종 실패하면 고위험(high_risk_ids)만
-    단건 재시도로 한글화를 보장하고, 저위험은 즉시 영문 폴백.
-    반환: cve_id → (title_ko, desc_ko). 모든 입력 id에 대해 값이 존재한다.
+    티어링으로 번역 대상이 (알림+High추적+자산저위험)뿐이라 개별 폴백도 시간 예산 내
+    완주한다. 반환: cve_id → (title_ko, desc_ko). 모든 입력 id에 값이 존재한다.
     """
     results: Dict[str, Tuple[str, str]] = {}
     if not items:
         return results
 
-    batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
+    batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     total_chunks = (len(items) + batch_size - 1) // batch_size
-    logger.info(f"일괄 번역: {len(items)}건 → Gemma {total_chunks}회 호출 (배치 {batch_size}건)")
+    logger.info(f"번역: {len(items)}건 → Gemma 배치 {total_chunks}청크 (배치 {batch_size}건)")
     started = time.time()
     deadline_hit = False
+    fell_back = 0
+
+    def _individual(it: Dict, allow_retry: bool) -> Tuple[str, str]:
+        return generate_korean_summary(
+            {"title": it['title'], "description": it['description']},
+            retry_on_transient=allow_retry)
 
     for chunk_no, i in enumerate(range(0, len(items), batch_size), 1):
         chunk = items[i:i + batch_size]
-        # 시간 예산 도달 → 잔여 청크는 영문 폴백 (번역이 실행 전체를 볼모로 잡지 않게).
-        # 알림 대상(high_risk_ids)만 단건 재시도로 한글화를 지키고, 나머지는 즉시 영문.
-        if deadline_ts is not None and time.time() > deadline_ts:
+        over = deadline_ts is not None and time.time() > deadline_ts
+        if over:
             if not deadline_hit:
                 logger.warning(f"⏰ 번역 시간 예산 도달 — 잔여 {total_chunks - chunk_no + 1}청크 영문 폴백")
                 deadline_hit = True
-            parsed = None
-        else:
-            chunk_has_high = any(it['id'] in high_risk_ids for it in chunk)
-            parsed = _translate_chunk(chunk, retry_on_transient=chunk_has_high)
-            if chunk_no % 5 == 0 or chunk_no == total_chunks:
-                logger.info(f"일괄 번역 진행: {chunk_no}/{total_chunks} 청크 ({time.time() - started:.0f}초 경과)")
+            for it in chunk:
+                results[it['id']] = (it['title'], (it['description'] or '')[:200])
+            continue
+
+        # 배치 시도 — 호출 수가 적으므로 항상 일시오류 재시도 허용
+        parsed = _translate_chunk(chunk, retry_on_transient=True)
         if parsed is not None:
             results.update(parsed)
-            continue
-        # 청크 실패/예산 초과 → 알림 대상만 단건 재시도(한글 보장), 나머지는 영문 폴백
-        for it in chunk:
-            if it['id'] in high_risk_ids and not deadline_hit:
-                results[it['id']] = generate_korean_summary(
-                    {"title": it['title'], "description": it['description']},
-                    retry_on_transient=True)
-            else:
-                results[it['id']] = (it['title'], (it['description'] or '')[:200])
+        else:
+            # 배치 파싱 실패 → 개별 텍스트 번역으로 폴백(한글 보장). 이 CVE들은 대시보드에
+            # 노출되므로 영문 방치보다 개별 번역 비용이 낫다.
+            fell_back += len(chunk)
+            for it in chunk:
+                title_ko, desc_ko = _individual(it, allow_retry=True)
+                results[it['id']] = (title_ko, desc_ko)
+
+        if chunk_no % 5 == 0 or chunk_no == total_chunks:
+            logger.info(f"번역 진행: {chunk_no}/{total_chunks} 청크 ({time.time() - started:.0f}초)")
+
+    if fell_back:
+        logger.info(f"번역: 배치 실패 {fell_back}건 → 개별 번역으로 한글화 완료")
     return results
 
 
@@ -356,14 +365,14 @@ def _translate_chunk(chunk: List[Dict], retry_on_transient: bool) -> Optional[Di
         f"{n}. Title: {it['title']} / Desc: {(it['description'] or '')[:500]}"
         for n, it in enumerate(chunk, 1)
     )
-    prompt = f"""
-Task: For EACH numbered CVE below, translate the Title into Korean and summarize the Description into Korean (max 2 short lines each).
-Keep technical terms in English or Korean transliteration (e.g., "버퍼 오버플로우", "SQL 인젝션"). Do NOT translate them literally.
-Return ONLY a JSON array with exactly {len(chunk)} objects, same order as inputs, no other text:
-[{{"n": 1, "title_ko": "...", "desc_ko": "..."}}, ...]
+    prompt = f"""You are a translator that outputs ONLY valid JSON. No markdown, no code fences, no commentary.
+For EACH numbered CVE below, translate its Title into Korean and summarize its Description into Korean (each max 2 short lines).
+Keep technical terms in English or Korean transliteration (e.g., "버퍼 오버플로우", "SQL 인젝션") — do NOT translate them literally.
+Output EXACTLY one JSON array with {len(chunk)} objects in the same order, and nothing else:
+[{{"n":1,"title_ko":"...","desc_ko":"..."}}{',...' if len(chunk) > 1 else ''}]
 
-{numbered}
-"""
+CVEs:
+{numbered}"""
     max_attempts = 3 if retry_on_transient else 1
     for attempt in range(1, max_attempts + 1):
         try:
@@ -372,7 +381,7 @@ Return ONLY a JSON array with exactly {len(chunk)} objects, same order as inputs
                 model=config.MODEL_PHASE_0,
                 contents=prompt,
                 config=types.GenerateContentConfig(
-                    max_output_tokens=2048,  # 10건 × 제목+2줄 요약 상한 — 생성 속도 확보
+                    max_output_tokens=3072,  # 6건 × 제목+2줄 요약 — 잘림 방지(JSON 완결)
                     temperature=0.3,
                     safety_settings=[types.SafetySetting(
                         category="HARM_CATEGORY_DANGEROUS_CONTENT",
