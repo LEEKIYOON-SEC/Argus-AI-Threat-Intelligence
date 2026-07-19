@@ -657,6 +657,11 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
         # Step 1: CVE 상세 정보 수집
         raw_data = collector.enrich_cve(cve_id)
 
+        # 수집 실패(네트워크 등) → failed로 워터마크가 붙잡아 다음 실행 재수집 (누락 0).
+        # 404/비발행 등 정상적으로 처리할 게 없는 상태는 handled로 통과(워터마크 전진).
+        if raw_data.get('state') == 'ERROR':
+            logger.warning(f"{cve_id}: 수집 실패 → failed (다음 실행 재수집)")
+            return {"cve_id": cve_id, "status": "failed", "stage": "done"}
         if raw_data.get('state') != 'PUBLISHED':
             logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled", "stage": "done"}
