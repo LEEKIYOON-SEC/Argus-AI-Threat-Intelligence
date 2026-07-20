@@ -1,5 +1,506 @@
 [
   {
+    "id": "CVE-2026-63808",
+    "title": "exfat: exfat_find_dir_entry()의 잠재적 use-after-free 수정",
+    "description": "exfat_find_dir_entry()에서 buffer_head를 해제한 후 해당 데이터를 참조하는 use-after-free 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00177,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e6f1a11cfb808441a43ffae9b476cc135732cd27 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e48f413c2815787b8cade2795e194e3c4cd782ef 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 06c4e1e9967d332ac33ba38b7819851089ff9359 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 8e0abc17fbd7e305802e84fe98b4950d50f9c433 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 4d101016d5e587f820b3ae2d5bb6770d86342649 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 adfacfbaeae2cb760f492357cc36b41f84ef7f86 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 708b97e792945d3e4653939fd3405d71a61ad065 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 3f5f8ee9917cc2b9076ac533492d8a200edcabb8 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.7 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1628",
+    "date": "2026-07-20T21:23:21.356215+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63800",
+    "title": "pNFS: pnfs_update_layout()의 use-after-free 수정",
+    "description": "pnfs_update_layout()에서 tracepoint 호출 전 pnfs_put_layout_hdr()가 호출되어 발생하는 use-after-free 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00177,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "06f58dbc49a23c99e5c0f246879ed16667f7bf8f 부터 4ad8b9a85dbf57ca532ee9e65ad7e6498bfbbf98 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 1f24b8302c77dcaf79c64c073877a3b9f4dd25d2 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9c0fb5c09ae5bd68dc0038692af8127029cb0385 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 7e37e9b3e82ade881e1798e2f4fcc54aff7793c1 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 2883ddd7542b4437a2ab4908fe2773f690e20889 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 200e7637f4d6a1342987045eea72641524f909dc 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9645aaf689aff57427ece3b9fa47d5b5399417f4 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 13e198a90ca4050f4bee8a3f23680389a6563ccc 이전, aa2399f55eff4ec78330bb6fe55f9df53e5cae0c (단일 버전), 5.10.9 부터 5.10.260 이전, 5.4.91 부터 5.5 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1627",
+    "date": "2026-07-20T21:22:55.597443+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63857",
+    "title": "net: airoha: airoha_dev_xmit()에서 초기화되지 않은 프래그먼트 주소 읽기 방지",
+    "description": "전송 루프의 마지막 반복에서 초기화되지 않은 프래그먼트 데이터를 읽어 페이지 폴트가 발생할 수 있는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00155,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "23020f04932701d5c8363e60756f12b43b8ed752 부터 f670fa4b19ceddc6d215dda4997888ccba9bbc61 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 d78c8ab7bd84952e053d0c622b7fc1b4ad8a19a3 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 bde34e84edc8b5571fbde7e941e175a4293ee1eb 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1626",
+    "date": "2026-07-20T21:22:06.86494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63830",
+    "title": "net: skmsg: SG 변환 시 sg.copy 유지",
+    "description": "sk_msg의 SG 변환 과정에서 sg.copy 비트맵을 유지하여 쓰기 가능한 BPF ctx->data로부터 데이터를 보호합니다.",
+    "cvss": 9.4,
+    "epss": 0.00161,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 9bb86d8184b37503816150c4a6ad3c17dfdbe827 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 0eb4c16c4adb262763bda870a8ed38a1a9dec7ec 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 d22cc92bc41290e5783a72375e0843d9435f6001 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 1acdd14c0990dd1cd4b6534f00366d2e6dfce05f 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 21ed9540a8e1906dfcbc1bb82ba9b4de4fa4bd6d 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 406e8a651a7b854c41fecd5117bb282b3a6c2c6b 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.20 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1625",
+    "date": "2026-07-20T21:21:21.61105+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63825",
+    "title": "gcov: 동시 액세스 크래시 수정을 위해 atomic 카운터 업데이트 사용",
+    "description": "GCOV의 글로벌 브랜치 카운터에 대한 동시 액세스로 인해 발생하는 크래시를 방지하기 위해 atomic 업데이트를 적용합니다.",
+    "cvss": 9.8,
+    "epss": 0.00167,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2521f2c228ad750701ba4702484e31d876dbc386 부터 49d893b9cbcfc5802a32e53a64c6c6956670d65b 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 5b959c1dbb4522b9e3ac4e26ad638b8784869841 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 56cb9b7d96b28a1173a510ab25354b6599ad3a33 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.31 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1624",
+    "date": "2026-07-20T21:21:21.52227+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-14448",
+    "title": "system_certificates 뷰의 인증된 RCE 취약점",
+    "description": "system_certificates 뷰에서 OS 커맨드 인젝션 취약점이 발견되어, 높은 권한을 가진 인증된 공격자가 원격으로 코드를 실행할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "MB connect line",
+        "product": "mbCONNECT24",
+        "versions": "1.0.0 부터 2.20.0 이하"
+      },
+      {
+        "vendor": "MB connect line",
+        "product": "mymbCONNECT24",
+        "versions": "1.0.0 부터 2.20.0 이하"
+      },
+      {
+        "vendor": "MB connect line",
+        "product": "mbCONNECT24",
+        "versions": "2.20.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:37.990149+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-33216",
+    "title": "NATS의 MQTT 평문 비밀번호 노출 취약점",
+    "description": "모니터링 엔드포인트를 통해 MQTT 비밀번호가 잘못 분류되어 평문으로 노출될 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00365,
+    "is_kev": false,
+    "cwe": [
+      "CWE-256"
+    ],
+    "affected": [
+      {
+        "vendor": "nats-io",
+        "product": "nats-server",
+        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:37.616888+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25990",
+    "title": "Pillow의 PSD 이미지 로딩 중 Out-of-bounds Write 취약점",
+    "description": "특수하게 제작된 PSD 이미지를 로드할 때 Out-of-bounds Write가 발생할 수 있음.",
+    "cvss": 8.6,
+    "epss": 0.00367,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "python-pillow",
+        "product": "Pillow",
+        "versions": ">= 10.3.0, < 12.1.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:37.252297+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-61732",
+    "title": "cmd/cgo의 문서 주석을 통한 코드 스머글링 가능성",
+    "description": "Go와 C/C++의 주석 파싱 방식 차이로 인해 cgo 바이너리에 코드가 스머글링될 수 있는 취약점입니다.",
+    "cvss": 8.6,
+    "epss": 0.00472,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94: Improper Control of Generation of Code ('Code Injection')"
+    ],
+    "affected": [
+      {
+        "vendor": "Go toolchain",
+        "product": "cmd/cgo",
+        "versions": "1.24.13 이전, 1.25.0-0 부터 1.25.7 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:36.879706+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-44492",
+    "title": "Axios: shouldBypassProxy가 IPv4 매핑 IPv6 주소를 인식하지 못해 NO_PROXY 우회 허용",
+    "description": "IPv4 매핑 IPv6 주소를 정규화하지 않아, NO_PROXY 리스트에 있는 IPv4 주소라도 프록시를 통해 라우팅될 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0.00889,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "axios",
+        "product": "axios",
+        "versions": ">= 1.0.0, < 1.16.0 (단일 버전), < 0.32.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:36.494119+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-16248",
+    "title": "Tenda AC10 httpd/netctrl AdvSetLanip fromAdvSetLanip 스택 기반 오버플로우",
+    "description": "Tenda AC10의 httpd/netctrl 컴포넌트 내 fromAdvSetLanip 함수에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 원격 공격이 가능합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121",
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Tenda",
+        "product": "AC10",
+        "versions": "16.03.10.09_multi_TDE01 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:36.116058+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63760",
+    "title": "SurrealDB 3.1.0 이전 버전의 JSON Parser를 통한 Denial of Service 취약점",
+    "description": "JSON 파서의 재귀 깊이 제한이 제대로 적용되지 않아, 깊게 중첩된 JSON 페이로드로 서버 메모리를 고갈시키고 프로세스를 충돌시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674"
+    ],
+    "affected": [
+      {
+        "vendor": "surrealdb",
+        "product": "surrealdb",
+        "versions": "3.1.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:35.340919+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63757",
+    "title": "SurrealDB 3.1.0 이전 버전의 /rpc 세션을 통한 세션 하이재킹",
+    "description": "/rpc 세션 메서드가 인증 없이 UUID를 반환하여, 공격자가 세션을 탈취하고 데이터 접근 및 권한 상승이 가능합니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "surrealdb",
+        "product": "surrealdb",
+        "versions": "3.1.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:34.957048+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63747",
+    "title": "SurrealDB 3.1.0 이전 버전의 잘못된 RPC 사용을 통한 서비스 거부(DoS)",
+    "description": "RPC 사용 핸들러에서 네임스페이스 없이 db가 설정될 때 패닉이 발생하여, 인증되지 않은 공격자가 서버를 다운시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-248"
+    ],
+    "affected": [
+      {
+        "vendor": "surrealdb",
+        "product": "surrealdb",
+        "versions": "3.1.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:34.567731+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31837",
+    "title": "JWKS fetch 실패 시 개인 키 노출을 방지하기 위한 Istio JWKS resolver 개선",
+    "description": "JWKS resolver 사용 불가 또는 fetch 실패 시 하드코딩된 기본값이 노출될 수 있는 취약점이 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0.00378,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "istio",
+        "product": "istio",
+        "versions": ">= 1.29.0-alpha.0, < 1.29.1 (단일 버전), >= 1.28.0-alpha.0, < 1.28.5 (단일 버전), < 1.27.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-20T20:42:33.786132+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-63795",
     "title": "9p: p9_client_walk() 에러 경로에서 oldfid 참조 해제 방지",
     "description": "p9_client_walk() 에러 발생 시 oldfid의 참조가 잘못 해제되어 발생할 수 있는 문제를 수정했습니다.",
@@ -1106,67 +1607,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-16248",
-    "title": "Tenda AC10 httpd/netctrl AdvSetLanip fromAdvSetLanip 스택 기반 오버플로우",
-    "description": "Tenda AC10의 httpd/netctrl 컴포넌트 내 fromAdvSetLanip 함수에서 스택 기반 버퍼 오버플로우 취약점이 발견되었습니다. 원격 공격이 가능합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121",
-      "CWE-119"
-    ],
-    "affected": [
-      {
-        "vendor": "Tenda",
-        "product": "AC10",
-        "versions": "16.03.10.09_multi_TDE01 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:07.47504+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-63760",
-    "title": "SurrealDB 3.1.0 이전 버전의 JSON Parser를 통한 Denial of Service 취약점",
-    "description": "JSON 파서의 재귀 깊이 제한이 제대로 적용되지 않아, 깊게 중첩된 JSON 페이로드로 서버 메모리를 고갈시키고 프로세스를 충돌시킬 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674"
-    ],
-    "affected": [
-      {
-        "vendor": "surrealdb",
-        "product": "surrealdb",
-        "versions": "3.1.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:07.47225+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-63754",
     "title": "SurrealDB 3.1.0 이전 버전의 LIVE Query를 통한 Denial of Service 취약점",
     "description": "오류를 유발하는 WHERE 절이 포함된 악의적인 LIVE 쿼리를 통해 해당 테이블의 모든 쓰기 작업(CREATE, UPDATE, DELETE)을 중단시킬 수 있습니다.",
@@ -1418,36 +1858,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-63757",
-    "title": "SurrealDB 3.1.0 이전 버전의 /rpc 세션을 통한 세션 하이재킹",
-    "description": "/rpc 세션 메서드가 인증 없이 UUID를 반환하여, 공격자가 세션을 탈취하고 데이터 접근 및 권한 상승이 가능합니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "surrealdb",
-        "product": "surrealdb",
-        "versions": "3.1.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:06.195295+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-63755",
     "title": "SurrealDB 3.1.0 이전 버전의 WHERE 절을 통한 권한 우회",
     "description": "권한 제한 적용 전 WHERE 절이 먼저 평가되는 결함으로 인해, 인증된 사용자가 테이블의 전체 내용을 읽을 수 있습니다.",
@@ -1496,36 +1906,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:57:05.736641+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-63747",
-    "title": "SurrealDB 3.1.0 이전 버전의 잘못된 RPC 사용을 통한 서비스 거부(DoS)",
-    "description": "RPC 사용 핸들러에서 네임스페이스 없이 db가 설정될 때 패닉이 발생하여, 인증되지 않은 공격자가 서버를 다운시킬 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-248"
-    ],
-    "affected": [
-      {
-        "vendor": "surrealdb",
-        "product": "surrealdb",
-        "versions": "3.1.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:05.522358+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -2131,36 +2511,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:57:01.28654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-44492",
-    "title": "Axios: shouldBypassProxy가 IPv4 매핑 IPv6 주소를 인식하지 못해 NO_PROXY 우회 허용",
-    "description": "IPv4 매핑 IPv6 주소를 정규화하지 않아, NO_PROXY 리스트에 있는 IPv4 주소라도 프록시를 통해 라우팅될 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00889,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "axios",
-        "product": "axios",
-        "versions": ">= 1.0.0, < 1.16.0 (단일 버전), < 0.32.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:01.038879+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3256,36 +3606,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-33216",
-    "title": "NATS의 MQTT 평문 비밀번호 노출 취약점",
-    "description": "모니터링 엔드포인트를 통해 MQTT 비밀번호가 잘못 분류되어 평문으로 노출될 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0.00365,
-    "is_kev": false,
-    "cwe": [
-      "CWE-256"
-    ],
-    "affected": [
-      {
-        "vendor": "nats-io",
-        "product": "nats-server",
-        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:41.867101+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-32286",
     "title": "github.com/jackc/pgproto3/v2의 Denial of Service 취약점",
     "description": "DataRow.Decode 함수가 필드 길이를 제대로 검증하지 않아, 음수 길이의 메시지 수신 시 slice bounds out of range 패닉이 발생할 수 있습니다.",
@@ -3425,36 +3745,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:40.72823+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-31837",
-    "title": "JWKS fetch 실패 시 개인 키 노출을 방지하기 위한 Istio JWKS resolver 개선",
-    "description": "JWKS resolver 사용 불가 또는 fetch 실패 시 하드코딩된 기본값이 노출될 수 있는 취약점이 수정되었습니다.",
-    "cvss": 8.7,
-    "epss": 0.00378,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "istio",
-        "product": "istio",
-        "versions": ">= 1.29.0-alpha.0, < 1.29.1 (단일 버전), >= 1.28.0-alpha.0, < 1.28.5 (단일 버전), < 1.27.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:40.508573+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -3846,36 +4136,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:36.77233+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-25990",
-    "title": "Pillow의 PSD 이미지 로딩 중 Out-of-bounds Write 취약점",
-    "description": "특수하게 제작된 PSD 이미지를 로드할 때 Out-of-bounds Write가 발생할 수 있음.",
-    "cvss": 8.6,
-    "epss": 0.00367,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "python-pillow",
-        "product": "Pillow",
-        "versions": ">= 10.3.0, < 12.1.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:36.558419+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4401,46 +4661,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-14448",
-    "title": "system_certificates 뷰의 인증된 RCE 취약점",
-    "description": "system_certificates 뷰에서 OS 커맨드 인젝션 취약점이 발견되어, 높은 권한을 가진 인증된 공격자가 원격으로 코드를 실행할 수 있습니다.",
-    "cvss": 8.6,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "MB connect line",
-        "product": "mbCONNECT24",
-        "versions": "1.0.0 부터 2.20.0 이하"
-      },
-      {
-        "vendor": "MB connect line",
-        "product": "mymbCONNECT24",
-        "versions": "1.0.0 부터 2.20.0 이하"
-      },
-      {
-        "vendor": "MB connect line",
-        "product": "mbCONNECT24",
-        "versions": "2.20.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:31.327995+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-13676",
     "title": "IDN 정규화 실패로 인한 fast-uri의 호스트 혼동 취약점",
     "description": "fast-uri 특정 버전에서 HTTP URL의 Unicode(IDN) 호스트네임 정규화에 실패하여, 호스트 기반 정책 우회 및 호스트 혼동 문제가 발생할 수 있습니다.",
@@ -4550,36 +4770,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:29.605169+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-61732",
-    "title": "cmd/cgo의 문서 주석을 통한 코드 스머글링 가능성",
-    "description": "Go와 C/C++의 주석 파싱 방식 차이로 인해 cgo 바이너리에 코드가 스머글링될 수 있는 취약점입니다.",
-    "cvss": 8.6,
-    "epss": 0.00472,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94: Improper Control of Generation of Code ('Code Injection')"
-    ],
-    "affected": [
-      {
-        "vendor": "Go toolchain",
-        "product": "cmd/cgo",
-        "versions": "1.24.13 이전, 1.25.0-0 부터 1.25.7 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:28.993408+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
