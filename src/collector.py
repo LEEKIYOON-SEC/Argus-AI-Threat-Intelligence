@@ -431,11 +431,16 @@ class Collector:
             data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
             data['title'] = cna.get('title', 'N/A')
             data['affected'] = self.parse_affected(cna.get('affected', []))
-            
-            for desc in cna.get('descriptions', []):
-                if desc.get('lang') == 'en':
-                    data['description'] = desc.get('value', 'N/A')
-                    break
+
+            # 영어 설명 우선. lang은 'en'뿐 아니라 'en-US'/'en-GB' 등 지역 태그를 쓰는
+            # CNA(Microsoft 등)가 많아 startswith('en')로 매칭한다. 영어가 없으면 첫 설명 폴백.
+            descriptions = cna.get('descriptions', []) or []
+            en_desc = next((d.get('value') for d in descriptions
+                            if (d.get('lang') or '').lower().startswith('en') and d.get('value')), None)
+            if en_desc:
+                data['description'] = en_desc
+            elif descriptions and descriptions[0].get('value'):
+                data['description'] = descriptions[0]['value']
             
             for metric in cna.get('metrics', []):
                 if 'cvssV4_0' in metric:
