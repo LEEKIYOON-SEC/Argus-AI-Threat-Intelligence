@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="https://img.shields.io/badge/%F0%9F%9B%A1%EF%B8%8F-Argus-1f6feb?style=for-the-badge&labelColor=0b0f16" alt="Argus" height="34">
-
 # Argus · AI CVE Threat Intelligence
 
 **신규 CVE를 자동 수집·AI 분석·위험도 분류해, 소규모 보안팀이 빠르게 대응하도록 돕는 위협 인텔리전스 파이프라인**
