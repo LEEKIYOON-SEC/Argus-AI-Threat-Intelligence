@@ -156,7 +156,8 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
             if a_vendor in ('', 'unknown', 'n/a'):
                 continue
 
-            vendor_match = (t_vendor in a_vendor) or (a_vendor in t_vendor)
+            # 벤더 와일드카드(*/product): 벤더 무관, 제품만으로 매칭
+            vendor_match = (t_vendor == "*") or (t_vendor in a_vendor) or (a_vendor in t_vendor)
             product_match = (t_product == "*") or (t_product in a_product) or (a_product in t_product)
 
             if vendor_match and product_match:
@@ -170,7 +171,7 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
             c_vendor, c_product = _norm(parts[3]), _norm(parts[4])
             if c_vendor in ('', '*', '-'):
                 continue
-            vendor_match = (t_vendor in c_vendor) or (c_vendor in t_vendor)
+            vendor_match = (t_vendor == "*") or (t_vendor in c_vendor) or (c_vendor in t_vendor)
             product_match = (t_product == "*") or (t_product in c_product) or (c_product in t_product)
             if vendor_match and product_match:
                 return True, f"Matched (NVD CPE): {c_vendor}/{c_product}", "asset"
@@ -526,6 +527,13 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
         edb_url = cve_data.get('_exploit_db_url')
         link = f" — [Exploit-DB]({edb_url})" if edb_url else ""
         signal_lines.append(f"- **공개 익스플로잇**: ExploitDB 등재{link}")
+    if cve_data.get('has_poc'):
+        # PoC 원문은 재게시하지 않고 출처 링크만 표기 (불변 원칙 8-②)
+        poc_urls = cve_data.get('poc_urls', [])
+        poc_link = f" — [PoC 링크]({poc_urls[0]})" if poc_urls else ""
+        signal_lines.append(
+            f"- **PoC 공개** (출처: nomi-sec/trickest, 원문 미게시·링크만): "
+            f"{cve_data.get('poc_count', len(poc_urls))}건{poc_link}")
     threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
 
     cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
@@ -540,10 +548,12 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
-    # 참고 자료 (Exploit-DB는 PoC 원문 대신 링크만 게시 — 불변 원칙 8-②)
+    # 참고 자료 (PoC·Exploit-DB는 원문 대신 링크만 게시 — 불변 원칙 8-②)
     ref_items = list(cve_data['references'])
     if cve_data.get('_exploit_db_url'):
         ref_items.append(f"{cve_data['_exploit_db_url']} (Exploit-DB PoC)")
+    for u in cve_data.get('poc_urls', [])[:3]:
+        ref_items.append(f"{u} (PoC, nomi-sec/trickest)")
     ref_list = "\n".join([f"- {r}" for r in ref_items])
 
     # CVSS 벡터 해석
@@ -610,6 +620,12 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 
 ## 🔗 참고 자료
 {ref_list}
+
+---
+<sub>📊 **데이터 출처**: CVE(cvelistV5, CC0) · NVD(NIST, 공공) · CISA KEV·SSVC/vulnrichment(공공/CC0) ·
+EPSS([FIRST.org](https://www.first.org/epss/)) · GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
+PoC/ExploitDB(원문 미게시·링크만). 공개 탐지 룰은 각 출처·라이선스 고지를 보존합니다.
+AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않습니다.</sub>
 """
     return body.strip()
 
