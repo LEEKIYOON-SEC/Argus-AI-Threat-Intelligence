@@ -1,5 +1,502 @@
 [
   {
+    "id": "CVE-2026-64034",
+    "title": "net: mana: DMA 버퍼의 hwc_msg_id TOCTOU 더블 페치 수정",
+    "description": "DMA 메모리에서 hwc_msg_id를 두 번 읽어 발생하는 TOCTOU(Time-of-Check to Time-of-Use) 취약점을 수정했습니다.",
+    "cvss": 9.3,
+    "epss": 0.00181,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 a201c66edf2ebc6cfdc3813a889ba20fecebfae3 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 70ad2dff8d052a85dfef15715b531f38a29108cf 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 566f42fb67a7ebfed6650e407e5b72e6b3e83bf7 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 6180a06bbc99fd9114b8db4be6c4d46e40f046ef 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 09ec063d87c2dd3fa6f3561361a017bd882e9f37 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 3c4db56ccd13dd020fbf43afabaee74a40ec75e4 이전, ca9c54d2d6a5ab2430c4eda364c77125d62e5e0f 부터 35f0f0a2536a4d604b4dbad92c85c4a8fdebb870 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1654",
+    "date": "2026-07-21T07:23:47.761073+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64025",
+    "title": "bpf, skmsg: ktls rx와 sk_data_ready 판정 간의 레이스 컨디션 수정",
+    "description": "sk_psock_verdict_data_ready()에 가드 로직이 없어 ktls rx와 레이스 컨디션이 발생하는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00168,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ef5659280eb13e8ac31c296f58cfdfa1684ac06b 부터 c9ea01768903ae47f210cd457af1dead6de7a9c3 이전, ef5659280eb13e8ac31c296f58cfdfa1684ac06b 부터 7c8cf21bc4efb4af18d6096db3f8bd06d622251c 이전, ef5659280eb13e8ac31c296f58cfdfa1684ac06b 부터 1861d369efd62d67796563bf3e01fc22e5626f8b 이전, ef5659280eb13e8ac31c296f58cfdfa1684ac06b 부터 8a52139560f833c3975032e1f5762611e3a36d71 이전, ef5659280eb13e8ac31c296f58cfdfa1684ac06b 부터 ddf8029623a1af20e984c040e89ff918158397ab 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1653",
+    "date": "2026-07-21T07:22:50.69904+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64033",
+    "title": "RDMA/rtrs: 경로 파일 생성 정리 과정의 Use-After-Free 수정",
+    "description": "rtrs_srv_create_path_files()의 에러 경로에서 kobject_put() 호출 순서로 인해 발생하는 Use-After-Free 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00172,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "bab17b761c8974a869b04462be5d4dd9aad366b4 부터 01e42aabaf7632beb4bf235c7238b96c746d4144 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 548f3956e53a7f7bde912d8129010b8986d5e602 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 00904a73272b9f3ef3952fe69a833909dccad1ef 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 92060ab1c5115674cf319175550f85f68405121f 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 eae62c5451e67e8b033c1681fd3b85d7e9a9a28f 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 b0e9706fb2859064bb6c677554c4d20c713aa8e0 이전, ae4c81644e9105d9f7f713bb0d444737bb6a0cf1 부터 5b74373390113fba798a76b483837029ab010fef 이전, 5.15.61 부터 5.15.209 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.17 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1652",
+    "date": "2026-07-21T07:22:03.085606+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64037",
+    "title": "wifi: iwlwifi: mld: AMSDU 비활성화 시 TSO 세그멘테이션 폭증 수정",
+    "description": "AMSDU 비활성화 시 sentinel 값(1)을 제대로 처리하지 않아 TSO 세그멘테이션 계산 오류가 발생하는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00166,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d1e879ec600f9b3bdd253167533959facfefb17b 부터 9e360e610a73f62432e986775023d5382773f045 이전, d1e879ec600f9b3bdd253167533959facfefb17b 부터 cbe1c8245e4469d1aa6e12e5d913611376d23788 이전, d1e879ec600f9b3bdd253167533959facfefb17b 부터 92cee08dc4f00e77fd1317e4343c5d458b0abab7 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1651",
+    "date": "2026-07-21T07:22:02.754643+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64035",
+    "title": "igc: SMD 프레임에 대한 TX 버퍼 타입 설정",
+    "description": "igc_fpe_init_smd_frame()에서 버퍼 타입을 설정하지 않아, 재사용된 버퍼의 이전 XDP/XSK 타입으로 인해 잘못된 정리 경로가 실행되는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00166,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5422570c0010bb968738f9256eb2bf83e79b4d63 부터 1f83545f432d106d5fc71d3997b2d382104ebcc4 이전, 5422570c0010bb968738f9256eb2bf83e79b4d63 부터 1c8587bd025244aa52061f5ceecbf5e68a1063d9 이전, 5422570c0010bb968738f9256eb2bf83e79b4d63 부터 5acc641e590e008caaed480ed9ffae47cf7ecbdf 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.16 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1650",
+    "date": "2026-07-21T07:22:02.395234+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-23490",
+    "title": "pyasn1 디코더의 DoS 취약점",
+    "description": "잘못된 RELATIVE-OID의 과도한 continuation octet으로 인해 메모리 고갈 및 서비스 거부(DoS)가 발생할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00679,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "pyasn1",
+        "product": "pyasn1",
+        "versions": "< 0.6.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:05.137743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25679",
+    "title": "net/url의 IPv6 호스트 리터럴 파싱 오류",
+    "description": "url.Parse가 호스트/권한 구성 요소를 충분히 검증하지 않아 일부 잘못된 URL을 허용함.",
+    "cvss": 7.5,
+    "epss": 0.00728,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1286: Improper Validation of Syntactic Correctness of Input"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "net/url",
+        "versions": "1.25.8 이전, 1.26.0-0 부터 1.26.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:04.7496+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32285",
+    "title": "github.com/buger/jsonparser의 Denial of Service 취약점",
+    "description": "Delete 함수가 잘못된 JSON 입력의 offset을 제대로 검증하지 않아 런타임 패닉 및 DoS 공격이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0.0075,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125: Out-of-bounds Read"
+    ],
+    "affected": [
+      {
+        "vendor": "github.com/buger/jsonparser",
+        "product": "github.com/buger/jsonparser",
+        "versions": "1.1.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:04.381381+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42154",
+    "title": "Prometheus: 조작된 snappy 페이로드를 통한 remote read 엔드포인트 서비스 거부(DoS)",
+    "description": "snappy 압축 요청 바디의 디코딩 길이를 검증하지 않고 메모리를 할당하여, 대규모 힙 할당을 유도해 프로세스를 충돌시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00761,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-789"
+    ],
+    "affected": [
+      {
+        "vendor": "prometheus",
+        "product": "prometheus",
+        "versions": "< 3.5.3 (단일 버전), >= 3.6.0, < 3.11.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:04.006007+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-33814",
+    "title": "golang.org/x/net의 HTTP/2 전송 시 잘못된 SETTINGS_MAX_FRAME_SIZE로 인한 무한 루프",
+    "description": "HTTP/2 SETTINGS 프레임 처리 중 SETTINGS_MAX_FRAME_SIZE 값이 0인 경우, CONTINUATION 프레임을 계속 작성하는 무한 루프에 빠질 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00781,
+    "is_kev": false,
+    "cwe": [
+      "CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')"
+    ],
+    "affected": [
+      {
+        "vendor": "golang.org/x/net",
+        "product": "golang.org/x/net/http2",
+        "versions": "0.53.0 이전"
+      },
+      {
+        "vendor": "Go standard library",
+        "product": "net/http",
+        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:03.621555+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-48779",
+    "title": "ws: 작은 프래그먼트 및 데이터 청크로 인한 메모리 고갈 DoS",
+    "description": "매우 작은 크기의 프래그먼트와 데이터 청크를 대량으로 전송하여 서버의 메모리를 고갈시키고 DoS를 유발할 수 있는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0.00782,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "websockets",
+        "product": "ws",
+        "versions": ">= 1.1.0, < 5.2.5 (단일 버전), >= 6.0.0, < 6.2.4 (단일 버전), >= 7.0.0, < 7.5.11 (단일 버전), >= 8.0.0, < 8.21.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:03.200674+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-39820",
+    "title": "net/mail의 consumeComment 내 이차식 문자열 연결 취약점",
+    "description": "ParseAddress 등 특정 함수에 조작된 입력값이 전달될 경우 과도한 CPU 소모 및 메모리 할당이 발생합니다.",
+    "cvss": 7.5,
+    "epss": 0.00784,
+    "is_kev": false,
+    "cwe": [
+      "CWE-407: Inefficient Algorithmic Complexity"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "net/mail",
+        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:02.719612+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-40938",
+    "title": "Tekton Pipelines: Git Resolver의 검증되지 않은 Revision 파라미터를 통한 git 인자 주입 및 RCE",
+    "description": "git resolver의 revision 파라미터가 검증 없이 git fetch에 전달되어, 임의의 플래그 주입을 통한 원격 코드 실행(RCE)이 가능합니다.",
+    "cvss": 7.5,
+    "epss": 0.00788,
+    "is_kev": false,
+    "cwe": [
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "tektoncd",
+        "product": "pipeline",
+        "versions": ">= 1.0.0, < 1.0.2 (단일 버전), >= 1.2.0, < 1.3.4 (단일 버전), >= 1.4.0, < 1.6.2 (단일 버전), >= 1.7.0, < 1.9.3 (단일 버전), >= 1.10.0, < 1.11.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:02.294015+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42499",
+    "title": "net/mail의 consumePhrase 내 이차 문자열 연결 문제",
+    "description": "RFC 5322 이메일 주소 파싱 중 consumePhrase에 비정상적인 입력이 들어올 경우 DoS가 발생할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00798,
+    "is_kev": false,
+    "cwe": [
+      "CWE-407: Inefficient Algorithmic Complexity"
+    ],
+    "affected": [
+      {
+        "vendor": "Go standard library",
+        "product": "net/mail",
+        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:01.557859+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-30922",
+    "title": "무제한 재귀 호출을 통한 pyasn1 서비스 거부(DoS) 취약점",
+    "description": "pyasn1 라이브러리에서 깊게 중첩된 ASN.1 데이터를 디코딩할 때 제어되지 않은 재귀 호출이 발생하여 서비스 거부(DoS) 상태가 될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00803,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674"
+    ],
+    "affected": [
+      {
+        "vendor": "pyasn1",
+        "product": "pyasn1",
+        "versions": "< 0.6.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T06:43:00.716921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-64018",
     "title": "net: mana: out-of-bounds 배열 액세스 방지를 위한 rx_req_idx 검증",
     "description": "Confidential VM 환경에서 rx_req_idx에 대한 경계 검사 부재로 인해 발생하는 out-of-bounds 액세스 취약점을 수정했습니다.",
@@ -4118,37 +4615,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-48779",
-    "title": "ws: 작은 프래그먼트 및 데이터 청크로 인한 메모리 고갈 DoS",
-    "description": "매우 작은 크기의 프래그먼트와 데이터 청크를 대량으로 전송하여 서버의 메모리를 고갈시키고 DoS를 유발할 수 있는 취약점입니다.",
-    "cvss": 7.5,
-    "epss": 0.00782,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400",
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "websockets",
-        "product": "ws",
-        "versions": ">= 1.1.0, < 5.2.5 (단일 버전), >= 6.0.0, < 6.2.4 (단일 버전), >= 7.0.0, < 7.5.11 (단일 버전), >= 8.0.0, < 8.21.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:03.692879+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-48526",
     "title": "PyJWT: 공개키 JWK를 HMAC 비밀키로 허용하여 HS256 토큰 위조 가능",
     "description": "비대칭 및 HMAC 알고리즘을 모두 지원할 때 JWK 검증 미흡으로 공개키를 HMAC 비밀키로 사용하여 토큰을 위조할 수 있습니다.",
@@ -4457,36 +4923,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-42499",
-    "title": "net/mail의 consumePhrase 내 이차 문자열 연결 문제",
-    "description": "RFC 5322 이메일 주소 파싱 중 consumePhrase에 비정상적인 입력이 들어올 경우 DoS가 발생할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00798,
-    "is_kev": false,
-    "cwe": [
-      "CWE-407: Inefficient Algorithmic Complexity"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "net/mail",
-        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:00.277097+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-42264",
     "title": "Axios: HTTP 어댑터의 Prototype Pollution 읽기 측 가젯을 통한 자격 증명 인젝션 및 요청 하이재킹",
     "description": "HTTP 어댑터의 특정 설정 속성들이 hasOwnProperty 검사 없이 읽혀, Object.prototype 오염 시 모든 외부 HTTP 요청에 오염된 값이 적용될 수 있습니다.",
@@ -4511,37 +4947,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42154",
-    "title": "Prometheus: 조작된 snappy 페이로드를 통한 remote read 엔드포인트 서비스 거부(DoS)",
-    "description": "snappy 압축 요청 바디의 디코딩 길이를 검증하지 않고 메모리를 할당하여, 대규모 힙 할당을 유도해 프로세스를 충돌시킬 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00761,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400",
-      "CWE-789"
-    ],
-    "affected": [
-      {
-        "vendor": "prometheus",
-        "product": "prometheus",
-        "versions": "< 3.5.3 (단일 버전), >= 3.6.0, < 3.11.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:59.626733+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -4777,36 +5182,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-40938",
-    "title": "Tekton Pipelines: Git Resolver의 검증되지 않은 Revision 파라미터를 통한 git 인자 주입 및 RCE",
-    "description": "git resolver의 revision 파라미터가 검증 없이 git fetch에 전달되어, 임의의 플래그 주입을 통한 원격 코드 실행(RCE)이 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0.00788,
-    "is_kev": false,
-    "cwe": [
-      "CWE-88"
-    ],
-    "affected": [
-      {
-        "vendor": "tektoncd",
-        "product": "pipeline",
-        "versions": ">= 1.0.0, < 1.0.2 (단일 버전), >= 1.2.0, < 1.3.4 (단일 버전), >= 1.4.0, < 1.6.2 (단일 버전), >= 1.7.0, < 1.9.3 (단일 버전), >= 1.10.0, < 1.11.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:51.977015+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-39829",
     "title": "golang.org/x/crypto/ssh에서 비정상적인 RSA/DSA 파라미터 호출로 인한 DoS 발생 가능성",
     "description": "RSA 및 DSA 공개 키 파서의 크기 제한 부재로 인해 과도한 CPU 소비 및 DoS가 발생할 수 있습니다.\nRSA 모듈러스 제한 및 DSA 파라미터 검증을 통해 수정되었습니다.",
@@ -4825,36 +5200,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:49.310434+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-39820",
-    "title": "net/mail의 consumeComment 내 이차식 문자열 연결 취약점",
-    "description": "ParseAddress 등 특정 함수에 조작된 입력값이 전달될 경우 과도한 CPU 소모 및 메모리 할당이 발생합니다.",
-    "cvss": 7.5,
-    "epss": 0.00784,
-    "is_kev": false,
-    "cwe": [
-      "CWE-407: Inefficient Algorithmic Complexity"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "net/mail",
-        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:48.669657+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4922,41 +5267,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-33814",
-    "title": "golang.org/x/net의 HTTP/2 전송 시 잘못된 SETTINGS_MAX_FRAME_SIZE로 인한 무한 루프",
-    "description": "HTTP/2 SETTINGS 프레임 처리 중 SETTINGS_MAX_FRAME_SIZE 값이 0인 경우, CONTINUATION 프레임을 계속 작성하는 무한 루프에 빠질 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00781,
-    "is_kev": false,
-    "cwe": [
-      "CWE-835: Loop with Unreachable Exit Condition ('Infinite Loop')"
-    ],
-    "affected": [
-      {
-        "vendor": "golang.org/x/net",
-        "product": "golang.org/x/net/http2",
-        "versions": "0.53.0 이전"
-      },
-      {
-        "vendor": "Go standard library",
-        "product": "net/http",
-        "versions": "1.25.10 이전, 1.26.0-0 부터 1.26.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:43.24972+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -5240,36 +5550,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-32285",
-    "title": "github.com/buger/jsonparser의 Denial of Service 취약점",
-    "description": "Delete 함수가 잘못된 JSON 입력의 offset을 제대로 검증하지 않아 런타임 패닉 및 DoS 공격이 가능합니다.",
-    "cvss": 7.5,
-    "epss": 0.0075,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125: Out-of-bounds Read"
-    ],
-    "affected": [
-      {
-        "vendor": "github.com/buger/jsonparser",
-        "product": "github.com/buger/jsonparser",
-        "versions": "1.1.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:40.986748+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-32280",
     "title": "crypto/x509의 체인 빌딩 중 예상치 못한 작업 발생",
     "description": "VerifyOptions.Intermediates에 다수의 중간 인증서가 전달될 때 작업량이 제한되지 않아 Denial of Service(DoS)가 발생할 수 있습니다.",
@@ -5324,36 +5604,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-30922",
-    "title": "무제한 재귀 호출을 통한 pyasn1 서비스 거부(DoS) 취약점",
-    "description": "pyasn1 라이브러리에서 깊게 중첩된 ASN.1 데이터를 디코딩할 때 제어되지 않은 재귀 호출이 발생하여 서비스 거부(DoS) 상태가 될 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00803,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674"
-    ],
-    "affected": [
-      {
-        "vendor": "pyasn1",
-        "product": "pyasn1",
-        "versions": "< 0.6.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:39.848138+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -5540,36 +5790,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25679",
-    "title": "net/url의 IPv6 호스트 리터럴 파싱 오류",
-    "description": "url.Parse가 호스트/권한 구성 요소를 충분히 검증하지 않아 일부 잘못된 URL을 허용함.",
-    "cvss": 7.5,
-    "epss": 0.00728,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1286: Improper Validation of Syntactic Correctness of Input"
-    ],
-    "affected": [
-      {
-        "vendor": "Go standard library",
-        "product": "net/url",
-        "versions": "1.25.8 이전, 1.26.0-0 부터 1.26.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:35.463788+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-24049",
     "title": "wheel: Path Traversal을 통한 임의 파일 권한 수정 취약점",
     "description": "wheel 0.40.0~0.46.1 버전의 unpack 함수에서 파일 권한 처리 미흡으로, 악성 wheel 파일을 통해 임의의 파일 권한을 수정할 수 있습니다.",
@@ -5589,36 +5809,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:34.17372+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-23490",
-    "title": "pyasn1 디코더의 DoS 취약점",
-    "description": "잘못된 RELATIVE-OID의 과도한 continuation octet으로 인해 메모리 고갈 및 서비스 거부(DoS)가 발생할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00679,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "pyasn1",
-        "product": "pyasn1",
-        "versions": "< 0.6.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:33.731878+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
