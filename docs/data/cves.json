@@ -1,5 +1,531 @@
 [
   {
+    "id": "CVE-2026-64061",
+    "title": "netfs: netfs_read_gaps() 내 sink folio의 조기 put 수정",
+    "description": "netfs_read_gaps()가 요청 완료 후 sink page를 해제하도록 수정하여 UAF 취약점을 해결합니다.",
+    "cvss": 9.8,
+    "epss": 0.00168,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 2a39d49c8d97df8cb8fa80c10859bc1ba7358c6b 이전, ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 d4f4bc87c76511cf2532448b0fa40c25e894bd7d 이전, ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 412e8bad48967fd34295866636c028befd27d8b9 이전, ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 3e5dd91b87a8b1450217b56a336bee315f40da7d 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1664",
+    "date": "2026-07-21T12:42:47.827505+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64080",
+    "title": "firmware: arm_ffa: 락 상태에서 notifier 콜백 스냅샷 생성",
+    "description": "락 해제 후 콜백 참조 시 발생하는 Use-After-Free 취약점 수정.\n락 유지 상태에서 콜백 포인터를 복사하도록 변경.",
+    "cvss": 9.3,
+    "epss": 0.00178,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "285a5ea0f542db94c3ed11e01a71abb47d15cbf5 부터 d1e38551fadea230649bc428f0f35c9ee062a072 이전, 285a5ea0f542db94c3ed11e01a71abb47d15cbf5 부터 0e7be42ef2490f19d859a6146324d48cafdc9d5c 이전, 285a5ea0f542db94c3ed11e01a71abb47d15cbf5 부터 38290b180a4d5746baed796d49f88d56d2f336cd 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1663",
+    "date": "2026-07-21T12:42:24.336148+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64066",
+    "title": "netfs: subreq 실패 시 일시 중지하도록 netfs_read_to_pagecache() 수정",
+    "description": "이미 발행된 subrequest가 실패한 경우,\n새로운 subrequest 생성을 일시 중지하도록 netfs_read_to_pagecache()를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00166,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 884c4c4f35e577aba6a0593c80cbea9ca5e6e2b8 이전, ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 0256e79ce42101ad036edd4205bccca621ea0927 이전, ee4cdf7ba857a894ad1650d6ab77669cbbfa329e 부터 8a8c0cfdf4658fc5b295b7fc87be56e0d76741f4 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1662",
+    "date": "2026-07-21T12:42:10.273513+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64068",
+    "title": "netfs: 새로운 subreq 추가 재시도 시 누락된 락킹 수정",
+    "description": "netfs_retry_read_subrequests() 및 netfs_retry_write_stream()에서 subrequests 추가 시 적절한 락을 사용하도록 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00155,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 393f3f0d7353a94b1e0bc4ca89c683fe983e5fd2 이전, 288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 cce18c263e9623872327ba3c956012f73c1179cc 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1661",
+    "date": "2026-07-21T12:41:22.782374+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64069",
+    "title": "netfs: DIO 및 단일 읽기 subrequest의 취소 처리 수정",
+    "description": "읽기 subrequest 준비 실패 시, 이미 리스트에 추가된 항목의 참조 횟수 처리 및 취소 로직을 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00166,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "e2d46f2ec332533816417b60933954173f602121 부터 5366199be46fb53de62861721d34ba816e7e440e 이전, e2d46f2ec332533816417b60933954173f602121 부터 f73372a4c6900d117f8e903fe10b62692f95e6c4 이전, e2d46f2ec332533816417b60933954173f602121 부터 6f0f7ac1915abc0d202f0eb4b003a6548a5ba60d 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.14 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1660",
+    "date": "2026-07-21T12:40:50.971278+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63763",
+    "title": "SurrealDB 2.5.0 이전 버전의 Future 필드를 통한 권한 상승",
+    "description": "Confused Deputy 취약점으로 인해 권한이 낮은 사용자가 Future, 함수, 클로저를 포함한 필드를 생성하여, 고권한 사용자가 해당 레코드를 읽거나 쓸 때 악성 로직이 실행될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "surrealdb",
+        "product": "surrealdb",
+        "versions": "2.5.0 이전"
+      },
+      {
+        "vendor": "surrealdb",
+        "product": "surrealdb",
+        "versions": "3.0.0-beta.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:05:23.670374+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-29181",
+    "title": "OpenTelemetry-Go: 다중 값 `baggage` 헤더 추출로 인한 과도한 할당 (원격 DoS 증폭)",
+    "description": "OpenTelemetry-Go 1.36.0~1.40.0 버전에서 다중 baggage 헤더 처리 시 CPU 및 메모리 할당이 증폭되어 DoS 공격에 취약할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00435,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "open-telemetry",
+        "product": "opentelemetry-go",
+        "versions": ">= 1.36.0, < 1.41.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:22.339629+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-45416",
+    "title": "Netty: SNI 핸들러의 과도한 메모리 사전 할당 취약점",
+    "description": "SslClientHelloHandler가 TLS 핸드셰이크 길이를 읽을 때, 공격자가 보낸 소량의 바이트로 최대 16 MiB의 메모리를 할당하게 하여 리소스를 낭비시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00461,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "netty",
+        "product": "netty",
+        "versions": ">= 4.2.0.Final, < 4.2.15.Final (단일 버전), < 4.1.135.Final (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:22.013675+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-6322",
+    "title": "fast-uri의 퍼센트 인코딩된 권한 구분자를 통한 호스트 혼동(Host Confusion) 취약점",
+    "description": "normalize() 함수가 호스트 구성 요소 내의 인코딩된 구분자를 디코딩 후 다시 출력하여, URI의 권한(Authority)을 다른 도메인으로 변경해 호스트 화이트리스트 검증 등을 우회할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00475,
+    "is_kev": false,
+    "cwe": [
+      "CWE-436"
+    ],
+    "affected": [
+      {
+        "vendor": "fast-uri",
+        "product": "fast-uri",
+        "versions": "3.1.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:21.680804+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-69223",
+    "title": "AIOHTTP HTTP 파서의 auto_decompress 기능 내 zip bomb 취약점",
+    "description": "3.13.2 이하 버전에서 zip bomb을 이용한 DoS 공격이 가능하며, 압축 해제 시 호스트 메모리를 고갈시킬 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00487,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409",
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "aio-libs",
+        "product": "aiohttp",
+        "versions": "< 3.13.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:21.350331+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-32286",
+    "title": "github.com/jackc/pgproto3/v2의 Denial of Service 취약점",
+    "description": "DataRow.Decode 함수가 필드 길이를 제대로 검증하지 않아, 음수 길이의 메시지 수신 시 slice bounds out of range 패닉이 발생할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00494,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125: Out-of-bounds Read"
+    ],
+    "affected": [
+      {
+        "vendor": "github.com/jackc/pgproto3/v2",
+        "product": "github.com/jackc/pgproto3/v2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:21.020551+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-10143",
+    "title": "kafka-python 2.3.2 이전 버전의 scram.py 내 SCRAM 반복 횟수를 통한 DoS 취약점",
+    "description": "SCRAM 인증 처리 중 검증되지 않은 과도한 반복 횟수를 전달받아 클라이언트 이벤트 루프를 정지시킬 수 있는 DoS 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0.00517,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "Dana Powers",
+        "product": "kafka-python",
+        "versions": "2.3.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:20.691408+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-6321",
+    "title": "fast-uri의 퍼센트 인코딩된 도트 세그먼트를 통한 경로 탐색(Path Traversal) 취약점",
+    "description": "normalize() 및 equal() 함수에서 퍼센트 인코딩된 경로 구분자와 도트 세그먼트를 먼저 디코딩하여, 경로 기반 정책을 우회하고 허용되지 않은 위치로 접근할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00521,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "fast-uri",
+        "product": "fast-uri",
+        "versions": "3.1.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:20.346306+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-44486",
+    "title": "Axios: 프록시가 직접 연결로 재평가될 때 리다이렉트 대상으로 Proxy-Authorization 헤더 유출",
+    "description": "인증된 프록시를 통해 요청을 보낸 후 리다이렉트될 때, 이전의 Proxy-Authorization 헤더가 대상 서버로 전송될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00532,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "axios",
+        "product": "axios",
+        "versions": ">= 1.0.0, < 1.16.0 (단일 버전), < 0.32.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:19.918896+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-44289",
+    "title": "protobufjs: 무제한 protobuf 재귀로 인한 서비스 거부(DoS)",
+    "description": "중첩된 protobuf 데이터를 디코딩할 때 깊이 제한 없이 재귀가 발생하여 JavaScript 콜 스택이 고갈될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.0058,
+    "is_kev": false,
+    "cwe": [
+      "CWE-674"
+    ],
+    "affected": [
+      {
+        "vendor": "protobufjs",
+        "product": "protobuf.js",
+        "versions": "< 7.5.6 (단일 버전), >= 8.0.0, < 8.0.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:19.571264+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27889",
+    "title": "NATS: wsRead의 WebSocket 프레임 길이 오버플로우를 통한 인증 전 원격 서버 크래시",
+    "description": "WebSocket 프레임 길이 검증 누락으로 인해 인증 전 단계에서 서버 패닉 및 크래시를 유발할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.00582,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "nats-io",
+        "product": "nats-server",
+        "versions": ">= 2.2.0, < 2.11.14 (단일 버전), >= 2.12.0, < 2.12.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T12:02:18.883163+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-64055",
     "title": "net: ethernet: cortina: frag 카운터 유지",
     "description": "NAPI poll 주기 동안 패킷 조립이 완료되기 전 frag_nr 카운터가 초기화되는 문제를 수정합니다.",
@@ -4770,36 +5296,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-6322",
-    "title": "fast-uri의 퍼센트 인코딩된 권한 구분자를 통한 호스트 혼동(Host Confusion) 취약점",
-    "description": "normalize() 함수가 호스트 구성 요소 내의 인코딩된 구분자를 디코딩 후 다시 출력하여, URI의 권한(Authority)을 다른 도메인으로 변경해 호스트 화이트리스트 검증 등을 우회할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00475,
-    "is_kev": false,
-    "cwe": [
-      "CWE-436"
-    ],
-    "affected": [
-      {
-        "vendor": "fast-uri",
-        "product": "fast-uri",
-        "versions": "3.1.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:06.76643+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-57309",
     "title": "Windu CMS의 Blind SQL 인젝션",
     "description": "Windu CMS에서 Blind SQL 인젝션 취약점이 발견되었습니다. 원격의 인증되지 않은 공격자가 HTTP 헤더의 URL 경로에 SQL 구문을 주입할 수 있습니다.",
@@ -4833,71 +5329,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-6321",
-    "title": "fast-uri의 퍼센트 인코딩된 도트 세그먼트를 통한 경로 탐색(Path Traversal) 취약점",
-    "description": "normalize() 및 equal() 함수에서 퍼센트 인코딩된 경로 구분자와 도트 세그먼트를 먼저 디코딩하여, 경로 기반 정책을 우회하고 허용되지 않은 위치로 접근할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00521,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "fast-uri",
-        "product": "fast-uri",
-        "versions": "3.1.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:06.41631+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-63763",
-    "title": "SurrealDB 2.5.0 이전 버전의 Future 필드를 통한 권한 상승",
-    "description": "Confused Deputy 취약점으로 인해 권한이 낮은 사용자가 Future, 함수, 클로저를 포함한 필드를 생성하여, 고권한 사용자가 해당 레코드를 읽거나 쓸 때 악성 로직이 실행될 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "surrealdb",
-        "product": "surrealdb",
-        "versions": "2.5.0 이전"
-      },
-      {
-        "vendor": "surrealdb",
-        "product": "surrealdb",
-        "versions": "3.0.0-beta.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:06.414234+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-63759",
@@ -5177,36 +5608,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-45416",
-    "title": "Netty: SNI 핸들러의 과도한 메모리 사전 할당 취약점",
-    "description": "SslClientHelloHandler가 TLS 핸드셰이크 길이를 읽을 때, 공격자가 보낸 소량의 바이트로 최대 16 MiB의 메모리를 할당하게 하여 리소스를 낭비시킬 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00461,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "netty",
-        "product": "netty",
-        "versions": ">= 4.2.0.Final, < 4.2.15.Final (단일 버전), < 4.1.135.Final (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:01.526635+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-44495",
     "title": "Axios: Config Merge의 Prototype Pollution Gadget을 통한 자격 증명 탈취 및 응답 하이재킹",
     "description": "Object.prototype.transformResponse가 오염된 경우, Axios가 이를 요청 설정이나 옵션 검증기로 처리하여 자격 증명 탈취 등이 가능할 수 있습니다.",
@@ -5232,66 +5633,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-44486",
-    "title": "Axios: 프록시가 직접 연결로 재평가될 때 리다이렉트 대상으로 Proxy-Authorization 헤더 유출",
-    "description": "인증된 프록시를 통해 요청을 보낸 후 리다이렉트될 때, 이전의 Proxy-Authorization 헤더가 대상 서버로 전송될 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00532,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200"
-    ],
-    "affected": [
-      {
-        "vendor": "axios",
-        "product": "axios",
-        "versions": ">= 1.0.0, < 1.16.0 (단일 버전), < 0.32.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:01.037416+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-44289",
-    "title": "protobufjs: 무제한 protobuf 재귀로 인한 서비스 거부(DoS)",
-    "description": "중첩된 protobuf 데이터를 디코딩할 때 깊이 제한 없이 재귀가 발생하여 JavaScript 콜 스택이 고갈될 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.0058,
-    "is_kev": false,
-    "cwe": [
-      "CWE-674"
-    ],
-    "affected": [
-      {
-        "vendor": "protobufjs",
-        "product": "protobuf.js",
-        "versions": "< 7.5.6 (단일 버전), >= 8.0.0, < 8.0.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:00.782376+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -5834,36 +6175,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-32286",
-    "title": "github.com/jackc/pgproto3/v2의 Denial of Service 취약점",
-    "description": "DataRow.Decode 함수가 필드 길이를 제대로 검증하지 않아, 음수 길이의 메시지 수신 시 slice bounds out of range 패닉이 발생할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00494,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125: Out-of-bounds Read"
-    ],
-    "affected": [
-      {
-        "vendor": "github.com/jackc/pgproto3/v2",
-        "product": "github.com/jackc/pgproto3/v2",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:41.648735+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-32597",
     "title": "PyJWT가 알 수 없는 `crit` 헤더 확장 허용 (RFC 7515 §4.1.11 위반)",
     "description": "PyJWT가 RFC 7515의 crit 헤더 파라미터를 검증하지 않아, 이해할 수 없는 확장이 포함된 JWS 토큰을 수락하는 취약점이 수정되었습니다.",
@@ -5913,66 +6224,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:39.627923+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-29181",
-    "title": "OpenTelemetry-Go: 다중 값 `baggage` 헤더 추출로 인한 과도한 할당 (원격 DoS 증폭)",
-    "description": "OpenTelemetry-Go 1.36.0~1.40.0 버전에서 다중 baggage 헤더 처리 시 CPU 및 메모리 할당이 증폭되어 DoS 공격에 취약할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00435,
-    "is_kev": false,
-    "cwe": [
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "open-telemetry",
-        "product": "opentelemetry-go",
-        "versions": ">= 1.36.0, < 1.41.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:38.771961+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27889",
-    "title": "NATS: wsRead의 WebSocket 프레임 길이 오버플로우를 통한 인증 전 원격 서버 크래시",
-    "description": "WebSocket 프레임 길이 검증 누락으로 인해 인증 전 단계에서 서버 패닉 및 크래시를 유발할 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00582,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "nats-io",
-        "product": "nats-server",
-        "versions": ">= 2.2.0, < 2.11.14 (단일 버전), >= 2.12.0, < 2.12.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:37.649333+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -6094,67 +6345,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:30.70903+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-10143",
-    "title": "kafka-python 2.3.2 이전 버전의 scram.py 내 SCRAM 반복 횟수를 통한 DoS 취약점",
-    "description": "SCRAM 인증 처리 중 검증되지 않은 과도한 반복 횟수를 전달받아 클라이언트 이벤트 루프를 정지시킬 수 있는 DoS 취약점입니다.",
-    "cvss": 7.5,
-    "epss": 0.00517,
-    "is_kev": false,
-    "cwe": [
-      "CWE-400"
-    ],
-    "affected": [
-      {
-        "vendor": "Dana Powers",
-        "product": "kafka-python",
-        "versions": "2.3.2 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:30.04796+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-69223",
-    "title": "AIOHTTP HTTP 파서의 auto_decompress 기능 내 zip bomb 취약점",
-    "description": "3.13.2 이하 버전에서 zip bomb을 이용한 DoS 공격이 가능하며, 압축 해제 시 호스트 메모리를 고갈시킬 수 있습니다.",
-    "cvss": 7.5,
-    "epss": 0.00487,
-    "is_kev": false,
-    "cwe": [
-      "CWE-409",
-      "CWE-770"
-    ],
-    "affected": [
-      {
-        "vendor": "aio-libs",
-        "product": "aiohttp",
-        "versions": "< 3.13.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:29.605169+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
