@@ -1,5 +1,652 @@
 [
   {
+    "id": "CVE-2026-64162",
+    "title": "idpf: idpf_ptp_init() 내 read_dev_clk_lock 스핀락 초기화 수정",
+    "description": "ptp_schedule_worker() 호출 전 read_dev_clk_lock을 초기화하도록 순서를 변경하여, 초기화되지 않은 락을 사용하는 lockdep 오류를 방지합니다.",
+    "cvss": 9.8,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5cb8805d2366b20ee4d7afff586d8acf17649330 부터 eb5991d4c8ba2e8153dfcda3e66a9608377b7dce 이전, 5cb8805d2366b20ee4d7afff586d8acf17649330 부터 3122d70b7c0101d897fb795658a7b93f854935f2 이전, 5cb8805d2366b20ee4d7afff586d8acf17649330 부터 da4f76b6a84ede14a71282ef841768299ead0221 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.16 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1682",
+    "date": "2026-07-21T17:23:44.166285+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-0770",
+    "title": "Langflow exec_globals 신뢰할 수 없는 제어 영역 기능 포함으로 인한 원격 코드 실행(RCE) 취약점",
+    "description": "validate 엔드포인트의 exec_globals 파라미터 처리 미흡으로 인해, 인증 없이 원격에서 임의의 코드를 실행할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.10371,
+    "is_kev": true,
+    "cwe": [
+      "CWE-829"
+    ],
+    "affected": [
+      {
+        "vendor": "Langflow",
+        "product": "Langflow",
+        "versions": "1.4.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1681",
+    "date": "2026-07-21T17:23:25.638722+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ez4rd1x1/CVE-2026-0770",
+      "https://github.com/diamorphine666/CVE-2026-0770"
+    ],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63030",
+    "title": "WordPress < 7.0.2 - REST API batch-route 혼동 및 SQL 인젝션을 통한 원격 코드 실행(RCE)",
+    "description": "REST API batch 엔드포인트의 경로 혼동 문제와 WP_Query SQL 인젝션 취약점이 결합되어, 원격 코드 실행이 가능할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.08946,
+    "is_kev": true,
+    "cwe": [
+      "CWE-436 Interpretation Conflict"
+    ],
+    "affected": [
+      {
+        "vendor": "WordPress",
+        "product": "WordPress",
+        "versions": "6.9.0 부터 6.9.5 이전, 7.0.0 부터 7.0.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1680",
+    "date": "2026-07-21T17:22:41.603611+00:00",
+    "rule_engines": [
+      "sigma",
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: WordPress Wp2shell REST Batch Endpoint Exploitation\nid: b8d5f301-2c49-4e6d-af83-4a5b6c7d8e9f\nstatus: experimental\ndescription: |\n    Detects exploitation attempts against the WordPress REST batch endpoint (CVE-2026-63030,\n    CVE-2026-60137) using the wp2shell PoC tool. The tool sends POST requests to the batch endpoint\n    via the ?rest_route=/batch/v1 query parameter, covering all attack phases from initial probe\n    through SQL injection and pre-auth admin creation. A 207 response confirms the endpoint is\n    active on the target.\nreferences:\n    - https://github.com/Icex0/wp2shell-poc\n    - https://slcyber.io/research-center/wp2shell-pre-authentication-rce-in-wordpress-core/\n    - https://wordpress.org/news/2026/07/wordpress-7-0-2-release/\nauthor: Swachchhanda Shrawan Poudel (Nextron Systems)\ndate: 2026-07-19\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - detection.emerging-threats\n    - cve.2026-63030\n    - cve.2026-60137\nlogsource:\n    category: webserver\ndetection:\n    selection:\n        cs-method: 'POST'\n        sc-status: 207\n        cs-uri-query|contains:\n            - 'rest_route=/batch/v1'\n            - 'rest_route=%2Fbatch%2Fv1'\n    condition: selection\nfalsepositives:\n    - WordPress CLI scripts or maintenance tooling invoking the batch endpoint via query parameter\nlevel: medium\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS WordPress Core wp2shell Remote Code Execution (CVE-2026-63030) M1\"; flow:established,to_server; content:\"/wp-json/batch/v1\"; http_uri; fast_pattern; content:\"|22|/wp/v2/\"; http_client_body; content:\"author_exclude|3d|\"; http_client_body; distance:0; pcre:\"/^[^&]*?(?:(?:S(?:HOW\\x20(?:C(?:UR(?:DAT|TIM)E|HARACTER\\x20SET)|(?:VARI|T)ABLES)|ELECT\\x20(?:FROM|USER|SLEEP|CASE))|U(?:NION\\x20SELEC|PDATE\\x20SE)T|DELETE\\x20FROM|INSERT\\x20INTO)|S(?:HOW.+(?:C(?:HARACTER.+SET|UR(DATE|TIME))|(?:VARI|T)ABLES)|ELECT.+(?:FROM|USER))|U(?:NION.+SELEC|PDATE.+SE)T|DELETE.+FROM|INSERT.+INTO|CASE.+WHEN|LIMIT.+CAST|WAITFOR\\x20DELAY|BENCHMARK\\x28|\\x2f\\*.+\\*\\x2f)/Ri\"; reference:url,wp2shell.com; reference:cve,2026-63030; classtype:web-application-attack; sid:2071233; rev:1; metadata:affected_product Wordpress, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_20, cve CVE_2026_63030, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET WEB_SPECIFIC_APPS WordPress Core wp2shell Remote Code Execution (CVE-2026-63030) M1\"; flow:established,to_server; http.uri; content:\"/wp-json/batch/v1\"; fast_pattern; http.request_body; content:\"|22|/wp/v2/\"; content:\"author_exclude|3d|\"; distance:0; pcre:\"/^[^&]*?(?:(?:S(?:HOW\\x20(?:C(?:UR(?:DAT|TIM)E|HARACTER\\x20SET)|(?:VARI|T)ABLES)|ELECT\\x20(?:FROM|USER|SLEEP|CASE))|U(?:NION\\x20SELEC|PDATE\\x20SE)T|DELETE\\x20FROM|INSERT\\x20INTO)|S(?:HOW.+(?:C(?:HARACTER.+SET|UR(DATE|TIME))|(?:VARI|T)ABLES)|ELECT.+(?:FROM|USER))|U(?:NION.+SELEC|PDATE.+SE)T|DELETE.+FROM|INSERT.+INTO|CASE.+WHEN|LIMIT.+CAST|WAITFOR\\x20DELAY|BENCHMARK\\x28|\\x2f\\*.+\\*\\x2f)/Ri\"; reference:url,wp2shell.com; reference:cve,2026-63030; classtype:web-application-attack; sid:2071233; rev:1; metadata:affected_product Wordpress, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_20, cve CVE_2026_63030, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET WEB_SPECIFIC_APPS WordPress Core wp2shell Remote Code Execution (CVE-2026-63030) M1\"; flow:established,to_server; http.uri; content:\"/wp-json/batch/v1\"; fast_pattern; http.request_body; content:\"|22|/wp/v2/\"; content:\"author_exclude|3d|\"; distance:0; pcre:\"/^[^&]*?(?:(?:S(?:HOW\\x20(?:C(?:UR(?:DAT|TIM)E|HARACTER\\x20SET)|(?:VARI|T)ABLES)|ELECT\\x20(?:FROM|USER|SLEEP|CASE))|U(?:NION\\x20SELEC|PDATE\\x20SE)T|DELETE\\x20FROM|INSERT\\x20INTO)|S(?:HOW.+(?:C(?:HARACTER.+SET|UR(DATE|TIME))|(?:VARI|T)ABLES)|ELECT.+(?:FROM|USER))|U(?:NION.+SELEC|PDATE.+SE)T|DELETE.+FROM|INSERT.+INTO|CASE.+WHEN|LIMIT.+CAST|WAITFOR\\x20DELAY|BENCHMARK\\x28|\\x2f\\*.+\\*\\x2f)/Ri\"; reference:url,wp2shell.com; reference:cve,2026-63030; classtype:web-application-attack; sid:2071233; rev:1; metadata:affected_product Wordpress, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_20, cve CVE_2026_63030, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Icex0/wp2shell-poc",
+      "https://github.com/attackercan/wp2shell-poc2",
+      "https://github.com/ZephrFish/wp2shell-scanner"
+    ],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-27137",
+    "title": "DD-WRT UPnP ssdp_msearch 버퍼 오버플로우 취약점",
+    "description": "UPnP 처리 기능의 안전하지 않은 strcpy 사용으로 인해, 인증되지 않은 원격 공격자가 내부 고정 버퍼를 오버플로우 시킬 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.05447,
+    "is_kev": true,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "DD-WRT",
+        "product": "DD-WRT",
+        "versions": "45724 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1679",
+    "date": "2026-07-21T17:22:41.157572+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert udp any any -> $HOME_NET 1900 (msg:\"ET EXPLOIT DD-WRT UPNP Unauthenticated Buffer Overflow (CVE-2021-27137)\"; content:\"M-SEARCH|20|\"; depth:9; content:\"|0d 0a|ST|3a|\"; nocase; fast_pattern; content:\"uuid|3a|\"; distance:0; within:6; pcre:\"/^[^\\r\\n]{128,}\\r\\n/R\"; reference:url,ssd-disclosure.com/ssd-advisory-dd-wrt-upnp-buffer-overflow/; reference:cve,2021-27137; classtype:attempted-admin; sid:2032326; rev:2; metadata:attack_target Networking_Equipment, created_at 2021_03_25, cve CVE_2021_27137, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_03_25;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert udp any any -> $HOME_NET 1900 (msg:\"ET EXPLOIT DD-WRT UPNP Unauthenticated Buffer Overflow (CVE-2021-27137)\"; content:\"M-SEARCH|20|\"; startswith; content:\"|0d 0a|ST|3a|\"; nocase; fast_pattern; content:\"uuid|3a|\"; distance:0; within:6; pcre:\"/^[^\\r\\n]{128,}\\r\\n/R\"; reference:url,ssd-disclosure.com/ssd-advisory-dd-wrt-upnp-buffer-overflow/; reference:cve,2021-27137; classtype:attempted-admin; sid:2032326; rev:1; metadata:attack_target Networking_Equipment, created_at 2021_03_25, cve CVE_2021_27137, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_03_25;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert udp any any -> $HOME_NET 1900 (msg:\"ET EXPLOIT DD-WRT UPNP Unauthenticated Buffer Overflow (CVE-2021-27137)\"; content:\"M-SEARCH|20|\"; startswith; content:\"|0d 0a|ST|3a|\"; nocase; fast_pattern; content:\"uuid|3a|\"; distance:0; within:6; pcre:\"/^[^\\r\\n]{128,}\\r\\n/R\"; reference:url,ssd-disclosure.com/ssd-advisory-dd-wrt-upnp-buffer-overflow/; reference:cve,2021-27137; classtype:attempted-admin; sid:2032326; rev:1; metadata:attack_target Networking_Equipment, created_at 2021_03_25, cve CVE_2021_27137, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_03_25;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/0day404/vulnerability-poc",
+      "https://github.com/ArrestX/--POC",
+      "https://github.com/KayCHENvip/vulnerability-poc"
+    ],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-60137",
+    "title": "WordPress < 7.0.2 - WP_Query의 author__not_in을 통한 SQL 인젝션",
+    "description": "WP_Query의 author__not_in 파라미터 검증 미흡으로 인해, 플러그인이나 테마가 신뢰할 수 없는 입력을 전달할 경우 SQL 인젝션이 발생할 수 있습니다.",
+    "cvss": 5.9,
+    "epss": 0.04026,
+    "is_kev": true,
+    "cwe": [
+      "CWE-89 SQL Injection"
+    ],
+    "affected": [
+      {
+        "vendor": "WordPress",
+        "product": "WordPress",
+        "versions": "6.8.0 부터 6.8.6 이전, 6.9.0 부터 6.9.5 이전, 7.0.0 부터 7.0.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1678",
+    "date": "2026-07-21T17:22:18.793506+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: WordPress Wp2shell REST Batch Endpoint Exploitation\nid: b8d5f301-2c49-4e6d-af83-4a5b6c7d8e9f\nstatus: experimental\ndescription: |\n    Detects exploitation attempts against the WordPress REST batch endpoint (CVE-2026-63030,\n    CVE-2026-60137) using the wp2shell PoC tool. The tool sends POST requests to the batch endpoint\n    via the ?rest_route=/batch/v1 query parameter, covering all attack phases from initial probe\n    through SQL injection and pre-auth admin creation. A 207 response confirms the endpoint is\n    active on the target.\nreferences:\n    - https://github.com/Icex0/wp2shell-poc\n    - https://slcyber.io/research-center/wp2shell-pre-authentication-rce-in-wordpress-core/\n    - https://wordpress.org/news/2026/07/wordpress-7-0-2-release/\nauthor: Swachchhanda Shrawan Poudel (Nextron Systems)\ndate: 2026-07-19\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - detection.emerging-threats\n    - cve.2026-63030\n    - cve.2026-60137\nlogsource:\n    category: webserver\ndetection:\n    selection:\n        cs-method: 'POST'\n        sc-status: 207\n        cs-uri-query|contains:\n            - 'rest_route=/batch/v1'\n            - 'rest_route=%2Fbatch%2Fv1'\n    condition: selection\nfalsepositives:\n    - WordPress CLI scripts or maintenance tooling invoking the batch endpoint via query parameter\nlevel: medium\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/h4cd0c/wp2shell",
+      "https://github.com/yoerivegt/wp2shell-poc",
+      "https://github.com/ebrasha/abdal-cve-2026-60137"
+    ],
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-64620",
+    "title": "FreeRDP 3.28.0 이전 버전의 crypto_rsa_common을 통한 Heap Buffer Overflow 취약점",
+    "description": "crypto_rsa_common 함수에서 경계 검사 전에 출력 버퍼에 데이터를 기록하여 Heap Buffer Overflow가 발생합니다.",
+    "cvss": 9.3,
+    "epss": 0.00578,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeRDP",
+        "product": "FreeRDP",
+        "versions": "3.28.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1607",
+    "date": "2026-07-20T13:55:42.8036+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-33217",
+    "title": "NATS의 MQTT 클라이언트 ACL 체크 우회 취약점",
+    "description": "$MQTT.> 네임스페이스에서 ACL이 적용되지 않아 MQTT 클라이언트가 ACL 체크를 우회할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00259,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "nats-io",
+        "product": "nats-server",
+        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:11.382001+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-24049",
+    "title": "wheel: Path Traversal을 통한 임의 파일 권한 수정 취약점",
+    "description": "wheel 0.40.0~0.46.1 버전의 unpack 함수에서 파일 권한 처리 미흡으로, 악성 wheel 파일을 통해 임의의 파일 권한을 수정할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00311,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "pypa",
+        "product": "wheel",
+        "versions": ">= 0.40.0, < 0.46.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:10.514157+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-46243",
+    "title": "smb: client: 유저스페이스 cifs.spnego 설명 거부",
+    "description": "Linux 커널의 `cifs.upcall`이 유저스페이스에서 `request_key(2)` 등으로 생성한 `cifs.spnego` 키 설명을 커널 생성 입력으로 오인하여 처리하는 문제를 수정했습니다.",
+    "cvss": 7.1,
+    "epss": 0.00353,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 7713bd320ed4fc3d08a227cd8e41242219a16981 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 9544559e59438a4b609b2fdfa0763d8360572824 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 cf20038657d6d4974349556a34e08fe0490bebbc 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 2035acfb17221729b1b8ac335e941868a04ca079 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 a3bbda6502a9398b816fa2e71c9a3f955f58013d 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 91f89c1d83e80417629791fcef6af8140d7d01c8 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 0aece6685fc80a8de492688ca2315fb86ec379c7 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 3da1fdf4efbc490041eb4f836bf596201203f8f2 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.24 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:09.598035+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42012",
+    "title": "Gnutls: URI 및 SRV SAN의 부적절한 처리로 인한 인증서 검증 우회",
+    "description": "특수하게 제작된 URI 또는 SRV SAN이 포함된 인증서를 통해 검증 프로세스를 우회하여 서비스를 스푸핑하거나 정보를 가로챌 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00354,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:08.758974+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-41567",
+    "title": "Docker: `PUT /containers/{id}/archive`를 통한 호스트 상의 컨테이너 바이너리 실행",
+    "description": "압축 아카이브 업로드 시 호스트가 아닌 컨테이너 파일시스템의 압축 해제 바이너리를 실행하여, 임의 코드 실행이 가능할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0.00154,
+    "is_kev": false,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "moby",
+        "product": "moby/v2/daemon",
+        "versions": "< 2.0.0-beta.14 (단일 버전)"
+      },
+      {
+        "vendor": "moby",
+        "product": "Docker Engine",
+        "versions": "< 29.5.1 (단일 버전)"
+      },
+      {
+        "vendor": "docker",
+        "product": "docker/daemon",
+        "versions": "<= 28.5.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:07.918197+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42043",
+    "title": "Axios: CVE-2025-62718의 불완전한 수정 — RFC 1122 루프백 서브넷(127.0.0.0/8)을 통한 NO_PROXY 보호 우회",
+    "description": "127.0.0.1 외의 127.0.0.0/8 범위 주소를 사용하여 NO_PROXY 보호 기능을 완전히 우회할 수 있는 취약점입니다.",
+    "cvss": 7.2,
+    "epss": 0.00661,
+    "is_kev": false,
+    "cwe": [
+      "CWE-183",
+      "CWE-441",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "axios",
+        "product": "axios",
+        "versions": ">= 1.0.0, < 1.15.1 (단일 버전), < 0.31.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:07.063842+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-27459",
+    "title": "pyOpenSSL DTLS 쿠키 콜백 버퍼 오버플로우",
+    "description": "set_cookie_generate_callback이 256바이트를 초과하는 쿠키 값을 반환할 경우 OpenSSL 버퍼 오버플로우가 발생합니다.",
+    "cvss": 7.2,
+    "epss": 0.00704,
+    "is_kev": false,
+    "cwe": [
+      "CWE-120"
+    ],
+    "affected": [
+      {
+        "vendor": "pyca",
+        "product": "pyopenssl",
+        "versions": ">= 22.0.0, < 26.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:06.198057+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-16247",
+    "title": "_connect.BRAIN 설치 중 LogPathConfig.exe 실행으로 인한 안전하지 않은 권한 덮어쓰기",
+    "description": "설치 과정에서 %ProgramData%의 기존 권한이 삭제되고 Everyone 그룹에 모든 권한이 부여되는 취약점이 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Bizerba SE & Co. KG",
+        "product": "_connect.BRAIN",
+        "versions": ">5.06 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:05.782051+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-12080",
+    "title": "Qemu-kvm: qemu-guest-agent: guest-ssh-add-authorized-keys의 symlink 공격을 통한 로컬 권한 상승",
+    "description": "QEMU Guest Agent의 guest-ssh-add-authorized-keys 핸들러에서 symlink 조작 취약점이 발견되었습니다. 이를 통해 로컬 사용자가 root 권한을 획득할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-61"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 6",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:04.903829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-16246",
+    "title": "설치 중 LogPathConfig.exe 실행으로 인한 안전하지 않은 권한 할당",
+    "description": "BRAIN2 3.09 이전 버전에서 설치 중 LogPathConfig.exe가 실행되어, Everyone 그룹에 %ProgramData% 폴더에 대한 전체 제어 권한이 잘못 부여됩니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Bizerba SE & Co. KG",
+        "product": "BRAIN2",
+        "versions": ">3.09 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T16:44:03.762271+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-64142",
     "title": "ksmbd: close durable scavenger와 m_fp_list 조회 간의 레이스 컨디션",
     "description": "ksmbd_durable_scavenger()와 f_ci->m_fp_list를 순회하는 프로세스 간의 레이스 컨디션 문제를 해결했습니다.",
@@ -5925,46 +6572,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-12080",
-    "title": "Qemu-kvm: qemu-guest-agent: guest-ssh-add-authorized-keys의 symlink 공격을 통한 로컬 권한 상승",
-    "description": "QEMU Guest Agent의 guest-ssh-add-authorized-keys 핸들러에서 symlink 조작 취약점이 발견되었습니다. 이를 통해 로컬 사용자가 root 권한을 획득할 수 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-61"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 6",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T16:03:54.430289+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-29063",
     "title": "Immutable.js: 객체 프로토타입 속성의 부적절한 제어로 인한 프로토타입 오염(Prototype Pollution)",
     "description": "Immutable.js의 mergeDeep(), Map.toJS() 등 특정 API를 통해 프로토타입 오염이 가능하며, 3.8.3, 4.3.7, 5.1.5 버전에서 수정되었습니다.",
@@ -6309,36 +6916,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-16247",
-    "title": "_connect.BRAIN 설치 중 LogPathConfig.exe 실행으로 인한 안전하지 않은 권한 덮어쓰기",
-    "description": "설치 과정에서 %ProgramData%의 기존 권한이 삭제되고 Everyone 그룹에 모든 권한이 부여되는 취약점이 있습니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "Bizerba SE & Co. KG",
-        "product": "_connect.BRAIN",
-        "versions": ">5.06 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:06.768035+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-57309",
     "title": "Windu CMS의 Blind SQL 인젝션",
     "description": "Windu CMS에서 Blind SQL 인젝션 취약점이 발견되었습니다. 원격의 인증되지 않은 공격자가 HTTP 헤더의 URL 경로에 SQL 구문을 주입할 수 있습니다.",
@@ -6524,41 +7101,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-46243",
-    "title": "smb: client: 유저스페이스 cifs.spnego 설명 거부",
-    "description": "Linux 커널의 `cifs.upcall`이 유저스페이스에서 `request_key(2)` 등으로 생성한 `cifs.spnego` 키 설명을 커널 생성 입력으로 오인하여 처리하는 문제를 수정했습니다.",
-    "cvss": 7.1,
-    "epss": 0.00353,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 7713bd320ed4fc3d08a227cd8e41242219a16981 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 9544559e59438a4b609b2fdfa0763d8360572824 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 cf20038657d6d4974349556a34e08fe0490bebbc 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 2035acfb17221729b1b8ac335e941868a04ca079 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 a3bbda6502a9398b816fa2e71c9a3f955f58013d 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 91f89c1d83e80417629791fcef6af8140d7d01c8 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 0aece6685fc80a8de492688ca2315fb86ec379c7 이전, f1d662a7d5e5322e583aad6b3cfec03d8f27b435 부터 3da1fdf4efbc490041eb4f836bf596201203f8f2 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.24 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:02.434313+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-44495",
     "title": "Axios: Config Merge의 Prototype Pollution Gadget을 통한 자격 증명 탈취 및 응답 하이재킹",
     "description": "Object.prototype.transformResponse가 오염된 경우, Axios가 이를 요청 설정이나 옵션 검증기로 처리하여 자격 증명 탈취 등이 가능할 수 있습니다.",
@@ -6578,38 +7120,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:57:01.28654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42043",
-    "title": "Axios: CVE-2025-62718의 불완전한 수정 — RFC 1122 루프백 서브넷(127.0.0.0/8)을 통한 NO_PROXY 보호 우회",
-    "description": "127.0.0.1 외의 127.0.0.0/8 범위 주소를 사용하여 NO_PROXY 보호 기능을 완전히 우회할 수 있는 취약점입니다.",
-    "cvss": 7.2,
-    "epss": 0.00661,
-    "is_kev": false,
-    "cwe": [
-      "CWE-183",
-      "CWE-441",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "axios",
-        "product": "axios",
-        "versions": ">= 1.0.0, < 1.15.1 (단일 버전), < 0.31.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:58.937191+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -6657,46 +7167,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-41567",
-    "title": "Docker: `PUT /containers/{id}/archive`를 통한 호스트 상의 컨테이너 바이너리 실행",
-    "description": "압축 아카이브 업로드 시 호스트가 아닌 컨테이너 파일시스템의 압축 해제 바이너리를 실행하여, 임의 코드 실행이 가능할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0.00154,
-    "is_kev": false,
-    "cwe": [
-      "CWE-427"
-    ],
-    "affected": [
-      {
-        "vendor": "moby",
-        "product": "moby/v2/daemon",
-        "versions": "< 2.0.0-beta.14 (단일 버전)"
-      },
-      {
-        "vendor": "moby",
-        "product": "Docker Engine",
-        "versions": "< 29.5.1 (단일 버전)"
-      },
-      {
-        "vendor": "docker",
-        "product": "docker/daemon",
-        "versions": "<= 28.5.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:55.000075+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-64621",
     "title": "FreeRDP 3.28.0 이전 버전의 selectedmonitors를 통한 Double-Free 취약점",
     "description": ".rdp 연결 파일의 selectedmonitors 필드를 파싱할 때 Double-Free 취약점이 발생합니다.\n잘못된 메모리 해제로 인해 동일한 버퍼가 다시 해제될 수 있습니다.",
@@ -6730,167 +7200,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-33217",
-    "title": "NATS의 MQTT 클라이언트 ACL 체크 우회 취약점",
-    "description": "$MQTT.> 네임스페이스에서 ACL이 적용되지 않아 MQTT 클라이언트가 ACL 체크를 우회할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.00259,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "nats-io",
-        "product": "nats-server",
-        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:42.079395+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-27459",
-    "title": "pyOpenSSL DTLS 쿠키 콜백 버퍼 오버플로우",
-    "description": "set_cookie_generate_callback이 256바이트를 초과하는 쿠키 값을 반환할 경우 OpenSSL 버퍼 오버플로우가 발생합니다.",
-    "cvss": 7.2,
-    "epss": 0.00704,
-    "is_kev": false,
-    "cwe": [
-      "CWE-120"
-    ],
-    "affected": [
-      {
-        "vendor": "pyca",
-        "product": "pyopenssl",
-        "versions": ">= 22.0.0, < 26.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:37.43468+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-24049",
-    "title": "wheel: Path Traversal을 통한 임의 파일 권한 수정 취약점",
-    "description": "wheel 0.40.0~0.46.1 버전의 unpack 함수에서 파일 권한 처리 미흡으로, 악성 wheel 파일을 통해 임의의 파일 권한을 수정할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.00311,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22",
-      "CWE-732"
-    ],
-    "affected": [
-      {
-        "vendor": "pypa",
-        "product": "wheel",
-        "versions": ">= 0.40.0, < 0.46.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:34.17372+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-16246",
-    "title": "설치 중 LogPathConfig.exe 실행으로 인한 안전하지 않은 권한 할당",
-    "description": "BRAIN2 3.09 이전 버전에서 설치 중 LogPathConfig.exe가 실행되어, Everyone 그룹에 %ProgramData% 폴더에 대한 전체 제어 권한이 잘못 부여됩니다.",
-    "cvss": 7.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-276"
-    ],
-    "affected": [
-      {
-        "vendor": "Bizerba SE & Co. KG",
-        "product": "BRAIN2",
-        "versions": ">3.09 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:32.021606+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42012",
-    "title": "Gnutls: URI 및 SRV SAN의 부적절한 처리로 인한 인증서 검증 우회",
-    "description": "특수하게 제작된 URI 또는 SRV SAN이 포함된 인증서를 통해 검증 프로세스를 우회하여 서비스를 스푸핑하거나 정보를 가로챌 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0.00354,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:25.888148+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-4601",
@@ -6959,41 +7268,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-64620",
-    "title": "FreeRDP 3.28.0 이전 버전의 crypto_rsa_common을 통한 Heap Buffer Overflow 취약점",
-    "description": "crypto_rsa_common 함수에서 경계 검사 전에 출력 버퍼에 데이터를 기록하여 Heap Buffer Overflow가 발생합니다.",
-    "cvss": 9.3,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "FreeRDP",
-        "product": "FreeRDP",
-        "versions": "3.28.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1607",
-    "date": "2026-07-20T13:55:42.8036+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
