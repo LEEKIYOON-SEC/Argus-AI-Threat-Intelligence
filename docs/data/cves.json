@@ -1,5 +1,584 @@
 [
   {
+    "id": "CVE-2026-64142",
+    "title": "ksmbd: close durable scavenger와 m_fp_list 조회 간의 레이스 컨디션",
+    "description": "ksmbd_durable_scavenger()와 f_ci->m_fp_list를 순회하는 프로세스 간의 레이스 컨디션 문제를 해결했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7f0cb478703cbeaddfe5c9101c5c73cd975d1073 부터 3a436932eb397e909d0607d76a8325abd9d85a35 이전, d484d621d40f4a8b8959008802d79bef3609641b 부터 95f072ef934ca00711d510676b8792cbf59a5aae 이전, d484d621d40f4a8b8959008802d79bef3609641b 부터 5da69a65b282d2276de22e5194ba0f88c836170c 이전, d484d621d40f4a8b8959008802d79bef3609641b 부터 1f8f3246d55f89350a1a67bdf3744b7241048e4e 이전, d484d621d40f4a8b8959008802d79bef3609641b 부터 bf736184d063da1a552ffeff0481813599a182cc 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1677",
+    "date": "2026-07-21T15:05:45.893563+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64160",
+    "title": "netfs: ->remote_i_size 및 ->zero_point의 티어링(tearing) 가능성 수정",
+    "description": "i_size_read() 및 i_size_write()를 복사하고 동일한 seqcount를 사용하여 데이터 티어링 현상을 방지합니다.",
+    "cvss": 9.8,
+    "epss": 0.00407,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4058f742105ecfcbdf99e1139e6c1f74fb8e6db9 부터 55970f238d495517edc961d55c44c772594d0969 이전, 4058f742105ecfcbdf99e1139e6c1f74fb8e6db9 부터 2c8f4742bb76117d735f92a3932d85239b16c494 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.18 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1676",
+    "date": "2026-07-21T15:05:02.647069+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64150",
+    "title": "netfilter: nft_inner: softirqs 재활성화 전 local_lock 해제",
+    "description": "오류 경로에서 local_unlock_nested_bh()보다 local_bh_enable()이 먼저 호출되는 순서 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00448,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ba36fada9ab487634f61f92769c95bc148aa8f49 부터 df19b6af171695a1352314597c9a4311d48d5171 이전, ba36fada9ab487634f61f92769c95bc148aa8f49 부터 6fecd39c6401134b58505bc4eb1adc8a0e2fe992 이전, ba36fada9ab487634f61f92769c95bc148aa8f49 부터 a6cb3ff979855f7f0ee9450a947fe8f96c2ba37a 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.16 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1675",
+    "date": "2026-07-21T15:05:02.416478+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64125",
+    "title": "net: bcmgenet: RBUF EEE/PM 비활성화 상태 유지",
+    "description": "MAC EEE가 활성화될 때 RBUF_ENERGY_CTRL 설정으로 인해 GENET 하드웨어의 RX 경로가 중단되는 문제를 해결했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00559,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 2040eb83f6ada148fb32dd98b943a498005d79f2 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 f2782ddac82c70df313012da5f71f1f06b5553ca 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 b579f3a73da7a7e74213558f4cc3d865c30aaa78 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 289499907399c5a9f2ed82cb34df49112bb8488f 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 a212fc08f5c48a16a94092bf0a9a8b7cf4483b11 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 3d4ef05266ab16d8ef7dd21658a557801eb78704 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 49bdf6bbb21b9c6e3f4d0c1910bf0ef98424be95 이전, 6ef398ea60d931b97d69ed080bd0bd00fac38ec6 부터 9a1730245e416d11ad5c0f2c100061d61cc43f60 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.19 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1673",
+    "date": "2026-07-21T15:04:17.67784+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64132",
+    "title": "ipv6: ioam: ioam6_event() 호출 전 hdr 포인터 갱신",
+    "description": "skb_ensure_writable() 호출 시 버퍼가 재할당되어 hdr 포인터가 변경될 수 있는 문제를 해결하기 위해 포인터를 갱신합니다.",
+    "cvss": 9.8,
+    "epss": 0.00497,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "f655c78d6225f585ef60a9d93ffb79d507ff3ad3 부터 769723124b7c3b2bfea4cf68ad292698b87c8d01 이전, f655c78d6225f585ef60a9d93ffb79d507ff3ad3 부터 24de676da63c1122d2c13b0d546238b66d1b4e62 이전, f655c78d6225f585ef60a9d93ffb79d507ff3ad3 부터 5af905aa8e91ff8d94572a1e089558f21dcf24ed 이전, f655c78d6225f585ef60a9d93ffb79d507ff3ad3 부터 e46e6bc97fb1f339730ff1ba74267fbf48e7a422 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.9 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1674",
+    "date": "2026-07-21T15:04:17.661524+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64136",
+    "title": "smb: client: smb2_find_smb_sess_tcon_unlocked() 내 tc_count 증가 시 보호 조치 추가",
+    "description": "smb2_find_smb_sess_tcon_unlocked() 함수 내에서 tc_count 증가 시 락(lock)이 누락된 문제 수정.",
+    "cvss": 9.8,
+    "epss": 0.00497,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "953953abb66e52c224057ab91e404284fefeab62 부터 7df1df6f40c0720d30206aa35c0343b962350e0d 이전, 601dd3b79769b38d30b693c40afdb2a4b7edf9d0 부터 13fb413ae22a37c69341918a6d651d19a9b0b9b7 이전, 3969db6b22e3d90d8c5f22ac1a7fe0350a94c136 부터 bf4ebdb19ff9b3cdf992b50715fe61633327416a 이전, 96c4af418586ee9a6aab61738644366426e05316 부터 e374f4e496fef8168784f93a4477d67be34485fd 이전, 96c4af418586ee9a6aab61738644366426e05316 부터 4d8690dace005a38e6dbde9ecce2da3ad85c7c41 이전, 8c59eeeeffa1524ef57e173a89a1a3ff539888d5 (단일 버전), 6.6.128 부터 6.6.142 이전, 6.12.75 부터 6.12.92 이전, 6.18.16 부터 6.18.34 이전, 6.19.6 부터 6.20 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1672",
+    "date": "2026-07-21T15:04:17.642462+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64122",
+    "title": "net/mlx5e: mlx5e_tx_reporter_timeout_recover의 use-after-free 수정",
+    "description": "mlx5e_safe_reopen_channels()가 채널을 해제한 후 sq->netdev에 접근하는 문제를 수정했습니다.\npriv->netdev를 사용하여 안전하게 접근하도록 변경했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00467,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4329514c61abefe4961541b128c549b017bab5ad 부터 1604a2d68414aa4cc34faac0b7faa9c14455e8d3 이전, 83ac0304a2d77519dae1e54c9713cbe1aedf19c9 부터 152295aa7dc2c5e046606f7dadc84fce41136446 이전, 83ac0304a2d77519dae1e54c9713cbe1aedf19c9 부터 7d260c5d2d89eb2c8c528d54b576b3aae3e20231 이전, 63f9d5fb4d8040077df801ca3270e2f02d55e0d9 (단일 버전), 6.18.14 부터 6.18.34 이전, 6.19.4 부터 6.20 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1671",
+    "date": "2026-07-21T15:04:17.408922+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-44185",
+    "title": "Apache HTTP Server: mod_ssl OCSP send_request의 스택 버퍼 오버리드",
+    "description": "공격자가 제어하는 OCSP 서버로의 요청 과정에서 발생하는 버퍼 오버리드 취약점입니다.",
+    "cvss": 7.3,
+    "epss": 0.00598,
+    "is_kev": false,
+    "cwe": [
+      "CWE-126"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache HTTP Server",
+        "versions": "2.4.0 부터 2.4.67 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:40.058984+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-43869",
+    "title": "Apache Thrift: TSSLTransportFactory.java 호스트네임 검증",
+    "description": "호스트 불일치 시 인증서 검증이 부적절하게 이루어지는 취약점입니다.",
+    "cvss": 7.3,
+    "epss": 0.00632,
+    "is_kev": false,
+    "cwe": [
+      "CWE-297"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Thrift",
+        "versions": "0.23.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:39.454096+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-41605",
+    "title": "Apache Thrift: Swift Compact Protocol 정수 오버플로우",
+    "description": "Apache Thrift의 Swift Compact Protocol에서 정수 오버플로우(Integer Overflow) 취약점이 발생합니다.",
+    "cvss": 7.3,
+    "epss": 0.0093,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Thrift",
+        "versions": "0.23.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:38.97319+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-48526",
+    "title": "PyJWT: 공개키 JWK를 HMAC 비밀키로 허용하여 HS256 토큰 위조 가능",
+    "description": "비대칭 및 HMAC 알고리즘을 모두 지원할 때 JWK 검증 미흡으로 공개키를 HMAC 비밀키로 사용하여 토큰을 위조할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00394,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287",
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "jpadilla",
+        "product": "pyjwt",
+        "versions": "< 2.13.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:38.454184+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-33247",
+    "title": "NATS의 커맨드라인 argv를 통한 모니터링 포트 내 자격 증명 노출 취약점",
+    "description": "/debug/vars 엔드포인트를 통해 커맨드라인 인자로 전달된 정적 자격 증명이 노출될 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00414,
+    "is_kev": false,
+    "cwe": [
+      "CWE-215"
+    ],
+    "affected": [
+      {
+        "vendor": "nats-io",
+        "product": "nats-server",
+        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:37.217823+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42011",
+    "title": "Gnutls: 잘못된 이름 제약 조건 처리로 인한 보안 우회",
+    "description": "이름 제약 조건 처리 오류로 인증서 검증 시 보안 우회가 가능하며, 스푸핑이나 Man-in-the-Middle 공격으로 이어질 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00475,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:36.375011+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-5795",
+    "title": "Eclipse Jetty JASPIAuthenticator 권한 상승 취약점",
+    "description": "JASPIAuthenticator가 ThreadLocal 변수를 제대로 제거하지 않아 후속 요청에서 이를 상속받아 액세스 제어 우회 및 권한 상승이 가능합니다.",
+    "cvss": 7.4,
+    "epss": 0.00529,
+    "is_kev": false,
+    "cwe": [
+      "CWE-226",
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "Eclipse Foundation",
+        "product": "Eclipse Jetty",
+        "versions": "12.1.0 부터 12.1.7 이하, 12.0.0 부터 12.0.33 이하, 11.0.0 부터 11.0.28 이하, 10.0.0 부터 10.0.28 이하, 9.4.0 부터 9.4.60 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:35.912837+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-41603",
+    "title": "Apache Thrift: Java TSSLTransportFactory 호스트네임 검증",
+    "description": "Apache Thrift에서 호스트 불일치 인증서에 대한 부적절한 검증 취약점이 발생합니다.",
+    "cvss": 7.4,
+    "epss": 0.00571,
+    "is_kev": false,
+    "cwe": [
+      "CWE-297",
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Thrift",
+        "versions": "0.23.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:35.385551+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42264",
+    "title": "Axios: HTTP 어댑터의 Prototype Pollution 읽기 측 가젯을 통한 자격 증명 인젝션 및 요청 하이재킹",
+    "description": "HTTP 어댑터의 특정 설정 속성들이 hasOwnProperty 검사 없이 읽혀, Object.prototype 오염 시 모든 외부 HTTP 요청에 오염된 값이 적용될 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00715,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "axios",
+        "product": "axios",
+        "versions": ">= 1.0.0, < 1.15.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:34.845832+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-42033",
+    "title": "Axios: Prototype Pollution 가젯 - 응답 변조, 데이터 유출 및 요청 하이재킹",
+    "description": "Object.prototype 오염 시, 공격자가 JSON 응답을 가로채어 수정하거나 HTTP 전송 계층을 하이재킹하여 자격 증명 및 헤더에 접근할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00808,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1321"
+    ],
+    "affected": [
+      {
+        "vendor": "axios",
+        "product": "axios",
+        "versions": ">= 1.0.0, < 1.15.1 (단일 버전), < 0.31.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-21T14:25:33.827977+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-64113",
     "title": "ixgbevf: VEPA 멀티캐스트 소스 프루닝의 use-after-free 수정",
     "description": "ixgbevf_clean_rx_irq()에서 skb를 해제한 후 루프를 계속할 때, 포인터가 초기화되지 않아 use-after-free가 발생할 수 있는 문제를 수정했습니다.",
@@ -5945,68 +6524,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-5795",
-    "title": "Eclipse Jetty JASPIAuthenticator 권한 상승 취약점",
-    "description": "JASPIAuthenticator가 ThreadLocal 변수를 제대로 제거하지 않아 후속 요청에서 이를 상속받아 액세스 제어 우회 및 권한 상승이 가능합니다.",
-    "cvss": 7.4,
-    "epss": 0.00529,
-    "is_kev": false,
-    "cwe": [
-      "CWE-226",
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "Eclipse Foundation",
-        "product": "Eclipse Jetty",
-        "versions": "12.1.0 부터 12.1.7 이하, 12.0.0 부터 12.0.33 이하, 11.0.0 부터 11.0.28 이하, 10.0.0 부터 10.0.28 이하, 9.4.0 부터 9.4.60 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:04.191029+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-48526",
-    "title": "PyJWT: 공개키 JWK를 HMAC 비밀키로 허용하여 HS256 토큰 위조 가능",
-    "description": "비대칭 및 HMAC 알고리즘을 모두 지원할 때 JWK 검증 미흡으로 공개키를 HMAC 비밀키로 사용하여 토큰을 위조할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00394,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287",
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "jpadilla",
-        "product": "pyjwt",
-        "versions": "< 2.13.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:03.050802+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-46243",
     "title": "smb: client: 유저스페이스 cifs.spnego 설명 거부",
     "description": "Linux 커널의 `cifs.upcall`이 유저스페이스에서 `request_key(2)` 등으로 생성한 `cifs.spnego` 키 설명을 커널 생성 입력으로 오인하여 처리하는 문제를 수정했습니다.",
@@ -6061,96 +6578,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:57:01.28654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-43869",
-    "title": "Apache Thrift: TSSLTransportFactory.java 호스트네임 검증",
-    "description": "호스트 불일치 시 인증서 검증이 부적절하게 이루어지는 취약점입니다.",
-    "cvss": 7.3,
-    "epss": 0.00632,
-    "is_kev": false,
-    "cwe": [
-      "CWE-297"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Thrift",
-        "versions": "0.23.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:00.539556+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-44185",
-    "title": "Apache HTTP Server: mod_ssl OCSP send_request의 스택 버퍼 오버리드",
-    "description": "공격자가 제어하는 OCSP 서버로의 요청 과정에서 발생하는 버퍼 오버리드 취약점입니다.",
-    "cvss": 7.3,
-    "epss": 0.00598,
-    "is_kev": false,
-    "cwe": [
-      "CWE-126"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache HTTP Server",
-        "versions": "2.4.0 부터 2.4.67 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:57:00.278536+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42264",
-    "title": "Axios: HTTP 어댑터의 Prototype Pollution 읽기 측 가젯을 통한 자격 증명 인젝션 및 요청 하이재킹",
-    "description": "HTTP 어댑터의 특정 설정 속성들이 hasOwnProperty 검사 없이 읽혀, Object.prototype 오염 시 모든 외부 HTTP 요청에 오염된 값이 적용될 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00715,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1321"
-    ],
-    "affected": [
-      {
-        "vendor": "axios",
-        "product": "axios",
-        "versions": ">= 1.0.0, < 1.15.2 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:59.628089+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -6230,97 +6657,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-42033",
-    "title": "Axios: Prototype Pollution 가젯 - 응답 변조, 데이터 유출 및 요청 하이재킹",
-    "description": "Object.prototype 오염 시, 공격자가 JSON 응답을 가로채어 수정하거나 HTTP 전송 계층을 하이재킹하여 자격 증명 및 헤더에 접근할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00808,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1321"
-    ],
-    "affected": [
-      {
-        "vendor": "axios",
-        "product": "axios",
-        "versions": ">= 1.0.0, < 1.15.1 (단일 버전), < 0.31.1 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:56.967343+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-41605",
-    "title": "Apache Thrift: Swift Compact Protocol 정수 오버플로우",
-    "description": "Apache Thrift의 Swift Compact Protocol에서 정수 오버플로우(Integer Overflow) 취약점이 발생합니다.",
-    "cvss": 7.3,
-    "epss": 0.0093,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Thrift",
-        "versions": "0.23.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:56.333045+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-41603",
-    "title": "Apache Thrift: Java TSSLTransportFactory 호스트네임 검증",
-    "description": "Apache Thrift에서 호스트 불일치 인증서에 대한 부적절한 검증 취약점이 발생합니다.",
-    "cvss": 7.4,
-    "epss": 0.00571,
-    "is_kev": false,
-    "cwe": [
-      "CWE-297",
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache Thrift",
-        "versions": "0.23.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:55.660916+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-41567",
     "title": "Docker: `PUT /containers/{id}/archive`를 통한 호스트 상의 컨테이너 바이너리 실행",
     "description": "압축 아카이브 업로드 시 호스트가 아닌 컨테이너 파일시스템의 압축 해제 바이너리를 실행하여, 임의 코드 실행이 가능할 수 있습니다.",
@@ -6394,36 +6730,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-33247",
-    "title": "NATS의 커맨드라인 argv를 통한 모니터링 포트 내 자격 증명 노출 취약점",
-    "description": "/debug/vars 엔드포인트를 통해 커맨드라인 인자로 전달된 정적 자격 증명이 노출될 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00414,
-    "is_kev": false,
-    "cwe": [
-      "CWE-215"
-    ],
-    "affected": [
-      {
-        "vendor": "nats-io",
-        "product": "nats-server",
-        "versions": "< 2.11.15 (단일 버전), >= 2.12.0-RC.1, < 2.12.6 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:42.563943+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-33217",
@@ -6575,46 +6881,6 @@
     ],
     "report_url": null,
     "date": "2026-07-20T13:56:25.888148+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-42011",
-    "title": "Gnutls: 잘못된 이름 제약 조건 처리로 인한 보안 우회",
-    "description": "이름 제약 조건 처리 오류로 인증서 검증 시 보안 우회가 가능하며, 스푸핑이나 Man-in-the-Middle 공격으로 이어질 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00475,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10.0 Extended Update Support",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T13:56:25.658583+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
