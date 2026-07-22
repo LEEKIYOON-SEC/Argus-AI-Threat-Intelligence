@@ -185,6 +185,54 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
         return True, "All Assets (*)", "wildcard"
     return False, None, None
 
+def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
+                                    deadline_ts: float) -> None:
+    """이월(백로그) 대기열의 심각도 분포를 표본 추출로 추정해 로그로 남긴다 (관측 전용).
+
+    이월분은 레코드를 아직 받지 않아 정확한 분류가 불가 — 표본 N건만 raw JSON
+    (peek_cvss, API 한도 미소모)으로 레코드 CVSS(CNA→CISA-ADP)를 읽어 전체로 외삽한다.
+    실제 처리 시의 티어(KEV/EPSS/Metasploit/SSVC 신호 반영)와는 다를 수 있는 참고 추정치.
+    KEV 해당 건수는 메모리 세트 조회라 전수 집계. 실패 시 조용히 생략 — 파이프라인 무영향.
+    """
+    sample_n = config.PERFORMANCE.get("deferred_severity_sample", 80)
+    if sample_n <= 0 or not deferred:
+        return
+    if time.time() > deadline_ts - 120:  # 시간 예산 임박 → 관측은 생략하고 본 처리에 양보
+        return
+    try:
+        ids = [c['cve_id'] for c in deferred]
+        kev_cnt = sum(1 for i in ids if i in collector.kev_set)
+        # 균등 간격 표본 — 커밋시각 순 정렬이므로 기간 전체를 고르게 커버한다
+        step = max(1, len(ids) // sample_n)
+        sample = ids[::step][:sample_n]
+        buckets = {"critical": 0, "high": 0, "medium": 0, "low": 0, "unknown": 0}
+        with ThreadPoolExecutor(max_workers=config.PERFORMANCE["max_workers"]) as ex:
+            for score in ex.map(collector.peek_cvss, sample):
+                if not score:
+                    buckets["unknown"] += 1
+                elif score >= 9.0:
+                    buckets["critical"] += 1
+                elif score >= 7.0:
+                    buckets["high"] += 1
+                elif score >= 4.0:
+                    buckets["medium"] += 1
+                else:
+                    buckets["low"] += 1
+        n, total = len(sample), len(ids)
+
+        def fmt(key: str) -> str:
+            return f"~{round(total * buckets[key] / n)}건({buckets[key] / n * 100:.0f}%)"
+
+        kev_note = f" · KEV {kev_cnt}건(전수)" if kev_cnt else ""
+        logger.info(
+            f"📊 이월 {total}건 심각도 추정(표본 {n}건, 레코드 CVSS 기준): "
+            f"Critical {fmt('critical')} / High {fmt('high')} / Medium {fmt('medium')} / "
+            f"Low {fmt('low')} / 점수미상 {fmt('unknown')}{kev_note}"
+        )
+    except Exception as e:
+        logger.debug(f"이월 심각도 추정 생략: {e}")
+
+
 def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
     """최근 N일 내 KEV 등재분 중 DB에 없고 이번 처리분에도 없는 CVE 목록 (gap-filler).
 
@@ -1227,6 +1275,9 @@ def _main():
     deferred = new_items[max_per_run:]
     if deferred:
         logger.warning(f"신규 {len(new_items)}건 중 {len(to_process)}건 처리, {len(deferred)}건 다음 실행으로 이월(워터마크 뒤에 보존)")
+        # 이월분의 심각도 분포를 표본으로 추정해 남긴다 — Medium/Low가 대부분이면
+        # (비자산은 마커, 에스컬레이션 승격 시 재알림) 백로그를 기다려도 안전함을 즉시 확인.
+        _log_deferred_severity_estimate(deferred, collector, soft_deadline_ts)
 
     target_cve_ids = [c['cve_id'] for c in to_process]
 
