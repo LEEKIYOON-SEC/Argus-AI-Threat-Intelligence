@@ -5,7 +5,7 @@ import datetime
 import time
 import requests
 import pytz
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
 from typing import Dict, List, Tuple, Optional
 from google import genai
 from google.genai import types
@@ -185,6 +185,54 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
         return True, "All Assets (*)", "wildcard"
     return False, None, None
 
+def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
+                                    deadline_ts: float) -> None:
+    """이월(백로그) 대기열의 심각도 분포를 표본 추출로 추정해 로그로 남긴다 (관측 전용).
+
+    이월분은 레코드를 아직 받지 않아 정확한 분류가 불가 — 표본 N건만 raw JSON
+    (peek_cvss, API 한도 미소모)으로 레코드 CVSS(CNA→CISA-ADP)를 읽어 전체로 외삽한다.
+    실제 처리 시의 티어(KEV/EPSS/Metasploit/SSVC 신호 반영)와는 다를 수 있는 참고 추정치.
+    KEV 해당 건수는 메모리 세트 조회라 전수 집계. 실패 시 조용히 생략 — 파이프라인 무영향.
+    """
+    sample_n = config.PERFORMANCE.get("deferred_severity_sample", 80)
+    if sample_n <= 0 or not deferred:
+        return
+    if time.time() > deadline_ts - 120:  # 시간 예산 임박 → 관측은 생략하고 본 처리에 양보
+        return
+    try:
+        ids = [c['cve_id'] for c in deferred]
+        kev_cnt = sum(1 for i in ids if i in collector.kev_set)
+        # 균등 간격 표본 — 커밋시각 순 정렬이므로 기간 전체를 고르게 커버한다
+        step = max(1, len(ids) // sample_n)
+        sample = ids[::step][:sample_n]
+        buckets = {"critical": 0, "high": 0, "medium": 0, "low": 0, "unknown": 0}
+        with ThreadPoolExecutor(max_workers=config.PERFORMANCE["max_workers"]) as ex:
+            for score in ex.map(collector.peek_cvss, sample):
+                if not score:
+                    buckets["unknown"] += 1
+                elif score >= 9.0:
+                    buckets["critical"] += 1
+                elif score >= 7.0:
+                    buckets["high"] += 1
+                elif score >= 4.0:
+                    buckets["medium"] += 1
+                else:
+                    buckets["low"] += 1
+        n, total = len(sample), len(ids)
+
+        def fmt(key: str) -> str:
+            return f"~{round(total * buckets[key] / n)}건({buckets[key] / n * 100:.0f}%)"
+
+        kev_note = f" · KEV {kev_cnt}건(전수)" if kev_cnt else ""
+        logger.info(
+            f"📊 이월 {total}건 심각도 추정(표본 {n}건, 레코드 CVSS 기준): "
+            f"Critical {fmt('critical')} / High {fmt('high')} / Medium {fmt('medium')} / "
+            f"Low {fmt('low')} / 점수미상 {fmt('unknown')}{kev_note}"
+        )
+    except Exception as e:
+        logger.debug(f"이월 심각도 추정 생략: {e}")
+
+
 def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
     """최근 N일 내 KEV 등재분 중 DB에 없고 이번 처리분에도 없는 CVE 목록 (gap-filler).
 
@@ -313,6 +361,10 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
     results: Dict[str, Tuple[str, str]] = {}
     if not items:
         return results
+
+    # 알림 대상(Critical/자산High)을 앞 청크로 — 시간 예산에 걸려 잔여가 영문 폴백되더라도
+    # Issue/Slack에 나가는 핵심 건은 항상 한국어 번역을 확보한다.
+    items = sorted(items, key=lambda it: 0 if it['id'] in high_risk_ids else 1)
 
     batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     total_chunks = (len(items) + batch_size - 1) // batch_size
@@ -1223,6 +1275,9 @@ def _main():
     deferred = new_items[max_per_run:]
     if deferred:
         logger.warning(f"신규 {len(new_items)}건 중 {len(to_process)}건 처리, {len(deferred)}건 다음 실행으로 이월(워터마크 뒤에 보존)")
+        # 이월분의 심각도 분포를 표본으로 추정해 남긴다 — Medium/Low가 대부분이면
+        # (비자산은 마커, 에스컬레이션 승격 시 재알림) 백로그를 기다려도 안전함을 즉시 확인.
+        _log_deferred_severity_estimate(deferred, collector, soft_deadline_ts)
 
     target_cve_ids = [c['cve_id'] for c in to_process]
 
@@ -1285,12 +1340,15 @@ def _main():
         logger.warning(f"⏰ 시간 예산 도달 — 준비된 {len(prepared)}건 포함 잔여분 다음 실행으로")
         prepared = []
     else:
-        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치)) — 시간 예산 전달(초과 시 영문 폴백)
+        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치)) — 데드라인을 Phase C 예약분만큼
+        # 앞당겨 전달. 번역이 전체 예산을 소진하면 Phase C(Issue·Slack·저장)가 0초로 시작해
+        # Critical 알림까지 통째로 다음 실행으로 밀리는 기아가 발생했던 것의 방지책.
         tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
                      "description": p["current_state"]["description"]} for p in prepared]
         high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
+        phase_c_reserve = config.PERFORMANCE.get("phase_c_reserve_minutes", 8) * 60
         translations = generate_korean_summaries_batch(tr_items, high_risk_ids,
-                                                       deadline_ts=soft_deadline_ts)
+                                                       deadline_ts=soft_deadline_ts - phase_c_reserve)
 
         # Phase C: 완성 — Issue/Slack/저장 (병렬).
         # 고위험(알림 대상)을 먼저 제출해 데드라인이 닥쳐도 핵심 알림부터 완료되게 한다.
@@ -1304,12 +1362,33 @@ def _main():
             for future in as_completed(futures):
                 if _over_deadline():
                     executor.shutdown(wait=False, cancel_futures=True)
-                    logger.warning("⏰ 시간 예산 도달 — Phase C 잔여 취소 (다음 실행에서 재처리)")
+                    logger.warning("⏰ 시간 예산 도달 — Phase C 미시작 잔여 취소 (실행 중 건은 완료 후 기록)")
                     break
                 cid = futures[future]
                 try:
                     result = future.result() or {}
                     status_by_id[cid] = result.get("status", "failed")
+                except Exception as e:
+                    logger.error(f"{cid} 처리 중 예외 발생: {e}")
+                    status_by_id[cid] = "failed"
+
+            # 드레인: 데드라인 break 후에도 '이미 실행 중'인 건은 취소 불가 → 완료를 기다려
+            # 실제 결과를 기록한다. (기존엔 Issue/DB 저장까지 끝난 건도 안전망이 failed로
+            # 오기록 → "알림 0건" 오표기 + 다음 실행 불필요 재수집. with 종료가 어차피
+            # 실행 중 스레드를 join하므로 추가 대기 비용은 없음.)
+            # 주의: as_completed 루프로 드레인하면 안 됨 — shutdown(cancel_futures=True)의
+            # cancel()은 waiter를 깨우지 않아 루프가 영원히 블록된다(검증됨).
+            for future, cid in futures.items():
+                if cid in status_by_id:
+                    continue  # 루프에서 이미 기록됨
+                if future.cancelled():
+                    status_by_id[cid] = "failed"  # 미시작 취소분 → 워터마크가 붙잡아 재처리
+                    continue
+                try:
+                    result = future.result() or {}
+                    status_by_id[cid] = result.get("status", "failed")
+                except CancelledError:
+                    status_by_id[cid] = "failed"
                 except Exception as e:
                     logger.error(f"{cid} 처리 중 예외 발생: {e}")
                     status_by_id[cid] = "failed"

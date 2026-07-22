@@ -189,6 +189,33 @@ class Collector:
             logger.debug(f"{cve_id} raw JSON 조회 실패: {e}")
             return None
 
+    def peek_cvss(self, cve_id: str) -> Optional[float]:
+        """레코드의 CVSS 점수만 경량 조회 — 이월(백로그) 대기열 심각도 추정용.
+
+        raw JSON(_fetch_raw_cve_json, API 한도 미소모)에서 CNA metrics 우선,
+        없으면 CISA-ADP 보강 점수를 읽는다. enrich_cve()와 달리 NVD/EPSS 등
+        외부 API 호출·부수효과 없음. 실패 또는 점수 없음 → None.
+        """
+        try:
+            raw = self._fetch_raw_cve_json(cve_id)
+            if not raw:
+                return None
+            containers = raw.get('containers', {}) or {}
+            metric_lists = [(containers.get('cna', {}) or {}).get('metrics', []) or []]
+            for adp in containers.get('adp', []) or []:
+                if (adp.get('providerMetadata') or {}).get('shortName') == 'CISA-ADP':
+                    metric_lists.append(adp.get('metrics', []) or [])
+            for metrics in metric_lists:
+                for metric in metrics:
+                    for key in ('cvssV4_0', 'cvssV3_1', 'cvssV3_0'):
+                        if key in metric:
+                            score = metric[key].get('baseScore')
+                            if score:
+                                return float(score)
+            return None
+        except Exception:
+            return None
+
     @staticmethod
     def _commit_ts(commit: dict) -> str:
         c = commit.get("commit", {})
