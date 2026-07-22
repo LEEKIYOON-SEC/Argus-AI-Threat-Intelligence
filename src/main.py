@@ -2,6 +2,7 @@ import os
 import re
 import json
 import datetime
+import threading
 import time
 import requests
 import pytz
@@ -367,45 +368,64 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
     items = sorted(items, key=lambda it: 0 if it['id'] in high_risk_ids else 1)
 
     batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
-    total_chunks = (len(items) + batch_size - 1) // batch_size
-    logger.info(f"번역: {len(items)}건 → Gemma 배치 {total_chunks}청크 (배치 {batch_size}건)")
+    chunks = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
+    total_chunks = len(chunks)
+    # 병목은 한도가 아니라 '콜 1건의 생성 지연 × 직렬 처리'다 — gemma-4 무료 서빙이
+    # 청크(6건 JSON) 하나에 ~55초. 직렬이면 66청크 ≈ 60분인데 RPM은 15 중 ~1.1만 쓴다.
+    # → 청크를 동시 4콜로: RPM ~4.4/15·TPM ~12K/250K로 여전히 여유, 벽시계 시간 ~1/4.
+    concurrency = max(1, config.PERFORMANCE.get("translation_concurrency", 4))
+    logger.info(f"번역: {len(items)}건 → Gemma 배치 {total_chunks}청크 "
+                f"(배치 {batch_size}건, 동시 {concurrency}콜)")
     started = time.time()
-    deadline_hit = False
-    fell_back = 0
+    lock = threading.Lock()
+    state = {"done": 0, "deadline_warned": False, "fell_back": 0}
 
     def _individual(it: Dict, allow_retry: bool) -> Tuple[str, str]:
         return generate_korean_summary(
             {"title": it['title'], "description": it['description']},
             retry_on_transient=allow_retry)
 
-    for chunk_no, i in enumerate(range(0, len(items), batch_size), 1):
-        chunk = items[i:i + batch_size]
-        over = deadline_ts is not None and time.time() > deadline_ts
-        if over:
-            if not deadline_hit:
-                logger.warning(f"⏰ 번역 시간 예산 도달 — 잔여 {total_chunks - chunk_no + 1}청크 영문 폴백")
-                deadline_hit = True
+    def _do_chunk(chunk: List[Dict]) -> Dict[str, Tuple[str, str]]:
+        out: Dict[str, Tuple[str, str]] = {}
+        # 데드라인 검사는 호출 직전(워커 안) — 큐에 밀려 있던 잔여 청크가 즉시 영문 폴백
+        if deadline_ts is not None and time.time() > deadline_ts:
+            with lock:
+                if not state["deadline_warned"]:
+                    logger.warning(f"⏰ 번역 시간 예산 도달 — 잔여 ~{total_chunks - state['done']}청크 영문 폴백")
+                    state["deadline_warned"] = True
             for it in chunk:
-                results[it['id']] = (it['title'], (it['description'] or '')[:200])
-            continue
-
-        # 배치 시도 — 호출 수가 적으므로 항상 일시오류 재시도 허용
-        parsed = _translate_chunk(chunk, retry_on_transient=True)
-        if parsed is not None:
-            results.update(parsed)
-        else:
-            # 배치 파싱 실패 → 개별 텍스트 번역으로 폴백(한글 보장). 이 CVE들은 대시보드에
-            # 노출되므로 영문 방치보다 개별 번역 비용이 낫다.
-            fell_back += len(chunk)
+                out[it['id']] = (it['title'], (it['description'] or '')[:200])
+            return out
+        try:
+            # 배치 시도 — 호출 수가 적으므로 항상 일시오류 재시도 허용
+            parsed = _translate_chunk(chunk, retry_on_transient=True)
+            if parsed is not None:
+                out.update(parsed)
+            else:
+                # 배치 파싱 실패 → 개별 텍스트 번역으로 폴백(한글 보장). 이 CVE들은 대시보드에
+                # 노출되므로 영문 방치보다 개별 번역 비용이 낫다.
+                with lock:
+                    state["fell_back"] += len(chunk)
+                for it in chunk:
+                    out[it['id']] = _individual(it, allow_retry=True)
+        except Exception as e:
+            logger.warning(f"번역 청크 실패 → 영문 폴백: {e}")
             for it in chunk:
-                title_ko, desc_ko = _individual(it, allow_retry=True)
-                results[it['id']] = (title_ko, desc_ko)
+                out.setdefault(it['id'], (it['title'], (it['description'] or '')[:200]))
+        with lock:
+            state["done"] += 1
+            done = state["done"]
+        if done % 5 == 0 or done == total_chunks:
+            logger.info(f"번역 진행: {done}/{total_chunks} 청크 ({time.time() - started:.0f}초)")
+        return out
 
-        if chunk_no % 5 == 0 or chunk_no == total_chunks:
-            logger.info(f"번역 진행: {chunk_no}/{total_chunks} 청크 ({time.time() - started:.0f}초)")
+    # 제출 순서 = 정렬 순서(알림 대상 먼저) → 워커 큐도 FIFO라 핵심 건이 먼저 번역된다
+    with ThreadPoolExecutor(max_workers=concurrency) as ex:
+        for out in ex.map(_do_chunk, chunks):
+            results.update(out)
 
-    if fell_back:
-        logger.info(f"번역: 배치 실패 {fell_back}건 → 개별 번역으로 한글화 완료")
+    if state["fell_back"]:
+        logger.info(f"번역: 배치 실패 {state['fell_back']}건 → 개별 번역으로 한글화 완료")
     return results
 
 
