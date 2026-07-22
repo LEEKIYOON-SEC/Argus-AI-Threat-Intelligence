@@ -1,5 +1,343 @@
 [
   {
+    "id": "CVE-2026-63946",
+    "title": "Bluetooth: ISO: iso_recv_frame의 UAF 수정",
+    "description": "iso_recv_frame에서 lock 해제 후 참조 없이 sk를 사용하여 발생하는 use-after-free 취약점을 iso_sock_hold()를 통해 수정했습니다.",
+    "cvss": 8.8,
+    "epss": 0.00332,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 c57ea90f203c8b8b41a474f19a09000d0f841436 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 119fb6f80c44dc1c65d604cf28e64c56bd9b6568 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 b04ec131325baf4ea4577d6c6e6b86cf092e3731 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 c318aa51830a3d2cc1229968fe521441c97356cd 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 1a6b803b00ccdd7666506adbe01ddae1c72d1ca9 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 47f23a259517abbdb8032c057a1e8a6bf3734878 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:05:01.46211+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-64093",
+    "title": "batman-adv: tp_meter: 정리 시 타이머를 직접 종료하도록 수정",
+    "description": "batadv_tp_sender_cleanup()의 이중 삭제 방식을 timer_shutdown_sync() 단일 호출로 대체하여 타이머 종료 방식을 개선함.",
+    "cvss": 8.8,
+    "epss": 0.00341,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 00bf4bb9947b1190a8be8d9b6a1bcbfa3707785c 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 74a76634055462833446684fd526d73c290ea43a 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 5bc2d50fb66b46f86543d5153a188eb1486d0b6e 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 f86b20ec8d17d77bddc02c5c86cfa2389d84ecff 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 770bf0a35f0620b526fd4193889d1e77084e4c43 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 933880a8bc9b4042223a79255c0b1021cdc36991 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 d5487249a81ea658717614009c8f46acc5b7101a 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.8 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:05:01.03973+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63947",
+    "title": "Bluetooth: HIDP: hidp_input_report()의 길이 확인 누락 수정",
+    "description": "hidp_input_report()가 skb->len 확인 없이 데이터를 읽어, truncated packet 수신 시 out-of-bounds read가 발생할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00341,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1f08a90013e1e632b34321334e861fcefc056505 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 cc3832b19f863e3677c5651f001a2e3795f39eb8 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 d313683d6ccdd8c01e0562270a2ae25b86d8461d 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 d7d6a81b8dd1a8d084a1b755db9406041d53adb5 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 6348dfed5b0f9c6074f14322332e97493d32fef0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 b83dcacd2ec7fcc5a48be215f82d573759f87ec2 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 2a3ac9ee11dbb9845f3947cef4a79dba658cf6f6 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.12 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:05:00.609272+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-25039",
+    "title": "워크스페이스 이름의 UNC 경로 평가 취약점",
+    "description": "Parsec이 워크스페이스 이름을 적절히 검증하지 않아, UNC 경로를 통해 윈도우 파일 시스템 마운트 시 취약점이 발생할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00344,
+    "is_kev": false,
+    "cwe": [
+      "CWE-40"
+    ],
+    "affected": [
+      {
+        "vendor": "Scille",
+        "product": "parsec-cloud",
+        "versions": "< 3.3.3-rc.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:05:00.177711+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63916",
+    "title": "HID: wacom: wacom_hid_set_device_mode()의 OOB write 수정",
+    "description": "HID_DG_INPUTMODE가 첫 번째 필드가 아닌 다른 필드에 있을 때 발생할 수 있는 OOB write 취약점을 수정했습니다.",
+    "cvss": 8.8,
+    "epss": 0.00349,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 2add311d99646c9d235b2c44f9c169ba30f5db3a 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 83bd8a5756a3c4a413ed8f6253f9eb2821e1ccaf 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 5716a293fb19d382ca2336e08fd28a619a5f3c25 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 ed598de9f61582902406d352d99f2073d8e00298 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 43e7c02d6090a82fd60d63491f6871aec906345e 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 b8338111e14183972359009c12d0dbd81d2e1e16 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 5db3fca0cec7b33bc5379411d0a60d792c9f9bc0 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 c0a8899e02ddebd51e2589835182c239c2e224ae 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.18 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:59.736939+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63915",
+    "title": "nfc: hci: HCP 헤더 파싱의 out-of-bounds read 수정",
+    "description": "버퍼 크기 확인 없이 헤더를 읽어 0바이트 HCP 프레임 수신 시 발생하는 out-of-bounds heap read 취약점을 수정했습니다.",
+    "cvss": 8.8,
+    "epss": 0.00349,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 ed6d5d97dad0334a7f43d218753429cbe2f70a4f 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 b99366d74b535d0cadb1ef73e04639415d9ff3b7 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 37382293f174b82a0616c8295e32b1fc8e13d1ed 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 c4cc6b3b0013acb3ed0b2b60e57dfae98647fe98 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 1905f5ec3641b2b234bb63549c8ca11ab85466eb 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 22d41b176b9989efd21c3b2d3abf6728f05b9d9a 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 83b1362edc9d6ae376c6f36da116e2c70f2e70a6 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 f040e590c035bfd9553fe79ee9585caf1b14d67b 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.5 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:58.853807+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63975",
+    "title": "Bluetooth: L2CAP: l2cap_ecred_conn_rsp의 크래시 가능성 수정",
+    "description": "이미 할당된 목적지 CID에 대해 dcid를 수신했을 때 l2cap_chan_del 호출로 인해 발생할 수 있는 커서 무효화 및 크래시 문제를 수정했습니다.",
+    "cvss": 8.8,
+    "epss": 0.00349,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "15f02b91056253e8cdc592888f431da0731337b8 부터 3c8eaa91eb433c450426539290be4ffe282e9f00 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 ecfed1e0d8efecad6737a0d83e21d2fd021d8c48 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 e6833e737a51db1e5ea0401322acf5e22abd8be6 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 6319b38fe69f56ed95680ade485b957a53fff642 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 291eec1041c918c460dc9702e44edd17794b4a4b 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 41e29548b5e8b5e5fcf708786b3bea67cab107fa 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 d153b8898c0051eb8b6a083b35cbe304a5886bd5 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 41c2713b204e6cb6a94587bc6bf6935107df5479 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.7 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:57.906741+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-7667",
+    "title": "API 요청 컴포넌트의 Content-Disposition 헤더 처리 중 Path Traversal 취약점",
+    "description": "IBM Langflow OSS에서 조작된 Content-Disposition 헤더를 통해 임의의 경로에 파일을 생성할 수 있는 Path Traversal 취약점이 발견되었습니다.",
+    "cvss": 8.8,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "IBM",
+        "product": "Langflow OSS",
+        "versions": "1.0.0 부터 1.10.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:57.085976+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-50489",
+    "title": "Win32k 권한 상승 취약점",
+    "description": "Windows Win32K의 힙 기반 버퍼 오버플로우(heap-based buffer overflow) 취약점으로 인해 인증된 공격자가 로컬에서 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00369,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:56.145448+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-54982",
+    "title": "Windows Reliable Multicast Transport Driver (RMCAST) 원격 코드 실행 취약점",
+    "description": "RMCAST의 Integer underflow로 인해 인접 네트워크의 권한 없는 공격자가 코드를 실행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.0038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-191"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T12:04:55.617803+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-65050",
     "title": "Ninja Forms: submissions-table Gutenberg 블록의 권한 확인 누락으로 인한 폼 제출 내용 노출",
     "description": "3.14.8 이전 버전의 Gutenberg 블록에서 권한 확인 누락으로 인해,\n작성자 권한의 공격자가 인증되지 않은 방문자에게 폼 제출 내용을 노출시킬 수 있습니다.",
@@ -13358,46 +13696,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-54982",
-    "title": "Windows Reliable Multicast Transport Driver (RMCAST) 원격 코드 실행 취약점",
-    "description": "RMCAST의 Integer underflow로 인해 인접 네트워크의 권한 없는 공격자가 코드를 실행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.0038,
-    "is_kev": false,
-    "cwe": [
-      "CWE-191"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:44:04.542277+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-54131",
     "title": "Microsoft Excel 원격 코드 실행 취약점",
     "description": "Microsoft Office Excel의 Use-after-free 취약점을 통해 인증되지 않은 공격자가 로컬에서 코드를 실행할 수 있습니다.",
@@ -16182,46 +16480,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T01:43:44.91458+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-50489",
-    "title": "Win32k 권한 상승 취약점",
-    "description": "Windows Win32K의 힙 기반 버퍼 오버플로우(heap-based buffer overflow) 취약점으로 인해 인증된 공격자가 로컬에서 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00369,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:43:44.710015+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -27171,36 +27429,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-25039",
-    "title": "워크스페이스 이름의 UNC 경로 평가 취약점",
-    "description": "Parsec이 워크스페이스 이름을 적절히 검증하지 않아, UNC 경로를 통해 윈도우 파일 시스템 마운트 시 취약점이 발생할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00344,
-    "is_kev": false,
-    "cwe": [
-      "CWE-40"
-    ],
-    "affected": [
-      {
-        "vendor": "Scille",
-        "product": "parsec-cloud",
-        "versions": "< 3.3.3-rc.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:18:16.558599+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-32807",
     "title": "dataCycle Public DataLink 텍스트 파일 다운로드 유효성 및 권한 검증 누락",
     "description": "DataLink UUID만 있으면 링크 만료 여부나 인증 상태와 관계없이 텍스트 파일을 직접 다운로드할 수 있는 취약점이 존재합니다.",
@@ -29124,36 +29352,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-7667",
-    "title": "API 요청 컴포넌트의 Content-Disposition 헤더 처리 중 Path Traversal 취약점",
-    "description": "IBM Langflow OSS에서 조작된 Content-Disposition 헤더를 통해 임의의 경로에 파일을 생성할 수 있는 Path Traversal 취약점이 발견되었습니다.",
-    "cvss": 8.8,
-    "epss": 0.00352,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "IBM",
-        "product": "Langflow OSS",
-        "versions": "1.0.0 부터 1.10.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:18:09.947315+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-64181",
     "title": "mm: pmd_special()/pud_special() 지원 누락을 처리하도록 __vm_normal_page() 수정",
     "description": "x86 32비트 THP 환경에서 __vm_normal_page()의 처리 미흡으로 인해 발생하는 커널 경고 및 Bad page state 버그를 수정했습니다.",
@@ -30297,39 +30495,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T01:18:07.649616+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-64093",
-    "title": "batman-adv: tp_meter: 정리 시 타이머를 직접 종료하도록 수정",
-    "description": "batadv_tp_sender_cleanup()의 이중 삭제 방식을 timer_shutdown_sync() 단일 호출로 대체하여 타이머 종료 방식을 개선함.",
-    "cvss": 8.8,
-    "epss": 0.00341,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 00bf4bb9947b1190a8be8d9b6a1bcbfa3707785c 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 74a76634055462833446684fd526d73c290ea43a 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 5bc2d50fb66b46f86543d5153a188eb1486d0b6e 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 f86b20ec8d17d77bddc02c5c86cfa2389d84ecff 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 770bf0a35f0620b526fd4193889d1e77084e4c43 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 933880a8bc9b4042223a79255c0b1021cdc36991 이전, 33a3bb4a3345bb511f9c69c913da95d4693e2a4e 부터 d5487249a81ea658717614009c8f46acc5b7101a 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "4.8 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:18:07.64839+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -31761,39 +31926,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-63975",
-    "title": "Bluetooth: L2CAP: l2cap_ecred_conn_rsp의 크래시 가능성 수정",
-    "description": "이미 할당된 목적지 CID에 대해 dcid를 수신했을 때 l2cap_chan_del 호출로 인해 발생할 수 있는 커서 무효화 및 크래시 문제를 수정했습니다.",
-    "cvss": 8.8,
-    "epss": 0.00349,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "15f02b91056253e8cdc592888f431da0731337b8 부터 3c8eaa91eb433c450426539290be4ffe282e9f00 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 ecfed1e0d8efecad6737a0d83e21d2fd021d8c48 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 e6833e737a51db1e5ea0401322acf5e22abd8be6 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 6319b38fe69f56ed95680ade485b957a53fff642 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 291eec1041c918c460dc9702e44edd17794b4a4b 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 41e29548b5e8b5e5fcf708786b3bea67cab107fa 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 d153b8898c0051eb8b6a083b35cbe304a5886bd5 이전, 15f02b91056253e8cdc592888f431da0731337b8 부터 41c2713b204e6cb6a94587bc6bf6935107df5479 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.7 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:18:02.138463+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2024-51315",
     "title": "해당 없음",
     "description": "Tenda TX9 V22.03.02.20 펌웨어의 /goform/SetOnlineDevName 내 sub_425964 함수에서 스택 오버플로우 취약점이 발견되었습니다.",
@@ -32126,39 +32258,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-63947",
-    "title": "Bluetooth: HIDP: hidp_input_report()의 길이 확인 누락 수정",
-    "description": "hidp_input_report()가 skb->len 확인 없이 데이터를 읽어, truncated packet 수신 시 out-of-bounds read가 발생할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00341,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 1f08a90013e1e632b34321334e861fcefc056505 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 cc3832b19f863e3677c5651f001a2e3795f39eb8 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 d313683d6ccdd8c01e0562270a2ae25b86d8461d 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 d7d6a81b8dd1a8d084a1b755db9406041d53adb5 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 6348dfed5b0f9c6074f14322332e97493d32fef0 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 b83dcacd2ec7fcc5a48be215f82d573759f87ec2 이전, 1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 부터 2a3ac9ee11dbb9845f3947cef4a79dba658cf6f6 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.12 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:17:56.435769+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-63951",
     "title": "zram: zram_writeback_endio의 use-after-free 수정",
     "description": "zram_writeback_endio와 writeback 태스크 간의 race condition으로 인해 발생하는 use-after-free 및 NULL 포인터 역참조 문제를 수정했습니다.",
@@ -32213,39 +32312,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T01:17:56.203601+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-63946",
-    "title": "Bluetooth: ISO: iso_recv_frame의 UAF 수정",
-    "description": "iso_recv_frame에서 lock 해제 후 참조 없이 sk를 사용하여 발생하는 use-after-free 취약점을 iso_sock_hold()를 통해 수정했습니다.",
-    "cvss": 8.8,
-    "epss": 0.00332,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 c57ea90f203c8b8b41a474f19a09000d0f841436 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 119fb6f80c44dc1c65d604cf28e64c56bd9b6568 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 b04ec131325baf4ea4577d6c6e6b86cf092e3731 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 c318aa51830a3d2cc1229968fe521441c97356cd 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 1a6b803b00ccdd7666506adbe01ddae1c72d1ca9 이전, ccf74f2390d60a2f9a75ef496d2564abb478f46a 부터 47f23a259517abbdb8032c057a1e8a6bf3734878 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:17:56.008834+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -32687,39 +32753,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-63916",
-    "title": "HID: wacom: wacom_hid_set_device_mode()의 OOB write 수정",
-    "description": "HID_DG_INPUTMODE가 첫 번째 필드가 아닌 다른 필드에 있을 때 발생할 수 있는 OOB write 취약점을 수정했습니다.",
-    "cvss": 8.8,
-    "epss": 0.00349,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 2add311d99646c9d235b2c44f9c169ba30f5db3a 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 83bd8a5756a3c4a413ed8f6253f9eb2821e1ccaf 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 5716a293fb19d382ca2336e08fd28a619a5f3c25 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 ed598de9f61582902406d352d99f2073d8e00298 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 43e7c02d6090a82fd60d63491f6871aec906345e 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 b8338111e14183972359009c12d0dbd81d2e1e16 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 5db3fca0cec7b33bc5379411d0a60d792c9f9bc0 이전, 5ae6e89f7409cb5d218bb728326eba9c650d9700 부터 c0a8899e02ddebd51e2589835182c239c2e224ae 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.18 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:17:54.137067+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-63913",
     "title": "netfilter: conntrack: tcp: 방향 확인 없는 invalid-seq RST의 강제 CLOSE 방지",
     "description": "잘못된 시퀀스 번호를 가진 RST 패킷을 통해 TCP 연결이 강제로 CLOSE 상태로 전환될 수 있는 문제를 수정했습니다.",
@@ -32741,39 +32774,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T01:17:54.136198+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-63915",
-    "title": "nfc: hci: HCP 헤더 파싱의 out-of-bounds read 수정",
-    "description": "버퍼 크기 확인 없이 헤더를 읽어 0바이트 HCP 프레임 수신 시 발생하는 out-of-bounds heap read 취약점을 수정했습니다.",
-    "cvss": 8.8,
-    "epss": 0.00349,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 ed6d5d97dad0334a7f43d218753429cbe2f70a4f 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 b99366d74b535d0cadb1ef73e04639415d9ff3b7 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 37382293f174b82a0616c8295e32b1fc8e13d1ed 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 c4cc6b3b0013acb3ed0b2b60e57dfae98647fe98 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 1905f5ec3641b2b234bb63549c8ca11ab85466eb 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 22d41b176b9989efd21c3b2d3abf6728f05b9d9a 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 83b1362edc9d6ae376c6f36da116e2c70f2e70a6 이전, 8b8d2e08bf0d50193931afd27482a59376b66b2b 부터 f040e590c035bfd9553fe79ee9585caf1b14d67b 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.5 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:17:53.934404+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
