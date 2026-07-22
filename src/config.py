@@ -75,6 +75,11 @@ class ArgusConfig:
         # 저장·요약까지 정상 종료. killed 되면 워터마크를 못 써 다음 실행이 수집을 통째로
         # 반복하므로, '항상 깨끗하게 끝내고 전진'이 핵심. (잡 셋업/export/commit 여유 ~7분)
         "soft_deadline_minutes": 38,
+        # Phase C(Issue·Slack·저장) 전용 시간 예약 — 번역(Phase B)의 데드라인을 이만큼
+        # 앞당긴다. 백로그로 번역 청크가 많을 때 번역이 전체 예산을 다 먹고 Phase C가
+        # 0초로 시작→Critical 알림까지 통째로 취소되는 기아(starvation)를 방지.
+        # (관측: 66청크×55초 » 예산 → 번역이 38분 데드라인 직전까지 점유, 알림 5/31건만 발송)
+        "phase_c_reserve_minutes": 8,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기
         # 에스컬레이션 재평가 스윕 — 레코드(cvelistV5) 미변경이라 재수집 큐에 안 올라오는
         # '현재 저위험' CVE의 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 변화로 인한 고위험 승격
