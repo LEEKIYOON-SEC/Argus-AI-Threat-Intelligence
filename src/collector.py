@@ -456,7 +456,6 @@ class Collector:
             }
             
             data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
-            data['title'] = cna.get('title', 'N/A')
             data['affected'] = self.parse_affected(cna.get('affected', []))
 
             # 영어 설명 우선. lang은 'en'뿐 아니라 'en-US'/'en-GB' 등 지역 태그를 쓰는
@@ -468,6 +467,23 @@ class Collector:
                 data['description'] = en_desc
             elif descriptions and descriptions[0].get('value'):
                 data['description'] = descriptions[0]['value']
+
+            # 제목: CNA title → (없으면) affected 벤더/제품 → (없으면) 설명 첫 문장.
+            # Oracle 등 title 없는 CNA에서 'N/A'가 번역기로 흘러 '해당 없음' 제목이 되는 것 방지.
+            title = (cna.get('title') or '').strip()
+            if not title:
+                aff0 = next((a for a in data['affected']
+                             if a.get('product') and a['product'].lower() not in ('n/a', 'unknown')), None)
+                if aff0:
+                    vendor = (aff0.get('vendor') or '').strip()
+                    product = aff0['product'].strip()
+                    # "Oracle Corporation Oracle Coherence" 같은 중복 방지 — 제품명에 벤더가 이미 있으면 생략
+                    use_vendor = vendor and vendor.lower() not in ('n/a', 'unknown') \
+                        and vendor.split()[0].lower() not in product.lower()
+                    title = f"{vendor} {product} vulnerability" if use_vendor else f"{product} vulnerability"
+                elif data['description'] != 'N/A':
+                    title = data['description'].split('. ')[0][:110]
+            data['title'] = title or 'N/A'
             
             for metric in cna.get('metrics', []):
                 if 'cvssV4_0' in metric:
@@ -483,11 +499,17 @@ class Collector:
                     data['cvss_vector'] = metric['cvssV3_0'].get('vectorString', 'N/A')
                     break
             
+            # CWE는 반드시 'CWE-숫자' 형식만 수집한다. Oracle 등 일부 CNA는 cweId 없이
+            # description에 영향 설명 문장만 넣는데, 이를 폴백으로 담으면 '취약점 유형'에
+            # 영문 문단이 통째로 노출되고, cwe가 채워진 것으로 오인되어 CISA-ADP의
+            # 정상 CWE 보강(_enrich_from_adp의 'cna에 없을 때만' 조건)까지 막힌다.
+            # description 텍스트 안에 'CWE-79' 형태로 박아 넣는 CNA는 패턴 추출로 수용.
             for pt in cna.get('problemTypes', []):
                 for desc in pt.get('descriptions', []):
-                    cwe_id = desc.get('cweId', desc.get('description', ''))
-                    if cwe_id:
-                        data['cwe'].append(cwe_id)
+                    for field in (desc.get('cweId', ''), desc.get('description', '')):
+                        for m in re.findall(r'CWE-\d{1,4}\b', str(field)):
+                            if m not in data['cwe']:
+                                data['cwe'].append(m)
             
             for ref in cna.get('references', []):
                 if 'url' in ref:
