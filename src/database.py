@@ -1,9 +1,29 @@
 import os
+import time
 import datetime
 from supabase import create_client, Client
 from typing import Dict, List, Optional
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, RetryError
 from logger import logger
+
+
+def _describe_error(e: BaseException) -> str:
+    """tenacity RetryError를 언랩해 실제 원인(APIError 등)의 메시지를 돌려준다.
+
+    RetryError 그대로 로깅하면 'RetryError[<Future ...>]'만 남아 원인(스키마 오류인지
+    일시 장애인지)을 알 수 없다 — 진단 가능한 로그가 되도록 반드시 언랩한다."""
+    if isinstance(e, RetryError):
+        try:
+            e = e.last_attempt.exception() or e
+        except Exception:
+            pass
+    msg = f"{type(e).__name__}: {e}"
+    # postgrest.APIError는 message/code/details/hint에 상세가 있다 (str에 빠질 수 있음)
+    for attr in ("message", "code", "details", "hint"):
+        v = getattr(e, attr, None)
+        if v and str(v) not in msg:
+            msg += f" | {attr}={v}"
+    return msg
 
 class DatabaseError(Exception):
     """데이터베이스 관련 에러"""
@@ -48,12 +68,23 @@ class ArgusDB:
             return None
 
     def upsert_cve(self, data: Dict) -> bool:
+        # 저장 실패 = Issue는 나갔는데 대시보드 영구 미반영 + 다음 실행 중복 재처리로 직결
+        # → 짧은 백오프(_execute, ~14초)를 넘기는 Supabase 일시 장애(풀 재시작 등)에 대비해
+        #   긴 간격 2차 시도까지 한다. (관측: 정상 레코드 2건이 동시각 APIError → 일시 장애)
         try:
             self._execute(self.client.table("cves").upsert(data))
             logger.debug(f"CVE 저장 성공: {data.get('id')}")
             return True
         except Exception as e:
-            logger.error(f"CVE 저장 실패 ({data.get('id')}): {e}")
+            logger.warning(f"CVE 저장 1차 실패 ({data.get('id')}): {_describe_error(e)} → 25초 후 재시도")
+        time.sleep(25)
+        try:
+            self._execute(self.client.table("cves").upsert(data))
+            logger.info(f"CVE 저장 재시도 성공: {data.get('id')}")
+            return True
+        except Exception as e:
+            # 최종 실패 → 호출측(finalize)이 failed 처리 → 워터마크가 붙잡아 다음 실행 재처리
+            logger.error(f"CVE 저장 실패 ({data.get('id')}): {_describe_error(e)}")
             return False
     
     def get_rule_recheck_candidates(self) -> List[Dict]:
