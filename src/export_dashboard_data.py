@@ -7,6 +7,7 @@ docs/data/*.json 정적 파일로 생성한다.
 """
 
 import os
+import re
 import sys
 import json
 import datetime as dt
@@ -56,14 +57,33 @@ def export_cves(client, days: int = 90) -> list:
 
     for row in rows:
         state = row.get("last_alert_state") or {}
+
+        # CWE는 'CWE-숫자' 형식만 통과 — 과거 수집분에 Oracle 등 cweId 없는 CNA의
+        # 영향 설명 문장이 통째로 담긴 행이 있어(수집기는 수정됨) 표시 직전에 걸러낸다.
+        # DB는 수동 관리 원칙이라 여기서 정리하면 기존 행도 재수집 없이 즉시 정상 표시.
+        cwe_clean = []
+        for w in state.get("cwe", []) or []:
+            for m in re.findall(r"CWE-\d{1,4}\b", str(w)):
+                if m not in cwe_clean:
+                    cwe_clean.append(m)
+
+        # 제목 폴백 — title 없는 CNA(Oracle 등)의 'N/A'가 '해당 없음'으로 번역·저장된
+        # 기존 행을 affected 기반 제목으로 대체 (신규 수집분은 수집기에서 해결됨)
+        title = state.get("title_ko") or state.get("title", "N/A")
+        if title.strip() in ("해당 없음", "N/A", "정보 없음", ""):
+            aff0 = next((a for a in state.get("affected", []) or []
+                         if a.get("product") and str(a["product"]).lower() not in ("n/a", "unknown")), None)
+            if aff0:
+                title = f"{aff0['product']} 취약점"
+
         entry = {
             "id": row.get("id", ""),
-            "title": state.get("title_ko") or state.get("title", "N/A"),
+            "title": title,
             "description": state.get("desc_ko") or state.get("description", "")[:300],
             "cvss": row.get("cvss_score", 0) or 0,
             "epss": row.get("epss_score", 0) or 0,
             "is_kev": row.get("is_kev", False),
-            "cwe": state.get("cwe", []),
+            "cwe": cwe_clean,
             "affected": [],
             "report_url": row.get("report_url"),
             # Supabase는 null 컬럼도 키를 포함해 반환하므로 .get의 default가 발동하지 않음
