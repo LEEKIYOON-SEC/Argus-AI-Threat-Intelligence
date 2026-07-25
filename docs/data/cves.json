@@ -1,5 +1,659 @@
 [
   {
+    "id": "CVE-2026-66013",
+    "title": "OpenRemote 1.26.2 이전 버전의 콘솔 등록을 통한 인증 우회",
+    "description": "콘솔 등록 API의 인증 우회 취약점으로 인해, 공격자가 자산 식별자를 사용하여 기존 콘솔 자산의 메타데이터 및 푸시 알림 토큰을 무단으로 수정할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "openremote",
+        "product": "openremote",
+        "versions": "1.26.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2206",
+    "date": "2026-07-25T11:37:57.033247+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-66012",
+    "title": "SiYuan v3.7.2 이전 버전의 MCP를 통한 인증되지 않은 관리자 권한 탈취",
+    "description": "/mcp 커널 엔드포인트의 권한 부여 누락으로 인해, 인증되지 않은 사용자가 파일 조작을 포함한 31개의 MCP 도구에 접근하여 관리자 권한을 탈취할 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "siyuan-note",
+        "product": "siyuan",
+        "versions": "3.7.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2205",
+    "date": "2026-07-25T11:37:56.843561+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-66035",
+    "title": "libssh2 ETM Cipher Negotiation을 통한 Heap Buffer Overflow",
+    "description": "ETM cipher 협상 중 패킷 길이가 블록 크기보다 작을 때 발생하는 pre-authentication heap buffer overflow 취약점입니다.\n악의적인 SSH 서버가 클라이언트의 heap metadata를 손상시킬 수 있습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "libssh2",
+        "product": "libssh2",
+        "versions": "1.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:24.101814+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66032",
+    "title": "libssh2 sftp_open()을 통한 Double-Free Heap Corruption",
+    "description": "sftp_open() 함수에서 발생하는 double-free 취약점입니다.\n악의적인 SSH 서버가 SFTP 세션을 여는 인증된 클라이언트의 heap을 손상시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-415"
+    ],
+    "affected": [
+      {
+        "vendor": "libssh2",
+        "product": "libssh2",
+        "versions": "1.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:23.476666+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66033",
+    "title": "libssh2 AES-GCM 사이퍼 협상을 통한 정수 언더플로우 DoS",
+    "description": "ssh2_cipher_crypt() 함수에서 발생하는 정수 언더플로우 취약점으로, 악의적인 SSH 서버가 핸드셰이크 중 AES-GCM 사이퍼를 협상하여 클라이언트를 충돌시킬 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-191",
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "libssh2",
+        "product": "libssh2",
+        "versions": "1.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:23.475307+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66034",
+    "title": "libssh2 publickey 서브시스템을 통한 힙 Out-of-Bounds Read",
+    "description": "publickey 서브시스템의 경계 확인 누락으로 인해, 악의적인 SSH 서버가 임의 길이의 힙 Out-of-Bounds Read를 유발하여 힙 포인터를 유출할 수 있는 취약점입니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-908"
+    ],
+    "affected": [
+      {
+        "vendor": "libssh2",
+        "product": "libssh2",
+        "versions": "1.11.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:23.301671+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-71408",
+    "title": "NLTK 3.9.2 미만 버전의 collocations.py 명령줄 인수를 통한 Eval Injection",
+    "description": "nltk.collocations 모듈에서 명령줄 인수를 eval() 함수에 직접 전달하여\n임의의 Python 코드를 실행할 수 있는 Eval Injection 취약점이 존재합니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-95"
+    ],
+    "affected": [
+      {
+        "vendor": "ntlk",
+        "product": "ntlk",
+        "versions": "3.9.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:23.131378+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66027",
+    "title": "Suna 0.9.102 미만 버전의 Message Queue API Broken Access Control 취약점",
+    "description": "Message Queue API의 권한 제어 미흡으로 인증된 공격자가 타 사용자의 큐 리소스에 접근하거나 조작할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "kortix-ai",
+        "product": "suna",
+        "versions": "0.9.102 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:22.731042+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-50362",
+    "title": "Windows Resilient File System (ReFS) 원격 코드 실행 취약점",
+    "description": "Windows ReFS의 힙 기반 버퍼 오버플로우 취약점으로 인해 인증되지 않은 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00335,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:11.684361+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47305",
+    "title": "Visual Studio 원격 코드 실행(Remote Code Execution) 취약점",
+    "description": "Visual Studio의 보호 메커니즘 실패로 인해, 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00335,
+    "is_kev": false,
+    "cwe": [
+      "CWE-693"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Visual Studio 2022 version 17.12",
+        "versions": "17.12.0 부터 17.12.22 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Visual Studio 2022 version 17.14",
+        "versions": "17.14.0 부터 17.14.36 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Visual Studio 2026 version 18.7",
+        "versions": "18.0 부터 18.7.4 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:11.344539+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-56156",
+    "title": "Microsoft Excel 원격 코드 실행 취약점",
+    "description": "Microsoft Office Excel의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00335,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 365 for Mac",
+        "versions": "1.0.0 부터 16.111.26071215 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office LTSC 2021",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:10.999472+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-58530",
+    "title": "Windows Resilient File System (ReFS) 원격 코드 실행 취약점",
+    "description": "Windows ReFS의 힙 기반 버퍼 오버플로우로 인해, 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00338,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:10.659273+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55129",
+    "title": "Microsoft Office 원격 코드 실행 취약점",
+    "description": "Microsoft Office의 힙 기반 버퍼 오버플로우 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2016",
+        "versions": "16.0.0 부터 16.0.5561.1000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:10.312024+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55120",
+    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
+    "description": "Microsoft Office PowerPoint의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 365 for Mac",
+        "versions": "1.0.0 부터 16.111.26071215 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:09.963955+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55127",
+    "title": "Microsoft Word 원격 코드 실행 취약점",
+    "description": "Microsoft Office Word의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 365 for Mac",
+        "versions": "1.0.0 부터 16.111.26071215 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:09.46856+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55123",
+    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
+    "description": "Microsoft Office PowerPoint의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-681"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 365 for Mac",
+        "versions": "1.0.0 부터 16.111.26071215 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:08.815193+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55049",
+    "title": "Microsoft Office 원격 코드 실행 취약점",
+    "description": "Microsoft Office의 Heap-based buffer overflow 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2016",
+        "versions": "16.0.0 부터 16.0.5561.1000 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:08.460138+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-55043",
+    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
+    "description": "Microsoft Office PowerPoint의 Heap-based buffer overflow 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122",
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft 365 Apps for Enterprise",
+        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 2019",
+        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Office 365 for Mac",
+        "versions": "1.0.0 부터 16.111.26071215 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-25T11:37:08.044741+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-10818",
     "title": "WPForms Pro <= 1.10.1.1 - Chunked Upload Init/Finalize 순서 오류를 통한 인증되지 않은 임의 파일 쓰기",
     "description": "ajax_chunk_upload_finalize 함수에서 파일 검증 전 데이터가 디스크에 기록되는 취약점이 있습니다. 이를 통해 인증되지 않은 공격자가 실행 파일을 업로드하여 원격 코드 실행(RCE)이 가능합니다.",
@@ -1858,36 +2512,6 @@
     ],
     "report_url": null,
     "date": "2026-07-24T23:19:19.453551+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-71408",
-    "title": "NLTK 3.9.2 미만 버전의 collocations.py 명령줄 인수를 통한 Eval Injection",
-    "description": "nltk.collocations 모듈에서 명령줄 인수를 eval() 함수에 직접 전달하여\n임의의 Python 코드를 실행할 수 있는 Eval Injection 취약점이 존재합니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-95"
-    ],
-    "affected": [
-      {
-        "vendor": "ntlk",
-        "product": "ntlk",
-        "versions": "3.9.3 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T23:19:19.452659+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -4333,36 +4957,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-66032",
-    "title": "libssh2 sftp_open()을 통한 Double-Free Heap Corruption",
-    "description": "sftp_open() 함수에서 발생하는 double-free 취약점입니다.\n악의적인 SSH 서버가 SFTP 세션을 여는 인증된 클라이언트의 heap을 손상시킬 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-415"
-    ],
-    "affected": [
-      {
-        "vendor": "libssh2",
-        "product": "libssh2",
-        "versions": "1.11.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T17:56:58.105942+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-65710",
     "title": "sysPass 3.2.11 PublicLinkController 계정 복호화를 통한 권한 부여 누락",
     "description": "PublicLink 생성 흐름에서 AccountAcl 체크가 누락되어 발생하는 권한 부여 누락 취약점입니다.\n특정 권한을 가진 사용자가 임의의 vault 계정 비밀번호를 무단으로 복호화하고 저장할 수 있습니다.",
@@ -4422,98 +5016,6 @@
     "has_poc": false,
     "poc_urls": [],
     "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66035",
-    "title": "libssh2 ETM Cipher Negotiation을 통한 Heap Buffer Overflow",
-    "description": "ETM cipher 협상 중 패킷 길이가 블록 크기보다 작을 때 발생하는 pre-authentication heap buffer overflow 취약점입니다.\n악의적인 SSH 서버가 클라이언트의 heap metadata를 손상시킬 수 있습니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "libssh2",
-        "product": "libssh2",
-        "versions": "1.11.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T17:56:57.866672+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66034",
-    "title": "libssh2 publickey 서브시스템을 통한 힙 Out-of-Bounds Read",
-    "description": "publickey 서브시스템의 경계 확인 누락으로 인해, 악의적인 SSH 서버가 임의 길이의 힙 Out-of-Bounds Read를 유발하여 힙 포인터를 유출할 수 있는 취약점입니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125",
-      "CWE-908"
-    ],
-    "affected": [
-      {
-        "vendor": "libssh2",
-        "product": "libssh2",
-        "versions": "1.11.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T17:56:57.85482+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66033",
-    "title": "libssh2 AES-GCM 사이퍼 협상을 통한 정수 언더플로우 DoS",
-    "description": "ssh2_cipher_crypt() 함수에서 발생하는 정수 언더플로우 취약점으로, 악의적인 SSH 서버가 핸드셰이크 중 AES-GCM 사이퍼를 협상하여 클라이언트를 충돌시킬 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-191",
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "libssh2",
-        "product": "libssh2",
-        "versions": "1.11.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T17:56:57.853436+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -5842,36 +6344,6 @@
     ],
     "report_url": null,
     "date": "2026-07-24T15:52:25.72086+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66027",
-    "title": "Suna 0.9.102 미만 버전의 Message Queue API Broken Access Control 취약점",
-    "description": "Message Queue API의 권한 제어 미흡으로 인증된 공격자가 타 사용자의 큐 리소스에 접근하거나 조작할 수 있습니다.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "kortix-ai",
-        "product": "suna",
-        "versions": "0.9.102 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-24T15:52:25.491271+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -25494,46 +25966,6 @@
     ],
     "report_url": null,
     "date": "2026-07-23T14:37:08.074376+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-58530",
-    "title": "Windows Resilient File System (ReFS) 원격 코드 실행 취약점",
-    "description": "Windows ReFS의 힙 기반 버퍼 오버플로우로 인해, 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00338,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-23T14:37:07.258294+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -68294,46 +68726,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-56156",
-    "title": "Microsoft Excel 원격 코드 실행 취약점",
-    "description": "Microsoft Office Excel의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00335,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 365 for Mac",
-        "versions": "1.0.0 부터 16.111.26071215 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office LTSC 2021",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:26.515467+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-55947",
     "title": "Microsoft Excel 원격 코드 실행 취약점",
     "description": "Microsoft Office Excel의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
@@ -68756,46 +69148,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-55129",
-    "title": "Microsoft Office 원격 코드 실행 취약점",
-    "description": "Microsoft Office의 힙 기반 버퍼 오버플로우 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2016",
-        "versions": "16.0.0 부터 16.0.5561.1000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:23.609079+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-55130",
     "title": "Microsoft Word 원격 코드 실행 취약점",
     "description": "Microsoft Office Word의 힙 기반 버퍼 오버플로우 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
@@ -68956,86 +69308,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-55127",
-    "title": "Microsoft Word 원격 코드 실행 취약점",
-    "description": "Microsoft Office Word의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 365 for Mac",
-        "versions": "1.0.0 부터 16.111.26071215 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:22.547302+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-55120",
-    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
-    "description": "Microsoft Office PowerPoint의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 365 for Mac",
-        "versions": "1.0.0 부터 16.111.26071215 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:22.339418+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-55122",
     "title": "Microsoft Excel 정보 노출 취약점",
     "description": "Microsoft Office Excel의 Out-of-bounds read로 인해 권한 없는 공격자가 로컬에서 정보를 노출시킬 수 있습니다.",
@@ -69064,47 +69336,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T04:04:22.143527+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-55123",
-    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
-    "description": "Microsoft Office PowerPoint의 힙 기반 버퍼 오버플로우로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122",
-      "CWE-681"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 365 for Mac",
-        "versions": "1.0.0 부터 16.111.26071215 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:21.934088+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -69266,87 +69497,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T04:04:20.674551+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-55049",
-    "title": "Microsoft Office 원격 코드 실행 취약점",
-    "description": "Microsoft Office의 Heap-based buffer overflow 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2016",
-        "versions": "16.0.0 부터 16.0.5561.1000 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:20.481028+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-55043",
-    "title": "Microsoft PowerPoint 원격 코드 실행 취약점",
-    "description": "Microsoft Office PowerPoint의 Heap-based buffer overflow 취약점으로 인해 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122",
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft 365 Apps for Enterprise",
-        "versions": "16.0.1 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 2019",
-        "versions": "19.0.0 부터 https://aka.ms/OfficeSecurityReleases 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Office 365 for Mac",
-        "versions": "1.0.0 부터 16.111.26071215 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T04:04:20.042249+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -72338,46 +72488,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-50362",
-    "title": "Windows Resilient File System (ReFS) 원격 코드 실행 취약점",
-    "description": "Windows ReFS의 힙 기반 버퍼 오버플로우 취약점으로 인해 인증되지 않은 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00335,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:43:26.870512+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-50357",
     "title": "Windows Resilient File System (ReFS) 권한 상승 취약점",
     "description": "Windows ReFS의 숫자 절삭(Numeric truncation) 오류로 인해\n인증된 공격자가 로컬에서 코드를 실행할 수 있습니다.",
@@ -72689,46 +72799,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T01:43:09.634471+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-47305",
-    "title": "Visual Studio 원격 코드 실행(Remote Code Execution) 취약점",
-    "description": "Visual Studio의 보호 메커니즘 실패로 인해, 권한 없는 공격자가 로컬에서 코드를 실행할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00335,
-    "is_kev": false,
-    "cwe": [
-      "CWE-693"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Visual Studio 2022 version 17.12",
-        "versions": "17.12.0 부터 17.12.22 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Visual Studio 2022 version 17.14",
-        "versions": "17.14.0 부터 17.14.36 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Visual Studio 2026 version 18.7",
-        "versions": "18.0 부터 18.7.4 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:43:09.236085+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
