@@ -512,6 +512,46 @@ def _rule_license_note(rule_info: Dict) -> str:
         return ""
     return f"\n> **License:** {lic} — 원 룰의 출처·author·라이선스 고지를 보존합니다.\n"
 
+def _priority_banner(cve_data: Dict) -> str:
+    """실제 악용 신호 조합으로 대응 우선순위를 산출 (AI 호출 없이 기존 필드만 사용).
+
+    이슈를 여는 즉시 '오늘 패치 vs 이번 주'를 판단하게 해준다. 판정 축은 _risk_tier와
+    동일한 신호(KEV/무기화/PoC·EPSS/CVSS)를 쓰되, 실무 대응 시급성 기준으로 더 세분한다."""
+    if cve_data.get('is_kev'):
+        level, why = "🔴 즉시 대응", "CISA KEV 등재 — 실제 악용 확인됨"
+    elif cve_data.get('ssvc_exploitation') == 'active' or cve_data.get('has_metasploit_module'):
+        level, why = "🔴 긴급", "무기화·악용 진행형 신호 존재 (SSVC active / Metasploit)"
+    elif (cve_data.get('has_public_exploit') or cve_data.get('has_poc')
+          or cve_data.get('epss', 0.0) >= 0.1):
+        level, why = "🟠 높음", "공개 익스플로잇·PoC 또는 EPSS 급증 — 악용 가능성 상승"
+    elif cve_data.get('cvss', 0.0) >= 9.0:
+        level, why = "🟠 높음", "CVSS Critical (악용 신호는 아직 미확인)"
+    else:
+        level, why = "🟡 주의", "고위험 점수, 실제 악용 신호는 미확인"
+    return f"> **⚡ 대응 우선순위: {level}** — {why}"
+
+def _epss_caption(cve_data: Dict) -> str:
+    """EPSS 숫자에 의미를 붙인다 — 신규 CVE는 낮은 게 정상이라 오해 방지 (FIRST.org 출처)."""
+    epss = cve_data.get('epss', 0.0) or 0.0
+    surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
+    return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
+
+def _issue_labels(cve_data: Dict) -> List[str]:
+    """이슈 트리아지용 동적 라벨 — 심각도 + 실제 악용 신호.
+    이슈가 다수 쌓여도 `label:kev`·`label:severity:critical` 등으로 필터 가능.
+    (GitHub는 이슈 생성 시 없는 라벨을 자동 생성하므로 사전 등록 불필요.)"""
+    score = cve_data.get('cvss', 0.0) or 0.0
+    labels = ["security", "cve"]
+    labels.append("severity:critical" if score >= 9.0
+                  else "severity:high" if score >= 7.0 else "severity:medium")
+    if cve_data.get('is_kev'):
+        labels.append("kev")
+    if cve_data.get('has_metasploit_module') or cve_data.get('ssvc_exploitation') == 'active':
+        labels.append("exploited")
+    if cve_data.get('has_public_exploit') or cve_data.get('has_poc'):
+        labels.append("poc")
+    return labels
+
 def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Optional[Dict]]:
     token = os.environ.get("GH_TOKEN")
     repo = os.environ.get("GITHUB_REPOSITORY")
@@ -549,7 +589,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         payload = {
             "title": f"[Argus] {cve_data['id']}: {cve_data['title_ko']}",
             "body": body,
-            "labels": ["security", "cve"]
+            "labels": _issue_labels(cve_data)
         }
         
         response = requests.post(url, headers=headers, json=payload, timeout=15)
@@ -621,12 +661,24 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
     # 참고 자료 (PoC·Exploit-DB는 원문 대신 링크만 게시 — 불변 원칙 8-②)
-    ref_items = list(cve_data['references'])
+    # URL 기준 dedup: PoC/EDB URL이 references에 이미 있으면 그 자리에 주석만 병기(중복 행 방지),
+    # references에 없으면 새 행으로 추가. → 링크는 1회만, 출처 주석은 유실 없이 보존.
+    notes = {}
     if cve_data.get('_exploit_db_url'):
-        ref_items.append(f"{cve_data['_exploit_db_url']} (Exploit-DB PoC)")
+        notes[cve_data['_exploit_db_url']] = " (Exploit-DB PoC)"
     for u in cve_data.get('poc_urls', [])[:3]:
-        ref_items.append(f"{u} (PoC, nomi-sec/trickest)")
-    ref_list = "\n".join([f"- {r}" for r in ref_items])
+        notes.setdefault(u, " (PoC, nomi-sec/trickest)")
+    ref_items = []
+    seen = set()
+    for r in cve_data['references']:
+        if r and r not in seen:
+            ref_items.append(f"{r}{notes.get(r, '')}")
+            seen.add(r)
+    for u, note in notes.items():          # references에 없던 PoC/EDB 링크만 추가
+        if u not in seen:
+            ref_items.append(f"{u}{note}")
+            seen.add(u)
+    ref_list = "\n".join([f"- {r}" for r in ref_items]) if ref_items else "- 등록된 참고 링크 없음"
 
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
@@ -654,17 +706,38 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
                          "공개 룰이 등록되면 정기 재확인 시 자동 반영됩니다. 그 전에는 위의 분석·공격 시나리오·대응 방안을 참고하세요.\n")
 
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
-    
+
+    # 대응 우선순위 배너 + EPSS 의미 캡션
+    priority = _priority_banner(cve_data)
+    epss_caption = _epss_caption(cve_data)
+
+    # 취약점 개요 — AI 해석(근본원인)의 대조 기준이 되는 원문. desc_ko(한글) 우선,
+    # 영문 원문은 <details>로 접어 제공(한글 폴백으로 둘이 같으면 영문 블록 생략).
+    desc_ko = (cve_data.get('desc_ko') or '').strip()
+    desc_en = (cve_data.get('description') or '').strip()
+    overview_section = ""
+    if desc_ko and desc_ko != 'N/A':
+        overview_section = f"## 📄 취약점 개요\n{desc_ko}\n"
+        if desc_en and desc_en != 'N/A' and desc_en != desc_ko:
+            overview_section += f"\n<details><summary>원문 (English)</summary>\n\n> {desc_en}\n\n</details>\n"
+        overview_section += "\n"
+    elif desc_en and desc_en != 'N/A':
+        overview_section = f"## 📄 취약점 개요\n{desc_en}\n\n"
+
     body = f"""# 🛡️ {cve_data['title_ko']}
 
 > **탐지 일시:** {now_kst}
 > **탐지 사유:** {reason}
 
+{priority}
+
 {badges}
+{epss_caption}
+
 **취약점 유형 (CWE):** {cwe_str}
 
 {threat_signals}
-## 📦 영향 받는 자산 (벤더 / 제품 / 버전)
+{overview_section}## 📦 영향 받는 자산 (벤더 / 제품 / 버전)
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
 {affected_rows}
