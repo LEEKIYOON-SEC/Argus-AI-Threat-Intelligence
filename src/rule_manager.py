@@ -43,6 +43,16 @@ class RuleManager:
                 return lic
         return None
 
+    @staticmethod
+    def _cve_pattern(cve_id: str) -> "re.Pattern":
+        """CVE ID 정확 매칭 패턴.
+
+        단순 부분 문자열 검색(`cve_id in content`)은 짧은 ID가 긴 ID의 접두사가 되어
+        오탐한다 — 예: CVE-2026-9323 검색이 CVE-2026-93231용 룰에 매칭돼 '엉뚱한 CVE의
+        탐지 룰'이 리포트에 실린다. 보안 도구에서 이는 대응자를 오도하는 결함이므로
+        뒤에 숫자가 오지 않는 경우만 매칭한다(끝 경계 고정)."""
+        return re.compile(re.escape(cve_id) + r'(?!\d)', re.IGNORECASE)
+
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
         # AI 룰 생성 제거 — RuleManager는 공개 룰 검색 전용 (Groq 미사용)
@@ -57,11 +67,12 @@ class RuleManager:
         if not RuleManager._network_rules_cache:
             self._download_all_rulesets()
 
+        pattern = self._cve_pattern(cve_id)
         # 각 룰셋에서 CVE 검색
         for ruleset_name, ruleset_content in RuleManager._network_rules_cache.items():
             for line in ruleset_content.splitlines():
-                # CVE ID가 포함되어 있고, 주석이 아니고, alert 키워드가 있는 줄
-                if cve_id in line and "alert" in line and not line.strip().startswith("#"):
+                # CVE ID가 (정확히) 포함되고, 주석이 아니고, alert 키워드가 있는 줄
+                if pattern.search(line) and "alert" in line and not line.strip().startswith("#"):
                     # 엔진 타입 결정
                     engine_type = self._detect_engine_type(ruleset_name)
                     
@@ -235,9 +246,9 @@ class RuleManager:
         if not RuleManager._sigma_files:
             self._download_sigma_repo()
 
-        cve_lower = cve_id.lower()
+        pattern = self._cve_pattern(cve_id)
         for filepath, content in RuleManager._sigma_files.items():
-            if cve_lower in content.lower():
+            if pattern.search(content):
                 filename = filepath.split('/')[-1]
                 logger.info(f"✅ SigmaHQ 로컬에서 발견: {filename}")
                 return content
@@ -250,9 +261,9 @@ class RuleManager:
         if not RuleManager._yara_files:
             self._download_yara_repo()
 
-        cve_lower = cve_id.lower()
+        pattern = self._cve_pattern(cve_id)
         for filepath, content in RuleManager._yara_files.items():
-            if cve_lower in content.lower():
+            if pattern.search(content):
                 filename = filepath.split('/')[-1]
                 logger.info(f"✅ Yara-Rules 로컬에서 발견: {filename}")
                 return content
