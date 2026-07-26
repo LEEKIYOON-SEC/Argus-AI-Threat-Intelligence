@@ -235,6 +235,60 @@ def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
         logger.debug(f"이월 심각도 추정 생략: {e}")
 
 
+def _looks_english(text: str) -> bool:
+    """한글이 한 글자도 없는 (=번역 안 된) 텍스트인지. 짧은 제품명 등 오탐 방지로 길이 하한."""
+    t = (text or '').strip()
+    return len(t) > 25 and not re.search(r'[가-힣]', t)
+
+
+def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
+    """영문으로 남은 추적 CVE의 제목·설명을 재번역 (대시보드 품질 백필).
+
+    Phase B가 시간 예산에 걸리면 그 회차 CVE는 영문 폴백으로 저장되고, 레코드가 다시
+    바뀌지 않는 한 영영 영문으로 남는다(대시보드 절반이 영문이 되는 원인). 매 실행
+    소량씩 재번역해 점진적으로 해소한다. 시간·건수 상한이 있어 본 파이프라인을 침범하지 않는다.
+    """
+    limit = config.PERFORMANCE.get("translation_backfill_per_run", 0)
+    if limit <= 0:
+        return
+    # 본 처리를 마친 뒤 남는 시간에만 — 예산이 빠듯하면 통째로 생략
+    reserve = config.PERFORMANCE.get("phase_c_reserve_minutes", 8) * 60
+    if time.time() > deadline_ts - reserve:
+        logger.info("번역 백필 생략 (시간 예산 부족)")
+        return
+    try:
+        pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
+        candidates = db.get_translation_backfill_candidates(limit=pool)
+        items = []
+        for row in candidates:
+            state = row.get('last_alert_state') or {}
+            title_ko = state.get('title_ko') or state.get('title') or ''
+            if not _looks_english(title_ko):
+                continue
+            items.append({"id": row['id'],
+                          "title": state.get('title') or title_ko,
+                          "description": state.get('description') or state.get('desc_ko') or ''})
+            if len(items) >= limit:
+                break
+        if not items:
+            logger.info("번역 백필: 대상 없음 (최근 추적분 모두 한글화됨)")
+            return
+
+        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도")
+        translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
+        fixed = 0
+        for it in items:
+            tr = translations.get(it['id'])
+            # 번역이 여전히 영문이면(폴백) 저장하지 않는다 — 무의미한 DB 쓰기 방지
+            if not tr or _looks_english(tr[0]):
+                continue
+            if db.update_translation(it['id'], tr[0], tr[1]):
+                fixed += 1
+        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화")
+    except Exception as e:
+        logger.warning(f"번역 백필 생략(오류): {e}")
+
+
 def _iso_after(ts: str, cutoff: datetime.datetime) -> bool:
     """ISO 시각 문자열이 cutoff 이후인지 (파싱 실패 시 True — 임의 삭제 방지)."""
     try:
@@ -1562,6 +1616,9 @@ def _main():
                    if _iso_after(v, stale_cut)}
     fail_counts = {k: v for k, v in fail_counts.items() if k in held_now or v > 0}
     write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined)
+
+    # 워터마크 저장 이후에 백필 — 여기서 무슨 일이 나도 이번 회차의 전진은 이미 확정이다
+    backfill_translations(db, soft_deadline_ts)
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 

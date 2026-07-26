@@ -351,6 +351,46 @@ class ArgusDB:
             logger.error(f"배치 해시 조회 실패: {e}")
             return result
 
+    def get_translation_backfill_candidates(self, limit: int = 60) -> List[Dict]:
+        """한국어 번역이 안 된 채 남은 추적 CVE (대시보드 품질 백필용).
+
+        번역은 Phase B에서 하지만 시간 예산 초과 시 영문 폴백으로 저장된다. 그 행들은
+        레코드가 다시 바뀌지 않는 한 영영 영문으로 남아 대시보드 절반이 영문이 된다.
+        여기서 후보를 받아 재번역한다. '영문 여부' 판정은 JSONB 내부 값 비교라
+        서버 필터로 표현하기 어려워 파이썬에서 거른다 — 그래서 최신순 limit건만 받는다.
+        """
+        try:
+            response = self._execute(
+                self.client.table("cves")
+                .select("id, last_alert_state")
+                .not_.is_("last_alert_state", "null")
+                .order("updated_at", desc=True)
+                .limit(limit)
+            )
+            return response.data or []
+        except Exception as e:
+            logger.error(f"번역 백필 후보 조회 실패: {e}")
+            return []
+
+    def update_translation(self, cve_id: str, title_ko: str, desc_ko: str) -> bool:
+        """기존 last_alert_state의 번역 필드만 갱신 (다른 필드는 보존)."""
+        try:
+            current = self.get_cve(cve_id)
+            if not current or not current.get('last_alert_state'):
+                return False
+            state = dict(current['last_alert_state'])
+            state['title_ko'] = title_ko
+            state['desc_ko'] = desc_ko
+            return self.upsert_cve({
+                "id": cve_id,
+                "last_alert_state": state,
+                "updated_at": current.get('updated_at') or datetime.datetime.now(
+                    datetime.timezone.utc).isoformat(),
+            })
+        except Exception as e:
+            logger.warning(f"{cve_id} 번역 갱신 실패: {e}")
+            return False
+
     def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
         """외부 피드(KEV/EPSS/Metasploit) 단독 변화로 고위험 승격 가능성이 있는 '현재 저위험' CVE.
 
