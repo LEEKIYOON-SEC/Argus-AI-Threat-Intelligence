@@ -6,7 +6,7 @@ import re
 import json
 import time
 import hashlib
-from typing import List, Dict, Set, Optional
+from typing import List, Dict, Set, Optional, Tuple
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from logger import logger
 from rate_limiter import rate_limit_manager
@@ -29,25 +29,66 @@ _STATE_PATH = os.path.join(
 )
 _BOOTSTRAP_HOURS = 24  # 상태 파일이 없을 때(최초 실행) 소급 조회 기간
 
-def read_watermark() -> datetime.datetime:
-    """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
+def _read_state() -> Dict:
+    """상태 파일 전체를 읽는다 (워터마크 + 실패 추적). 없으면 빈 dict."""
     try:
         with open(_STATE_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-        wm = data.get("last_processed_until")
-        if wm:
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError, json.JSONDecodeError):
+        return {}
+
+def read_watermark() -> datetime.datetime:
+    """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
+    wm = _read_state().get("last_processed_until")
+    if wm:
+        try:
             return datetime.datetime.fromisoformat(wm.replace("Z", "+00:00"))
-    except (OSError, ValueError, json.JSONDecodeError) as e:
-        logger.info(f"워터마크 없음/파싱 실패({e}) → 최근 {_BOOTSTRAP_HOURS}h 부트스트랩")
+        except ValueError:
+            pass
+    logger.info(f"워터마크 없음/파싱 실패 → 최근 {_BOOTSTRAP_HOURS}h 부트스트랩")
     return datetime.datetime.now(pytz.UTC) - datetime.timedelta(hours=_BOOTSTRAP_HOURS)
 
-def write_watermark(dt_utc: datetime.datetime) -> None:
-    """처리 완료 지점(UTC)을 상태 파일에 기록."""
+def read_failure_state() -> Tuple[Dict[str, int], Dict[str, str]]:
+    """(연속 실패 횟수, 격리 목록) 반환. 격리 = {cve_id: 격리 시각 ISO}."""
+    data = _read_state()
+    fails = data.get("failures") or {}
+    quarantined = data.get("quarantined") or {}
+    return (
+        {k: int(v) for k, v in fails.items() if isinstance(v, (int, float))},
+        {k: str(v) for k, v in quarantined.items()},
+    )
+
+def active_quarantine(quarantined: Dict[str, str], retry_after_hours: int) -> Set[str]:
+    """아직 격리 유효기간이 지나지 않은 CVE 집합. 기간이 지나면 자동 해제되어 재시도된다
+    (일시 장애가 연속으로 겹쳐 격리된 경우 스스로 회복하게 하는 안전장치)."""
+    now = datetime.datetime.now(pytz.UTC)
+    active = set()
+    for cid, ts in quarantined.items():
+        try:
+            when = datetime.datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        if (now - when) < datetime.timedelta(hours=retry_after_hours):
+            active.add(cid)
+    return active
+
+def write_watermark(dt_utc: datetime.datetime,
+                    failures: Optional[Dict[str, int]] = None,
+                    quarantined: Optional[Dict[str, str]] = None) -> None:
+    """처리 완료 지점(UTC) + 실패 추적 상태를 기록.
+
+    실패 추적은 '독약 레코드'가 워터마크를 영구 고정하는 것을 막기 위한 것이다 —
+    상세는 main._main의 워터마크 계산 주석 참조."""
     try:
         os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
         payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
+        if failures:
+            payload["failures"] = failures
+        if quarantined:
+            payload["quarantined"] = quarantined
         with open(_STATE_PATH, "w", encoding="utf-8") as f:
-            json.dump(payload, f)
+            json.dump(payload, f, indent=1, sort_keys=True)
         logger.info(f"워터마크 저장: {payload['last_processed_until']}")
     except OSError as e:
         logger.warning(f"워터마크 저장 실패: {e}")

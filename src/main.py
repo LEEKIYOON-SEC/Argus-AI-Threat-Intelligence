@@ -12,7 +12,8 @@ from google import genai
 from google.genai import types
 from logger import logger
 from config import config
-from collector import Collector, read_watermark, write_watermark
+from collector import (Collector, read_watermark, write_watermark,
+                       read_failure_state, active_quarantine)
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
@@ -232,6 +233,68 @@ def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
         )
     except Exception as e:
         logger.debug(f"이월 심각도 추정 생략: {e}")
+
+
+def _looks_english(text: str) -> bool:
+    """한글이 한 글자도 없는 (=번역 안 된) 텍스트인지. 짧은 제품명 등 오탐 방지로 길이 하한."""
+    t = (text or '').strip()
+    return len(t) > 25 and not re.search(r'[가-힣]', t)
+
+
+def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
+    """영문으로 남은 추적 CVE의 제목·설명을 재번역 (대시보드 품질 백필).
+
+    Phase B가 시간 예산에 걸리면 그 회차 CVE는 영문 폴백으로 저장되고, 레코드가 다시
+    바뀌지 않는 한 영영 영문으로 남는다(대시보드 절반이 영문이 되는 원인). 매 실행
+    소량씩 재번역해 점진적으로 해소한다. 시간·건수 상한이 있어 본 파이프라인을 침범하지 않는다.
+    """
+    limit = config.PERFORMANCE.get("translation_backfill_per_run", 0)
+    if limit <= 0:
+        return
+    # 본 처리를 마친 뒤 남는 시간에만 — 예산이 빠듯하면 통째로 생략
+    reserve = config.PERFORMANCE.get("phase_c_reserve_minutes", 8) * 60
+    if time.time() > deadline_ts - reserve:
+        logger.info("번역 백필 생략 (시간 예산 부족)")
+        return
+    try:
+        pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
+        candidates = db.get_translation_backfill_candidates(limit=pool)
+        items = []
+        for row in candidates:
+            state = row.get('last_alert_state') or {}
+            title_ko = state.get('title_ko') or state.get('title') or ''
+            if not _looks_english(title_ko):
+                continue
+            items.append({"id": row['id'],
+                          "title": state.get('title') or title_ko,
+                          "description": state.get('description') or state.get('desc_ko') or ''})
+            if len(items) >= limit:
+                break
+        if not items:
+            logger.info("번역 백필: 대상 없음 (최근 추적분 모두 한글화됨)")
+            return
+
+        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도")
+        translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
+        fixed = 0
+        for it in items:
+            tr = translations.get(it['id'])
+            # 번역이 여전히 영문이면(폴백) 저장하지 않는다 — 무의미한 DB 쓰기 방지
+            if not tr or _looks_english(tr[0]):
+                continue
+            if db.update_translation(it['id'], tr[0], tr[1]):
+                fixed += 1
+        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화")
+    except Exception as e:
+        logger.warning(f"번역 백필 생략(오류): {e}")
+
+
+def _iso_after(ts: str, cutoff: datetime.datetime) -> bool:
+    """ISO 시각 문자열이 cutoff 이후인지 (파싱 실패 시 True — 임의 삭제 방지)."""
+    try:
+        return datetime.datetime.fromisoformat(str(ts).replace("Z", "+00:00")) >= cutoff
+    except ValueError:
+        return True
 
 
 def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
@@ -1117,19 +1180,15 @@ def check_for_official_rules() -> None:
         notifier = SlackNotifier()
         rule_manager = RuleManager()
 
-        candidates = db.get_rule_recheck_candidates()
+        # 배치 제한을 DB 조회로 밀어넣는다 — 후보 전량을 받아 파이썬에서 자르면
+        # 고위험 수천 건 × 매시간 = Supabase egress 낭비 (불변 원칙 2)
+        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
+        candidates = db.get_rule_recheck_candidates(limit=max_recheck)
 
         if not candidates:
             logger.info("재확인 대상 없음")
             return
-
-        # 배치 제한: config 기반 (2시간마다 실행 × 10건 = 하루 120건 처리 가능)
-        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
-        if len(candidates) > max_recheck:
-            logger.info(f"재확인 대상: {len(candidates)}건 중 {max_recheck}건 처리 (우선순위 기반)")
-            candidates = candidates[:max_recheck]
-        else:
-            logger.info(f"재확인 대상: {len(candidates)}건")
+        logger.info(f"재확인 대상: {len(candidates)}건")
 
         found_count = 0
 
@@ -1153,8 +1212,10 @@ def check_for_official_rules() -> None:
                     found_count += 1
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
 
-                    # Slack 알림 (보존정책으로 last_alert_state가 null일 수 있음 → or 폴백)
-                    title_ko = (record.get('last_alert_state') or {}).get('title_ko', cve_id)
+                    # 제목은 룰 발견 시에만 필요 → 후보 조회에서 제외하고 여기서 단건 조회.
+                    # (보존정책으로 last_alert_state가 null일 수 있음 → cve_id 폴백)
+                    full = db.get_cve(cve_id) or {}
+                    title_ko = (full.get('last_alert_state') or {}).get('title_ko') or cve_id
                     notifier.send_official_rule_update(
                         cve_id=cve_id,
                         title=title_ko,
@@ -1361,6 +1422,17 @@ def _main():
     # KEV 멤버십은 메모리 세트라 값싸게 판별 가능 → 백로그가 커도 알려진 악용 취약점을 먼저 처리한다.
     # (CVSS 기반 완전 정렬은 CVE별 fetch가 필요해 백로그 전체엔 비쌈 → KEV 우선으로 핵심만 앞당김.)
     new_items = [c for c in fetched if c['is_new']]
+    # 격리(quarantine) 중인 CVE는 이번 실행에서 건드리지 않는다 — 아래 워터마크 계산 주석 참조.
+    # 격리 유효기간이 지난 건은 active_quarantine이 자동 제외 → 다시 정상 처리 대상이 된다.
+    fail_counts, quarantined = read_failure_state()
+    quarantine_hours = config.PERFORMANCE.get("quarantine_retry_hours", 24)
+    held = active_quarantine(quarantined, quarantine_hours)
+    if held:
+        blocked = [c['cve_id'] for c in new_items if c['cve_id'] in held]
+        if blocked:
+            logger.warning(f"⛔ 격리 중 {len(blocked)}건 이번 실행 제외 (예: {blocked[:3]}) — "
+                           f"{quarantine_hours}h 후 자동 재시도")
+        new_items = [c for c in new_items if c['cve_id'] not in held]
     kev_set = collector.kev_set
     new_items.sort(key=lambda c: (0 if c['cve_id'] in kev_set else 1, c['commit_ts']))
     max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
@@ -1492,15 +1564,61 @@ def _main():
         status_by_id.setdefault(c['cve_id'], "failed")
 
     # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
+    #
     # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.
-    unhandled_ts = [c['commit_ts'] for c in to_process if status_by_id.get(c['cve_id']) == 'failed']
+    # 단, '영구 실패' 레코드는 반드시 격리해야 한다 — 매번 실패하는 CVE 1건이 있으면
+    # 워터마크가 그 시각에 영구 고정되고, 조회 창(watermark+12h)도 함께 얼어붙어
+    # 그 이후의 신규 CVE를 영원히 못 본다(파이프라인 전면 정지). 연속 N회 실패한 CVE는
+    # 워터마크 계산에서 제외(격리)해 전진시키고, quarantine_retry_hours 후 자동 재시도한다.
+    max_fail = config.PERFORMANCE.get("max_consecutive_failures", 3)
+    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    newly_quarantined = []
+    for c in to_process:
+        cid = c['cve_id']
+        st = status_by_id.get(cid)
+        if st == 'failed':
+            fail_counts[cid] = fail_counts.get(cid, 0) + 1
+            if fail_counts[cid] >= max_fail and cid not in quarantined:
+                quarantined[cid] = now_iso
+                newly_quarantined.append(cid)
+        elif st in ('success', 'handled'):
+            # 성공 → 실패 이력·격리 해제 (일시 장애가 회복된 경우)
+            fail_counts.pop(cid, None)
+            quarantined.pop(cid, None)
+
+    if newly_quarantined:
+        logger.error(
+            f"⛔ 연속 {max_fail}회 실패로 격리: {len(newly_quarantined)}건 {newly_quarantined[:5]} — "
+            f"워터마크 전진을 위해 제외 (파이프라인 정지 방지). "
+            f"{config.PERFORMANCE.get('quarantine_retry_hours', 24)}h 후 자동 재시도"
+        )
+        notifier.send_pipeline_warning(
+            "⛔ CVE 격리 발생",
+            f"연속 {max_fail}회 처리 실패로 {len(newly_quarantined)}건을 격리했습니다. "
+            f"워터마크 정지를 막기 위한 조치이며 자동 재시도됩니다.\n"
+            f"`{', '.join(newly_quarantined[:10])}`"
+        )
+
+    # 격리분은 unhandled에서 제외 — 이것이 워터마크를 전진시켜 파이프라인을 살린다
+    held_now = set(quarantined)
+    unhandled_ts = [c['commit_ts'] for c in to_process
+                    if status_by_id.get(c['cve_id']) == 'failed' and c['cve_id'] not in held_now]
     unhandled_ts += [c['commit_ts'] for c in deferred]
     if unhandled_ts:
         new_watermark = min(unhandled_ts)  # 이 시각 이후는 다음 실행에서 재수집
     else:
         # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
         new_watermark = max(c['commit_ts'] for c in fetched)
-    write_watermark(new_watermark)
+
+    # 상태 파일 비대화 방지 — 격리 유효기간이 한참 지난 항목은 정리(재시도 후 성공 시 삭제됨)
+    stale_cut = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
+    quarantined = {k: v for k, v in quarantined.items()
+                   if _iso_after(v, stale_cut)}
+    fail_counts = {k: v for k, v in fail_counts.items() if k in held_now or v > 0}
+    write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined)
+
+    # 워터마크 저장 이후에 백필 — 여기서 무슨 일이 나도 이번 회차의 전진은 이미 확정이다
+    backfill_translations(db, soft_deadline_ts)
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 

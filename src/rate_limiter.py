@@ -192,13 +192,6 @@ class RateLimitManager:
                     return model
             return None
 
-    def mark_groq_exhausted(self, model: str) -> None:
-        """모델의 일일 한도 소진 마킹 (429 수신 시)."""
-        with self._lock:
-            self._ensure_groq_model(model)
-            self._tpd_exhausted_model[model] = True
-            logger.warning(f"🚫 {model} 일일 한도 소진 마킹 — 다음 모델/SKIP로 전환")
-
     def check_and_wait(self, api_name: str, max_wait: Optional[float] = None) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단.
 
@@ -471,28 +464,6 @@ class RateLimitManager:
             return float(match.group(1))
 
         return None
-    
-    def get_status(self, api_name: Optional[str] = None) -> Dict:
-        """현재 상태 조회"""
-        with self._lock:
-            if api_name:
-                if api_name not in self.limits:
-                    return {}
-                info = self.limits[api_name]
-                return {
-                    "api": api_name, "used": info.used, "limit": info.limit,
-                    "remaining": info.remaining,
-                    "usage_percent": round(info.usage_percent, 1),
-                    "reset_in": round(info.time_until_reset, 0)
-                }
-            return {
-                "apis": {
-                    name: {"used": info.used, "limit": info.limit,
-                           "remaining": info.remaining, "usage": f"{info.usage_percent:.1f}%"}
-                    for name, info in self.limits.items()
-                },
-                "stats": dict(self.stats)
-            }
     
     def print_summary(self):
         """실행 종료 시 요약 출력"""

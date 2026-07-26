@@ -198,6 +198,19 @@ class SlackNotifier:
             logger.error(f"배치 요약 생성 에러: {e}")
             return False
     
+    def send_pipeline_warning(self, title: str, detail: str) -> bool:
+        """파이프라인 운영 경고 (격리 발생 등) — 조용한 실패로 묻히면 안 되는 상태 변화 통지."""
+        try:
+            return self._send_slack_with_retry({
+                "blocks": [
+                    {"type": "header", "text": {"type": "plain_text", "text": title}},
+                    {"type": "section", "text": {"type": "mrkdwn", "text": detail}},
+                ]
+            }, "파이프라인 경고")
+        except Exception as e:
+            logger.error(f"파이프라인 경고 알림 실패: {e}")
+            return False
+
     def send_official_rule_update(self, cve_id: str, title: str, rules_info: Dict, original_report_url: Optional[str] = None) -> bool:
         try:
             blocks = [
