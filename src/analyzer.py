@@ -253,8 +253,12 @@ References: {json.dumps(cve_data.get('references', [])[:3])}
      MITRE ATT&CK 기반 공격 흐름:\n**초기 접근(Initial Access)** – 설명 (T코드: 기법명). [추정]\n**실행(Execution)** – 설명 (T코드: 기법명). [추정]\n**영향(Impact)** – 설명 (T코드: 기법명). [추정]
 
 3. **Business Impact Assessment**
-   - Evaluate CIA impact based on the CVSS vector values
-   - State what is confirmed by the vector vs what is inferred
+   - Focus on REAL-WORLD operational consequences, NOT a restatement of the CVSS vector
+     (the vector metrics are already shown separately — do NOT list AV/AC/PR/UI/VC/VI/VA values here)
+   - Describe concretely: what data could be exposed/altered, what service could go down, and the
+     likely business/compliance impact (e.g., 고객 데이터 유출, 서비스 전면 중단, 규정 위반 가능성)
+   - Ground it in the CVSS impact metrics and CWE, but express it as consequences, not metric names
+   - Mark inferences with [추정]
 
 4. **Mitigation Strategy**
    - Check the Affected Products data above for version ranges (e.g., "X 부터 Y 이전")
