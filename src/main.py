@@ -12,7 +12,8 @@ from google import genai
 from google.genai import types
 from logger import logger
 from config import config
-from collector import Collector, read_watermark, write_watermark
+from collector import (Collector, read_watermark, write_watermark,
+                       read_failure_state, active_quarantine)
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
@@ -232,6 +233,14 @@ def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
         )
     except Exception as e:
         logger.debug(f"이월 심각도 추정 생략: {e}")
+
+
+def _iso_after(ts: str, cutoff: datetime.datetime) -> bool:
+    """ISO 시각 문자열이 cutoff 이후인지 (파싱 실패 시 True — 임의 삭제 방지)."""
+    try:
+        return datetime.datetime.fromisoformat(str(ts).replace("Z", "+00:00")) >= cutoff
+    except ValueError:
+        return True
 
 
 def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
@@ -1361,6 +1370,17 @@ def _main():
     # KEV 멤버십은 메모리 세트라 값싸게 판별 가능 → 백로그가 커도 알려진 악용 취약점을 먼저 처리한다.
     # (CVSS 기반 완전 정렬은 CVE별 fetch가 필요해 백로그 전체엔 비쌈 → KEV 우선으로 핵심만 앞당김.)
     new_items = [c for c in fetched if c['is_new']]
+    # 격리(quarantine) 중인 CVE는 이번 실행에서 건드리지 않는다 — 아래 워터마크 계산 주석 참조.
+    # 격리 유효기간이 지난 건은 active_quarantine이 자동 제외 → 다시 정상 처리 대상이 된다.
+    fail_counts, quarantined = read_failure_state()
+    quarantine_hours = config.PERFORMANCE.get("quarantine_retry_hours", 24)
+    held = active_quarantine(quarantined, quarantine_hours)
+    if held:
+        blocked = [c['cve_id'] for c in new_items if c['cve_id'] in held]
+        if blocked:
+            logger.warning(f"⛔ 격리 중 {len(blocked)}건 이번 실행 제외 (예: {blocked[:3]}) — "
+                           f"{quarantine_hours}h 후 자동 재시도")
+        new_items = [c for c in new_items if c['cve_id'] not in held]
     kev_set = collector.kev_set
     new_items.sort(key=lambda c: (0 if c['cve_id'] in kev_set else 1, c['commit_ts']))
     max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
@@ -1492,15 +1512,58 @@ def _main():
         status_by_id.setdefault(c['cve_id'], "failed")
 
     # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
+    #
     # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.
-    unhandled_ts = [c['commit_ts'] for c in to_process if status_by_id.get(c['cve_id']) == 'failed']
+    # 단, '영구 실패' 레코드는 반드시 격리해야 한다 — 매번 실패하는 CVE 1건이 있으면
+    # 워터마크가 그 시각에 영구 고정되고, 조회 창(watermark+12h)도 함께 얼어붙어
+    # 그 이후의 신규 CVE를 영원히 못 본다(파이프라인 전면 정지). 연속 N회 실패한 CVE는
+    # 워터마크 계산에서 제외(격리)해 전진시키고, quarantine_retry_hours 후 자동 재시도한다.
+    max_fail = config.PERFORMANCE.get("max_consecutive_failures", 3)
+    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    newly_quarantined = []
+    for c in to_process:
+        cid = c['cve_id']
+        st = status_by_id.get(cid)
+        if st == 'failed':
+            fail_counts[cid] = fail_counts.get(cid, 0) + 1
+            if fail_counts[cid] >= max_fail and cid not in quarantined:
+                quarantined[cid] = now_iso
+                newly_quarantined.append(cid)
+        elif st in ('success', 'handled'):
+            # 성공 → 실패 이력·격리 해제 (일시 장애가 회복된 경우)
+            fail_counts.pop(cid, None)
+            quarantined.pop(cid, None)
+
+    if newly_quarantined:
+        logger.error(
+            f"⛔ 연속 {max_fail}회 실패로 격리: {len(newly_quarantined)}건 {newly_quarantined[:5]} — "
+            f"워터마크 전진을 위해 제외 (파이프라인 정지 방지). "
+            f"{config.PERFORMANCE.get('quarantine_retry_hours', 24)}h 후 자동 재시도"
+        )
+        notifier.send_pipeline_warning(
+            "⛔ CVE 격리 발생",
+            f"연속 {max_fail}회 처리 실패로 {len(newly_quarantined)}건을 격리했습니다. "
+            f"워터마크 정지를 막기 위한 조치이며 자동 재시도됩니다.\n"
+            f"`{', '.join(newly_quarantined[:10])}`"
+        )
+
+    # 격리분은 unhandled에서 제외 — 이것이 워터마크를 전진시켜 파이프라인을 살린다
+    held_now = set(quarantined)
+    unhandled_ts = [c['commit_ts'] for c in to_process
+                    if status_by_id.get(c['cve_id']) == 'failed' and c['cve_id'] not in held_now]
     unhandled_ts += [c['commit_ts'] for c in deferred]
     if unhandled_ts:
         new_watermark = min(unhandled_ts)  # 이 시각 이후는 다음 실행에서 재수집
     else:
         # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
         new_watermark = max(c['commit_ts'] for c in fetched)
-    write_watermark(new_watermark)
+
+    # 상태 파일 비대화 방지 — 격리 유효기간이 한참 지난 항목은 정리(재시도 후 성공 시 삭제됨)
+    stale_cut = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
+    quarantined = {k: v for k, v in quarantined.items()
+                   if _iso_after(v, stale_cut)}
+    fail_counts = {k: v for k, v in fail_counts.items() if k in held_now or v > 0}
+    write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined)
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 

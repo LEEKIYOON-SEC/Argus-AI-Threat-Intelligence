@@ -87,6 +87,11 @@ class ArgusConfig:
         # 이월(백로그) 대기열 심각도 추정 표본 크기 — raw JSON(API 한도 미소모)로 CVSS만
         # 읽어 분포를 외삽해 로그로 남긴다(관측 전용, 0=끔). 80건 ≈ ±10%p 오차, 소요 ~10초.
         "deferred_severity_sample": 80,
+        # 독약(poison-pill) 레코드 격리 — 매번 실패하는 CVE 1건이 워터마크를 영구 고정해
+        # 조회 창까지 얼어붙는(신규 CVE 전면 미수집) 사고를 막는다. 연속 N회 실패 시 격리,
+        # M시간 후 자동 해제·재시도 → 일시 장애가 연속으로 겹친 경우 스스로 회복.
+        "max_consecutive_failures": 3,
+        "quarantine_retry_hours": 24,
         "max_rule_recheck": 10,  # 공식 룰 재확인 배치 크기
         # 에스컬레이션 재평가 스윕 — 레코드(cvelistV5) 미변경이라 재수집 큐에 안 올라오는
         # '현재 저위험' CVE의 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 변화로 인한 고위험 승격

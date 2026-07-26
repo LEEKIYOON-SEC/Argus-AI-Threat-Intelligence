@@ -119,6 +119,9 @@ def export_cves(client, days: int = 90) -> list:
         entry["has_poc"] = state_poc
         entry["poc_urls"] = state.get("poc_urls", [])[:3]
 
+        # WAF 콘텐츠 차단으로 축소 저장된 행 — 모달에서 '원문은 리포트 참조' 안내에 사용
+        entry["degraded"] = bool(state.get("waf_degraded"))
+
         # P5 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit)
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
         entry["has_public_exploit"] = state.get("has_public_exploit", False)
@@ -141,30 +144,6 @@ def export_cves(client, days: int = 90) -> list:
         result.append(entry)
 
     return result
-
-
-def _build_cve_tags(cve: dict) -> list:
-    """CVE에서 태그 목록 생성"""
-    tags = []
-    if cve.get("is_kev"):
-        tags.append("KEV")
-    if cve.get("ssvc_exploitation") == "active":
-        tags.append("SSVC-Active")
-    if cve.get("has_metasploit_module"):
-        tags.append("Weaponized")
-    if cve.get("has_public_exploit"):
-        tags.append("Public-Exploit")
-    if cve.get("has_poc"):
-        tags.append("PoC")
-    if cve.get("cvss", 0) >= 9.0:
-        tags.append("Critical")
-    if cve.get("epss", 0) >= 0.1:
-        tags.append("High-EPSS")
-    if cve.get("rule_engines"):
-        tags.append("has-rules")
-    if cve.get("has_official_rules"):
-        tags.append("official-rules")
-    return tags
 
 
 def export_stats(cve_data: list) -> dict:

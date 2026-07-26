@@ -120,11 +120,6 @@ def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
     return _exploitdb_index.get(cve_id.upper())
 
 
-def has_public_exploit(cve_id: str) -> bool:
-    """ExploitDB에 공개 익스플로잇이 존재하는지 (1급 위험 신호)"""
-    return exploitdb_entry(cve_id) is not None
-
-
 # ─────────────────────────────────────────────
 # Metasploit — CVE → 모듈 메타데이터 (BSD-3-Clause)
 # ─────────────────────────────────────────────
@@ -191,13 +186,8 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
 
 
 def metasploit_modules(cve_id: str) -> List[Dict]:
-    """CVE에 매핑된 Metasploit 모듈 목록 (신뢰도 높은 순)"""
+    """CVE에 매핑된 Metasploit 모듈 목록 (신뢰도 높은 순).
+    비어 있으면 무기화 신호 없음 — 호출측이 bool()로 판별한다."""
     load_metasploit_index()
     mods = _msf_index.get(cve_id.upper(), [])
     return sorted(mods, key=lambda m: m.get("rank", 0), reverse=True)
-
-
-def has_metasploit_module(cve_id: str) -> bool:
-    """Metasploit 모듈이 존재하는지 ("무기화됨" 신호)"""
-    load_metasploit_index()
-    return cve_id.upper() in _msf_index
