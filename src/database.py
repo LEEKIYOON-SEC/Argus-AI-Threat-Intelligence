@@ -202,7 +202,13 @@ class ArgusDB:
         logger.error(f"CVE 저장 실패 ({cid}) — WAF 축소본까지 실패: {_describe_error(err3)}")
         return False
     
-    def get_rule_recheck_candidates(self) -> List[Dict]:
+    # 재확인 후보 조회에 필요한 최소 컬럼 — 대용량 JSONB(last_alert_state·rules_snapshot)
+    # 제외가 핵심이다. 전체 컬럼(select *)을 끌어오면 고위험 수천 건 × 매시간 실행으로
+    # Supabase 무료 egress(5GB/월)를 수백 MB씩 소모한다(불변 원칙 2 위배).
+    _RECHECK_COLS = ("id, cvss_score, epss_score, is_kev, has_official_rules, "
+                     "last_rule_check_at, last_alert_at, report_url")
+
+    def get_rule_recheck_candidates(self, limit: int = 10) -> List[Dict]:
         """
         공개(공식) 룰 재확인이 필요한 고위험 CVE 조회.
 
@@ -212,23 +218,39 @@ class ArgusDB:
         2. rules_snapshot이 없는 고위험 CVE (CVSS >= 7.0) — Issue 생성 실패 등으로
            룰 검색 기록이 없는 케이스 재확인
 
-        쿨다운:
-        - 성공 시: 7일 후 재확인
-        - 실패 시: 1일 후 재시도 (빠른 복구)
+        쿨다운: 성공 7일 / 실패 1일(last_rule_check_at을 6일 전으로 기록해 구현).
+        필터·정렬·상한을 모두 서버(PostgREST)로 밀어 전송량을 최소화한다 — 어차피
+        상위 limit건만 쓰므로 전량을 받아 파이썬에서 자르는 것은 순수 낭비였다.
+        보존기간(CVSS별 90/180일) 필터는 파이썬에 남으므로 여유분(×3)을 받아 온다.
         """
         try:
-            # Case 1: 공개 룰 미확인 CVE
-            norules_response = self._execute(
+            fetch_n = max(limit * 3, 30)
+            cutoff_7d = (datetime.datetime.now(datetime.timezone.utc)
+                         - datetime.timedelta(days=7)).isoformat()
+            # 쿨다운: 미확인(null)이거나 7일 경과분만 — 서버에서 거른다
+            cooldown = f"last_rule_check_at.is.null,last_rule_check_at.lt.{cutoff_7d}"
+
+            def _query(base):
+                return self._execute(
+                    base.or_(cooldown)
+                        .order("is_kev", desc=True)
+                        .order("cvss_score", desc=True)
+                        .order("epss_score", desc=True)
+                        .limit(fetch_n)
+                )
+
+            # Case 1: 리포트됐지만 공개 룰 미확인 CVE
+            norules_response = _query(
                 self.client.table("cves")
-                .select("*")
+                .select(self._RECHECK_COLS)
                 .eq("has_official_rules", False)
                 .not_.is_("rules_snapshot", "null")
             )
 
             # Case 2: 룰 검색 기록이 없는 고위험 CVE (CVSS >= 7.0)
-            norecord_response = self._execute(
+            norecord_response = _query(
                 self.client.table("cves")
-                .select("*")
+                .select(self._RECHECK_COLS)
                 .is_("rules_snapshot", "null")
                 .gte("cvss_score", 7.0)
             )
@@ -298,8 +320,9 @@ class ArgusDB:
                 -(r.get('epss_score', 0) or 0),
             ))
 
-            total = len(norules_response.data or []) + len(norecord_response.data or [])
-            logger.info(f"공개 룰 미확인 CVE: {total}건 중 재확인 대상: {len(eligible)}건")
+            eligible = eligible[:limit]
+            total = len(all_records)
+            logger.info(f"공개 룰 재확인: 후보 {total}건(서버 필터·상한 적용) → 대상 {len(eligible)}건")
             return eligible
 
         except Exception as e:

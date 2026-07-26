@@ -1126,19 +1126,15 @@ def check_for_official_rules() -> None:
         notifier = SlackNotifier()
         rule_manager = RuleManager()
 
-        candidates = db.get_rule_recheck_candidates()
+        # 배치 제한을 DB 조회로 밀어넣는다 — 후보 전량을 받아 파이썬에서 자르면
+        # 고위험 수천 건 × 매시간 = Supabase egress 낭비 (불변 원칙 2)
+        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
+        candidates = db.get_rule_recheck_candidates(limit=max_recheck)
 
         if not candidates:
             logger.info("재확인 대상 없음")
             return
-
-        # 배치 제한: config 기반 (2시간마다 실행 × 10건 = 하루 120건 처리 가능)
-        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
-        if len(candidates) > max_recheck:
-            logger.info(f"재확인 대상: {len(candidates)}건 중 {max_recheck}건 처리 (우선순위 기반)")
-            candidates = candidates[:max_recheck]
-        else:
-            logger.info(f"재확인 대상: {len(candidates)}건")
+        logger.info(f"재확인 대상: {len(candidates)}건")
 
         found_count = 0
 
@@ -1162,8 +1158,10 @@ def check_for_official_rules() -> None:
                     found_count += 1
                     logger.info(f"✅ {cve_id}: 공식 룰 발견!")
 
-                    # Slack 알림 (보존정책으로 last_alert_state가 null일 수 있음 → or 폴백)
-                    title_ko = (record.get('last_alert_state') or {}).get('title_ko', cve_id)
+                    # 제목은 룰 발견 시에만 필요 → 후보 조회에서 제외하고 여기서 단건 조회.
+                    # (보존정책으로 last_alert_state가 null일 수 있음 → cve_id 폴백)
+                    full = db.get_cve(cve_id) or {}
+                    title_ko = (full.get('last_alert_state') or {}).get('title_ko') or cve_id
                     notifier.send_official_rule_update(
                         cve_id=cve_id,
                         title=title_ko,
