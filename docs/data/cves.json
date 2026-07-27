@@ -1,5 +1,403 @@
 [
   {
+    "id": "CVE-2026-55685",
+    "title": "React Router: 비효율적인 경로 매칭을 통한 인증되지 않은 서비스 거부(DoS)",
+    "description": "7.0.0~7.17.0 버전의 manifest 엔드포인트에 인증되지 않은 요청을 보내 서버 부하를 유발하고 응답 속도를 늦출 수 있습니다. 7.18.0 버전에서 수정되었습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400",
+      "CWE-407"
+    ],
+    "affected": [
+      {
+        "vendor": "remix-run",
+        "product": "react-router",
+        "versions": ">= 7.0.0, < 7.18.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-27T22:21:47.818922+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-44420",
+    "title": "FreeRDP cliprdr 서버의 CB_CLIP_CAPS 내 capabilitySetLength 미달로 인한 힙 버퍼 오버플로우",
+    "description": "3.26.0 이전 버전에서 악의적인 RDP 클라이언트가 작은 capabilitySetLength를 가진 CB_CLIP_CAPS PDU를 전송하여 힙 버퍼 오버플로우를 유발, DoS 또는 코드 실행이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0.03658,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "FreeRDP",
+        "product": "FreeRDP",
+        "versions": "< 3.26.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-27T22:20:07.756867+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-15467",
+    "title": "CMS (Auth)EnvelopedData 파싱 중 스택 버퍼 오버플로우",
+    "description": "악의적으로 조작된 AEAD 파라미터를 파싱할 때 스택 버퍼 오버플로우가 발생하여 서비스 거부(DoS) 또는 원격 코드 실행이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0.47621,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenSSL",
+        "product": "OpenSSL",
+        "versions": "3.6.0 부터 3.6.1 이전, 3.5.0 부터 3.5.5 이전, 3.4.0 부터 3.4.4 이전, 3.3.0 부터 3.3.6 이전, 3.0.0 부터 3.0.19 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1587",
+    "date": "2026-07-20T13:50:19.31099+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/balgan/CVE-2025-15467",
+      "https://github.com/guiimoraes/CVE-2025-15467",
+      "https://github.com/mr-r3b00t/CVE-2025-15467"
+    ],
+    "degraded": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-44432",
+    "title": "urllib3: 스트리밍 API 일부에서 압축 폭탄(Decompression-bomb) 방어 기제 우회",
+    "description": "특정 조건에서 요청한 부분 대신 전체 응답을 압축 해제하여 시스템 자원을 고갈시킬 수 있는 취약점입니다.",
+    "cvss": 8.9,
+    "epss": 0.0068,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409"
+    ],
+    "affected": [
+      {
+        "vendor": "urllib3",
+        "product": "urllib3",
+        "versions": ">= 2.6.0, < 2.7.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-27T22:20:04.711947+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-21441",
+    "title": "HTTP 리다이렉트 시 urllib3의 decompression-bomb 방어 기제 우회 취약점 (streaming API)",
+    "description": "urllib3의 streaming API 사용 시 HTTP 리다이렉트 과정에서 decompression-bomb 방어 기제가 우회될 수 있습니다.",
+    "cvss": 8.9,
+    "epss": 0.02667,
+    "is_kev": false,
+    "cwe": [
+      "CWE-409"
+    ],
+    "affected": [
+      {
+        "vendor": "urllib3",
+        "product": "urllib3",
+        "versions": ">= 1.22, < 2.6.3 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-27T22:20:03.185151+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4600",
+    "title": "jsrsasign 암호화 서명 검증 미흡",
+    "description": "DSA 도메인 파라미터 검증 미흡으로 인해 공격자가 위조된 DSA 서명이나 X.509 인증서를 생성하여 검증을 통과할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00225,
+    "is_kev": false,
+    "cwe": [
+      "CWE-347"
+    ],
+    "affected": [
+      {
+        "vendor": "kjur",
+        "product": "jsrsasign",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1603",
+    "date": "2026-07-20T13:54:54.175627+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/kjur/jsrsasign/pull/646"
+    ],
+    "degraded": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63830",
+    "title": "net: skmsg: SG 변환 시 sg.copy 유지",
+    "description": "sk_msg의 SG 변환 과정에서 sg.copy 비트맵을 유지하여 쓰기 가능한 BPF ctx->data로부터 데이터를 보호합니다.",
+    "cvss": 9.4,
+    "epss": 0.00337,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 9bb86d8184b37503816150c4a6ad3c17dfdbe827 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 0eb4c16c4adb262763bda870a8ed38a1a9dec7ec 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 d22cc92bc41290e5783a72375e0843d9435f6001 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 1acdd14c0990dd1cd4b6534f00366d2e6dfce05f 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 21ed9540a8e1906dfcbc1bb82ba9b4de4fa4bd6d 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 406e8a651a7b854c41fecd5117bb282b3a6c2c6b 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "4.20 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1625",
+    "date": "2026-07-20T21:21:21.61105+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63857",
+    "title": "net: airoha: airoha_dev_xmit()에서 초기화되지 않은 프래그먼트 주소 읽기 방지",
+    "description": "전송 루프의 마지막 반복에서 초기화되지 않은 프래그먼트 데이터를 읽어 페이지 폴트가 발생할 수 있는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00155,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "23020f04932701d5c8363e60756f12b43b8ed752 부터 f670fa4b19ceddc6d215dda4997888ccba9bbc61 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 d78c8ab7bd84952e053d0c622b7fc1b4ad8a19a3 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 bde34e84edc8b5571fbde7e941e175a4293ee1eb 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1626",
+    "date": "2026-07-20T21:22:06.86494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63825",
+    "title": "gcov: 동시 액세스 크래시 수정을 위해 atomic 카운터 업데이트 사용",
+    "description": "GCOV의 글로벌 브랜치 카운터에 대한 동시 액세스로 인해 발생하는 크래시를 방지하기 위해 atomic 업데이트를 적용합니다.",
+    "cvss": 9.8,
+    "epss": 0.00167,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2521f2c228ad750701ba4702484e31d876dbc386 부터 49d893b9cbcfc5802a32e53a64c6c6956670d65b 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 5b959c1dbb4522b9e3ac4e26ad638b8784869841 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 56cb9b7d96b28a1173a510ab25354b6599ad3a33 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.31 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1624",
+    "date": "2026-07-20T21:21:21.52227+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63800",
+    "title": "pNFS: pnfs_update_layout()의 use-after-free 수정",
+    "description": "pnfs_update_layout()에서 tracepoint 호출 전 pnfs_put_layout_hdr()가 호출되어 발생하는 use-after-free 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00177,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "06f58dbc49a23c99e5c0f246879ed16667f7bf8f 부터 4ad8b9a85dbf57ca532ee9e65ad7e6498bfbbf98 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 1f24b8302c77dcaf79c64c073877a3b9f4dd25d2 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9c0fb5c09ae5bd68dc0038692af8127029cb0385 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 7e37e9b3e82ade881e1798e2f4fcc54aff7793c1 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 2883ddd7542b4437a2ab4908fe2773f690e20889 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 200e7637f4d6a1342987045eea72641524f909dc 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9645aaf689aff57427ece3b9fa47d5b5399417f4 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 13e198a90ca4050f4bee8a3f23680389a6563ccc 이전, aa2399f55eff4ec78330bb6fe55f9df53e5cae0c (단일 버전), 5.10.9 부터 5.10.260 이전, 5.4.91 부터 5.5 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1627",
+    "date": "2026-07-20T21:22:55.597443+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63808",
+    "title": "exfat: exfat_find_dir_entry()의 잠재적 use-after-free 수정",
+    "description": "exfat_find_dir_entry()에서 buffer_head를 해제한 후 해당 데이터를 참조하는 use-after-free 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00177,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e6f1a11cfb808441a43ffae9b476cc135732cd27 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e48f413c2815787b8cade2795e194e3c4cd782ef 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 06c4e1e9967d332ac33ba38b7819851089ff9359 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 8e0abc17fbd7e305802e84fe98b4950d50f9c433 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 4d101016d5e587f820b3ae2d5bb6770d86342649 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 adfacfbaeae2cb760f492357cc36b41f84ef7f86 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 708b97e792945d3e4653939fd3405d71a61ad065 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 3f5f8ee9917cc2b9076ac533492d8a200edcabb8 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.7 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1628",
+    "date": "2026-07-20T21:23:21.356215+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2025-4517",
     "title": "tarfile realpath 오버플로우를 통한 임의 쓰기",
     "description": "filter=\"data\" 옵션으로 압축 해제 시, 추출 디렉토리 외부의 파일 시스템에 임의 쓰기가 가능합니다.",
@@ -5245,37 +5643,6 @@
     ],
     "report_url": null,
     "date": "2026-07-27T15:21:23.773556+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-44420",
-    "title": "FreeRDP cliprdr 서버의 CB_CLIP_CAPS 내 capabilitySetLength 미달로 인한 힙 버퍼 오버플로우",
-    "description": "3.26.0 이전 버전에서 악의적인 RDP 클라이언트가 작은 capabilitySetLength를 가진 CB_CLIP_CAPS PDU를 전송하여 힙 버퍼 오버플로우를 유발, DoS 또는 코드 실행이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0.03658,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "FreeRDP",
-        "product": "FreeRDP",
-        "versions": "< 3.26.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-27T15:21:23.548422+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -29486,45 +29853,6 @@
     "poc_urls": [],
     "degraded": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-63830",
-    "title": "net: skmsg: SG 변환 시 sg.copy 유지",
-    "description": "sk_msg의 SG 변환 과정에서 sg.copy 비트맵을 유지하여 쓰기 가능한 BPF ctx->data로부터 데이터를 보호합니다.",
-    "cvss": 9.4,
-    "epss": 0.00337,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 9bb86d8184b37503816150c4a6ad3c17dfdbe827 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 0eb4c16c4adb262763bda870a8ed38a1a9dec7ec 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 d22cc92bc41290e5783a72375e0843d9435f6001 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 1acdd14c0990dd1cd4b6534f00366d2e6dfce05f 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 21ed9540a8e1906dfcbc1bb82ba9b4de4fa4bd6d 이전, d3b18ad31f93d0b6bae105c679018a1ba7daa9ca 부터 406e8a651a7b854c41fecd5117bb282b3a6c2c6b 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "4.20 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1625",
-    "date": "2026-07-20T21:21:21.61105+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -102681,162 +103009,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-63808",
-    "title": "exfat: exfat_find_dir_entry()의 잠재적 use-after-free 수정",
-    "description": "exfat_find_dir_entry()에서 buffer_head를 해제한 후 해당 데이터를 참조하는 use-after-free 취약점을 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00177,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e6f1a11cfb808441a43ffae9b476cc135732cd27 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 e48f413c2815787b8cade2795e194e3c4cd782ef 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 06c4e1e9967d332ac33ba38b7819851089ff9359 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 8e0abc17fbd7e305802e84fe98b4950d50f9c433 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 4d101016d5e587f820b3ae2d5bb6770d86342649 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 adfacfbaeae2cb760f492357cc36b41f84ef7f86 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 708b97e792945d3e4653939fd3405d71a61ad065 이전, ca06197382bde0a3bc20215595d1c9ce20c6e341 부터 3f5f8ee9917cc2b9076ac533492d8a200edcabb8 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.7 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1628",
-    "date": "2026-07-20T21:23:21.356215+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-63800",
-    "title": "pNFS: pnfs_update_layout()의 use-after-free 수정",
-    "description": "pnfs_update_layout()에서 tracepoint 호출 전 pnfs_put_layout_hdr()가 호출되어 발생하는 use-after-free 취약점을 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00177,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "06f58dbc49a23c99e5c0f246879ed16667f7bf8f 부터 4ad8b9a85dbf57ca532ee9e65ad7e6498bfbbf98 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 1f24b8302c77dcaf79c64c073877a3b9f4dd25d2 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9c0fb5c09ae5bd68dc0038692af8127029cb0385 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 7e37e9b3e82ade881e1798e2f4fcc54aff7793c1 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 2883ddd7542b4437a2ab4908fe2773f690e20889 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 200e7637f4d6a1342987045eea72641524f909dc 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 9645aaf689aff57427ece3b9fa47d5b5399417f4 이전, 2c8d5fc37fe2384a9bdb6965443ab9224d46f704 부터 13e198a90ca4050f4bee8a3f23680389a6563ccc 이전, aa2399f55eff4ec78330bb6fe55f9df53e5cae0c (단일 버전), 5.10.9 부터 5.10.260 이전, 5.4.91 부터 5.5 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.11 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1627",
-    "date": "2026-07-20T21:22:55.597443+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-63857",
-    "title": "net: airoha: airoha_dev_xmit()에서 초기화되지 않은 프래그먼트 주소 읽기 방지",
-    "description": "전송 루프의 마지막 반복에서 초기화되지 않은 프래그먼트 데이터를 읽어 페이지 폴트가 발생할 수 있는 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00155,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "23020f04932701d5c8363e60756f12b43b8ed752 부터 f670fa4b19ceddc6d215dda4997888ccba9bbc61 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 d78c8ab7bd84952e053d0c622b7fc1b4ad8a19a3 이전, 23020f04932701d5c8363e60756f12b43b8ed752 부터 bde34e84edc8b5571fbde7e941e175a4293ee1eb 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.11 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1626",
-    "date": "2026-07-20T21:22:06.86494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-63825",
-    "title": "gcov: 동시 액세스 크래시 수정을 위해 atomic 카운터 업데이트 사용",
-    "description": "GCOV의 글로벌 브랜치 카운터에 대한 동시 액세스로 인해 발생하는 크래시를 방지하기 위해 atomic 업데이트를 적용합니다.",
-    "cvss": 9.8,
-    "epss": 0.00167,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2521f2c228ad750701ba4702484e31d876dbc386 부터 49d893b9cbcfc5802a32e53a64c6c6956670d65b 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 5b959c1dbb4522b9e3ac4e26ad638b8784869841 이전, 2521f2c228ad750701ba4702484e31d876dbc386 부터 56cb9b7d96b28a1173a510ab25354b6599ad3a33 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.31 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1624",
-    "date": "2026-07-20T21:21:21.52227+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-14448",
     "title": "system_certificates 뷰의 인증된 RCE 취약점",
     "description": "system_certificates 뷰에서 OS 커맨드 인젝션 취약점이 발견되어, 높은 권한을 가진 인증된 공격자가 원격으로 코드를 실행할 수 있습니다.",
@@ -103699,106 +103871,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-44432",
-    "title": "urllib3: 스트리밍 API 일부에서 압축 폭탄(Decompression-bomb) 방어 기제 우회",
-    "description": "특정 조건에서 요청한 부분 대신 전체 응답을 압축 해제하여 시스템 자원을 고갈시킬 수 있는 취약점입니다.",
-    "cvss": 8.9,
-    "epss": 0.0068,
-    "is_kev": false,
-    "cwe": [
-      "CWE-409"
-    ],
-    "affected": [
-      {
-        "vendor": "urllib3",
-        "product": "urllib3",
-        "versions": ">= 2.6.0, < 2.7.0 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T16:03:00.830821+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-21441",
-    "title": "HTTP 리다이렉트 시 urllib3의 decompression-bomb 방어 기제 우회 취약점 (streaming API)",
-    "description": "urllib3의 streaming API 사용 시 HTTP 리다이렉트 과정에서 decompression-bomb 방어 기제가 우회될 수 있습니다.",
-    "cvss": 8.9,
-    "epss": 0.02667,
-    "is_kev": false,
-    "cwe": [
-      "CWE-409"
-    ],
-    "affected": [
-      {
-        "vendor": "urllib3",
-        "product": "urllib3",
-        "versions": ">= 1.22, < 2.6.3 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-20T16:02:59.94371+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-4600",
-    "title": "jsrsasign 암호화 서명 검증 미흡",
-    "description": "DSA 도메인 파라미터 검증 미흡으로 인해 공격자가 위조된 DSA 서명이나 X.509 인증서를 생성하여 검증을 통과할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00225,
-    "is_kev": false,
-    "cwe": [
-      "CWE-347"
-    ],
-    "affected": [
-      {
-        "vendor": "kjur",
-        "product": "jsrsasign",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1603",
-    "date": "2026-07-20T13:54:54.175627+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/kjur/jsrsasign/pull/646"
-    ],
-    "degraded": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-42945",
     "title": "NGINX ngx_http_rewrite_module 취약점",
     "description": "특정 조건의 rewrite 지시문과 PCRE 캡처 사용 시, 조작된 HTTP 요청을 통해 힙 버퍼 오버플로우가 발생할 수 있습니다.",
@@ -103908,46 +103980,6 @@
     ],
     "degraded": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2025-15467",
-    "title": "CMS (Auth)EnvelopedData 파싱 중 스택 버퍼 오버플로우",
-    "description": "악의적으로 조작된 AEAD 파라미터를 파싱할 때 스택 버퍼 오버플로우가 발생하여 서비스 거부(DoS) 또는 원격 코드 실행이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0.47621,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "OpenSSL",
-        "product": "OpenSSL",
-        "versions": "3.6.0 부터 3.6.1 이전, 3.5.0 부터 3.5.5 이전, 3.4.0 부터 3.4.4 이전, 3.3.0 부터 3.3.6 이전, 3.0.0 부터 3.0.19 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1587",
-    "date": "2026-07-20T13:50:19.31099+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/balgan/CVE-2025-15467",
-      "https://github.com/guiimoraes/CVE-2025-15467",
-      "https://github.com/mr-r3b00t/CVE-2025-15467"
-    ],
-    "degraded": false,
-    "ssvc_exploitation": "poc",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
