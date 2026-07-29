@@ -18,7 +18,6 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 from supabase import create_client
-from issue_status import fetch_issue_status
 from weekly_report import publish_weekly_report
 
 
@@ -307,22 +306,15 @@ def main():
         return
 
     # CVE 데이터
-    print("[1/5] CVE 데이터 export...", flush=True)
+    print("[1/4] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
-
-    # 대응 상태 — GitHub Issue의 닫힘/라벨을 읽어 각 CVE에 부여 (미조회분은 미대응)
-    print("[2/5] 대응 상태 동기화...", flush=True)
-    status_map = fetch_issue_status()
-    for entry in cve_data:
-        entry["status"] = status_map.get(entry["id"], "open")
-
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
         json.dump(cve_data, f, ensure_ascii=False, indent=2)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 통계
-    print("[3/5] 통계 집계...", flush=True)
+    print("[2/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
     with open(stats_path, "w", encoding="utf-8") as f:
@@ -330,14 +322,14 @@ def main():
     print(f"  Stats → {stats_path}", flush=True)
 
     # 주간 리포트 (직전 ISO 주가 아직 발행되지 않았을 때만)
-    print("[4/5] 주간 리포트 확인...", flush=True)
+    print("[3/4] 주간 리포트 확인...", flush=True)
     try:
         publish_weekly_report(cve_data, stats)
     except Exception as e:
         print(f"  [!] 주간 리포트 생성 실패(무시): {e}", flush=True)
 
     # DB 보존 정책 (대용량 필드 정리 + 마커 삭제)
-    print("[5/5] DB 보존 정책 적용...", flush=True)
+    print("[4/4] DB 보존 정책 적용...", flush=True)
     try:
         cleaned = apply_retention_policy(client)
         print(f"  {cleaned}건 정리 (rules_snapshot/last_alert_state null 처리)", flush=True)
