@@ -126,7 +126,7 @@ def parse_cvss_vector(vector_str: str) -> str:
     
     return "<br>".join(mapped_parts)
 
-def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], Optional[str]]:
+def is_target_asset(cve_data: Dict) -> Tuple[bool, Optional[str], Optional[str]]:
     """자산 매칭 판정. 반환: (매칭 여부, 매칭 근거, 매칭 종류).
 
     매칭 종류(match_type)가 자산 기준 티어링의 핵심이다:
@@ -135,9 +135,10 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
                    신규 저위험은 마커만 저장(대시보드 비노출)
       None       — 어느 룰에도 안 맞음 → 처리 안 함
     구체 룰을 전부 먼저 검사하고, 실패했을 때만 wildcard로 분류한다."""
-    # 벤더/제품 표기 차이(언더스코어 vs 공백)를 흡수해 매칭 누락 방지
-    def _norm(s: str) -> str:
-        return s.lower().replace('_', ' ').strip()
+    # 벤더/제품 표기 차이(언더스코어 vs 공백)를 흡수해 매칭 누락 방지.
+    # None 허용 — 레코드/DB 상태에 null이 섞여도 매칭이 죽지 않아야 한다.
+    def _norm(s) -> str:
+        return str(s or '').lower().replace('_', ' ').strip()
 
     has_wildcard = False
     for target in config.get_target_assets():
@@ -179,7 +180,7 @@ def is_target_asset(cve_data: Dict, cve_id: str) -> Tuple[bool, Optional[str], O
                 return True, f"Matched (NVD CPE): {c_vendor}/{c_product}", "asset"
 
         # 3차(보조): description 텍스트 매칭
-        desc_lower = cve_data.get('description', '').lower()
+        desc_lower = str(cve_data.get('description') or '').lower()
         if desc_lower and t_vendor in desc_lower and (t_product == "*" or t_product in desc_lower):
             return True, f"Matched (description): {t_vendor}/{t_product}", "asset"
 
@@ -327,8 +328,8 @@ def _needs_cpe_for_matching(cve_data: Dict) -> bool:
     if any(t.get('vendor') == '*' and t.get('product') == '*' for t in targets):
         return False
     return not any(
-        a.get('vendor', '').lower() not in ('', 'unknown', 'n/a')
-        for a in cve_data.get('affected', [])
+        str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a')
+        for a in (cve_data.get('affected') or [])
     )
 
 def generate_korean_summary(cve_data: Dict, retry_on_transient: bool = False) -> Tuple[str, str]:
@@ -641,7 +642,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         ])
         
         # Step 4: 마크다운 리포트 구성
-        body = _build_issue_body(cve_data, reason, analysis, rules, has_official)
+        body = _build_issue_body(cve_data, reason, analysis, rules)
         
         # Step 5: GitHub API 호출
         url = f"https://api.github.com/repos/{repo}/issues"
@@ -667,7 +668,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         logger.error(f"GitHub Issue 생성 실패: {e}")
         return None, None
 
-def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, has_official: bool) -> str:
+def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) -> str:
     # CVSS 배지 색상
     score = cve_data['cvss']
     if score >= 9.0: color = "FF0000"
@@ -917,7 +918,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
         # 소스를 확보한다(자산 매칭 누락 방지). 전체 감시(*/*)에서는 호출 안 함(비용 0).
         if _needs_cpe_for_matching(raw_data):
             collector.enrich_from_nvd(raw_data)
-        is_target, match_info, match_type = is_target_asset(raw_data, cve_id)
+        is_target, match_info, match_type = is_target_asset(raw_data)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
             return {"cve_id": cve_id, "status": "handled", "stage": "done"}
@@ -1021,7 +1022,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
 
 
 def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
-                        collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Dict:
+                        db: ArgusDB, notifier: SlackNotifier) -> Dict:
     """Phase C — 번역 결과 반영 후 Issue/Slack/DB 저장. prep은 prepare_single_cve의 ready 반환값.
 
     translation이 None이면(배치 번역 실패 등) 영문 폴백 — 기존 단건 번역 실패 폴백과 동일 정책."""
@@ -1106,7 +1107,7 @@ def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier:
     if prep.get("stage") != "ready":
         return {"cve_id": cve_id, "status": prep.get("status", "failed")}
     translation = generate_korean_summary(prep["current_state"], retry_on_transient=prep["should_alert"])
-    return finalize_single_cve(prep, translation, collector, db, notifier)
+    return finalize_single_cve(prep, translation, db, notifier)
 
 def _risk_tier(current: Dict) -> str:
     """위험 3단 티어. 실무 유입에서 CVSS 7점대는 하루 수백 건(CISA ADP가 무점수 CVE에
@@ -1543,7 +1544,7 @@ def _main():
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
                 executor.submit(finalize_single_cve, p, translations.get(p["cve_id"]),
-                                collector, db, notifier): p["cve_id"]
+                                db, notifier): p["cve_id"]
                 for p in prepared
             }
             for future in as_completed(futures):
