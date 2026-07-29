@@ -824,6 +824,16 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 ## 🛡️ 권고 대응 방안
 {mitigation_list}
 
+## ✅ 대응 체크리스트
+<!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. 완료 후 이슈를 닫으면 대시보드 대응 상태가 '완료'로 바뀝니다. -->
+- [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
+- [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
+- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조)
+- [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
+- [ ] 조치 결과 기록 후 이슈 종료
+
+> 진행 중이면 이슈에 `in-progress` 라벨을 붙여 주세요 — 대시보드에 '조치 중'으로 표시됩니다.
+
 {rules_section}
 
 ## 🔗 참고 자료
@@ -874,6 +884,11 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected",
     "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
     "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
+    "cvss_vector",
+    # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
+    # is_target_asset의 판정을 그대로 싣는다(프론트에서 매칭을 재구현하면 기준이 갈라짐).
+    "match_type",
     # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
     "cvss", "epss", "is_kev",
 })
@@ -937,6 +952,8 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
+            # 자산 매칭 판정 — 대시보드 '내 자산' 패널이 이 값을 그대로 쓴다
+            "match_type": match_type,
             # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
             "_exploit_db_url": raw_data.get('_exploit_db_url'),
         }

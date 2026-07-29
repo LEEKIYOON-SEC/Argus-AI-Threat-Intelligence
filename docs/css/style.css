@@ -237,6 +237,26 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .badge-ssvc { background: color-mix(in srgb, var(--sig-kev) 20%, transparent); color: var(--sig-kev); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-kev) 40%, transparent); }
 .badge-rules { background: color-mix(in srgb, var(--sig-rules) 18%, transparent); color: var(--sig-rules); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-rules) 38%, transparent); }
 
+/* 대응 상태 (GitHub Issue 닫힘/라벨 기준) */
+.status-badge { white-space: nowrap; }
+.st-done { background: color-mix(in srgb, var(--sev-low) 16%, transparent); color: var(--sev-low); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-low) 34%, transparent); }
+.st-prog { background: color-mix(in srgb, var(--sev-medium) 16%, transparent); color: var(--sev-medium); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-medium) 34%, transparent); }
+.st-open { background: color-mix(in srgb, var(--text-faint) 14%, transparent); color: var(--text-muted); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-faint) 28%, transparent); }
+.seg-btn.signal.active[data-signal="unresolved"] { color: var(--sev-high); }
+.seg-btn.signal.active[data-signal="asset"] { color: var(--accent); }
+
+/* CVSS 벡터 칩 */
+.vec-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.vec-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  background: var(--surface-3); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--border); }
+.vec-chip b { font-weight: 600; color: var(--text-faint); font-size: 10px; }
+.vec-chip.vec-hot { background: color-mix(in srgb, var(--sev-critical) 14%, transparent); color: var(--sev-critical); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-critical) 32%, transparent); }
+.vec-chip.vec-hot b { color: color-mix(in srgb, var(--sev-critical) 70%, var(--text-muted)); }
+.vec-raw { margin-top: 7px; font-family: var(--mono); font-size: 10px; color: var(--text-faint); word-break: break-all; }
+
+/* 패널 내 구분선 (내 자산 ↔ 심각도 분포) */
+.panel-sep { height: 1px; background: var(--border); margin: 16px 0 4px; }
+
 /* ---------- Pagination ---------- */
 .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 20px; }
 .pagination button { padding: 8px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .12s; }

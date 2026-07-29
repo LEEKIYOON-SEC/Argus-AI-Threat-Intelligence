@@ -62,6 +62,12 @@
         <div class="chart-container"><canvas id="trend-chart"></canvas></div>
       </div>
       <div class="panel">
+        <!-- assets.json에 구체 자산을 등록했을 때만 표시 (전체 감시만이면 자동 숨김) -->
+        <div id="asset-panel" style="display:none">
+          <h3>🎯 내 자산 <span style="font-weight:500;color:var(--text-faint);text-transform:none;letter-spacing:0;">등록 자산 매칭 <b id="asset-count">0</b>건</span></h3>
+          <div id="asset-dist"></div>
+          <div class="panel-sep"></div>
+        </div>
         <h3>심각도 분포</h3>
         <div id="severity-dist"></div>
         <h3 class="mt">영향 제품 TOP</h3>
@@ -96,6 +102,8 @@
           <button class="seg-btn signal" data-signal="weaponized">🧨 무기화</button>
           <button class="seg-btn signal" data-signal="poc">🔬 PoC</button>
           <button class="seg-btn signal" data-signal="rules">🛡️ 공개 룰</button>
+          <button class="seg-btn signal" data-signal="unresolved">⏳ 미대응</button>
+          <button class="seg-btn signal" data-signal="asset">🎯 내 자산</button>
         </div>
 
         <div class="filter-spacer"></div>
@@ -122,6 +130,7 @@
               <th class="sortable" data-sort="cvss">CVSS</th>
               <th class="sortable" data-sort="epss">EPSS</th>
               <th>위협 신호</th>
+              <th>대응</th>
               <th>영향 벤더</th>
               <th class="sortable" data-sort="date">탐지일</th>
             </tr>

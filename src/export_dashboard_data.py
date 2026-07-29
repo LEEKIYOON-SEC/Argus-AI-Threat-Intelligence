@@ -18,6 +18,8 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 from supabase import create_client
+from issue_status import fetch_issue_status
+from weekly_report import publish_weekly_report
 
 
 def _get_client():
@@ -121,6 +123,11 @@ def export_cves(client, days: int = 90) -> list:
 
         # WAF 콘텐츠 차단으로 축소 저장된 행 — 모달에서 '원문은 리포트 참조' 안내에 사용
         entry["degraded"] = bool(state.get("waf_degraded"))
+        # 공격 벡터 (모달 시각화용). 이 필드가 도입되기 전 행에는 없다 → 프론트에서 생략 처리
+        entry["cvss_vector"] = state.get("cvss_vector") or ""
+        # 등록 자산(assets.json의 구체 룰)에 매칭된 CVE — '내 자산' 패널/필터용.
+        # 판정은 파이프라인(is_target_asset)이 한 것을 그대로 쓴다(프론트 재구현 없음).
+        entry["asset_match"] = state.get("match_type") == "asset"
 
         # P5 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit)
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
@@ -217,11 +224,14 @@ def export_stats(cve_data: list) -> dict:
     }
 
 
-def apply_retention_policy(client, days: int = 180, marker_days: int = 30) -> int:
+def apply_retention_policy(client, days: int = 120, marker_days: int = 30) -> int:
     """DB 용량 방어 (불변 원칙 2). 두 단계:
 
     1) 최근 days일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
        상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없음.
+       days는 대시보드 노출 창(export_cves의 90일)보다 30일 여유만 둔다 — 그 밖의
+       last_alert_state는 어떤 소비자도 읽지 않아(에스컬레이션 스윕 30일, 룰 재확인은
+       스칼라 컬럼만 사용) 순수 저장 비용이었다.
     2) marker_days일 지난 마커 행 삭제. 마커 = 비자산 저위험 dedup용(last_alert_state·
        last_alert_at 모두 null). 삭제해도 안전: 이후 레코드가 바뀌면 '신규'로 재분류되어
        고위험 승격 시 풀 알림이 나가고, KEV 등재는 gap-filler가 DB 유무와 무관하게 잡는다.
@@ -278,23 +288,37 @@ def main():
         return
 
     # CVE 데이터
-    print("[1/3] CVE 데이터 export...", flush=True)
+    print("[1/5] CVE 데이터 export...", flush=True)
     cve_data = export_cves(client)
+
+    # 대응 상태 — GitHub Issue의 닫힘/라벨을 읽어 각 CVE에 부여 (미조회분은 미대응)
+    print("[2/5] 대응 상태 동기화...", flush=True)
+    status_map = fetch_issue_status()
+    for entry in cve_data:
+        entry["status"] = status_map.get(entry["id"], "open")
+
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
         json.dump(cve_data, f, ensure_ascii=False, indent=2)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 통계
-    print("[2/3] 통계 집계...", flush=True)
+    print("[3/5] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
     with open(stats_path, "w", encoding="utf-8") as f:
         json.dump(stats, f, ensure_ascii=False, indent=2)
     print(f"  Stats → {stats_path}", flush=True)
 
-    # DB 보존 정책 (180일 지난 레코드의 대용량 필드 정리)
-    print("[3/3] DB 보존 정책 적용...", flush=True)
+    # 주간 리포트 (직전 ISO 주가 아직 발행되지 않았을 때만)
+    print("[4/5] 주간 리포트 확인...", flush=True)
+    try:
+        publish_weekly_report(cve_data, stats)
+    except Exception as e:
+        print(f"  [!] 주간 리포트 생성 실패(무시): {e}", flush=True)
+
+    # DB 보존 정책 (대용량 필드 정리 + 마커 삭제)
+    print("[5/5] DB 보존 정책 적용...", flush=True)
     try:
         cleaned = apply_retention_policy(client)
         print(f"  {cleaned}건 정리 (rules_snapshot/last_alert_state null 처리)", flush=True)
