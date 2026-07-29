@@ -46,12 +46,14 @@ class SlackNotifier:
 
     def collect_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> None:
         """개별 CVE 알림을 배치 결과에 수집 (thread-safe)"""
+        # 여기서 스칼라를 정규화해 두면 요약 집계(비교·정렬·슬라이싱)가 None에 걸려
+        # 통째로 실패하는 일이 없다 — 수집 시점 한 곳에서만 방어하면 충분하다.
         with self._lock:
             self._batch_results.append({
                 "id": cve_data['id'],
-                "title_ko": cve_data.get('title_ko', cve_data.get('title', 'N/A')),
-                "cvss": cve_data.get('cvss', 0),
-                "epss": cve_data.get('epss', 0),
+                "title_ko": cve_data.get('title_ko') or cve_data.get('title') or 'N/A',
+                "cvss": cve_data.get('cvss') or 0,
+                "epss": cve_data.get('epss') or 0,
                 "is_kev": cve_data.get('is_kev', False),
                 "has_poc": cve_data.get('has_poc', False),
                 # 요약의 '즉시 알림 N건' 집계(is_urgent)에 필요한 신호 — 빠지면 과소 집계된다
@@ -98,9 +100,12 @@ class SlackNotifier:
     def _send_urgent_alert(self, cve_data: Dict, report_url: Optional[str] = None) -> bool:
         """긴급 CVE 즉시 알림 (실제 악용·무기화 신호 또는 CVSS 9+)"""
         try:
-            display_title = cve_data.get('title_ko', cve_data.get('title', 'N/A'))
-            cvss = cve_data.get('cvss', 0)
-            epss = cve_data.get('epss', 0)
+            # None 안전 추출 — 값이 명시적 null이면 .get의 기본값이 발동하지 않아
+            # 비교 연산에서 TypeError가 나고, 예외를 삼키는 구조 탓에 긴급 알림이 통째로 유실된다.
+            # (판정부 is_urgent는 이미 같은 방식으로 방어하고 있어 기준을 맞춘다)
+            display_title = cve_data.get('title_ko') or cve_data.get('title') or 'N/A'
+            cvss = cve_data.get('cvss') or 0
+            epss = cve_data.get('epss') or 0
 
             # 긴급 배지 — '왜 긴급인지'를 배지로 그대로 보여준다
             badges = []

@@ -150,34 +150,45 @@ def is_target_asset(cve_data: Dict) -> Tuple[bool, Optional[str], Optional[str]]
             has_wildcard = True
             continue
 
-        # 1차: affected 필드의 구조화된 vendor/product 매칭
-        for affected in cve_data.get('affected', []):
-            a_vendor = _norm(affected.get('vendor', ''))
-            a_product = _norm(affected.get('product', ''))
+        # 벤더 무관 룰(*/product)은 벤더가 비어 있어도 제품만으로 판정해야 한다 —
+        # 애초에 '벤더를 모를 때' 쓰라고 있는 표기이므로, 벤더 불명을 이유로 건너뛰면
+        # 그 기능이 가장 필요한 케이스에서만 매칭이 실패한다.
+        vendor_agnostic = (t_vendor == "*")
 
-            # vendor가 N/A, Unknown이면 건너뛰기 (2·3차에서 확인)
-            if a_vendor in ('', 'unknown', 'n/a'):
+        # 1차: affected 필드의 구조화된 vendor/product 매칭
+        for affected in cve_data.get('affected') or []:
+            a_vendor = _norm(affected.get('vendor'))
+            a_product = _norm(affected.get('product'))
+
+            unknown_vendor = a_vendor in ('', 'unknown', 'n/a')
+            # 벤더가 필요한 룰인데 벤더가 불명 → 이 항목으로는 판정 불가 (2·3차에서 확인)
+            if unknown_vendor and not vendor_agnostic:
+                continue
+            # 벤더 무관 룰인데 제품마저 불명 → 판정 근거 없음
+            if vendor_agnostic and a_product in ('', 'unknown', 'n/a'):
                 continue
 
-            # 벤더 와일드카드(*/product): 벤더 무관, 제품만으로 매칭
-            vendor_match = (t_vendor == "*") or (t_vendor in a_vendor) or (a_vendor in t_vendor)
+            vendor_match = vendor_agnostic or (t_vendor in a_vendor) or (a_vendor in t_vendor)
             product_match = (t_product == "*") or (t_product in a_product) or (a_product in t_product)
 
             if vendor_match and product_match:
-                return True, f"Matched (affected): {a_vendor}/{a_product}", "asset"
+                return True, f"Matched (affected): {a_vendor or '*'}/{a_product}", "asset"
 
         # 2차: NVD CPE의 vendor/product 매칭 (affected가 비거나 불명일 때 보완)
-        for cpe in cve_data.get('nvd_cpe', []):
-            parts = cpe.split(':')
+        for cpe in cve_data.get('nvd_cpe') or []:
+            parts = str(cpe).split(':')
             if len(parts) < 5:
                 continue
             c_vendor, c_product = _norm(parts[3]), _norm(parts[4])
-            if c_vendor in ('', '*', '-'):
+            unknown_vendor = c_vendor in ('', '*', '-')
+            if unknown_vendor and not vendor_agnostic:
                 continue
-            vendor_match = (t_vendor == "*") or (t_vendor in c_vendor) or (c_vendor in t_vendor)
+            if vendor_agnostic and c_product in ('', '*', '-'):
+                continue
+            vendor_match = vendor_agnostic or (t_vendor in c_vendor) or (c_vendor in t_vendor)
             product_match = (t_product == "*") or (t_product in c_product) or (c_product in t_product)
             if vendor_match and product_match:
-                return True, f"Matched (NVD CPE): {c_vendor}/{c_product}", "asset"
+                return True, f"Matched (NVD CPE): {c_vendor or '*'}/{c_product}", "asset"
 
         # 3차(보조): description 텍스트 매칭
         desc_lower = str(cve_data.get('description') or '').lower()
