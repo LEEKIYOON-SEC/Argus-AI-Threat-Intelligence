@@ -395,8 +395,12 @@ class Collector:
         results = []
         
         for item in affected_list:
-            vendor = item.get('vendor', 'Unknown')
-            product = item.get('product', 'Unknown')
+            # cvelistV5에는 "vendor": null 처럼 값이 명시적 null인 레코드가 있다.
+            # dict.get(k, 기본값)은 '키가 없을 때'만 기본값을 주므로 None이 그대로 흘러가,
+            # 자산 매칭(_norm/.lower())에서 AttributeError로 그 CVE가 매번 실패한다.
+            # → 여기서 문자열로 정규화해 모든 소비자(매칭·리포트·대시보드)를 한 번에 보호.
+            vendor = item.get('vendor') or 'Unknown'
+            product = item.get('product') or 'Unknown'
             versions = []
             patch_version = None
             
@@ -837,9 +841,9 @@ class Collector:
         cpes = cve_data.get('nvd_cpe') or []
         if not cpes:
             return cve_data
-        existing = cve_data.get('affected', [])
+        existing = cve_data.get('affected') or []
         has_valid_vendor = any(
-            (a.get('vendor', '').lower() not in ('', 'unknown', 'n/a')) for a in existing
+            str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a') for a in existing
         )
         if has_valid_vendor:
             return cve_data  # CVE 자체 데이터 우선

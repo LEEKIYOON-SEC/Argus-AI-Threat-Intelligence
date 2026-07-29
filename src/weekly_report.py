@@ -142,7 +142,7 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
     return "\n".join(lines)
 
 
-def publish_weekly_report(cve_data: List[Dict], stats: Dict,
+def publish_weekly_report(cve_data: List[Dict],
                           repo: Optional[str] = None, token: Optional[str] = None) -> Optional[str]:
     """직전 주 리포트를 GitHub Issue로 발행. 이미 있으면 건너뛴다. 반환: 이슈 URL 또는 None."""
     repo = repo or os.environ.get("GITHUB_REPOSITORY", "")

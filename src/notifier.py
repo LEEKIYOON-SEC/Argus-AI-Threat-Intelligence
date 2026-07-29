@@ -79,7 +79,7 @@ class SlackNotifier:
         if urgent is None:
             urgent = self.is_urgent(cve_data)
         if urgent:
-            self._send_urgent_alert(cve_data, reason, report_url)
+            self._send_urgent_alert(cve_data, report_url)
 
         return True
 
@@ -95,7 +95,7 @@ class SlackNotifier:
             or (cve_data.get('cvss') or 0) >= 9.0
         )
 
-    def _send_urgent_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
+    def _send_urgent_alert(self, cve_data: Dict, report_url: Optional[str] = None) -> bool:
         """긴급 CVE 즉시 알림 (실제 악용·무기화 신호 또는 CVSS 9+)"""
         try:
             display_title = cve_data.get('title_ko', cve_data.get('title', 'N/A'))

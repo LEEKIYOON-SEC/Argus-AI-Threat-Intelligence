@@ -324,7 +324,7 @@ def main():
     # 주간 리포트 (직전 ISO 주가 아직 발행되지 않았을 때만)
     print("[3/4] 주간 리포트 확인...", flush=True)
     try:
-        publish_weekly_report(cve_data, stats)
+        publish_weekly_report(cve_data)
     except Exception as e:
         print(f"  [!] 주간 리포트 생성 실패(무시): {e}", flush=True)
 
