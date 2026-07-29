@@ -152,9 +152,15 @@ def export_stats(cve_data: list) -> dict:
 
     severity_counts = defaultdict(int)
     vendor_counts = defaultdict(int)
+    product_counts = defaultdict(int)
+    product_vendor = {}          # 제품 → 대표 벤더 (표시용 툴팁)
     daily_counts = defaultdict(int)
     recent_24h = 0
     kev_count = 0
+
+    def _clean(v: str) -> str:
+        v = (v or "").strip()
+        return "" if v.lower() in ("", "unknown", "n/a", "-") else v
 
     for cve in cve_data:
         severity_counts[cve.get("severity", "None")] += 1
@@ -174,16 +180,26 @@ def export_stats(cve_data: list) -> dict:
             except (ValueError, TypeError):
                 pass
 
-        # 벤더별 집계
+        # 벤더/제품별 집계. 같은 CVE가 한 제품을 여러 번 나열해도 1건으로 센다
+        # (버전 범위가 여러 개면 affected 항목이 중복되기 때문).
+        seen_v, seen_p = set(), set()
         for aff in cve.get("affected", []):
-            vendor = aff.get("vendor", "Unknown")
-            if vendor and vendor != "Unknown":
+            vendor, product = _clean(aff.get("vendor")), _clean(aff.get("product"))
+            if vendor and vendor not in seen_v:
                 vendor_counts[vendor] += 1
+                seen_v.add(vendor)
+            if product and product not in seen_p:
+                product_counts[product] += 1
+                seen_p.add(product)
+                if vendor:
+                    product_vendor.setdefault(product, vendor)
 
     # 일별 추이 (최근 30일, 정렬)
     daily_trend = sorted(daily_counts.items(), key=lambda x: x[0])[-30:]
 
-    # 벤더 TOP 10
+    # 제품 TOP 10 — 실질 노출 파악의 기준. 벤더 기준은 재배포 벤더(Red Hat 등)가
+    # 제품 수만큼 자동으로 상위를 차지해 '무엇이 위험한가'를 알려주지 못한다.
+    product_top = sorted(product_counts.items(), key=lambda x: x[1], reverse=True)[:10]
     vendor_top = sorted(vendor_counts.items(), key=lambda x: x[1], reverse=True)[:10]
 
     return {
@@ -194,6 +210,8 @@ def export_stats(cve_data: list) -> dict:
             "kev_count": kev_count,
             "severity": dict(severity_counts),
             "daily_trend": [{"date": d, "count": c} for d, c in daily_trend],
+            "top_products": [{"product": p, "vendor": product_vendor.get(p, ""), "count": c}
+                             for p, c in product_top],
             "top_vendors": [{"vendor": v, "count": c} for v, c in vendor_top],
         },
     }
