@@ -1348,7 +1348,11 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
                 current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
                 current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
 
-                should, reason, _ = _should_send_alert(current, last)
+                # 자산 매칭 종류는 저장된 판정을 그대로 쓴다 — 기본값('wildcard')로 두면
+                # 등록 자산 CVE가 스윕에서만 비자산으로 취급돼 본 경로와 기준이 갈린다.
+                # (미저장 구버전 행은 기존과 동일하게 wildcard로 보수적 판정)
+                should, reason, _ = _should_send_alert(
+                    current, last, match_type=last.get('match_type') or "wildcard")
                 if should:
                     logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
                     escalated.append(cve_id)

@@ -30,6 +30,22 @@ def _get_client():
     return create_client(url, key)
 
 
+def _s(state: dict, key: str, default: str = "") -> str:
+    """JSONB에서 문자열 안전 추출.
+
+    Supabase는 JSON의 null을 '키 있음 + 값 None'으로 돌려주므로 dict.get(k, default)의
+    기본값이 발동하지 않는다. 그대로 쓰면 None.strip()/None[:n]에서 터지고, export는
+    전량 일괄 처리라 단 한 행 때문에 대시보드 전체가 갱신되지 않는다."""
+    v = state.get(key)
+    return v if isinstance(v, str) else default
+
+
+def _l(state: dict, key: str) -> list:
+    """JSONB에서 리스트 안전 추출 (위와 동일한 이유)."""
+    v = state.get(key)
+    return v if isinstance(v, list) else []
+
+
 def export_cves(client, days: int = 90) -> list:
     """최근 N일 CVE 데이터 export (페이지네이션으로 전체 로드)"""
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
@@ -64,24 +80,25 @@ def export_cves(client, days: int = 90) -> list:
         # 영향 설명 문장이 통째로 담긴 행이 있어(수집기는 수정됨) 표시 직전에 걸러낸다.
         # DB는 수동 관리 원칙이라 여기서 정리하면 기존 행도 재수집 없이 즉시 정상 표시.
         cwe_clean = []
-        for w in state.get("cwe", []) or []:
+        for w in _l(state, "cwe"):
             for m in re.findall(r"CWE-\d{1,4}\b", str(w)):
                 if m not in cwe_clean:
                     cwe_clean.append(m)
 
         # 제목 폴백 — title 없는 CNA(Oracle 등)의 'N/A'가 '해당 없음'으로 번역·저장된
         # 기존 행을 affected 기반 제목으로 대체 (신규 수집분은 수집기에서 해결됨)
-        title = state.get("title_ko") or state.get("title", "N/A")
+        title = _s(state, "title_ko") or _s(state, "title", "N/A")
         if title.strip() in ("해당 없음", "N/A", "정보 없음", ""):
-            aff0 = next((a for a in state.get("affected", []) or []
-                         if a.get("product") and str(a["product"]).lower() not in ("n/a", "unknown")), None)
+            aff0 = next((a for a in _l(state, "affected")
+                         if isinstance(a, dict) and a.get("product")
+                         and str(a["product"]).lower() not in ("n/a", "unknown")), None)
             if aff0:
                 title = f"{aff0['product']} 취약점"
 
         entry = {
             "id": row.get("id", ""),
             "title": title,
-            "description": state.get("desc_ko") or state.get("description", "")[:300],
+            "description": _s(state, "desc_ko") or _s(state, "description")[:300],
             "cvss": row.get("cvss_score", 0) or 0,
             "epss": row.get("epss_score", 0) or 0,
             "is_kev": row.get("is_kev", False),
@@ -94,11 +111,13 @@ def export_cves(client, days: int = 90) -> list:
         }
 
         # affected 정보 간략화
-        for aff in state.get("affected", [])[:3]:
+        for aff in _l(state, "affected")[:3]:
+            if not isinstance(aff, dict):
+                continue
             entry["affected"].append({
-                "vendor": aff.get("vendor", "Unknown"),
-                "product": aff.get("product", "Unknown"),
-                "versions": aff.get("versions", ""),
+                "vendor": _s(aff, "vendor", "Unknown"),
+                "product": _s(aff, "product", "Unknown"),
+                "versions": _s(aff, "versions"),
             })
 
         # 탐지 룰 정보 (네트워크 룰은 "network" 리스트에 저장되며 각 항목이 engine을 가짐)
@@ -119,12 +138,12 @@ def export_cves(client, days: int = 90) -> list:
         # PoC 정보
         state_poc = state.get("has_poc", False)
         entry["has_poc"] = state_poc
-        entry["poc_urls"] = state.get("poc_urls", [])[:3]
+        entry["poc_urls"] = _l(state, "poc_urls")[:3]
 
         # WAF 콘텐츠 차단으로 축소 저장된 행 — 모달에서 '원문은 리포트 참조' 안내에 사용
         entry["degraded"] = bool(state.get("waf_degraded"))
         # 공격 벡터 (모달 시각화용). 이 필드가 도입되기 전 행에는 없다 → 프론트에서 생략 처리
-        entry["cvss_vector"] = state.get("cvss_vector") or ""
+        entry["cvss_vector"] = _s(state, "cvss_vector")
         # 등록 자산(assets.json의 구체 룰)에 매칭된 CVE — '내 자산' 패널/필터용.
         # 판정은 파이프라인(is_target_asset)이 한 것을 그대로 쓴다(프론트 재구현 없음).
         entry["asset_match"] = state.get("match_type") == "asset"
@@ -133,7 +152,7 @@ def export_cves(client, days: int = 90) -> list:
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
         entry["has_public_exploit"] = state.get("has_public_exploit", False)
         entry["has_metasploit_module"] = state.get("has_metasploit_module", False)
-        entry["metasploit_modules"] = state.get("metasploit_modules", [])[:3]
+        entry["metasploit_modules"] = _l(state, "metasploit_modules")[:3]
 
         # 심각도 등급 계산
         score = entry["cvss"]
