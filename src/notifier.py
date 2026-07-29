@@ -54,37 +54,64 @@ class SlackNotifier:
                 "epss": cve_data.get('epss', 0),
                 "is_kev": cve_data.get('is_kev', False),
                 "has_poc": cve_data.get('has_poc', False),
+                # 요약의 '즉시 알림 N건' 집계(is_urgent)에 필요한 신호 — 빠지면 과소 집계된다
+                "has_metasploit_module": cve_data.get('has_metasploit_module', False),
+                "ssvc_exploitation": cve_data.get('ssvc_exploitation'),
                 "reason": reason,
                 "report_url": report_url,
             })
         logger.info(f"Slack 배치 수집: {cve_data['id']}")
 
-    def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
+    def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None,
+                   urgent: Optional[bool] = None) -> bool:
         """
         CVE 알림 처리:
-        - KEV 등재 또는 CVSS 9.0+ → 즉시 Slack 전송 (긴급)
+        - 긴급(critical 티어) → 즉시 Slack 전송
         - 나머지 → 배치에 수집 (send_batch_summary에서 일괄 전송)
+
+        urgent: 파이프라인이 이미 판정한 티어를 그대로 받는다(critical 여부). 미지정 시
+        같은 신호 집합으로 자체 판정 — 판정 기준이 두 곳에서 어긋나지 않게 하기 위함이다.
+        (과거엔 여기서만 'KEV or CVSS≥9'로 좁게 판정해, Metasploit 무기화·SSVC active·
+         EPSS 급증 CVE가 GitHub Issue엔 '🔴 긴급'으로 실리면서 Slack은 조용한 상충이 있었다.)
         """
         self.collect_alert(cve_data, reason, report_url)
 
-        # 긴급 알림: KEV 등재 또는 CVSS 9.0+
-        is_urgent = cve_data.get('is_kev', False) or cve_data.get('cvss', 0) >= 9.0
-        if is_urgent:
+        if urgent is None:
+            urgent = self.is_urgent(cve_data)
+        if urgent:
             self._send_urgent_alert(cve_data, reason, report_url)
 
         return True
 
+    @staticmethod
+    def is_urgent(cve_data: Dict) -> bool:
+        """실제 악용·무기화 신호 또는 최상위 심각도 = 즉시 알림 대상.
+        main._risk_tier의 critical 조건과 동일하게 유지할 것."""
+        return bool(
+            cve_data.get('is_kev')
+            or cve_data.get('has_metasploit_module')
+            or cve_data.get('ssvc_exploitation') == 'active'
+            or (cve_data.get('epss') or 0) >= 0.1
+            or (cve_data.get('cvss') or 0) >= 9.0
+        )
+
     def _send_urgent_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> bool:
-        """긴급 CVE 즉시 알림 (KEV 또는 CVSS 9+)"""
+        """긴급 CVE 즉시 알림 (실제 악용·무기화 신호 또는 CVSS 9+)"""
         try:
             display_title = cve_data.get('title_ko', cve_data.get('title', 'N/A'))
             cvss = cve_data.get('cvss', 0)
             epss = cve_data.get('epss', 0)
 
-            # 긴급 배지
+            # 긴급 배지 — '왜 긴급인지'를 배지로 그대로 보여준다
             badges = []
             if cve_data.get('is_kev'):
                 badges.append("KEV")
+            if cve_data.get('has_metasploit_module'):
+                badges.append("무기화(MSF)")
+            if cve_data.get('ssvc_exploitation') == 'active':
+                badges.append("악용 진행형")
+            if (epss or 0) >= 0.1:
+                badges.append(f"EPSS {epss*100:.1f}%")
             if cvss >= 9.0:
                 badges.append(f"CVSS {cvss}")
             if cve_data.get('has_poc'):
@@ -135,9 +162,11 @@ class SlackNotifier:
                 {"type": "header", "text": {"type": "plain_text", "text": f"🛡️ Argus CVE 탐지 요약 (알림 {total}건)"}},
             ]
 
-            # 요약 통계
+            # 요약 통계 — total은 '이번 실행 알림 전체'다(긴급 + 배치). 과거엔 이를
+            # '긴급 알림'으로 표기해 실제 즉시 알림 건수와 어긋났다.
+            urgent_n = sum(1 for r in self._batch_results if self.is_urgent(r))
             summary_lines = [
-                f"*긴급 알림:* {total}건",
+                f"*알림 {total}건* (즉시 알림 {urgent_n}건)",
                 f"• 🔴 *Critical (CVSS 9+):* {len(critical)}건",
                 f"• 🟠 *High Risk (CVSS 7+):* {len(high_risk)}건",
                 f"• 🚨 *KEV 등재:* {len(kev_list)}건",

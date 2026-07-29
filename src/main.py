@@ -1037,9 +1037,12 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
 
-        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함)
+        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함).
+        # 긴급 여부는 파이프라인이 이미 판정한 티어를 그대로 넘긴다 — 리포트의 '🔴 긴급'과
+        # Slack 즉시 알림이 서로 다른 기준으로 갈라지지 않게.
         if should_alert:
-            notifier.send_alert(current_state, alert_reason, report_url)
+            notifier.send_alert(current_state, alert_reason, report_url,
+                                urgent=(prep.get("tier") == "critical"))
 
         # Step 8: DB 저장 (content_hash 포함)
         # last_alert_state(JSONB)에는 대시보드 표시 + 다음 실행 에스컬레이션 비교에 필요한 필드만
