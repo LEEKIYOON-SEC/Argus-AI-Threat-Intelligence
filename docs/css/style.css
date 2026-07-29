@@ -129,7 +129,11 @@ main { padding: 28px 0 64px; }
 
 .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
 .dist-row:last-child { margin-bottom: 0; }
-.dist-name { width: 84px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dist-name { width: 108px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 제품 분포 → 클릭 시 해당 제품 필터 */
+.dist-clickable { cursor: pointer; border-radius: 6px; padding: 2px 4px; margin-left: -4px; margin-right: -4px; transition: background .12s; }
+.dist-clickable:hover { background: var(--surface-3); }
+.dist-clickable:hover .dist-name { color: var(--accent); }
 .dist-track { flex: 1; height: 8px; background: var(--surface-3); border-radius: 999px; overflow: hidden; }
 .dist-fill { height: 100%; border-radius: 999px; transition: width .5s cubic-bezier(.2,.8,.2,1); }
 .dist-count { width: 40px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -141,7 +145,8 @@ main { padding: 28px 0 64px; }
   border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
 .filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-.search-wrap { position: relative; flex: 1 1 auto; min-width: 220px; }
+/* 셀렉트가 4개(벤더·제품·월·일)로 늘어 검색창은 축소 — 셀렉트에 우선 폭을 준다 */
+.search-wrap { position: relative; flex: 1 1 200px; min-width: 160px; max-width: 380px; }
 .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-faint); pointer-events: none; }
 .search-input {
   width: 100%; padding: 10px 12px 10px 36px; background: var(--surface-2); border: 1px solid var(--border);
