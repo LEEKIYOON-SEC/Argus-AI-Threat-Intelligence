@@ -53,8 +53,8 @@ def _in_week(entry: Dict, start: datetime.date, end: datetime.date) -> bool:
     return start <= day <= end
 
 
-def build_weekly_body(week_cves: List[Dict], all_cves: List[Dict],
-                      week_label: str, start: datetime.date, end: datetime.date) -> str:
+def build_weekly_body(week_cves: List[Dict], week_label: str,
+                      start: datetime.date, end: datetime.date) -> str:
     """주간 리포트 마크다운. 집계는 전부 대시보드 데이터 기준(추가 조회 없음)."""
     total = len(week_cves)
     critical = [c for c in week_cves if (c.get("cvss") or 0) >= 9.0]
@@ -62,12 +62,6 @@ def build_weekly_body(week_cves: List[Dict], all_cves: List[Dict],
     weaponized = [c for c in week_cves if c.get("has_metasploit_module") or c.get("has_public_exploit")]
     poc = [c for c in week_cves if c.get("has_poc")]
     ruled = [c for c in week_cves if (c.get("rule_engines") or []) or c.get("has_official_rules")]
-
-    # 대응 상태 — 전체 누적 기준(주간분만 보면 아직 대응 전이라 의미가 적다)
-    reported = [c for c in all_cves if c.get("report_url")]
-    done = sum(1 for c in reported if c.get("status") == "done")
-    in_prog = sum(1 for c in reported if c.get("status") == "in_progress")
-    open_n = len(reported) - done - in_prog
 
     # 주간 영향 제품 TOP (같은 CVE 내 중복 제품은 1회)
     prod = Counter()
@@ -119,11 +113,6 @@ def build_weekly_body(week_cves: List[Dict], all_cves: List[Dict],
         f"| 🔬 PoC 공개 | {len(poc)} |",
         f"| 🛡️ 공개 탐지 룰 확보 | {len(ruled)} |",
         "",
-        "## 🚦 대응 현황 (누적)",
-        "",
-        f"- ✅ 완료: **{done}건** · 🔧 조치 중: **{in_prog}건** · ⏳ 미대응: **{open_n}건**",
-        "- 리포트 이슈를 닫으면 완료로, `in-progress` 라벨을 붙이면 조치 중으로 집계됩니다.",
-        "",
     ]
 
     if prod:
@@ -174,7 +163,7 @@ def publish_weekly_report(cve_data: List[Dict], stats: Dict,
         print(f"  {week_label} 기간 데이터 없음 — 발행 생략", flush=True)
         return None
 
-    body = build_weekly_body(week_cves, cve_data, week_label, start, end)
+    body = build_weekly_body(week_cves, week_label, start, end)
     resp = requests.post(
         f"{_API}/repos/{repo}/issues",
         headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},

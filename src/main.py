@@ -824,15 +824,13 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 ## 🛡️ 권고 대응 방안
 {mitigation_list}
 
-## ✅ 대응 체크리스트
-<!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. 완료 후 이슈를 닫으면 대시보드 대응 상태가 '완료'로 바뀝니다. -->
+## ✅ 조치 체크리스트
+<!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. -->
 - [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
 - [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
 - [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조)
 - [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
 - [ ] 조치 결과 기록 후 이슈 종료
-
-> 진행 중이면 이슈에 `in-progress` 라벨을 붙여 주세요 — 대시보드에 '조치 중'으로 표시됩니다.
 
 {rules_section}
 
@@ -1348,7 +1346,11 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
                 current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
                 current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
 
-                should, reason, _ = _should_send_alert(current, last)
+                # 자산 매칭 종류는 저장된 판정을 그대로 쓴다 — 기본값('wildcard')로 두면
+                # 등록 자산 CVE가 스윕에서만 비자산으로 취급돼 본 경로와 기준이 갈린다.
+                # (미저장 구버전 행은 기존과 동일하게 wildcard로 보수적 판정)
+                should, reason, _ = _should_send_alert(
+                    current, last, match_type=last.get('match_type') or "wildcard")
                 if should:
                     logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
                     escalated.append(cve_id)
