@@ -824,6 +824,16 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict, 
 ## 🛡️ 권고 대응 방안
 {mitigation_list}
 
+## ✅ 대응 체크리스트
+<!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. 완료 후 이슈를 닫으면 대시보드 대응 상태가 '완료'로 바뀝니다. -->
+- [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
+- [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
+- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조)
+- [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
+- [ ] 조치 결과 기록 후 이슈 종료
+
+> 진행 중이면 이슈에 `in-progress` 라벨을 붙여 주세요 — 대시보드에 '조치 중'으로 표시됩니다.
+
 {rules_section}
 
 ## 🔗 참고 자료
@@ -874,6 +884,11 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected",
     "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
     "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
+    "cvss_vector",
+    # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
+    # is_target_asset의 판정을 그대로 싣는다(프론트에서 매칭을 재구현하면 기준이 갈라짐).
+    "match_type",
     # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
     "cvss", "epss", "is_kev",
 })
@@ -937,6 +952,8 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
+            # 자산 매칭 판정 — 대시보드 '내 자산' 패널이 이 값을 그대로 쓴다
+            "match_type": match_type,
             # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
             "_exploit_db_url": raw_data.get('_exploit_db_url'),
         }
@@ -1037,9 +1054,12 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
 
-        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함)
+        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함).
+        # 긴급 여부는 파이프라인이 이미 판정한 티어를 그대로 넘긴다 — 리포트의 '🔴 긴급'과
+        # Slack 즉시 알림이 서로 다른 기준으로 갈라지지 않게.
         if should_alert:
-            notifier.send_alert(current_state, alert_reason, report_url)
+            notifier.send_alert(current_state, alert_reason, report_url,
+                                urgent=(prep.get("tier") == "critical"))
 
         # Step 8: DB 저장 (content_hash 포함)
         # last_alert_state(JSONB)에는 대시보드 표시 + 다음 실행 에스컬레이션 비교에 필요한 필드만
