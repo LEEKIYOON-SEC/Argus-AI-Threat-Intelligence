@@ -4,7 +4,7 @@
 
 **매일 반복하던 취약점 확인 업무를 자동화한 CVE 위협 인텔리전스 파이프라인**
 
-SBOM으로 만든 자산 목록에 걸리지 않는 CVE는 앞단에서 걸러내고, 남은 소수만 사람이 판단합니다.
+SBOM으로 만든 자산 목록에 걸리지 않는 CVE는 앞단에서 걸러내고, 남은 소수만 보안 담당자가 판단합니다.
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![GitHub Actions](https://img.shields.io/badge/Runtime-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/argus.yml)
@@ -40,7 +40,7 @@ SBOM으로 만든 자산 목록에 걸리지 않는 CVE는 앞단에서 걸러�
 벤더마다 다르게 쓰는 제품명 눈으로 맞춰보고, 사이트 여기저기 들어가면서요. 바쁘면 건너뛰게 되는데,
 건너뛴 날에 KEV 등재된 게 섞여 있으면 그게 사고가 됩니다.
 
-사람이 할 일은 대조가 아니라, 대조를 통과한 몇 건을 어떻게 처리할지 정하는 쪽입니다.
+보안 담당자가 할 일은 대조가 아니라, 대조를 통과한 몇 건을 어떻게 처리할지 정하는 쪽입니다.
 그래서 이 순서를 그대로 자동화했고, 빠르게 만들려고 Claude 바이브 코딩을 이용했습니다.
 
 ```
@@ -76,14 +76,14 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 ```
 
 여기서 나온 벤더와 제품명을 `assets.json`에 등록해 쓰고 있습니다. 표기가 서로 달라서
-(`Microsoft Corporation` / `microsoft`, `exchange_server` / `Exchange Server`) 대소문자와 `_`·공백 차이는
+(`Microsoft Corporation` / `microsoft`, `Exchange Server` / `exchange_server`) 대소문자와 `_`·공백 차이는
 코드에서 흡수하고, 벤더를 특정하기 어려우면 `*`로 제품만 지정합니다.
 
 ---
 
 ## 무엇이 달라졌나
 
-| | 기존 업무 (사람이 하던 일) | Argus |
+| | 기존 업무 (담당자가 직접) | Argus |
 | :--- | :--- | :--- |
 | **자산 대조** | CVE마다 벤더·제품명을 눈으로 확인 | SBOM 기반 자산 목록과 자동 매칭, 해당 없으면 그 자리에서 종료 |
 | **정보 수집** | 6~7개 사이트를 CVE마다 순회 | 대조를 통과한 건만 한 번의 실행으로 수집·병합 |
@@ -137,7 +137,7 @@ CVSS 벡터는 점수 하나로 뭉쳐 두지 않고 항목별로 쪼개, **위�
 신규 CVE               1,800건
       │  ① 자산 대조 (SBOM 목록)
       ▼
-자산에 영향                12건   ← 사람이 볼 대상
+자산에 영향                12건   ← 담당자가 볼 대상
       │  ② 악용 신호 · 심각도
       ▼
 즉시 대응(Critical)         2건   → Slack 알림 + GitHub Issue 리포트
@@ -244,7 +244,7 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 | `vendor` / `*` | **특정 벤더**의 모든 제품 | 그 벤더 제품을 폭넓게 쓰는 경우 |
 | `*` / `*` | 전체 감시 | 자산 확정 전 — 고위험만 수신 |
 
-> 벤더/제품명은 대소문자와 `_`·공백 표기 차이를 흡수해 매칭합니다 (`exchange_server` ↔ `Exchange Server`).
+> 벤더/제품명은 대소문자와 `_`·공백 표기 차이를 흡수해 매칭합니다 (`Exchange Server` ↔ `exchange_server`).
 > CVE 레코드에 벤더 정보가 없으면 NVD CPE와 설명 텍스트로 보완합니다.
 
 ### 2. GitHub Secrets 등록
@@ -287,3 +287,13 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 
 Code is licensed under the **[MIT License](LICENSE)** © 2026 LEEKIYOON-SEC.
 외부 데이터 및 탐지 룰은 위 [데이터 출처 & 라이선스](#데이터-출처--라이선스) 표의 각 라이선스를 따릅니다.
+
+---
+
+<div align="center">
+
+**🔗 [라이브 대시보드](https://leekiyoon-sec.github.io/Argus-AI-Threat-Intelligence/cve.html)**
+
+`https://leekiyoon-sec.github.io/Argus-AI-Threat-Intelligence/cve.html`
+
+</div>
