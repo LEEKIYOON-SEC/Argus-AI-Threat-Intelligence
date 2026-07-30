@@ -4,6 +4,8 @@
 
 **매일 반복하던 취약점 확인 업무를 자동화한 CVE 위협 인텔리전스 파이프라인**
 
+SBOM으로 만든 자산 목록에 걸리지 않는 CVE는 앞단에서 걸러내고, 남은 소수만 사람이 판단합니다.
+
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![GitHub Actions](https://img.shields.io/badge/Runtime-GitHub%20Actions-2088FF?logo=githubactions&logoColor=white)](.github/workflows/argus.yml)
 [![Dashboard](https://img.shields.io/badge/Dashboard-GitHub%20Pages-222?logo=github&logoColor=white)](https://leekiyoon-sec.github.io/Argus-AI-Threat-Intelligence/cve.html)
@@ -53,8 +55,9 @@
 ⑤ 전달             급한 건은 Slack 즉시 · 상세 리포트는 GitHub Issue · 나머지는 대시보드에서 추적
 ```
 
-①은 자산이 바뀔 때만 하면 되고, ②~⑤는 GitHub Actions가 매시간 돌립니다. 사이트 순회에 쓰던 시간이
-알림 확인하는 몇 분으로 줄었습니다.
+①은 자산이 바뀔 때만 하면 되고, ②~⑤는 GitHub Actions가 매시간 돌립니다. 이제 수백 건을 직접 훑지
+않습니다. 자산에 걸린 몇 건만 확인하면 되고, 바빠서 건너뛰는 날도 없어졌습니다. 남는 시간은 실제로
+대응해야 하는 취약점에 씁니다.
 
 ---
 
@@ -80,7 +83,7 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 
 ## 무엇이 달라졌나
 
-| | 자동화 전 (수작업) | 자동화 후 (Argus) |
+| | 기존 업무 (사람이 하던 일) | Argus |
 | :--- | :--- | :--- |
 | **자산 대조** | CVE마다 벤더·제품명을 눈으로 확인 | SBOM 기반 자산 목록과 자동 매칭, 해당 없으면 그 자리에서 종료 |
 | **정보 수집** | 6~7개 사이트를 CVE마다 순회 | 대조를 통과한 건만 한 번의 실행으로 수집·병합 |
@@ -93,8 +96,8 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 
 ## 실제 화면
 
-심각도, 위협 신호(악용 중·무기화·PoC·공개 룰), 벤더, 제품, 기간(월/일)으로 좁혀 볼 수 있습니다.
-걸러낸 결과는 CSV, JSON, STIX 2.1로 내보냅니다.
+실제 악용 여부, 자산 영향, 탐지 룰 존재 여부를 한눈에 봅니다. 걸러낸 결과는 CSV·JSON·STIX 2.1로
+내보냅니다.
 
 <div align="center">
 
@@ -124,6 +127,21 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 
 ![Architecture](docs/assets/architecture.png)
 
+하루치가 실제로 이렇게 줄어듭니다.
+
+```
+신규 CVE               1,800건
+      │  ① 자산 대조 (SBOM 목록)
+      ▼
+자산에 영향                12건   ← 사람이 볼 대상
+      │  ② 악용 신호 · 심각도
+      ▼
+즉시 대응(Critical)         2건   → Slack 알림 + GitHub Issue 리포트
+```
+
+<sub>자산 목록을 공개 저장소에 올릴 수 없어 라이브 인스턴스는 전체 감시(`*/*`)로 돌리고 있습니다.
+위 감소 폭은 자산을 등록했을 때를 가정한 예시입니다. 유입량(하루 수백~수천 건)은 실제 수집 기준입니다.</sub>
+
 위험도는 3단계로 나눕니다. CVSS 7점대가 하루 수백 건씩 나오니 점수만으로는 걸러지지 않습니다.
 
 | 단계 | 조건 | 처리 |
@@ -140,9 +158,9 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 
 | | 기능 | 설명 |
 |:--:|---|---|
-| 🎯 | **자산 기준 위험도 티어링** | 등록 자산은 저위험까지 추적, 미등록(전체 감시)은 고위험만 수신해 알림 노이즈 차단 |
-| 🧠 | **AI 심층 분석** | 근본 원인 · MITRE ATT&CK 공격 시나리오 · 공격 벡터 해석 · 대응 방안을 한국어로 생성 |
+| 🎯 | **자산 기준 1차 필터** | SBOM 목록에 걸린 것만 통과. 등록 자산은 저위험까지 추적, 미등록(전체 감시)은 고위험만 수신 |
 | 🚨 | **실제 악용 신호 우선** | CISA KEV · EPSS · Metasploit · ExploitDB · CISA SSVC를 종합해 "무기화·악용 진행형"을 최상위 노출 |
+| 🧠 | **AI 심층 분석** | 필터를 통과한 건만 근본 원인 · MITRE ATT&CK 공격 시나리오 · 공격 벡터 해석 · 대응 방안을 한국어로 생성 |
 | 🔎 | **공개 탐지 룰 매칭** | SigmaHQ · ET Open · Snort Community · Yara-Rules에서 해당 CVE의 검증된 룰을 찾아 리포트에 첨부(출처·라이선스 보존) |
 | 📈 | **에스컬레이션 재알림** | 저위험이던 CVE가 KEV 등재·EPSS 급등으로 고위험 전환되면 자동 재알림 |
 | 🔁 | **무누락 수집** | 워터마크 기반 이어받기 + 소프트 데드라인으로 실행이 중단돼도 다음 회차가 빈틈 없이 재수집 |
@@ -153,7 +171,8 @@ syft C:\ -o cyclonedx-json=sbom-windows.json
 
 ## AI 스택
 
-한쪽이 죽거나 일일 한도가 차도 분석이 멈추지 않게 두 공급자를 섞어 씁니다.
+추론 품질이 좋은 모델을 먼저 쓰고, 일일 한도가 차거나 장애가 나면 다음 모델로 넘깁니다.
+분석이 멈추지 않게 공급자도 두 곳을 섞었습니다.
 
 | 용도 | 모델 | 공급자 | 비고 |
 |---|---|---|---|
@@ -247,9 +266,8 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 
 ## 운영 비용
 
-전부 무료 티어 안에서 돌아갑니다. 실행은 GitHub Actions, 대시보드는 GitHub Pages, DB는 Supabase,
-AI는 Groq와 Google AI Studio를 씁니다. 서버를 따로 두거나 유료 구독을 하지 않아도 개인이나 소규모 팀이
-운영할 수 있습니다.
+개인이나 소규모 팀이 별도 서버 없이 운영할 수 있도록 전부 무료 티어 안에서 돌아가게 만들었습니다.
+실행은 GitHub Actions, 대시보드는 GitHub Pages, DB는 Supabase, AI는 Groq와 Google AI Studio를 씁니다.
 
 한도를 지키려고 상세 분석 리포트는 DB가 아니라 GitHub Issue에 남기고, DB에는 대시보드 표시와 재알림
 판단에 필요한 최소 정보만 넣습니다. 외부 API 호출량은 한도 관리자가 미리 조절합니다.
