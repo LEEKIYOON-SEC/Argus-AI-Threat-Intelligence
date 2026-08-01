@@ -1,5 +1,729 @@
 [
   {
+    "id": "CVE-2026-12569",
+    "title": "Windchill PDMlink의 원격 코드 실행(RCE) 취약점",
+    "description": "신뢰할 수 없는 데이터의 역직렬화(Deserialization)를 통해 원격 코드 실행(RCE)이 가능합니다.",
+    "cvss": 9.3,
+    "epss": 0.02263,
+    "is_kev": true,
+    "cwe": [
+      "CWE-20",
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "PTC",
+        "product": "Windchill PDMLink",
+        "versions": "11.0 M030 이하, 11.1 M020 (단일 버전), 11.2.1.0 (단일 버전), 12.0.2.0 (단일 버전), 12.1.2.0 (단일 버전), 13.0.2.0 (단일 버전), 13.1.0.0 (단일 버전), 13.1.1.0 (단일 버전), 13.1.2.0 (단일 버전), 13.1.3.0 (단일 버전)"
+      },
+      {
+        "vendor": "PTC",
+        "product": "FlexPLM",
+        "versions": "11.0 M030 이하, 11.1 M020 (단일 버전), 11.2.1.0 (단일 버전), 12.0.0.0 (단일 버전), 12.0.2.0 (단일 버전), 12.1.2.0 (단일 버전), 12.1.3.0 (단일 버전), 13.0.2.0 (단일 버전), 13.0.3.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2582",
+    "date": "2026-08-01T06:45:53.475163+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:L/SI:L/SA:L/AU:Y/R:U/V:C/U:Red",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-3141",
+    "title": "FormGent 1.9.2 이하 버전의 인증되지 않은 임의 파일 삭제 취약점",
+    "description": "REST API 엔드포인트의 권한 검사 누락으로 인해 인증되지 않은 공격자가 임의 파일을 삭제할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "wpwax",
+        "product": "FormGent – Next-Gen AI Form Builder for WordPress with Multi-Step, Quizzes, Payments & More",
+        "versions": "1.9.2 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2581",
+    "date": "2026-08-01T06:45:00.579905+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-22205",
+    "title": "GitLab 취약점",
+    "description": "이미지 파일 검증 미흡으로 인해 원격 명령 실행(Remote Command Execution)이 가능합니다.",
+    "cvss": 10,
+    "epss": 0.99731,
+    "is_kev": true,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "GitLab",
+        "product": "GitLab",
+        "versions": ">=11.9, <13.8.8 (단일 버전), >=13.9, <13.9.6 (단일 버전), >=13.10, <13.10.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2580",
+    "date": "2026-08-01T06:44:24.309037+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Gitlab CE/EE Image Parser RCE Inbound (CVE-2021-22205)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/uploads/user\"; http_uri; content:\"Content-Type|3a 20|image/jpeg\"; http_client_body; content:\"DJVMDIRM|00|\"; http_client_body; content:\"DJVIANT\"; http_client_body; content:\"|7b|\"; http_client_body; content:\"|7d|\"; http_client_body; distance:0; within:400; reference:cve,2021-22205; classtype:attempted-admin; sid:2034455; rev:2; metadata:attack_target Server, created_at 2021_11_13, cve CVE_2021_22205, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Gitlab CE/EE Image Parser RCE Inbound (CVE-2021-22205)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/uploads/user\"; http.request_body; content:\"Content-Type|3a 20|image/jpeg\"; content:\"DJVMDIRM|00|\"; content:\"DJVIANT\"; content:\"|7b|\"; content:\"|7d|\"; distance:0; within:400; reference:cve,2021-22205; classtype:attempted-admin; sid:2034455; rev:2; metadata:attack_target Server, created_at 2021_11_13, cve CVE_2021_22205, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Gitlab CE/EE Image Parser RCE Inbound (CVE-2021-22205)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/uploads/user\"; http.request_body; content:\"Content-Type|3a 20|image/jpeg\"; content:\"DJVMDIRM|00|\"; content:\"DJVIANT\"; content:\"|7b|\"; content:\"|7d|\"; distance:0; within:400; reference:cve,2021-22205; classtype:attempted-admin; sid:2034455; rev:2; metadata:attack_target Server, created_at 2021_11_13, cve CVE_2021_22205, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_13, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/mr-r3bot/Gitlab-CVE-2021-22205",
+      "https://github.com/XTeam-Wing/CVE-2021-22205",
+      "https://github.com/r0eXpeR/CVE-2021-22205"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/multi/http/gitlab_exif_rce"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-40438",
+    "title": "mod_proxy SSRF 취약점",
+    "description": "조작된 URI 경로를 통해 mod_proxy가 공격자가 선택한 오리진 서버로 요청을 전달하게 하는 SSRF 취약점입니다.",
+    "cvss": 9,
+    "epss": 0.99999,
+    "is_kev": true,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache HTTP Server",
+        "versions": "Apache HTTP Server 2.4 부터 2.4.48 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2579",
+    "date": "2026-08-01T06:44:24.201016+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Apache HTTP Server SSRF (CVE-2021-40438)\"; flow:established,to_server; urilen:>200; content:\"GET\"; http_method; content:\"/?unix|3a|\"; http_uri; nocase; fast_pattern; content:\"|7c|http\"; http_uri; reference:cve,2021-40438; classtype:attempted-admin; sid:2034566; rev:2; metadata:attack_target Server, created_at 2021_11_30, cve CVE_2021_40438, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Apache HTTP Server SSRF (CVE-2021-40438)\"; flow:established,to_server; urilen:>200; http.method; content:\"GET\"; http.uri; content:\"/?unix|3a|\"; nocase; fast_pattern; content:\"|7c|http\"; reference:cve,2021-40438; classtype:attempted-admin; sid:2034566; rev:2; metadata:attack_target Server, created_at 2021_11_30, cve CVE_2021_40438, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Apache HTTP Server SSRF (CVE-2021-40438)\"; flow:established,to_server; urilen:>200; http.method; content:\"GET\"; http.uri; content:\"/?unix|3a|\"; nocase; fast_pattern; content:\"|7c|http\"; reference:cve,2021-40438; classtype:attempted-admin; sid:2034566; rev:2; metadata:attack_target Server, created_at 2021_11_30, cve CVE_2021_40438, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_11_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/xiaojiangxl/CVE-2021-40438",
+      "https://github.com/sixpacksecurity/CVE-2021-40438",
+      "https://github.com/BabyTeam1024/CVE-2021-40438"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2017-12615",
+    "title": "Apache Tomcat 취약점",
+    "description": "Windows 환경에서 HTTP PUT 활성화 시, 조작된 요청으로 JSP 파일을 업로드하여 임의 코드를 실행할 수 있습니다.",
+    "cvss": 8.1,
+    "epss": 0.99607,
+    "is_kev": true,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache Tomcat",
+        "versions": "7.0.0 to 7.0.79 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2578",
+    "date": "2026-08-01T06:44:01.582393+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT Tomcat File Upload Payload Request (CVE-2017-12615)\"; flow:to_server,established; content:\"GET\"; http_method; content:\".jsp?view=\"; http_uri; fast_pattern; content:\"&os=\"; http_uri; distance:0; content:\"&address=\"; http_uri; distance:0; reference:cve,2017-12615; reference:url,forums.juniper.net/t5/Threat-Research/Anatomy-of-the-Bulehero-Cryptomining-Botnet/ba-p/458787; classtype:attempted-user; sid:2027517; rev:3; metadata:created_at 2019_06_26, cve CVE_2017_12615, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2020_05_28, reviewed_at 2024_05_06;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET EXPLOIT Tomcat File Upload Payload Request (CVE-2017-12615)\"; flow:to_server,established; http.method; content:\"GET\"; http.uri; content:\".jsp?view=\"; fast_pattern; content:\"&os=\"; distance:0; content:\"&address=\"; distance:0; reference:cve,2017-12615; reference:url,forums.juniper.net/t5/Threat-Research/Anatomy-of-the-Bulehero-Cryptomining-Botnet/ba-p/458787; classtype:attempted-user; sid:2027517; rev:3; metadata:created_at 2019_06_26, cve CVE_2017_12615, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2020_11_17, reviewed_at 2024_05_06;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET EXPLOIT Tomcat File Upload Payload Request (CVE-2017-12615)\"; flow:to_server,established; http.method; content:\"GET\"; http.uri; content:\".jsp?view=\"; fast_pattern; content:\"&os=\"; distance:0; content:\"&address=\"; distance:0; reference:cve,2017-12615; reference:url,forums.juniper.net/t5/Threat-Research/Anatomy-of-the-Bulehero-Cryptomining-Botnet/ba-p/458787; classtype:attempted-user; sid:2027517; rev:3; metadata:created_at 2019_06_26, cve CVE_2017_12615, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2020_11_17, reviewed_at 2024_05_06;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/breaktoprotect/CVE-2017-12615",
+      "https://github.com/mefulton/cve-2017-12615",
+      "https://github.com/zi0Black/POC-CVE-2017-12615-or-CVE-2017-12717"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2009-3960",
+    "title": "BlazeDS 3.2 및 이전 버전의 미지정 취약점",
+    "description": "XML 문서의 인젝션 태그 및 외부 엔티티 참조를 통해 원격 공격자가 민감한 정보를 획득할 수 있습니다.",
+    "cvss": 6.5,
+    "epss": 0.90012,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "adobe",
+        "product": "blazeds",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "adobe",
+        "product": "coldfusion",
+        "versions": "7.0.2"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2577",
+    "date": "2026-08-01T06:43:36.871047+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "auxiliary/scanner/http/adobe_xml_inject"
+    ],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-60221",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있습니다. (CVSS 9.8)",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1908",
+    "date": "2026-07-23T07:09:47.643307+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60276",
+    "title": "Oracle Coherence 취약점",
+    "description": "HTTPS를 통한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1941",
+    "date": "2026-07-23T09:55:35.568824+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60278",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1945",
+    "date": "2026-07-23T09:56:40.186859+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60387",
+    "title": "Service Delivery Platform 취약점",
+    "description": "Oracle Fusion Middleware SDP(Messaging Enabler) 취약점입니다.\n인증되지 않은 공격자가 T3, IIOP를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Service Delivery Platform",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1995",
+    "date": "2026-07-23T10:05:51.563208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61154",
+    "title": "Oracle Commerce Guided Search Platform Services 취약점",
+    "description": "Forge 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\nOracle Commerce Guided Search Platform Services를 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Commerce Guided Search Platform Services",
+        "versions": "11.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2061",
+    "date": "2026-07-23T10:33:30.695707+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61245",
+    "title": "Oracle Corporation PeopleSoft Enterprise FIN Manufacturing Brazil 취약점",
+    "description": "PeopleSoft Enterprise FIN Manufacturing Brazil(Integration) 9.1 버전의 취약점입니다.\n인증되지 않은 공격자가 HTTPS를 통해 시스템 권한을 탈취할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306",
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "PeopleSoft Enterprise FIN Manufacturing Brazil",
+        "versions": "9.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2090",
+    "date": "2026-07-23T10:36:27.54898+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60566",
+    "title": "Oracle WebCenter Portal 취약점",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Portal을 제어할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle WebCenter Portal",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2032",
+    "date": "2026-07-23T10:09:50.054063+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60279",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00358,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1949",
+    "date": "2026-07-23T09:58:09.639921+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-45949",
+    "title": "PHPGurukul User Registration & Login and User Management System V3.3의 심각한 취약점",
+    "description": "세션 데이터 처리 미흡으로 인해 Session Hijacking 공격이 가능하며, 원격으로 계정 탈취가 가능합니다.",
+    "cvss": 9.8,
+    "epss": 0.00465,
+    "is_kev": false,
+    "cwe": [
+      "CWE-384"
+    ],
+    "affected": [
+      {
+        "vendor": "phpgurukul",
+        "product": "user registration \\& login and user management system",
+        "versions": "3.3"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2204",
+    "date": "2026-07-25T04:31:46.073008+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/VasilVK/CVE/blob/main/CVE-2025-45949/README.MD"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-45947",
+    "title": "phpgurukul Online Banquet Booking System V1.2의 임의 코드 실행 취약점",
+    "description": "/obbs/change-password.php 파일의 취약점을 통해 공격자가 임의 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.0068,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "phpgurukul",
+        "product": "online banquet booking system",
+        "versions": "1.2"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2202",
+    "date": "2026-07-25T04:31:02.602146+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/VasilVK/CVE/blob/main/CVE-2025-45947/README.MD"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-15006",
     "title": "Bit integrations <= 2.9.0 - 선택적 CF7 파일 필드를 통한 인증되지 않은 임의 파일 읽기",
     "description": "processAttachment 함수의 Directory Traversal 취약점으로 인해, 인증되지 않은 공격자가 서버 내 임의 파일을 읽어 민감한 정보를 노출시킬 수 있습니다.",
@@ -119239,46 +119963,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-45949",
-    "title": "PHPGurukul User Registration & Login and User Management System V3.3의 심각한 취약점",
-    "description": "세션 데이터 처리 미흡으로 인해 Session Hijacking 공격이 가능하며, 원격으로 계정 탈취가 가능합니다.",
-    "cvss": 9.8,
-    "epss": 0.00465,
-    "is_kev": false,
-    "cwe": [
-      "CWE-384"
-    ],
-    "affected": [
-      {
-        "vendor": "phpgurukul",
-        "product": "user registration \\& login and user management system",
-        "versions": "3.3"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2204",
-    "date": "2026-07-25T04:31:46.073008+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/VasilVK/CVE/blob/main/CVE-2025-45949/README.MD"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-4083",
     "title": "교차 출처 프레임의 \"javascript:\" URI 링크를 이용한 프로세스 격리 우회",
     "description": "javascript: URI 처리 미흡으로 인해 콘텐츠가 최상위 프로세스에서 실행되어 샌드박스 탈출(sandbox escape)이 가능할 수 있습니다.",
@@ -119319,46 +120003,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-45947",
-    "title": "phpgurukul Online Banquet Booking System V1.2의 임의 코드 실행 취약점",
-    "description": "/obbs/change-password.php 파일의 취약점을 통해 공격자가 임의 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.0068,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "phpgurukul",
-        "product": "online banquet booking system",
-        "versions": "1.2"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2202",
-    "date": "2026-07-25T04:31:02.602146+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/VasilVK/CVE/blob/main/CVE-2025-45947/README.MD"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -152694,45 +153338,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-61245",
-    "title": "Oracle Corporation PeopleSoft Enterprise FIN Manufacturing Brazil 취약점",
-    "description": "PeopleSoft Enterprise FIN Manufacturing Brazil(Integration) 9.1 버전의 취약점입니다.\n인증되지 않은 공격자가 HTTPS를 통해 시스템 권한을 탈취할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306",
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "PeopleSoft Enterprise FIN Manufacturing Brazil",
-        "versions": "9.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2090",
-    "date": "2026-07-23T10:36:27.54898+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-61006",
     "title": "Oracle Process Manufacturing Logistics 취약점",
     "description": "Oracle E-Business Suite의 높은 권한 공격자가 HTTP를 통해\n시스템을 장악할 수 있는 취약점입니다.",
@@ -156263,42 +156868,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2062",
     "date": "2026-07-23T10:33:30.798995+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61154",
-    "title": "Oracle Commerce Guided Search Platform Services 취약점",
-    "description": "Forge 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\nOracle Commerce Guided Search Platform Services를 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Commerce Guided Search Platform Services",
-        "versions": "11.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2061",
-    "date": "2026-07-23T10:33:30.695707+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -160503,42 +161072,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-60566",
-    "title": "Oracle WebCenter Portal 취약점",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Portal을 제어할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle WebCenter Portal",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2032",
-    "date": "2026-07-23T10:09:50.054063+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-60564",
     "title": "Oracle WebCenter Portal 취약점",
     "description": "낮은 권한의 공격자가 HTTP를 통해 Oracle WebCenter Portal을 장악하고 권한 없는 접근을 수행할 수 있습니다.",
@@ -160735,42 +161268,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1997",
     "date": "2026-07-23T10:05:57.765188+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60387",
-    "title": "Service Delivery Platform 취약점",
-    "description": "Oracle Fusion Middleware SDP(Messaging Enabler) 취약점입니다.\n인증되지 않은 공격자가 T3, IIOP를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Service Delivery Platform",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1995",
-    "date": "2026-07-23T10:05:51.563208+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -161219,78 +161716,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-60279",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1949",
-    "date": "2026-07-23T09:58:09.639921+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60278",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1945",
-    "date": "2026-07-23T09:56:40.186859+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-60269",
     "title": "Oracle Coherence 취약점",
     "description": "TCP를 통한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
@@ -161307,42 +161732,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1943",
     "date": "2026-07-23T09:56:13.718616+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60276",
-    "title": "Oracle Coherence 취약점",
-    "description": "HTTPS를 통한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1941",
-    "date": "2026-07-23T09:55:35.568824+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -165582,42 +165971,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1912",
     "date": "2026-07-23T07:10:59.160407+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60221",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있습니다. (CVSS 9.8)",
-    "cvss": 9.8,
-    "epss": 0.00358,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1908",
-    "date": "2026-07-23T07:09:47.643307+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
