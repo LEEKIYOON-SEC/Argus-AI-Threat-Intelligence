@@ -1,5 +1,499 @@
 [
   {
+    "id": "CVE-2026-16232",
+    "title": "애플리케이션 토큰을 이용한 SmartConsole 로그인 프로세스의 인증 우회(Authentication Bypass)",
+    "description": "Check Point SmartConsole 로그인 프로세스의 인증 우회 취약점으로, 인증되지 않은 원격 공격자가 관리자 권한을 획득하여 보안 정책 및 설정을 수정할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.69969,
+    "is_kev": true,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "checkpoint",
+        "product": "Quantum Security Management",
+        "versions": "R82.10 with Jumbo Hotfix Take 36 or below (단일 버전), R82 with Jumbo Hotfix Take 118 or below (단일 버전), R81.20 with Jumbo Hotfix Take 158 or below (단일 버전), R81.10, R81, R80.30, R80.20, R80.10, R80, and R77.30 (단일 버전)"
+      },
+      {
+        "vendor": "checkpoint",
+        "product": "Multi-Domain Security Management",
+        "versions": "R82.10 with Jumbo Hotfix Take 36 or below (단일 버전), R82 with Jumbo Hotfix Take 118 or below (단일 버전), R81.20 with Jumbo Hotfix Take 158 or below (단일 버전), R81.10, R81, R80.30, R80.20, R80.10, R80, and R77.30 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2598",
+    "date": "2026-08-02T09:24:33.987204+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET EXPLOIT Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|3a|DN|20 28 22|cn|3d|\"; pcre:\"/^[^\\x2c]*?\\x2c[oO]\\x3d[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|\"; fast_pattern; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; content:\"|01 01 0e 02 00 00 00 03|\"; byte_test:4,=,0,4,relative,big; byte_test:4,=,2,8,relative,big; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:attempted-admin; sid:2071347; rev:3; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, former_category WEB_SERVER, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET EXPLOIT Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|3a|DN|20 28 22|cn|3d|\"; pcre:\"/^[^\\x2c]*?\\x2c[oO]\\x3d[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|\"; fast_pattern; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; content:\"|01 01 0e 02 00 00 00 03|\"; byte_test:4,=,0,4,relative,big; byte_test:4,=,2,8,relative,big; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:attempted-admin; sid:2071347; rev:3; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, former_category WEB_SERVER, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET EXPLOIT Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|3a|DN|20 28 22|cn|3d|\"; pcre:\"/^[^\\x2c]*?\\x2c[oO]\\x3d[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|\"; fast_pattern; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; content:\"|01 01 0e 02 00 00 00 03|\"; byte_test:4,=,0,4,relative,big; byte_test:4,=,2,8,relative,big; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:attempted-admin; sid:2071347; rev:3; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, former_category WEB_SERVER, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_30, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/WadesWeaponShed/Check-Point-Trusted-Access-Review",
+      "https://github.com/sfewer-r7/CVE-2026-16232"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61059",
+    "title": "Oracle PeopleSoft Enterprise SCM Order Management 취약점",
+    "description": "PeopleSoft Enterprise SCM Order Management의 Security 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 중요 데이터에 무단 접근 및 수정이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0.00398,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "PeopleSoft Enterprise SCM Order Management",
+        "versions": "9.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2050",
+    "date": "2026-07-23T10:32:25.71493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61153",
+    "title": "Oracle Commerce Guided Search / Oracle Commerce Experience Manager 취약점",
+    "description": "Experience Manager 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n중요 데이터에 대한 무단 생성, 삭제 또는 수정 권한을 얻을 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00398,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Commerce Guided Search / Oracle Commerce Experience Manager",
+        "versions": "11.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2065",
+    "date": "2026-07-23T10:33:45.226859+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61171",
+    "title": "Oracle Agile PLM 취약점",
+    "description": "Security 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n중요 데이터에 대한 무단 생성, 삭제 또는 수정 권한을 얻을 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00398,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Agile PLM",
+        "versions": "9.3.6 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2069",
+    "date": "2026-07-23T10:34:23.372758+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61184",
+    "title": "Oracle Agile Product Lifecycle Management for Process 취약점",
+    "description": "Oracle Agile PLM for Process(버전 6.2.4)의 제품 품질 관리 취약점입니다.\nHTTP 네트워크 액세스를 통해 중요 데이터의 무단 생성, 삭제, 수정이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0.00398,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Agile Product Lifecycle Management for Process",
+        "versions": "6.2.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2073",
+    "date": "2026-07-23T10:34:31.523311+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-4083",
+    "title": "교차 출처 프레임의 \"javascript:\" URI 링크를 이용한 프로세스 격리 우회",
+    "description": "javascript: URI 처리 미흡으로 인해 콘텐츠가 최상위 프로세스에서 실행되어 샌드박스 탈출(sandbox escape)이 가능할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00399,
+    "is_kev": false,
+    "cwe": [
+      "CWE-653"
+    ],
+    "affected": [
+      {
+        "vendor": "Mozilla",
+        "product": "Firefox",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Mozilla",
+        "product": "Thunderbird",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2203",
+    "date": "2026-07-25T04:31:03.180889+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60208",
+    "title": "Oracle WebLogic Server HTTP 취약점",
+    "description": "인증되지 않은 공격자가 HTTP 네트워크 접근을 통해 Oracle WebLogic Server의 중요 데이터에 무단 접근하거나 수정할 수 있는 취약점입니다.",
+    "cvss": 9.1,
+    "epss": 0.00427,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle WebLogic Server",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1902",
+    "date": "2026-07-23T07:08:18.928682+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-49794",
+    "title": "Libxml: 힙 Use-After-Free(UAF) 취약점으로 인한 서비스 거부(DoS)",
+    "description": "libxml2에서 Use-After-Free 취약점이 발견되었습니다. 특정 XML schematron 요소가 포함된 XPath 파싱 과정에서 발생하며, 악의적인 XML 입력을 통해 프로그램 충돌 및 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00669,
+    "is_kev": false,
+    "cwe": [
+      "CWE-825"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "2.15.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1569",
+    "date": "2026-07-19T05:39:17.256494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/11notes/docker-paperless-ngx",
+      "https://github.com/8-cm/kube-dump",
+      "https://github.com/ARPSyndicate/cve-scores"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-49796",
+    "title": "Libxml: 타입 혼동으로 인한 서비스 거부(DoS) 취약점",
+    "description": "libxml2의 특정 sch:name 요소 처리 중 메모리 손상이 발생하는 취약점이 발견되었습니다. 공격자가 악의적인 XML 파일을 통해 시스템 충돌을 유발함으로써 서비스 거부(DoS) 또는 정의되지 않은 동작을 일으킬 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.01437,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "2.15.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1568",
+    "date": "2026-07-19T05:38:21.852533+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/11notes/docker-paperless-ngx",
+      "https://github.com/8-cm/kube-dump",
+      "https://github.com/ARPSyndicate/cve-scores"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2008-4128",
+    "title": "Cisco IOS 12.4(871 ISR) HTTP 관리 구성 요소의 CSRF 취약점",
+    "description": "Cisco IOS 12.4(871 ISR)의 HTTP 관리 구성 요소에서 여러 CSRF 취약점이 발견되었습니다. 원격 공격자는 특정 URI를 통해 \"show privilege\" 및 \"alias exec\" 명령을 사용하여 임의의 명령을 실행할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0.23857,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "cisco",
+        "product": "ios",
+        "versions": "12.4"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1561",
+    "date": "2026-07-19T05:35:38.129498+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-56164",
+    "title": "Microsoft SharePoint Server 권한 상승 취약점",
+    "description": "정보 없음",
+    "cvss": 5.3,
+    "epss": 0.05601,
+    "is_kev": true,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SharePoint Enterprise Server 2016",
+        "versions": "16.0.0 부터 16.0.5561.1001 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SharePoint Server 2019",
+        "versions": "16.0.0 부터 16.0.10417.20175 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft SharePoint Server Subscription Edition",
+        "versions": "16.0.0 부터 16.0.19725.20434 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1558",
+    "date": "2026-07-19T05:34:47.142644+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/sentinel-aidefense/CVE-2026-56164-EXP"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
     "id": "CVE-2026-60168",
     "title": "Oracle Hospitality Simphony 취약점",
     "description": "인증되지 않은 공격자가 HTTP를 통해 시스템을 침해할 수 있습니다.\n중요 데이터의 무단 생성, 삭제 또는 수정이 가능합니다.",
@@ -71040,83 +71534,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-16232",
-    "title": "애플리케이션 토큰을 이용한 SmartConsole 로그인 프로세스의 인증 우회",
-    "description": "Check Point SmartConsole 로그인 프로세스의 인증 우회 취약점입니다.\n인증되지 않은 원격 공격자가 로그인 토큰을 획득하여 관리자 권한으로 보안 정책 및 설정을 수정할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0,
-    "is_kev": true,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "checkpoint",
-        "product": "Quantum Security Management",
-        "versions": "R82.10 with Jumbo Hotfix Take 36 or below (단일 버전), R82 with Jumbo Hotfix Take 118 or below (단일 버전), R81.20 with Jumbo Hotfix Take 158 or below (단일 버전), R81.10, R81, R80.30, R80.20, R80.10, R80, and R77.30 (단일 버전)"
-      },
-      {
-        "vendor": "checkpoint",
-        "product": "Multi-Domain Security Management",
-        "versions": "R82.10 with Jumbo Hotfix Take 36 or below (단일 버전), R82 with Jumbo Hotfix Take 118 or below (단일 버전), R81.20 with Jumbo Hotfix Take 158 or below (단일 버전), R81.10, R81, R80.30, R80.20, R80.10, R80, and R77.30 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1810",
-    "date": "2026-07-22T20:37:46.852416+00:00",
-    "rule_engines": [
-      "snort2",
-      "suricata5",
-      "suricata7"
-    ],
-    "has_official_rules": true,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [
-        {
-          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET WEB_SERVER Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|01 01 0e 02 00 00 00 03|\"; offset:4; depth:8; content:\"|3a|DN|20 28 22|cn|3d|cp_mgmt|2c|o|3d|\"; fast_pattern; pcre:\"/^[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|1|29|\"; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:web-application-attack; sid:2071347; rev:2; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_29, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
-          "trust": "official-verified",
-          "engine": "snort2",
-          "source": "Public (Snort 2.9 ET Open)",
-          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET WEB_SERVER Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|01 01 0e 02 00 00 00 03|\"; offset:4; depth:8; content:\"|3a|DN|20 28 22|cn|3d|cp_mgmt|2c|o|3d|\"; fast_pattern; pcre:\"/^[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|1|29|\"; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:web-application-attack; sid:2071347; rev:2; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_29, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "trust": "official-verified",
-          "engine": "suricata5",
-          "source": "Public (Suricata 5 ET Open)",
-          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
-          "verified": true,
-          "indicators": null
-        },
-        {
-          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] 18190 (msg:\"ET WEB_SERVER Check Point CPMI Protocol Authentication Bypass via Application Login (CVE-2026-16232)\"; flow:established,to_server; content:\"|01 01 0e 02 00 00 00 03|\"; offset:4; depth:8; content:\"|3a|DN|20 28 22|cn|3d|cp_mgmt|2c|o|3d|\"; fast_pattern; pcre:\"/^[^\\x22]*?\\x22\\x29/R\"; content:\"|3a|certificate_bind|20 28|1|29|\"; pcre:\"/^(?:1|[tT][rR][uU][eE])\\x29/R\"; content:\"|3a|application_login|20 28 22|\"; reference:url,www.rapid7.com/blog/post/ra-check-point-smartconsole-authentication-bypass-technical-analysis-cve-2026-16232/; reference:cve,2026-16232; classtype:web-application-attack; sid:2071347; rev:2; metadata:attack_target Server, tls_state TLSDecrypt, created_at 2026_07_29, cve CVE_2026_16232, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag Exploit, updated_at 2026_07_29, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
-          "trust": "official-verified",
-          "engine": "suricata7",
-          "source": "Public (Suricata 7 ET Open)",
-          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
-          "verified": true,
-          "indicators": null
-        }
-      ],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/WadesWeaponShed/Check-Point-Trusted-Access-Review"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-41939",
     "title": "Care Everywhere Gateway 14.3.10 WildFly를 통한 하드코딩된 자격 증명 RCE",
     "description": "WildFly 관리 인터페이스의 하드코딩된 기본 자격 증명을 이용해 관리자 권한을 획득할 수 있습니다.\n악의적인 WAR 파일을 배포하여 Windows 시스템에서 원격 코드 실행(RCE)이 가능합니다.",
@@ -120064,196 +120481,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-49794",
-    "title": "Libxml: 힙 Use-After-Free(UAF) 취약점으로 인한 서비스 거부(DoS)",
-    "description": "libxml2에서 Use-After-Free 취약점이 발견되었습니다. 특정 XML schematron 요소가 포함된 XPath 파싱 과정에서 발생하며, 악의적인 XML 입력을 통해 프로그램 충돌 및 서비스 거부(DoS)를 유발할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00669,
-    "is_kev": false,
-    "cwe": [
-      "CWE-825"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "2.15.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1569",
-    "date": "2026-07-19T05:39:17.256494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/11notes/docker-paperless-ngx",
-      "https://github.com/8-cm/kube-dump",
-      "https://github.com/ARPSyndicate/cve-scores"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-49796",
-    "title": "Libxml: 타입 혼동으로 인한 서비스 거부(DoS) 취약점",
-    "description": "libxml2의 특정 sch:name 요소 처리 중 메모리 손상이 발생하는 취약점이 발견되었습니다. 공격자가 악의적인 XML 파일을 통해 시스템 충돌을 유발함으로써 서비스 거부(DoS) 또는 정의되지 않은 동작을 일으킬 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.01437,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "2.15.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1568",
-    "date": "2026-07-19T05:38:21.852533+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/11notes/docker-paperless-ngx",
-      "https://github.com/8-cm/kube-dump",
-      "https://github.com/ARPSyndicate/cve-scores"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2008-4128",
-    "title": "Cisco IOS 12.4(871 ISR) HTTP 관리 구성 요소의 CSRF 취약점",
-    "description": "Cisco IOS 12.4(871 ISR)의 HTTP 관리 구성 요소에서 여러 CSRF 취약점이 발견되었습니다. 원격 공격자는 특정 URI를 통해 \"show privilege\" 및 \"alias exec\" 명령을 사용하여 임의의 명령을 실행할 수 있습니다.",
-    "cvss": 4.3,
-    "epss": 0.23857,
-    "is_kev": true,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "cisco",
-        "product": "ios",
-        "versions": "12.4"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1561",
-    "date": "2026-07-19T05:35:38.129498+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "active",
-    "has_public_exploit": true,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
-    "id": "CVE-2026-56164",
-    "title": "Microsoft SharePoint Server 권한 상승 취약점",
-    "description": "정보 없음",
-    "cvss": 5.3,
-    "epss": 0.05601,
-    "is_kev": true,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SharePoint Enterprise Server 2016",
-        "versions": "16.0.0 부터 16.0.5561.1001 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SharePoint Server 2019",
-        "versions": "16.0.0 부터 16.0.10417.20175 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft SharePoint Server Subscription Edition",
-        "versions": "16.0.0 부터 16.0.19725.20434 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1558",
-    "date": "2026-07-19T05:34:47.142644+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/sentinel-aidefense/CVE-2026-56164-EXP"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "active",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-63720",
     "title": "datamodel-code-generator: 검증되지 않은 customBasePath 스키마 필드를 통한 코드 인젝션",
     "description": "0.70.0 이전 버전에서 customBasePath 필드 검증 미흡으로 인한 코드 인젝션 취약점이 존재합니다. 악의적인 값이 포함된 스키마를 통해 원격 코드 실행(RCE)이 가능합니다.",
@@ -126022,52 +126249,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-4083",
-    "title": "교차 출처 프레임의 \"javascript:\" URI 링크를 이용한 프로세스 격리 우회",
-    "description": "javascript: URI 처리 미흡으로 인해 콘텐츠가 최상위 프로세스에서 실행되어 샌드박스 탈출(sandbox escape)이 가능할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00399,
-    "is_kev": false,
-    "cwe": [
-      "CWE-653"
-    ],
-    "affected": [
-      {
-        "vendor": "Mozilla",
-        "product": "Firefox",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Mozilla",
-        "product": "Thunderbird",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2203",
-    "date": "2026-07-25T04:31:03.180889+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/ARPSyndicate/cve-scores",
-      "https://github.com/w4zu/Debian_security"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-3809",
@@ -160272,78 +160453,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-61184",
-    "title": "Oracle Agile Product Lifecycle Management for Process 취약점",
-    "description": "Oracle Agile PLM for Process(버전 6.2.4)의 제품 품질 관리 취약점입니다.\nHTTP 네트워크 액세스를 통해 중요 데이터의 무단 생성, 삭제, 수정이 가능합니다.",
-    "cvss": 9.1,
-    "epss": 0.00398,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Agile Product Lifecycle Management for Process",
-        "versions": "6.2.4 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2073",
-    "date": "2026-07-23T10:34:31.523311+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61171",
-    "title": "Oracle Agile PLM 취약점",
-    "description": "Security 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n중요 데이터에 대한 무단 생성, 삭제 또는 수정 권한을 얻을 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00398,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Agile PLM",
-        "versions": "9.3.6 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2069",
-    "date": "2026-07-23T10:34:23.372758+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-61174",
     "title": "Oracle Product Lifecycle Analytics 취약점",
     "description": "Oracle Product Lifecycle Analytics(버전 3.6.1)의 설치 이슈 취약점입니다.\n인프라 로그인 권한이 있는 인증되지 않은 공격자가 시스템을 침해할 수 있습니다.",
@@ -160360,42 +160469,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2067",
     "date": "2026-07-23T10:34:09.073452+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61153",
-    "title": "Oracle Commerce Guided Search / Oracle Commerce Experience Manager 취약점",
-    "description": "Experience Manager 컴포넌트의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n중요 데이터에 대한 무단 생성, 삭제 또는 수정 권한을 얻을 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00398,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Commerce Guided Search / Oracle Commerce Experience Manager",
-        "versions": "11.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2065",
-    "date": "2026-07-23T10:33:45.226859+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -160468,42 +160541,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2057",
     "date": "2026-07-23T10:33:22.001782+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61059",
-    "title": "Oracle PeopleSoft Enterprise SCM Order Management 취약점",
-    "description": "PeopleSoft Enterprise SCM Order Management의 Security 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 중요 데이터에 무단 접근 및 수정이 가능합니다.",
-    "cvss": 9.1,
-    "epss": 0.00398,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "PeopleSoft Enterprise SCM Order Management",
-        "versions": "9.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2050",
-    "date": "2026-07-23T10:32:25.71493+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -168639,42 +168676,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1925",
     "date": "2026-07-23T07:14:08.906382+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60208",
-    "title": "Oracle WebLogic Server HTTP 취약점",
-    "description": "인증되지 않은 공격자가 HTTP 네트워크 접근을 통해 Oracle WebLogic Server의 중요 데이터에 무단 접근하거나 수정할 수 있는 취약점입니다.",
-    "cvss": 9.1,
-    "epss": 0.00427,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle WebLogic Server",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1902",
-    "date": "2026-07-23T07:08:18.928682+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
