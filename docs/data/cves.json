@@ -1,5 +1,597 @@
 [
   {
+    "id": "CVE-2025-49796",
+    "title": "Libxml: 타입 혼동으로 인한 서비스 거부(DoS) 취약점",
+    "description": "libxml2의 특정 sch:name 요소 처리 중 메모리 손상이 발생하는 취약점이 발견되었습니다. 공격자가 악의적인 XML 파일을 통해 시스템 충돌을 유발함으로써 서비스 거부(DoS) 또는 정의되지 않은 동작을 일으킬 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.01508,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "2.15.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1568",
+    "date": "2026-07-19T05:38:21.852533+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/11notes/docker-paperless-ngx",
+      "https://github.com/8-cm/kube-dump",
+      "https://github.com/ARPSyndicate/cve-scores"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-49794",
+    "title": "Libxml: 힙 Use-After-Free(UAF) 취약점으로 인한 서비스 거부(DoS)",
+    "description": "libxml2에서 Use-After-Free 취약점이 발견되었습니다. 특정 XML schematron 요소가 포함된 XPath 파싱 과정에서 발생하며, 악의적인 XML 입력을 통해 프로그램 충돌 및 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00702,
+    "is_kev": false,
+    "cwe": [
+      "CWE-825"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "2.15.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1569",
+    "date": "2026-07-19T05:39:17.256494+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/11notes/docker-paperless-ngx",
+      "https://github.com/8-cm/kube-dump",
+      "https://github.com/ARPSyndicate/cve-scores"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-5914",
+    "title": "Libarchive: archive_read_support_format_rar.c의 archive_read_format_rar_seek_data()에서 double free 발생",
+    "description": "정수 오버플로우로 인한 double-free 취약점입니다. 메모리 오염을 통해 임의 코드 실행이나 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00326,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "3.8.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:58.129433+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7425",
+    "title": "Libxslt: libxml2: xmlattrptr의 atype 손상으로 인한 libxslt의 heap use-after-free",
+    "description": "속성 유형(atype) 플래그 손상으로 ID 속성이 제대로 정리되지 않는 취약점입니다. 해제된 메모리에 접근하여 크래시나 heap corruption을 유발할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00339,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "GNOME",
+        "product": "libxml2",
+        "versions": "2.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:58.127017+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47303",
+    "title": "ASP.NET Core 권한 상승(Elevation of Privilege) 취약점",
+    "description": "ASP.NET Core의 불변 데이터 가정으로 인한 인증 우회로, 권한이 있는 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00582,
+    "is_kev": false,
+    "cwe": [
+      "CWE-302",
+      "CWE-863",
+      "CWE-90"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": ".NET 10.0",
+        "versions": "10.0.0 부터 10.0.6 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": ".NET 8.0",
+        "versions": "8.0.0 부터 8.0.29 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": ".NET 9.0",
+        "versions": "9.0.0 부터 9.0.18 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:51.847081+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47653",
+    "title": "Remote Desktop Client 원격 코드 실행 취약점",
+    "description": "Remote Desktop Client의 Use-after-free 취약점으로 인해 권한 없는 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00602,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:50.331574+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-50444",
+    "title": "Windows Server Update Service (WSUS) 권한 상승 취약점",
+    "description": "WSUS의 중요 함수에 대한 인증 누락으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00604,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012",
+        "versions": "6.2.9200.0 부터 6.2.9200.26226 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:48.812134+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-50474",
+    "title": "Remote Desktop Client 원격 코드 실행 취약점",
+    "description": "Remote Desktop Client의 Use after free 취약점으로 인해 권한 없는 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00612,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:47.292031+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-50666",
+    "title": "Windows 원격 액세스 권한 상승 취약점",
+    "description": "Windows Remote Access Connection Manager의 Use after free 취약점으로\n권한 있는 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00617,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:45.77214+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-49178",
+    "title": "Windows Active Directory 도메인 서비스 원격 코드 실행 취약점",
+    "description": "Active Directory 도메인 서비스의 힙 기반 버퍼 오버플로우(heap-based buffer overflow)로 인해 인증된 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00618,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:43.754301+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-54998",
+    "title": "Microsoft Exchange Online 권한 상승 취약점",
+    "description": "Microsoft Exchange Online의 잘못된 권한 부여로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.0063,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Online",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:42.128299+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-40371",
+    "title": "Microsoft Dynamics 365 (on-premises) 권한 상승 취약점",
+    "description": "Microsoft Dynamics 365 (on-premises)의 권한 처리 미흡으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.0063,
+    "is_kev": false,
+    "cwe": [
+      "CWE-280"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Dynamics 365 (on-premises) version 9.1",
+        "versions": "9.0 부터 9.1.0045.0011 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:40.607274+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-3821",
+    "title": "Supermicro SMASH 서비스의 임의 코드 실행 취약점",
+    "description": "X14DBG-DAP 및 X14DBI의 SMASH 서비스에서 임의 코드 실행이 가능합니다.\n권한이 있는 공격자가 데이터 무결성을 훼손하거나 BMC에 DoS 공격을 수행할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00638,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "SMCI",
+        "product": "X14DBG-DAP,X14DBI",
+        "versions": "01.00.16.00 (단일 버전), 1.03.02.06 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:39.066142+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-52720",
+    "title": "Gstreamer1-plugins-bad-free: librfb의 조작된 VNC 서버 렉탱글을 통한 gstreamer 힙 버퍼 오버플로우",
+    "description": "GStreamer의 librfb에서 힙 버퍼 오버플로우 취약점이 발견되었습니다. 악의적인 VNC 서버를 통해 원격 코드 실행이나 크래시를 유발할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00638,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 8",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 9",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-02T19:37:37.491851+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-44513",
     "title": "Diffusers: `custom_pipeline` 및 로컬 커스텀 컴포넌트를 통한 `trust_remote_code` 우회",
     "description": "trust_remote_code 설정이 False임에도 불구하고, 특정 경로를 통해 임의의 원격 코드 실행(RCE)이 가능한 취약점입니다.",
@@ -3056,110 +3648,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-49794",
-    "title": "Libxml: 힙 Use-After-Free(UAF) 취약점으로 인한 서비스 거부(DoS)",
-    "description": "libxml2에서 Use-After-Free 취약점이 발견되었습니다. 특정 XML schematron 요소가 포함된 XPath 파싱 과정에서 발생하며, 악의적인 XML 입력을 통해 프로그램 충돌 및 서비스 거부(DoS)를 유발할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00669,
-    "is_kev": false,
-    "cwe": [
-      "CWE-825"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "2.15.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1569",
-    "date": "2026-07-19T05:39:17.256494+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/11notes/docker-paperless-ngx",
-      "https://github.com/8-cm/kube-dump",
-      "https://github.com/ARPSyndicate/cve-scores"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-49796",
-    "title": "Libxml: 타입 혼동으로 인한 서비스 거부(DoS) 취약점",
-    "description": "libxml2의 특정 sch:name 요소 처리 중 메모리 손상이 발생하는 취약점이 발견되었습니다. 공격자가 악의적인 XML 파일을 통해 시스템 충돌을 유발함으로써 서비스 거부(DoS) 또는 정의되지 않은 동작을 일으킬 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.01437,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "2.15.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1568",
-    "date": "2026-07-19T05:38:21.852533+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/11notes/docker-paperless-ngx",
-      "https://github.com/8-cm/kube-dump",
-      "https://github.com/ARPSyndicate/cve-scores"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -40406,49 +40894,6 @@
     ],
     "report_url": null,
     "date": "2026-07-30T12:09:48.715227+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-52720",
-    "title": "Gstreamer1-plugins-bad-free: librfb의 조작된 VNC 서버 렉탱글을 통한 gstreamer 힙 버퍼 오버플로우",
-    "description": "GStreamer의 librfb에서 힙 버퍼 오버플로우 취약점이 발견되었습니다. 악의적인 VNC 서버를 통해 원격 코드 실행이나 크래시를 유발할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00638,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 8",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 9",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-30T12:09:48.124016+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -85829,49 +86274,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-47653",
-    "title": "Remote Desktop Client 원격 코드 실행 취약점",
-    "description": "Remote Desktop Client의 Use-after-free 취약점으로 인해 권한 없는 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00602,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-28T23:39:13.886205+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-47648",
     "title": "Windows Storage 권한 상승 취약점",
     "description": "Windows Storage의 신뢰할 수 없는 검색 경로를 통해 권한 있는 공격자가 로컬에서 권한을 상승시킬 수 있습니다.",
@@ -90438,39 +90840,6 @@
     ],
     "report_url": null,
     "date": "2026-07-28T23:38:41.925196+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-40371",
-    "title": "Microsoft Dynamics 365 (on-premises) 권한 상승 취약점",
-    "description": "Microsoft Dynamics 365 (on-premises)의 권한 처리 미흡으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.0063,
-    "is_kev": false,
-    "cwe": [
-      "CWE-280"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Dynamics 365 (on-premises) version 9.1",
-        "versions": "9.0 부터 9.1.0045.0011 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-28T23:38:41.68528+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -118094,49 +118463,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-7425",
-    "title": "Libxslt: libxml2: xmlattrptr의 atype 손상으로 인한 libxslt의 heap use-after-free",
-    "description": "속성 유형(atype) 플래그 손상으로 ID 속성이 제대로 정리되지 않는 취약점입니다. 해제된 메모리에 접근하여 크래시나 heap corruption을 유발할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00339,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "GNOME",
-        "product": "libxml2",
-        "versions": "2.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-27T04:06:55.580779+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-60960",
     "title": "Oracle SDP Number Portability 취약점",
     "description": "Oracle E-Business Suite의 Oracle SDP Number Portability 취약점입니다.\n인프라 로그인 권한이 있는 낮은 권한의 공격자가 시스템을 침해하고 타 제품에 영향을 줄 수 있습니다.",
@@ -118444,49 +118770,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-5914",
-    "title": "Libarchive: archive_read_support_format_rar.c의 archive_read_format_rar_seek_data()에서 double free 발생",
-    "description": "정수 오버플로우로 인한 double-free 취약점입니다. 메모리 오염을 통해 임의 코드 실행이나 서비스 거부(DoS)를 유발할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00326,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "3.8.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-27T00:15:28.267667+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-62534",
@@ -121696,39 +121979,6 @@
     ],
     "report_url": null,
     "date": "2026-07-26T11:38:26.513943+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-3821",
-    "title": "Supermicro SMASH 서비스의 임의 코드 실행 취약점",
-    "description": "X14DBG-DAP 및 X14DBI의 SMASH 서비스에서 임의 코드 실행이 가능합니다.\n권한이 있는 공격자가 데이터 무결성을 훼손하거나 BMC에 DoS 공격을 수행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00638,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "SMCI",
-        "product": "X14DBG-DAP,X14DBI",
-        "versions": "01.00.16.00 (단일 버전), 1.03.02.06 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-26T11:38:25.320807+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -151625,49 +151875,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-50474",
-    "title": "Remote Desktop Client 원격 코드 실행 취약점",
-    "description": "Remote Desktop Client의 Use after free 취약점으로 인해 권한 없는 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00612,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-23T12:10:43.140297+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-50470",
     "title": "Windows Network Policy Server SNMP 정보 노출 취약점",
     "description": "Windows Network Policy Server SNMP의 Out-of-bounds read 취약점으로 인해 권한 없는 공격자가 네트워크를 통해 정보를 노출시킬 수 있습니다.",
@@ -155083,49 +155290,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-49178",
-    "title": "Windows Active Directory 도메인 서비스 원격 코드 실행 취약점",
-    "description": "Active Directory 도메인 서비스의 힙 기반 버퍼 오버플로우(heap-based buffer overflow)로 인해 인증된 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00618,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-23T12:09:40.314119+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-49171",
     "title": "Windows Speech Runtime 권한 상승 취약점",
     "description": "Microsoft Windows Speech의 Use After Free 취약점으로 인해\n권한이 있는 공격자가 로컬에서 권한을 상승시킬 수 있습니다.",
@@ -155413,51 +155577,6 @@
     ],
     "report_url": null,
     "date": "2026-07-23T12:09:34.774007+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-47303",
-    "title": "ASP.NET Core 권한 상승(Elevation of Privilege) 취약점",
-    "description": "ASP.NET Core의 불변 데이터 가정으로 인한 인증 우회로, 권한이 있는 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00582,
-    "is_kev": false,
-    "cwe": [
-      "CWE-302",
-      "CWE-863",
-      "CWE-90"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": ".NET 10.0",
-        "versions": "10.0.0 부터 10.0.6 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": ".NET 8.0",
-        "versions": "8.0.0 부터 8.0.29 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": ".NET 9.0",
-        "versions": "9.0.0 부터 9.0.18 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-23T12:09:34.328047+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -173541,125 +173660,6 @@
     ],
     "report_url": null,
     "date": "2026-07-22T08:24:19.463602+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-50444",
-    "title": "Windows Server Update Service (WSUS) 권한 상승 취약점",
-    "description": "WSUS의 중요 함수에 대한 인증 누락으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00604,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows Server 2012",
-        "versions": "6.2.9200.0 부터 6.2.9200.26226 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T08:24:18.474962+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-50666",
-    "title": "Windows 원격 액세스 권한 상승 취약점",
-    "description": "Windows Remote Access Connection Manager의 Use after free 취약점으로\n권한 있는 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00617,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9339 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.9020 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7548 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T08:24:17.172706+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-54998",
-    "title": "Microsoft Exchange Online 권한 상승 취약점",
-    "description": "Microsoft Exchange Online의 잘못된 권한 부여로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.0063,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Exchange Online",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T06:44:02.696741+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
