@@ -8,7 +8,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Dict, Optional
 from logger import logger
 from config import config
-from rate_limiter import rate_limit_manager
+from rate_limiter import rate_limit_manager, gemini_error_kind
 
 class AnalyzerError(Exception):
     """분석 관련 에러"""
@@ -128,7 +128,8 @@ class Analyzer:
             logger.warning(f"{cve_data['id']}: Gemini 비상 티어도 RPD 소진 → fallback")
             return None
         try:
-            rate_limit_manager.check_and_wait("gemini_analysis")
+            if not rate_limit_manager.check_and_wait("gemini_analysis"):
+                return None   # 위 is_rpd_exhausted와 별개로, 동시 실행 중 소진된 경우
             response = self.gemini_client.models.generate_content(
                 model=model,
                 contents=prompt,
@@ -153,9 +154,10 @@ class Analyzer:
             logger.info(f"{cve_data['id']}: Analysis complete (model={model}, 비상 티어)")
             return result
         except Exception as e:
-            msg = str(e).lower()
-            # 일간 quota 429 → 대기 무의미, 즉시 소진 마킹 (이후 CVE는 바로 fallback)
-            if "429" in msg or "resource_exhausted" in msg or "quota" in msg:
+            # 일간 quota 429 → 대기 무의미, 즉시 소진 마킹 (이후 CVE는 바로 fallback).
+            # 분당 한도 429는 마킹하지 않는다 — 소진 상태는 상태 파일로 실행 간에 유지되므로
+            # 오판하면 비상 분석 티어가 최대 24시간 잠긴다.
+            if gemini_error_kind(str(e)) == "rpd":
                 rate_limit_manager.mark_rpd_exhausted("gemini_analysis")
             logger.warning(f"{cve_data['id']}: Gemini 비상 분석 실패: {e}")
             return None

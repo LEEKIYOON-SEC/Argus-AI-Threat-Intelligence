@@ -60,6 +60,15 @@ def read_failure_state() -> Tuple[Dict[str, int], Dict[str, str]]:
         {k: str(v) for k, v in quarantined.items()},
     )
 
+def read_rpd_state() -> Dict[str, Dict[str, int]]:
+    """이전 실행이 남긴 일일 요청 수(RPD) 버킷. 없으면 빈 dict.
+
+    프로세스는 매 실행 새로 뜨므로 메모리 카운터만으로는 항상 0에서 시작한다 —
+    시간당 실행되는 파이프라인에서는 무료 티어 일일 한도(Gemma 1,500)를 스스로
+    지킬 수 없어 공급자가 429로 끊어버린다. 워터마크와 같은 파일에 이어붙인다."""
+    rpd = _read_state().get("rpd")
+    return rpd if isinstance(rpd, dict) else {}
+
 def active_quarantine(quarantined: Dict[str, str], retry_after_hours: int) -> Set[str]:
     """아직 격리 유효기간이 지나지 않은 CVE 집합. 기간이 지나면 자동 해제되어 재시도된다
     (일시 장애가 연속으로 겹쳐 격리된 경우 스스로 회복하게 하는 안전장치)."""
@@ -76,11 +85,15 @@ def active_quarantine(quarantined: Dict[str, str], retry_after_hours: int) -> Se
 
 def write_watermark(dt_utc: datetime.datetime,
                     failures: Optional[Dict[str, int]] = None,
-                    quarantined: Optional[Dict[str, str]] = None) -> None:
-    """처리 완료 지점(UTC) + 실패 추적 상태를 기록.
+                    quarantined: Optional[Dict[str, str]] = None,
+                    rpd: Optional[Dict[str, Dict[str, int]]] = None) -> None:
+    """처리 완료 지점(UTC) + 실패 추적 상태 + 일일 요청 수(RPD)를 기록.
 
     실패 추적은 '독약 레코드'가 워터마크를 영구 고정하는 것을 막기 위한 것이다 —
-    상세는 main._main의 워터마크 계산 주석 참조."""
+    상세는 main._main의 워터마크 계산 주석 참조.
+
+    rpd=None이면 파일에 있던 값을 그대로 남긴다 — 번역을 한 건도 하지 않고 끝나는
+    실행(신규 CVE 없음)이 이전 실행의 사용량 기록을 지워버리면 안 되기 때문이다."""
     try:
         os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
         payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
@@ -88,11 +101,30 @@ def write_watermark(dt_utc: datetime.datetime,
             payload["failures"] = failures
         if quarantined:
             payload["quarantined"] = quarantined
+        carried = rpd if rpd is not None else _read_state().get("rpd")
+        if carried:
+            payload["rpd"] = carried
         with open(_STATE_PATH, "w", encoding="utf-8") as f:
             json.dump(payload, f, indent=1, sort_keys=True)
         logger.info(f"워터마크 저장: {payload['last_processed_until']}")
     except OSError as e:
         logger.warning(f"워터마크 저장 실패: {e}")
+
+def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
+    """RPD 버킷만 갱신한다 (워터마크·격리 상태는 건드리지 않음).
+
+    번역 백필처럼 워터마크 저장 이후에 소비되는 호출까지 사용량에 반영하기 위한 것."""
+    try:
+        data = _read_state()
+        if rpd:
+            data["rpd"] = rpd
+        else:
+            data.pop("rpd", None)
+        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
+        with open(_STATE_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=1, sort_keys=True)
+    except OSError as e:
+        logger.warning(f"RPD 상태 저장 실패: {e}")
 
 class Collector:
     def __init__(self):
