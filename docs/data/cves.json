@@ -1,5 +1,587 @@
 [
   {
+    "id": "CVE-2026-48039",
+    "title": "Meta Ads MCP: 인증되지 않은 HTTP MCP 도구 실행으로 인한 운영자 Meta Access Token 유출",
+    "description": "인증되지 않은 HTTP 요청이 401 응답 없이 도구 핸들러로 전달되어, 인증 없이 MCP 도구를 실행하고 META_ACCESS_TOKEN을 유출할 수 있는 취약점입니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "pipeboard-co",
+        "product": "meta-ads-mcp",
+        "versions": "< 1.0.109 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3265",
+    "date": "2026-08-07T20:04:43.769721+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-62295",
+    "title": "HAPI FHIR: JSON 유틸리티 파서의 무제한 재귀로 인한 StackOverflow 서비스 거부(DoS)",
+    "description": "JSON 파서가 배열이나 객체의 최대 중첩 깊이를 제한하지 않아, 깊게 중첩된 JSON 문서 제출 시 StackOverflowError가 발생하여 서비스 거부(DoS)가 유발되는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20",
+      "CWE-400",
+      "CWE-674"
+    ],
+    "affected": [
+      {
+        "vendor": "hapifhir",
+        "product": "org.hl7.fhir.core",
+        "versions": "< 6.9.11 (단일 버전)"
+      },
+      {
+        "vendor": "hapifhir",
+        "product": "ca.uhn.hapi.fhir:org.hl7.fhir.r5",
+        "versions": "< 6.9.11 (단일 버전)"
+      },
+      {
+        "vendor": "hapifhir",
+        "product": "ca.uhn.hapi.fhir:org.hl7.fhir.utilities",
+        "versions": "< 6.9.11 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T20:04:37.416189+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47659",
+    "title": "Pathling: $import-pnp 매니페스트의 경로 탐색(Path Traversal)을 통한 읽기 가능 SSRF",
+    "description": "/$result 엔드포인트에서 파일 경로 검증 및 정규화 부족으로 인해, 경로 탐색 시퀀스를 사용하여 임의의 파일을 읽을 수 있는 SSRF 취약점입니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "aehrc",
+        "product": "pathling",
+        "versions": "< 2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T20:04:37.414533+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-65819",
+    "title": "gopacket: 조작된 패킷으로 인한 여러 레이어 디코더의 패닉 및 원격 서비스 거부(DoS)",
+    "description": "패킷 버퍼 검증 전 공격자가 제어하는 길이 및 오프셋을 사용하여 패닉을 유발함으로써, 원격으로 서비스 거부(DoS)를 일으킬 수 있는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125",
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "gopacket",
+        "product": "gopacket",
+        "versions": "<= 1.7.0 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T20:04:36.689063+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-48007",
+    "title": "Element Call: 방문 페이지의 전체 URL이 분석 서버로 전송되는 문제",
+    "description": "분석 데이터 전송 시 방문 페이지의 프래그먼트를 포함한 전체 URL이 PostHog 서버로 전송되어 정보가 노출될 수 있는 취약점입니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "element-hq",
+        "product": "element-call",
+        "versions": ">= 0.5.17, < 0.19.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T20:04:36.687763+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-15972",
+    "title": "무제한 외부 gRPC 연결 수락을 통한 인증되지 않은 서비스 거부(DoS)",
+    "description": "외부 gRPC 리스너의 무제한 연결 수락으로 인해 파일 디스크립터, goroutine, 메모리가 고갈되어 서비스 거부(DoS)가 발생할 수 있는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "HashiCorp",
+        "product": "Consul",
+        "versions": "1.13.0 부터 2.0.3 이전"
+      },
+      {
+        "vendor": "HashiCorp",
+        "product": "Consul Enterprise",
+        "versions": "1.13.0 부터 2.0.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T20:04:36.686829+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-60253",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core 컴포넌트) 취약점입니다.\n인증되지 않은 공격자가 TCP 네트워크 액세스를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1929",
+    "date": "2026-07-23T07:15:11.916818+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60224",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있습니다. (CVSS 9.8)",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1918",
+    "date": "2026-07-23T07:12:32.569996+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60555",
+    "title": "Oracle WebCenter Sites 취약점",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Sites를 장악할 수 있는 심각한 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle WebCenter Sites",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2028",
+    "date": "2026-07-23T10:09:33.572209+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60272",
+    "title": "Oracle Coherence 취약점",
+    "description": "HTTP를 통한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1939",
+    "date": "2026-07-23T09:54:51.620041+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60535",
+    "title": "Oracle Identity Manager Connector (PeopleSoft Applications) 취약점",
+    "description": "HTTP 네트워크 액세스를 통해 인증되지 않은 공격자가 시스템을 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Identity Manager Connector",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.1.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2020",
+    "date": "2026-07-23T10:08:51.781122+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60551",
+    "title": "Oracle WebCenter Sites 취약점",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Sites를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle WebCenter Sites",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2027",
+    "date": "2026-07-23T10:09:27.748633+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60228",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 취약점입니다.\n인증되지 않은 공격자가 TCP를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1919",
+    "date": "2026-07-23T07:12:39.956609+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60538",
+    "title": "Oracle SOA Suite 취약점 (Enterprise Scheduling System)",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle SOA Suite를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle SOA Suite",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2021",
+    "date": "2026-07-23T10:08:51.756861+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60541",
+    "title": "Oracle SOA Suite 취약점 (Enterprise Scheduling System)",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle SOA Suite를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle SOA Suite",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2023",
+    "date": "2026-07-23T10:09:03.645369+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61129",
+    "title": "Oracle Commerce Platform 취약점",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle Commerce Platform을 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Commerce Platform",
+        "versions": "11.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2056",
+    "date": "2026-07-23T10:33:14.006051+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2024-1086",
     "title": "Linux 커널 netfilter: nf_tables 컴포넌트의 Use-after-free 취약점",
     "description": "nf_tables 컴포넌트의 Use-after-free 취약점으로 인해 로컬 권한 상승이 가능합니다.",
@@ -242724,366 +243306,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-60224",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있습니다. (CVSS 9.8)",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1918",
-    "date": "2026-07-23T07:12:32.569996+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60228",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 취약점입니다.\n인증되지 않은 공격자가 TCP를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1919",
-    "date": "2026-07-23T07:12:39.956609+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60272",
-    "title": "Oracle Coherence 취약점",
-    "description": "HTTP를 통한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1939",
-    "date": "2026-07-23T09:54:51.620041+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60253",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core 컴포넌트) 취약점입니다.\n인증되지 않은 공격자가 TCP 네트워크 액세스를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1929",
-    "date": "2026-07-23T07:15:11.916818+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60538",
-    "title": "Oracle SOA Suite 취약점 (Enterprise Scheduling System)",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle SOA Suite를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle SOA Suite",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2021",
-    "date": "2026-07-23T10:08:51.756861+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61129",
-    "title": "Oracle Commerce Platform 취약점",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle Commerce Platform을 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Commerce Platform",
-        "versions": "11.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2056",
-    "date": "2026-07-23T10:33:14.006051+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60541",
-    "title": "Oracle SOA Suite 취약점 (Enterprise Scheduling System)",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle SOA Suite를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle SOA Suite",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2023",
-    "date": "2026-07-23T10:09:03.645369+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60535",
-    "title": "Oracle Identity Manager Connector (PeopleSoft Applications) 취약점",
-    "description": "HTTP 네트워크 액세스를 통해 인증되지 않은 공격자가 시스템을 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Identity Manager Connector",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.1.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2020",
-    "date": "2026-07-23T10:08:51.781122+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60555",
-    "title": "Oracle WebCenter Sites 취약점",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Sites를 장악할 수 있는 심각한 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle WebCenter Sites",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2028",
-    "date": "2026-07-23T10:09:33.572209+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60551",
-    "title": "Oracle WebCenter Sites 취약점",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle WebCenter Sites를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle WebCenter Sites",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2027",
-    "date": "2026-07-23T10:09:27.748633+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-17351",
