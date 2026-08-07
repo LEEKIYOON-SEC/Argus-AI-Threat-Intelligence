@@ -1,5 +1,728 @@
 [
   {
+    "id": "CVE-2026-8037",
+    "title": "Progress LoadMaster, ECS Connection Manager, Object Scale Connection Manager 및 MOVEit WAF의 OS Command Injection 원격 코드 실행 취약점",
+    "description": "Progress ADC 제품 API의 OS Command Injection 취약점을 통해 인증되지 않은 공격자가 LoadMaster 어플라이언스에서 임의 명령을 실행할 수 있습니다.",
+    "cvss": 9.6,
+    "epss": 0.84793,
+    "is_kev": true,
+    "cwe": [
+      "CWE-77"
+    ],
+    "affected": [
+      {
+        "vendor": "Progress Software",
+        "product": "LoadMaster",
+        "versions": "V7.2.60.0 부터 V7.2.63.2 이전, V7.2.45.12 부터 V7.2.54.18 이전"
+      },
+      {
+        "vendor": "Progress Software",
+        "product": "ECS Connections Manager",
+        "versions": "V7.2.60.0 부터 V7.2.63.2 이전"
+      },
+      {
+        "vendor": "Progress Software",
+        "product": "Object Scale Connection Manager",
+        "versions": "V7.2.60.0 부터 V7.2.63.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3261",
+    "date": "2026-08-07T18:05:29.205245+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Progress Kemp Loadmaster Remote Code Execution (CVE-2026-8037)\"; flow:established,to_server; content:\"/accessv2\"; http_uri; fast_pattern; depth:9; content:\"|22|apiuser|22 3a|\"; http_client_body; pcre:\"/^\\s*\\x22[^\\x22]*\\x27{4,}[^\\x22]*\\x22/R\"; content:\"|22 3a|\"; http_client_body; distance:0; pcre:\"/^\\s*\\x22[^\\x22]*[\\x3b\\x26\\x60\\x7c\\x24]/R\"; content:\"POST\"; http_method; reference:url,labs.watchtowr.com/enterprise-tech-in-shell-out-progress-kemp-loadmaster-uninitialized-heap-to-pre-auth-rce-cve-2026-8037/; reference:cve,2026-8037; classtype:web-application-attack; sid:2070125; rev:1; metadata:affected_product Progress_Kemp_Loadmaster, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_01, cve CVE_2026_8037, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_01, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET WEB_SPECIFIC_APPS Progress Kemp Loadmaster Remote Code Execution (CVE-2026-8037)\"; flow:established,to_server; http.uri; bsize:9; content:\"/accessv2\"; fast_pattern; http.request_body; content:\"|22|apiuser|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*\\x27{4,}[^\\x22]*\\x22/R\"; content:\"|22 3a|\"; distance:0; pcre:\"/^\\s*\\x22[^\\x22]*[\\x3b\\x26\\x60\\x7c\\x24]/R\"; http.method; content:\"POST\"; reference:url,labs.watchtowr.com/enterprise-tech-in-shell-out-progress-kemp-loadmaster-uninitialized-heap-to-pre-auth-rce-cve-2026-8037/; reference:cve,2026-8037; classtype:web-application-attack; sid:2070125; rev:1; metadata:affected_product Progress_Kemp_Loadmaster, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_01, cve CVE_2026_8037, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_01, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET WEB_SPECIFIC_APPS Progress Kemp Loadmaster Remote Code Execution (CVE-2026-8037)\"; flow:established,to_server; http.uri; bsize:9; content:\"/accessv2\"; fast_pattern; http.request_body; content:\"|22|apiuser|22 3a|\"; pcre:\"/^\\s*\\x22[^\\x22]*\\x27{4,}[^\\x22]*\\x22/R\"; content:\"|22 3a|\"; distance:0; pcre:\"/^\\s*\\x22[^\\x22]*[\\x3b\\x26\\x60\\x7c\\x24]/R\"; http.method; content:\"POST\"; reference:url,labs.watchtowr.com/enterprise-tech-in-shell-out-progress-kemp-loadmaster-uninitialized-heap-to-pre-auth-rce-cve-2026-8037/; reference:cve,2026-8037; classtype:web-application-attack; sid:2070125; rev:1; metadata:affected_product Progress_Kemp_Loadmaster, attack_target Server, tls_state TLSDecrypt, created_at 2026_07_01, cve CVE_2026_8037, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2026_07_01, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/HORKimhab/CVE-2026-8037",
+      "https://github.com/Caster-chen/CVE-2026-8037-POC"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-70636",
+    "title": "Flowise 3.1.4 OAuth2 Credential Refresh 엔드포인트를 통한 인증 우회",
+    "description": "인증 미들웨어의 접두사 기반 화이트리스트 매칭 취약점을 이용해 인증 없이 OAuth2 자격 증명 갱신 엔드포인트에 접근 가능.",
+    "cvss": 8.7,
+    "epss": 0.00321,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "3.1.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:06.634686+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70634",
+    "title": "TimescaleDB 2.29.1 Dictionary 압축 Reverse Iterator를 통한 Out-of-Bounds Read 정보 유출",
+    "description": "Dictionary 압축 역방향 행 반복자에서 인덱스 검증 누락으로 Out-of-Bounds Read 발생.\nDML 권한이 있는 공격자가 조작된 데이터를 통해 정보 유출 가능.",
+    "cvss": 7.2,
+    "epss": 0.00373,
+    "is_kev": false,
+    "cwe": [
+      "CWE-129",
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "timescale",
+        "product": "timescaledb",
+        "versions": "2.29.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:06.241518+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70635",
+    "title": "TimescaleDB 2.29.1 벌크 딕셔너리 압축 해제 음수 인덱스를 통한 경계 외 읽기 DoS 취약점",
+    "description": "TimescaleDB 2.29.1 이하 버전에서 벌크 텍스트 딕셔너리 압축 해제 시 인덱스 검증을 우회하는 경계 외 읽기 취약점이 발견되었습니다. 인증된 공격자가 조작된 값을 통해 쿼리 결과의 무결성을 훼손하거나 백엔드 충돌 및 PostgreSQL 크래시를 유발할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0.00292,
+    "is_kev": false,
+    "cwe": [
+      "CWE-129",
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "timescale",
+        "product": "timescaledb",
+        "versions": "2.29.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:06.239917+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70632",
+    "title": "FFmpeg 4.4 < 9.0 AVI 디먹싱 중 CFHD 디코더의 Heap Out-of-Bounds Write",
+    "description": "CFHD 디코더의 cfhd_decode() 함수에서 출력 너비 불변성 검증 미흡으로 Heap Out-of-Bounds Write 발생.\n조작된 AVI 파일로 힙 메모리 손상 가능.",
+    "cvss": 8.5,
+    "epss": 0.00209,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "FFmpeg",
+        "product": "FFmpeg",
+        "versions": "4.4 부터 9.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:05.792634+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70633",
+    "title": "TimescaleDB 2.29.1 Gorilla 압축 Reverse Iterator를 통한 Out-of-Bounds Read DoS",
+    "description": "Gorilla 압축 역방향 행 반복자의 버킷 인덱스 계산 중 unsigned integer wraparound 발생.\n배열 범위를 벗어난 읽기로 인해 DoS 유발 가능.",
+    "cvss": 7.1,
+    "epss": 0.00417,
+    "is_kev": false,
+    "cwe": [
+      "CWE-191",
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "timescale",
+        "product": "timescaledb",
+        "versions": "2.29.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:05.591796+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70628",
+    "title": "FFmpeg 0.5 < 9.0: WTV 파일을 통한 DVB 자막 파서 힙 버퍼 오버플로우",
+    "description": "DVB 자막 파서의 정수 오버플로우로 인해 조작된 WTV 파일 사용 시 힙 버퍼 오버플로우 및 메모리 오염이 발생할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0.0015,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "FFmpeg",
+        "product": "FFmpeg",
+        "versions": "0.5 부터 9.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:05.005066+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-67622",
+    "title": "Flowise 3.1.4 OpenAI Assistants 통합의 IDOR 취약점",
+    "description": "IDOR 취약점으로 인해 인증된 공격자가 임의의 UUID를 사용하여 다른 워크스페이스의 자격 증명 및 메타데이터에 접근할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0.00248,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "3.1.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:04.323468+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-67621",
+    "title": "Flowise 3.1.4 문서 저장소 Mutation 엔드포인트의 권한 부여 누락",
+    "description": "권한 부여 누락으로 인해 인증된 워크스페이스 멤버가 보호되지 않은 엔드포인트를 통해 문서 저장소 작업을 무단으로 수행할 수 있습니다.",
+    "cvss": 7.2,
+    "epss": 0.00231,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "FlowiseAI",
+        "product": "Flowise",
+        "versions": "3.1.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-07T18:05:04.322183+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:L/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-60258",
+    "title": "Oracle Coherence 취약점",
+    "description": "TCP 네트워크 접근이 가능한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1936",
+    "date": "2026-07-23T07:16:58.241882+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60247",
+    "title": "Oracle Fusion Middleware Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 12.2.1.4.0 및 14.1.1.0.0 버전에서 취약점이 발견되었습니다. 인증되지 않은 공격자가 HTTP 네트워크 접근을 통해 시스템을 완전히 장악할 수 있으며, CVSS 점수는 9.8점으로 매우 심각합니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1922",
+    "date": "2026-07-23T07:13:33.373581+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61178",
+    "title": "Oracle Agile Product Lifecycle Management for Process 취약점",
+    "description": "Oracle Agile PLM for Process(버전 6.2.4)의 설치 취약점입니다.\nTCP 네트워크 액세스가 가능한 인증되지 않은 공격자가 시스템을 완전히 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Agile Product Lifecycle Management for Process",
+        "versions": "6.2.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2071",
+    "date": "2026-07-23T10:34:23.462072+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60254",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core 컴포넌트) 취약점입니다.\n인증되지 않은 공격자가 TCP 네트워크 액세스를 통해 시스템을 장악할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1928",
+    "date": "2026-07-23T07:14:55.578493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60242",
+    "title": "Oracle Coherence 취약점 (HTTP)",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle Coherence를 장악할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1921",
+    "date": "2026-07-23T07:13:17.648055+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-52855",
+    "title": "Wings의 egg 설정 파일 템플릿을 통한 노드 설정 비밀 정보 노출",
+    "description": "1.12.3 이전 버전에서 {{config.}} 플레이스홀더를 통해 저권한 사용자가 데몬 설정의 토큰 및 비밀 정보를 읽을 수 있는 취약점입니다.",
+    "cvss": 9.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-200",
+      "CWE-522"
+    ],
+    "affected": [
+      {
+        "vendor": "pterodactyl",
+        "product": "wings",
+        "versions": "< 1.12.3 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2569",
+    "date": "2026-07-31T17:57:00.357966+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-17566",
+    "title": "pgAdmin 4: 데이터 가져오기/내보내기 쿼리 가드의 백슬래시 이스케이프 불일치를 통한 RCE",
+    "description": "괄호 균형 검사기의 백슬래시 처리 미흡으로 인해 psql \\copy 명령의 래퍼를 벗어나 원격 코드 실행(RCE)이 가능한 취약점입니다.",
+    "cvss": 9.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78",
+      "CWE-115"
+    ],
+    "affected": [
+      {
+        "vendor": "pgadmin.org",
+        "product": "pgAdmin 4",
+        "versions": "9.18 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2572",
+    "date": "2026-07-31T17:58:29.696085+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-56163",
+    "title": "Microsoft Azure Kubernetes Service 권한 상승 취약점",
+    "description": "중요 기능의 인증 누락으로 인해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure Kubernetes Service",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2196",
+    "date": "2026-07-24T15:53:01.617908+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-57106",
+    "title": "Data Quality 권한 상승 취약점",
+    "description": "SSRF 취약점을 통해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Purview Data Governance",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2194",
+    "date": "2026-07-24T15:52:00.445604+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-58630",
+    "title": "Azure Stack Hub의 Azure App Service 권한 상승 취약점",
+    "description": "부적절한 액세스 제어로 인해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 10,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure App Service for Linux",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2192",
+    "date": "2026-07-24T15:51:18.494959+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-67585",
     "title": "DivvyPayHQ absinthe_federation의 _entities 표현 키를 통한 Atom 고갈",
     "description": "리소스 할당 제한 미흡으로 인해 인증되지 않은 원격 공격자가 조작된 _entities 표현 키를 사용하여 Erlang VM을 중단시킬 수 있습니다.",
@@ -7733,208 +8456,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-70636",
-    "title": "Flowise 3.1.4 OAuth2 Credential Refresh 엔드포인트를 통한 인증 우회",
-    "description": "인증 미들웨어의 접두사 기반 화이트리스트 매칭 취약점을 이용해 인증 없이 OAuth2 자격 증명 갱신 엔드포인트에 접근 가능.",
-    "cvss": 8.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "3.1.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:28.185209+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:H/VA:N/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-70635",
-    "title": "TimescaleDB 2.29.1 벌크 딕셔너리 압축 해제 음수 인덱스를 통한 경계 외 읽기 DoS 취약점",
-    "description": "TimescaleDB 2.29.1 이하 버전에서 벌크 텍스트 딕셔너리 압축 해제 시 인덱스 검증을 우회하는 경계 외 읽기 취약점이 발견되었습니다. 인증된 공격자가 조작된 값을 통해 쿼리 결과의 무결성을 훼손하거나 백엔드 충돌 및 PostgreSQL 크래시를 유발할 수 있습니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-129",
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "timescale",
-        "product": "timescaledb",
-        "versions": "2.29.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:28.183752+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-70634",
-    "title": "TimescaleDB 2.29.1 Dictionary 압축 Reverse Iterator를 통한 Out-of-Bounds Read 정보 유출",
-    "description": "Dictionary 압축 역방향 행 반복자에서 인덱스 검증 누락으로 Out-of-Bounds Read 발생.\nDML 권한이 있는 공격자가 조작된 데이터를 통해 정보 유출 가능.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-129",
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "timescale",
-        "product": "timescaledb",
-        "versions": "2.29.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.52407+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-70633",
-    "title": "TimescaleDB 2.29.1 Gorilla 압축 Reverse Iterator를 통한 Out-of-Bounds Read DoS",
-    "description": "Gorilla 압축 역방향 행 반복자의 버킷 인덱스 계산 중 unsigned integer wraparound 발생.\n배열 범위를 벗어난 읽기로 인해 DoS 유발 가능.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-191",
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "timescale",
-        "product": "timescaledb",
-        "versions": "2.29.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.5227+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-70632",
-    "title": "FFmpeg 4.4 < 9.0 AVI 디먹싱 중 CFHD 디코더의 Heap Out-of-Bounds Write",
-    "description": "CFHD 디코더의 cfhd_decode() 함수에서 출력 너비 불변성 검증 미흡으로 Heap Out-of-Bounds Write 발생.\n조작된 AVI 파일로 힙 메모리 손상 가능.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "FFmpeg",
-        "product": "FFmpeg",
-        "versions": "4.4 부터 9.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.521303+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-70628",
-    "title": "FFmpeg 0.5 < 9.0: WTV 파일을 통한 DVB 자막 파서 힙 버퍼 오버플로우",
-    "description": "DVB 자막 파서의 정수 오버플로우로 인해 조작된 WTV 파일 사용 시 힙 버퍼 오버플로우 및 메모리 오염이 발생할 수 있습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "FFmpeg",
-        "product": "FFmpeg",
-        "versions": "0.5 부터 9.0 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.289997+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-70559",
     "title": "Dinky: GET /api/sysConfig/getAll을 통한 인증되지 않은 시스템 설정 및 자격 증명 노출",
     "description": "세션 및 역할 확인 누락으로 인해 인증되지 않은 원격 호출자가 시스템 설정 전체와 자격 증명을 획득할 수 있습니다.",
@@ -7968,39 +8489,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-67622",
-    "title": "Flowise 3.1.4 OpenAI Assistants 통합의 IDOR 취약점",
-    "description": "IDOR 취약점으로 인해 인증된 공격자가 임의의 UUID를 사용하여 다른 워크스페이스의 자격 증명 및 메타데이터에 접근할 수 있습니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-639"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "3.1.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.286822+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:H/SI:H/SA:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-67434",
     "title": "PHP_CodeSniffer: 조작된 파일명을 통한 gitblame 리포트 커맨드 인젝션",
     "description": "Gitblame, Hgblame, Svnblame 리포트 생성 코드의 취약점으로 인해 신뢰할 수 없는 파일 처리 시 커맨드 인젝션이 가능합니다.",
@@ -8026,39 +8514,6 @@
     "poc_urls": [],
     "degraded": false,
     "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-67621",
-    "title": "Flowise 3.1.4 문서 저장소 Mutation 엔드포인트의 권한 부여 누락",
-    "description": "권한 부여 누락으로 인해 인증된 워크스페이스 멤버가 보호되지 않은 엔드포인트를 통해 문서 저장소 작업을 무단으로 수행할 수 있습니다.",
-    "cvss": 7.2,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "FlowiseAI",
-        "product": "Flowise",
-        "versions": "3.1.4 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T06:06:27.024842+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:L/SC:N/SI:N/SA:N",
     "asset_match": false,
     "ssvc_exploitation": null,
     "has_public_exploit": false,
@@ -241988,45 +242443,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-17566",
-    "title": "pgAdmin 4: 데이터 가져오기/내보내기 쿼리 가드의 백슬래시 이스케이프 불일치를 통한 RCE",
-    "description": "괄호 균형 검사기의 백슬래시 처리 미흡으로 인해 psql \\copy 명령의 래퍼를 벗어나 원격 코드 실행(RCE)이 가능한 취약점입니다.",
-    "cvss": 9.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78",
-      "CWE-115"
-    ],
-    "affected": [
-      {
-        "vendor": "pgadmin.org",
-        "product": "pgAdmin 4",
-        "versions": "9.18 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2572",
-    "date": "2026-07-31T17:58:29.696085+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-17351",
     "title": "pgAdmin 4: sqlparse와 PostgreSQL 렉서 불일치를 이용한 AI Assistant 읽기 전용 트랜잭션 우회",
     "description": "sqlparse와 PostgreSQL의 문자열 처리 방식 차이로 인해, AI Assistant의 읽기 전용 트랜잭션 제한을 우회하여 쿼리를 실행할 수 있는 취약점입니다.",
@@ -242350,45 +242766,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-52855",
-    "title": "Wings의 egg 설정 파일 템플릿을 통한 노드 설정 비밀 정보 노출",
-    "description": "1.12.3 이전 버전에서 {{config.}} 플레이스홀더를 통해 저권한 사용자가 데몬 설정의 토큰 및 비밀 정보를 읽을 수 있는 취약점입니다.",
-    "cvss": 9.9,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-200",
-      "CWE-522"
-    ],
-    "affected": [
-      {
-        "vendor": "pterodactyl",
-        "product": "wings",
-        "versions": "< 1.12.3 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2569",
-    "date": "2026-07-31T17:57:00.357966+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-17349",
     "title": "pgAdmin 4: Adhoc 서버 복제를 통한 타 사용자의 데이터베이스 자격 증명 및 소유권 유출",
     "description": "서버 복제 과정에서 user_id 및 비밀번호 등 저장된 자격 증명이 함께 복사되어, 비소유자가 타 사용자의 권한을 획득할 수 있는 취약점입니다.",
@@ -242461,78 +242838,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-60258",
-    "title": "Oracle Coherence 취약점",
-    "description": "TCP 네트워크 접근이 가능한 인증되지 않은 공격자가 Oracle Coherence를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1936",
-    "date": "2026-07-23T07:16:58.241882+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61178",
-    "title": "Oracle Agile Product Lifecycle Management for Process 취약점",
-    "description": "Oracle Agile PLM for Process(버전 6.2.4)의 설치 취약점입니다.\nTCP 네트워크 액세스가 가능한 인증되지 않은 공격자가 시스템을 완전히 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Agile Product Lifecycle Management for Process",
-        "versions": "6.2.4 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2071",
-    "date": "2026-07-23T10:34:23.462072+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-60287",
     "title": "Oracle Coherence 취약점",
     "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 취약점입니다.\n인증되지 않은 공격자가 TCP를 통해 시스템을 장악할 수 있습니다.",
@@ -242569,114 +242874,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-60254",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core 컴포넌트) 취약점입니다.\n인증되지 않은 공격자가 TCP 네트워크 액세스를 통해 시스템을 장악할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1928",
-    "date": "2026-07-23T07:14:55.578493+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60247",
-    "title": "Oracle Fusion Middleware Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 12.2.1.4.0 및 14.1.1.0.0 버전에서 취약점이 발견되었습니다. 인증되지 않은 공격자가 HTTP 네트워크 접근을 통해 시스템을 완전히 장악할 수 있으며, CVSS 점수는 9.8점으로 매우 심각합니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1922",
-    "date": "2026-07-23T07:13:33.373581+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60242",
-    "title": "Oracle Coherence 취약점 (HTTP)",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 Oracle Coherence를 장악할 수 있는 취약점입니다.",
-    "cvss": 9.8,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1921",
-    "date": "2026-07-23T07:13:17.648055+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-60240",
     "title": "Oracle Coherence 취약점 (TCP)",
     "description": "인증되지 않은 공격자가 TCP를 통해 Oracle Coherence를 장악할 수 있는 취약점입니다.",
@@ -242693,120 +242890,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1930",
     "date": "2026-07-23T07:15:26.601009+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-56163",
-    "title": "Microsoft Azure Kubernetes Service 권한 상승 취약점",
-    "description": "중요 기능의 인증 누락으로 인해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure Kubernetes Service",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2196",
-    "date": "2026-07-24T15:53:01.617908+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-57106",
-    "title": "Data Quality 권한 상승 취약점",
-    "description": "SSRF 취약점을 통해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Purview Data Governance",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2194",
-    "date": "2026-07-24T15:52:00.445604+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-58630",
-    "title": "Azure Stack Hub의 Azure App Service 권한 상승 취약점",
-    "description": "부적절한 액세스 제어로 인해 인증되지 않은 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 10,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure App Service for Linux",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2192",
-    "date": "2026-07-24T15:51:18.494959+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
