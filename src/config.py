@@ -103,6 +103,8 @@ class ArgusConfig:
         # 누락을 메운다. 후보는 최근 N일·최신순 limit건, 실제 승격분만 풀 재처리(상한).
         "escalation_sweep_days": 30,      # 재평가 대상: 최근 며칠 내 CVE
         "escalation_candidate_limit": 300,  # 재평가 후보 상한 (EPSS 배치 = 50건/요청)
+        "max_drift_candidates": 60,       # 신호 드리프트(KEV/EPSS) 1회 추가 상한. 나머지는
+                                          # 다음 실행이 이어받는다(신호가 소스에 남아 있으므로)
         "max_escalation_reprocess": 20    # 한 실행에서 풀 재처리할 승격 CVE 상한
     }
     

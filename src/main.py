@@ -309,24 +309,74 @@ def _iso_after(ts: str, cutoff: datetime.datetime) -> bool:
         return True
 
 
-def _recent_kev_missing(collector: Collector, db: ArgusDB, exclude: set, days: int = 14) -> List[str]:
-    """최근 N일 내 KEV 등재분 중 DB에 없고 이번 처리분에도 없는 CVE 목록 (gap-filler).
+def _kev_drift_candidates(collector: Collector, db: ArgusDB, exclude: set,
+                          new_days: int = 14) -> List[str]:
+    """CISA KEV 목록을 DB와 대조해 아직 KEV로 반영되지 않은 CVE를 찾는다.
 
-    비자산 저위험은 저장하지 않으므로(마커도 30일 후 삭제) 에스컬레이션 스윕(DB 기반)이
-    못 본다. KEV 등재는 '실제 악용 확인'이라 놓치면 안 되는 1급 신호 → 매 실행 이미 받는
-    KEV 목록의 dateAdded로 최근 등재분을 골라 DB 미보유분을 직접 처리 큐에 넣는다.
-    이들은 is_kev=True → 신규 고위험(T1)으로 자연 처리된다."""
-    cutoff = (datetime.datetime.now(datetime.timezone.utc)
-              - datetime.timedelta(days=days)).strftime('%Y-%m-%d')
-    recent = [cid for cid, added in collector.kev_date_added.items()
-              if added and added >= cutoff and cid not in exclude]
-    if not recent:
+    두 종류를 다르게 취급한다.
+      ① 플래그 미반영 — DB에 있는데 is_kev=false. 우리가 이미 추적 중인 CVE가 나중에
+         KEV에 오른 경우로, **등재일과 무관하게 전량** 잡는다. 예전에는 이걸 아무도
+         못 봤다: 레코드 무변경이라 재수집이 안 되고, 에스컬레이션 스윕은 CVSS<7만 봤고,
+         gap-filler는 '존재 여부'만 봐서 마커 행(last_alert_state=null)까지 건너뛰었다.
+      ② DB 미보유 — 최근 N일 등재분만 잡는다(기존 gap-filler 취지). 기간 제한이 필요한
+         이유는 보존정책이 오래된 행을 지우기 때문이다. 전량을 잡으면 '수집 → 저장 →
+         보존정책 삭제 → 재수집'이 매 실행 반복된다.
+
+    비용: 스칼라 2개(id, is_kev)만 조회하므로 전량(1,600여 건) 대조도 수십 KB에 그친다."""
+    kev_ids = [cid for cid in collector.kev_set if cid not in exclude]
+    if not kev_ids:
         return []
-    existing = db.batch_get_content_hashes(recent)
-    missing = [cid for cid in recent if cid not in existing]
-    if missing:
-        logger.info(f"🚨 KEV gap-filler: 최근 {days}일 등재 {len(recent)}건 중 미보유 {len(missing)}건 추가 수집")
-    return missing
+    flags = db.batch_get_scalar(kev_ids, "is_kev")   # DB 미보유 id는 결과에 없음
+
+    stale = [cid for cid in kev_ids if cid in flags and not flags[cid]]
+
+    cutoff = (datetime.datetime.now(datetime.timezone.utc)
+              - datetime.timedelta(days=new_days)).strftime('%Y-%m-%d')
+    missing = [cid for cid in kev_ids
+               if cid not in flags and (collector.kev_date_added.get(cid) or '') >= cutoff]
+
+    drifted = stale + missing
+    if drifted:
+        logger.info(f"🚨 KEV 드리프트 {len(drifted)}건 "
+                    f"(플래그 미반영 {len(stale)} · 최근 {new_days}일 미보유 {len(missing)}) "
+                    f"— KEV 전량 {len(kev_ids)}건 대조")
+    return drifted
+
+
+def _epss_surge_candidates(collector: Collector, db: ArgusDB, exclude: set,
+                           threshold: float = 0.1) -> List[str]:
+    """EPSS 전량 덤프에서 임계 이상인 CVE 중, DB에 저장된 점수가 아직 임계 미만인 것.
+
+    KEV와 같은 이유로 방향을 뒤집는다. 다만 임계 이상이 1~2만 건이라 전량 대조는
+    대역폭이 아까우므로, 직전 실행의 임계 이상 집합과 비교해 '새로 넘어선 것'만 본다.
+    스냅샷이 없으면(최초 실행·캐시 유실) 이번 회차는 건너뛴다 — 다음 회차부터 델타가
+    생기고, 그 사이 구간은 기존 에스컬레이션 스윕이 계속 커버한다."""
+    from enrichment_sources import cache_get, cache_put
+
+    high = collector.fetch_epss_high(threshold)
+    if not high:
+        return []
+
+    prev_raw = cache_get("epss-high-prev.json", ttl_hours=72)
+    try:
+        prev = set(json.loads(prev_raw.decode())) if prev_raw else None
+    except (ValueError, AttributeError):
+        prev = None
+
+    cache_put("epss-high-prev.json", json.dumps(sorted(high)).encode())
+    if prev is None:
+        logger.info("EPSS 임계 스냅샷 최초 기록 — 이번 회차 델타 판정은 건너뜀")
+        return []
+
+    surged = [cid for cid in high if cid not in prev and cid not in exclude]
+    if not surged:
+        return []
+    stored = db.batch_get_scalar(surged, "epss_score")
+    drifted = [cid for cid in surged
+               if cid in stored and (stored.get(cid) or 0.0) < threshold]
+    if drifted:
+        logger.info(f"📈 EPSS 임계 신규 돌파 {len(surged)}건 중 DB 미반영 {len(drifted)}건")
+    return drifted
 
 
 def _needs_cpe_for_matching(cve_data: Dict) -> bool:
@@ -1480,15 +1530,23 @@ def _main():
 
     target_cve_ids = [c['cve_id'] for c in to_process]
 
-    # Step 5.5: KEV gap-filler — 최근 등재 KEV 중 DB 미보유분을 큐 앞에 추가.
+    # Step 5.5: 신호 드리프트 대조 — 신호 소스(KEV/EPSS) 쪽에서 역방향으로 훑어
+    # DB의 저장 상태와 어긋난 CVE를 큐 앞에 추가한다. DB에서 후보를 고르는 방식은
+    # 그 선정 조건(CVSS·기간·건수·마커 여부)이 그대로 사각지대가 되므로 방향을 뒤집었다.
     # 워터마크 흐름(to_process/deferred)과 별개라 워터마크 계산에는 불포함 —
-    # 실패해도 다음 실행의 gap-filler가 다시 잡는다(KEV 목록에 남아 있는 한).
-    kev_extra = _recent_kev_missing(collector, db, exclude=set(target_cve_ids))
-    target_cve_ids = kev_extra + target_cve_ids
+    # 실패해도 다음 실행에서 같은 대조가 다시 잡는다(신호가 소스에 남아 있는 한).
+    drift_cap = config.PERFORMANCE.get("max_drift_candidates", 60)
+    seen = set(target_cve_ids)
+    kev_extra = _kev_drift_candidates(collector, db, exclude=seen)[:drift_cap]
+    seen.update(kev_extra)
+    epss_extra = _epss_surge_candidates(collector, db, exclude=seen)[:drift_cap]
+    signal_extra = kev_extra + epss_extra
+    target_cve_ids = signal_extra + target_cve_ids
 
     # Step 6: EPSS 수집
     collector.fetch_epss(target_cve_ids)
-    logger.info(f"분석 대상: {len(target_cve_ids)}건 (KEV gap-filler {len(kev_extra)}건 포함)")
+    logger.info(f"분석 대상: {len(target_cve_ids)}건 "
+                f"(신호 드리프트 {len(signal_extra)}건: KEV {len(kev_extra)} · EPSS {len(epss_extra)})")
 
     # Step 7: CVE 처리 — 3단계 파이프라인
     #   Phase A(병렬): 수집·분류·위협인텔 / B(배치): 한국어 번역 / C(병렬): Issue·Slack·저장

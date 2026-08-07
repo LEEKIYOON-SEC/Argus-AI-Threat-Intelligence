@@ -4,7 +4,7 @@ import time
 import copy
 import datetime
 from supabase import create_client, Client
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from logger import logger
@@ -351,6 +351,28 @@ class ArgusDB:
             logger.error(f"배치 해시 조회 실패: {e}")
             return result
 
+    def batch_get_scalar(self, cve_ids: List[str], column: str) -> Dict[str, Any]:
+        """CVE별 스칼라 컬럼 1개를 배치 조회. DB에 없는 id는 결과에 포함되지 않는다.
+
+        신호 드리프트 대조 전용이라 last_alert_state(JSONB)를 일부러 제외한다 —
+        KEV 전량(1,600여 건)을 매 실행 대조해도 응답이 수십 KB에 그친다.
+        마커 행(last_alert_state=null)도 스칼라 컬럼은 있으므로 동일하게 조회된다."""
+        result: Dict[str, Any] = {}
+        if not cve_ids:
+            return result
+        try:
+            for i in range(0, len(cve_ids), 50):
+                chunk = cve_ids[i:i + 50]
+                response = self._execute(
+                    self.client.table("cves").select(f"id, {column}").in_("id", chunk)
+                )
+                for row in (response.data or []):
+                    result[row['id']] = row.get(column)
+            return result
+        except Exception as e:
+            logger.error(f"배치 스칼라 조회 실패({column}): {e}")
+            return result
+
     def get_translation_backfill_candidates(self, limit: int = 60) -> List[Dict]:
         """한국어 번역이 안 된 채 남은 추적 CVE (대시보드 품질 백필용).
 
@@ -398,8 +420,16 @@ class ArgusDB:
         외부 피드만 바뀐 CVE는 재수집 큐에 안 올라와 에스컬레이션(재알림)이 누락될 수 있다.
         이 후보들을 주기적으로 재평가하기 위한 읽기 전용 조회다(스키마 변경 없음).
 
-        현재 저위험 = cvss_score < 7 AND is_kev = false. 최근 N일 내, 최신순 limit건.
-        (이미 고위험인 CVE는 알림이 나갔고, 승격 트리거는 전이 기반이라 재평가 대상에서 제외.)
+        대상 = is_kev=false 인 추적 행(최근 N일, 최신순 limit건).
+
+        예전에는 여기에 cvss_score < 7 조건이 있었다. '이미 고위험이면 알림이 나갔다'는
+        전제였는데, High(7~8.9)는 대시보드 추적만 하고 리포트·즉시 알림이 나가지 않으므로
+        전제가 성립하지 않았다. 그 결과 High/Critical 행이 나중에 Metasploit·ExploitDB
+        신호를 얻어도 재평가되지 않았다 → 조건을 제거했다.
+
+        KEV·EPSS 전이는 main의 신호 드리프트 대조(_kev_drift_candidates /
+        _epss_surge_candidates)가 소스 쪽에서 역방향으로 잡으므로 여기서는 중복되지 않는다.
+        이 스윕은 전량 목록이 없는 신호(Metasploit·ExploitDB)를 담당한다.
         last_alert_state(JSONB)에 비교용 필드가 모두 있으므로 그대로 반환한다.
         """
         try:
@@ -408,7 +438,6 @@ class ArgusDB:
                 self.client.table("cves")
                 .select("id, cvss_score, epss_score, is_kev, last_alert_state, report_url, updated_at")
                 .gte("updated_at", cutoff)
-                .lt("cvss_score", 7.0)
                 .eq("is_kev", False)
                 .not_.is_("last_alert_state", "null")
                 .order("updated_at", desc=True)

@@ -5,6 +5,7 @@ import os
 import re
 import json
 import time
+import gzip
 import hashlib
 from typing import List, Dict, Set, Optional, Tuple
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
@@ -179,6 +180,63 @@ class Collector:
         
         return self.epss_cache
     
+    def fetch_epss_high(self, threshold: float = 0.1) -> Dict[str, float]:
+        """FIRST.org 일일 전량 덤프에서 EPSS가 임계 이상인 CVE만 반환.
+
+        기존 fetch_epss는 'CVE를 주고 점수를 받는' 정방향이라, DB에서 후보를 먼저
+        뽑아야 한다. 그 후보 조건(CVSS·기간·건수)이 곧 사각지대가 되므로 여기서는
+        반대로 '점수가 높은 CVE 전체'를 받아 DB와 대조할 수 있게 한다.
+        전량 35만 건 중 임계 이상은 1~2만 건이며, gz 2~3MB 한 번이면 끝난다.
+
+        실패하면 빈 dict을 반환한다 — 호출부는 기존 스윕 경로로 자연히 폴백된다."""
+        from enrichment_sources import cache_get, cache_put
+
+        raw = cache_get("epss-full.csv.gz", ttl_hours=12)
+        if raw is None:
+            # 당일 파일은 UTC 12시경 게시되므로 최근 3일을 역순으로 시도
+            today = datetime.datetime.now(pytz.UTC).date()
+            for back in range(0, 3):
+                day = (today - datetime.timedelta(days=back)).isoformat()
+                url = f"https://epss.empiricalsecurity.com/epss_scores-{day}.csv.gz"
+                try:
+                    rate_limit_manager.check_and_wait("epss")
+                    resp = requests.get(url, timeout=60)
+                    rate_limit_manager.record_call("epss")
+                    if resp.status_code == 200 and resp.content:
+                        raw = resp.content
+                        cache_put("epss-full.csv.gz", raw)
+                        logger.info(f"📥 EPSS 전량 덤프 수신 ({day}, {len(raw)/1024/1024:.1f}MB)")
+                        break
+                except Exception as e:
+                    logger.warning(f"EPSS 전량 덤프 {day} 수신 실패: {e}")
+            if raw is None:
+                logger.warning("EPSS 전량 덤프 확보 실패 — 드리프트 대조는 건너뛴다")
+                return {}
+        else:
+            logger.info("📥 EPSS 전량 덤프 캐시 로드")
+
+        try:
+            text = gzip.decompress(raw).decode("utf-8", errors="replace")
+        except Exception as e:
+            logger.warning(f"EPSS 덤프 압축 해제 실패: {e}")
+            return {}
+
+        high: Dict[str, float] = {}
+        for line in text.splitlines():
+            if not line or line.startswith("#") or line.startswith("cve,"):
+                continue
+            parts = line.split(",")
+            if len(parts) < 2:
+                continue
+            try:
+                score = float(parts[1])
+            except ValueError:
+                continue
+            if score >= threshold:
+                high[parts[0]] = score
+        logger.info(f"EPSS 임계({threshold}) 이상: {len(high)}건")
+        return high
+
     # ====================================================================
     # [3] 콘텐츠 해시 기반 스마트 필터링
     # ====================================================================
