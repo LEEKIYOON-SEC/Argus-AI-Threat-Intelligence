@@ -13,12 +13,13 @@ from google.genai import types
 from logger import logger
 from config import config
 from collector import (Collector, read_watermark, write_watermark,
-                       read_failure_state, active_quarantine)
+                       read_failure_state, active_quarantine,
+                       read_rpd_state, write_rpd_state)
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
 from rule_manager import RuleManager
-from rate_limiter import rate_limit_manager
+from rate_limiter import rate_limit_manager, gemini_error_kind
 
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
@@ -418,7 +419,10 @@ Do NOT add intro/outro.
     max_attempts = 3 if retry_on_transient else 1
     for attempt in range(1, max_attempts + 1):
         try:
-            rate_limit_manager.check_and_wait("gemini")
+            if not rate_limit_manager.check_and_wait("gemini"):
+                # 일일 한도 소진 — 호출해봐야 429만 받는다
+                _tr_bump("en_rpd")
+                return fallback
             response = gemini_client.models.generate_content(
                 model=config.MODEL_PHASE_0,
                 contents=prompt,
@@ -449,27 +453,75 @@ Do NOT add intro/outro.
                 if line.startswith("내용:"):
                     desc_ko = line.replace("내용:", "").strip()
 
+            _tr_bump("ok")
             return title_ko, desc_ko
 
         except Exception as e:
             msg = str(e)
-            if retry_on_transient and _is_transient_gemini_error(msg) and attempt < max_attempts:
-                wait = 2 * attempt  # 2s, 4s
-                logger.warning(f"번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
+            kind = _gemini_error_kind(msg)
+            if kind == "rpd":
+                # 공급자가 먼저 일일 소진을 알려줬다 = 우리 카운터가 실제보다 적게 셌다는 뜻.
+                # 소진으로 마킹해 이번 실행의 남은 번역이 429를 반복하지 않게 한다.
+                rate_limit_manager.mark_rpd_exhausted("gemini")
+                logger.warning("번역 일일 한도(RPD) 소진 — 이후 번역은 영문 폴백")
+                _tr_bump("en_rpd")
+                return fallback
+            if kind in ("rate", "transient") and attempt < max_attempts:
+                wait = _gemini_backoff(kind, attempt, msg)
+                logger.warning(f"번역 {kind} 오류({attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
                 time.sleep(wait)
                 continue
-            logger.warning(f"번역 실패: {e}, 원본 사용")
+            logger.warning(f"번역 실패({kind}): {e}, 원본 사용")
+            _tr_bump(f"en_{kind}")
             return fallback
 
     return fallback
 
 
-def _is_transient_gemini_error(msg: str) -> bool:
-    """Gemma 일시 서버 오류(재시도 가치 있음) 판별.
-    상태 코드는 단어 경계로 매칭 — "limit: 1500" 같은 숫자에 "500"이 오탐되지 않게."""
-    return bool(re.search(r'\b(500|503)\b', msg)) or any(t in msg for t in (
-        "INTERNAL", "UNAVAILABLE", "high demand", "overloaded", "try again"
-    ))
+def _gemini_backoff(kind: str, attempt: int, msg: str) -> float:
+    """재시도 전 대기 시간. 분당 한도(429)는 서버가 알려준 재개 시각을 우선 따르되,
+    파이프라인이 통째로 잠들지 않도록 상한(30초)을 둔다."""
+    if kind == "rate":
+        hinted = rate_limit_manager.parse_retry_after(msg)
+        return min(hinted if hinted else 8.0 * attempt, 30.0)
+    return 2.0 * attempt  # 503/500: 2s, 4s
+
+
+# 오류 분류는 rate_limiter가 소유한다 — 분석 경로(analyzer)와 같은 기준을 써야
+# 분당 한도를 일일 소진으로 오판해 하루치를 버리는 일이 한쪽에서만 생기지 않는다.
+_gemini_error_kind = gemini_error_kind
+
+
+# 번역 결과 집계 — 왜 영문이 남았는지(일일한도/분당한도/서버오류/형식오류)를 실행 로그
+# 한 줄로 남긴다. 원인별 건수가 없으면 "가끔 503이 난다" 이상으로 진단할 수 없다.
+_TR_LOCK = threading.Lock()
+_TR_STATS: Dict[str, int] = {}
+_TR_LABELS = [("en_rpd", "일일한도"), ("en_rate", "분당한도"), ("en_transient", "서버오류"),
+              ("en_parse", "형식오류"), ("en_deadline", "시간초과"), ("en_other", "기타")]
+# _translate_chunk가 돌려준 사유 → 집계 키
+_TR_REASON_KEY = {"skip": "en_rpd", "rate": "en_rate", "transient": "en_transient",
+                  "parse": "en_parse", "other": "en_other", "api": "en_other"}
+
+
+def _tr_bump(key: str, n: int = 1) -> None:
+    if n <= 0:
+        return
+    with _TR_LOCK:
+        _TR_STATS[key] = _TR_STATS.get(key, 0) + n
+
+
+def _log_translation_summary() -> None:
+    """실행 누적 번역 결과 한 줄 요약 (배치 호출 종료 시점마다 갱신 출력)."""
+    with _TR_LOCK:
+        snap = dict(_TR_STATS)
+    ok = snap.get("ok", 0)
+    fallback = sum(snap.get(k, 0) for k, _ in _TR_LABELS)
+    if not (ok or fallback):
+        return
+    breakdown = " · ".join(f"{label} {snap.get(key, 0)}" for key, label in _TR_LABELS)
+    used, limit = rate_limit_manager.rpd_status("gemini")
+    logger.info(f"🈯 번역 요약(누적): 한글 {ok}건 · 영문폴백 {fallback}건 "
+                f"({breakdown}) · Gemma RPD {used:,}/{limit:,}")
 
 
 def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
@@ -520,23 +572,33 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
                     state["deadline_warned"] = True
             for it in chunk:
                 out[it['id']] = (it['title'], (it['description'] or '')[:200])
+            _tr_bump("en_deadline", len(chunk))
             return out
         try:
             # 배치 시도 — 호출 수가 적으므로 항상 일시오류 재시도 허용
-            parsed = _translate_chunk(chunk, retry_on_transient=True)
+            parsed, reason = _translate_chunk(chunk, retry_on_transient=True)
             if parsed is not None:
                 out.update(parsed)
-            else:
-                # 배치 파싱 실패 → 개별 텍스트 번역으로 폴백(한글 보장). 이 CVE들은 대시보드에
-                # 노출되므로 영문 방치보다 개별 번역 비용이 낫다.
+                _tr_bump("ok", len(chunk))
+            elif reason == "parse":
+                # 응답 형식만 깨진 경우 → 개별 텍스트 번역으로 폴백(한글 보장). 이 CVE들은
+                # 대시보드에 노출되므로 영문 방치보다 개별 번역 비용이 낫다.
+                # (개별 호출의 성공/실패 집계는 generate_korean_summary가 직접 기록한다.)
                 with lock:
                     state["fell_back"] += len(chunk)
                 for it in chunk:
                     out[it['id']] = _individual(it, allow_retry=True)
+            else:
+                # API 자체가 실패(429/503/한도 소진) → 개별 재시도는 같은 오류를 6배로
+                # 늘릴 뿐이다. 영문으로 두고 다음 실행의 번역 백필이 회수한다.
+                for it in chunk:
+                    out[it['id']] = (it['title'], (it['description'] or '')[:200])
+                _tr_bump(_TR_REASON_KEY.get(reason, "en_other"), len(chunk))
         except Exception as e:
             logger.warning(f"번역 청크 실패 → 영문 폴백: {e}")
             for it in chunk:
                 out.setdefault(it['id'], (it['title'], (it['description'] or '')[:200]))
+            _tr_bump("en_other", len(chunk))
         with lock:
             state["done"] += 1
             done = state["done"]
@@ -550,13 +612,22 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
             results.update(out)
 
     if state["fell_back"]:
-        logger.info(f"번역: 배치 실패 {state['fell_back']}건 → 개별 번역으로 한글화 완료")
+        logger.info(f"번역: 배치 응답 형식 파손 {state['fell_back']}건 → 개별 번역으로 재시도")
+    _log_translation_summary()
     return results
 
 
-def _translate_chunk(chunk: List[Dict], retry_on_transient: bool) -> Optional[Dict[str, Tuple[str, str]]]:
-    """청크(≤batch_size건) 1회 Gemma 호출 번역. 성공 시 id→(제목,요약) dict, 실패 시 None.
-    응답 JSON에서 누락된 항목은 영문 폴백으로 채워 반환값은 항상 청크 전체를 커버한다."""
+def _translate_chunk(chunk: List[Dict],
+                     retry_on_transient: bool) -> Tuple[Optional[Dict[str, Tuple[str, str]]], str]:
+    """청크(≤batch_size건) 1회 Gemma 호출 번역. (결과, 사유)를 반환한다.
+
+    사유를 함께 돌려주는 이유: 호출부의 '개별 번역 폴백'은 배치 JSON이 깨졌을 때만
+    의미가 있다. 429/503처럼 API 자체가 실패한 청크를 개별로 재시도하면 같은 오류를
+    6배로 늘려 한도만 더 태운다(429가 429를 부르는 증폭). 사유가 있어야 구분된다.
+
+    사유: "ok"(성공) · "parse"(응답 형식 파손 → 개별 폴백 가치 있음) ·
+          "api"(호출 실패 → 개별 폴백 무의미) · "skip"(일일 한도 소진)
+    응답 JSON에서 누락된 항목은 영문 폴백으로 채워 성공 시 반환값은 청크 전체를 커버한다."""
     # 입력 500자·출력 2줄 요약으로 제한 — 배치당 생성 토큰을 줄여 호출당 소요를 절반 이하로
     # (관측: 출력이 크면 배치당 ~60초 → 40청크에 40분, 실행 타임아웃의 주범이었음)
     numbered = "\n".join(
@@ -574,7 +645,8 @@ CVEs:
     max_attempts = 3 if retry_on_transient else 1
     for attempt in range(1, max_attempts + 1):
         try:
-            rate_limit_manager.check_and_wait("gemini")
+            if not rate_limit_manager.check_and_wait("gemini"):
+                return None, "skip"
             response = gemini_client.models.generate_content(
                 model=config.MODEL_PHASE_0,
                 contents=prompt,
@@ -601,11 +673,11 @@ CVEs:
                 m = re.search(r'\[[\s\S]*\]', text)
                 if not m:
                     logger.warning(f"일괄 번역 파싱 실패 (JSON 배열 없음, 시도 {attempt})")
-                    return None
+                    return None, "parse"
                 arr = json.loads(m.group())
 
             if not isinstance(arr, list):
-                return None
+                return None, "parse"
             by_n = {int(o.get('n', 0)): o for o in arr if isinstance(o, dict)}
             out: Dict[str, Tuple[str, str]] = {}
             for n, it in enumerate(chunk, 1):
@@ -613,18 +685,27 @@ CVEs:
                 title_ko = (o.get('title_ko') or '').strip() or it['title']
                 desc_ko = (o.get('desc_ko') or '').strip() or (it['description'] or '')[:200]
                 out[it['id']] = (title_ko, desc_ko)
-            return out
+            return out, "ok"
 
+        except json.JSONDecodeError as e:
+            # 폴백 정규식으로 뽑은 조각도 JSON이 아니었다 = 응답 형식 문제
+            logger.warning(f"일괄 번역 파싱 실패: {e}")
+            return None, "parse"
         except Exception as e:
             msg = str(e)
-            if retry_on_transient and _is_transient_gemini_error(msg) and attempt < max_attempts:
-                wait = 2 * attempt
-                logger.warning(f"일괄 번역 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
+            kind = _gemini_error_kind(msg)
+            if kind == "rpd":
+                rate_limit_manager.mark_rpd_exhausted("gemini")
+                logger.warning("일괄 번역 일일 한도(RPD) 소진 — 이후 번역은 영문 폴백")
+                return None, "skip"
+            if kind in ("rate", "transient") and attempt < max_attempts:
+                wait = _gemini_backoff(kind, attempt, msg)
+                logger.warning(f"일괄 번역 {kind} 오류({attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
                 time.sleep(wait)
                 continue
-            logger.warning(f"일괄 번역 청크 실패: {e}")
-            return None
-    return None
+            logger.warning(f"일괄 번역 청크 실패({kind}): {e}")
+            return None, kind
+    return None, "api"
 
 # ==============================================================================
 # [3] GitHub Issue 생성/업데이트
@@ -1472,7 +1553,12 @@ def _main():
     collector = Collector()
     db = ArgusDB()
     notifier = SlackNotifier()
-    
+
+    # 이전 실행들의 일일 요청 수(RPD)를 이어받는다 — 프로세스가 매 실행 새로 뜨는 탓에
+    # 카운터가 늘 0에서 시작해 무료 티어 일일 한도를 스스로 못 지키던 문제의 해소.
+    # 첫 Gemma 호출(에스컬레이션 스윕 단건 번역)보다 먼저 실행되어야 한다.
+    rate_limit_manager.import_rpd_state(read_rpd_state())
+
     # Step 3: 공식 룰 재발견
     check_for_official_rules()
     
@@ -1508,7 +1594,8 @@ def _main():
 
     if not fetched:
         # 창 내 신규 커밋 없음 → 창 끝까지만 전진 (창 이후 커밋은 다음 실행이 수집)
-        write_watermark(min(catchup_horizon, run_start_utc))
+        write_watermark(min(catchup_horizon, run_start_utc),
+                        rpd=rate_limit_manager.export_rpd_state())
         logger.info("처리할 CVE 없음 (워터마크 전진)")
         return
 
@@ -1717,10 +1804,13 @@ def _main():
     quarantined = {k: v for k, v in quarantined.items()
                    if _iso_after(v, stale_cut)}
     fail_counts = {k: v for k, v in fail_counts.items() if k in held_now or v > 0}
-    write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined)
+    write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined,
+                    rpd=rate_limit_manager.export_rpd_state())
 
     # 워터마크 저장 이후에 백필 — 여기서 무슨 일이 나도 이번 회차의 전진은 이미 확정이다
     backfill_translations(db, soft_deadline_ts)
+    # 백필이 소비한 호출까지 반영 (워터마크는 그대로 두고 사용량만 갱신)
+    write_rpd_state(rate_limit_manager.export_rpd_state())
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
