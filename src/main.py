@@ -1206,6 +1206,12 @@ def _should_send_alert(current: Dict, last: Optional[Dict],
             return True, "🆕 신규 Critical 취약점", True
         if tier == "high" and match_type == "asset":
             return True, "🆕 자산 High 취약점", True
+        # 공개 익스플로잇이 이미 있는 채로 들어온 건. tier에는 반영하지 않는다 —
+        # ExploitDB에는 오래된 PoC가 다수라 critical로 올리면 AI 분석 예산이 샌다.
+        # 다만 '공격 코드가 이미 공개된 상태'를 조용히 넘기면 안 되므로 알림은 보낸다
+        # (Issue 발행은 full_report 기준 — 전이 경로의 ExploitDB 정책과 동일).
+        if current.get('has_public_exploit'):
+            return True, "💥 신규 + ExploitDB 공개 익스플로잇", full_report
         return False, "", full_report
 
     # ── 에스컬레이션(전이) 트리거 — 실제 악용/무기화 신호는 항상 알림 ──
@@ -1225,7 +1231,11 @@ def _should_send_alert(current: Dict, last: Optional[Dict],
     if current.get('has_public_exploit') and not last.get('has_public_exploit'):
         return True, "💥 ExploitDB 공개 익스플로잇", full_report
 
-    # EPSS 급증 (≥0.1 도달 = critical 승격)
+    # EPSS 임계 돌파 = critical 승격. 상승폭 조건만 두면 0.08 → 0.12처럼 완만하게
+    # 넘어선 건이 빠진다(상승폭 0.04). 임계를 넘는 순간 자체를 트리거로 삼는다.
+    if current['epss'] >= 0.1 and last.get('epss', 0) < 0.1:
+        return True, "📈 EPSS 임계 돌파 (≥0.1)", True
+    # 이미 임계 이상이던 건이 추가로 크게 오른 경우
     if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
         return True, "📈 EPSS 급증", True
 
