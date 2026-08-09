@@ -1,5 +1,385 @@
 [
   {
+    "id": "CVE-2025-68809",
+    "title": "ksmbd: vfs: vfs_cache 내 m_flags 레이스 컨디션 수정",
+    "description": "vfs_cache.c에서 m_flags 필드에 접근할 때 락킹이 일관되지 않아 발생하는 레이스 컨디션 문제를 해결합니다.",
+    "cvss": 9.1,
+    "epss": 0.00441,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "f44158485826c076335d6860d35872271a83791d 부터 5adad9727a815c26013b0d41cfee92ffa7d4037c 이전, f44158485826c076335d6860d35872271a83791d 부터 ccc78781041589ea383e61d5d7a1e9a31b210b93 이전, f44158485826c076335d6860d35872271a83791d 부터 ee63729760f5b61a66f345c54dc4c7514e62383d 이전, f44158485826c076335d6860d35872271a83791d 부터 991f8a79db99b14c48d20d2052c82d65b9186cad 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2498",
+    "date": "2026-07-30T12:28:32.057384+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-50627",
+    "title": "Apache CXF: OAuth2: Access Token Validator의 JWT Audience 및 Issuer 검증 누락",
+    "description": "JwtAccessTokenValidator가 JWT의 'aud' 클레임을 검증하지 않아, 다른 리소스 서버에서 발행된 토큰을 재사용하는 Token Confusion/Routing 공격이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0.00445,
+    "is_kev": false,
+    "cwe": [
+      "CWE-289"
+    ],
+    "affected": [
+      {
+        "vendor": "Apache Software Foundation",
+        "product": "Apache CXF",
+        "versions": "4.2.0 부터 4.2.2 이전, 4.1.7 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2515",
+    "date": "2026-07-30T12:29:56.365402+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61235",
+    "title": "Oracle Corporation PeopleSoft Enterprise HCM Global Payroll Switzerland 취약점",
+    "description": "PeopleSoft Enterprise HCM Global Payroll Switzerland 9.2 버전의 취약점입니다. 높은 권한의 공격자가 HTTP를 통해 시스템을 침해할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00465,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "PeopleSoft Enterprise HCM Global Payroll Switzerland",
+        "versions": "9.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2085",
+    "date": "2026-07-23T10:35:43.331846+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64392",
+    "title": "ksmbd: delete-on-close에 오프너 자격 증명 사용",
+    "description": "delete-on-close 작업 시 ksmbd 워커 자격 증명으로 인해 권한 검사를 우회할 수 있는 문제를 수정하여, 핸들 오픈 시의 자격 증명을 사용합니다.",
+    "cvss": 9.1,
+    "epss": 0.00469,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "f44158485826c076335d6860d35872271a83791d 부터 f08b3f451f12eee4abd8a5981803bc36db84458b 이전, f44158485826c076335d6860d35872271a83791d 부터 18c59109bb6fb816d5102171666f87cf1e29901d 이전, f44158485826c076335d6860d35872271a83791d 부터 e72c15085b6d86f45d224d98aa75b5cace4aaab9 이전, f44158485826c076335d6860d35872271a83791d 부터 4b7059974549d278e30fe70e2a4e421f9839817d 이전, f44158485826c076335d6860d35872271a83791d 부터 52e2f21911158ec961cd5aae19c56460db382af0 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2222",
+    "date": "2026-07-27T08:06:42.993978+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64393",
+    "title": "ksmbd: 오프너 자격 증명으로 set info 실행",
+    "description": "SET_INFO 처리 시 ksmbd 워커 자격 증명 대신 SMB 핸들이 열릴 때 캡처된 자격 증명을 사용하도록 수정했습니다.",
+    "cvss": 9.1,
+    "epss": 0.00479,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 5cbabf3a71575cd31bc7785d92d4ab42338a654b 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 b35afd5cf8fab236ef21117e42ee45691d4ffa7b 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 0ce682867fd506f61f40c76bde7e4205bde34e87 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 20ee516a62989a8d505ee432f9e59525ea23984e 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 8cc9ec711f5255167247a9ab6a7179b787426ed7 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 b383bcad3d2fe634b26efbce53e22bbb5753a520 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.15 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2226",
+    "date": "2026-07-27T08:08:05.487507+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-47040",
+    "title": "Oracle Net Services 취약점",
+    "description": "Oracle Net을 통한 인증되지 않은 공격자가 중요 데이터에 접근하거나 시스템 중단을 유발할 수 있는 취약점입니다.",
+    "cvss": 9.1,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Net Services",
+        "versions": "19.3 부터 19.31 이하, 21.3 부터 21.22 이하, 23.4.0 부터 23.26.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-23T07:05:46.316303+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61155",
+    "title": "Oracle Commerce Guided Search Platform Services 취약점",
+    "description": "Forge 컴포넌트 11.4.0 버전의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해 중요 데이터에 무단 접근할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00486,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Commerce Guided Search Platform Services",
+        "versions": "11.4.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2062",
+    "date": "2026-07-23T10:33:30.798995+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-42508",
+    "title": "golang.org/x/crypto/ssh/knownhosts의 @revoked 상태 미적용으로 인한 인증 우회",
+    "description": "CA의 취소된 'SignatureKey'에 대한 취소 여부 확인이 누락되어 인증 우회가 가능했습니다.",
+    "cvss": 9.1,
+    "epss": 0.00487,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "golang.org/x/crypto",
+        "product": "golang.org/x/crypto/ssh/knownhosts",
+        "versions": "0.52.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1595",
+    "date": "2026-07-20T13:52:17.526166+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-46738",
+    "title": "Dell PowerProtect Data Manager 취약점",
+    "description": "REST API의 Improper Input Validation 취약점으로 인해, 원격 접속이 가능한 높은 권한의 공격자가 권한 상승(Elevation of privileges)을 일으킬 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00499,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Dell",
+        "product": "PowerProtect Data Manager",
+        "versions": "20.2.0.0 or later 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2105",
+    "date": "2026-07-23T17:01:49.210116+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-40712",
+    "title": "Dell PowerProtect Data Manager 취약점",
+    "description": "REST API의 Improper Input Validation 취약점으로 인해, 원격 접속이 가능한 높은 권한의 공격자가 권한 상승(Elevation of privileges)을 일으킬 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0.00499,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "Dell",
+        "product": "PowerProtect Data Manager",
+        "versions": "20.2.0.0 or later 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2101",
+    "date": "2026-07-23T17:00:35.40805+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-52999",
     "title": "netfilter: nfnetlink_osf: 옵션 매칭 시 out-of-bounds read 수정",
     "description": "TCP 옵션 파싱 중 핑거프린트가 일치하여 조기 반환될 때 ctx->optp 포인터가 복구되지 않아 발생하는 out-of-bounds read를 수정했습니다.",
@@ -25881,44 +26261,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-50627",
-    "title": "Apache CXF: OAuth2: Access Token Validator의 JWT Audience 및 Issuer 검증 누락",
-    "description": "JwtAccessTokenValidator가 JWT의 'aud' 클레임을 검증하지 않아, 다른 리소스 서버에서 발행된 토큰을 재사용하는 Token Confusion/Routing 공격이 가능합니다.",
-    "cvss": 9.1,
-    "epss": 0.00445,
-    "is_kev": false,
-    "cwe": [
-      "CWE-289"
-    ],
-    "affected": [
-      {
-        "vendor": "Apache Software Foundation",
-        "product": "Apache CXF",
-        "versions": "4.2.0 부터 4.2.2 이전, 4.1.7 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2515",
-    "date": "2026-07-30T12:29:56.365402+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-60286",
     "title": "Oracle Coherence 취약점",
     "description": "Oracle Fusion Middleware의 Oracle Coherence(Core) 취약점입니다.\n인증되지 않은 공격자가 HTTP를 통해 시스템을 장악할 수 있습니다.",
@@ -51122,47 +51464,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-64393",
-    "title": "ksmbd: 오프너 자격 증명으로 set info 실행",
-    "description": "SET_INFO 처리 시 ksmbd 워커 자격 증명 대신 SMB 핸들이 열릴 때 캡처된 자격 증명을 사용하도록 수정했습니다.",
-    "cvss": 9.1,
-    "epss": 0.00479,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 5cbabf3a71575cd31bc7785d92d4ab42338a654b 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 b35afd5cf8fab236ef21117e42ee45691d4ffa7b 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 0ce682867fd506f61f40c76bde7e4205bde34e87 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 20ee516a62989a8d505ee432f9e59525ea23984e 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 8cc9ec711f5255167247a9ab6a7179b787426ed7 이전, e2f34481b24db2fd634b5edb0a5bd0e4d38cc6e9 부터 b383bcad3d2fe634b26efbce53e22bbb5753a520 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.15 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2226",
-    "date": "2026-07-27T08:08:05.487507+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-64395",
     "title": "ksmbd: duplicate extents 작업 시 소스 읽기 권한 요구",
     "description": "FSCTL_DUPLICATE_EXTENTS_TO_FILE 사용 시 소스 핸들의 읽기 권한을 검사하지 않아 파일 내용이 복사되는 문제를 수정했습니다.",
@@ -51346,47 +51647,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-64392",
-    "title": "ksmbd: delete-on-close에 오프너 자격 증명 사용",
-    "description": "delete-on-close 작업 시 ksmbd 워커 자격 증명으로 인해 권한 검사를 우회할 수 있는 문제를 수정하여, 핸들 오픈 시의 자격 증명을 사용합니다.",
-    "cvss": 9.1,
-    "epss": 0.00469,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "f44158485826c076335d6860d35872271a83791d 부터 f08b3f451f12eee4abd8a5981803bc36db84458b 이전, f44158485826c076335d6860d35872271a83791d 부터 18c59109bb6fb816d5102171666f87cf1e29901d 이전, f44158485826c076335d6860d35872271a83791d 부터 e72c15085b6d86f45d224d98aa75b5cace4aaab9 이전, f44158485826c076335d6860d35872271a83791d 부터 4b7059974549d278e30fe70e2a4e421f9839817d 이전, f44158485826c076335d6860d35872271a83791d 부터 52e2f21911158ec961cd5aae19c56460db382af0 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.15 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2222",
-    "date": "2026-07-27T08:06:42.993978+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-64386",
@@ -97729,47 +97989,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-68809",
-    "title": "ksmbd: vfs: vfs_cache 내 m_flags 레이스 컨디션 수정",
-    "description": "vfs_cache.c에서 m_flags 필드에 접근할 때 락킹이 일관되지 않아 발생하는 레이스 컨디션 문제를 해결합니다.",
-    "cvss": 9.1,
-    "epss": 0.00441,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "f44158485826c076335d6860d35872271a83791d 부터 5adad9727a815c26013b0d41cfee92ffa7d4037c 이전, f44158485826c076335d6860d35872271a83791d 부터 ccc78781041589ea383e61d5d7a1e9a31b210b93 이전, f44158485826c076335d6860d35872271a83791d 부터 ee63729760f5b61a66f345c54dc4c7514e62383d 이전, f44158485826c076335d6860d35872271a83791d 부터 991f8a79db99b14c48d20d2052c82d65b9186cad 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.15 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2498",
-    "date": "2026-07-30T12:28:32.057384+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-68810",
@@ -249863,37 +250082,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-47040",
-    "title": "Oracle Net Services 취약점",
-    "description": "Oracle Net을 통한 인증되지 않은 공격자가 중요 데이터에 접근하거나 시스템 중단을 유발할 수 있는 취약점입니다.",
-    "cvss": 9.1,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Net Services",
-        "versions": "19.3 부터 19.31 이하, 21.3 부터 21.22 이하, 23.4.0 부터 23.26.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-23T07:05:46.316303+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-16232",
     "title": "애플리케이션 토큰을 이용한 SmartConsole 로그인 프로세스의 인증 우회(Authentication Bypass)",
     "description": "Check Point SmartConsole 로그인 프로세스의 인증 우회 취약점으로, 인증되지 않은 원격 공격자가 관리자 권한을 획득하여 보안 정책 및 설정을 수정할 수 있습니다.",
@@ -250228,156 +250416,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61235",
-    "title": "Oracle Corporation PeopleSoft Enterprise HCM Global Payroll Switzerland 취약점",
-    "description": "PeopleSoft Enterprise HCM Global Payroll Switzerland 9.2 버전의 취약점입니다. 높은 권한의 공격자가 HTTP를 통해 시스템을 침해할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00465,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "PeopleSoft Enterprise HCM Global Payroll Switzerland",
-        "versions": "9.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2085",
-    "date": "2026-07-23T10:35:43.331846+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-61155",
-    "title": "Oracle Commerce Guided Search Platform Services 취약점",
-    "description": "Forge 컴포넌트 11.4.0 버전의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해 중요 데이터에 무단 접근할 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00486,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Commerce Guided Search Platform Services",
-        "versions": "11.4.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2062",
-    "date": "2026-07-23T10:33:30.798995+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-40712",
-    "title": "Dell PowerProtect Data Manager 취약점",
-    "description": "REST API의 Improper Input Validation 취약점으로 인해, 원격 접속이 가능한 높은 권한의 공격자가 권한 상승(Elevation of privileges)을 일으킬 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00499,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Dell",
-        "product": "PowerProtect Data Manager",
-        "versions": "20.2.0.0 or later 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2101",
-    "date": "2026-07-23T17:00:35.40805+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-46738",
-    "title": "Dell PowerProtect Data Manager 취약점",
-    "description": "REST API의 Improper Input Validation 취약점으로 인해, 원격 접속이 가능한 높은 권한의 공격자가 권한 상승(Elevation of privileges)을 일으킬 수 있습니다.",
-    "cvss": 9.1,
-    "epss": 0.00499,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "Dell",
-        "product": "PowerProtect Data Manager",
-        "versions": "20.2.0.0 or later 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2105",
-    "date": "2026-07-23T17:01:49.210116+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -285588,44 +285626,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1584",
     "date": "2026-07-20T13:49:09.460931+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-42508",
-    "title": "golang.org/x/crypto/ssh/knownhosts의 @revoked 상태 미적용으로 인한 인증 우회",
-    "description": "CA의 취소된 'SignatureKey'에 대한 취소 여부 확인이 누락되어 인증 우회가 가능했습니다.",
-    "cvss": 9.1,
-    "epss": 0.00487,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "golang.org/x/crypto",
-        "product": "golang.org/x/crypto/ssh/knownhosts",
-        "versions": "0.52.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1595",
-    "date": "2026-07-20T13:52:17.526166+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
