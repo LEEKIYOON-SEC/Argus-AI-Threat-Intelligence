@@ -1,5 +1,808 @@
 [
   {
+    "id": "CVE-2026-10595",
+    "title": "parisneo/lollms의 Path Traversal 취약점",
+    "description": "parisneo/lollms 2.1.0 버전의 `backend/routers/ui.py`에서 사용자 입력 경로 검증 미흡으로 발생합니다. 인증되지 않은 공격자가 임의의 파일을 읽을 수 있는 Path Traversal 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-23"
+    ],
+    "affected": [
+      {
+        "vendor": "parisneo",
+        "product": "parisneo/lollms",
+        "versions": "unspecified 부터 3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:25.932388+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-5318",
+    "title": "Libssh: sftp_handle() 내 out-of-bounds read 취약점",
+    "description": "libssh 0.11.2 미만 버전의 sftp_handle 함수에서 잘못된 비교 체크로 인해 out-of-bounds read가 발생할 수 있습니다. 인증된 원격 공격자가 민감한 메모리 영역을 읽거나 서비스 동작에 영향을 줄 수 있습니다.",
+    "cvss": 5.4,
+    "epss": 0.01489,
+    "is_kev": false,
+    "cwe": [
+      "CWE-125"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "0.11.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:06.198029+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2026-64564",
+    "title": "sctp: DEL-IP 처리 중 ASCONF 자체 transport를 해제하지 않도록 수정",
+    "description": "sctp_process_asconf()에서 캐시된 transport가 패킷의 소스 주소와 다를 수 있어, 잘못된 transport가 해제되는 문제를 해결했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00187,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "42e30bf3463cd37d73839376662cb79b4d5c416c 부터 fedeb4468987bcaff85fe3061de5ae052d414740 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 74e8f3e7114f0e26d1b2c4c048044db9fcc27603 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 85aca407c560aba81b5ce9d3d6cf94c74077d19b 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 d136b29bf91dd8e3161281b87de597b7311d9462 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 9b2854f86f0b56e9027d68e7a3fc909d1a9b566f 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.25 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3276",
+    "date": "2026-08-08T15:50:48.208632+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ethanolgolf/CVE-2026-64564",
+      "https://github.com/HackSpeak/CVE-2026-64564"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-5914",
+    "title": "Libarchive: archive_read_support_format_rar.c의 archive_read_format_rar_seek_data()에서 double free 발생",
+    "description": "정수 오버플로우로 인한 double-free 취약점입니다. 메모리 오염을 통해 임의 코드 실행이나 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00324,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "3.8.0 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:04.828594+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2025-7425",
+    "title": "Libxslt: libxml2: xmlattrptr의 atype 손상으로 인한 libxslt의 heap use-after-free",
+    "description": "속성 유형(atype) 플래그 손상으로 ID 속성이 제대로 정리되지 않는 취약점입니다. 해제된 메모리에 접근하여 크래시나 heap corruption을 유발할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.00339,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "GNOME",
+        "product": "libxml2",
+        "versions": "2.15.2 이전"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Enterprise Linux 10",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:04.826311+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-64561",
+    "title": "KVM: x86: MMU 페이지 사용 가능 설정 후 유효하지 않거나 오래된 root 확인",
+    "description": "shadow MMU 페이지를 사용 가능하게 만든 후 stale page fault를 확인하여, 유효하지 않은 root에 메모리를 매핑하는 문제를 방지합니다.",
+    "cvss": 8.8,
+    "epss": 0.00157,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 35e77467610c4a37cb0ff54ee56b85f73b1f5700 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 0026dbb7de8ea76e97d6edf42fc3cc084564e2bf 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 f3477a6a4164f15287444eda685b5f6405dbd1e5 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 bce0d3c26e2c761a4bf43c8949f333fc7374eb2d 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 2abd5287f08319fa35764566b15c6e22cb1068db 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.9 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:04.823858+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-45497",
+    "title": "Openshift-api: openshift-controller-manager/build: OpenShift 빌드 프로세스 내 노드 풀 자격 증명 덮어쓰기 가능",
+    "description": "docker-build 컨테이너의 hostPath 볼륨 마운트 설정 오류로 config.json 파일이 쓰기 가능하게 노출됩니다.\n공격자가 이를 수정하여 이미지 풀링을 방해하고 서비스 거부(DoS)를 유발할 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0.00559,
+    "is_kev": false,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Unknown",
+        "product": "Unknown",
+        "versions": "4.16 (단일 버전)"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.12",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.13",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:04.406835+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-16242",
+    "title": "Hypershift: 클라이언트 인증서 검증 없는 Konnectivity 프록시 서버 에이전트 연결 허용",
+    "description": "Konnectivity 프록시 서버 설정 오류로 클라이언트 인증서 검증 없이 에이전트 연결이 가능.\n인증되지 않은 공격자가 제어 평면-노드 간 트래픽을 가로채거나 수정할 수 있습니다.",
+    "cvss": 9.4,
+    "epss": 0.00663,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Logging Subsystem for Red Hat OpenShift",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1577",
+    "date": "2026-07-20T11:17:00.464428+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-1784",
+    "title": "Ose-cluster-ingress-operator: HAProxy 설정 인젝션을 통한 원격 코드 실행(RCE)",
+    "description": "OpenShift Route 리소스의 spec.path YAML 검증 미흡으로 인해 HAProxy 설정 인젝션이 가능하며, 이를 통해 원격 코드 실행이 발생할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0.00194,
+    "is_kev": false,
+    "cwe": [
+      "CWE-15"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.13",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.14",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.15",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:03.10429+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-46579",
+    "title": "Openshift/router: HTTP 프론트엔드의 x-ssl-client 헤더 미제거를 통한 mTLS 클라이언트 인증서 스푸핑",
+    "description": "insecureEdgeTerminationPolicy가 Allow일 때 X-SSL-Client-* 헤더가 제거되지 않는 취약점입니다.\n공격자가 조작된 헤더를 통해 mTLS 인증을 우회하고 클라이언트 신분을 사칭할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.19",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.2",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat OpenShift Container Platform 4.21",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-09T04:39:03.102565+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-61207",
+    "title": "Oracle Corporation PeopleSoft Enterprise SCM eProcurement 취약점",
+    "description": "Manage Requisition Status의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n시스템을 침해하고 다른 제품에까지 영향을 줄 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00339,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "PeopleSoft Enterprise SCM eProcurement",
+        "versions": "9.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2077",
+    "date": "2026-07-23T10:35:14.029956+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-25147",
+    "title": "Microhard Systems IPn4G 1.1.0 기본 자격 증명을 통한 인증 우회",
+    "description": "변경 불가능한 하드코딩된 기본 자격 증명이 포함되어 있어, 공격자가 이를 이용해 루트 권한으로 장치에 무단 액세스할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.0034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1392"
+    ],
+    "affected": [
+      {
+        "vendor": "Microhard Systems",
+        "product": "Microhard Systems 3G/4G Cellular Ethernet and Serial Gateway Default Credentials",
+        "versions": "IPn4G 1.1.0 build 1098 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2273",
+    "date": "2026-07-28T03:50:49.002553+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-25738",
+    "title": "WordPress Hybrid Composer 1.4.6 인증되지 않은 설정 변경",
+    "description": "hc_ajax_save_option 액션을 통해 인증 없이 WordPress 옵션을 수정하여 관리자 권한 계정을 생성하고 계정을 탈취할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00347,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "framework-y",
+        "product": "Hybrid Composer",
+        "versions": "1.4.6 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2280",
+    "date": "2026-07-28T03:52:44.081891+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64625",
+    "title": "AVideo 29.0 미만 버전 execAsync를 통한 OS 커맨드 인젝션",
+    "description": "execAsync()의 불완전한 수정으로 인해 커맨드 치환이 가능하며, Live 플러그인의 on_publish.php 엔드포인트를 통해 임의의 OS 커맨드를 주입할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00351,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "WWBN",
+        "product": "AVideo",
+        "versions": "29.0 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1736",
+    "date": "2026-07-22T01:39:51.512038+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60632",
+    "title": "Oracle WebCenter Content (Content Server) 취약점",
+    "description": "인증되지 않은 공격자가 HTTP를 통해 시스템을 침해할 수 있으며, 사용자 상호작용이 필요합니다.",
+    "cvss": 9.3,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle WebCenter Content",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2041",
+    "date": "2026-07-23T10:10:47.268493+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-60220",
+    "title": "Oracle Coherence 취약점",
+    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있으며 사용자 상호작용이 필요합니다.",
+    "cvss": 9.3,
+    "epss": 0.00352,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Oracle Coherence",
+        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1912",
+    "date": "2026-07-23T07:10:59.160407+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-21264",
+    "title": "Microsoft 계정 스푸핑 취약점",
+    "description": "Microsoft 계정의 웹 페이지 생성 중 XSS 취약점으로 인해 공격자가 네트워크를 통해 스푸핑을 수행할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.0037,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Account",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2546",
+    "date": "2026-07-30T22:36:25.728638+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N/E:U/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2023-7325",
+    "title": "Mingyu 운영 및 유지보수 감사 및 리스크 제어 시스템 xmlrpc.sock SSRF",
+    "description": "xmlrpc.sock 핸들러의 SSRF 취약점을 통해 내부 unix socket RPC 엔드포인트에 접속하여 임의의 사용자 계정을 생성할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00378,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Anheng Information (Hangzhou DBAPP Security Information Technology Co., Ltd.)",
+        "product": "Mingyu Operations and Maintenance Audit and Risk Control System",
+        "versions": "2023-08-10 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2281",
+    "date": "2026-07-28T03:53:02.478325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/PeiQi0/PeiQi-WIKI-Book/blob/main/docs/wiki/iot/%E5%AE%89%E6%81%92/%E5%AE%89%E6%81%92%20%E6%98%8E%E5%BE%A1%E8%BF%90%E7%BB%B4%E5%AE%A1%E8%AE%A1%E4%B8%8E%E9%A3%8E%E9%99%A9%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%20xmlrpc.sock%20%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E6%B7%BB%E5%8A%A0%E6%BC%8F%E6%B4%9E.md"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2016-20096",
+    "title": "Linknat VOS3000/VOS2009 2.1.2.0 login.jsp를 통한 SQL 인젝션",
+    "description": "login.jsp의 name 파라미터를 통해 인증되지 않은 SQL 인젝션이 가능하며, DBA 권한으로 데이터베이스 내용 및 평문 자격 증명을 추출할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00382,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Kunshi Network Technology Co., Ltd.",
+        "product": "Linknat VOS3000",
+        "versions": "2.1.1.5 (단일 버전), 2.1.1.8 (단일 버전), 2.1.2.0 (단일 버전)"
+      },
+      {
+        "vendor": "Kunshi Network Technology Co., Ltd.",
+        "product": "Linknat VOS2009",
+        "versions": "2.1.1.5 (단일 버전), 2.1.1.8 (단일 버전), 2.1.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1864",
+    "date": "2026-07-23T06:59:19.756157+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64622",
+    "title": "Network-AI 5.12.2 ~ 5.13.3 ApprovalInbox를 통한 권한 확인 누락",
+    "description": "Network-AI의 ApprovalInbox GET 읽기 경로에서 권한 확인 절차가 누락되어, 인증되지 않은 사용자가 민감한 승인 요청 정보에 접근할 수 있습니다.",
+    "cvss": 9.3,
+    "epss": 0.00408,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Jovancoding",
+        "product": "Network-AI",
+        "versions": "5.12.2 부터 * 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1608",
+    "date": "2026-07-20T13:55:56.110636+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-71991",
     "title": "MSI Radix AXE6600 v781521 TelnetSSH 함수를 통한 Command Injection",
     "description": "TelnetSSH 함수의 Command Injection 취약점으로 원격 명령 실행이 가능합니다.\nTelnet 설정 인터페이스를 통해 악성 명령을 주입하고 루트 권한을 획득할 수 있습니다.",
@@ -1174,54 +1977,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2141",
     "date": "2026-07-23T20:44:57.837191+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-16242",
-    "title": "Hypershift: 클라이언트 인증서 검증 없는 Konnectivity 프록시 서버 에이전트 연결 허용",
-    "description": "Konnectivity 프록시 서버 설정 오류로 클라이언트 인증서 검증 없이 에이전트 연결이 가능.\n인증되지 않은 공격자가 제어 평면-노드 간 트래픽을 가로채거나 수정할 수 있습니다.",
-    "cvss": 9.4,
-    "epss": 0.00663,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Logging Subsystem for Red Hat OpenShift",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Multicluster Engine for Kubernetes",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Multicluster Engine for Kubernetes",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1577",
-    "date": "2026-07-20T11:17:00.464428+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -3829,49 +4584,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-7425",
-    "title": "Libxslt: libxml2: xmlattrptr의 atype 손상으로 인한 libxslt의 heap use-after-free",
-    "description": "속성 유형(atype) 플래그 손상으로 ID 속성이 제대로 정리되지 않는 취약점입니다. 해제된 메모리에 접근하여 크래시나 heap corruption을 유발할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00339,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "GNOME",
-        "product": "libxml2",
-        "versions": "2.15.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-08T17:48:01.892297+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2025-49796",
     "title": "Libxml: 타입 혼동으로 인한 서비스 거부(DoS) 취약점",
     "description": "libxml2의 특정 sch:name 요소 처리 중 메모리 손상이 발생하는 취약점이 발견되었습니다. 공격자가 악의적인 XML 파일을 통해 시스템 충돌을 유발함으로써 서비스 거부(DoS) 또는 정의되지 않은 동작을 일으킬 수 있습니다.",
@@ -3974,49 +4686,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-5914",
-    "title": "Libarchive: archive_read_support_format_rar.c의 archive_read_format_rar_seek_data()에서 double free 발생",
-    "description": "정수 오버플로우로 인한 double-free 취약점입니다. 메모리 오염을 통해 임의 코드 실행이나 서비스 거부(DoS)를 유발할 수 있습니다.",
-    "cvss": 7.8,
-    "epss": 0.00324,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "3.8.0 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 7 Extended Lifecycle Support",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-08T17:47:59.223483+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-59891",
@@ -4948,50 +5617,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-64564",
-    "title": "sctp: DEL-IP 처리 중 ASCONF 자체 transport를 해제하지 않도록 수정",
-    "description": "sctp_process_asconf()에서 캐시된 transport가 패킷의 소스 주소와 다를 수 있어, 잘못된 transport가 해제되는 문제를 해결했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00187,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "42e30bf3463cd37d73839376662cb79b4d5c416c 부터 fedeb4468987bcaff85fe3061de5ae052d414740 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 74e8f3e7114f0e26d1b2c4c048044db9fcc27603 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 85aca407c560aba81b5ce9d3d6cf94c74077d19b 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 d136b29bf91dd8e3161281b87de597b7311d9462 이전, 42e30bf3463cd37d73839376662cb79b4d5c416c 부터 9b2854f86f0b56e9027d68e7a3fc909d1a9b566f 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.25 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3276",
-    "date": "2026-08-08T15:50:48.208632+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/ethanolgolf/CVE-2026-64564",
-      "https://github.com/HackSpeak/CVE-2026-64564"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-64566",
     "title": "xfrm: iptfs: iptfs_skb_add_frags()에서 SKBFL_SHARED_FRAG 전파",
     "description": "iptfs_skb_add_frags()가 새로운 SKB로 frag 참조를 복사할 때, SKBFL_SHARED_FRAG 플래그를 전파하지 않는 문제를 수정했습니다.",
@@ -5822,42 +6447,6 @@
     "poc_urls": [],
     "degraded": false,
     "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-64561",
-    "title": "KVM: x86: MMU 페이지 사용 가능 설정 후 유효하지 않거나 오래된 root 확인",
-    "description": "shadow MMU 페이지를 사용 가능하게 만든 후 stale page fault를 확인하여, 유효하지 않은 root에 메모리를 매핑하는 문제를 방지합니다.",
-    "cvss": 8.8,
-    "epss": 0.00157,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 35e77467610c4a37cb0ff54ee56b85f73b1f5700 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 0026dbb7de8ea76e97d6edf42fc3cc084564e2bf 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 f3477a6a4164f15287444eda685b5f6405dbd1e5 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 bce0d3c26e2c761a4bf43c8949f333fc7374eb2d 이전, f95eec9bed76d42194c23153cb1cc8f186bf91cb 부터 2abd5287f08319fa35764566b15c6e22cb1068db 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.9 (단일 버전)"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-08T15:49:55.118038+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
     "asset_match": false,
     "ssvc_exploitation": null,
     "has_public_exploit": false,
@@ -27211,49 +27800,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-45497",
-    "title": "Openshift-api: openshift-controller-manager/build: OpenShift 빌드 프로세스 내 노드 풀 자격 증명 덮어쓰기 가능",
-    "description": "docker-build 컨테이너의 hostPath 볼륨 마운트 설정 오류로 config.json 파일이 쓰기 가능하게 노출됩니다.\n공격자가 이를 수정하여 이미지 풀링을 방해하고 서비스 거부(DoS)를 유발할 수 있습니다.",
-    "cvss": 7.6,
-    "epss": 0.00559,
-    "is_kev": false,
-    "cwe": [
-      "CWE-732"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "4.16 (단일 버전)"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.12",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.13",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T05:54:29.311+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-60447",
     "title": "Oracle WebCenter Enterprise Capture 취약점",
     "description": "낮은 권한의 공격자가 HTTP를 통해 시스템을 공격할 수 있으며, 다른 제품으로 영향이 확대될 수 있습니다.",
@@ -33099,49 +33645,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-46579",
-    "title": "Openshift/router: HTTP 프론트엔드의 x-ssl-client 헤더 미제거를 통한 mTLS 클라이언트 인증서 스푸핑",
-    "description": "insecureEdgeTerminationPolicy가 Allow일 때 X-SSL-Client-* 헤더가 제거되지 않는 취약점입니다.\n공격자가 조작된 헤더를 통해 mTLS 인증을 우회하고 클라이언트 신분을 사칭할 수 있습니다.",
-    "cvss": 7.4,
-    "epss": 0.00339,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.19",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.2",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.21",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-07T05:02:30.802609+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-24552",
@@ -225614,49 +226117,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2025-5318",
-    "title": "Libssh: sftp_handle() 내 out-of-bounds read 취약점",
-    "description": "libssh 0.11.2 미만 버전의 sftp_handle 함수에서 잘못된 비교 체크로 인해 out-of-bounds read가 발생할 수 있습니다. 인증된 원격 공격자가 민감한 메모리 영역을 읽거나 서비스 동작에 영향을 줄 수 있습니다.",
-    "cvss": 5.4,
-    "epss": 0.02449,
-    "is_kev": false,
-    "cwe": [
-      "CWE-125"
-    ],
-    "affected": [
-      {
-        "vendor": "Unknown",
-        "product": "Unknown",
-        "versions": "0.11.2 이전"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Enterprise Linux 10",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-04T23:22:01.380033+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Medium"
-  },
-  {
     "id": "CVE-2026-18718",
     "title": "Ghidra Swift Demangler Analyzer 프로젝트 상태를 통한 임의 코드 실행",
     "description": "악의적으로 조작된 Swift 도구 디렉토리 경로가 포함된 Ghidra 프로젝트를 통해 서명 검증 없이 임의의 바이너리를 실행할 수 있습니다.",
@@ -226105,49 +226565,6 @@
     "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-1784",
-    "title": "Ose-cluster-ingress-operator: HAProxy 설정 인젝션을 통한 원격 코드 실행(RCE)",
-    "description": "OpenShift Route 리소스의 spec.path YAML 검증 미흡으로 인해 HAProxy 설정 인젝션이 가능하며, 이를 통해 원격 코드 실행이 발생할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0.00194,
-    "is_kev": false,
-    "cwe": [
-      "CWE-15"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.13",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.14",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat OpenShift Container Platform 4.15",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-04T23:21:02.746068+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -246409,44 +246826,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-61207",
-    "title": "Oracle Corporation PeopleSoft Enterprise SCM eProcurement 취약점",
-    "description": "Manage Requisition Status의 취약점으로, 인증되지 않은 공격자가 HTTP를 통해\n시스템을 침해하고 다른 제품에까지 영향을 줄 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00339,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "PeopleSoft Enterprise SCM eProcurement",
-        "versions": "9.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2077",
-    "date": "2026-07-23T10:35:14.029956+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-2843",
     "title": "Observability-operator: Observability Operator 권한 상승",
     "description": "MonitorStack 배포 시 생성되는 ServiceAccount의 권한 설정 오류로 인해, 네임스페이스 수준의 권한을 가진 사용자가 클러스터 수준으로 권한을 상승시킬 수 있습니다.",
@@ -246483,121 +246862,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-60632",
-    "title": "Oracle WebCenter Content (Content Server) 취약점",
-    "description": "인증되지 않은 공격자가 HTTP를 통해 시스템을 침해할 수 있으며, 사용자 상호작용이 필요합니다.",
-    "cvss": 9.3,
-    "epss": 0.00352,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle WebCenter Content",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.2.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2041",
-    "date": "2026-07-23T10:10:47.268493+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-60220",
-    "title": "Oracle Coherence 취약점",
-    "description": "Oracle Fusion Middleware의 Oracle Coherence 취약점으로, 인증되지 않은 공격자가 TCP 네트워크 접근을 통해 시스템을 장악할 수 있으며 사용자 상호작용이 필요합니다.",
-    "cvss": 9.3,
-    "epss": 0.00352,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Oracle Corporation",
-        "product": "Oracle Coherence",
-        "versions": "12.2.1.4.0 (단일 버전), 14.1.1.0.0 (단일 버전), 14.1.2.0.0 (단일 버전), 15.1.1.0.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1912",
-    "date": "2026-07-23T07:10:59.160407+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2016-20096",
-    "title": "Linknat VOS3000/VOS2009 2.1.2.0 login.jsp를 통한 SQL 인젝션",
-    "description": "login.jsp의 name 파라미터를 통해 인증되지 않은 SQL 인젝션이 가능하며, DBA 권한으로 데이터베이스 내용 및 평문 자격 증명을 추출할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00382,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Kunshi Network Technology Co., Ltd.",
-        "product": "Linknat VOS3000",
-        "versions": "2.1.1.5 (단일 버전), 2.1.1.8 (단일 버전), 2.1.2.0 (단일 버전)"
-      },
-      {
-        "vendor": "Kunshi Network Technology Co., Ltd.",
-        "product": "Linknat VOS2009",
-        "versions": "2.1.1.5 (단일 버전), 2.1.1.8 (단일 버전), 2.1.2.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1864",
-    "date": "2026-07-23T06:59:19.756157+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2025-52936",
@@ -255768,44 +256032,6 @@
     "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:A/VC:H/VI:H/VA:N/SC:H/SI:H/SA:N",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-21264",
-    "title": "Microsoft 계정 스푸핑 취약점",
-    "description": "Microsoft 계정의 웹 페이지 생성 중 XSS 취약점으로 인해 공격자가 네트워크를 통해 스푸핑을 수행할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.0037,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Account",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2546",
-    "date": "2026-07-30T22:36:25.728638+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:N/E:U/RL:O/RC:C",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -266578,44 +266804,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-64625",
-    "title": "AVideo 29.0 미만 버전 execAsync를 통한 OS 커맨드 인젝션",
-    "description": "execAsync()의 불완전한 수정으로 인해 커맨드 치환이 가능하며, Live 플러그인의 on_publish.php 엔드포인트를 통해 임의의 OS 커맨드를 주입할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00351,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "WWBN",
-        "product": "AVideo",
-        "versions": "29.0 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1736",
-    "date": "2026-07-22T01:39:51.512038+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -282706,123 +282894,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2023-7325",
-    "title": "Mingyu 운영 및 유지보수 감사 및 리스크 제어 시스템 xmlrpc.sock SSRF",
-    "description": "xmlrpc.sock 핸들러의 SSRF 취약점을 통해 내부 unix socket RPC 엔드포인트에 접속하여 임의의 사용자 계정을 생성할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00378,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306",
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Anheng Information (Hangzhou DBAPP Security Information Technology Co., Ltd.)",
-        "product": "Mingyu Operations and Maintenance Audit and Risk Control System",
-        "versions": "2023-08-10 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2281",
-    "date": "2026-07-28T03:53:02.478325+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/PeiQi0/PeiQi-WIKI-Book/blob/main/docs/wiki/iot/%E5%AE%89%E6%81%92/%E5%AE%89%E6%81%92%20%E6%98%8E%E5%BE%A1%E8%BF%90%E7%BB%B4%E5%AE%A1%E8%AE%A1%E4%B8%8E%E9%A3%8E%E9%99%A9%E6%8E%A7%E5%88%B6%E7%B3%BB%E7%BB%9F%20xmlrpc.sock%20%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E6%B7%BB%E5%8A%A0%E6%BC%8F%E6%B4%9E.md"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2019-25738",
-    "title": "WordPress Hybrid Composer 1.4.6 인증되지 않은 설정 변경",
-    "description": "hc_ajax_save_option 액션을 통해 인증 없이 WordPress 옵션을 수정하여 관리자 권한 계정을 생성하고 계정을 탈취할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00347,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "framework-y",
-        "product": "Hybrid Composer",
-        "versions": "1.4.6 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2280",
-    "date": "2026-07-28T03:52:44.081891+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2018-25147",
-    "title": "Microhard Systems IPn4G 1.1.0 기본 자격 증명을 통한 인증 우회",
-    "description": "변경 불가능한 하드코딩된 기본 자격 증명이 포함되어 있어, 공격자가 이를 이용해 루트 권한으로 장치에 무단 액세스할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.0034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1392"
-    ],
-    "affected": [
-      {
-        "vendor": "Microhard Systems",
-        "product": "Microhard Systems 3G/4G Cellular Ethernet and Serial Gateway Default Credentials",
-        "versions": "IPn4G 1.1.0 build 1098 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2273",
-    "date": "2026-07-28T03:50:49.002553+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2012-10032",
     "title": "Maxthon3 about:history XCS Trusted Zone 코드 실행",
     "description": "about:history 페이지의 XCS 취약점으로 인해, 신뢰 구역에서 임의의 JavaScript 및 코드를 실행하여 브라우저 설정을 변경할 수 있습니다.",
@@ -285421,44 +285492,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-64622",
-    "title": "Network-AI 5.12.2 ~ 5.13.3 ApprovalInbox를 통한 권한 확인 누락",
-    "description": "Network-AI의 ApprovalInbox GET 읽기 경로에서 권한 확인 절차가 누락되어, 인증되지 않은 사용자가 민감한 승인 요청 정보에 접근할 수 있습니다.",
-    "cvss": 9.3,
-    "epss": 0.00408,
-    "is_kev": false,
-    "cwe": [
-      "CWE-862"
-    ],
-    "affected": [
-      {
-        "vendor": "Jovancoding",
-        "product": "Network-AI",
-        "versions": "5.12.2 부터 * 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1608",
-    "date": "2026-07-20T13:55:56.110636+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
