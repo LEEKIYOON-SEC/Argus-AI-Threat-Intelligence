@@ -17,7 +17,7 @@
       }
     ],
     "report_url": null,
-    "date": "2026-08-09T15:49:00.778403+00:00",
+    "date": "2026-08-09T16:57:01.811178+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -75,6 +75,428 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-7374",
+    "title": "Kubevirt: kubevirt virt-handler: 심볼릭 링크(symlink) 추적 취약점을 통한 권한 상승 및 노드 침해",
+    "description": "KubeVirt의 virt-handler에서 심볼릭 링크 검증 미흡 취약점이 발견되었습니다. 공격자가 콘솔 소켓을 CRI-O 소켓으로 대체하여 호스트의 Unix 소켓에 접근하고 권한을 상승시킬 수 있습니다.",
+    "cvss": 9.9,
+    "epss": 0.00596,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Container Native Virtualization 4.12",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Container Native Virtualization 4.13",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Container Native Virtualization 4.14",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1575",
+    "date": "2026-07-19T12:07:50.499445+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-61462",
+    "title": "mcp-gitlab - job_id 파라미터를 통한 Path Traversal",
+    "description": "build/index.js의 job_id 파라미터에서 Path Traversal 취약점이 발생하여 GitLab API 요청을 임의의 엔드포인트로 리다이렉트할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.0038,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "zereight",
+        "product": "mcp-gitlab",
+        "versions": "2.1.18 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1701",
+    "date": "2026-07-21T23:53:31.766605+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/zereight/gitlab-mcp/issues/587"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-55884",
+    "title": "Tilt: 네트워크에 노출된 Tilt HUD 서버의 인증 누락",
+    "description": "Tilt HUD HTTP 서버에 인증 미들웨어가 없어, 비인증 네트워크 사용자가 리소스를 트리거하거나 세션 토큰을 포함한 엔진 상태를 탈취할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.00398,
+    "is_kev": false,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "tilt-dev",
+        "product": "tilt",
+        "versions": ">= 0.20.8, < 0.37.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2404",
+    "date": "2026-07-29T21:15:31.779255+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-13072",
+    "title": "MongoDB Compute Mode 외부 데이터 처리의 입력 검증 미흡으로 인한 메모리 오염",
+    "description": "standalone mongod 인스턴스의 compute mode 활성화 시, BSON 데이터 검증 미흡으로 메모리 오염이 발생하여\n프로세스 종료 또는 의도치 않은 동작이 발생할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.00404,
+    "is_kev": false,
+    "cwe": [
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "MongoDB",
+        "product": "MongoDB Server",
+        "versions": "7.0 부터 7.0.39 이전, 8.0 부터 8.0.28 이전, 8.2.0 부터 8.2.12 이전, 8.3.0 부터 8.3.7 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2117",
+    "date": "2026-07-23T17:04:56.259619+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-9323",
+    "title": "urwid Web Display Backend의 취약한 PRNG 및 정보 노출",
+    "description": "Mersenne Twister PRNG를 사용하여 세션 ID를 생성하므로 암호학적으로 안전하지 않습니다.\n공격자가 세션 ID를 관찰하여 내부 상태를 복구하고 세션을 탈취할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.00421,
+    "is_kev": false,
+    "cwe": [
+      "CWE-338"
+    ],
+    "affected": [
+      {
+        "vendor": "urwid",
+        "product": "urwid",
+        "versions": "24acd12 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-22T01:16:48.163068+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-65318",
+    "title": "Verba (goldenverba) WebSocket Import 엔드포인트 HTMLReader를 통한 인증되지 않은 Server-Side Request Forgery",
+    "description": "Verba RAG 2.1.3 버전의 SSRF 취약점입니다.\n인증되지 않은 공격자가 WebSocket 엔드포인트를 통해 내부 리소스에 임의의 HTTP GET 요청을 보낼 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.00424,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Weaviate",
+        "product": "Verba",
+        "versions": "2.1.3 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2092",
+    "date": "2026-07-23T12:13:33.306117+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-6338",
+    "title": "TLS 백엔드를 사용하는 Schannel 기반 서버의 다중 연결 시 DoS 가능성",
+    "description": "Windows의 Qt Network Schannel 지원에서 불완전한 정리(incomplete cleanup) 취약점이 있어 장기간 DoS가 발생할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.0043,
+    "is_kev": false,
+    "cwe": [
+      "CWE-459"
+    ],
+    "affected": [
+      {
+        "vendor": "Qt",
+        "product": "Qt",
+        "versions": "5.15.0 부터 6.8.3 이하, 6.9.0 부터 6.9.2 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2357",
+    "date": "2026-07-29T10:02:18.004683+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/imaiguo/qteverywhere.6.9.1"
+    ],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-54466",
+    "title": "websocket-driver: 프로토콜 길이 헤더 오용을 통한 메시지 손상",
+    "description": "WebSocket 프로토콜의 길이 헤더를 오용하여 서버가 매우 큰 정수를 파싱하게 함으로써 메시지 손상을 유발할 수 있는 취약점입니다.",
+    "cvss": 9.2,
+    "epss": 0.00445,
+    "is_kev": false,
+    "cwe": [
+      "CWE-130"
+    ],
+    "affected": [
+      {
+        "vendor": "faye",
+        "product": "websocket-driver-node",
+        "versions": "< 0.7.5 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1717",
+    "date": "2026-07-22T01:12:35.046231+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-65317",
+    "title": "Verba (goldenverba) /api/connect를 통한 SSRF 및 Same-Origin 미들웨어 우회 취약점",
+    "description": "조작된 Origin 헤더와 호스트/포트 값을 사용하여 인증되지 않은 원격 공격자가 임의의 HTTP 요청을 생성할 수 있는 SSRF 취약점입니다.",
+    "cvss": 9.2,
+    "epss": 0.00481,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Weaviate",
+        "product": "Verba",
+        "versions": "2.1.3 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1966",
+    "date": "2026-07-23T10:02:42.632656+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-39918",
+    "title": "Vvveb 1.0.8.1 미만 버전의 설치 엔드포인트를 통한 코드 인젝션",
+    "description": "설치 엔드포인트의 subdir 파라미터 검증 미흡으로 env.php 파일에 임의의 PHP 코드를 삽입하여 RCE가 가능합니다.",
+    "cvss": 9.2,
+    "epss": 0.00665,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "givanz",
+        "product": "Vvveb",
+        "versions": "1.0.8.1 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-07-28T03:58:14.633892+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-63304",
+    "title": "AVideo 29.0 이하 버전 listFFmpegProcesses를 통한 OS 커맨드 인젝션",
+    "description": "listFFmpegProcesses() 함수에서 검증되지 않은 파라미터가 쉘 커맨드에 삽입되어, 웹 서버 권한으로 임의의 OS 커맨드를 실행할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0.01355,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "WWBN",
+        "product": "AVideo",
+        "versions": "29.0 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1737",
+    "date": "2026-07-22T01:39:58.812429+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -412,54 +834,6 @@
     "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-7374",
-    "title": "Kubevirt: kubevirt virt-handler: 심볼릭 링크(symlink) 추적 취약점을 통한 권한 상승 및 노드 침해",
-    "description": "KubeVirt의 virt-handler에서 심볼릭 링크 검증 미흡 취약점이 발견되었습니다. 공격자가 콘솔 소켓을 CRI-O 소켓으로 대체하여 호스트의 Unix 소켓에 접근하고 권한을 상승시킬 수 있습니다.",
-    "cvss": 9.9,
-    "epss": 0.00596,
-    "is_kev": false,
-    "cwe": [
-      "CWE-59"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Container Native Virtualization 4.12",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Container Native Virtualization 4.13",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Red Hat Container Native Virtualization 4.14",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1575",
-    "date": "2026-07-19T12:07:50.499445+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -248981,120 +249355,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-13072",
-    "title": "MongoDB Compute Mode 외부 데이터 처리의 입력 검증 미흡으로 인한 메모리 오염",
-    "description": "standalone mongod 인스턴스의 compute mode 활성화 시, BSON 데이터 검증 미흡으로 메모리 오염이 발생하여\n프로세스 종료 또는 의도치 않은 동작이 발생할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.00404,
-    "is_kev": false,
-    "cwe": [
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "MongoDB",
-        "product": "MongoDB Server",
-        "versions": "7.0 부터 7.0.39 이전, 8.0 부터 8.0.28 이전, 8.2.0 부터 8.2.12 이전, 8.3.0 부터 8.3.7 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2117",
-    "date": "2026-07-23T17:04:56.259619+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-65318",
-    "title": "Verba (goldenverba) WebSocket Import 엔드포인트 HTMLReader를 통한 인증되지 않은 Server-Side Request Forgery",
-    "description": "Verba RAG 2.1.3 버전의 SSRF 취약점입니다.\n인증되지 않은 공격자가 WebSocket 엔드포인트를 통해 내부 리소스에 임의의 HTTP GET 요청을 보낼 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.00424,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Weaviate",
-        "product": "Verba",
-        "versions": "2.1.3 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2092",
-    "date": "2026-07-23T12:13:33.306117+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-65317",
-    "title": "Verba (goldenverba) /api/connect를 통한 SSRF 및 Same-Origin 미들웨어 우회 취약점",
-    "description": "조작된 Origin 헤더와 호스트/포트 값을 사용하여 인증되지 않은 원격 공격자가 임의의 HTTP 요청을 생성할 수 있는 SSRF 취약점입니다.",
-    "cvss": 9.2,
-    "epss": 0.00481,
-    "is_kev": false,
-    "cwe": [
-      "CWE-918"
-    ],
-    "affected": [
-      {
-        "vendor": "Weaviate",
-        "product": "Verba",
-        "versions": "2.1.3 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1966",
-    "date": "2026-07-23T10:02:42.632656+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-2843",
     "title": "Observability-operator: Observability Operator 권한 상승",
     "description": "MonitorStack 배포 시 생성되는 ServiceAccount의 권한 설정 오류로 인해, 네임스페이스 수준의 권한을 가진 사용자가 클러스터 수준으로 권한을 상승시킬 수 있습니다.",
@@ -262376,44 +262636,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-55884",
-    "title": "Tilt: 네트워크에 노출된 Tilt HUD 서버의 인증 누락",
-    "description": "Tilt HUD HTTP 서버에 인증 미들웨어가 없어, 비인증 네트워크 사용자가 리소스를 트리거하거나 세션 토큰을 포함한 엔진 상태를 탈취할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.00398,
-    "is_kev": false,
-    "cwe": [
-      "CWE-306"
-    ],
-    "affected": [
-      {
-        "vendor": "tilt-dev",
-        "product": "tilt",
-        "versions": ">= 0.20.8, < 0.37.4 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2404",
-    "date": "2026-07-29T21:15:31.779255+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-67437",
     "title": "OliveTin: OAuth2 상태 메모리 고갈을 통한 인증되지 않은 DoS (무제한 맵 증가)",
     "description": "/oauth/login 요청 시 상태 정보가 만료나 제한 없이 맵에 저장되어, 인증되지 않은 공격자가 메모리를 고갈시켜 서비스 거부(DoS)를 유발할 수 있습니다.",
@@ -267446,155 +267668,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-61462",
-    "title": "mcp-gitlab - job_id 파라미터를 통한 Path Traversal",
-    "description": "build/index.js의 job_id 파라미터에서 Path Traversal 취약점이 발생하여 GitLab API 요청을 임의의 엔드포인트로 리다이렉트할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.0038,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "zereight",
-        "product": "mcp-gitlab",
-        "versions": "2.1.18 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1701",
-    "date": "2026-07-21T23:53:31.766605+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/zereight/gitlab-mcp/issues/587"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-9323",
-    "title": "urwid Web Display Backend의 취약한 PRNG 및 정보 노출",
-    "description": "Mersenne Twister PRNG를 사용하여 세션 ID를 생성하므로 암호학적으로 안전하지 않습니다.\n공격자가 세션 ID를 관찰하여 내부 상태를 복구하고 세션을 탈취할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.00421,
-    "is_kev": false,
-    "cwe": [
-      "CWE-338"
-    ],
-    "affected": [
-      {
-        "vendor": "urwid",
-        "product": "urwid",
-        "versions": "24acd12 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-22T01:16:48.163068+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-54466",
-    "title": "websocket-driver: 프로토콜 길이 헤더 오용을 통한 메시지 손상",
-    "description": "WebSocket 프로토콜의 길이 헤더를 오용하여 서버가 매우 큰 정수를 파싱하게 함으로써 메시지 손상을 유발할 수 있는 취약점입니다.",
-    "cvss": 9.2,
-    "epss": 0.00445,
-    "is_kev": false,
-    "cwe": [
-      "CWE-130"
-    ],
-    "affected": [
-      {
-        "vendor": "faye",
-        "product": "websocket-driver-node",
-        "versions": "< 0.7.5 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1717",
-    "date": "2026-07-22T01:12:35.046231+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-63304",
-    "title": "AVideo 29.0 이하 버전 listFFmpegProcesses를 통한 OS 커맨드 인젝션",
-    "description": "listFFmpegProcesses() 함수에서 검증되지 않은 파라미터가 쉘 커맨드에 삽입되어, 웹 서버 권한으로 임의의 OS 커맨드를 실행할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.01355,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "WWBN",
-        "product": "AVideo",
-        "versions": "29.0 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1737",
-    "date": "2026-07-22T01:39:58.812429+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-12895",
     "title": "Frappe ERPNext의 SQL 인젝션",
     "description": "ERPNext 15.107.0 및 Frappe 15.107.2 버전에서 파라미터화 쿼리 미사용으로 인한 SQL 인젝션 취약점이 발견되었습니다. 권한이 낮은 인증된 사용자가 임의의 SQL 쿼리를 실행하여 액세스 제한을 우회할 수 있습니다.",
@@ -268776,46 +268849,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2025-6338",
-    "title": "TLS 백엔드를 사용하는 Schannel 기반 서버의 다중 연결 시 DoS 가능성",
-    "description": "Windows의 Qt Network Schannel 지원에서 불완전한 정리(incomplete cleanup) 취약점이 있어 장기간 DoS가 발생할 수 있습니다.",
-    "cvss": 9.2,
-    "epss": 0.0043,
-    "is_kev": false,
-    "cwe": [
-      "CWE-459"
-    ],
-    "affected": [
-      {
-        "vendor": "Qt",
-        "product": "Qt",
-        "versions": "5.15.0 부터 6.8.3 이하, 6.9.0 부터 6.9.2 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2357",
-    "date": "2026-07-29T10:02:18.004683+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/imaiguo/qteverywhere.6.9.1"
-    ],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-63229",
@@ -279818,39 +279851,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-39918",
-    "title": "Vvveb 1.0.8.1 미만 버전의 설치 엔드포인트를 통한 코드 인젝션",
-    "description": "설치 엔드포인트의 subdir 파라미터 검증 미흡으로 env.php 파일에 임의의 PHP 코드를 삽입하여 RCE가 가능합니다.",
-    "cvss": 9.2,
-    "epss": 0.00665,
-    "is_kev": false,
-    "cwe": [
-      "CWE-94"
-    ],
-    "affected": [
-      {
-        "vendor": "givanz",
-        "product": "Vvveb",
-        "versions": "1.0.8.1 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-07-28T03:58:14.633892+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-9144",
