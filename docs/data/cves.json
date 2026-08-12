@@ -1,5 +1,2703 @@
 [
   {
+    "id": "CVE-2021-26857",
+    "title": "Microsoft Exchange Server 원격 코드 실행 취약점",
+    "description": "Microsoft Exchange Server에서 원격 코드 실행 취약점이 발생합니다.",
+    "cvss": 7.8,
+    "epss": 0.94008,
+    "is_kev": true,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2016 Cumulative Update 19",
+        "versions": "15.01.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019 Cumulative Update 8",
+        "versions": "15.02.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019",
+        "versions": "15.02.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3560",
+    "date": "2026-08-12T05:17:53.262331+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: Potential CVE-2021-26857 Exploitation Attempt\nid: cd479ccc-d8f0-4c66-ba7d-e06286f3f887\nstatus: stable\ndescription: Detects possible successful exploitation for vulnerability described in CVE-2021-26857 by looking for | abnormal subprocesses spawning by Exchange Server's Unified Messaging service\nreferences:\n    - https://www.microsoft.com/security/blog/2021/03/02/hafnium-targeting-exchange-servers/\nauthor: Bhabesh Raj\ndate: 2021-03-03\nmodified: 2023-02-07\ntags:\n    - attack.t1203\n    - attack.execution\n    - cve.2021-26857\n    - detection.emerging-threats\nlogsource:\n    category: process_creation\n    product: windows\ndetection:\n    selection:\n        ParentImage|endswith: '\\UMWorkerProcess.exe'\n    filter:\n        Image|endswith:\n            - 'wermgr.exe'\n            - 'WerFault.exe'\n    condition: selection and not filter\nfalsepositives:\n    - Unknown\nlevel: high\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/sirpedrotavares/Proxylogon-exploit"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:F/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-27065",
+    "title": "Microsoft Exchange Server 원격 코드 실행 취약점",
+    "description": "Microsoft Exchange Server에서 원격 코드 실행 취약점이 발생합니다.",
+    "cvss": 7.8,
+    "epss": 0.99946,
+    "is_kev": true,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019",
+        "versions": "15.02.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2013 Cumulative Update 22",
+        "versions": "15.00.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019 Cumulative Update 2",
+        "versions": "15.02.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3559",
+    "date": "2026-08-12T05:17:25.963739+00:00",
+    "rule_engines": [
+      "snort2",
+      "snort3",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:\"SERVER-MAIL Microsoft Exchange Server arbitrary file write attempt\"; flow:to_server,established; content:\"/DDIService.svc/SetObject\"; fast_pattern:only; http_uri; content:\"VirtualDirectory\"; nocase; http_uri; content:\"ExternalUrl\"; nocase; http_client_body; metadata:policy balanced-ips drop, policy max-detect-ips drop, policy security-ips drop, ruleset community, service http; reference:cve,2021-27065; reference:url,portal.msrc.microsoft.com/en-us/security-guidance/advisory/CVE-2021-27065; classtype:attempted-admin; sid:57252; rev:1;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 Community)",
+          "license": "GPLv2 (Snort Community Rules)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS ( msg:\"SERVER-MAIL Microsoft Exchange Server arbitrary file write attempt\"; flow:to_server,established; http_uri; content:\"/DDIService.svc/SetObject\",fast_pattern,nocase; content:\"VirtualDirectory\",nocase; http_client_body; content:\"ExternalUrl\",nocase; metadata:policy balanced-ips drop,policy max-detect-ips drop,policy security-ips drop,ruleset community; service:http; reference:cve,2021-27065; reference:url,portal.msrc.microsoft.com/en-us/security-guidance/advisory/CVE-2021-27065; classtype:attempted-admin; sid:57252; rev:1; )",
+          "trust": "official-verified",
+          "engine": "snort3",
+          "source": "Public (Snort 3 Community)",
+          "license": "GPLv2 (Snort Community Rules)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Microsoft Exchange ProxyLogon Activity - OABVirtualDirectory SetObject (CVE-2021-27065)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/ecp/\"; http_uri; content:\"/SetObject?\"; http_uri; content:\"schema=OABVirtualDirectory\"; fast_pattern; http_uri; content:\"msExchLogonMailbox|3a|\"; http_header; content:\"__type\"; http_client_body; content:\"Microsoft.Exchange.Management.ControlPanel\"; distance:0; http_client_body; content:\"ExternalUrl\"; distance:0; http_client_body; reference:url,github.com/praetorian-inc/proxylogon-exploit/blob/main/exploit.py; reference:cve,2021-27065; classtype:attempted-admin; sid:2033754; rev:1; metadata:attack_target Server, created_at 2021_08_20, cve CVE_2021_27065, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_08_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Microsoft Exchange ProxyLogon Activity - OABVirtualDirectory SetObject (CVE-2021-27065)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ecp/\"; content:\"/SetObject?\"; content:\"schema=OABVirtualDirectory\"; fast_pattern; http.header; content:\"msExchLogonMailbox|3a|\"; http.request_body; content:\"__type\"; content:\"Microsoft.Exchange.Management.ControlPanel\"; distance:0; content:\"ExternalUrl\"; distance:0; reference:url,github.com/praetorian-inc/proxylogon-exploit/blob/main/exploit.py; reference:cve,2021-27065; classtype:attempted-admin; sid:2033754; rev:1; metadata:attack_target Server, created_at 2021_08_20, cve CVE_2021_27065, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_08_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible Microsoft Exchange ProxyLogon Activity - OABVirtualDirectory SetObject (CVE-2021-27065)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ecp/\"; content:\"/SetObject?\"; content:\"schema=OABVirtualDirectory\"; fast_pattern; http.header; content:\"msExchLogonMailbox|3a|\"; http.request_body; content:\"__type\"; content:\"Microsoft.Exchange.Management.ControlPanel\"; distance:0; content:\"ExternalUrl\"; distance:0; reference:url,github.com/praetorian-inc/proxylogon-exploit/blob/main/exploit.py; reference:cve,2021-27065; classtype:attempted-admin; sid:2033754; rev:1; metadata:attack_target Server, created_at 2021_08_20, cve CVE_2021_27065, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, updated_at 2021_08_20, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/adamrpostjr/cve-2021-27065"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:F/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/http/exchange_proxylogon_rce"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-26855",
+    "title": "Microsoft Exchange Server 원격 코드 실행 취약점",
+    "description": "Microsoft Exchange Server에서 발생하는 원격 코드 실행(RCE) 취약점입니다.",
+    "cvss": 9.1,
+    "epss": 0.99999,
+    "is_kev": true,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2016 Cumulative Update 19",
+        "versions": "15.01.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019 Cumulative Update 8",
+        "versions": "15.02.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019",
+        "versions": "15.02.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3558",
+    "date": "2026-08-12T05:16:58.382312+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: ProxyLogon Reset Virtual Directories Based On IIS Log\nid: effee1f6-a932-4297-a81f-acb44064fa3a\nstatus: test\ndescription: When exploiting this vulnerability with CVE-2021-26858, an SSRF attack is used to manipulate virtual directories\nreferences:\n    - https://bi-zone.medium.com/hunting-down-ms-exchange-attacks-part-1-proxylogon-cve-2021-26855-26858-27065-26857-6e885c5f197c\nauthor: frack113\ndate: 2021-08-10\nmodified: 2023-05-08\ntags:\n    - cve.2021-26858\n    - detection.emerging-threats\n    - attack.initial-access\n    - attack.t1190\nlogsource:\n    category: webserver\n    definition: 'Requirements: The POST request body data must be collected in order to make use of this detection'\ndetection:\n    selection:\n        cs-method: 'POST'\n        sc-status: 200\n        cs-uri-stem: '/ecp/DDI/DDIService.svc/SetObject'\n        cs-uri-query|contains|all:\n            - 'schema=Reset'\n            - 'VirtualDirectory'\n        cs-username|endswith: '$'\n    keywords:\n        '|all':\n            - 'POST'\n            - 200\n            - '/ecp/DDI/DDIService.svc/SetObject'\n            - 'schema=Reset'\n            - 'VirtualDirectory'\n            - '$'\n    condition: selection or keywords\nfalsepositives:\n    - Unlikely\nlevel: critical\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/sgnls/exchange-0days-202103",
+      "https://github.com/soteria-security/HAFNIUM-IOC",
+      "https://github.com/cert-lv/exchange_webshell_detection"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N/E:F/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/http/exchange_proxylogon_rce",
+      "auxiliary/gather/exchange_proxylogon_collector",
+      "auxiliary/scanner/http/exchange_proxylogon"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64954",
+    "title": "Velociraptor collect_client() 권한 우회",
+    "description": "VQL 쿼리로 권한 제공자를 리셋하여 COLLECT_CLIENT 권한 없이 컬렉션을 예약할 수 있습니다. 이를 통해 analyst 역할에서 investigator 역할로 권한 상승이 가능합니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-862"
+    ],
+    "affected": [
+      {
+        "vendor": "Rapid7",
+        "product": "Velociraptor",
+        "versions": "0.77.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:16:44.806785+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-12234",
+    "title": "`zsock_sendmsg`/`recvmsg` 유저스페이스 검증기의 TOCTOU double-fetch로 인한 커널 힙 Out-of-bounds 쓰기 취약점",
+    "description": "유저스페이스 시스템 콜 검증기가 데이터를 복사한 후 다시 읽는 과정에서 발생하는 TOCTOU 취약점으로, 커널 힙의 경계 밖 쓰기가 가능합니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "zephyrproject",
+        "product": "zephyr",
+        "versions": "2.3.0 부터 4.4.2 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:16:44.545338+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-21983",
+    "title": "VMware vRealize Operations 취약점",
+    "description": "vRealize Operations Manager API의 임의 파일 쓰기 취약점으로, 인증된 공격자가 Photon OS의 임의 위치에 파일을 쓸 수 있습니다.",
+    "cvss": 0,
+    "epss": 0.68557,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware vRealize Operations",
+        "versions": "VMware vRealize Operations prior to 8.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3557",
+    "date": "2026-08-12T05:16:44.221549+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/20142995/sectool",
+      "https://github.com/ARPSyndicate/cvemon",
+      "https://github.com/Al1ex/CVE-2021-21975"
+    ],
+    "degraded": false,
+    "cvss_vector": "N/A",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/linux/http/vmware_vrops_mgr_ssrf_rce"
+    ],
+    "severity": "None"
+  },
+  {
+    "id": "CVE-2021-26858",
+    "title": "Microsoft Exchange Server 원격 코드 실행 취약점",
+    "description": "Microsoft Exchange Server에서 원격 코드 실행 취약점이 발생합니다.",
+    "cvss": 7.8,
+    "epss": 0.89509,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019",
+        "versions": "15.02.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2013 Cumulative Update 22",
+        "versions": "15.00.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Exchange Server 2019 Cumulative Update 2",
+        "versions": "15.02.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3556",
+    "date": "2026-08-12T05:16:18.499037+00:00",
+    "rule_engines": [
+      "sigma"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: CVE-2021-26858 Exchange Exploitation\nid: b06335b3-55ac-4b41-937e-16b7f5d57dfd\nstatus: test\ndescription: |\n    Detects possible successful exploitation for vulnerability described in CVE-2021-26858 by looking for\n    creation of non-standard files on disk by Exchange Server’s Unified Messaging service\n    which could indicate dropping web shells or other malicious content\nreferences:\n    - https://www.microsoft.com/security/blog/2021/03/02/hafnium-targeting-exchange-servers/\nauthor: Bhabesh Raj\ndate: 2021-03-03\nmodified: 2022-10-09\ntags:\n    - attack.t1203\n    - attack.execution\n    - cve.2021-26858\n    - detection.emerging-threats\nlogsource:\n    category: file_event\n    product: windows\ndetection:\n    selection:\n        Image|endswith: 'UMWorkerProcess.exe'\n    filter:\n        TargetFilename|endswith:\n            - 'CacheCleanup.bin'\n            - '.txt'\n            - '.LOG'\n            - '.cfg'\n            - 'cleanup.bin'\n    condition: selection and not filter\nfalsepositives:\n    - Unknown\nlevel: high\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/00011100/HAFHunt",
+      "https://github.com/34zY/APT-Backpack",
+      "https://github.com/ARPSyndicate/cve-scores"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:F/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-21985",
+    "title": "VMware vCenter Server 및 VMware Cloud Foundation 취약점",
+    "description": "Virtual SAN Health Check 플러그인의 입력값 검증 미흡으로 인한 RCE 취약점으로, 호스트 OS에서 명령을 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.99999,
+    "is_kev": true,
+    "cwe": [
+      "CWE-20",
+      "CWE-470",
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware vCenter Server and VMware Cloud Foundation",
+        "versions": "VMware vCenter Server (7.x before 7.0 U2b, 6.7 before 6.7 U3n, 6.5 before 6.5 U3p) and VMware Cloud Foundation (4.x before 4.2.1, 3.x before 3.10.2.1) (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3555",
+    "date": "2026-08-12T05:15:52.271987+00:00",
+    "rule_engines": [
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT vCenter Server RCE Chain Initial Stage Inbound (CVE-2021-21985)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ui/h5-vsan/\"; content:\"/&vsanProviderUtils_setVmodlHelper/setTargetObject\"; endswith; fast_pattern; http.request_body; content:\"|22|methodInput|22|\"; content:\"|5b|null|5d|\"; distance:0; pcre:\"/^\\x7b/s*\\x22methodInput\\x22\\s*\\x3a\\s*\\x5bnull\\x5d/\"; xbits:set,ET.2021_21985,track ip_src,expire 60; reference:url,www.iswin.org/2021/06/02/Vcenter-Server-CVE-2021-21985-RCE-PAYLOAD/; reference:cve,2021-21985; classtype:attempted-admin; sid:2033755; rev:1; metadata:created_at 2021_08_20, cve CVE_2021_21985, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_08_20;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT vCenter Server RCE Chain Initial Stage Inbound (CVE-2021-21985)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ui/h5-vsan/\"; content:\"/&vsanProviderUtils_setVmodlHelper/setTargetObject\"; endswith; fast_pattern; http.request_body; content:\"|22|methodInput|22|\"; content:\"|5b|null|5d|\"; distance:0; pcre:\"/^\\x7b/s*\\x22methodInput\\x22\\s*\\x3a\\s*\\x5bnull\\x5d/\"; xbits:set,ET.2021_21985,track ip_src,expire 60; reference:url,www.iswin.org/2021/06/02/Vcenter-Server-CVE-2021-21985-RCE-PAYLOAD/; reference:cve,2021-21985; classtype:attempted-admin; sid:2033755; rev:1; metadata:created_at 2021_08_20, cve CVE_2021_21985, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_08_20;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/bigbroke/CVE-2021-21985",
+      "https://github.com/alt3kx/CVE-2021-21985_PoC",
+      "https://github.com/onSec-fr/CVE-2021-21985-Checker"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/linux/http/vmware_vcenter_vsan_health_rce"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-26411",
+    "title": "Internet Explorer 메모리 손상 취약점",
+    "description": "Internet Explorer에서 메모리 손상 취약점이 발생합니다.",
+    "cvss": 8.8,
+    "epss": 0.80667,
+    "is_kev": true,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Internet Explorer 9",
+        "versions": "1.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Internet Explorer 11",
+        "versions": "1.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Edge (EdgeHTML-based)",
+        "versions": "1.0..0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3554",
+    "date": "2026-08-12T05:15:36.68887+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/CrackerCat/CVE-2021-26411"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:H/A:L/E:P/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-1675",
+    "title": "Windows Print Spooler 원격 코드 실행 취약점",
+    "description": "Windows Print Spooler에서 발생하는 원격 코드 실행(RCE) 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.84814,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.0 부터 10.0.17763.1999 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2019",
+        "versions": "10.0.0 부터 10.0.17763.1999 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2019 (Server Core installation)",
+        "versions": "10.0.0 부터 10.0.17763.1999 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:15:33.867718+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/yu2u/CVE-2021-1675",
+      "https://github.com/cube0x0/CVE-2021-1675",
+      "https://github.com/LaresLLC/CVE-2021-1675"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:U/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/dcerpc/cve_2021_1675_printnightmare"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-21972",
+    "title": "VMware vCenter Server 취약점",
+    "description": "vSphere Client 플러그인의 원격 코드 실행(RCE) 취약점으로, 호스트 OS에서 권한 없는 명령을 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.99518,
+    "is_kev": true,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware vCenter Server",
+        "versions": "7.x before 7.0 U1c (단일 버전), 6.7 before 6.7 U3l (단일 버전), 6.5 before 6.5 U3n (단일 버전)"
+      },
+      {
+        "vendor": "n/a",
+        "product": "VMware Cloud Foundation",
+        "versions": "4.x before 4.2 (단일 버전), 3.x before 3.10.1.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3553",
+    "date": "2026-08-12T05:15:21.176473+00:00",
+    "rule_engines": [
+      "sigma",
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: CVE-2021-21972 VSphere Exploitation\nid: 179ed852-0f9b-4009-93a7-68475910fd86\nstatus: test\ndescription: Detects the exploitation of VSphere Remote Code Execution vulnerability as described in CVE-2021-21972\nreferences:\n    - https://www.vmware.com/security/advisories/VMSA-2021-0002.html\n    - https://f5.pm/go-59627.html\n    - https://swarm.ptsecurity.com/unauth-rce-vmware\nauthor: Bhabesh Raj\ndate: 2021-02-24\nmodified: 2023-01-02\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - cve.2021-21972\n    - detection.emerging-threats\nlogsource:\n    category: webserver\ndetection:\n    selection:\n        cs-method: 'POST'\n        cs-uri-query: '/ui/vropspluginui/rest/services/uploadova'\n    condition: selection\nfalsepositives:\n    - OVA uploads to your VSphere appliance\nlevel: high\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] $HTTP_PORTS (msg:\"ET EXPLOIT Inbound VMware vCenter RCE Attempt M1 (CVE-2021-21972)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/ui/vropspluginui/rest/services/uploadova\"; http_uri; fast_pattern; content:\"|0d 0a|..|5c|\"; http_client_body; reference:url,swarm.ptsecurity.com/unauth-rce-vmware/; reference:cve,2021-21972; classtype:attempted-admin; sid:2031667; rev:3; metadata:affected_product VMware, attack_target Server, created_at 2021_02_25, cve CVE_2021_21972, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_02_25;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Inbound VMware vCenter RCE Attempt M1 (CVE-2021-21972)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ui/vropspluginui/rest/services/uploadova\"; endswith; fast_pattern; http.request_body; content:\"|0d 0a|..|5c|\"; reference:url,swarm.ptsecurity.com/unauth-rce-vmware/; reference:cve,2021-21972; classtype:attempted-admin; sid:2031667; rev:2; metadata:affected_product VMware, attack_target Server, created_at 2021_02_25, cve CVE_2021_21972, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_02_25;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Inbound VMware vCenter RCE Attempt M1 (CVE-2021-21972)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/ui/vropspluginui/rest/services/uploadova\"; endswith; fast_pattern; http.request_body; content:\"|0d 0a|..|5c|\"; reference:url,swarm.ptsecurity.com/unauth-rce-vmware/; reference:cve,2021-21972; classtype:attempted-admin; sid:2031667; rev:2; metadata:affected_product VMware, attack_target Server, created_at 2021_02_25, cve CVE_2021_21972, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_02_25;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/psc4re/NSE-scripts",
+      "https://github.com/QmF0c3UK/CVE-2021-21972-vCenter-6.5-7.0-RCE-POC",
+      "https://github.com/NS-Sp4ce/CVE-2021-21972"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/multi/http/vmware_vcenter_uploadova_rce"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-22893",
+    "title": "Pulse Connect Secure 취약점",
+    "description": "인증 우회 취약점으로 인해 인증되지 않은 사용자가 원격 임의 코드 실행이 가능하며, 실제 공격에 이용되었습니다.",
+    "cvss": 10,
+    "epss": 0.47172,
+    "is_kev": true,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Pulse Connect Secure",
+        "versions": "PCS 9.0R3 or above, PCS 9.1R1 and above (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3552",
+    "date": "2026-08-12T05:15:04.588169+00:00",
+    "rule_engines": [
+      "sigma",
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: Pulse Connect Secure RCE Attack CVE-2021-22893\nid: 5525edac-f599-4bfd-b926-3fa69860e766\nstatus: stable\ndescription: This rule detects exploitation attempts using Pulse Connect Secure(PCS) vulnerability (CVE-2021-22893)\nreferences:\n    - https://www.fireeye.com/blog/threat-research/2021/04/suspected-apt-actors-leverage-bypass-techniques-pulse-secure-zero-day.html\n    - https://kb.pulsesecure.net/articles/Pulse_Security_Advisories/SA44784\nauthor: Sittikorn S\ndate: 2021-06-29\nmodified: 2023-01-02\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - cve.2021-22893\n    - detection.emerging-threats\nlogsource:\n    category: webserver\ndetection:\n    selection1:\n        cs-uri-query|contains:\n            - '/dana-na/auth/'\n            - '/dana-ws/'\n            - '/dana-cached/'\n    selection2:\n        cs-uri-query|contains:\n            - '?id='\n            - '?token='\n            - 'Secid_canceltoken.cgi'\n            - 'CGI::param'\n            - 'meeting'\n            - 'smb'\n            - 'namedusers'\n            - 'metric'\n    condition: all of selection*\nfalsepositives:\n    - Vulnerability Scanning\nlevel: high\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT [FIREEYE] Suspicious Pulse Secure HTTP Request (CVE-2021-22893) M1\"; flow:established,to_server; content:\"/dana\"; depth:7; fast_pattern; http_uri; pcre:\"/\\/dana\\S{0,7}\\/(?:meeting|fb\\/smb|namedusers|metric)/Ui\"; content:!\"welcome.cgi\"; http_uri; reference:url,github.com/fireeye/pulsesecure_exploitation_countermeasures; reference:url,www.fireeye.com/blog/threat-research/2021/04/suspected-apt-actors-leverage-bypass-techniques-pulse-secure-zero-day.html; reference:cve,2021-22893; classtype:attempted-admin; sid:2032904; rev:1; metadata:affected_product Pulse_Secure, attack_target Server, created_at 2021_05_05, cve CVE_2021_22893, deployment Perimeter, deployment SSLDecrypt, performance_impact Low, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_05_05;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT [FIREEYE] Suspicious Pulse Secure HTTP Request (CVE-2021-22893) M1\"; flow:established,to_server; http.uri; content:\"/dana\"; depth:7; fast_pattern; pcre:\"/^\\S{0,7}\\/(?:meeting|fb\\/smb|namedusers|metric)/Ri\"; content:!\"welcome.cgi\"; reference:url,github.com/fireeye/pulsesecure_exploitation_countermeasures; reference:url,www.fireeye.com/blog/threat-research/2021/04/suspected-apt-actors-leverage-bypass-techniques-pulse-secure-zero-day.html; reference:cve,2021-22893; classtype:attempted-admin; sid:2032904; rev:1; metadata:affected_product Pulse_Secure, attack_target Server, created_at 2021_05_05, cve CVE_2021_22893, deployment Perimeter, deployment SSLDecrypt, performance_impact Low, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_05_05;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT [FIREEYE] Suspicious Pulse Secure HTTP Request (CVE-2021-22893) M1\"; flow:established,to_server; http.uri; content:\"/dana\"; depth:7; fast_pattern; pcre:\"/^\\S{0,7}\\/(?:meeting|fb\\/smb|namedusers|metric)/Ri\"; content:!\"welcome.cgi\"; reference:url,github.com/fireeye/pulsesecure_exploitation_countermeasures; reference:url,www.fireeye.com/blog/threat-research/2021/04/suspected-apt-actors-leverage-bypass-techniques-pulse-secure-zero-day.html; reference:cve,2021-22893; classtype:attempted-admin; sid:2032904; rev:1; metadata:affected_product Pulse_Secure, attack_target Server, created_at 2021_05_05, cve CVE_2021_22893, deployment Perimeter, deployment SSLDecrypt, performance_impact Low, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_05_05;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ZephrFish/CVE-2021-22893_HoneyPoC2",
+      "https://github.com/MRLEE123456/CVE-2021-22893",
+      "https://github.com/orangmuda/CVE-2021-22893"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-21975",
+    "title": "VMware vRealize Operations 취약점",
+    "description": "vRealize Operations Manager API의 SSRF 취약점으로, 관리자 자격 증명을 탈취할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.7829,
+    "is_kev": true,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware vRealize Operations",
+        "versions": "VMware vRealize Operations prior to 8.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3551",
+    "date": "2026-08-12T05:14:50.199667+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible vRealize Operations Manager API SSRF Attempt (CVE-2021-21975)\"; flow:established,to_server; content:\"|5b|\"; http_client_body; content:\"POST /casa/nodes/thumbprints HTTP/1.1\"; fast_pattern; content:\"Content-Type|3a 20|application/json|3b|charset=UTF-8|0d 0a|\"; http_header; reference:cve,2021-21975; classtype:attempted-admin; sid:2034974; rev:1; metadata:attack_target Server, created_at 2022_01_25, cve CVE_2021_21975, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2022_01_25;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible vRealize Operations Manager API SSRF Attempt (CVE-2021-21975)\"; flow:established,to_server; http.request_line; content:\"POST /casa/nodes/thumbprints HTTP/1.1\"; fast_pattern; http.request_body; content:\"|5b|\"; http.content_type; content:\"application/json|3b|charset=UTF-8\"; bsize:30; reference:cve,2021-21975; classtype:attempted-admin; sid:2034974; rev:2; metadata:attack_target Server, created_at 2022_01_25, cve CVE_2021_21975, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2022_01_25;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Possible vRealize Operations Manager API SSRF Attempt (CVE-2021-21975)\"; flow:established,to_server; http.request_line; content:\"POST /casa/nodes/thumbprints HTTP/1.1\"; fast_pattern; http.request_body; content:\"|5b|\"; http.content_type; content:\"application/json|3b|charset=UTF-8\"; bsize:30; reference:cve,2021-21975; classtype:attempted-admin; sid:2034974; rev:2; metadata:attack_target Server, created_at 2022_01_25, cve CVE_2021_21975, deployment Perimeter, deployment Internal, confidence Medium, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2022_01_25;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Henry4E36/VMWare-vRealize-SSRF",
+      "https://github.com/dorkerdevil/CVE-2021-21975",
+      "https://github.com/Al1ex/CVE-2021-21975"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/linux/http/vmware_vrops_mgr_ssrf_rce"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-20023",
+    "title": "SonicWall Email Security 취약점",
+    "description": "인증된 공격자가 원격 호스트의 임의 파일을 읽을 수 있는 취약점입니다.",
+    "cvss": 4.9,
+    "epss": 0.50234,
+    "is_kev": true,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "SonicWall",
+        "product": "Email Security",
+        "versions": "10.0.9 and earlier (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3550",
+    "date": "2026-08-12T05:14:41.298017+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS SonicWall Email Security Authenticated Directory Traversal in Branding Feature (CVE-2021-20023)\"; flow:established,to_server; content:\"/dload_apps|3f|\"; http_uri; fast_pattern; depth:12; content:\"action|3d|\"; http_uri; content:\"path|3d|\"; http_raw_uri; pcre:\"/^[^\\x26]*?(?:(?:\\x2e|%2[Ee]){1,2}(?:\\x2f|\\x5c|%5[Cc]|%2[Ff]){1,}){2,}/R\"; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20023; classtype:web-application-attack; sid:2064936; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20023, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS SonicWall Email Security Authenticated Directory Traversal in Branding Feature (CVE-2021-20023)\"; flow:established,to_server; http.uri; content:\"/dload_apps|3f|\"; fast_pattern; startswith; content:\"action|3d|\"; content:\"path|3d|\"; pcre:\"/^[^\\x26]*?(?:(?:\\x2e|%2[Ee]){1,2}(?:\\x2f|\\x5c|%5[Cc]|%2[Ff]){1,}){2,}/R\"; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20023; classtype:web-application-attack; sid:2064936; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20023, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS SonicWall Email Security Authenticated Directory Traversal in Branding Feature (CVE-2021-20023)\"; flow:established,to_server; http.uri; content:\"/dload_apps|3f|\"; fast_pattern; startswith; content:\"action|3d|\"; content:\"path|3d|\"; pcre:\"/^[^\\x26]*?(?:(?:\\x2e|%2[Ee]){1,2}(?:\\x2f|\\x5c|%5[Cc]|%2[Ff]){1,}){2,}/R\"; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20023; classtype:web-application-attack; sid:2064936; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20023, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2020-0638",
+    "title": "Microsoft Windows 취약점",
+    "description": "Update Notification Manager의 파일 처리 방식 문제로 인한 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.03042,
+    "is_kev": true,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "10 Version 1709 for 32-bit Systems (단일 버전), 10 Version 1803 for 32-bit Systems (단일 버전), 10 Version 1809 for ARM64-based Systems (단일 버전), 10 Version 1803 for x64-based Systems (단일 버전), 10 Version 1709 for ARM64-based Systems (단일 버전), 10 Version 1709 for x64-based Systems (단일 버전), 10 Version 1803 for ARM64-based Systems (단일 버전), 10 Version 1809 for 32-bit Systems (단일 버전), 10 Version 1809 for x64-based Systems (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for ARM64-based Systems",
+        "versions": "unspecified (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:14:39.533179+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-1732",
+    "title": "Windows Win32k 권한 상승 취약점",
+    "description": "Windows Win32k에서 발생하는 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.77762,
+    "is_kev": true,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1803",
+        "versions": "10.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2019",
+        "versions": "10.0.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3549",
+    "date": "2026-08-12T05:14:18.04426+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/KaLendsi/CVE-2021-1732-Exploit",
+      "https://github.com/flyinbedxyz/CVE-2021-1732",
+      "https://github.com/oneoy/CVE-2021-1732-Exploit"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H/E:F/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/cve_2022_21882_win32k"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2021-20016",
+    "title": "SonicWall SMA100 취약점",
+    "description": "SSLVPN SMA100의 SQL 인젝션 취약점으로, 인증되지 않은 원격 공격자가 사용자 계정 및 세션 정보를 조회할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.36952,
+    "is_kev": true,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "SonicWall",
+        "product": "SonicWall SMA100",
+        "versions": "SMA100 build version 10.x (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3548",
+    "date": "2026-08-12T05:13:56.115093+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SMA Authentication Bypass (management) (CVE-2021-20016)\"; flow:established,to_server; content:\"/cgi-bin/management\"; http_uri; content:!\"/__api__/v1/logon\"; http_header; pcre:\"/^Referer\\x3a\\x20[^\\r\\n]+\\/__api__\\/v1\\/logon/Hmi\"; tag:session,5,packets; reference:cve,2021-20016; reference:url,www.jpcert.or.jp/english/at/2021/at210006.html; classtype:web-application-attack; sid:2033345; rev:2; metadata:created_at 2021_07_16, cve CVE_2021_20016, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SMA Authentication Bypass (management) (CVE-2021-20016)\"; flow:established,to_server; http.uri; content:\"/cgi-bin/management\"; http.referer; content:!\"/__api__/v1/logon\"; tag:session,5,packets; reference:cve,2021-20016; reference:url,www.jpcert.or.jp/english/at/2021/at210006.html; classtype:web-application-attack; sid:2033345; rev:2; metadata:created_at 2021_07_16, cve CVE_2021_20016, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SMA Authentication Bypass (management) (CVE-2021-20016)\"; flow:established,to_server; http.uri; content:\"/cgi-bin/management\"; http.referer; content:!\"/__api__/v1/logon\"; tag:session,5,packets; reference:cve,2021-20016; reference:url,www.jpcert.or.jp/english/at/2021/at210006.html; classtype:web-application-attack; sid:2033345; rev:2; metadata:created_at 2021_07_16, cve CVE_2021_20016, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors",
+      "https://github.com/r0eXpeR/supplier"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-20021",
+    "title": "SonicWall Email Security 취약점",
+    "description": "버전 10.0.9.x에서 조작된 HTTP 요청을 통해 공격자가 관리자 계정을 생성할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.83425,
+    "is_kev": true,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "SonicWall",
+        "product": "Email Security",
+        "versions": "10.0.9 and earlier (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3547",
+    "date": "2026-08-12T05:13:20.389508+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET INFO SonicWall Email Security Unauthenticated Arbitrary User Creation (CVE-2021-20021) M1\"; flow:established,to_server; content:\"/createou|3f|\"; http_uri; fast_pattern; depth:10; content:\"data|3d|\"; http_uri; content:\"GET\"; http_method; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20021; classtype:web-application-attack; sid:2064934; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20021, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET HUNTING SonicWall Email Security Unauthenticated Arbitrary User Creation (CVE-2021-20021) M1\"; flow:established,to_server; http.uri; content:\"/createou|3f|\"; fast_pattern; startswith; content:\"data|3d|\"; http.method; content:\"GET\"; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20021; classtype:web-application-attack; sid:2064934; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20021, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET HUNTING SonicWall Email Security Unauthenticated Arbitrary User Creation (CVE-2021-20021) M1\"; flow:established,to_server; http.uri; content:\"/createou|3f|\"; fast_pattern; startswith; content:\"data|3d|\"; http.method; content:\"GET\"; reference:url,cloud.google.com/blog/topics/threat-intelligence/zero-day-exploits-in-sonicwall-email-security-lead-to-compromise; reference:cve,2021-20021; classtype:web-application-attack; sid:2064934; rev:1; metadata:affected_product SonicWall, attack_target Server, tls_state TLSDecrypt, created_at 2025_09_26, cve CVE_2021_20021, deployment Perimeter, deployment Internal, deployment SSLDecrypt, confidence High, signature_severity Major, tag Exploit, updated_at 2025_09_26, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/SUPRAAA-1337/CVE-2021-20021"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2021-20022",
+    "title": "SonicWall Email Security 취약점",
+    "description": "버전 10.0.9.x에서 인증된 공격자가 원격 호스트에 임의의 파일을 업로드할 수 있는 취약점입니다.",
+    "cvss": 7.2,
+    "epss": 0.16509,
+    "is_kev": true,
+    "cwe": [
+      "CWE-434"
+    ],
+    "affected": [
+      {
+        "vendor": "SonicWall",
+        "product": "Email Security",
+        "versions": "10.0.9 and earlier (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3546",
+    "date": "2026-08-12T05:13:16.654941+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-3259",
+    "title": "Cisco ASA 및 FTD 소프트웨어 웹 서비스 정보 노출 취약점",
+    "description": "웹 서비스 인터페이스의 버퍼 추적 문제로 인해 인증되지 않은 원격 공격자가 메모리 내용을 조회하여 기밀 정보가 노출될 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.69336,
+    "is_kev": true,
+    "cwe": [
+      "CWE-200"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco Adaptive Security Appliance (ASA) Software",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3545",
+    "date": "2026-08-12T05:13:12.891735+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HOME_NET $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Cisco ASA/FTD Memory Leak Attempt (CVE-2020-3259)\"; flow:established,to_server; content:\"GET\"; http_method; urilen:>800; content:\"|2b|CSCOE|2b|/sdesktop/webstart.xml|3f|\"; fast_pattern:0,20; content:\"|25|p\"; distance:0; reference:url,github.com/GossiTheDog/Exploits/blob/main/Cisco-CVE-2020-3259.sh; reference:cve,2020-3259; classtype:attempted-admin; sid:2060671; rev:1; metadata:affected_product Cisco_ASA, attack_target Networking_Equipment, tls_state TLSDecrypt, created_at 2025_03_07, cve CVE_2020_3259, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_03_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Cisco ASA/FTD Memory Leak Attempt (CVE-2020-3259)\"; flow:established,to_server; http.method; content:\"GET\"; http.uri; bsize:>800; content:\"|2b|CSCOE|2b|/sdesktop/webstart.xml|3f|\"; fast_pattern; content:\"|25|p\"; endswith; reference:url,github.com/GossiTheDog/Exploits/blob/main/Cisco-CVE-2020-3259.sh; reference:cve,2020-3259; classtype:attempted-admin; sid:2060671; rev:1; metadata:affected_product Cisco_ASA, attack_target Networking_Equipment, tls_state TLSDecrypt, created_at 2025_03_07, cve CVE_2020_3259, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_03_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HOME_NET any (msg:\"ET WEB_SPECIFIC_APPS Cisco ASA/FTD Memory Leak Attempt (CVE-2020-3259)\"; flow:established,to_server; http.method; content:\"GET\"; http.uri; bsize:>800; content:\"|2b|CSCOE|2b|/sdesktop/webstart.xml|3f|\"; fast_pattern; content:\"|25|p\"; endswith; reference:url,github.com/GossiTheDog/Exploits/blob/main/Cisco-CVE-2020-3259.sh; reference:cve,2020-3259; classtype:attempted-admin; sid:2060671; rev:1; metadata:affected_product Cisco_ASA, attack_target Networking_Equipment, tls_state TLSDecrypt, created_at 2025_03_07, cve CVE_2020_3259, deployment Perimeter, deployment Internal, performance_impact Low, confidence High, signature_severity Major, tag Exploit, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2025_03_07, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ChalkingCode/ExploitedDucks",
+      "https://github.com/fkie-cad/nvd-json-data-feeds",
+      "https://github.com/n0-traces/cve_monitor"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-3433",
+    "title": "Windows용 Cisco AnyConnect Secure Mobility Client DLL 하이재킹 취약점",
+    "description": "IPC 채널의 리소스 검증 부족으로 인해 인증된 로컬 공격자가 DLL 하이재킹 공격을 수행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.10049,
+    "is_kev": true,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco AnyConnect Secure Mobility Client",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3544",
+    "date": "2026-08-12T05:12:31.620941+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/goichot/CVE-2020-3433"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/anyconnect_lpe"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-3992",
+    "title": "VMware ESXi 취약점",
+    "description": "OpenSLP 서비스의 use-after-free 문제로 인해 관리 네트워크의 공격자가 원격 코드 실행(RCE)을 수행할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.83015,
+    "is_kev": true,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "VMware ESXi",
+        "versions": "VMware ESXi (7.0 before ESXi_7.0.1-0.0.16850804, 6.7 before ESXi670-202010401-SG, 6.5 before ESXi650-202010401-SG) (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3543",
+    "date": "2026-08-12T05:12:15.729573+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/HynekPetrak/CVE-2019-5544_CVE-2020-3992",
+      "https://github.com/dgh05t/VMware_ESXI_OpenSLP_PoCs"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2020-0787",
+    "title": "Microsoft Windows 취약점",
+    "description": "Windows BITS가 심볼릭 링크를 부적절하게 처리하여 발생하는 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.42524,
+    "is_kev": true,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "10 Version 1803 for 32-bit Systems (단일 버전), 10 Version 1803 for x64-based Systems (단일 버전), 10 Version 1803 for ARM64-based Systems (단일 버전), 10 Version 1809 for 32-bit Systems (단일 버전), 10 Version 1809 for x64-based Systems (단일 버전), 10 Version 1809 for ARM64-based Systems (단일 버전), 10 Version 1709 for 32-bit Systems (단일 버전), 10 Version 1709 for x64-based Systems (단일 버전), 10 Version 1709 for ARM64-based Systems (단일 버전), 10 for 32-bit Systems (단일 버전), 10 for x64-based Systems (단일 버전), 10 Version 1607 for 32-bit Systems (단일 버전), 10 Version 1607 for x64-based Systems (단일 버전), 7 for 32-bit Systems Service Pack 1 (단일 버전), 7 for x64-based Systems Service Pack 1 (단일 버전), 8.1 for 32-bit systems (단일 버전), 8.1 for x64-based systems (단일 버전), RT 8.1 (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server",
+        "versions": "version 1803  (Core Installation) (단일 버전), 2019 (단일 버전), 2019  (Core installation) (단일 버전), 2016 (단일 버전), 2016  (Core installation) (단일 버전), 2008 for 32-bit Systems Service Pack 2 (단일 버전), 2008 for 32-bit Systems Service Pack 2 (Core installation) (단일 버전), 2008 for Itanium-Based Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (Core installation) (단일 버전), 2008 R2 for Itanium-Based Systems Service Pack 1 (단일 버전), 2008 R2 for x64-based Systems Service Pack 1 (단일 버전), 2008 R2 for x64-based Systems Service Pack 1 (Core installation) (단일 버전), 2012 (단일 버전), 2012 (Core installation) (단일 버전), 2012 R2 (단일 버전), 2012 R2 (Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1909 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3542",
+    "date": "2026-08-12T05:12:00.248517+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/cbwang505/CVE-2020-0787-EXP-ALL-WINDOWS-VERSION",
+      "https://github.com/MasterSploit/CVE-2020-0787",
+      "https://github.com/MasterSploit/CVE-2020-0787-BitsArbitraryFileMove-master"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/cve_2020_0787_bits_arbitrary_file_move"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2020-0796",
+    "title": "Microsoft Windows 10 버전 1903(32비트 시스템) 취약점",
+    "description": "SMBv3 프로토콜의 특정 요청 처리 방식에서 발생하는 원격 코드 실행(RCE) 취약점입니다.",
+    "cvss": 10,
+    "epss": 0.9981,
+    "is_kev": true,
+    "cwe": [
+      "CWE-119"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for x64-based Systems",
+        "versions": "unspecified (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for ARM64-based Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3541",
+    "date": "2026-08-12T05:11:53.788529+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/k8gege/PyLadon",
+      "https://github.com/0x25bit/CVE-2020-0796-PoC",
+      "https://github.com/technion/DisableSMBCompression"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/cve_2020_0796_smbghost",
+      "exploit/windows/smb/cve_2020_0796_smbghost"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2020-12812",
+    "title": "Fortinet FortiOS 취약점",
+    "description": "SSL VPN의 부적절한 인증 처리로 인해 사용자 이름의 대소문자를 변경하여 2차 인증(FortiToken)을 우회할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.49344,
+    "is_kev": true,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "Fortinet FortiOS",
+        "versions": "FortiOS 6.4.0, 6.2.0 to 6.2.3, 6.0.9 and below (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3540",
+    "date": "2026-08-12T05:11:45.939552+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cvemon",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2020-3153",
+    "title": "Cisco AnyConnect Secure Mobility Client for Windows 제어되지 않은 검색 경로 취약점",
+    "description": "설치 프로그램의 디렉토리 경로 처리 오류로 인해 인증된 로컬 공격자가 시스템 디렉토리에 파일을 복사할 수 있는 취약점입니다.",
+    "cvss": 6.5,
+    "epss": 0.27451,
+    "is_kev": true,
+    "cwe": [
+      "CWE-427"
+    ],
+    "affected": [
+      {
+        "vendor": "Cisco",
+        "product": "Cisco AnyConnect Secure Mobility Client",
+        "versions": "unspecified 부터 n/a 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3539",
+    "date": "2026-08-12T05:11:31.796858+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> any 62522 (msg:\"ET EXPLOIT Cisco AnyConnect Path Traversal Priv Esc (CVE-2020-3153)\"; flow:established,to_server; content:\"OCSC\"; depth:4; content:\"vpndownloader.exe\"; distance:0; content:\"|5c 2e 2e 2f|dbghelp.dll\"; fast_pattern; distance:0; reference:url,ssd-disclosure.com/ssd-advisory-cisco-anyconnect-privilege-elevation-through-path-traversal; reference:url,gist.github.com/ykoster/aeaa893d68adbc5004aa873b3290acd1; reference:cve,2020-3153; classtype:attempted-admin; sid:2030280; rev:1; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, created_at 2020_06_10, cve CVE_2020_3153, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_06_10, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp any any -> any 62522 (msg:\"ET EXPLOIT Cisco AnyConnect Path Traversal Priv Esc (CVE-2020-3153)\"; flow:established,to_server; content:\"OCSC\"; depth:4; content:\"vpndownloader.exe\"; distance:0; content:\"|5c 2e 2e 2f|dbghelp.dll\"; fast_pattern; distance:0; reference:url,ssd-disclosure.com/ssd-advisory-cisco-anyconnect-privilege-elevation-through-path-traversal; reference:url,gist.github.com/ykoster/aeaa893d68adbc5004aa873b3290acd1; reference:cve,2020-3153; classtype:attempted-admin; sid:2030280; rev:1; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, created_at 2020_06_10, cve CVE_2020_3153, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_06_10, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp any any -> any 62522 (msg:\"ET EXPLOIT Cisco AnyConnect Path Traversal Priv Esc (CVE-2020-3153)\"; flow:established,to_server; content:\"OCSC\"; depth:4; content:\"vpndownloader.exe\"; distance:0; content:\"|5c 2e 2e 2f|dbghelp.dll\"; fast_pattern; distance:0; reference:url,ssd-disclosure.com/ssd-advisory-cisco-anyconnect-privilege-elevation-through-path-traversal; reference:url,gist.github.com/ykoster/aeaa893d68adbc5004aa873b3290acd1; reference:cve,2020-3153; classtype:attempted-admin; sid:2030280; rev:1; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, created_at 2020_06_10, cve CVE_2020_3153, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_06_10, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/shubham0d/CVE-2020-3153",
+      "https://github.com/raspberry-pie/CVE-2020-3153",
+      "https://github.com/goichot/CVE-2020-3153"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:C/C:N/I:H/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/anyconnect_lpe"
+    ],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2019-2725",
+    "title": "Oracle Corporation Tape Library ACSLS 취약점",
+    "description": "Oracle WebLogic Server의 Web Services 컴포넌트 취약점으로, 인증되지 않은 공격자가 HTTP를 통해 서버를 완전히 장악할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.99964,
+    "is_kev": true,
+    "cwe": [
+      "CWE-74"
+    ],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "Tape Library ACSLS",
+        "versions": "8.5 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3538",
+    "date": "2026-08-12T05:11:17.099045+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET CURRENT_EVENTS Possible Encoded Wide PowerShell (IEX) in Certificate Inbound\"; flow:established,from_server; content:\"200\"; http_stat_code; file_data; content:\"-----BEGIN|20|CERTIFICATE-----|0d 0a|YVFCb\"; depth:40; fast_pattern:10,20; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/cve-2019-2725-exploited-and-certificate-files-used-for-obfuscation-to-deliver-monero-miner/; classtype:trojan-activity; sid:2027462; rev:2; metadata:created_at 2019_06_12, cve CVE_2019_2725, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, updated_at 2019_06_12;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET MALWARE Possible Encoded Wide PowerShell (IEX) in Certificate Inbound\"; flow:established,from_server; http.stat_code; content:\"200\"; file.data; content:\"-----BEGIN|20|CERTIFICATE-----|0d 0a|YVFCb\"; depth:40; fast_pattern; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/cve-2019-2725-exploited-and-certificate-files-used-for-obfuscation-to-deliver-monero-miner/; classtype:trojan-activity; sid:2027462; rev:2; metadata:created_at 2019_06_12, cve CVE_2019_2725, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, updated_at 2020_08_31;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET MALWARE Possible Encoded Wide PowerShell (IEX) in Certificate Inbound\"; flow:established,from_server; http.stat_code; content:\"200\"; file.data; content:\"-----BEGIN|20|CERTIFICATE-----|0d 0a|YVFCb\"; depth:40; fast_pattern; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/cve-2019-2725-exploited-and-certificate-files-used-for-obfuscation-to-deliver-monero-miner/; classtype:trojan-activity; sid:2027462; rev:2; metadata:created_at 2019_06_12, cve CVE_2019_2725, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, updated_at 2020_08_31;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/shack2/javaserializetools",
+      "https://github.com/SkyBlueEternal/CNVD-C-2019-48814-CNNVD-201904-961",
+      "https://github.com/lasensio/cve-2019-2725"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/multi/misc/weblogic_deserialize_asyncresponseservice"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-7481",
+    "title": "SonicWall SMA100 취약점",
+    "description": "SonicWall SMA100 버전 9.0.0.3 이하에서 인증되지 않은 사용자가 권한 없는 리소스에 읽기 전용으로 접근할 수 있는 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0.99906,
+    "is_kev": true,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "SonicWall",
+        "product": "SMA100",
+        "versions": "9.0.0.3 and earlier (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3537",
+    "date": "2026-08-12T05:11:13.859728+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SRA SQLi (CVE-2019-7481)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/cgi-bin/supportInstaller\"; http_uri; pcre:\"/\\/cgi-bin\\/supportInstaller$/U\"; content:\"fromEmailInvite\"; http_client_body; content:\"customerTID\"; http_client_body; tag:session,5,packets; reference:url,www.crowdstrike.com/blog/how-ecrime-groups-leverage-sonicwall-vulnerability-cve-2019-7481/; reference:cve,2019-7481; classtype:web-application-attack; sid:2033348; rev:2; metadata:attack_target Networking_Equipment, created_at 2021_07_16, cve CVE_2019_7481, deployment Perimeter, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SRA SQLi (CVE-2019-7481)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/cgi-bin/supportInstaller\"; endswith; http.request_body; content:\"fromEmailInvite\"; content:\"customerTID\"; tag:session,5,packets; reference:url,www.crowdstrike.com/blog/how-ecrime-groups-leverage-sonicwall-vulnerability-cve-2019-7481/; reference:cve,2019-7481; classtype:web-application-attack; sid:2033348; rev:1; metadata:attack_target Networking_Equipment, created_at 2021_07_16, cve CVE_2019_7481, deployment Perimeter, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT [ConnectWise CRU] Potential Sonicwall SRA SQLi (CVE-2019-7481)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/cgi-bin/supportInstaller\"; endswith; http.request_body; content:\"fromEmailInvite\"; content:\"customerTID\"; tag:session,5,packets; reference:url,www.crowdstrike.com/blog/how-ecrime-groups-leverage-sonicwall-vulnerability-cve-2019-7481/; reference:cve,2019-7481; classtype:web-application-attack; sid:2033348; rev:1; metadata:attack_target Networking_Equipment, created_at 2021_07_16, cve CVE_2019_7481, deployment Perimeter, deployment SSLDecrypt, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_07_16;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/20142995/nuclei-templates",
+      "https://github.com/ARPSyndicate/kenzer-templates",
+      "https://github.com/Ostorlab/KEV"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-1458",
+    "title": "Microsoft Windows 취약점",
+    "description": "Win32k 구성 요소의 메모리 객체 처리 미흡으로 인한 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.73856,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "10 for 32-bit Systems (단일 버전), 10 for x64-based Systems (단일 버전), 10 Version 1607 for 32-bit Systems (단일 버전), 10 Version 1607 for x64-based Systems (단일 버전), 7 for 32-bit Systems Service Pack 1 (단일 버전), 7 for x64-based Systems Service Pack 1 (단일 버전), 8.1 for 32-bit systems (단일 버전), 8.1 for x64-based systems (단일 버전), RT 8.1 (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server",
+        "versions": "2016 (단일 버전), 2016  (Core installation) (단일 버전), 2008 for 32-bit Systems Service Pack 2 (단일 버전), 2008 for 32-bit Systems Service Pack 2 (Core installation) (단일 버전), 2008 for Itanium-Based Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (Core installation) (단일 버전), 2008 R2 for Itanium-Based Systems Service Pack 1 (단일 버전), 2008 R2 for x64-based Systems Service Pack 1 (단일 버전), 2008 R2 for x64-based Systems Service Pack 1 (Core installation) (단일 버전), 2012 (단일 버전), 2012 (Core installation) (단일 버전), 2012 R2 (단일 버전), 2012 R2 (Core installation) (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:10:56.741785+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/piotrflorczyk/cve-2019-1458_POC",
+      "https://github.com/rip1s/CVE-2019-1458",
+      "https://github.com/Eternit7/CVE-2019-1458"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/cve_2019_1458_wizardopium"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-1130",
+    "title": "Microsoft Windows Server 취약점",
+    "description": "Windows AppX Deployment Service(AppXSVC)의 하드 링크 처리 미흡으로 인한 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.02284,
+    "is_kev": true,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server",
+        "versions": "2012 (단일 버전), 2012 (Core installation) (단일 버전), 2012 R2 (단일 버전), 2012 R2 (Core installation) (단일 버전), 2016 (단일 버전), 2016  (Core installation) (단일 버전), version 1803  (Core Installation) (단일 버전), 2019 (단일 버전), 2019  (Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "8.1 for x64-based systems (단일 버전), RT 8.1 (단일 버전), 10 for 32-bit Systems (단일 버전), 10 for x64-based Systems (단일 버전), 10 Version 1607 for 32-bit Systems (단일 버전), 10 Version 1607 for x64-based Systems (단일 버전), 10 Version 1703 for 32-bit Systems (단일 버전), 10 Version 1703 for x64-based Systems (단일 버전), 10 Version 1709 for 32-bit Systems (단일 버전), 10 Version 1709 for x64-based Systems (단일 버전), 10 Version 1803 for 32-bit Systems (단일 버전), 10 Version 1803 for x64-based Systems (단일 버전), 10 Version 1803 for ARM64-based Systems (단일 버전), 10 Version 1809 for 32-bit Systems (단일 버전), 10 Version 1809 for x64-based Systems (단일 버전), 10 Version 1809 for ARM64-based Systems (단일 버전), 10 Version 1709 for ARM64-based Systems (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3536",
+    "date": "2026-08-12T05:10:48.624114+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/ARPSyndicate/cvemon",
+      "https://github.com/BC-SECURITY/Moriarty"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-1579",
+    "title": "Palo Alto Networks GlobalProtect Portal/Gateway Interface 취약점",
+    "description": "PAN-OS 특정 버전의 GlobalProtect 인터페이스에서 인증되지 않은 원격 공격자가 임의 코드를 실행할 수 있는 Remote Code Execution 취약점입니다.",
+    "cvss": 8.1,
+    "epss": 0.45961,
+    "is_kev": true,
+    "cwe": [
+      "CWE-134"
+    ],
+    "affected": [
+      {
+        "vendor": "paloaltonetworks",
+        "product": "pan-os",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3535",
+    "date": "2026-08-12T05:10:36.644996+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET any -> any $HTTP_PORTS (msg:\"ET EXPLOIT Possible Palo Alto SSL VPN sslmgr Format String Vulnerability (Inbound) (CVE-2019-1579)\"; flow:to_server,established; content:\"POST\"; http_method; content:\"/sslmgr\"; nocase; http_uri; pcre:\"/\\/sslmgr$/Ui\"; content:\"scep-profile-name=%\"; depth:19; http_client_body; fast_pattern; pcre:\"/^scep-profile-name=%[0-9]+/P\"; reference:url,blog.orange.tw/2019/07/attacking-ssl-vpn-part-1-preauth-rce-on-palo-alto.html; classtype:attempted-admin; sid:2027723; rev:3; metadata:attack_target Server, created_at 2019_07_18, cve CVE_2019_1579, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_11_11;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> any any (msg:\"ET EXPLOIT Possible Palo Alto SSL VPN sslmgr Format String Vulnerability (Inbound) (CVE-2019-1579)\"; flow:to_server,established; http.method; content:\"POST\"; http.uri; content:\"/sslmgr\"; endswith; nocase; http.request_body; content:\"scep-profile-name=%\"; depth:19; fast_pattern; pcre:\"/^[0-9]+/R\"; reference:url,blog.orange.tw/2019/07/attacking-ssl-vpn-part-1-preauth-rce-on-palo-alto.html; classtype:attempted-admin; sid:2027723; rev:4; metadata:attack_target Server, created_at 2019_07_18, cve CVE_2019_1579, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_09_17;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> any any (msg:\"ET EXPLOIT Possible Palo Alto SSL VPN sslmgr Format String Vulnerability (Inbound) (CVE-2019-1579)\"; flow:to_server,established; http.method; content:\"POST\"; http.uri; content:\"/sslmgr\"; endswith; nocase; http.request_body; content:\"scep-profile-name=%\"; depth:19; fast_pattern; pcre:\"/^[0-9]+/R\"; reference:url,blog.orange.tw/2019/07/attacking-ssl-vpn-part-1-preauth-rce-on-palo-alto.html; classtype:attempted-admin; sid:2027723; rev:4; metadata:attack_target Server, created_at 2019_07_18, cve CVE_2019_1579, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_09_17;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/securifera/CVE-2019-1579",
+      "https://github.com/Elsfa7-110/CVE-2019-1579"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-1405",
+    "title": "Microsoft Windows 취약점",
+    "description": "Windows UPnP 서비스의 COM 객체 생성 처리 미흡으로 인한 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.2995,
+    "is_kev": true,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "7 for 32-bit Systems Service Pack 1 (단일 버전), 7 for x64-based Systems Service Pack 1 (단일 버전), 8.1 for 32-bit systems (단일 버전), 8.1 for x64-based systems (단일 버전), RT 8.1 (단일 버전), 10 for 32-bit Systems (단일 버전), 10 for x64-based Systems (단일 버전), 10 Version 1607 for 32-bit Systems (단일 버전), 10 Version 1607 for x64-based Systems (단일 버전), 10 Version 1709 for 32-bit Systems (단일 버전), 10 Version 1709 for x64-based Systems (단일 버전), 10 Version 1803 for 32-bit Systems (단일 버전), 10 Version 1803 for x64-based Systems (단일 버전), 10 Version 1803 for ARM64-based Systems (단일 버전), 10 Version 1809 for 32-bit Systems (단일 버전), 10 Version 1809 for x64-based Systems (단일 버전), 10 Version 1809 for ARM64-based Systems (단일 버전), 10 Version 1709 for ARM64-based Systems (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server",
+        "versions": "2008 R2 for x64-based Systems Service Pack 1 (Core installation) (단일 버전), 2008 R2 for Itanium-Based Systems Service Pack 1 (단일 버전), 2008 R2 for x64-based Systems Service Pack 1 (단일 버전), 2008 for 32-bit Systems Service Pack 2 (Core installation) (단일 버전), 2012 (단일 버전), 2012 (Core installation) (단일 버전), 2012 R2 (단일 버전), 2012 R2 (Core installation) (단일 버전), 2016 (단일 버전), 2016  (Core installation) (단일 버전), version 1803  (Core Installation) (단일 버전), 2019 (단일 버전), 2019  (Core installation) (단일 버전), 2008 for Itanium-Based Systems Service Pack 2 (단일 버전), 2008 for 32-bit Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (단일 버전), 2008 for x64-based Systems Service Pack 2 (Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3534",
+    "date": "2026-08-12T05:10:03.058916+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/apt69/COMahawk"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/comahawk"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-19781",
+    "title": "Citrix ADC 및 Gateway 취약점",
+    "description": "Citrix ADC 및 Gateway의 특정 버전에서 디렉토리 트래버설(Directory Traversal)이 가능합니다.",
+    "cvss": 9.8,
+    "epss": 0.99999,
+    "is_kev": true,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "citrix",
+        "product": "application delivery controller firmware",
+        "versions": "10.5"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3533",
+    "date": "2026-08-12T05:09:32.098896+00:00",
+    "rule_engines": [
+      "sigma",
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": {
+        "code": "title: Citrix Netscaler Attack CVE-2019-19781\nid: ac5a6409-8c89-44c2-8d64-668c29a2d756\nstatus: test\ndescription: Detects CVE-2019-19781 exploitation attempt against Citrix Netscaler, Application Delivery Controller and Citrix Gateway Attack\nreferences:\n    - https://support.citrix.com/article/CTX267679\n    - https://support.citrix.com/article/CTX267027\n    - https://isc.sans.edu/diary/25686\n    - https://twitter.com/mpgn_x64/status/1216787131210829826\n    - https://github.com/x1sec/CVE-2019-19781/blob/25f7ab97275b2d41800bb3414dac8ca3a78af7e5/CVE-2019-19781-DFIR.md\nauthor: Arnim Rupp, Florian Roth\ndate: 2020-01-02\nmodified: 2023-01-02\ntags:\n    - attack.initial-access\n    - attack.t1190\n    - cve.2019-19781\n    - detection.emerging-threats\nlogsource:\n    category: webserver\n    definition: 'Make sure that your Netscaler appliance logs all kinds of attacks (test with http://your-citrix-gw.net/robots.txt). The directory traversal with ../ might not be needed on certain cloud instances or for authenticated users, so we also check for direct paths. All scripts in portal/scripts are exploitable except logout.pl.'\ndetection:\n    selection_cs:\n        - cs-uri-query|contains: '/../vpns/'\n        - cs-uri-query|endswith: '/vpns/cfg/smb.conf'\n    selection_csall:\n        cs-uri-query|contains|all:\n            - '/vpns/portal/scripts/'\n            - '.pl'\n    condition: 1 of selection_*\nfalsepositives:\n    - Unknown\nlevel: critical\n",
+        "trust": "official-verified",
+        "source": "Public (SigmaHQ)",
+        "license": "DRL 1.1 — 재게시 시 author 표기 보존 의무",
+        "verified": true,
+        "indicators": null
+      },
+      "network": [
+        {
+          "code": "alert tcp any any -> $HTTP_SERVERS $HTTP_PORTS (msg:\"ET EXPLOIT Possible Citrix Application Delivery Controller Arbitrary Code Execution Attempt (CVE-2019-19781) M2\"; flow:established,to_server; content:\"/vpns/\"; http_uri; fast_pattern; content:\"|0d 0a|NSC_USER|3a 20|\"; http_header; nocase; content:\"|0d 0a|NSC_NONCE|3a 20|\"; http_header; nocase; content:\"/../\"; http_header; reference:url,support.citrix.com/article/CTX267679; reference:cve,2019-19781; classtype:attempted-admin; sid:2029255; rev:3; metadata:affected_product Web_Server_Applications, attack_target Server, created_at 2020_01_13, cve CVE_2019_19781, deployment Perimeter, confidence Medium, signature_severity Critical, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_03_25;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HTTP_SERVERS any (msg:\"ET EXPLOIT Possible Citrix Application Delivery Controller Arbitrary Code Execution Attempt (CVE-2019-19781) M2\"; flow:established,to_server; http.uri; content:\"/vpns/\"; fast_pattern; http.header; content:\"|0d 0a|NSC_USER|3a 20|\"; nocase; content:\"|0d 0a|NSC_NONCE|3a 20|\"; nocase; content:\"/../\"; reference:url,support.citrix.com/article/CTX267679; reference:cve,2019-19781; classtype:attempted-admin; sid:2029255; rev:3; metadata:affected_product Web_Server_Applications, attack_target Server, created_at 2020_01_13, cve CVE_2019_19781, deployment Perimeter, confidence Medium, signature_severity Critical, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_11_10;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HTTP_SERVERS any (msg:\"ET EXPLOIT Possible Citrix Application Delivery Controller Arbitrary Code Execution Attempt (CVE-2019-19781) M2\"; flow:established,to_server; http.uri; content:\"/vpns/\"; fast_pattern; http.header; content:\"|0d 0a|NSC_USER|3a 20|\"; nocase; content:\"|0d 0a|NSC_NONCE|3a 20|\"; nocase; content:\"/../\"; reference:url,support.citrix.com/article/CTX267679; reference:cve,2019-19781; classtype:attempted-admin; sid:2029255; rev:3; metadata:affected_product Web_Server_Applications, attack_target Server, created_at 2020_01_13, cve CVE_2019_19781, deployment Perimeter, confidence Medium, signature_severity Critical, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2020_11_10;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/projectzeroindia/CVE-2019-19781",
+      "https://github.com/trustedsec/cve-2019-19781",
+      "https://github.com/cisagov/check-cve-2019-19781"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/freebsd/http/citrix_dir_traversal_rce",
+      "auxiliary/scanner/http/citrix_dir_traversal"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-1385",
+    "title": "Microsoft Windows 취약점",
+    "description": "Windows AppX Deployment Extensions의 권한 관리 미흡으로 인해 발생하는 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.03625,
+    "is_kev": true,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows",
+        "versions": "10 Version 1709 for 32-bit Systems (단일 버전), 10 Version 1709 for x64-based Systems (단일 버전), 10 Version 1803 for 32-bit Systems (단일 버전), 10 Version 1803 for x64-based Systems (단일 버전), 10 Version 1803 for ARM64-based Systems (단일 버전), 10 Version 1809 for 32-bit Systems (단일 버전), 10 Version 1809 for x64-based Systems (단일 버전), 10 Version 1809 for ARM64-based Systems (단일 버전), 10 Version 1709 for ARM64-based Systems (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server",
+        "versions": "version 1803  (Core Installation) (단일 버전), 2019 (단일 버전), 2019  (Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1903 for 32-bit Systems",
+        "versions": "unspecified (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3532",
+    "date": "2026-08-12T05:09:10.199215+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/0x413x4/CVE-2019-1385",
+      "https://github.com/0xT11/CVE-POC",
+      "https://github.com/ARPSyndicate/cvemon"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-0752",
+    "title": "Microsoft Internet Explorer 11 취약점",
+    "description": "스크립팅 엔진의 메모리 객체 처리 방식에서 발생하는 원격 코드 실행(RCE) 취약점입니다.",
+    "cvss": 7.5,
+    "epss": 0.81551,
+    "is_kev": true,
+    "cwe": [
+      "CWE-843"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Internet Explorer 11",
+        "versions": "Windows 7 for 32-bit Systems Service Pack 1 (단일 버전), Windows 7 for x64-based Systems Service Pack 1 (단일 버전), Windows Server 2008 R2 for x64-based Systems Service Pack 1 (단일 버전), Windows 8.1 for 32-bit systems (단일 버전), Windows 8.1 for x64-based systems (단일 버전), Windows Server 2012 R2 (단일 버전), Windows RT 8.1 (단일 버전), Windows 10 for 32-bit Systems (단일 버전), Windows 10 for x64-based Systems (단일 버전), Windows Server 2016 (단일 버전), Windows 10 Version 1607 for 32-bit Systems (단일 버전), Windows 10 Version 1607 for x64-based Systems (단일 버전), Windows 10 Version 1703 for 32-bit Systems (단일 버전), Windows 10 Version 1703 for x64-based Systems (단일 버전), Windows 10 Version 1709 for 32-bit Systems (단일 버전), Windows 10 Version 1709 for x64-based Systems (단일 버전), Windows 10 Version 1803 for 32-bit Systems (단일 버전), Windows 10 Version 1803 for x64-based Systems (단일 버전), Windows 10 Version 1803 for ARM64-based Systems (단일 버전), Windows 10 Version 1809 for 32-bit Systems (단일 버전), Windows 10 Version 1809 for x64-based Systems (단일 버전), Windows 10 Version 1809 for ARM64-based Systems (단일 버전), Windows Server 2019 (단일 버전), Windows 10 Version 1709 for ARM64-based Systems (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Internet Explorer 10",
+        "versions": "Windows Server 2012 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3531",
+    "date": "2026-08-12T05:08:24.759543+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT IE Scripting Engine Memory Corruption Vulnerability M1 (CVE-2019-0752)\"; flow:established,from_server; content:\"200\"; http_stat_code; content:\"Content-Type|3a 20|text/html\"; http_header; file_data; content:\"<script language=|22|\"; content:\"VBScript\"; within:8; nocase; content:\"|2e|scrollLeft\"; distance:0; content:\"|26|h4003|09 27 20|VT_BYREF|20 7c 20|VT_I4\"; distance:0; fast_pattern; content:\"|28 28 28 28 5c 2e 2e 5c|\"; distance:0; content:\"Powershell\"; within:10; nocase; content:\"|26|h40|2c 20 22 23 3e 24|\"; distance:0; within:400; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/slub-gets-rid-of-github-intensifies-slack-use; reference:url,www.zerodayinitiative.com/blog/2019/5/21/rce-without-native-code-exploitation-of-a-write-what-where-in-internet-explorer; reference:cve,CVE-2019-0752; classtype:attempted-admin; sid:2027721; rev:2; metadata:affected_product Internet_Explorer, attack_target Client_Endpoint, created_at 2019_07_17, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2019_07_17;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT IE Scripting Engine Memory Corruption Vulnerability M1 (CVE-2019-0752)\"; flow:established,from_server; http.stat_code; content:\"200\"; http.content_type; content:\"text/html\"; startswith; file.data; content:\"<script language=|22|\"; content:\"VBScript\"; within:8; nocase; content:\"|2e|scrollLeft\"; distance:0; content:\"|26|h4003|09 27 20|VT_BYREF|20 7c 20|VT_I4\"; distance:0; fast_pattern; content:\"|28 28 28 28 5c 2e 2e 5c|\"; distance:0; content:\"Powershell\"; within:10; nocase; content:\"|26|h40|2c 20 22 23 3e 24|\"; within:400; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/slub-gets-rid-of-github-intensifies-slack-use; reference:url,www.zerodayinitiative.com/blog/2019/5/21/rce-without-native-code-exploitation-of-a-write-what-where-in-internet-explorer; reference:cve,CVE-2019-0752; classtype:attempted-admin; sid:2027721; rev:3; metadata:affected_product Internet_Explorer, attack_target Client_Endpoint, created_at 2019_07_17, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2020_11_18;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT IE Scripting Engine Memory Corruption Vulnerability M1 (CVE-2019-0752)\"; flow:established,from_server; http.stat_code; content:\"200\"; http.content_type; content:\"text/html\"; startswith; file.data; content:\"<script language=|22|\"; content:\"VBScript\"; within:8; nocase; content:\"|2e|scrollLeft\"; distance:0; content:\"|26|h4003|09 27 20|VT_BYREF|20 7c 20|VT_I4\"; distance:0; fast_pattern; content:\"|28 28 28 28 5c 2e 2e 5c|\"; distance:0; content:\"Powershell\"; within:10; nocase; content:\"|26|h40|2c 20 22 23 3e 24|\"; within:400; reference:url,blog.trendmicro.com/trendlabs-security-intelligence/slub-gets-rid-of-github-intensifies-slack-use; reference:url,www.zerodayinitiative.com/blog/2019/5/21/rce-without-native-code-exploitation-of-a-write-what-where-in-internet-explorer; reference:cve,CVE-2019-0752; classtype:attempted-admin; sid:2027721; rev:3; metadata:affected_product Internet_Explorer, attack_target Client_Endpoint, created_at 2019_07_17, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2020_11_18;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/edxsh/CVE-2019-0752"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2019-11634",
+    "title": "Citrix Workspace App Windows 버전 액세스 제어 미흡",
+    "description": "Windows용 Citrix Workspace App 1904 이전 버전에서 잘못된 액세스 제어 문제가 발생합니다.",
+    "cvss": 9.8,
+    "epss": 0.08026,
+    "is_kev": true,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "citrix",
+        "product": "receiver",
+        "versions": "4.9"
+      },
+      {
+        "vendor": "citrix",
+        "product": "workspace",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3530",
+    "date": "2026-08-12T05:08:19.869093+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors",
+      "https://github.com/r0eXpeR/supplier"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2019-1069",
+    "title": "작업 스케줄러 권한 상승 취약점",
+    "description": "작업 스케줄러 서비스의 파일 작업 검증 미흡으로 인해 발생하는 권한 상승 취약점입니다.",
+    "cvss": 7.8,
+    "epss": 0.06117,
+    "is_kev": true,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1703",
+        "versions": "10.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1803",
+        "versions": "10.0.0 부터 publication 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server, version 1803  (Server Core Installation)",
+        "versions": "10.0.0 부터 publication 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3529",
+    "date": "2026-08-12T05:07:49.980976+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/S3cur3Th1sSh1t/SharpPolarBear"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H/E:P/RL:O/RC:C",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-4740",
+    "title": "Rhacm: Open Cluster Management (OCM): 부적절한 Kubernetes 클라이언트 인증서 갱신 검증을 통한 교차 클러스터 권한 상승",
+    "description": "Kubernetes 클라이언트 인증서 갱신 검증 미흡으로 관리 클러스터 관리자가 위조 인증서를 생성하여 다른 클러스터의 권한을 획득할 수 있습니다.",
+    "cvss": 8.2,
+    "epss": 0.00112,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "Red Hat",
+        "product": "Multicluster Engine for Kubernetes",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T05:06:15.424512+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-47643",
+    "title": "Azure Stack Edge 원격 코드 실행 취약점",
+    "description": "Azure Stack Edge의 파일 이름 또는 경로에 대한 외부 제어 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.00753,
+    "is_kev": false,
+    "cwe": [
+      "CWE-73"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure Stack Edge",
+        "versions": "2.2.0 부터 3.3.2604.3097 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2330",
+    "date": "2026-07-28T23:35:54.174028+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-44815",
+    "title": "DHCP 클라이언트 서비스 원격 코드 실행 취약점",
+    "description": "Windows DHCP 클라이언트의 스택 기반 버퍼 오버플로우(Stack-based buffer overflow)를 통해 권한 없는 공격자가 네트워크상에서 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.011,
+    "is_kev": false,
+    "cwe": [
+      "CWE-121"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2324",
+    "date": "2026-07-28T23:33:25.691308+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-26142",
+    "title": "Nuance PowerScribe 원격 코드 실행 취약점",
+    "description": "Nuance PowerScribe의 신뢰할 수 없는 데이터 역직렬화(Deserialization)를 통해 권한 없는 공격자가 네트워크상에서 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.01914,
+    "is_kev": false,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Nuance PowerScribe 360 4.0",
+        "versions": "4.0 부터 7.0.11.49 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Nuance PowerScribe 360 version 4.0.1",
+        "versions": "4.0.1 부터 7.0.111.68 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Nuance PowerScribe 360 version 4.0.2",
+        "versions": "4.0.2 부터 7.0.154.18 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2323",
+    "date": "2026-07-28T23:33:25.608027+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-45657",
+    "title": "Windows 커널 원격 코드 실행 취약점",
+    "description": "Windows 커널의 Use After Free 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.15478,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416",
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 version 23H2",
+        "versions": "10.0.22631.0 부터 10.0.22631.7219 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 23H2",
+        "versions": "10.0.22631.0 부터 10.0.22631.7219 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 11 Version 24H2",
+        "versions": "10.0.26100.0 부터 10.0.26100.8655 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2329",
+    "date": "2026-07-28T23:35:37.597104+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-47291",
+    "title": "HTTP.sys 원격 코드 실행 취약점",
+    "description": "Windows HTTP.sys의 Integer Overflow 또는 Wraparound 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.2275,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190",
+      "CWE-122"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1607",
+        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 1809",
+        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 10 Version 21H2",
+        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2337",
+    "date": "2026-07-28T23:37:46.592218+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-54051",
+    "title": "Network-AI의 OS 커맨드 인젝션 취약점",
+    "description": "셸 커맨드 허용 리스트의 글로브 매칭 방식과 /bin/sh -c 실행 과정의 허점으로 인해 OS 커맨드 인젝션이 가능합니다.",
+    "cvss": 9.9,
+    "epss": 0.0037,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "Jovancoding",
+        "product": "Network-AI",
+        "versions": "< 5.9.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1696",
+    "date": "2026-07-21T22:52:38.21913+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "poc",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-48584",
+    "title": "Microsoft Azure Synapse 권한 상승 취약점",
+    "description": "Azure Synapse의 불필요한 권한 실행으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 9.9,
+    "epss": 0.005,
+    "is_kev": false,
+    "cwe": [
+      "CWE-250"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure Synapse",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2339",
+    "date": "2026-07-28T23:38:40.103284+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-47647",
+    "title": "Dynamics 365 권한 상승 취약점",
+    "description": "Microsoft Dynamics 365의 부적절한 액세스 제어로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 9.9,
+    "epss": 0.00778,
+    "is_kev": false,
+    "cwe": [
+      "CWE-284"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Microsoft Dynamics 365",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2335",
+    "date": "2026-07-28T23:37:09.414825+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-45480",
+    "title": "Azure Active Directory 권한 상승 취약점",
+    "description": "Azure Active Directory의 부적절한 인증을 통해 권한 없는 공격자가 네트워크상에서 권한을 상승시킬 수 있습니다.",
+    "cvss": 10,
+    "epss": 0.00562,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure Active Directory",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2325",
+    "date": "2026-07-28T23:34:07.632556+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-48567",
+    "title": "Azure HorizonDB 권한 상승 취약점",
+    "description": "Azure HorizonDB의 스푸핑을 통한 인증 우회 취약점으로 인해 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
+    "cvss": 10,
+    "epss": 0.01034,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Azure HorizonDB",
+        "versions": "- (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2333",
+    "date": "2026-07-28T23:36:54.917809+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-72526",
     "title": "Multicloud-integrations: 검증되지 않은 ocm-managed-cluster 어노테이션을 통해 hub 테넌트가 임의의 spoke cluster를 타겟팅할 수 있는 취약점",
     "description": "Application propagation 컨트롤러의 어노테이션 검증 미흡으로, 테넌트가 임의의 관리형 클러스터를 타겟팅할 수 있습니다.\n공격자가 제어하는 매니페스트를 동기화하여 임의 코드 실행 또는 권한 상승이 가능합니다.",
@@ -14856,49 +17554,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-4740",
-    "title": "Rhacm: Open Cluster Management (OCM): 부적절한 Kubernetes 클라이언트 인증서 갱신 검증을 통한 교차 클러스터 권한 상승",
-    "description": "Kubernetes 클라이언트 인증서 갱신 검증 미흡으로 관리 클러스터 관리자가 위조 인증서를 생성하여 다른 클러스터의 권한을 획득할 수 있습니다.",
-    "cvss": 8.2,
-    "epss": 0.00112,
-    "is_kev": false,
-    "cwe": [
-      "CWE-295"
-    ],
-    "affected": [
-      {
-        "vendor": "Red Hat",
-        "product": "Multicluster Engine for Kubernetes",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Multicluster Engine for Kubernetes",
-        "versions": "정보 없음"
-      },
-      {
-        "vendor": "Red Hat",
-        "product": "Multicluster Engine for Kubernetes",
-        "versions": "정보 없음"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-11T18:11:24.387036+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
   },
   {
     "id": "CVE-2026-41473",
@@ -290096,428 +292751,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2026-47643",
-    "title": "Azure Stack Edge 원격 코드 실행 취약점",
-    "description": "Azure Stack Edge의 파일 이름 또는 경로에 대한 외부 제어 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.00753,
-    "is_kev": false,
-    "cwe": [
-      "CWE-73"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure Stack Edge",
-        "versions": "2.2.0 부터 3.3.2604.3097 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2330",
-    "date": "2026-07-28T23:35:54.174028+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-44815",
-    "title": "DHCP 클라이언트 서비스 원격 코드 실행 취약점",
-    "description": "Windows DHCP 클라이언트의 스택 기반 버퍼 오버플로우(Stack-based buffer overflow)를 통해 권한 없는 공격자가 네트워크상에서 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.011,
-    "is_kev": false,
-    "cwe": [
-      "CWE-121"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2324",
-    "date": "2026-07-28T23:33:25.691308+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-26142",
-    "title": "Nuance PowerScribe 원격 코드 실행 취약점",
-    "description": "Nuance PowerScribe의 신뢰할 수 없는 데이터 역직렬화(Deserialization)를 통해 권한 없는 공격자가 네트워크상에서 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.01914,
-    "is_kev": false,
-    "cwe": [
-      "CWE-502"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Nuance PowerScribe 360 4.0",
-        "versions": "4.0 부터 7.0.11.49 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Nuance PowerScribe 360 version 4.0.1",
-        "versions": "4.0.1 부터 7.0.111.68 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Nuance PowerScribe 360 version 4.0.2",
-        "versions": "4.0.2 부터 7.0.154.18 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2323",
-    "date": "2026-07-28T23:33:25.608027+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-45657",
-    "title": "Windows 커널 원격 코드 실행 취약점",
-    "description": "Windows 커널의 Use After Free 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.15478,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416",
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 version 23H2",
-        "versions": "10.0.22631.0 부터 10.0.22631.7219 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 23H2",
-        "versions": "10.0.22631.0 부터 10.0.22631.7219 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 11 Version 24H2",
-        "versions": "10.0.26100.0 부터 10.0.26100.8655 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2329",
-    "date": "2026-07-28T23:35:37.597104+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-47291",
-    "title": "HTTP.sys 원격 코드 실행 취약점",
-    "description": "Windows HTTP.sys의 Integer Overflow 또는 Wraparound 취약점으로 인해 인증되지 않은 공격자가 네트워크를 통해 코드를 실행할 수 있습니다.",
-    "cvss": 9.8,
-    "epss": 0.2275,
-    "is_kev": false,
-    "cwe": [
-      "CWE-190",
-      "CWE-122"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1607",
-        "versions": "10.0.14393.0 부터 10.0.14393.9234 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 1809",
-        "versions": "10.0.17763.0 부터 10.0.17763.8880 이전"
-      },
-      {
-        "vendor": "Microsoft",
-        "product": "Windows 10 Version 21H2",
-        "versions": "10.0.19044.0 부터 10.0.19044.7417 이전"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2337",
-    "date": "2026-07-28T23:37:46.592218+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-54051",
-    "title": "Network-AI의 OS 커맨드 인젝션 취약점",
-    "description": "셸 커맨드 허용 리스트의 글로브 매칭 방식과 /bin/sh -c 실행 과정의 허점으로 인해 OS 커맨드 인젝션이 가능합니다.",
-    "cvss": 9.9,
-    "epss": 0.0037,
-    "is_kev": false,
-    "cwe": [
-      "CWE-78"
-    ],
-    "affected": [
-      {
-        "vendor": "Jovancoding",
-        "product": "Network-AI",
-        "versions": "< 5.9.1 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1696",
-    "date": "2026-07-21T22:52:38.21913+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "poc",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-48584",
-    "title": "Microsoft Azure Synapse 권한 상승 취약점",
-    "description": "Azure Synapse의 불필요한 권한 실행으로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 9.9,
-    "epss": 0.005,
-    "is_kev": false,
-    "cwe": [
-      "CWE-250"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure Synapse",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2339",
-    "date": "2026-07-28T23:38:40.103284+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-47647",
-    "title": "Dynamics 365 권한 상승 취약점",
-    "description": "Microsoft Dynamics 365의 부적절한 액세스 제어로 인해 인증된 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 9.9,
-    "epss": 0.00778,
-    "is_kev": false,
-    "cwe": [
-      "CWE-284"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Microsoft Dynamics 365",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2335",
-    "date": "2026-07-28T23:37:09.414825+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-45480",
-    "title": "Azure Active Directory 권한 상승 취약점",
-    "description": "Azure Active Directory의 부적절한 인증을 통해 권한 없는 공격자가 네트워크상에서 권한을 상승시킬 수 있습니다.",
-    "cvss": 10,
-    "epss": 0.00562,
-    "is_kev": false,
-    "cwe": [
-      "CWE-287"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure Active Directory",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2325",
-    "date": "2026-07-28T23:34:07.632556+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-48567",
-    "title": "Azure HorizonDB 권한 상승 취약점",
-    "description": "Azure HorizonDB의 스푸핑을 통한 인증 우회 취약점으로 인해 공격자가 네트워크를 통해 권한을 상승시킬 수 있습니다.",
-    "cvss": 10,
-    "epss": 0.01034,
-    "is_kev": false,
-    "cwe": [
-      "CWE-290"
-    ],
-    "affected": [
-      {
-        "vendor": "Microsoft",
-        "product": "Azure HorizonDB",
-        "versions": "- (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2333",
-    "date": "2026-07-28T23:36:54.917809+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2026-48321",
