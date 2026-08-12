@@ -1,5 +1,213 @@
 [
   {
+    "id": "CVE-2026-72526",
+    "title": "Multicloud-integrations: 검증되지 않은 ocm-managed-cluster 어노테이션을 통해 hub 테넌트가 임의의 spoke cluster를 타겟팅할 수 있는 취약점",
+    "description": "Application propagation 컨트롤러의 어노테이션 검증 미흡으로, 테넌트가 임의의 관리형 클러스터를 타겟팅할 수 있습니다.\n공격자가 제어하는 매니페스트를 동기화하여 임의 코드 실행 또는 권한 상승이 가능합니다.",
+    "cvss": 9.9,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-441"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Advanced Cluster Management for Kubernetes 2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3528",
+    "date": "2026-08-12T02:50:19.251943+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-70398",
+    "title": "Multicloud-integrations: gitopscluster.spec.argoserver.argonamespace가 공격자가 선택한 네임스페이스에 spoke bearer token을 기록하는 취약점",
+    "description": "인증된 테넌트가 GitOpsCluster 컨트롤러를 조작하여 spoke cluster bearer token을 자신의 네임스페이스로 리다이렉트할 수 있습니다.\n이를 통해 중요 정보가 노출되고 ArgoCD AppProjects의 보안 정책을 우회할 수 있습니다.",
+    "cvss": 9.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-441"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Advanced Cluster Management for Kubernetes 2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3527",
+    "date": "2026-08-12T02:49:47.179237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-18961",
+    "title": "VentraConnect Passwordless Login (<= 1.4.3): Spotify OAuth 콜백을 통한 인증되지 않은 인증 우회 취약점",
+    "description": "Spotify의 /v1/me 엔드포인트에서 반환하는 검증되지 않은 이메일 필드를 신뢰하여 인증을 우회할 수 있는 취약점입니다.\n이메일 검증 없이 프로필에 값을 복사하여 발생합니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-287"
+    ],
+    "affected": [
+      {
+        "vendor": "fahdaslam",
+        "product": "Social Login, Passkeys, Magic Link & Email OTP – Passwordless Login by VentraConnect",
+        "versions": "1.4.3 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T02:49:43.424521+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-73122",
+    "title": "Multicloud-operators-channel: 자동 생성된 역할이 모든 관리형 클러스터 에이전트에게 채널 네임스페이스의 secrets:get, list, watch 권한을 부여하는 취약점",
+    "description": "관리형 클러스터의 에이전트가 hub의 모든 Channel 네임스페이스 내 Secret 및 ConfigMap을 읽을 수 있습니다.\n이를 통해 다른 테넌트의 Git 및 Helm 저장소 자격 증명이 노출될 수 있습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-269"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Advanced Cluster Management for Kubernetes 2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T02:49:43.252603+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66878",
+    "title": "Multicloud-operators-subscription: fetchchannelreferences가 channel.spec.secretref.namespace를 허용하여 네임스페이스 간 Secret 유출이 가능한 취약점",
+    "description": "네임스페이스 관리자가 Channel.Spec.SecretRef.Namespace 필드를 조작하여 다른 네임스페이스의 민감한 Secret 내용을 자신의 네임스페이스로 복사할 수 있습니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat",
+        "product": "Red Hat Advanced Cluster Management for Kubernetes 2",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T02:49:42.915838+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-6484",
+    "title": "특정 FV에 대한 verified boot 부재로 인한 임의 코드 실행 취약점",
+    "description": "UEFI의 특정 FV(Firmware Volume)에 verified boot가 적용되지 않아 임의 코드가 실행될 수 있는 취약점입니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1277"
+    ],
+    "affected": [
+      {
+        "vendor": "Insyde Software",
+        "product": "InsydeH2O",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-12T02:49:42.914705+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-65673",
     "title": "Microsoft Entra Connect 권한 상승 취약점",
     "description": "권한 상승(EOP) 취약점입니다.",
@@ -17,7 +225,7 @@
       }
     ],
     "report_url": null,
-    "date": "2026-08-12T00:03:15.462642+00:00",
+    "date": "2026-08-12T02:48:38.239541+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -31,6 +239,446 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
+  },
+  {
+    "id": "CVE-2024-35865",
+    "title": "smb 클라이언트: smb2_is_valid_oplock_break()의 잠재적 UAF 수정",
+    "description": "UAF 방지를 위해 종료 중인 세션(status == SES_EXITING)을 건너뜁니다.",
+    "cvss": 9.8,
+    "epss": 0.00631,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 a710ef9e974f18232d2b9b19c90eda1a1167b2d4 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 84488466b7a69570bdbf76dd9576847ab97d54e7 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 21fed37d2bdcde33453faf61d3d4d96c355f04bd 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 3dba0e5276f131e36d6d8043191d856f49238628 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 22863485a4626ec6ecf297f4cc0aef709bc862e4 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2813",
+    "date": "2026-08-04T18:27:09.409388+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-36476",
+    "title": "RDMA/rtrs: 'ib_sge list' 접근 가능성 보장",
+    "description": "ib_sge list 변수 선언 위치를 변경하여 함수 전체에서 접근 가능하게 함으로써 NULL 포인터 역참조 버그를 해결합니다.",
+    "cvss": 9.8,
+    "epss": 0.00632,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "9cb837480424e78ed585376f944088246685aec3 부터 7eaa71f56a6f7ab87957213472dc6d4055862722 이전, 9cb837480424e78ed585376f944088246685aec3 부터 143378075904e78b3b2a810099bcc3b3d82d762f 이전, 9cb837480424e78ed585376f944088246685aec3 부터 32e1e748a85bd52b20b3857d80fd166d22fa455a 이전, 9cb837480424e78ed585376f944088246685aec3 부터 b238f61cc394d5fef27b26d7d9aa383ebfddabb0 이전, 9cb837480424e78ed585376f944088246685aec3 부터 6ffb5c1885195ae5211a12b4acd2d51843ca41b0 이전, 9cb837480424e78ed585376f944088246685aec3 부터 fb514b31395946022f13a08e06a435f53cf9e8b3 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.8 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2821",
+    "date": "2026-08-04T18:27:46.448365+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/oogasawa/Utility-security",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-53206",
+    "title": "tcp: reqsk_timer_handler() 내 nreq의 use-after-free 수정",
+    "description": "reqsk_put()에 잘못된 객체가 전달되어 reqsk 마이그레이션 및 타임아웃 시 nreq에서 use-after-free가 발생하는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00632,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "8459d61fbf24967839a70235165673148c7c7f17 부터 2dcc86fefe09ac853158afd96b60d544af115dc5 이전, 5071beb59ee416e8ab456ac8647a4dabcda823b1 부터 9a3c1ad93e6fba67b3a637cfa95a57a6685e4908 이전, 997ae8da14f1639ce6fb66a063dab54031cd61b3 부터 65ed89cad1f57034c256b016e89e8c0a4ec7c65b 이전, 51e34db64f4e43c7b055ccf881b7f3e0c31bb26d 부터 d0eb14cb8c08b00c36a3d5dc57a6f428b301f721 이전, e8c526f2bdf1845bedaf6a478816a3d06fa78b8f 부터 6d845028609a4af0ad66f499ee0bd5789122b067 이전, e8c526f2bdf1845bedaf6a478816a3d06fa78b8f 부터 c31e72d021db2714df03df6c42855a1db592716c 이전, 106e457953315e476b3642ef24be25ed862aaba3 (단일 버전), c964bf65f80a14288d767023a1b300b30f5b9cd0 (단일 버전), 5.15.170 부터 5.15.174 이전, 6.1.115 부터 6.1.120 이전, 6.6.59 부터 6.6.64 이전, 6.11.6 부터 6.11.11 이전, 5.4.293 부터 5.5 이전, 5.10.237 부터 5.11 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2893",
+    "date": "2026-08-04T22:02:20.832064+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/cku-heise/euvd-api-doc",
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-43883",
+    "title": "usb: vhci-hcd: 새로운 참조 획득 전 기존 참조 해제 방지",
+    "description": "드라이버 내에서 유효하지 않은 참조 포인터를 사용하는 문제를 해결하여, 새로운 참조를 얻기 전에 기존 참조를 해제함으로써 발생하는 레이스 컨디션을 방지합니다.",
+    "cvss": 9.8,
+    "epss": 0.00644,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 5a3c473b28ae1c1f7c4dc129e30cb19ae6e96f89 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 9c3746ce8d8fcb3a2405644fc0eec7fc5312de80 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 4dacdb9720aaab10b6be121eae55820174d97174 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 e8c1e606dab8c56cf074b43b98d0805de7322ba2 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 585e6bc7d0a9bf73a8be3d3fb34e86b90cc61a14 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 128e82e41cf7d74a562726c1587d9d2ede1a0a37 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 c3d0857b7fc2c49f68f89128a5440176089a8f54 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 afdcfd3d6fcdeca2735ca8d994c5f2d24a368f0a 이전, 96ea4801d2035f89fc4ec4a67f49a18c35cb6715 (단일 버전), 075b4e6a982d38121250c090f7b9294314ac1b19 (단일 버전), 436e52f1a628233f080605dd736594df250897ca (단일 버전), 1c8d316294916da7e2a2f1f178ca3f3bd6d7b531 (단일 버전), 927c3fa44e24300eb827ab9f9dacce6dff9c9bb7 (단일 버전), 2.6.32.30 부터 2.6.33 이전, 2.6.33.8 부터 2.6.34 이전, 2.6.34.10 부터 2.6.35 이전, 2.6.35.12 부터 2.6.36 이전, 2.6.37.3 부터 2.6.38 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.38 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2846",
+    "date": "2026-08-04T20:19:04.751355+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-26760",
+    "title": "scsi: target: pscsi: 오류 발생 시 bio_put() 수정",
+    "description": "bio_kmalloc()으로 할당된 bio가 오류 발생 시 제대로 해제되지 않아, bio_free()에서 NULL 포인터 역참조가 발생하는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00644,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 f49b20fd0134da84a6bd8108f9e73c077b7d6231 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 4ebc079f0c7dcda1270843ab0f38ab4edb8f7921 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 1cfe9489fb563e9a0c9cdc5ca68257a44428c2ec 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 de959094eb2197636f7c803af0943cb9d3b35804 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.19 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2801",
+    "date": "2026-08-04T18:25:35.485958+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-35869",
+    "title": "smb 클라이언트: 부모 세션으로부터 refcounted 자식 보장",
+    "description": "DFS 참조 탐색 및 마운트 시 모든 자식 세션의 refcount를 보장하여 잠재적인 UAF 버그를 방지합니다.",
+    "cvss": 9.8,
+    "epss": 0.00647,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 645f332c6b63499cc76197f9b6bffcc659ba64cc 이전, 8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 e1db9ae87b7148c021daee1fcc4bc71b2ac58a79 이전, 8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 062a7f0ff46eb57aff526897bd2bebfdb1d3046a 이전, f30d226bcc9f0e2d97b4a6e94c43a28148fbeab6 (단일 버전), c082c3be0f96e759ff2e361d929832fda0b93851 (단일 버전), 6.2.15 부터 6.3 이전, 6.3.2 부터 6.4 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2815",
+    "date": "2026-08-04T18:27:26.280654+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/bygregonline/devsec-fastapi-report"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-35864",
+    "title": "smb: client: smb2_is_valid_lease_break()의 잠재적 UAF 수정",
+    "description": "종료 중인 세션(SES_EXITING)을 제외하여 발생할 수 있는 Use-After-Free(UAF) 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00656,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 c868cabdf6fdd61bea54532271f4708254e57fc5 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 f92739fdd4522c4291277136399353d7c341fae4 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 a8344e2b69bde63f713b0aa796d70dbeadffddfb 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 705c76fbf726c7a2f6ff9143d4013b18daaaebf1 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2812",
+    "date": "2026-08-04T18:26:51.452599+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-26953",
+    "title": "net: esp: page_pool 페이지 처리 오류 수정",
+    "description": "page_pool에서 생성된 skb fragment 페이지에 put_page를 호출하여 발생하는 메모리 누수 및 크래시를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00656,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 8291b4eac429c480386669444c6377573f5d8664 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 1abb20a5f4b02fb3020f88456fc1e6069b3cdc45 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 f278ff9db67264715d0d50e3e75044f8b78990f4 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 c3198822c6cb9fb588e446540485669cc81c5d34 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.14 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2811",
+    "date": "2026-08-04T18:26:35.636978+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-53066",
+    "title": "nfs: decode_getfattr_attrs()의 KMSAN 경고 수정",
+    "description": "decode_getfattr_attrs 함수에서 발생하는 KMSAN uninit-value 경고 문제를 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00659,
+    "is_kev": false,
+    "cwe": [
+      "CWE-908"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 25ffd294fef81a7f3cd9528adf21560c04d98747 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 bbfcd261cc068fe1cd02a4e871275074a0daa4e2 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 8fc5ea9231af9122d227c9c13f5e578fca48d2e3 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 9b453e8b108a5a93a6e348cf2ba4c9c138314a00 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 f6b2b2b981af8e7d7c62d34143acefa4e1edfe8b 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 f749cb60a01f8391c760a1d6ecd938cadacf9549 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 9be0a21ae52b3b822d0eec4d14e909ab394f8a92 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 dc270d7159699ad6d11decadfce9633f0f71c1db 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.5 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2887",
+    "date": "2026-08-04T22:01:19.37116+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/w4zu/Debian_security"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-35863",
+    "title": "smb 클라이언트: is_valid_oplock_break()의 잠재적 UAF 수정",
+    "description": "UAF 방지를 위해 종료 중인 세션(status == SES_EXITING)을 건너뜁니다.",
+    "cvss": 9.8,
+    "epss": 0.00662,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 494c91e1e9413b407d12166a61b84200d4d54fac 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 0a15ba88a32fa7a516aff7ffd27befed5334dff2 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 16d58c6a7db5050b9638669084b63fc05f951825 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 69ccf040acddf33a3a85ec0f6b45ef84b0f7ec29 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3.13 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2816",
+    "date": "2026-08-04T18:27:26.369208+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
   },
   {
     "id": "CVE-2026-47865",
@@ -208131,52 +208779,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2024-53206",
-    "title": "tcp: reqsk_timer_handler() 내 nreq의 use-after-free 수정",
-    "description": "reqsk_put()에 잘못된 객체가 전달되어 reqsk 마이그레이션 및 타임아웃 시 nreq에서 use-after-free가 발생하는 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00632,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "8459d61fbf24967839a70235165673148c7c7f17 부터 2dcc86fefe09ac853158afd96b60d544af115dc5 이전, 5071beb59ee416e8ab456ac8647a4dabcda823b1 부터 9a3c1ad93e6fba67b3a637cfa95a57a6685e4908 이전, 997ae8da14f1639ce6fb66a063dab54031cd61b3 부터 65ed89cad1f57034c256b016e89e8c0a4ec7c65b 이전, 51e34db64f4e43c7b055ccf881b7f3e0c31bb26d 부터 d0eb14cb8c08b00c36a3d5dc57a6f428b301f721 이전, e8c526f2bdf1845bedaf6a478816a3d06fa78b8f 부터 6d845028609a4af0ad66f499ee0bd5789122b067 이전, e8c526f2bdf1845bedaf6a478816a3d06fa78b8f 부터 c31e72d021db2714df03df6c42855a1db592716c 이전, 106e457953315e476b3642ef24be25ed862aaba3 (단일 버전), c964bf65f80a14288d767023a1b300b30f5b9cd0 (단일 버전), 5.15.170 부터 5.15.174 이전, 6.1.115 부터 6.1.120 이전, 6.6.59 부터 6.6.64 이전, 6.11.6 부터 6.11.11 이전, 5.4.293 부터 5.5 이전, 5.10.237 부터 5.11 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.12 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2893",
-    "date": "2026-08-04T22:02:20.832064+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/cku-heise/euvd-api-doc",
-      "https://github.com/w4zu/Debian_security"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-53208",
     "title": "Bluetooth: MGMT: set_powered_sync의 slab-use-after-free Read 수정",
     "description": "Linux 커널의 set_powered_sync 함수에서 발생하는 slab-use-after-free 취약점을 수정하여 시스템 크래시를 방지합니다.",
@@ -210763,51 +211365,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2024-53066",
-    "title": "nfs: decode_getfattr_attrs()의 KMSAN 경고 수정",
-    "description": "decode_getfattr_attrs 함수에서 발생하는 KMSAN uninit-value 경고 문제를 수정합니다.",
-    "cvss": 9.8,
-    "epss": 0.00659,
-    "is_kev": false,
-    "cwe": [
-      "CWE-908"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 25ffd294fef81a7f3cd9528adf21560c04d98747 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 bbfcd261cc068fe1cd02a4e871275074a0daa4e2 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 8fc5ea9231af9122d227c9c13f5e578fca48d2e3 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 9b453e8b108a5a93a6e348cf2ba4c9c138314a00 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 f6b2b2b981af8e7d7c62d34143acefa4e1edfe8b 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 f749cb60a01f8391c760a1d6ecd938cadacf9549 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 9be0a21ae52b3b822d0eec4d14e909ab394f8a92 이전, 88034c3d88c2c48b215f2cc5eb22e564aa817f9c 부터 dc270d7159699ad6d11decadfce9633f0f71c1db 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.5 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2887",
-    "date": "2026-08-04T22:01:19.37116+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/w4zu/Debian_security"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-53061",
@@ -223930,49 +224487,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-43883",
-    "title": "usb: vhci-hcd: 새로운 참조 획득 전 기존 참조 해제 방지",
-    "description": "드라이버 내에서 유효하지 않은 참조 포인터를 사용하는 문제를 해결하여, 새로운 참조를 얻기 전에 기존 참조를 해제함으로써 발생하는 레이스 컨디션을 방지합니다.",
-    "cvss": 9.8,
-    "epss": 0.00644,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 5a3c473b28ae1c1f7c4dc129e30cb19ae6e96f89 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 9c3746ce8d8fcb3a2405644fc0eec7fc5312de80 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 4dacdb9720aaab10b6be121eae55820174d97174 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 e8c1e606dab8c56cf074b43b98d0805de7322ba2 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 585e6bc7d0a9bf73a8be3d3fb34e86b90cc61a14 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 128e82e41cf7d74a562726c1587d9d2ede1a0a37 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 c3d0857b7fc2c49f68f89128a5440176089a8f54 이전, 7606ee8aa33287dd3e6eb44c78541b87a413a325 부터 afdcfd3d6fcdeca2735ca8d994c5f2d24a368f0a 이전, 96ea4801d2035f89fc4ec4a67f49a18c35cb6715 (단일 버전), 075b4e6a982d38121250c090f7b9294314ac1b19 (단일 버전), 436e52f1a628233f080605dd736594df250897ca (단일 버전), 1c8d316294916da7e2a2f1f178ca3f3bd6d7b531 (단일 버전), 927c3fa44e24300eb827ab9f9dacce6dff9c9bb7 (단일 버전), 2.6.32.30 부터 2.6.33 이전, 2.6.33.8 부터 2.6.34 이전, 2.6.34.10 부터 2.6.35 이전, 2.6.35.12 부터 2.6.36 이전, 2.6.37.3 부터 2.6.38 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.38 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2846",
-    "date": "2026-08-04T20:19:04.751355+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-43882",
     "title": "exec: 권한 확인과 set-uid/gid 사용 간의 ToCToU 수정",
     "description": "파일 권한 확인 후 set-uid/gid 적용 전까지 메타데이터가 변경될 수 있는 ToCToU 취약점을 수정했습니다.",
@@ -234298,52 +234812,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-36476",
-    "title": "RDMA/rtrs: 'ib_sge list' 접근 가능성 보장",
-    "description": "ib_sge list 변수 선언 위치를 변경하여 함수 전체에서 접근 가능하게 함으로써 NULL 포인터 역참조 버그를 해결합니다.",
-    "cvss": 9.8,
-    "epss": 0.00632,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "9cb837480424e78ed585376f944088246685aec3 부터 7eaa71f56a6f7ab87957213472dc6d4055862722 이전, 9cb837480424e78ed585376f944088246685aec3 부터 143378075904e78b3b2a810099bcc3b3d82d762f 이전, 9cb837480424e78ed585376f944088246685aec3 부터 32e1e748a85bd52b20b3857d80fd166d22fa455a 이전, 9cb837480424e78ed585376f944088246685aec3 부터 b238f61cc394d5fef27b26d7d9aa383ebfddabb0 이전, 9cb837480424e78ed585376f944088246685aec3 부터 6ffb5c1885195ae5211a12b4acd2d51843ca41b0 이전, 9cb837480424e78ed585376f944088246685aec3 부터 fb514b31395946022f13a08e06a435f53cf9e8b3 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.8 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2821",
-    "date": "2026-08-04T18:27:46.448365+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/oogasawa/Utility-security",
-      "https://github.com/w4zu/Debian_security"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-36286",
     "title": "netfilter: nfnetlink_queue: instance_destroy_rcu()에서 rcu_read_lock() 획득",
     "description": "nf_reinject() 호출 시 rcu_read_lock()이 누락되어 발생하는 RCU 사용 관련 문제를 해결했습니다.",
@@ -236665,51 +237133,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-35869",
-    "title": "smb 클라이언트: 부모 세션으로부터 refcounted 자식 보장",
-    "description": "DFS 참조 탐색 및 마운트 시 모든 자식 세션의 refcount를 보장하여 잠재적인 UAF 버그를 방지합니다.",
-    "cvss": 9.8,
-    "epss": 0.00647,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 645f332c6b63499cc76197f9b6bffcc659ba64cc 이전, 8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 e1db9ae87b7148c021daee1fcc4bc71b2ac58a79 이전, 8e3554150d6c80a84b3cb046615d1a0e943811dc 부터 062a7f0ff46eb57aff526897bd2bebfdb1d3046a 이전, f30d226bcc9f0e2d97b4a6e94c43a28148fbeab6 (단일 버전), c082c3be0f96e759ff2e361d929832fda0b93851 (단일 버전), 6.2.15 부터 6.3 이전, 6.3.2 부터 6.4 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.4 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2815",
-    "date": "2026-08-04T18:27:26.280654+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/bygregonline/devsec-fastapi-report"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-35870",
     "title": "smb 클라이언트: smb2_reconnect_server()의 UAF 수정",
     "description": "다른 스레드에 의해 종료 중인 세션에 smb2_reconnect_server()가 접근하여 발생하는 UAF 버그를 수정합니다.",
@@ -236789,137 +237212,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2024-35865",
-    "title": "smb 클라이언트: smb2_is_valid_oplock_break()의 잠재적 UAF 수정",
-    "description": "UAF 방지를 위해 종료 중인 세션(status == SES_EXITING)을 건너뜁니다.",
-    "cvss": 9.8,
-    "epss": 0.00631,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 a710ef9e974f18232d2b9b19c90eda1a1167b2d4 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 84488466b7a69570bdbf76dd9576847ab97d54e7 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 21fed37d2bdcde33453faf61d3d4d96c355f04bd 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 3dba0e5276f131e36d6d8043191d856f49238628 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 22863485a4626ec6ecf297f4cc0aef709bc862e4 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.13 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2813",
-    "date": "2026-08-04T18:27:09.409388+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2024-35864",
-    "title": "smb: client: smb2_is_valid_lease_break()의 잠재적 UAF 수정",
-    "description": "종료 중인 세션(SES_EXITING)을 제외하여 발생할 수 있는 Use-After-Free(UAF) 취약점을 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00656,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 c868cabdf6fdd61bea54532271f4708254e57fc5 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 f92739fdd4522c4291277136399353d7c341fae4 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 a8344e2b69bde63f713b0aa796d70dbeadffddfb 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 705c76fbf726c7a2f6ff9143d4013b18daaaebf1 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.13 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2812",
-    "date": "2026-08-04T18:26:51.452599+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/fkie-cad/nvd-json-data-feeds"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2024-35863",
-    "title": "smb 클라이언트: is_valid_oplock_break()의 잠재적 UAF 수정",
-    "description": "UAF 방지를 위해 종료 중인 세션(status == SES_EXITING)을 건너뜁니다.",
-    "cvss": 9.8,
-    "epss": 0.00662,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 494c91e1e9413b407d12166a61b84200d4d54fac 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 0a15ba88a32fa7a516aff7ffd27befed5334dff2 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 16d58c6a7db5050b9638669084b63fc05f951825 이전, 7f48558e6489d032b1584b0cc9ac4bb11072c034 부터 69ccf040acddf33a3a85ec0f6b45ef84b0f7ec29 이전, a67172a013953664b1dad03c648200c70b90506c (단일 버전), 3.12.48 부터 3.13 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3.13 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2816",
-    "date": "2026-08-04T18:27:26.369208+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/fkie-cad/nvd-json-data-feeds"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-35858",
@@ -240591,47 +240883,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-26953",
-    "title": "net: esp: page_pool 페이지 처리 오류 수정",
-    "description": "page_pool에서 생성된 skb fragment 페이지에 put_page를 호출하여 발생하는 메모리 누수 및 크래시를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00656,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 8291b4eac429c480386669444c6377573f5d8664 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 1abb20a5f4b02fb3020f88456fc1e6069b3cdc45 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 f278ff9db67264715d0d50e3e75044f8b78990f4 이전, 6a5bcd84e886a9a91982e515c539529c28acdcc2 부터 c3198822c6cb9fb588e446540485669cc81c5d34 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.14 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2811",
-    "date": "2026-08-04T18:26:35.636978+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-26952",
     "title": "ksmbd: 버퍼 오프셋이 유효하지 않을 때의 잠재적 out-of-bounds 수정",
     "description": "일부 요청의 버퍼 오프셋 필드가 유효하지 않을 때 발생할 수 있는 out-of-bounds 취약점을 방지하기 위해 최소값을 설정했습니다.",
@@ -243186,49 +243437,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2024-26760",
-    "title": "scsi: target: pscsi: 오류 발생 시 bio_put() 수정",
-    "description": "bio_kmalloc()으로 할당된 bio가 오류 발생 시 제대로 해제되지 않아, bio_free()에서 NULL 포인터 역참조가 발생하는 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00644,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 f49b20fd0134da84a6bd8108f9e73c077b7d6231 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 4ebc079f0c7dcda1270843ab0f38ab4edb8f7921 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 1cfe9489fb563e9a0c9cdc5ca68257a44428c2ec 이전, 066ff571011d8416e903d3d4f1f41e0b5eb91e1d 부터 de959094eb2197636f7c803af0943cb9d3b35804 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.19 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2801",
-    "date": "2026-08-04T18:25:35.485958+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-26762",
