@@ -1,5 +1,1693 @@
 [
   {
+    "id": "CVE-2018-8453",
+    "title": "Microsoft Windows 7 취약점",
+    "description": "Win32k 컴포넌트의 메모리 객체 처리 미흡으로 발생하는 권한 상승(Elevation of Privilege) 취약점입니다.\nWindows 7 및 다양한 Windows 서버 버전에 영향을 미칩니다.",
+    "cvss": 7.8,
+    "epss": 0.70042,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 7",
+        "versions": "32-bit Systems Service Pack 1 (단일 버전), x64-based Systems Service Pack 1 (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012 R2",
+        "versions": "(Server Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows RT 8.1",
+        "versions": "Windows RT 8.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3630",
+    "date": "2026-08-13T05:16:24.761945+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert udp $HOME_NET any -> any 53 (msg:\"ET TROJAN FruityArmor DNS Lookup (weekendstrips .net)\"; content:\"|01|\"; offset:2; depth:1; content:\"|00 01 00 00 00 00 00|\"; distance:1; within:7; content:\"|0d|weekendstrips|03|net|00|\"; fast_pattern; distance:0; nocase; reference:url,securelist.com/cve-2018-8453-used-in-targeted-attacks/88151/; classtype:trojan-activity; sid:2026469; rev:2; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2018_10_10, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag FruityArmor, updated_at 2018_10_10;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert dns $HOME_NET any -> any any (msg:\"ET MALWARE FruityArmor DNS Lookup (weekendstrips .net)\"; dns.query; content:\"weekendstrips.net\"; nocase; fast_pattern; endswith; reference:url,securelist.com/cve-2018-8453-used-in-targeted-attacks/88151/; classtype:trojan-activity; sid:2026469; rev:3; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2018_10_10, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag FruityArmor, updated_at 2020_09_16;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert dns $HOME_NET any -> any any (msg:\"ET MALWARE FruityArmor DNS Lookup (weekendstrips .net)\"; dns.query; content:\"weekendstrips.net\"; nocase; fast_pattern; endswith; reference:url,securelist.com/cve-2018-8453-used-in-targeted-attacks/88151/; classtype:trojan-activity; sid:2026469; rev:3; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2018_10_10, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag FruityArmor, updated_at 2020_09_16;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Mkv4/cve-2018-8453-exp",
+      "https://github.com/ze0r/cve-2018-8453-exp",
+      "https://github.com/thepwnrip/leHACK-Analysis-of-CVE-2018-8453"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/cve_2018_8453_win32k_priv_esc"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-19323",
+    "title": "GIGABYTE APP Center 등의 GDrv 로우 레벨 드라이버 취약점",
+    "description": "Machine Specific Registers(MSR)를 읽고 쓸 수 있는 기능이 노출되어\n보안 위험이 발생합니다.",
+    "cvss": 9.8,
+    "epss": 0.08523,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "gigabyte",
+        "product": "aorus graphics engine",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "gigabyte app center",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "oc guru ii",
+        "versions": "2.08"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T05:16:08.094341+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/blueisbeautiful/CVE-2018-19323"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-20753",
+    "title": "Kaseya VSA RMM 권한 없는 원격 공격 취약점",
+    "description": "Kaseya VSA RMM 특정 버전에서 권한 없는 원격 공격자가 모든 관리 대상 장치에서 PowerShell 페이로드를 실행할 수 있는 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0.29336,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "kaseya",
+        "product": "virtual system administrator",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3629",
+    "date": "2026-08-13T05:15:27.665224+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-8174",
+    "title": "Microsoft Windows 7 취약점",
+    "description": "VBScript 엔진의 메모리 객체 처리 방식에서 발생하는 원격 코드 실행(Remote Code Execution) 취약점입니다.\nWindows 7 및 다양한 Windows 서버 버전에 영향을 미칩니다.",
+    "cvss": 7.5,
+    "epss": 0.87639,
+    "is_kev": true,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 7",
+        "versions": "32-bit Systems Service Pack 1 (단일 버전), x64-based Systems Service Pack 1 (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2012 R2",
+        "versions": "(Server Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows RT 8.1",
+        "versions": "Windows RT 8.1 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3628",
+    "date": "2026-08-13T05:14:46.345199+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT CVE-2018-8174 Common Construct B64 M1\"; flow:from_server,established; file_data; content:\"|4b464e6f5a5778735932396b5a55466b5a484a5159584a6862|\"; classtype:attempted-user; sid:2027069; rev:2; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2019_03_11, cve CVE_2018_8174, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2019_03_11;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT CVE-2018-8174 Common Construct B64 M2\"; flow:from_server,established; file_data; content:\"|68546147567362474e765a4756425a475279554746795957|\"; classtype:attempted-user; sid:2027070; rev:1; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2019_03_11, cve CVE_2018_8174, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2019_07_26;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT CVE-2018-8174 Common Construct B64 M2\"; flow:from_server,established; file_data; content:\"|68546147567362474e765a4756425a475279554746795957|\"; classtype:attempted-user; sid:2027070; rev:1; metadata:affected_product Windows_XP_Vista_7_8_10_Server_32_64_Bit, attack_target Client_Endpoint, created_at 2019_03_11, cve CVE_2018_8174, deployment Perimeter, performance_impact Moderate, signature_severity Major, tag CISA_KEV, updated_at 2019_07_26;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/0x09AL/CVE-2018-8174-msf",
+      "https://github.com/Yt1g3r/CVE-2018-8174_EXP",
+      "https://github.com/SyFi/CVE-2018-8174"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-8120",
+    "title": "Microsoft Windows Server 2008 취약점",
+    "description": "Win32k 컴포넌트의 메모리 객체 처리 미흡으로 인해 발생하는 권한 상승(Elevation of Privilege) 취약점입니다.",
+    "cvss": 7,
+    "epss": 0.73721,
+    "is_kev": true,
+    "cwe": [
+      "CWE-404"
+    ],
+    "affected": [
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2008",
+        "versions": "32-bit Systems Service Pack 2 (단일 버전), 32-bit Systems Service Pack 2 (Server Core installation) (단일 버전), Itanium-Based Systems Service Pack 2 (단일 버전), x64-based Systems Service Pack 2 (단일 버전), x64-based Systems Service Pack 2 (Server Core installation) (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows 7",
+        "versions": "32-bit Systems Service Pack 1 (단일 버전), x64-based Systems Service Pack 1 (단일 버전)"
+      },
+      {
+        "vendor": "Microsoft",
+        "product": "Windows Server 2008 R2",
+        "versions": "Itanium-Based Systems Service Pack 1 (단일 버전), x64-based Systems Service Pack 1 (단일 버전), x64-based Systems Service Pack 1 (Server Core installation) (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3627",
+    "date": "2026-08-13T05:14:20.366326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/bigric3/cve-2018-8120",
+      "https://github.com/rip1s/CVE-2018-8120",
+      "https://github.com/ne1llee/cve-2018-8120"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/local/ms18_8120_win32k_privesc"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-7602",
+    "title": "Drupal core - 매우 심각 - 원격 코드 실행(RCE) - SA-CORE-2018-004",
+    "description": "Drupal 7.x 및 8.x의 여러 하위 시스템에서 원격 코드 실행(RCE) 취약점이 발견되어 사이트가 완전히 장악될 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.99236,
+    "is_kev": true,
+    "cwe": [
+      "CWE-94"
+    ],
+    "affected": [
+      {
+        "vendor": "Drupal",
+        "product": "core",
+        "versions": "unspecified 부터 7.59 이전, unspecified 부터 8.5.3 이전, unspecified 부터 8.4.8 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3626",
+    "date": "2026-08-13T05:14:01.752607+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> $HTTP_SERVERS $HTTP_PORTS (msg:\"ET WEB_SPECIFIC_APPS Drupal RCE (CVE-2018-7602)\"; flow:to_server,established; content:\"POST\"; http_method; nocase; content:\"/?q=node\"; http_uri; content:\"delete&destination=\"; http_uri; content:\"#\"; http_uri; content:\"form_id=node_delete_confirm\"; http_client_body; fast_pattern; reference:url,www.bleepingcomputer.com/news/security/hackers-dont-give-site-owners-time-to-patch-start-exploiting-new-drupal-flaw-within-hours; reference:cve,2018-7602; classtype:attempted-user; sid:2025533; rev:2; metadata:affected_product Drupal_Server, attack_target Web_Server, created_at 2018_04_26, deployment Datacenter, signature_severity Minor, tag drupalgeddon, tag CISA_KEV, updated_at 2018_04_26;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HTTP_SERVERS any (msg:\"ET WEB_SPECIFIC_APPS Drupal RCE (CVE-2018-7602)\"; flow:to_server,established; http.method; content:\"POST\"; nocase; http.uri; content:\"/?q=node\"; content:\"delete&destination=\"; pcre:\"/(?:%(?:25)?23|#)/\"; http.request_body; content:\"form_id=node_delete_confirm\"; fast_pattern; reference:url,www.bleepingcomputer.com/news/security/hackers-dont-give-site-owners-time-to-patch-start-exploiting-new-drupal-flaw-within-hours; reference:cve,2018-7602; classtype:attempted-user; sid:2025533; rev:3; metadata:affected_product Drupal_Server, attack_target Web_Server, created_at 2018_04_26, deployment Datacenter, signature_severity Minor, tag drupalgeddon, tag CISA_KEV, updated_at 2020_08_25;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> $HTTP_SERVERS any (msg:\"ET WEB_SPECIFIC_APPS Drupal RCE (CVE-2018-7602)\"; flow:to_server,established; http.method; content:\"POST\"; nocase; http.uri; content:\"/?q=node\"; content:\"delete&destination=\"; pcre:\"/(?:%(?:25)?23|#)/\"; http.request_body; content:\"form_id=node_delete_confirm\"; fast_pattern; reference:url,www.bleepingcomputer.com/news/security/hackers-dont-give-site-owners-time-to-patch-start-exploiting-new-drupal-flaw-within-hours; reference:cve,2018-7602; classtype:attempted-user; sid:2025533; rev:3; metadata:affected_product Drupal_Server, attack_target Web_Server, created_at 2018_04_26, deployment Datacenter, signature_severity Minor, tag drupalgeddon, tag CISA_KEV, updated_at 2020_08_25;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/1337g/Drupalgedon3",
+      "https://github.com/happynote3966/CVE-2018-7602",
+      "https://github.com/kastellanos/CVE-2018-7602"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-19953",
+    "title": "QNAP Systems Inc. QTS 취약점",
+    "description": "XSS 취약점을 통해 원격 공격자가 악성 코드를 주입할 수 있으며, QNAP은 최신 QTS 버전에서 이를 수정했습니다.",
+    "cvss": 6.1,
+    "epss": 0.23894,
+    "is_kev": true,
+    "cwe": [
+      "CWE-79",
+      "CWE-80"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.2.1231 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.1.1201 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.3.6.1218 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3625",
+    "date": "2026-08-13T05:13:44.961895+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2018-6882",
+    "title": "Zimbra Collabo의 ZmMailMsgView.getAttachmentLinkHtml 함수 내 XSS 취약점",
+    "description": "ZCS 특정 버전에서 이메일 첨부 파일의 Content-Location 헤더를 통해 임의의 웹 스크립트나 HTML을 주입할 수 있는 XSS 취약점이 존재합니다.",
+    "cvss": 6.1,
+    "epss": 0.2542,
+    "is_kev": true,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "n/a",
+        "product": "n/a",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3624",
+    "date": "2026-08-13T05:13:44.350226+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors",
+      "https://github.com/curated-intel/Ukraine-Cyber-Operations"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2018-13374",
+    "title": "Fortinet FortiOS, fortiADC 취약점",
+    "description": "부적절한 액세스 제어로 인해 공격자가 LDAP 서버 연결 테스트 요청을 변조하여\nLDAP 서버 로그인 자격 증명을 획득할 수 있습니다.",
+    "cvss": 4.3,
+    "epss": 0.38088,
+    "is_kev": true,
+    "cwe": [
+      "CWE-732"
+    ],
+    "affected": [
+      {
+        "vendor": "Fortinet",
+        "product": "Fortinet FortiOS, fortiADC",
+        "versions": "FortiOS 6.0.2, 5.6.7 and before, FortiADC 6.1.0, 6.0.0 to 6.0.1, 5.4.0 to 5.4.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3623",
+    "date": "2026-08-13T05:13:39.783052+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Justjeff211/conti-ransomware-writeup"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Medium"
+  },
+  {
+    "id": "CVE-2018-20250",
+    "title": "Check Point Software Technologies Ltd. WinRAR 취약점",
+    "description": "WinRAR 5.61 이하 버전의 ACE 포맷 파일명 필드에서 Path Traversal 취약점이 발생하여, 파일이 절대 경로로 처리될 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.96274,
+    "is_kev": true,
+    "cwe": [
+      "CWE-36"
+    ],
+    "affected": [
+      {
+        "vendor": "Check Point Software Technologies Ltd.",
+        "product": "WinRAR",
+        "versions": "All versions prior and including 5.61 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3622",
+    "date": "2026-08-13T05:13:38.210785+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7",
+      "yara"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": {
+        "code": "/*\n    This Yara ruleset is under the GNU-GPLv2 license (http://www.gnu.org/licenses/gpl-2.0.html) and open to any user or organization, as long as you use it under this license.\n*/\n\nrule CVE_2018_20250 : AceArchive UNACEV2_DLL_EXP\n{\n    meta:\n        description = \"Generic rule for hostile ACE archive using CVE-2018-20250\"\n        author = \"xylitol@temari.fr\"\n        date = \"2019-03-17\"\n        reference = \"https://research.checkpoint.com/extracting-code-execution-from-winrar/\"\n        // May only the challenge guide you\n    strings:\n        $string1 = \"**ACE**\" ascii wide\n        $string2 = \"*UNREGISTERED VERSION*\" ascii wide\n        // $hexstring1 = C:\\C:\\\n        $hexstring1 = {?? 3A 5C ?? 3A 5C}\n        // $hexstring2 = C:\\C:C:..\n        $hexstring2 = {?? 3A 5C ?? 3A ?? 3A 2E}\n    condition:  \n         $string1 at 7 and $string2 at 31 and 1 of ($hexstring*)\n}\n",
+        "trust": "official-verified",
+        "source": "Public (Yara-Rules)",
+        "license": "GPL-2.0 — 출처·라이선스 표기 유지",
+        "verified": true,
+        "indicators": null
+      },
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT WinRAR WinAce Containing CVE-2018-20250 Inbound - Path Traversal leading to RCE\"; flow:established,from_server; content:\"200\"; http_stat_code; file_data; content:\"**ACE**\"; offset:7; depth:7; fast_pattern; content:\"|00|\"; distance:0; pcre:\"/^(?:(\\S\\:\\\\){2,}|\\S\\:\\\\\\S\\:\\S\\:|S\\:\\\\\\\\\\\\([0-9]{1,3}\\.){3}[0-9]{1,3}|\\S\\:\\\\\\\\\\\\([a-z0-9\\-]{1,30}\\.){1,8}[a-z]{1,8})/R\"; classtype:trojan-activity; sid:2027310; rev:3; metadata:created_at 2019_05_01, cve CVE_2018_20250, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag WinRAR, tag ACE, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2024_11_26, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT WinRAR WinAce Containing CVE-2018-20250 Inbound - Path Traversal leading to RCE\"; flow:established,from_server; http.stat_code; content:\"200\"; file.data; content:\"**ACE**\"; offset:7; depth:7; fast_pattern; content:\"|00|\"; distance:0; pcre:\"/^(?:(\\S\\:\\\\){2,}|\\S\\:\\\\\\S\\:\\S\\:|S\\:\\\\\\\\\\\\([0-9]{1,3}\\.){3}[0-9]{1,3}|\\S\\:\\\\\\\\\\\\([a-z0-9\\-]{1,30}\\.){1,8}[a-z]{1,8})/R\"; classtype:attempted-admin; sid:2027310; rev:4; metadata:created_at 2019_05_01, cve CVE_2018_20250, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag WinRAR, tag ACE, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2024_11_26, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT WinRAR WinAce Containing CVE-2018-20250 Inbound - Path Traversal leading to RCE\"; flow:established,from_server; http.stat_code; content:\"200\"; file.data; content:\"**ACE**\"; offset:7; depth:7; fast_pattern; content:\"|00|\"; distance:0; pcre:\"/^(?:(\\S\\:\\\\){2,}|\\S\\:\\\\\\S\\:\\S\\:|S\\:\\\\\\\\\\\\([0-9]{1,3}\\.){3}[0-9]{1,3}|\\S\\:\\\\\\\\\\\\([a-z0-9\\-]{1,30}\\.){1,8}[a-z]{1,8})/R\"; classtype:attempted-admin; sid:2027310; rev:4; metadata:created_at 2019_05_01, cve CVE_2018_20250, deployment Perimeter, deployment Internal, confidence High, signature_severity Major, tag WinRAR, tag ACE, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2024_11_26, mitre_tactic_id TA0007, mitre_tactic_name Discovery, mitre_technique_id T1083, mitre_technique_name File_And_Directory_Discovery; target:dest_ip;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/WyAtu/CVE-2018-20250",
+      "https://github.com/QAX-A-Team/CVE-2018-20250",
+      "https://github.com/nmweizi/CVE-2018-20250-poc-winrar"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/windows/fileformat/winrar_ace"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-19949",
+    "title": "QNAP Systems Inc. QTS 취약점",
+    "description": "커맨드 인젝션(Command Injection) 취약점으로 인해\n원격 공격자가 임의의 명령을 실행할 수 있습니다.",
+    "cvss": 9.8,
+    "epss": 0.24449,
+    "is_kev": true,
+    "cwe": [
+      "CWE-20",
+      "CWE-77",
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.2.1231 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.1.1201 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.3.6.1218 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3621",
+    "date": "2026-08-13T05:13:02.251237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-19943",
+    "title": "QNAP Systems Inc. QTS 취약점",
+    "description": "크로스 사이트 스크립팅(XSS) 취약점으로 인해\n원격 공격자가 악성 코드를 삽입할 수 있습니다.",
+    "cvss": 8,
+    "epss": 0.17705,
+    "is_kev": true,
+    "cwe": [
+      "CWE-79",
+      "CWE-80"
+    ],
+    "affected": [
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.2.1270 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.4.1.1261 이전, unspecified 부터 4.3.6.1263 이전"
+      },
+      {
+        "vendor": "QNAP Systems Inc.",
+        "product": "QTS",
+        "versions": "unspecified 부터 4.3.4.1282 이전"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3620",
+    "date": "2026-08-13T05:12:37.291927+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-19322",
+    "title": "GIGABYTE APP Center 등의 GPCIDrv 및 GDrv 로우 레벨 드라이버 취약점",
+    "description": "IO 포트의 데이터 읽기/쓰기 기능이 노출되어,\n권한이 상승된 상태로 임의의 코드를 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.01872,
+    "is_kev": true,
+    "cwe": [
+      "CWE-749"
+    ],
+    "affected": [
+      {
+        "vendor": "gigabyte",
+        "product": "aorus graphics engine",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "app center",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "oc guru ii",
+        "versions": "2.08"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3619",
+    "date": "2026-08-13T05:11:56.883264+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2017-18362",
+    "title": "Kaseya VSA용 ConnectWise ManagedITSync 통합 기능의 인증되지 않은 원격 명령 실행 취약점",
+    "description": "Kaseya VSA 데이터베이스에 대한 직접 액세스가 가능하며, 이를 통해 랜섬웨어 페이로드를 실행하는 등의 공격이 가능합니다.",
+    "cvss": 9.8,
+    "epss": 0.8682,
+    "is_kev": true,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "connectwise",
+        "product": "manageditsync",
+        "versions": "정보 없음"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3618",
+    "date": "2026-08-13T05:11:49.311111+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Kaseya VSA ManagedITSync SQL Injection (CVE-2017-18362)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"KaseyaCwWebService/ManagedIT.asmx\"; http_uri; nocase; fast_pattern; content:\"|27|\"; http_client_body; pcre:\"/^(?:CREATE|SELECT|INSERT|UPDATE|EXEC)/Ri\"; reference:url,github.com/kbni/owlky/blob/master/owlky.py; reference:cve,2017-18362; classtype:attempted-admin; sid:2034492; rev:2; metadata:created_at 2021_11_17, cve CVE_2017_18362, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_11_17, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Kaseya VSA ManagedITSync SQL Injection (CVE-2017-18362)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"KaseyaCwWebService/ManagedIT.asmx\"; nocase; fast_pattern; http.request_body; content:\"|27|\"; pcre:\"/^(?:CREATE|SELECT|INSERT|UPDATE|EXEC)/Ri\"; reference:url,github.com/kbni/owlky/blob/master/owlky.py; reference:cve,2017-18362; classtype:attempted-admin; sid:2034492; rev:2; metadata:created_at 2021_11_17, cve CVE_2017_18362, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2022_05_03, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Kaseya VSA ManagedITSync SQL Injection (CVE-2017-18362)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"KaseyaCwWebService/ManagedIT.asmx\"; nocase; fast_pattern; http.request_body; content:\"|27|\"; pcre:\"/^(?:CREATE|SELECT|INSERT|UPDATE|EXEC)/Ri\"; reference:url,github.com/kbni/owlky/blob/master/owlky.py; reference:cve,2017-18362; classtype:attempted-admin; sid:2034492; rev:2; metadata:created_at 2021_11_17, cve CVE_2017_18362, confidence High, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2022_05_03, mitre_tactic_id TA0001, mitre_tactic_name Initial_Access, mitre_technique_id T1190, mitre_technique_name Exploit_Public_Facing_Application;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/kbni/owlky",
+      "https://github.com/ARPSyndicate/cvemon",
+      "https://github.com/Ostorlab/KEV"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2018-15982",
+    "title": "Flash Player의 Use-After-Free 취약점",
+    "description": "Flash Player에서 Use-After-Free 취약점이 발견되었으며, 성공적인 공격 시 임의 코드 실행으로 이어질 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.82456,
+    "is_kev": true,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "adobe",
+        "product": "flash player",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "redhat",
+        "product": "enterprise linux desktop",
+        "versions": "6.0"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3617",
+    "date": "2026-08-13T05:11:47.120056+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:\"ET EXPLOIT Possible Inbound Flash Exploit (CVE-2018-15982)\"; flow:established,from_server; content:\"200\"; http_stat_code; content:\"Content-Type|3a 20|application|2f|x-shockwave-flash\"; http_header; file_data; content:\"FWS\"; depth:3; content:\"cmd.exe|20 2f|c\"; distance:0; nocase; fast_pattern; reference:url,www.malware-traffic-analysis.net/2019/08/01/index.html; classtype:attempted-user; sid:2027789; rev:2; metadata:attack_target Client_Endpoint, created_at 2019_08_02, cve CVE_2018_15982, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2019_08_02;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT Possible Inbound Flash Exploit (CVE-2018-15982)\"; flow:established,from_server; http.stat_code; content:\"200\"; http.content_type; content:\"application|2f|x-shockwave-flash\"; file.data; content:\"FWS\"; depth:3; content:\"cmd.exe|20 2f|c\"; distance:0; nocase; fast_pattern; reference:url,www.malware-traffic-analysis.net/2019/08/01/index.html; classtype:attempted-user; sid:2027789; rev:2; metadata:attack_target Client_Endpoint, created_at 2019_08_02, cve CVE_2018_15982, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2020_08_31;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"ET EXPLOIT Possible Inbound Flash Exploit (CVE-2018-15982)\"; flow:established,from_server; http.stat_code; content:\"200\"; http.content_type; content:\"application|2f|x-shockwave-flash\"; file.data; content:\"FWS\"; depth:3; content:\"cmd.exe|20 2f|c\"; distance:0; nocase; fast_pattern; reference:url,www.malware-traffic-analysis.net/2019/08/01/index.html; classtype:attempted-user; sid:2027789; rev:2; metadata:attack_target Client_Endpoint, created_at 2019_08_02, cve CVE_2018_15982, deployment Perimeter, performance_impact Low, confidence Medium, signature_severity Major, tag CISA_KEV, updated_at 2020_08_31;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/FlatL1neAPT/CVE-2018-15982",
+      "https://github.com/Ormicron/CVE-2018-15982_PoC",
+      "https://github.com/Ridter/CVE-2018-15982_EXP"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-19321",
+    "title": "GIGABYTE APP Center 등의 GPCIDrv 및 GDrv 로우 레벨 드라이버 취약점",
+    "description": "임의의 물리 메모리 읽기 및 쓰기 기능이 노출되어,\n로컬 공격자가 권한 상승(Privilege Escalation)을 수행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.03671,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "gigabyte",
+        "product": "aorus graphics engine",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "app center",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "oc guru ii",
+        "versions": "2.08"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3616",
+    "date": "2026-08-13T05:11:07.846111+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/nanabingies/Driver-RW",
+      "https://github.com/nanabingies/CVE-2018-19321"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-19320",
+    "title": "GIGABYTE APP Center 및 관련 소프트웨어의 GDrv 로우레벨 드라이버 취약점",
+    "description": "GDrv 드라이버가 ring0 memcpy 유사 기능을 노출하여 로컬 공격자가 시스템의 전체 제어권을 획득할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0.03597,
+    "is_kev": true,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "gigabyte",
+        "product": "aorus graphics engine",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "app center",
+        "versions": "정보 없음"
+      },
+      {
+        "vendor": "gigabyte",
+        "product": "oc guru ii",
+        "versions": "2.08"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3615",
+    "date": "2026-08-13T05:10:52.299933+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ASkyeye/CVE-2018-19320",
+      "https://github.com/hmnthabit/CVE-2018-19320-LPE",
+      "https://github.com/zer0condition/GDRVLoader"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2017-12149",
+    "title": "Red Hat, Inc. jbossas 취약점",
+    "description": "Jboss Application Server의 ReadOnlyAccessFilter에서 역직렬화(deserialization) 제한 부족으로 인해 임의 코드 실행이 가능합니다.",
+    "cvss": 9.8,
+    "epss": 0.90713,
+    "is_kev": true,
+    "cwe": [
+      "CWE-502"
+    ],
+    "affected": [
+      {
+        "vendor": "Red Hat, Inc.",
+        "product": "jbossas",
+        "versions": "n/a (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3614",
+    "date": "2026-08-13T05:10:29.210479+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Jboss RCE (CVE-2017-12149)\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/invoker/readonly\"; fast_pattern; http_uri; content:\"java.util.HashSet\"; http_client_body; reference:cve,2017-12149; reference:url,github.com/gottburgm/Exploits/blob/master/CVE-2017-12149/CVE_2017_12149.pl#L180; classtype:attempted-admin; sid:2033118; rev:1; metadata:attack_target Client_Endpoint, created_at 2021_06_09, cve CVE_2017_12149, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_06_09;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Jboss RCE (CVE-2017-12149)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/invoker/readonly\"; fast_pattern; http.request_body; content:\"java.util.HashSet\"; reference:cve,2017-12149; reference:url,github.com/gottburgm/Exploits/blob/master/CVE-2017-12149/CVE_2017_12149.pl#L180; classtype:attempted-admin; sid:2033118; rev:1; metadata:attack_target Client_Endpoint, created_at 2021_06_09, cve CVE_2017_12149, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_06_09;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http any any -> [$HOME_NET,$HTTP_SERVERS] any (msg:\"ET EXPLOIT Jboss RCE (CVE-2017-12149)\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/invoker/readonly\"; fast_pattern; http.request_body; content:\"java.util.HashSet\"; reference:cve,2017-12149; reference:url,github.com/gottburgm/Exploits/blob/master/CVE-2017-12149/CVE_2017_12149.pl#L180; classtype:attempted-admin; sid:2033118; rev:1; metadata:attack_target Client_Endpoint, created_at 2021_06_09, cve CVE_2017_12149, deployment Perimeter, confidence Medium, signature_severity Major, tag CISA_KEV, tag Description_Generated_By_Proofpoint_Nexus, updated_at 2021_06_09;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/sevck/CVE-2017-12149",
+      "https://github.com/yunxu1/jboss-_CVE-2017-12149",
+      "https://github.com/1337g/CVE-2017-12149"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": false,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "auxiliary/scanner/http/jboss_vulnscan"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2017-10271",
+    "title": "Oracle Corporation WebLogic Server 취약점",
+    "description": "Oracle WebLogic Server의 WLS Security 구성 요소 취약점으로, 인증되지 않은 공격자가 T3를 통해 서버 제어권을 획득할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0.99993,
+    "is_kev": true,
+    "cwe": [
+      "CWE-306"
+    ],
+    "affected": [
+      {
+        "vendor": "Oracle Corporation",
+        "product": "WebLogic Server",
+        "versions": "10.3.6.0.0 (단일 버전), 12.1.3.0.0 (단일 버전), 12.2.1.1.0 (단일 버전), 12.2.1.2.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3613",
+    "date": "2026-08-13T05:10:06.283097+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:\"ET TROJAN CoinMiner Malicious Authline Seen After CVE-2017-10271 Exploit\"; flow:established,to_server; content:\"{|22|id|22 3A|\"; depth:6; content:\"|22|method|22 3a 20 22|mining.authorize|22 2c|\"; within:100; content:\"|22|params|22|\"; within:50; content:\"|5b 22|4AQe5sAFWZKECiaeNTt59LG7kVtqRoSRJMjrmQ6GiMFAeUvoL3MFeTE6zwwHkFPrAyNw2JHDxUSWL82RiZThPpk4SEg7Vqe|22 2c 20 22|\"; distance:0; reference:url,otx.alienvault.com/pulse/5a4e1c4993199b299f90a212; classtype:trojan-activity; sid:2025186; rev:2; metadata:attack_target Client_Endpoint, created_at 2018_01_04, cve CVE_2017_10271, deployment Perimeter, deployment Datacenter, former_category CURRENT_EVENTS, malware_family CoinMiner, confidence High, signature_severity Major, tag Coinminer, tag CISA_KEV, updated_at 2024_12_24, mitre_tactic_id TA0040, mitre_tactic_name Impact, mitre_technique_id T1496, mitre_technique_name Resource_Hijacking;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:\"ET COINMINER CoinMiner Malicious Authline Seen After CVE-2017-10271 Exploit\"; flow:established,to_server; content:\"{|22|id|22 3A|\"; depth:6; content:\"|22|method|22 3a 20 22|mining.authorize|22 2c|\"; within:100; content:\"|22|params|22|\"; within:50; content:\"|5b 22|4AQe5sAFWZKECiaeNTt59LG7kVtqRoSRJMjrmQ6GiMFAeUvoL3MFeTE6zwwHkFPrAyNw2JHDxUSWL82RiZThPpk4SEg7Vqe|22 2c 20 22|\"; distance:0; reference:url,otx.alienvault.com/pulse/5a4e1c4993199b299f90a212; classtype:coin-mining; sid:2025186; rev:1; metadata:attack_target Client_Endpoint, created_at 2018_01_04, cve CVE_2017_10271, deployment Perimeter, deployment Datacenter, malware_family CoinMiner, confidence High, signature_severity Major, tag Coinminer, tag CISA_KEV, updated_at 2019_07_26, mitre_tactic_id TA0040, mitre_tactic_name Impact, mitre_technique_id T1496, mitre_technique_name Resource_Hijacking;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:\"ET COINMINER CoinMiner Malicious Authline Seen After CVE-2017-10271 Exploit\"; flow:established,to_server; content:\"{|22|id|22 3A|\"; depth:6; content:\"|22|method|22 3a 20 22|mining.authorize|22 2c|\"; within:100; content:\"|22|params|22|\"; within:50; content:\"|5b 22|4AQe5sAFWZKECiaeNTt59LG7kVtqRoSRJMjrmQ6GiMFAeUvoL3MFeTE6zwwHkFPrAyNw2JHDxUSWL82RiZThPpk4SEg7Vqe|22 2c 20 22|\"; distance:0; reference:url,otx.alienvault.com/pulse/5a4e1c4993199b299f90a212; classtype:coin-mining; sid:2025186; rev:1; metadata:attack_target Client_Endpoint, created_at 2018_01_04, cve CVE_2017_10271, deployment Perimeter, deployment Datacenter, malware_family CoinMiner, confidence High, signature_severity Major, tag Coinminer, tag CISA_KEV, updated_at 2019_07_26, mitre_tactic_id TA0040, mitre_tactic_name Impact, mitre_technique_id T1496, mitre_technique_name Resource_Hijacking;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/1337g/CVE-2017-10271",
+      "https://github.com/s3xy/CVE-2017-10271",
+      "https://github.com/ZH3FENG/PoCs-Weblogic_2017_10271"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/multi/http/oracle_weblogic_wsat_deserialization_rce"
+    ],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2018-11138",
+    "title": "Quest KACE System Management Appliance 8.0.318의 '/common/download_agent_installer.php' 스크립트 접근 취약점",
+    "description": "익명 사용자가 해당 스크립트에 접근하여 시스템에서 임의의 명령을 실행할 수 있는 취약점입니다.",
+    "cvss": 9.8,
+    "epss": 0.91778,
+    "is_kev": true,
+    "cwe": [
+      "CWE-78"
+    ],
+    "affected": [
+      {
+        "vendor": "quest",
+        "product": "kace system management appliance",
+        "versions": "8.0.318"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3612",
+    "date": "2026-08-13T05:10:06.097301+00:00",
+    "rule_engines": [
+      "snort2",
+      "suricata5",
+      "suricata7"
+    ],
+    "has_official_rules": true,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [
+        {
+          "code": "alert tcp $HTTP_SERVERS any -> $EXTERNAL_NET $HTTP_PORTS (msg:\"ET EXPLOIT Dell KACE Attempted Remote Command Injection Outbound\"; flow:established,to_server; content:\"POST\"; http_method; content:\"/krashrpt.php\"; http_uri; fast_pattern; isdataat:!1,relative; content:\"kuid=|60|\"; http_client_body; depth:6; reference:url,unit42.paloaltonetworks.com/new-mirai-variant-adds-8-new-exploits-targets-additional-iot-devices/; reference:cve,CVE-2018-11138; classtype:attempted-admin; sid:2027456; rev:3; metadata:attack_target IoT, created_at 2019_06_11, deployment Perimeter, performance_impact Low, signature_severity Major, tag CISA_KEV, updated_at 2019_06_18, mitre_tactic_id TA0008, mitre_tactic_name Lateral_Movement, mitre_technique_id T1210, mitre_technique_name Exploitation_Of_Remote_Services;)",
+          "trust": "official-verified",
+          "engine": "snort2",
+          "source": "Public (Snort 2.9 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $HTTP_SERVERS any -> $EXTERNAL_NET any (msg:\"ET EXPLOIT Dell KACE Attempted Remote Command Injection Outbound\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/krashrpt.php\"; fast_pattern; endswith; http.request_body; content:\"kuid=|60|\"; depth:6; reference:url,unit42.paloaltonetworks.com/new-mirai-variant-adds-8-new-exploits-targets-additional-iot-devices/; reference:cve,CVE-2018-11138; classtype:attempted-admin; sid:2027456; rev:4; metadata:attack_target IoT, created_at 2019_06_11, deployment Perimeter, performance_impact Low, signature_severity Major, tag CISA_KEV, updated_at 2020_09_17, mitre_tactic_id TA0008, mitre_tactic_name Lateral_Movement, mitre_technique_id T1210, mitre_technique_name Exploitation_Of_Remote_Services;)",
+          "trust": "official-verified",
+          "engine": "suricata5",
+          "source": "Public (Suricata 5 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        },
+        {
+          "code": "alert http $HTTP_SERVERS any -> $EXTERNAL_NET any (msg:\"ET EXPLOIT Dell KACE Attempted Remote Command Injection Outbound\"; flow:established,to_server; http.method; content:\"POST\"; http.uri; content:\"/krashrpt.php\"; fast_pattern; endswith; http.request_body; content:\"kuid=|60|\"; depth:6; reference:url,unit42.paloaltonetworks.com/new-mirai-variant-adds-8-new-exploits-targets-additional-iot-devices/; reference:cve,CVE-2018-11138; classtype:attempted-admin; sid:2027456; rev:4; metadata:attack_target IoT, created_at 2019_06_11, deployment Perimeter, performance_impact Low, signature_severity Major, tag CISA_KEV, updated_at 2020_09_17, mitre_tactic_id TA0008, mitre_tactic_name Lateral_Movement, mitre_technique_id T1210, mitre_technique_name Exploitation_Of_Remote_Services;)",
+          "trust": "official-verified",
+          "engine": "suricata7",
+          "source": "Public (Suricata 7 ET Open)",
+          "license": "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)",
+          "verified": true,
+          "indicators": null
+        }
+      ],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Ostorlab/KEV",
+      "https://github.com/Ostorlab/known_exploited_vulnerbilities_detectors",
+      "https://github.com/lean0x2F/lean0x2f.github.io"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "active",
+    "has_public_exploit": true,
+    "has_metasploit_module": true,
+    "metasploit_modules": [
+      "exploit/unix/http/quest_kace_systems_management_rce"
+    ],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-69106",
+    "title": "JFrog Artifactory의 잠재적 캐시 포이즈닝",
+    "description": "낮은 권한의 사용자가 특정 조건에서 캐시된 아티팩트 메타데이터를 오염시켜, 사용자가 신뢰할 수 없는 콘텐츠를 가져오게 할 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-20"
+    ],
+    "affected": [
+      {
+        "vendor": "jfrog",
+        "product": "artifactory",
+        "versions": "7.146.29 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T05:09:12.67417+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2024-50206",
+    "title": "net: ethernet: mtk_eth_soc: fq dma 초기화 중 메모리 오염 수정",
+    "description": "fq dma 초기화 시 버퍼 할당 루프가 디스크립터 범위를 초과하여 참조함으로써 발생하는 메모리 오염 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00369,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "c57e558194430d10d5e5f4acd8a8655b68dade13 부터 68cd084e3ec1512cd383cb3e9cf0ab7ab413724c 이전, c57e558194430d10d5e5f4acd8a8655b68dade13 부터 88806efc034a9830f483963326b99930ad519af1 이전, 6f50d0bc1bbd45ce2a6d8f378daa00e56c198e9e (단일 버전), 6.9.6 부터 6.10 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2877",
+    "date": "2026-08-04T22:00:30.243835+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2022-50363",
+    "title": "skmsg: alloc_sk_msg()에 gfp 인자 전달",
+    "description": "non-sleepable 컨텍스트에서 alloc_sk_msg()가 호출될 때 발생하는 문제를 방지하기 위해 gfp_t 인자를 전달합니다.",
+    "cvss": 9.8,
+    "epss": 0.00372,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "43312915b5ba20741617dd2119e835205fa8580c 부터 693ddd6ffc05b228ea1638f9d757c5d3541f9446 이전, 43312915b5ba20741617dd2119e835205fa8580c 부터 2d1f274b95c6e4ba6a813b3b8e7a1a38d54a0a08 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2748",
+    "date": "2026-08-04T12:41:55.720509+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-56656",
+    "title": "bnxt_en: 5760X 칩의 oops 방지를 위한 aggregation ID 마스크 수정",
+    "description": "5760X 칩의 aggregation ID 필드가 12비트로 변경됨에 따라, 마스크 설정을 수정하여 oops 발생을 방지합니다.",
+    "cvss": 9.8,
+    "epss": 0.00372,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "13d2d3d381ee9844f89bd436ab0f44204660027e 부터 fe9274027697c69c1430dc7ee568f82b331ef972 이전, 13d2d3d381ee9844f89bd436ab0f44204660027e 부터 24c6843b7393ebc80962b59d7ae71af91bf0dcc1 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.8 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2897",
+    "date": "2026-08-04T22:02:38.805643+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/cku-heise/euvd-api-doc",
+      "https://github.com/oogasawa/Utility-security"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2023-53360",
+    "title": "NFSv4.2: READ_PLUS를 위한 scratch 처리 재작업",
+    "description": "동일한 nfs_pgio_header를 사용하는 다중 요청 시 scratch 버퍼가 double-free 되거나 NULL 포인터 참조로 인한 oops가 발생하는 문제를 수정함.",
+    "cvss": 9.8,
+    "epss": 0.00374,
+    "is_kev": false,
+    "cwe": [
+      "CWE-415"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "886959f425b6a936a30b82a297ae3aecb3b8230f 부터 adac9f0ddd2b291c7ce41f549fdb27a13616cff5 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 a2f4cb206bd94b3f4a7bb05fcdce9525283b5681 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 ae5d5672f1db711e91db6f52df5cb16ecd8f5692 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 303a78052091c81e9003915c521fdca1c7e117af 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.4 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2771",
+    "date": "2026-08-04T15:59:11.973869+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2024-45013",
+    "title": "nvme: keep-alive 중지 로직을 nvme_uninit_ctrl()로 이동",
+    "description": "컨트롤러 시작 실패 후 드라이버 언로드 시 keep-alive 작업으로 인해 use-after-free가 발생하는 문제를 해결합니다.",
+    "cvss": 9.8,
+    "epss": 0.00379,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "3af755a46881c32fecaecfdeaf3a8f0a869deca5 부터 4101af98ab573554c4225e328d506fec2a74bc54 이전, 3af755a46881c32fecaecfdeaf3a8f0a869deca5 부터 a54a93d0e3599b05856971734e15418ac551a14c 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.7 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2854",
+    "date": "2026-08-04T20:19:56.355743+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64067",
+    "title": "netfs: stream->subrequests에 락 없이 접근 시 누락된 배리어 수정",
+    "description": "netfs_collect_read_results() 및 netfs_collect_write_results()에서 락 없이 subrequests 리스트와 플래그에 접근할 때 필요한 메모리 배리어를 추가함.",
+    "cvss": 9.8,
+    "epss": 0.0038,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 293a4532c36f38458e38b8879b174ab797718b9d 이전, 288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 b5782e2d462c028096f922abca46318cec890670 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1658",
+    "date": "2026-07-21T10:21:33.76453+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-64068",
+    "title": "netfs: 새로운 subreq 추가 재시도 시 누락된 락킹 수정",
+    "description": "netfs_retry_read_subrequests() 및 netfs_retry_write_stream()에서 subrequests 추가 시 적절한 락을 사용하도록 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.0038,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 393f3f0d7353a94b1e0bc4ca89c683fe983e5fd2 이전, 288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 cce18c263e9623872327ba3c956012f73c1179cc 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.10 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1661",
+    "date": "2026-07-21T12:41:22.782374+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-51452",
+    "title": "TOTOLINK A7000R 펌웨어의 로그인 우회 (Login Bypass)",
+    "description": "formLoginAuth.htm을 통해 특정 요청을 보냄으로써 공격자가 로그인을 우회할 수 있는 취약점이 존재합니다.",
+    "cvss": 9.8,
+    "epss": 0.00384,
+    "is_kev": false,
+    "cwe": [
+      "CWE-288"
+    ],
+    "affected": [
+      {
+        "vendor": "totolink",
+        "product": "a7000r firmware",
+        "versions": "9.1.0u.6115_b20201022"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2924",
+    "date": "2026-08-04T23:31:10.724325+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/fkie-cad/nvd-json-data-feeds"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2025-39946",
+    "title": "tls: 헤더가 잘못된 경우 스트림을 중단하도록 수정",
+    "description": "Linux 커널에서 소켓 버퍼가 작을 때 잘못된 레코드를 발견하더라도 연결을 즉시 중단하지 않는 문제가 해결되었습니다.",
+    "cvss": 9.8,
+    "epss": 0.08942,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 b36462146d86b1f22e594fe4dae611dffacfb203 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 4cefe5be73886f383639fe0850bb72d5b568a7b9 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 208640e6225cc929a05adbf79d1df558add3e231 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 61ca2da5fb8f433ce8bbd1657c84a86272133e6b 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 0aeb54ac4cd5cf8f60131b4d9ec0b6dc9c27b20d 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3002",
+    "date": "2026-08-06T03:54:38.27973+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/ARPSyndicate/cve-scores",
+      "https://github.com/CrackerCat/feed",
+      "https://github.com/farazsth98/exploit-CVE-2025-39946"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": "none",
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-48449",
+    "title": "Adobe Campaign Classic (ACC) | 잘못된 권한 부여 (Incorrect Authorization) (CWE-863)",
+    "description": "잘못된 권한 부여 취약점으로 인해 현재 사용자 권한으로 임의 코드 실행이 가능합니다.\n사용자 상호작용 없이 공격이 가능하며 스코프가 변경됩니다.",
+    "cvss": 10,
+    "epss": 0.00542,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "Adobe",
+        "product": "Adobe Campaign Classic",
+        "versions": "7.4.3 build 9397 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2409",
+    "date": "2026-07-30T03:36:32.96103+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
     "id": "CVE-2026-4519",
     "title": "webbrowser.open()의 URL 시작 부분 대시(-) 허용 문제",
     "description": "webbrowser.open() API가 URL 시작 부분의 대시를 허용하여 브라우저 명령줄 옵션으로 처리될 수 있는 문제를 수정했습니다.",
@@ -7664,39 +9352,6 @@
     "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
     "asset_match": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-69106",
-    "title": "JFrog Artifactory의 잠재적 캐시 포이즈닝",
-    "description": "낮은 권한의 사용자가 특정 조건에서 캐시된 아티팩트 메타데이터를 오염시켜, 사용자가 신뢰할 수 없는 콘텐츠를 가져오게 할 수 있습니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-20"
-    ],
-    "affected": [
-      {
-        "vendor": "jfrog",
-        "product": "artifactory",
-        "versions": "7.146.29 이전"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-12T18:14:00.097032+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -143888,88 +145543,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-64067",
-    "title": "netfs: stream->subrequests에 락 없이 접근 시 누락된 배리어 수정",
-    "description": "netfs_collect_read_results() 및 netfs_collect_write_results()에서 락 없이 subrequests 리스트와 플래그에 접근할 때 필요한 메모리 배리어를 추가함.",
-    "cvss": 9.8,
-    "epss": 0.0038,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 293a4532c36f38458e38b8879b174ab797718b9d 이전, 288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 b5782e2d462c028096f922abca46318cec890670 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.10 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1658",
-    "date": "2026-07-21T10:21:33.76453+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-64068",
-    "title": "netfs: 새로운 subreq 추가 재시도 시 누락된 락킹 수정",
-    "description": "netfs_retry_read_subrequests() 및 netfs_retry_write_stream()에서 subrequests 추가 시 적절한 락을 사용하도록 수정합니다.",
-    "cvss": 9.8,
-    "epss": 0.0038,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 393f3f0d7353a94b1e0bc4ca89c683fe983e5fd2 이전, 288ace2f57c9d06dd2e42bd80d03747d879a4068 부터 cce18c263e9623872327ba3c956012f73c1179cc 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.10 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/1661",
-    "date": "2026-07-21T12:41:22.782374+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-64057",
     "title": "afs: afs_get_link()에서 사용하는 락킹 수정",
     "description": "AFS 파일 시스템의 심볼릭 링크 락킹 오류를 수정하여 afs_read_single()의 레이스 컨디션 및 RCU 배리어 누락 문제를 해결함.",
@@ -191473,51 +193046,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2025-39946",
-    "title": "tls: 헤더가 잘못된 경우 스트림을 중단하도록 수정",
-    "description": "Linux 커널에서 소켓 버퍼가 작을 때 잘못된 레코드를 발견하더라도 연결을 즉시 중단하지 않는 문제가 해결되었습니다.",
-    "cvss": 9.8,
-    "epss": 0.08942,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 b36462146d86b1f22e594fe4dae611dffacfb203 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 4cefe5be73886f383639fe0850bb72d5b568a7b9 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 208640e6225cc929a05adbf79d1df558add3e231 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 61ca2da5fb8f433ce8bbd1657c84a86272133e6b 이전, 84c61fe1a75b4255df1e1e7c054c9e6d048da417 부터 0aeb54ac4cd5cf8f60131b4d9ec0b6dc9c27b20d 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3002",
-    "date": "2026-08-06T03:54:38.27973+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/ARPSyndicate/cve-scores",
-      "https://github.com/CrackerCat/feed",
-      "https://github.com/farazsth98/exploit-CVE-2025-39946"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2025-39889",
     "title": "Bluetooth: l2cap: 수신 연결 시 암호화 키 크기 확인",
     "description": "Linux 커널의 Bluetooth l2cap에서 Security Mode 4 Level 4 요구 사항인 16바이트 키 크기를 검증하도록 수정되었습니다.",
@@ -204800,44 +206328,6 @@
     "cvss_vector": "",
     "asset_match": false,
     "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-48449",
-    "title": "Adobe Campaign Classic (ACC) | 잘못된 권한 부여 (Incorrect Authorization) (CWE-863)",
-    "description": "잘못된 권한 부여 취약점으로 인해 현재 사용자 권한으로 임의 코드 실행이 가능합니다.\n사용자 상호작용 없이 공격이 가능하며 스코프가 변경됩니다.",
-    "cvss": 10,
-    "epss": 0.00542,
-    "is_kev": false,
-    "cwe": [
-      "CWE-863"
-    ],
-    "affected": [
-      {
-        "vendor": "Adobe",
-        "product": "Adobe Campaign Classic",
-        "versions": "7.4.3 build 9397 이하"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2409",
-    "date": "2026-07-30T03:36:32.96103+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
@@ -221449,50 +222939,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2024-56656",
-    "title": "bnxt_en: 5760X 칩의 oops 방지를 위한 aggregation ID 마스크 수정",
-    "description": "5760X 칩의 aggregation ID 필드가 12비트로 변경됨에 따라, 마스크 설정을 수정하여 oops 발생을 방지합니다.",
-    "cvss": 9.8,
-    "epss": 0.00372,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "13d2d3d381ee9844f89bd436ab0f44204660027e 부터 fe9274027697c69c1430dc7ee568f82b331ef972 이전, 13d2d3d381ee9844f89bd436ab0f44204660027e 부터 24c6843b7393ebc80962b59d7ae71af91bf0dcc1 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.8 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2897",
-    "date": "2026-08-04T22:02:38.805643+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/cku-heise/euvd-api-doc",
-      "https://github.com/oogasawa/Utility-security"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2024-56655",
     "title": "netfilter: nf_tables: call_rcu를 통한 규칙 파괴 지연 방지",
     "description": "nf_tables_chain_destroy는 sleep 가능하므로 call_rcu 콜백에서 사용할 수 없는 문제를 해결합니다.",
@@ -227768,49 +229214,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2024-50206",
-    "title": "net: ethernet: mtk_eth_soc: fq dma 초기화 중 메모리 오염 수정",
-    "description": "fq dma 초기화 시 버퍼 할당 루프가 디스크립터 범위를 초과하여 참조함으로써 발생하는 메모리 오염 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00369,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "c57e558194430d10d5e5f4acd8a8655b68dade13 부터 68cd084e3ec1512cd383cb3e9cf0ab7ab413724c 이전, c57e558194430d10d5e5f4acd8a8655b68dade13 부터 88806efc034a9830f483963326b99930ad519af1 이전, 6f50d0bc1bbd45ce2a6d8f378daa00e56c198e9e (단일 버전), 6.9.6 부터 6.10 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.10 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2877",
-    "date": "2026-08-04T22:00:30.243835+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-50195",
@@ -236783,47 +238186,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2024-45013",
-    "title": "nvme: keep-alive 중지 로직을 nvme_uninit_ctrl()로 이동",
-    "description": "컨트롤러 시작 실패 후 드라이버 언로드 시 keep-alive 작업으로 인해 use-after-free가 발생하는 문제를 해결합니다.",
-    "cvss": 9.8,
-    "epss": 0.00379,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "3af755a46881c32fecaecfdeaf3a8f0a869deca5 부터 4101af98ab573554c4225e328d506fec2a74bc54 이전, 3af755a46881c32fecaecfdeaf3a8f0a869deca5 부터 a54a93d0e3599b05856971734e15418ac551a14c 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.7 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2854",
-    "date": "2026-08-04T20:19:56.355743+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2024-45009",
@@ -267488,51 +268850,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2023-53360",
-    "title": "NFSv4.2: READ_PLUS를 위한 scratch 처리 재작업",
-    "description": "동일한 nfs_pgio_header를 사용하는 다중 요청 시 scratch 버퍼가 double-free 되거나 NULL 포인터 참조로 인한 oops가 발생하는 문제를 수정함.",
-    "cvss": 9.8,
-    "epss": 0.00374,
-    "is_kev": false,
-    "cwe": [
-      "CWE-415"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "886959f425b6a936a30b82a297ae3aecb3b8230f 부터 adac9f0ddd2b291c7ce41f549fdb27a13616cff5 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 a2f4cb206bd94b3f4a7bb05fcdce9525283b5681 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 ae5d5672f1db711e91db6f52df5cb16ecd8f5692 이전, fbd2a05f29a95d5b42b294bf47e55a711424965b 부터 303a78052091c81e9003915c521fdca1c7e117af 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.4 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2771",
-    "date": "2026-08-04T15:59:11.973869+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/fkie-cad/nvd-json-data-feeds"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2023-53358",
     "title": "ksmbd: 동시 smb2 트리 연결 해제 시의 레이스 컨디션 수정",
     "description": "동시 smb2 트리 연결 해제 중 발생하는 UAF 문제를 해결하기 위해 TREE_CONN_EXPIRE 플래그를 도입했습니다.",
@@ -278013,49 +279330,6 @@
     "has_metasploit_module": false,
     "metasploit_modules": [],
     "severity": "High"
-  },
-  {
-    "id": "CVE-2022-50363",
-    "title": "skmsg: alloc_sk_msg()에 gfp 인자 전달",
-    "description": "non-sleepable 컨텍스트에서 alloc_sk_msg()가 호출될 때 발생하는 문제를 방지하기 위해 gfp_t 인자를 전달합니다.",
-    "cvss": 9.8,
-    "epss": 0.00372,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "43312915b5ba20741617dd2119e835205fa8580c 부터 693ddd6ffc05b228ea1638f9d757c5d3541f9446 이전, 43312915b5ba20741617dd2119e835205fa8580c 부터 2d1f274b95c6e4ba6a813b3b8e7a1a38d54a0a08 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2748",
-    "date": "2026-08-04T12:41:55.720509+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
   },
   {
     "id": "CVE-2022-50367",
@@ -305490,46 +306764,6 @@
     "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
     "asset_match": false,
     "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2025-51452",
-    "title": "TOTOLINK A7000R 펌웨어의 로그인 우회 (Login Bypass)",
-    "description": "formLoginAuth.htm을 통해 특정 요청을 보냄으로써 공격자가 로그인을 우회할 수 있는 취약점이 존재합니다.",
-    "cvss": 9.8,
-    "epss": 0.00384,
-    "is_kev": false,
-    "cwe": [
-      "CWE-288"
-    ],
-    "affected": [
-      {
-        "vendor": "totolink",
-        "product": "a7000r firmware",
-        "versions": "9.1.0u.6115_b20201022"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/2924",
-    "date": "2026-08-04T23:31:10.724325+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/fkie-cad/nvd-json-data-feeds"
-    ],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": "none",
     "has_public_exploit": false,
     "has_metasploit_module": false,
     "metasploit_modules": [],
