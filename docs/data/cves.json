@@ -1,5 +1,1469 @@
 [
   {
+    "id": "CVE-2026-53791",
+    "title": "rsync 3.5.0 미만 버전 데몬의 PROXY 프로토콜 헤더를 이용한 IP 스푸핑 취약점",
+    "description": "rsync 3.5.0 미만 버전의 데몬에서 PROXY 프로토콜 헤더를 통해 소스 IP 주소를 위조할 수 있는 취약점이 존재합니다. 공격자는 조작된 헤더를 전송하여 IP 기반 접근 제어 규칙을 우회하고 무단으로 시스템에 접근할 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3671",
+    "date": "2026-08-13T15:23:52.993553+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-70452",
+    "title": "rsync 3.1.0 ~ 3.5.0 미만 버전의 DNS 해석 실패를 통한 액세스 제어 우회 취약점",
+    "description": "DNS 해석 실패 시 거부 규칙을 건너뛰는 취약점으로 인해, 원격 공격자가 호스트 기반 액세스 제어를 우회할 수 있습니다. 이를 통해 모듈 수준의 IP 접근 제어를 무력화하고 제한된 파일 트리에 무단 접근이 가능합니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863",
+      "CWE-636"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.1.0 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3670",
+    "date": "2026-08-13T15:23:09.784237+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-53793",
+    "title": "rsync 3.5.0 미만 버전의 chroot 모드 내 /./ 경계 마커를 이용한 경로 제한 우회 취약점",
+    "description": "rsync 3.5.0 미만 버전에서 모듈 루트에 /./ 경계 마커가 포함된 경우, chroot 경계를 벗어날 수 있는 경로 제한 우회 취약점이 존재합니다. 공격자는 /./ 표기법의 부적절한 처리나 xname 경로 위조를 통해 모듈 하위 트리 외부 파일에 무단으로 접근하여 읽거나 쓸 수 있습니다.",
+    "cvss": 9.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3669",
+    "date": "2026-08-13T15:23:09.666759+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-73509",
+    "title": "OpenList: 일괄 이름 변경 `src_name` 트래버설을 통한 기본 경로 외부 파일 이름 변경",
+    "description": "batch_rename 핸들러에서 src_name 검증이 부족하여, 인증된 사용자가 경로 트래버설을 통해 기본 경로 외부의 파일 이름을 변경할 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "OpenListTeam",
+        "product": "OpenList",
+        "versions": "< 4.2.4 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:59.072651+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-73507",
+    "title": "Netty: CPU Exhaustion을 통한 XmlFrameDecoder의 Denial of Service",
+    "description": "XmlFrameDecoder의 파서 상태 관리 미흡으로, 반복적인 </ 시퀀스를 전송해 EventLoop 스레드의 CPU를 고갈시켜 DoS를 유발할 수 있습니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-400"
+    ],
+    "affected": [
+      {
+        "vendor": "netty",
+        "product": "netty",
+        "versions": "< 4.1.136.Final (단일 버전), >= 4.2.0.Final, < 4.2.16.Final (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.909056+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-73505",
+    "title": "Oh My Posh: 경로 세그먼트의 템플릿 인젝션을 통한 임의 명령 실행",
+    "description": "Go 템플릿 표현식이 포함된 디렉토리 이름을 통해 템플릿 인젝션이 발생하여, 현재 사용자 권한으로 임의의 OS 명령을 실행할 수 있습니다.",
+    "cvss": 7.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-94",
+      "CWE-1336"
+    ],
+    "affected": [
+      {
+        "vendor": "JanDeDobbeleer",
+        "product": "oh-my-posh",
+        "versions": "< 29.35.1 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.734971+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70464",
+    "title": "rsync 2.0.0 < 3.5.0 Handshake Stall을 통한 Connection Slot Exhaustion DoS",
+    "description": "핸드셰이크 프로세스를 의도적으로 지연시켜 데몬의 연결 슬롯을 고갈시킴으로써 정당한 사용자의 서비스 이용을 방해하는 DoS 취약점입니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "2.0.0 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.549712+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70462",
+    "title": "rsync 3.1.0 < 3.5.0 MSG_IO_TIMEOUT을 통한 Signed Integer Overflow",
+    "description": "I/O timeout 구현의 signed integer overflow 취약점으로, MSG_IO_TIMEOUT 메시지를 통해 연결 타임아웃을 비활성화하여 데몬 슬롯을 무한히 점유할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-190",
+      "CWE-835"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.1.0 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.370978+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70461",
+    "title": "rsync 3.2.5 < 3.5.0 files-from 항목을 통한 Heap Out-of-Bounds Write",
+    "description": "조작된 files-from 항목을 통해 Heap Out-of-Bounds Write 취약점이 발생합니다.\n원격 인증되지 않은 공격자가 Heap 할당 범위를 벗어나 데이터를 쓸 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.2.5 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.207449+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70463",
+    "title": "rsync 3.1.0 < 3.5.0 auth users 지시어 파싱을 통한 권한 우회",
+    "description": "auth users 지시어 파싱 시 공백이 포함된 그룹 이름을 잘못 처리하여 권한 우회가 가능합니다.\n특정 그룹에 대한 거부 규칙이 무시될 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-863"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.1.0 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:58.023752+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70457",
+    "title": "rsync 3.2.3 < 3.5.0 parse_size_arg()를 통한 Out-of-Bounds Write",
+    "description": "parse_size_arg()에서 snprintf() 반환값을 경계 검사 없이 인덱스로 사용하여 .bss 세그먼트 배열 범위를 벗어난 쓰기가 발생합니다.\n이로 인해 .bss 메모리가 오염될 수 있습니다.",
+    "cvss": 8.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-131",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.2.3 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:57.85224+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70458",
+    "title": "rsync 3.0.0 < 3.5.0 FLAG_HLINKED 처리 중 Out-of-Bounds Write",
+    "description": "FLAG_HLINKED 플래그 처리 중 Out-of-Bounds Write 취약점이 발생합니다.\n할당된 구조체 범위를 벗어나 Heap 또는 Stack 데이터를 오염시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.0.0 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:57.688585+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70456",
+    "title": "rsync 3.0.1 < 3.5.0 read_args()를 통한 Heap Out-of-Bounds Write",
+    "description": "read_args() 함수에서 Out-of-Bounds Write 취약점이 발생합니다.\n조작된 인자 리스트를 통해 인접한 Heap 메모리를 오염시킬 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.0.1 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:57.524691+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70454",
+    "title": "rsync < 3.5.0 SSL/OpenSSL 모드를 통한 TLS 인증서 검증 우회",
+    "description": "TLS 인증서 검증 취약점으로 인해 on-path 공격자가 세션을 가로챌 수 있습니다.\n신뢰할 수 없는 인증서를 사용하여 세션 내용을 복호화하거나 변조할 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-295"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:57.343+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:P/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70453",
+    "title": "rsync < 3.5.0 hash_search()를 통한 알고리즘 복잡도 DoS",
+    "description": "hash_search() 함수의 알고리즘 복잡도 취약점을 이용해, 조작된 파일 리스트를 전송하여 수신측 CPU 자원을 고갈시키고 DoS를 유발할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-407"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:57.163316+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70455",
+    "title": "rsync 3.4.2 < 3.5.0 --zt Zstandard 압축 스레드 고갈을 통한 DoS",
+    "description": "--zt 옵션을 통해 Zstandard 워커 스레드를 무제한으로 생성함으로써 수신측의 스레드 및 메모리 자원을 고갈시켜 DoS를 유발할 수 있습니다.",
+    "cvss": 8.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-770"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.2 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.995496+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-6387",
+    "title": "Lenovo System Update 취약점",
+    "description": "Lenovo System Update의 인증 우회 취약점으로 인해, 로컬 인증 사용자가 권한을 상승시켜 임의 코드를 실행할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "Lenovo",
+        "product": "System Update",
+        "versions": "5.08.04.85 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.82029+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-65935",
+    "title": "레거시 페어링의 passkey entry 우회",
+    "description": "RS9116W 및 SiWx917에서 임시 키 값을 조작하여 Bluetooth LE 레거시 페어링의 passkey entry를 우회할 수 있습니다.",
+    "cvss": 7.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-305"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "WiseConnect",
+        "versions": "2.0.0 부터 2.*.* 이하, 4.0.0 부터 4.*.* 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.64688+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:A/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-65934",
+    "title": "BT122 평문 pause encryption 요청으로 인한 DOS",
+    "description": "BT122 모듈에서 암호화되지 않은 'pause encryption request' 메시지로 인해 서비스 거부(DoS)가 발생할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-440"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "BT122",
+        "versions": "1.4.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.476703+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63425",
+    "title": "Lenovo Dock Manager 취약점",
+    "description": "Lenovo Dock Manager의 부적절한 권한 설정 취약점으로 인해, 로컬 인증 사용자가 권한을 상승시켜 임의 코드를 실행할 수 있습니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-276"
+    ],
+    "affected": [
+      {
+        "vendor": "Lenovo",
+        "product": "Dock Manager",
+        "versions": "1.6.5.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.310252+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63424",
+    "title": "Lenovo Dock Manager 취약점",
+    "description": "Lenovo Dock Manager에서 부적절하게 보호된 키가 발견되어 인증된 로컬 사용자가 권한을 상승시킬 수 있는 취약점입니다.",
+    "cvss": 7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-261"
+    ],
+    "affected": [
+      {
+        "vendor": "Lenovo",
+        "product": "Dock Manager",
+        "versions": "1.6.5.3 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:56.127093+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53803",
+    "title": "rsync < 3.5.0 심볼릭 링크 팔로잉을 통한 임의 파일 덮어쓰기",
+    "description": "예측 가능한 출력 경로에 심볼릭 링크를 배치하여 임의의 파일을 덮어쓰고 로컬 권한 상승을 유발할 수 있는 취약점입니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.940629+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-63423",
+    "title": "Lenovo Accessories and Display Manager 취약점",
+    "description": "Windows용 Lenovo Accessories and Display Manager for Enterprise에서 인증된 로컬 사용자가 권한을 상승시켜 임의 코드를 실행할 수 있는 취약점입니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-321"
+    ],
+    "affected": [
+      {
+        "vendor": "Lenovo",
+        "product": "Accessories and Display Manager",
+        "versions": "1.0.9 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.771587+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53801",
+    "title": "rsync < 3.5.0 심볼릭 링크 레이스 컨디션 디렉토리 트래버설",
+    "description": "디렉토리 스캔 로직의 심볼릭 링크 레이스 컨디션을 통해 모듈 루트 외부의 파일을 열거하고 전송할 수 있는 취약점입니다.",
+    "cvss": 8.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59",
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.602607+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53802",
+    "title": "rsync < 3.5.0 심볼릭 링크 팔로잉을 통한 임의 파일 읽기",
+    "description": "입력 설정 파일 처리 시 심볼릭 링크 팔로잉 취약점을 악용하여 rsync 데몬 프로세스가 접근 가능한 임의의 파일을 읽을 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-61"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.430905+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53799",
+    "title": "rsync < 3.5.0 ACL/xattr 적용 시 심볼릭 링크 레이스 컨디션",
+    "description": "심볼릭 링크 레이스 컨디션을 이용해 의도하지 않은 파일에 임의의 ACL 또는 확장 속성을 적용할 수 있는 취약점입니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59",
+      "CWE-367"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.261321+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:H/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53795",
+    "title": "rsync 3.5.0 미만 버전의 --temp-dir/--link-dest를 통한 임의 파일 쓰기",
+    "description": "--temp-dir 또는 --link-dest 옵션에 절대 경로를 지정하여 대상 트리 외부의 임의 위치에 파일을 쓸 수 있는 취약점입니다.",
+    "cvss": 7.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:55.087595+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53792",
+    "title": "rsync 3.5.0 미만 버전의 길이 0 체크섬 블록을 통한 Out-of-Bounds Read",
+    "description": "송신측 블록 매칭 로직에서 길이 0인 체크섬 블록 처리 시 음수 오프셋이 계산되어, 할당된 버퍼 외부의 메모리를 읽는 Out-of-Bounds Read가 발생합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-129",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:54.627855+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53784",
+    "title": "rsync 3.5.0 미만 버전의 심볼릭 링크 모듈 루트를 통한 경로 탐색(Path Traversal)",
+    "description": "chroot가 비활성화된 상태에서 모듈 루트 경로가 심볼릭 링크일 때, chdir()이 이를 제대로 처리하지 않아 의도한 루트 외부의 파일에 접근할 수 있습니다.",
+    "cvss": 8.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:54.450991+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53783",
+    "title": "rsync 3.5.0 미만 버전의 rrsync를 통한 TOCTOU 레이스 컨디션 디렉토리 탈출",
+    "description": "rrsync 래퍼의 TOCTOU 취약점을 이용해 검증 후 전송 전 경로를 심볼릭 링크로 교체함으로써 디렉토리 제한을 우회하고 외부 파일에 접근할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59",
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:54.288197+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-53789",
+    "title": "rsync 3.5.0 미만 버전의 악성 파일 리스트를 통한 임의 파일 삭제",
+    "description": "부적절한 경로 처리 취약점으로 인해, 조작된 파일 리스트를 전송하여 --delete 작업 범위를 대상 하위 트리 외부로 확장해 파일을 삭제할 수 있습니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-807"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:54.123319+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-49857",
+    "title": "auth-fetch-mcp의 IPv4-mapped IPv6 루프백을 통한 SSRF 보호 우회",
+    "description": "isPrivateV6() 함수가 16진수 정규화된 IPv4-mapped IPv6 루프백 주소를 감지하지 못해 SSRF 보호를 우회할 수 있습니다.",
+    "cvss": 7.4,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-918"
+    ],
+    "affected": [
+      {
+        "vendor": "ymw0407",
+        "product": "auth-fetch-mcp",
+        "versions": "< 3.0.2 (단일 버전)"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:53.958896+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28154",
+    "title": "WordPress Samex 및 M.Anh 테마의 크로스 사이트 스크립팅(XSS) 취약점",
+    "description": "Samex 및 M.Anh WooCommerce WordPress 테마에서 입력값 중립화 미흡으로 인해 Reflected XSS 공격이 가능합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "snstheme",
+        "product": "Samex - Clean, Minimal Shop WooCommerce WordPress Theme",
+        "versions": "2.5 이하"
+      },
+      {
+        "vendor": "snstheme",
+        "product": "M.Anh - Fashion WooCoommerce WordPress Theme",
+        "versions": "1.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:53.7902+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-19293",
+    "title": "SMP 보안 요청 취약점",
+    "description": "주변 장치의 SMP 보안 요청에 최대 암호화 키 크기가 포함되지 않아, 작은 키 사이즈 사용 시 브루트포싱(Brute-forcing)이 쉬워질 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-521"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "WiseConnect",
+        "versions": "4.0.0 부터 4.1.0 이전, 2.0.0 부터 2.14.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:53.568912+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-15994",
+    "title": "Lenovo Commercial Vantage 취약점",
+    "description": "부적절한 링크 팔로잉(link following) 취약점으로 인해 로컬 인증 사용자가 권한 상승된 코드를 실행할 수 있습니다.",
+    "cvss": 7.3,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "Lenovo",
+        "product": "Commercial Vantage",
+        "versions": "20.2026.20.0 이전"
+      },
+      {
+        "vendor": "Lenovo",
+        "product": "Vantage",
+        "versions": "10.2606.12 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:53.390895+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:L/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-19734",
+    "title": "Prospero Flow CRM의 IDOR 취약점으로 인한 테넌트 간 제품 정보 노출 및 하이재킹",
+    "description": "제품 관리 컴포넌트의 권한 부여 누락 및 우회로 인해 인증된 사용자가 타사 제품의 민감한 데이터를 읽거나 제품을 하이재킹할 수 있습니다.",
+    "cvss": 8.6,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-639"
+    ],
+    "affected": [
+      {
+        "vendor": "Roskus",
+        "product": "Prospero Flow CRM",
+        "versions": "5.4.7 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:53.196354+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:N/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-19292",
+    "title": "정식 장치와의 Bluetooth 재페어링 시 낮은 보안 수준 사용 가능",
+    "description": "정식 장치와 재페어링 시 이전보다 낮은 보안 수준을 사용하여 LTK 브루트포싱(Brute-forcing)이 더 쉬워질 수 있습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-305"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "WiseConnect",
+        "versions": "4.0.0 부터 4.1.0 이전, 2.0.0 부터 2.14.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:52.970076+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-19291",
+    "title": "Bluetooth 재페어링 시 이전보다 낮은 보안 수준 사용 가능",
+    "description": "기존 장치와 Bluetooth 재페어링 시 더 낮은 보안 수준이 사용될 수 있으며, RS9116W 및 SiWx91x 모델이 영향을 받습니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "WiseConnect",
+        "versions": "4.0.0 부터 4.1.0 이전, 2.0.0 부터 2.14.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:52.657564+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-16101",
+    "title": "이미 본딩된 장치와의 강제 재페어링",
+    "description": "이미 본딩된 장치를 스푸핑하여 RS9116W 또는 SiWx917이 공격자 장치와 강제로 재페어링되도록 유도할 수 있습니다. 자세한 내용은 아래 BLERP 논문의 V1을 참조하십시오.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-290"
+    ],
+    "affected": [
+      {
+        "vendor": "silabs.com",
+        "product": "WiseConnect",
+        "versions": "4.0.0 부터 4.1.0 이전, 2.0.0 부터 2.14.0 이전"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:22:52.115984+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-70460",
+    "title": "rsync 2.3.3 ~ 3.5.0 미만 버전의 --partial-dir/--backup-dir 심볼릭 링크를 통한 경로 탐색 취약점",
+    "description": "rsync 3.5.0 미만 버전에서 --partial-dir 또는 --backup-dir 옵션 사용 시 심볼릭 링크를 통해 모듈 루트를 벗어날 수 있는 경로 탐색 취약점이 존재합니다. 이를 통해 공격자는 모듈 루트 외부의 임의의 위치에 파일을 작성할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22",
+      "CWE-59"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "2.3.3 부터 3.4.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3668",
+    "date": "2026-08-13T15:22:51.777461+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-53790",
+    "title": "rsync 3.5.0 미만 버전의 다중 코드 경로를 통한 커맨드 인젝션 취약점",
+    "description": "rsync 3.5.0 미만 버전에서 환경 변수, 데몬 훅, rsync-ssl 래퍼 등 여러 경로를 통해 임의 명령어를 실행할 수 있는 인젝션 취약점이 존재합니다. 공격자는 검증되지 않은 호스트 이름 등에 셸 메타문자나 개행 문자를 삽입하여 rsync 프로세스 또는 사용자 권한으로 명령을 실행할 수 있습니다.",
+    "cvss": 9.2,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-78",
+      "CWE-88"
+    ],
+    "affected": [
+      {
+        "vendor": "RsyncProject",
+        "product": "rsync",
+        "versions": "3.4.4 이하"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3667",
+    "date": "2026-08-13T15:22:46.660699+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:4.0/AV:N/AC:H/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-66661",
+    "title": "WordPress Directories Pro 플러그인 <= 2.0.5 - Privilege Escalation 취약점",
+    "description": "Directories Pro 2.0.5 이하 버전에서 구독자 권한의 Privilege Escalation이 가능합니다.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "Onokazu",
+        "product": "Directories Pro",
+        "versions": "2.0.5 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:34.260059+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66657",
+    "title": "WordPress Biagiotti Core 플러그인 <= 2.1.1 - Local File Inclusion 취약점",
+    "description": "Biagiotti Core 2.1.1 이하 버전에서 인증되지 않은 Local File Inclusion이 가능합니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "Mikado-Themes",
+        "product": "Biagiotti Core",
+        "versions": "2.1.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:34.258937+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-66691",
     "title": "WordPress Nokri 테마 <= 1.6.6 - Broken Access Control 취약점",
     "description": "Nokri 1.6.6 이하 버전에서 인증되지 않은 Broken Access Control 취약점이 존재합니다.",
@@ -38,6 +1502,72 @@
     "severity": "Critical"
   },
   {
+    "id": "CVE-2026-66658",
+    "title": "WordPress Reviewer 플러그인 <= 3.14.2 - SQL Injection 취약점",
+    "description": "Reviewer 3.14.2 이하 버전에서 구독자 권한의 SQL Injection이 가능합니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "MVPThemes",
+        "product": "Reviewer",
+        "versions": "3.14.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:34.204117+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66656",
+    "title": "WordPress Foton Core 플러그인 <= 1.1.1 - Local File Inclusion 취약점",
+    "description": "Foton Core 1.1.1 이하 버전에서 인증되지 않은 Local File Inclusion이 가능합니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "Mikado-Themes",
+        "product": "Foton Core",
+        "versions": "1.1.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:33.523873+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
     "id": "CVE-2026-66465",
     "title": "WordPress Cartify 테마 <= 1.3.0.1 - 계정 탈취(Account Takeover) 취약점",
     "description": "Cartify 1.3.0.1 이하 버전에서 인증되지 않은 Broken Authentication 취약점이 존재합니다.",
@@ -56,6 +1586,797 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3665",
     "date": "2026-08-13T14:01:11.234724+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-66462",
+    "title": "WordPress WooCommerce Appointments 플러그인 <= 5.3.8 - Sensitive Data Exposure 취약점",
+    "description": "WooCommerce Appointments 5.3.8 이하 버전에서 인증되지 않은 Sensitive Data Exposure 취약점이 존재합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-497"
+    ],
+    "affected": [
+      {
+        "vendor": "BookingWP",
+        "product": "WooCommerce Appointments",
+        "versions": "5.3.8 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.934658+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66430",
+    "title": "WordPress Visitor Traffic Real Time Statistics Pro 플러그인 <= 11.10 - SQL 인젝션 취약점",
+    "description": "Visitor Traffic Real Time Statistics Pro 11.10 이하 버전에서 구독자 권한의 SQL 인젝션 가능.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "CODEPRESS",
+        "product": "Visitor Traffic Real Time Statistics Pro",
+        "versions": "11.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.933688+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66653",
+    "title": "WordPress Barista 테마 <= 2.5.1 - Local File Inclusion 취약점",
+    "description": "Barista 2.5.1 이하 버전에서 인증되지 않은 Local File Inclusion 취약점이 발견되었습니다.",
+    "cvss": 8.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-98"
+    ],
+    "affected": [
+      {
+        "vendor": "Edge-Themes",
+        "product": "Barista",
+        "versions": "2.5.1 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.932702+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-66429",
+    "title": "WordPress Visitor Traffic Real Time Statistics Pro 플러그인 <= 11.10 - 크로스 사이트 스크립팅(XSS) 취약점",
+    "description": "Visitor Traffic Real Time Statistics Pro 11.10 이하 버전에서 인증되지 않은 사용자의 XSS 공격 가능.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "CODEPRESS",
+        "product": "Visitor Traffic Real Time Statistics Pro",
+        "versions": "11.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.490679+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-65580",
+    "title": "WordPress Agrion 테마 <= 1.0.0 - Reflected Cross Site Scripting (XSS) 취약점",
+    "description": "Agrion 1.0.0 이하 버전에서 인증되지 않은 Cross Site Scripting (XSS) 가능.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "bracketweb",
+        "product": "Agrion",
+        "versions": "1.0.0 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.310584+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-65582",
+    "title": "WordPress AI Hub 테마 <= 1.3.10 - 임의 파일 다운로드 취약점",
+    "description": "AI Hub 1.3.10 이하 버전에서 구독자 권한의 임의 파일 다운로드 가능.",
+    "cvss": 7.7,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "LiquidThemes",
+        "product": "AI Hub",
+        "versions": "1.3.10 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.309901+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-61980",
+    "title": "WordPress OMGF Pro 플러그인 <= 5.2.7 - Arbitrary File Download 취약점",
+    "description": "OMGF Pro 5.2.7 이하 버전에서 인증되지 않은 Arbitrary File Download 가능.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-22"
+    ],
+    "affected": [
+      {
+        "vendor": "Daan.dev",
+        "product": "OMGF Pro",
+        "versions": "5.2.7 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:32.308402+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28157",
+    "title": "WordPress Do Lasso 플러그인 <= 358 - Path Traversal 취약점",
+    "description": "Do Lasso 358 이하 버전에서 구독자 권한의 Path Traversal 취약점이 발생합니다.",
+    "cvss": 7.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-35"
+    ],
+    "affected": [
+      {
+        "vendor": "Lasso Analytics, Inc.",
+        "product": "Do Lasso",
+        "versions": "358 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:31.753358+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28158",
+    "title": "WordPress Do Lasso 플러그인 <= 358 - Cross Site Scripting (XSS) 취약점",
+    "description": "Do Lasso 358 이하 버전에서 인증되지 않은 Cross Site Scripting (XSS) 취약점이 발생합니다.",
+    "cvss": 7.1,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-79"
+    ],
+    "affected": [
+      {
+        "vendor": "Lasso Analytics, Inc.",
+        "product": "Do Lasso",
+        "versions": "358 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:31.752244+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28161",
+    "title": "WordPress Service Finder Booking 플러그인 <= 6.2 - 권한 상승 취약점",
+    "description": "Service Finder Booking 6.2 이하 버전에서 구독자 권한 상승이 가능합니다.",
+    "cvss": 8.8,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-266"
+    ],
+    "affected": [
+      {
+        "vendor": "Aonetheme",
+        "product": "Service Finder Booking",
+        "versions": "6.2 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:31.581326+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-28156",
+    "title": "WordPress Do Lasso 플러그인 <= 358 - SQL Injection 취약점",
+    "description": "Do Lasso 358 이하 버전에서 구독자 권한의 SQL Injection 취약점이 발생합니다.",
+    "cvss": 8.5,
+    "epss": 0,
+    "is_kev": false,
+    "cwe": [
+      "CWE-89"
+    ],
+    "affected": [
+      {
+        "vendor": "Lasso Analytics, Inc.",
+        "product": "Do Lasso",
+        "versions": "358 이하"
+      }
+    ],
+    "report_url": null,
+    "date": "2026-08-13T15:18:30.907251+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {},
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "High"
+  },
+  {
+    "id": "CVE-2026-31608",
+    "title": "smb 서버: smb_direct_flush_send_list() 이후 smb_direct_free_sendmsg()의 double-free 방지",
+    "description": "smb_direct_flush_send_list()에서 이미 smb_direct_free_sendmsg()를 호출하므로, 중복 호출로 인한 double-free 취약점을 해결함.",
+    "cvss": 9.8,
+    "epss": 0.00457,
+    "is_kev": false,
+    "cwe": [
+      "CWE-415"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5ef18a2e66f2f33fdac64437bddfb9fe6389fdc7 부터 6968c91fab05b8fc4d6700e0cf34472bb422df25 이전, 79242e7b6bc63efec28b7c235bc320806afce6c0 부터 2ba03f46132b0d1a7bafb86e1ef61951a2254023 이전, 34abd408c8ba24d7c97bd02ba874d8c714f49db1 부터 830de6eeb9db4cb7e758201fb99328ef4ca4b032 이전, 34abd408c8ba24d7c97bd02ba874d8c714f49db1 부터 84ff995ae826aa6bbcc6c7b9ea569ff67c021d72 이전, 6.18.11 부터 6.18.24 이전, 6.19.1 부터 6.19.14 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3029",
+    "date": "2026-08-06T10:27:44.828452+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31609",
+    "title": "smb 클라이언트: smbd_send_batch_flush() 이후 smbd_free_send_io()의 double-free 방지",
+    "description": "smbd_send_batch_flush()에서 이미 smbd_free_send_io()를 호출하므로, 중복 호출로 인한 double-free 취약점을 해결함.",
+    "cvss": 9.8,
+    "epss": 0.00457,
+    "is_kev": false,
+    "cwe": [
+      "CWE-415"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "cca0526ef2344cab6944d7f441fc24e152da031b 부터 a9940dcbe5cb92482c04efc7341039ddf7dbf607 이전, 37b5c06956183b65e6808b509cf637632016cdf7 부터 22b7c1c619d808aec4cad3dc42103345e370d107 이전, 21538121efe6c8c5b51c742fa02cbe820bc48714 부터 f9a162c2bbcd0ac85bd07c5b37cf20286048b65c 이전, 21538121efe6c8c5b51c742fa02cbe820bc48714 부터 27b7c3e916218b5eb2ee350211140e961bfc49be 이전, 6.18.11 부터 6.18.24 이전, 6.19.1 부터 6.19.14 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "7.0 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3023",
+    "date": "2026-08-06T10:25:42.21925+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-45988",
+    "title": "rxrpc: RESPONSE 패킷의 재복호화 수정",
+    "description": "RESPONSE 패킷 처리 중 일시적 오류 발생 시 부분적으로 복호화된 상태로 재대기열에 추가되는 문제를 패킷 폐기 처리를 통해 수정함.",
+    "cvss": 9.8,
+    "epss": 0.00457,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "17926a79320afa9b95df6b977b40cca6d8713cea 부터 d61482be4aae1835b78875761206241835a7510e 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 7b89868305052b94a91b708c462bc2281fa42a4a 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 76cb9a2d252274adfae6e293a292434631a7d472 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 f55b383070170e988e4dec28be2af1714d258521 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 0422e7a4883f25101903f3e8105c0808aa5f4ce9 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.22 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3066",
+    "date": "2026-08-06T12:42:48.919234+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31436",
+    "title": "dmaengine: idxd: llist_abort_desc()의 잘못된 디스크립터 완료 수정",
+    "description": "llist_abort_desc()에서 잘못된 디스크립터를 완료하여 NULL 포인터 역참조나 디스크립터 누수가 발생할 수 있는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00457,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 e21da2ad8844585040fe4b82be1ad2fe99d40074 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 82656e8daf8de00935ae91b91bed43f4d6e0d644 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 0e4f43779d550e559be13a5cdb763bad92c4cc99 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 e1c9866173c5f8521f2d0768547a01508cb9ff27 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.8 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3013",
+    "date": "2026-08-06T10:21:37.213752+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-31669",
+    "title": "mptcp: __inet_lookup_established의 slab-use-after-free 수정",
+    "description": "mptcp_subflow_init()에서 SLAB_TYPESAFE_BY_RCU 플래그가 누락된 프로토콜 구조체를 복사하여 발생하는 slab-use-after-free 취약점을 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00459,
+    "is_kev": false,
+    "cwe": [
+      "CWE-416"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 f6e1f25fa5e733570f6d6fe37a4dfed2a0deba47 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 fb1f54b7d16f393b8b65d328410f78b4beea8fcc 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 3fd6547f5b8ac99687be6d937a0321efda760597 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 eb9c6aeb512f877cf397deb1e4526f646c70e4a7 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 15fa9ead4d5e6b6b9c794e84144146c917f2cb62 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 b313e9037d98c13938740e5ebda7852929366dff 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 9b55b253907e7431210483519c5ad711a37dafa1 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3038",
+    "date": "2026-08-06T10:30:59.563578+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-45898",
+    "title": "RDMA/iwcm: work_list 제거를 통한 workqueue 리스트 손상 수정",
+    "description": "iwcm_work의 프리 리스트 사용 중 queue_work() 중복 호출로 인한 workqueue 리스트 손상 문제를 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00465,
+    "is_kev": false,
+    "cwe": [
+      "CWE-1341"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "e1168f09b3314992f1c5251f3793102035da7237 부터 38c5b49fffa1b760959af74f11806eeb3ef4706d 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 eb715133e0ae12514bba4d2d5ce1dee774476056 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 a6b9e793e74e372daa266fd0d58b751305877897 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 7874eeacfa42177565c01d5198726671acf7adf2 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.11 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3063",
+    "date": "2026-08-06T12:41:13.628796+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-46115",
+    "title": "block: biovec_phys_mergeable에 pgmap 확인 추가",
+    "description": "물리적으로 연속된 bvec 세그먼트를 병합할 때, 서로 다른 dev_pagemap에 속해 있는지 확인하는 로직을 추가하여 오류를 방지함.",
+    "cvss": 9.8,
+    "epss": 0.00491,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "49580e690755d0e51ed7aa2c33225dd884fa738a 부터 3d2ecbd444b01d6500671d1a582b7393943cf539 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 a7f3aa8c9df3905fe820ae36b67ba56b81587574 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 f17d521075325b8afc42d1baa1c28a5e9aca111f 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 f632dab4b841554cd6416058c61886d7db176581 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 13920e4b7b784b40cf4519ff1f0f3e513476a499 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "6.2 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3067",
+    "date": "2026-08-06T12:43:38.207055+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-43493",
+    "title": "crypto: pcrypt - MAY_BACKLOG 요청 처리 수정",
+    "description": "MAY_BACKLOG 요청 시 EBUSY 반환을 처리하고 EINPROGRESS 알림을 필터링하도록 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00554,
+    "is_kev": false,
+    "cwe": [],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 ae7e95638d956d556d74b9abb9e780d3bd3dcd9e 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 1d7f07df450bac3301938fbc4251f2611be4084e 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 76641449b28979ebd6c02e9598367e119e385236 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 9f1cbca178c03188e201ed175251372149bb25f2 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 eb34e243df57e32f4c08fa191f3602ea19076276 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 77d55bc8675ee851ed639dc9be77325a8024cf67 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 46271895ddfb1ba41f89f7e0dffbe9c2bcf7380a 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 915b692e6cb723aac658c25eb82c58fd81235110 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "2.6.34 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3068",
+    "date": "2026-08-06T12:44:01.884379+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": false,
+    "poc_urls": [],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-43501",
+    "title": "ipv6: rpl: 재압축된 SRH 크기 증가 시 mac_len headroom 예약",
+    "description": "SRH 재압축 시 헤더 크기가 증가할 수 있으므로, 이를 위해 mac_len headroom을 예약하도록 수정합니다.",
+    "cvss": 9.8,
+    "epss": 0.00595,
+    "is_kev": false,
+    "cwe": [
+      "CWE-787",
+      "CWE-131"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 bde199c72d319a4e207f88daabc888317504e2fb 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 be1fa0aa9b4fdd5a8b7a61ba520a690a68391e6e 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 0a9e8053f1f8a8e1bfc1dd61ffe67be6c1180402 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 8e8be63465a5e80394c70324603dfea1bfdad48f 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 4babc2d9fda2df43823b85d08a0180b68f1b0854 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 c261d07a80576dc8ccf394ef8f074f8c67a06b37 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 7398ebefbfd4f8a31d4f665a4213302fa995494b 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 9e6bf146b55999a095bb14f73a843942456d1adc 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.7 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3062",
+    "date": "2026-08-06T12:41:07.630668+00:00",
+    "rule_engines": [],
+    "has_official_rules": false,
+    "rules": {
+      "yara": null,
+      "sigma": null,
+      "network": [],
+      "skip_reasons": {}
+    },
+    "has_poc": true,
+    "poc_urls": [
+      "https://github.com/Anyone202/cybermeowfia-termux"
+    ],
+    "degraded": false,
+    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+    "asset_match": false,
+    "ssvc_exploitation": null,
+    "has_public_exploit": false,
+    "has_metasploit_module": false,
+    "metasploit_modules": [],
+    "severity": "Critical"
+  },
+  {
+    "id": "CVE-2026-46195",
+    "title": "smb: client: DACL 포인터 생성 전 dacloffset 검증",
+    "description": "32비트 시스템에서 서버가 제공하는 dacloffset 값이 정수 오버플로우를 일으켜 보안 검사를 우회할 수 있는 문제를 수정했습니다.",
+    "cvss": 9.8,
+    "epss": 0.00675,
+    "is_kev": false,
+    "cwe": [
+      "CWE-476",
+      "CWE-787"
+    ],
+    "affected": [
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 5de2665e913a10ad70aaeecf736b97276e83d995 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 f9dc3be8f403c1216df73e57221f44b045e7ee0b 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 ba7f71b6161c0943dafc367565e5843d16b7d505 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 3b1ddba19e77ee35241cd27f16dc3e8d14e08db7 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 c688f3ed73d31943334ad2139cb02ec49664322a 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 8bd07e417b6bda67e317920584e48cb6ee442a8a 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 f98b48151cc502ada59d9778f0112d21f2586ca3 이전"
+      },
+      {
+        "vendor": "Linux",
+        "product": "Linux",
+        "versions": "5.12 (단일 버전)"
+      }
+    ],
+    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3074",
+    "date": "2026-08-06T12:46:22.79538+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -274,138 +2595,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-66661",
-    "title": "WordPress Directories Pro 플러그인 <= 2.0.5 - Privilege Escalation 취약점",
-    "description": "Directories Pro 2.0.5 이하 버전에서 구독자 권한의 Privilege Escalation이 가능합니다.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-266"
-    ],
-    "affected": [
-      {
-        "vendor": "Onokazu",
-        "product": "Directories Pro",
-        "versions": "2.0.5 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:45.576701+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66658",
-    "title": "WordPress Reviewer 플러그인 <= 3.14.2 - SQL Injection 취약점",
-    "description": "Reviewer 3.14.2 이하 버전에서 구독자 권한의 SQL Injection이 가능합니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "MVPThemes",
-        "product": "Reviewer",
-        "versions": "3.14.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:45.380092+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66657",
-    "title": "WordPress Biagiotti Core 플러그인 <= 2.1.1 - Local File Inclusion 취약점",
-    "description": "Biagiotti Core 2.1.1 이하 버전에서 인증되지 않은 Local File Inclusion이 가능합니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "Mikado-Themes",
-        "product": "Biagiotti Core",
-        "versions": "2.1.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:45.16049+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66656",
-    "title": "WordPress Foton Core 플러그인 <= 1.1.1 - Local File Inclusion 취약점",
-    "description": "Foton Core 1.1.1 이하 버전에서 인증되지 않은 Local File Inclusion이 가능합니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "Mikado-Themes",
-        "product": "Foton Core",
-        "versions": "1.1.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:45.159016+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-66655",
     "title": "WordPress MultiParcels Shipping For WooCommerce 플러그인 <= 1.30.36 - Reflected Cross Site Scripting (XSS) 취약점",
     "description": "MultiParcels Shipping For WooCommerce 1.30.36 이하 버전에서 인증되지 않은 Cross Site Scripting (XSS) 취약점이 발견되었습니다.",
@@ -431,39 +2620,6 @@
     "poc_urls": [],
     "degraded": false,
     "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66653",
-    "title": "WordPress Barista 테마 <= 2.5.1 - Local File Inclusion 취약점",
-    "description": "Barista 2.5.1 이하 버전에서 인증되지 않은 Local File Inclusion 취약점이 발견되었습니다.",
-    "cvss": 8.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-98"
-    ],
-    "affected": [
-      {
-        "vendor": "Edge-Themes",
-        "product": "Barista",
-        "versions": "2.5.1 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:44.924396+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
     "asset_match": false,
     "ssvc_exploitation": null,
     "has_public_exploit": false,
@@ -634,39 +2790,6 @@
     "poc_urls": [],
     "degraded": false,
     "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66462",
-    "title": "WordPress WooCommerce Appointments 플러그인 <= 5.3.8 - Sensitive Data Exposure 취약점",
-    "description": "WooCommerce Appointments 5.3.8 이하 버전에서 인증되지 않은 Sensitive Data Exposure 취약점이 존재합니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-497"
-    ],
-    "affected": [
-      {
-        "vendor": "BookingWP",
-        "product": "WooCommerce Appointments",
-        "versions": "5.3.8 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:43.843539+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
     "asset_match": false,
     "ssvc_exploitation": null,
     "has_public_exploit": false,
@@ -906,39 +3029,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-66429",
-    "title": "WordPress Visitor Traffic Real Time Statistics Pro 플러그인 <= 11.10 - 크로스 사이트 스크립팅(XSS) 취약점",
-    "description": "Visitor Traffic Real Time Statistics Pro 11.10 이하 버전에서 인증되지 않은 사용자의 XSS 공격 가능.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "CODEPRESS",
-        "product": "Visitor Traffic Real Time Statistics Pro",
-        "versions": "11.10 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:42.041912+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-66426",
     "title": "WordPress WP-Stats 플러그인 <= 2.56 - 크로스 사이트 스크립팅(XSS) 취약점",
     "description": "WP-Stats 2.56 이하 버전에서 인증되지 않은 사용자의 XSS 공격 가능.",
@@ -957,138 +3047,6 @@
     ],
     "report_url": null,
     "date": "2026-08-13T14:00:41.841068+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-66430",
-    "title": "WordPress Visitor Traffic Real Time Statistics Pro 플러그인 <= 11.10 - SQL 인젝션 취약점",
-    "description": "Visitor Traffic Real Time Statistics Pro 11.10 이하 버전에서 구독자 권한의 SQL 인젝션 가능.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "CODEPRESS",
-        "product": "Visitor Traffic Real Time Statistics Pro",
-        "versions": "11.10 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:41.63223+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-65582",
-    "title": "WordPress AI Hub 테마 <= 1.3.10 - 임의 파일 다운로드 취약점",
-    "description": "AI Hub 1.3.10 이하 버전에서 구독자 권한의 임의 파일 다운로드 가능.",
-    "cvss": 7.7,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "LiquidThemes",
-        "product": "AI Hub",
-        "versions": "1.3.10 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:41.430667+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-61980",
-    "title": "WordPress OMGF Pro 플러그인 <= 5.2.7 - Arbitrary File Download 취약점",
-    "description": "OMGF Pro 5.2.7 이하 버전에서 인증되지 않은 Arbitrary File Download 가능.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-22"
-    ],
-    "affected": [
-      {
-        "vendor": "Daan.dev",
-        "product": "OMGF Pro",
-        "versions": "5.2.7 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:41.233433+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-65580",
-    "title": "WordPress Agrion 테마 <= 1.0.0 - Reflected Cross Site Scripting (XSS) 취약점",
-    "description": "Agrion 1.0.0 이하 버전에서 인증되지 않은 Cross Site Scripting (XSS) 가능.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "bracketweb",
-        "product": "Agrion",
-        "versions": "1.0.0 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:41.035729+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -1533,39 +3491,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-28161",
-    "title": "WordPress Service Finder Booking 플러그인 <= 6.2 - 권한 상승 취약점",
-    "description": "Service Finder Booking 6.2 이하 버전에서 구독자 권한 상승이 가능합니다.",
-    "cvss": 8.8,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-266"
-    ],
-    "affected": [
-      {
-        "vendor": "Aonetheme",
-        "product": "Service Finder Booking",
-        "versions": "6.2 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:38.173014+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
     "id": "CVE-2026-28170",
     "title": "WordPress Blog Floating Button 플러그인 <= 1.4.20 - 크로스 사이트 스크립팅 (XSS) 취약점",
     "description": "Blog Floating Button 1.4.20 이하 버전에서 인증되지 않은 XSS 공격이 가능합니다.",
@@ -1650,105 +3575,6 @@
     ],
     "report_url": null,
     "date": "2026-08-13T14:00:37.566497+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28157",
-    "title": "WordPress Do Lasso 플러그인 <= 358 - Path Traversal 취약점",
-    "description": "Do Lasso 358 이하 버전에서 구독자 권한의 Path Traversal 취약점이 발생합니다.",
-    "cvss": 7.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-35"
-    ],
-    "affected": [
-      {
-        "vendor": "Lasso Analytics, Inc.",
-        "product": "Do Lasso",
-        "versions": "358 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:37.365181+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28158",
-    "title": "WordPress Do Lasso 플러그인 <= 358 - Cross Site Scripting (XSS) 취약점",
-    "description": "Do Lasso 358 이하 버전에서 인증되지 않은 Cross Site Scripting (XSS) 취약점이 발생합니다.",
-    "cvss": 7.1,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-79"
-    ],
-    "affected": [
-      {
-        "vendor": "Lasso Analytics, Inc.",
-        "product": "Do Lasso",
-        "versions": "358 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:37.155077+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {},
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:L",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "High"
-  },
-  {
-    "id": "CVE-2026-28156",
-    "title": "WordPress Do Lasso 플러그인 <= 358 - SQL Injection 취약점",
-    "description": "Do Lasso 358 이하 버전에서 구독자 권한의 SQL Injection 취약점이 발생합니다.",
-    "cvss": 8.5,
-    "epss": 0,
-    "is_kev": false,
-    "cwe": [
-      "CWE-89"
-    ],
-    "affected": [
-      {
-        "vendor": "Lasso Analytics, Inc.",
-        "product": "Do Lasso",
-        "versions": "358 이하"
-      }
-    ],
-    "report_url": null,
-    "date": "2026-08-13T14:00:36.950407+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {},
@@ -170075,50 +171901,6 @@
     "severity": "High"
   },
   {
-    "id": "CVE-2026-46195",
-    "title": "smb: client: DACL 포인터 생성 전 dacloffset 검증",
-    "description": "32비트 시스템에서 서버가 제공하는 dacloffset 값이 정수 오버플로우를 일으켜 보안 검사를 우회할 수 있는 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00675,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476",
-      "CWE-787"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 5de2665e913a10ad70aaeecf736b97276e83d995 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 f9dc3be8f403c1216df73e57221f44b045e7ee0b 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 ba7f71b6161c0943dafc367565e5843d16b7d505 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 3b1ddba19e77ee35241cd27f16dc3e8d14e08db7 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 c688f3ed73d31943334ad2139cb02ec49664322a 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 8bd07e417b6bda67e317920584e48cb6ee442a8a 이전, bc3e9dd9d104ca1b75644eab87b38ce8a924aef4 부터 f98b48151cc502ada59d9778f0112d21f2586ca3 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.12 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3074",
-    "date": "2026-08-06T12:46:22.79538+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-46065",
     "title": "fbdev: defio: 지연된 I/O를 struct fb_info의 생명주기에서 분리",
     "description": "지연된 I/O 상태를 struct fb_deferred_io_state로 분리하여 fb_info 소멸 시에도 매핑을 안전하게 관리하도록 수정했습니다.",
@@ -182485,129 +184267,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-43493",
-    "title": "crypto: pcrypt - MAY_BACKLOG 요청 처리 수정",
-    "description": "MAY_BACKLOG 요청 시 EBUSY 반환을 처리하고 EINPROGRESS 알림을 필터링하도록 수정합니다.",
-    "cvss": 9.8,
-    "epss": 0.00554,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 ae7e95638d956d556d74b9abb9e780d3bd3dcd9e 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 1d7f07df450bac3301938fbc4251f2611be4084e 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 76641449b28979ebd6c02e9598367e119e385236 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 9f1cbca178c03188e201ed175251372149bb25f2 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 eb34e243df57e32f4c08fa191f3602ea19076276 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 77d55bc8675ee851ed639dc9be77325a8024cf67 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 46271895ddfb1ba41f89f7e0dffbe9c2bcf7380a 이전, 5a1436beec5744029f3ac90b6fe71a698dcd6155 부터 915b692e6cb723aac658c25eb82c58fd81235110 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.34 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3068",
-    "date": "2026-08-06T12:44:01.884379+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-46115",
-    "title": "block: biovec_phys_mergeable에 pgmap 확인 추가",
-    "description": "물리적으로 연속된 bvec 세그먼트를 병합할 때, 서로 다른 dev_pagemap에 속해 있는지 확인하는 로직을 추가하여 오류를 방지함.",
-    "cvss": 9.8,
-    "epss": 0.00491,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "49580e690755d0e51ed7aa2c33225dd884fa738a 부터 3d2ecbd444b01d6500671d1a582b7393943cf539 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 a7f3aa8c9df3905fe820ae36b67ba56b81587574 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 f17d521075325b8afc42d1baa1c28a5e9aca111f 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 f632dab4b841554cd6416058c61886d7db176581 이전, 49580e690755d0e51ed7aa2c33225dd884fa738a 부터 13920e4b7b784b40cf4519ff1f0f3e513476a499 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.2 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3067",
-    "date": "2026-08-06T12:43:38.207055+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-45988",
-    "title": "rxrpc: RESPONSE 패킷의 재복호화 수정",
-    "description": "RESPONSE 패킷 처리 중 일시적 오류 발생 시 부분적으로 복호화된 상태로 재대기열에 추가되는 문제를 패킷 폐기 처리를 통해 수정함.",
-    "cvss": 9.8,
-    "epss": 0.00457,
-    "is_kev": false,
-    "cwe": [],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "17926a79320afa9b95df6b977b40cca6d8713cea 부터 d61482be4aae1835b78875761206241835a7510e 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 7b89868305052b94a91b708c462bc2281fa42a4a 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 76cb9a2d252274adfae6e293a292434631a7d472 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 f55b383070170e988e4dec28be2af1714d258521 이전, 17926a79320afa9b95df6b977b40cca6d8713cea 부터 0422e7a4883f25101903f3e8105c0808aa5f4ce9 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "2.6.22 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3066",
-    "date": "2026-08-06T12:42:48.919234+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-46039",
     "title": "rxgk: 길이 확인 중 잠재적인 정수 오버플로우 수정",
     "description": "rxgk_extract_token()에서 티켓 길이를 확인할 때 발생할 수 있는 정수 오버플로우(integer overflow) 문제를 가용 데이터 크기를 내림 처리하여 수정함.",
@@ -182682,95 +184341,6 @@
     },
     "has_poc": false,
     "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-45898",
-    "title": "RDMA/iwcm: work_list 제거를 통한 workqueue 리스트 손상 수정",
-    "description": "iwcm_work의 프리 리스트 사용 중 queue_work() 중복 호출로 인한 workqueue 리스트 손상 문제를 수정합니다.",
-    "cvss": 9.8,
-    "epss": 0.00465,
-    "is_kev": false,
-    "cwe": [
-      "CWE-1341"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "e1168f09b3314992f1c5251f3793102035da7237 부터 38c5b49fffa1b760959af74f11806eeb3ef4706d 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 eb715133e0ae12514bba4d2d5ce1dee774476056 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 a6b9e793e74e372daa266fd0d58b751305877897 이전, e1168f09b3314992f1c5251f3793102035da7237 부터 7874eeacfa42177565c01d5198726671acf7adf2 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.11 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3063",
-    "date": "2026-08-06T12:41:13.628796+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-43501",
-    "title": "ipv6: rpl: 재압축된 SRH 크기 증가 시 mac_len headroom 예약",
-    "description": "SRH 재압축 시 헤더 크기가 증가할 수 있으므로, 이를 위해 mac_len headroom을 예약하도록 수정합니다.",
-    "cvss": 9.8,
-    "epss": 0.00595,
-    "is_kev": false,
-    "cwe": [
-      "CWE-787",
-      "CWE-131"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 bde199c72d319a4e207f88daabc888317504e2fb 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 be1fa0aa9b4fdd5a8b7a61ba520a690a68391e6e 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 0a9e8053f1f8a8e1bfc1dd61ffe67be6c1180402 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 8e8be63465a5e80394c70324603dfea1bfdad48f 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 4babc2d9fda2df43823b85d08a0180b68f1b0854 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 c261d07a80576dc8ccf394ef8f074f8c67a06b37 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 7398ebefbfd4f8a31d4f665a4213302fa995494b 이전, 8610c7c6e3bd647ff98d21c8bc0580e77bc2f8b3 부터 9e6bf146b55999a095bb14f73a843942456d1adc 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.7 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3062",
-    "date": "2026-08-06T12:41:07.630668+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [
-      "https://github.com/Anyone202/cybermeowfia-termux"
-    ],
     "degraded": false,
     "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
     "asset_match": false,
@@ -183880,49 +185450,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-31669",
-    "title": "mptcp: __inet_lookup_established의 slab-use-after-free 수정",
-    "description": "mptcp_subflow_init()에서 SLAB_TYPESAFE_BY_RCU 플래그가 누락된 프로토콜 구조체를 복사하여 발생하는 slab-use-after-free 취약점을 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00459,
-    "is_kev": false,
-    "cwe": [
-      "CWE-416"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 f6e1f25fa5e733570f6d6fe37a4dfed2a0deba47 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 fb1f54b7d16f393b8b65d328410f78b4beea8fcc 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 3fd6547f5b8ac99687be6d937a0321efda760597 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 eb9c6aeb512f877cf397deb1e4526f646c70e4a7 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 15fa9ead4d5e6b6b9c794e84144146c917f2cb62 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 b313e9037d98c13938740e5ebda7852929366dff 이전, b19bc2945b40b9fd38e835700907ffe8534ef0de 부터 9b55b253907e7431210483519c5ad711a37dafa1 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5.12 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3038",
-    "date": "2026-08-06T10:30:59.563578+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": true,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-43039",
     "title": "net: ti: icssg-prueth: ZC RX dispatch의 데이터 복사 누락 및 잘못된 재활용 수정",
     "description": "emac_dispatch_skb_zc()에서 XDP 버퍼의 데이터를 skb로 복사하지 않아, 초기화되지 않은 커널 힙 메모리가 사용자 공간으로 유출되는 문제를 수정합니다.",
@@ -184214,49 +185741,6 @@
     "severity": "Critical"
   },
   {
-    "id": "CVE-2026-31608",
-    "title": "smb 서버: smb_direct_flush_send_list() 이후 smb_direct_free_sendmsg()의 double-free 방지",
-    "description": "smb_direct_flush_send_list()에서 이미 smb_direct_free_sendmsg()를 호출하므로, 중복 호출로 인한 double-free 취약점을 해결함.",
-    "cvss": 9.8,
-    "epss": 0.00457,
-    "is_kev": false,
-    "cwe": [
-      "CWE-415"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "5ef18a2e66f2f33fdac64437bddfb9fe6389fdc7 부터 6968c91fab05b8fc4d6700e0cf34472bb422df25 이전, 79242e7b6bc63efec28b7c235bc320806afce6c0 부터 2ba03f46132b0d1a7bafb86e1ef61951a2254023 이전, 34abd408c8ba24d7c97bd02ba874d8c714f49db1 부터 830de6eeb9db4cb7e758201fb99328ef4ca4b032 이전, 34abd408c8ba24d7c97bd02ba874d8c714f49db1 부터 84ff995ae826aa6bbcc6c7b9ea569ff67c021d72 이전, 6.18.11 부터 6.18.24 이전, 6.19.1 부터 6.19.14 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3029",
-    "date": "2026-08-06T10:27:44.828452+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
     "id": "CVE-2026-31659",
     "title": "batman-adv: 과도하게 큰 글로벌 TT 응답 버퍼 거부",
     "description": "글로벌 TT 응답 길이 계산 시 16비트 임시 변수를 사용하여 오버플로우가 발생하고, 잘못된 크기의 메모리가 할당되는 문제를 수정했습니다.",
@@ -184364,49 +185848,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3025",
     "date": "2026-08-06T10:26:17.290736+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31609",
-    "title": "smb 클라이언트: smbd_send_batch_flush() 이후 smbd_free_send_io()의 double-free 방지",
-    "description": "smbd_send_batch_flush()에서 이미 smbd_free_send_io()를 호출하므로, 중복 호출로 인한 double-free 취약점을 해결함.",
-    "cvss": 9.8,
-    "epss": 0.00457,
-    "is_kev": false,
-    "cwe": [
-      "CWE-415"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "cca0526ef2344cab6944d7f441fc24e152da031b 부터 a9940dcbe5cb92482c04efc7341039ddf7dbf607 이전, 37b5c06956183b65e6808b509cf637632016cdf7 부터 22b7c1c619d808aec4cad3dc42103345e370d107 이전, 21538121efe6c8c5b51c742fa02cbe820bc48714 부터 f9a162c2bbcd0ac85bd07c5b37cf20286048b65c 이전, 21538121efe6c8c5b51c742fa02cbe820bc48714 부터 27b7c3e916218b5eb2ee350211140e961bfc49be 이전, 6.18.11 부터 6.18.24 이전, 6.19.1 부터 6.19.14 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "7.0 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3023",
-    "date": "2026-08-06T10:25:42.21925+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
@@ -184704,49 +186145,6 @@
     ],
     "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3014",
     "date": "2026-08-06T10:22:23.828031+00:00",
-    "rule_engines": [],
-    "has_official_rules": false,
-    "rules": {
-      "yara": null,
-      "sigma": null,
-      "network": [],
-      "skip_reasons": {}
-    },
-    "has_poc": false,
-    "poc_urls": [],
-    "degraded": false,
-    "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
-    "asset_match": false,
-    "ssvc_exploitation": null,
-    "has_public_exploit": false,
-    "has_metasploit_module": false,
-    "metasploit_modules": [],
-    "severity": "Critical"
-  },
-  {
-    "id": "CVE-2026-31436",
-    "title": "dmaengine: idxd: llist_abort_desc()의 잘못된 디스크립터 완료 수정",
-    "description": "llist_abort_desc()에서 잘못된 디스크립터를 완료하여 NULL 포인터 역참조나 디스크립터 누수가 발생할 수 있는 문제를 수정했습니다.",
-    "cvss": 9.8,
-    "epss": 0.00457,
-    "is_kev": false,
-    "cwe": [
-      "CWE-476"
-    ],
-    "affected": [
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 e21da2ad8844585040fe4b82be1ad2fe99d40074 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 82656e8daf8de00935ae91b91bed43f4d6e0d644 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 0e4f43779d550e559be13a5cdb763bad92c4cc99 이전, aa8d18becc0c14aa3eb46d6d1b81450446e11b87 부터 e1c9866173c5f8521f2d0768547a01508cb9ff27 이전"
-      },
-      {
-        "vendor": "Linux",
-        "product": "Linux",
-        "versions": "6.8 (단일 버전)"
-      }
-    ],
-    "report_url": "https://github.com/LEEKIYOON-SEC/Argus-AI-Threat-Intelligence/issues/3013",
-    "date": "2026-08-06T10:21:37.213752+00:00",
     "rule_engines": [],
     "has_official_rules": false,
     "rules": {
