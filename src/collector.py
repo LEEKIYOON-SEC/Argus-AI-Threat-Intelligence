@@ -130,6 +130,7 @@ class Collector:
     def __init__(self):
         self.kev_set: Set[str] = set()
         self.kev_date_added: Dict[str, str] = {}  # CVE → KEV 등재일 (gap-filler용)
+        self.kev_ransomware: Set[str] = set()     # KEV 중 랜섬웨어 캠페인 사용 확인분
         self.vulncheck_kev_set: Set[str] = set()
         self.epss_cache: Dict[str, float] = {}
         self.headers = {
@@ -159,8 +160,15 @@ class Collector:
             self.kev_set = {vuln['cveID'] for vuln in vulns}
             # 등재일 매핑 — 최근 등재분 중 DB 미보유 CVE를 잡는 gap-filler에 사용
             self.kev_date_added = {vuln['cveID']: vuln.get('dateAdded', '') for vuln in vulns}
+            # 랜섬웨어 캠페인에 실제로 쓰인 것 — KEV 안에서도 대응 순서를 가르는 축이다.
+            # (같은 KEV라도 랜섬웨어에 동원된 건 유출·암호화까지 이어진 전례가 있다는 뜻)
+            self.kev_ransomware = {
+                v['cveID'] for v in vulns
+                if str(v.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
+            }
 
-            logger.info(f"Loaded {len(self.kev_set)} KEV entries")
+            logger.info(f"Loaded {len(self.kev_set)} KEV entries "
+                        f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
             return True
             
         except requests.exceptions.Timeout:
@@ -587,10 +595,16 @@ class Collector:
                 "references": [],
                 "affected": [],
                 "ssvc": {},
+                "published": "",
                 "content_hash": content_hash
             }
-            
-            data['state'] = json_data.get('cveMetadata', {}).get('state', 'UNKNOWN')
+
+            meta = json_data.get('cveMetadata', {}) or {}
+            data['state'] = meta.get('state', 'UNKNOWN')
+            # CVE 공개일 — 우리가 확인한 날짜(updated_at)와 별개다. 백로그를 몰아 처리하면
+            # 확인일 기준 집계가 그날 하루에 몰려 실제 공개 추이를 왜곡하므로, 추이 차트는
+            # 이 값을 쓴다. (표·필터·정렬은 '우리가 확인한 날' 기준을 그대로 유지)
+            data['published'] = str(meta.get('datePublished') or '')[:10]
             data['affected'] = self.parse_affected(cna.get('affected', []))
 
             # 영어 설명 우선. lang은 'en'뿐 아니라 'en-US'/'en-GB' 등 지역 태그를 쓰는
@@ -965,6 +979,8 @@ class Collector:
         cve_id = cve_data['id']
         # VulnCheck KEV (이미 fetch한 세트에서 조회 — 메모리)
         cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
+        # KEV 중 랜섬웨어 캠페인 사용 확인분 (KEV JSON에 포함된 필드 — 추가 호출 0)
+        cve_data['is_kev_ransomware'] = cve_id in self.kev_ransomware
         # ExploitDB 공개 익스플로잇 (캐시 인덱스 조회). PoC 원문은 재게시하지 않고
         # 링크만 리포트에 싣는다(불변 원칙 8-②) — EDB-ID로 공식 페이지 URL 구성.
         edb_entry = enrichment_sources.exploitdb_entry(cve_id)

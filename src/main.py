@@ -1025,6 +1025,10 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected",
     "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
     "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 자동화 악용 축 — 위험도 판정(_risk_tier)과 대시보드 딱지에 사용
+    "ssvc_automatable", "ssvc_technical_impact", "is_kev_ransomware",
+    # CVE 공개일 — 추이 차트 전용 (표/필터의 '확인일'과 별개)
+    "published",
     # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
     "cvss_vector",
     # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
@@ -1087,9 +1091,17 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
             "github_advisory": raw_data.get('github_advisory', {}),
             "nvd_cpe": raw_data.get('nvd_cpe', []),
+            # 공개일 — 추이 차트 전용 (표/필터는 확인일 기준 유지)
+            "published": raw_data.get('published', ''),
             # P5 데이터 소스 확대 신호
             "ssvc": raw_data.get('ssvc', {}),
             "ssvc_exploitation": (raw_data.get('ssvc') or {}).get('exploitation'),
+            # SSVC의 나머지 두 축 — CISA가 CVE마다 판정해 붙여주는데 그동안 리포트에
+            # 글자로만 찍히고 판정에는 쓰이지 않았다. automatable은 "정찰~익스플로잇을
+            # 신뢰성 있게 자동화할 수 있는가"라, CVSS가 낮아도 대량 공격 대상이 된다.
+            "ssvc_automatable": (raw_data.get('ssvc') or {}).get('automatable'),
+            "ssvc_technical_impact": (raw_data.get('ssvc') or {}).get('technical_impact'),
+            "is_kev_ransomware": raw_data.get('is_kev_ransomware', False),
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
@@ -1256,9 +1268,13 @@ def _risk_tier(current: Dict) -> str:
     7.x를 일괄 부여)이라, '진짜 긴급'과 'CVSS만 높음'을 분리해야 알림이 의미를 가진다.
 
     critical — 실제 악용/무기화 신호 또는 최상위 심각도. 풀 알림(Issue+AI분석+Slack).
-    high     — CVSS 7~8.9 단독(다른 신호 없음). 번역+대시보드 추적 + Slack 요약 건수만.
+    high     — CVSS 7~8.9 단독, 또는 자동화 악용 신호. 번역+대시보드 추적 + Slack 요약 건수만.
                (자산 등록 CVE는 high도 풀 알림 — 실제 대응 대상이므로.)
     low      — 그 외. 자산이면 추적, 비자산이면 마커.
+
+    KEV 등재분의 약 11%가 CVSS 7 미만이라 점수만으로는 실제 악용을 놓친다. 그 중 악용
+    신호가 붙은 것은 위 critical 조건이 이미 잡고, 여기서는 '아직 신호는 없지만 대량
+    자동화가 가능한' 저위험을 high로 끌어올려 대시보드에 보이게 한다. 알림은 늘지 않는다.
     """
     if (current['is_kev']
             or current.get('has_metasploit_module')
@@ -1266,7 +1282,10 @@ def _risk_tier(current: Dict) -> str:
             or current.get('epss', 0.0) >= 0.1
             or current['cvss'] >= 9.0):
         return "critical"
-    if current['cvss'] >= 7.0:
+    # CISA SSVC Automatable=yes → 정찰~익스플로잇 자동화 가능. CVSS와 무관하게 추적한다.
+    # (critical로 올리지 않는 이유: 아직 악용이 관측된 게 아니라 '가능하다'는 판정이라,
+    #  알림 물량을 늘리기보다 화면에 세워두고 예측력을 관측한 뒤 정하는 편이 안전하다)
+    if current['cvss'] >= 7.0 or current.get('ssvc_automatable') == 'yes':
         return "high"
     return "low"
 
@@ -1498,6 +1517,9 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
                 collector.enrich_cheap_signals(probe)
                 current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
                 current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
+                # 랜섬웨어 플래그도 KEV 피드에서 오는 값이라 매 실행 최신으로 덮는다
+                # (SSVC/CVSS 등 레코드 기반 필드는 위 주석대로 last를 그대로 둔다)
+                current['is_kev_ransomware'] = probe.get('is_kev_ransomware', False)
 
                 # 자산 매칭 종류는 저장된 판정을 그대로 쓴다 — 기본값('wildcard')로 두면
                 # 등록 자산 CVE가 스윕에서만 비자산으로 취급돼 본 경로와 기준이 갈린다.

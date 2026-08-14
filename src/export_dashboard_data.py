@@ -153,6 +153,22 @@ def export_cves(client, days: int = 90) -> list:
         entry["has_metasploit_module"] = state.get("has_metasploit_module", False)
         entry["metasploit_modules"] = _l(state, "metasploit_modules")[:3]
 
+        # 자동화 악용 축 — CVSS(피해 크기)와 직교하는 '얼마나 쉽게 널리 자동화되는가'.
+        # 값이 없는 행(도입 이전)은 프론트에서 딱지 자체를 생략한다.
+        ssvc = state.get("ssvc") or {}
+        entry["ssvc_automatable"] = state.get("ssvc_automatable") or ssvc.get("automatable")
+        entry["ssvc_technical_impact"] = state.get("ssvc_technical_impact") or ssvc.get("technical_impact")
+        entry["is_kev_ransomware"] = state.get("is_kev_ransomware", False)
+
+        # CVE 공개일 — 추이 차트 전용. 'date'(우리가 확인한 날)와 다르다.
+        entry["published"] = _s(state, "published")[:10]
+
+        # Linux 커널 CVE 여부 — 커널 CNA가 커밋 단위로 할당해 목록의 절반을 차지하는데
+        # 전부 Linux/Linux로만 표기돼 제품 단위 구분이 불가능하다. 목록에서 접어 묶는다.
+        entry["is_kernel"] = any(
+            _s(a, "vendor").strip().lower() == "linux" for a in entry["affected"]
+        )
+
         # 심각도 등급 계산
         score = entry["cvss"]
         if score >= 9.0:
@@ -182,6 +198,7 @@ def export_stats(cve_data: list) -> dict:
     daily_counts = defaultdict(int)
     recent_24h = 0
     kev_count = 0
+    kernel_count = 0
 
     def _clean(v: str) -> str:
         v = (v or "").strip()
@@ -193,17 +210,29 @@ def export_stats(cve_data: list) -> dict:
         if cve.get("is_kev"):
             kev_count += 1
 
-        # 일별 집계
+        # 일별 추이는 'CVE가 공개된 날' 기준. 확인일(date)로 세면 백로그를 몰아 처리한
+        # 날에 수천 건이 몰려 실제 공개 추이를 왜곡한다(관측: 하루 2,545건 vs 실제 427건).
+        # 공개일이 없는 행(도입 이전 저장분)은 추이에서 제외 — 확인일로 채우면 같은 왜곡이
+        # 그대로 남는다. 백필이 끝나면 자연히 메워진다.
+        pub = (cve.get("published") or "")[:10]
+        if pub:
+            daily_counts[pub] += 1
+
+        # '최근 24시간'은 우리가 확인한 시각 기준이 맞다 — 파이프라인 처리량 지표이므로.
         date_str = cve.get("date", "")
         if date_str:
             try:
-                day = date_str[:10]
-                daily_counts[day] += 1
                 cve_dt = dt.datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                 if (now - cve_dt).total_seconds() < 86400:
                     recent_24h += 1
             except (ValueError, TypeError):
                 pass
+
+        # 커널 CVE는 제품 분포에서 뺀다 — 전부 Linux/Linux라 TOP을 통째로 독식하면서
+        # '어떤 제품이 위험한가'는 하나도 알려주지 못한다. 건수는 따로 센다.
+        if cve.get("is_kernel"):
+            kernel_count += 1
+            continue
 
         # 벤더/제품별 집계. 같은 CVE가 한 제품을 여러 번 나열해도 1건으로 센다
         # (버전 범위가 여러 개면 affected 항목이 중복되기 때문).
@@ -233,6 +262,7 @@ def export_stats(cve_data: list) -> dict:
             "total": len(cve_data),
             "recent_24h": recent_24h,
             "kev_count": kev_count,
+            "kernel_count": kernel_count,
             "severity": dict(severity_counts),
             "daily_trend": [{"date": d, "count": c} for d, c in daily_trend],
             "top_products": [{"product": p, "vendor": product_vendor.get(p, ""), "count": c}

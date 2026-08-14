@@ -128,6 +128,12 @@ class ArgusDB:
             "cwe": st.get("cwe", []),
             "cvss": st.get("cvss"), "epss": st.get("epss"), "is_kev": st.get("is_kev"),
             "ssvc_exploitation": st.get("ssvc_exploitation"),
+            # 자동화 악용 축 — 위험도 판정에 쓰이므로 축소 저장본에서도 반드시 보존한다
+            # (빠뜨리면 WAF에 걸린 CVE만 다음 실행에서 티어가 내려앉는다)
+            "ssvc_automatable": st.get("ssvc_automatable"),
+            "ssvc_technical_impact": st.get("ssvc_technical_impact"),
+            "is_kev_ransomware": st.get("is_kev_ransomware", False),
+            "published": st.get("published", ""),
             "has_poc": st.get("has_poc", False),
             "has_public_exploit": st.get("has_public_exploit", False),
             "has_metasploit_module": st.get("has_metasploit_module", False),
@@ -412,6 +418,46 @@ class ArgusDB:
         except Exception as e:
             logger.warning(f"{cve_id} 번역 갱신 실패: {e}")
             return False
+
+    def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
+        """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상.
+
+        JSONB 내부 키의 존재 여부는 서버 필터로 표현하기 번거로워 파이썬에서 거른다.
+        추적 행만 대상이다(마커는 대시보드·차트에 안 나오므로 채울 이유가 없다)."""
+        try:
+            response = self._execute(
+                self.client.table("cves")
+                .select("id, last_alert_state")
+                .not_.is_("last_alert_state", "null")
+                .order("updated_at", desc=True)
+                .limit(limit)
+            )
+            return [r for r in (response.data or [])
+                    if not (r.get("last_alert_state") or {}).get("published")]
+        except Exception as e:
+            logger.error(f"공개일 백필 후보 조회 실패: {e}")
+            return []
+
+    def bulk_set_published(self, published: Dict[str, str]) -> int:
+        """{cve_id: 공개일}을 last_alert_state에 채운다. 갱신 성공 건수 반환.
+
+        upsert는 payload에 있는 컬럼만 갱신하므로 다른 필드는 보존된다. updated_at은
+        건드리지 않는다 — 그 값이 대시보드의 '확인일'이라 백필 때문에 밀리면 안 된다."""
+        done = 0
+        for cve_id, day in published.items():
+            try:
+                current = self.get_cve(cve_id)
+                state = (current or {}).get("last_alert_state")
+                if not state or state.get("published"):
+                    continue
+                state = dict(state)
+                state["published"] = day
+                if self.upsert_cve({"id": cve_id, "last_alert_state": state,
+                                    "updated_at": current.get("updated_at")}):
+                    done += 1
+            except Exception as e:
+                logger.warning(f"{cve_id} 공개일 갱신 실패: {e}")
+        return done
 
     def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
         """외부 피드(KEV/EPSS/Metasploit) 단독 변화로 고위험 승격 가능성이 있는 '현재 저위험' CVE.

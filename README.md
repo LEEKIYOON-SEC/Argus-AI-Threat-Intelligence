@@ -262,6 +262,7 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 | **CISA vulnrichment** (SSVC) | 악용 상태·CVSS·CWE 보강 | CC0 1.0 |
 | **NVD** (NIST) | CVSS·CWE·CPE 보충 | U.S. Government Work (퍼블릭 도메인) |
 | **EPSS** (FIRST.org) | 악용 확률 점수 | 무료 공개 · **출처 표기**(대시보드/리포트에 FIRST.org 명시) |
+| **OSV.dev** | CVE ↔ 패키지 이름 대응 (SBOM 대조용) | **CC-BY 4.0** (출처 표기 — 대시보드 데이터 파일에 명시) |
 | **GitHub Advisory** | 영향 패키지 정보 | GitHub ToS |
 | **PoC** (nomi-sec / trickest) | PoC 공개 신호 | 개별 PoC 저작권=제출자 → **원문 미게시, 링크만** |
 | **ExploitDB** | 공개 익스플로잇 신호 | 개별 PoC 저작권=제출자 → **원문 미게시, 링크만** |
