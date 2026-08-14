@@ -19,7 +19,7 @@ from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
 from rule_manager import RuleManager
-from rate_limiter import rate_limit_manager, gemini_error_kind
+from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
@@ -478,13 +478,9 @@ Do NOT add intro/outro.
     return fallback
 
 
-def _gemini_backoff(kind: str, attempt: int, msg: str) -> float:
-    """재시도 전 대기 시간. 분당 한도(429)는 서버가 알려준 재개 시각을 우선 따르되,
-    파이프라인이 통째로 잠들지 않도록 상한(30초)을 둔다."""
-    if kind == "rate":
-        hinted = rate_limit_manager.parse_retry_after(msg)
-        return min(hinted if hinted else 8.0 * attempt, 30.0)
-    return 2.0 * attempt  # 503/500: 2s, 4s
+# 대기 규칙도 rate_limiter가 소유한다 — 분류(gemini_error_kind)와 같은 자리에 둬야
+# 번역과 분석이 서로 다른 규칙으로 기다리는 일이 생기지 않는다.
+_gemini_backoff = gemini_backoff
 
 
 # 오류 분류는 rate_limiter가 소유한다 — 분석 경로(analyzer)와 같은 기준을 써야
@@ -711,6 +707,45 @@ CVEs:
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
 
+# CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 저장소에 커밋한 파일).
+# 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 파일을 읽을 뿐이라 API 호출 0.
+_PKG_INDEX: Optional[Dict] = None
+
+
+def _package_index() -> Dict:
+    """docs/data/cve-packages.json을 1회 읽어 캐시. 없으면 빈 dict(기능만 조용히 생략)."""
+    global _PKG_INDEX
+    if _PKG_INDEX is None:
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "docs", "data", "cve-packages.json")
+        try:
+            with open(path, encoding="utf-8") as f:
+                _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
+            logger.info(f"패키지 사전 로드: {len(_PKG_INDEX):,}건")
+        except (OSError, ValueError):
+            _PKG_INDEX = {}
+    return _PKG_INDEX
+
+
+def _fixed_version_lines(cve_id: str) -> str:
+    """OSV가 알려주는 수정 버전. 체크리스트의 '패치 적용'에 목표가 없으면 무용지물이라
+    리포트에 함께 싣는다. 사전에 없으면 빈 문자열 → 블록 자체가 생략된다."""
+    pkgs = _package_index().get(cve_id) or {}
+    lines = []
+    for pkg, eco_map in sorted(pkgs.items()):
+        for eco, fixes in sorted((eco_map or {}).items()):
+            good = [f for f in (fixes or []) if f]
+            if good:
+                lines.append(f"| `{pkg}` | {eco} | **{', '.join(good)}** |")
+    if not lines:
+        return ""
+    return ("\n## 📦 패치 버전 (OSV)\n"
+            "| 패키지 | 배포판·생태계 | 이 버전 이상으로 |\n| :--- | :--- | :--- |\n"
+            + "\n".join(lines[:12])
+            + "\n\n<sub>출처: [OSV.dev](https://osv.dev) (CC-BY 4.0) — 설치된 배포판·릴리스에 "
+              "맞는 행을 보세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
+
+
 def _rule_license_note(rule_info: Dict) -> str:
     """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
     lic = rule_info.get('license')
@@ -862,7 +897,13 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} |\n"
     if not affected_rows:
         affected_rows = "| - | - | - |"
-    
+
+    # OSV 수정 버전 — 없으면 빈 문자열이라 블록이 통째로 빠진다
+    fixed_block = _fixed_version_lines(cve_data['id'])
+    patch_hint = ""
+    if fixed_block:
+        patch_hint = " *(목표 버전은 아래 '패치 버전' 표 참조)*"
+
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
@@ -947,7 +988,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
 {affected_rows}
-
+{fixed_block}
 ## 🔍 AI 심층 분석
 ### 기술적 근본 원인
 {analysis.get('root_cause', '-')}
@@ -971,7 +1012,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 <!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. -->
 - [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
 - [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
-- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조)
+- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조){patch_hint}
 - [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
 - [ ] 조치 결과 기록 후 이슈 종료
 
@@ -982,7 +1023,8 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 
 ---
 <sub>📊 **데이터 출처**: CVE(cvelistV5, CC0) · NVD(NIST, 공공) · CISA KEV·SSVC/vulnrichment(공공/CC0) ·
-EPSS([FIRST.org](https://www.first.org/epss/)) · GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
+EPSS([FIRST.org](https://www.first.org/epss/)) · [OSV.dev](https://osv.dev)(CC-BY 4.0) ·
+GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
 PoC/ExploitDB(원문 미게시·링크만). 공개 탐지 룰은 각 출처·라이선스 고지를 보존합니다.
 AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않습니다.</sub>
 """
@@ -1025,6 +1067,10 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected",
     "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
     "has_public_exploit", "has_metasploit_module", "metasploit_modules",
+    # 자동화 악용 축 — 위험도 판정(_risk_tier)과 대시보드 딱지에 사용
+    "ssvc_automatable", "ssvc_technical_impact", "is_kev_ransomware",
+    # CVE 공개일 — 추이 차트 전용 (표/필터의 '확인일'과 별개)
+    "published",
     # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
     "cvss_vector",
     # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
@@ -1087,9 +1133,17 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
             "github_advisory": raw_data.get('github_advisory', {}),
             "nvd_cpe": raw_data.get('nvd_cpe', []),
+            # 공개일 — 추이 차트 전용 (표/필터는 확인일 기준 유지)
+            "published": raw_data.get('published', ''),
             # P5 데이터 소스 확대 신호
             "ssvc": raw_data.get('ssvc', {}),
             "ssvc_exploitation": (raw_data.get('ssvc') or {}).get('exploitation'),
+            # SSVC의 나머지 두 축 — CISA가 CVE마다 판정해 붙여주는데 그동안 리포트에
+            # 글자로만 찍히고 판정에는 쓰이지 않았다. automatable은 "정찰~익스플로잇을
+            # 신뢰성 있게 자동화할 수 있는가"라, CVSS가 낮아도 대량 공격 대상이 된다.
+            "ssvc_automatable": (raw_data.get('ssvc') or {}).get('automatable'),
+            "ssvc_technical_impact": (raw_data.get('ssvc') or {}).get('technical_impact'),
+            "is_kev_ransomware": raw_data.get('is_kev_ransomware', False),
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
@@ -1185,13 +1239,14 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         report_url = None
         rules_info = None
         if should_alert and full_report:
-            # 분석 3티어(gpt-oss/qwen + Gemini 비상) 전부 소진 시에만 Issue 보류.
-            # Groq만 소진이면 Gemini 비상 티어로 분석해 알림 지연 없이 진행한다.
+            # 분석 티어(Gemini 주력 + Groq 비상)가 전부 소진됐을 때만 Issue 보류.
+            # 한쪽만 소진이면 다른 쪽이 분석하므로 알림이 지연되지 않는다 — 그래서 조건이
+            # AND다(어느 쪽이 주력인지와 무관하게 '둘 다 불가'만 잡는다).
             # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
             # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
             if (rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None
                     and rate_limit_manager.is_rpd_exhausted("gemini_analysis")):
-                logger.warning(f"⚠️ {cve_id}: 분석 전 티어(Groq+Gemini) 소진 → Issue 보류(다음 실행 재처리)")
+                logger.warning(f"⚠️ {cve_id}: 분석 티어 전부 소진 → Issue 보류(다음 실행 재처리)")
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
 
@@ -1256,9 +1311,13 @@ def _risk_tier(current: Dict) -> str:
     7.x를 일괄 부여)이라, '진짜 긴급'과 'CVSS만 높음'을 분리해야 알림이 의미를 가진다.
 
     critical — 실제 악용/무기화 신호 또는 최상위 심각도. 풀 알림(Issue+AI분석+Slack).
-    high     — CVSS 7~8.9 단독(다른 신호 없음). 번역+대시보드 추적 + Slack 요약 건수만.
+    high     — CVSS 7~8.9 단독, 또는 자동화 악용 신호. 번역+대시보드 추적 + Slack 요약 건수만.
                (자산 등록 CVE는 high도 풀 알림 — 실제 대응 대상이므로.)
     low      — 그 외. 자산이면 추적, 비자산이면 마커.
+
+    KEV 등재분의 약 11%가 CVSS 7 미만이라 점수만으로는 실제 악용을 놓친다. 그 중 악용
+    신호가 붙은 것은 위 critical 조건이 이미 잡고, 여기서는 '아직 신호는 없지만 대량
+    자동화가 가능한' 저위험을 high로 끌어올려 대시보드에 보이게 한다. 알림은 늘지 않는다.
     """
     if (current['is_kev']
             or current.get('has_metasploit_module')
@@ -1266,7 +1325,10 @@ def _risk_tier(current: Dict) -> str:
             or current.get('epss', 0.0) >= 0.1
             or current['cvss'] >= 9.0):
         return "critical"
-    if current['cvss'] >= 7.0:
+    # CISA SSVC Automatable=yes → 정찰~익스플로잇 자동화 가능. CVSS와 무관하게 추적한다.
+    # (critical로 올리지 않는 이유: 아직 악용이 관측된 게 아니라 '가능하다'는 판정이라,
+    #  알림 물량을 늘리기보다 화면에 세워두고 예측력을 관측한 뒤 정하는 편이 안전하다)
+    if current['cvss'] >= 7.0 or current.get('ssvc_automatable') == 'yes':
         return "high"
     return "low"
 
@@ -1498,6 +1560,9 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
                 collector.enrich_cheap_signals(probe)
                 current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
                 current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
+                # 랜섬웨어 플래그도 KEV 피드에서 오는 값이라 매 실행 최신으로 덮는다
+                # (SSVC/CVSS 등 레코드 기반 필드는 위 주석대로 last를 그대로 둔다)
+                current['is_kev_ransomware'] = probe.get('is_kev_ransomware', False)
 
                 # 자산 매칭 종류는 저장된 판정을 그대로 쓴다 — 기본값('wildcard')로 두면
                 # 등록 자산 CVE가 스윕에서만 비자산으로 취급돼 본 경로와 기준이 갈린다.
@@ -1814,12 +1879,13 @@ def _main():
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
-    # 분석 티어 소진 경고
-    if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
-        if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
-            logger.warning("🚫 분석 전 티어(Groq 2모델 + Gemini 비상) 소진 → 일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
+    # 분석 티어 소진 경고 — 주력(Gemini) 기준으로 본다
+    if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
+        if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
+            logger.warning("🚫 분석 티어 전부(Gemini 주력 + Groq 비상) 소진 → "
+                           "일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
         else:
-            logger.warning("⚠️ Groq 전 모델 TPD 소진 → 분석이 Gemini 비상 티어(flash-lite)로 수행됨")
+            logger.warning("⚠️ Gemini 주력 RPD 소진 → 분석이 Groq 비상 티어로 수행됨")
 
     # Step 9: Slack 배치 요약 전송 (High 추적 건수 포함 — Issue 없이도 규모는 파악되게)
     repo = os.environ.get("GITHUB_REPOSITORY", "")

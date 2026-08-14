@@ -12,15 +12,21 @@ class ArgusConfig:
     # [1] AI 모델 설정
     # ==========================================
     MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
-    MODEL_PHASE_1 = "openai/gpt-oss-120b"  # 심층 분석 주 모델 (Groq, 추론형)
+    MODEL_PHASE_1 = "gemini-3.1-flash-lite"  # 심층 분석 주 모델 (Google AI Studio)
 
-    # 분석 3단(비상 폴백) — Groq 두 모델(TPD 각 200K)이 모두 소진/장애일 때만 사용.
-    # 다른 공급자(Google AI Studio)라 Groq 장애 자체도 커버(이중화). flash-lite는
+    # 심층 분석 주력 — Google AI Studio flash-lite.
+    # 주력으로 둔 근거(실측): 분석은 Critical에만 하므로 하루 6~30건인데 RPD 1,000이라
+    # 30배 여유다. Groq는 TPD 200K×2가 자주 바닥나 같은 성격의 CVE라도 날마다 다른
+    # 모델이 분석했다. 추론 깊이는 gpt-oss보다 낮지만 JSON 모드로 구조화 출력이
+    # 보장돼 파싱 실패로 티어가 갈리는 일이 없다 — 품질의 평균보다 편차가 중요하다.
     # 번역(Gemma 31B)과 다른 모델이라 AI Studio 한도(모델별)를 나눠 쓰지 않는다.
-    # 추론 깊이는 gpt-oss/qwen보다 낮지만 JSON 모드 지원으로 구조화 분석엔 충분.
     GEMINI_ANALYSIS_MODEL = "gemini-3.1-flash-lite"
 
-    # Groq 심층분석 모델 캐스케이드 — 앞 모델의 일일 한도(TPD)가 소진되면 다음 모델로 자동 전환.
+    # 심층 분석 비상 티어 — 주력(Gemini)이 소진·장애일 때만 사용.
+    # 없애지 않는 이유: 공급자가 하나면 Google AI Studio 장애에 분석이 통째로 멈춘다.
+    # 공급자를 둘로 유지하는 것이 이중화의 목적이다(불변 원칙 5).
+    #
+    # 앞 모델의 일일 한도(TPD)가 소진되면 다음 모델로 자동 전환.
     # gpt-oss-120b와 qwen3.6은 TPD 200K/일이 '각각' 잡혀 실질 일일 예산 400K.
     #
     # ⚠️ compound/compound-mini는 제외한다: agentic 시스템이라 내부적으로 기반 모델

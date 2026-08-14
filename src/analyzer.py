@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import time
 from groq import Groq
 from google import genai
 from google.genai import types as genai_types
@@ -8,7 +9,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Dict, Optional
 from logger import logger
 from config import config
-from rate_limiter import rate_limit_manager, gemini_error_kind
+from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
 class AnalyzerError(Exception):
     """분석 관련 에러"""
@@ -33,23 +34,37 @@ class Analyzer:
                 )
             except Exception:
                 self.gemini_client = genai.Client(api_key=gemini_key)
-        # 사용 모델은 호출 시 rate_limiter가 TPD 여유에 따라 선택 (주 → 폴백)
-        logger.info(f"Analyzer initialized (models: {config.GROQ_MODELS} + 비상 {config.GEMINI_ANALYSIS_MODEL})")
+        logger.info(f"Analyzer initialized (주력 {config.GEMINI_ANALYSIS_MODEL} "
+                    f"+ 비상 {config.GROQ_MODELS})")
     
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석. 3단 캐스케이드: gpt-oss-120b → qwen3.6 → gemini flash-lite(비상).
-        Groq 두 모델은 TPD 각 200K(별도 예산), 소진/오류 시 다음 모델로. 둘 다 불가하면
-        다른 공급자(Google AI Studio)의 flash-lite로 분석해 고위험 알림 지연을 방지한다.
-        파싱/검증 실패 시에도 다음 티어로 넘겨 분석을 견고하게 확보한다.
+        """CVE 심층 분석. 주력 Gemini flash-lite → 비상 Groq 캐스케이드 → 폴백.
+
+        주력을 Gemini로 두는 이유(실측):
+          · 물량 — 분석은 Critical에만 하므로 백로그 소진 후 하루 6~30건. flash-lite의
+            일일 예산(RPD 1,000)에 30배 여유가 있어 소진되지 않는다. 반면 Groq는
+            TPD 200K×2가 자주 바닥나 같은 CVE라도 날마다 다른 모델이 분석했다.
+          · 출력 안정성 — flash-lite는 JSON 모드를 지원해 구조화 출력이 보장된다.
+            Groq 경로는 자유 출력이라 파싱 실패 시 다음 모델로 넘어가야 했다.
+
+        Groq를 없애지 않는 이유: Google AI Studio 장애 시 분석이 통째로 멈춘다.
+        공급자를 둘로 유지하는 것이 이중화의 목적이다(불변 원칙 5).
         (compound 계열은 기반 모델 TPD를 공유 소모해 예산 이득이 없어 제외 — config 참조.)"""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
         base = config.GROQ_ANALYSIS_PARAMS
 
+        # 1단(주력): Gemini flash-lite
+        result = self._analyze_with_gemini(cve_data, prompt)
+        if result is not None:
+            return result
+
+        # 2단(비상): 다른 공급자 — Groq 캐스케이드
+        logger.warning(f"{cve_data['id']}: Gemini 주력 불가 → Groq 비상 티어 시도")
         for model in config.GROQ_MODELS:
             # 이 모델 일일 한도(RPD/TPD) 소진이면 다음 모델로
             if rate_limit_manager.is_tpd_exhausted(model, required_tokens=6000):
@@ -111,56 +126,75 @@ class Analyzer:
                 logger.warning(f"{cve_data['id']}: 분석 오류 ({model}: {e}) → 다음 모델 시도")
                 continue
 
-        # 3단(비상): Groq 전 모델 소진/실패 → Gemini flash-lite (다른 공급자, 별도 한도)
-        logger.warning(f"{cve_data['id']}: Groq 전 모델 불가 → Gemini 비상 티어 시도")
-        result = self._analyze_with_gemini(cve_data, prompt)
-        if result is not None:
-            return result
+        # 두 공급자 모두 불가 → 정형 폴백(리포트는 나가되 분석란은 안내문)
         return self._fallback_analysis(cve_data)
 
+    # 주력 경로의 일시 오류 재시도 횟수. 무한정 붙들면 Groq 폴백이 늦어지므로 짧게.
+    _GEMINI_ATTEMPTS = 3
+
     def _analyze_with_gemini(self, cve_data: Dict, prompt: str) -> Optional[Dict]:
-        """비상 3단 분석 — Google AI Studio flash-lite. 번역(Gemma 31B)과 다른 모델이라
-        AI Studio 한도를 나눠 쓰지 않는다. JSON 모드로 구조화 출력을 강제. 실패 시 None."""
+        """주력 분석 — Google AI Studio flash-lite. 번역(Gemma 31B)과 다른 모델이라
+        AI Studio 한도를 나눠 쓰지 않는다. JSON 모드로 구조화 출력을 강제. 실패 시 None.
+
+        일시 오류(503·분당 한도)는 여기서 재시도한다. 예전엔 비상 티어라 한 번 실패하면
+        바로 폴백했지만, 주력이 된 지금은 구글의 몇 초짜리 혼잡 때문에 그 CVE만 다른
+        모델이 분석해 리포트 품질이 들쭉날쭉해진다. 일일 한도 소진(rpd)만은 기다려도
+        풀리지 않으므로 즉시 마킹하고 넘긴다."""
         model = getattr(config, "GEMINI_ANALYSIS_MODEL", None)
         if not self.gemini_client or not model:
             return None
         if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
-            logger.warning(f"{cve_data['id']}: Gemini 비상 티어도 RPD 소진 → fallback")
+            logger.warning(f"{cve_data['id']}: Gemini 일일 한도 소진 → Groq로 전환")
             return None
-        try:
-            if not rate_limit_manager.check_and_wait("gemini_analysis"):
-                return None   # 위 is_rpd_exhausted와 별개로, 동시 실행 중 소진된 경우
-            response = self.gemini_client.models.generate_content(
-                model=model,
-                contents=prompt,
-                config=genai_types.GenerateContentConfig(
-                    temperature=0.3,
-                    max_output_tokens=4096,
-                    # flash-lite는 JSON 모드 지원 → 비정형 출력으로 인한 파싱 실패 차단
-                    response_mime_type="application/json",
-                    # 보안 분석 내용이 안전필터에 오차단되지 않게 (번역 경로와 동일 설정)
-                    safety_settings=[genai_types.SafetySetting(
-                        category="HARM_CATEGORY_DANGEROUS_CONTENT",
-                        threshold="BLOCK_NONE"
-                    )]
-                ),
-            )
-            rate_limit_manager.record_call("gemini_analysis")
 
-            result = self._extract_json((response.text or "").strip())
-            if result is None or not self._validate_analysis_result(result):
-                logger.warning(f"{cve_data['id']}: Gemini 비상 분석 파싱/검증 실패")
+        for attempt in range(1, self._GEMINI_ATTEMPTS + 1):
+            try:
+                if not rate_limit_manager.check_and_wait("gemini_analysis"):
+                    return None   # 위 is_rpd_exhausted와 별개로, 동시 실행 중 소진된 경우
+                response = self.gemini_client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=genai_types.GenerateContentConfig(
+                        temperature=0.3,
+                        max_output_tokens=4096,
+                        # flash-lite는 JSON 모드 지원 → 비정형 출력으로 인한 파싱 실패 차단
+                        response_mime_type="application/json",
+                        # 보안 분석 내용이 안전필터에 오차단되지 않게 (번역 경로와 동일 설정)
+                        safety_settings=[genai_types.SafetySetting(
+                            category="HARM_CATEGORY_DANGEROUS_CONTENT",
+                            threshold="BLOCK_NONE"
+                        )]
+                    ),
+                )
+                rate_limit_manager.record_call("gemini_analysis")
+
+                result = self._extract_json((response.text or "").strip())
+                if result is None or not self._validate_analysis_result(result):
+                    # JSON 모드에서도 필수 키가 빠질 수 있다. 형식 문제는 재시도해도
+                    # 같은 결과일 확률이 높아 Groq로 넘긴다(다른 모델이 더 나은 답).
+                    logger.warning(f"{cve_data['id']}: Gemini 분석 파싱/검증 실패 → Groq로 전환")
+                    return None
+                logger.info(f"{cve_data['id']}: Analysis complete (model={model})")
+                return result
+
+            except Exception as e:
+                kind = gemini_error_kind(str(e))
+                # 일간 quota 429 → 대기 무의미, 즉시 소진 마킹 (이후 CVE는 바로 Groq).
+                # 분당 한도 429는 마킹하지 않는다 — 소진 상태는 상태 파일로 실행 간에
+                # 유지되므로 오판하면 주력 분석이 최대 24시간 잠긴다.
+                if kind == "rpd":
+                    rate_limit_manager.mark_rpd_exhausted("gemini_analysis")
+                    logger.warning(f"{cve_data['id']}: Gemini 일일 한도 소진 → Groq로 전환")
+                    return None
+                if kind in ("rate", "transient") and attempt < self._GEMINI_ATTEMPTS:
+                    wait = gemini_backoff(kind, attempt, str(e))
+                    logger.warning(f"{cve_data['id']}: Gemini {kind} 오류"
+                                   f"({attempt}/{self._GEMINI_ATTEMPTS}) → {wait:.0f}s 후 재시도")
+                    time.sleep(wait)
+                    continue
+                logger.warning(f"{cve_data['id']}: Gemini 분석 실패({kind}): {e} → Groq로 전환")
                 return None
-            logger.info(f"{cve_data['id']}: Analysis complete (model={model}, 비상 티어)")
-            return result
-        except Exception as e:
-            # 일간 quota 429 → 대기 무의미, 즉시 소진 마킹 (이후 CVE는 바로 fallback).
-            # 분당 한도 429는 마킹하지 않는다 — 소진 상태는 상태 파일로 실행 간에 유지되므로
-            # 오판하면 비상 분석 티어가 최대 24시간 잠긴다.
-            if gemini_error_kind(str(e)) == "rpd":
-                rate_limit_manager.mark_rpd_exhausted("gemini_analysis")
-            logger.warning(f"{cve_data['id']}: Gemini 비상 분석 실패: {e}")
-            return None
+        return None
 
     def _extract_json(self, text: str) -> Optional[Dict]:
         # 1차 시도: 그대로 파싱

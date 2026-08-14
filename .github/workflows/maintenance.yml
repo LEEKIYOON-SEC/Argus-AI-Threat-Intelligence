@@ -1,0 +1,78 @@
+name: Argus Maintenance
+
+# 매시간 파이프라인과 분리된 유지보수 작업.
+#  · 패키지 역인덱스: OSV 덤프가 합계 ~900MB라 훑는 데 몇 분 걸린다. 취약점↔패키지
+#    매핑은 시간 단위로 바뀌지 않으므로 주 1회면 충분하고, 매시간 실행의 시간 예산
+#    (38분)을 잠식하면 안 된다.
+#  · 공개일 백필: 차트를 공개일 기준으로 바꾸면서 기존 행을 한 번 채우는 작업.
+#    다 채우고 나면 수집 시점에 채워지므로 다시 돌릴 일이 없다 → 수동 전용.
+
+on:
+  schedule:
+    - cron: '40 3 * * 0'      # 매주 일요일 03:40 UTC — 역인덱스 갱신
+  workflow_dispatch:
+    inputs:
+      task:
+        description: '실행할 작업'
+        type: choice
+        default: 'package-index'
+        options:
+          - package-index      # CVE ↔ 패키지 역인덱스 재생성
+          - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
+      backfill_days:
+        description: '공개일 백필 소급 기간(일)'
+        default: '400'
+
+permissions:
+  contents: write
+
+# 매시간 파이프라인과 같은 파일(docs/data/)을 커밋하므로 겹치면 안 된다
+concurrency:
+  group: argus-pipeline
+  cancel-in-progress: false
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build package index
+        if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python src/build_package_index.py
+
+      - name: Backfill published dates
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-published' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          BACKFILL_DAYS: ${{ inputs.backfill_days }}
+        run: python src/backfill_published.py
+
+      - name: Commit results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/data/cve-packages.json docs/data/malicious-packages.json || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore: update package index [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi

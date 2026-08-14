@@ -32,6 +32,12 @@
   --sig-edb: #f0883e;
   --sig-poc: #22d3ee;
   --sig-rules: #3fb950; /* 공개 탐지 룰 — 방어 수단 존재(녹색). 위협 신호와 색상군 분리 */
+  /* 자동화 악용 축 — CVSS(피해 크기)와 직교하는 '얼마나 쉽게 널리 자동화되는가'.
+     기존 위협 신호(적/보라/주황)와 구별되게 청록 계열로 묶는다. */
+  --sig-auto: #38bdf8;
+  --sig-total: #a78bfa;
+  --sig-ransom: #fb7185;
+  --sig-mine: #fbbf24;   /* 내 SBOM과 일치 — 가장 먼저 눈에 들어와야 한다 */
 
   --radius: 12px;
   --radius-sm: 8px;
@@ -174,6 +180,9 @@ main { padding: 28px 0 64px; }
 .seg-btn.signal.active[data-signal="weaponized"] { color: var(--sig-msf); }
 .seg-btn.signal.active[data-signal="poc"] { color: var(--sig-poc); }
 .seg-btn.signal.active[data-signal="rules"] { color: var(--sig-rules); }
+.seg-btn.signal.active[data-signal="norules"] { color: var(--sev-high); }
+.seg-btn.signal.active[data-signal="auto"] { color: var(--sig-auto); }
+.seg-btn.signal.active[data-signal="patched"] { color: var(--sev-low); }
 
 .filter-spacer { flex: 1; }
 .export-group { display: inline-flex; gap: 6px; }
@@ -238,6 +247,40 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .badge-poc { background: color-mix(in srgb, var(--sig-poc) 18%, transparent); color: var(--sig-poc); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-poc) 38%, transparent); }
 .badge-ssvc { background: color-mix(in srgb, var(--sig-kev) 20%, transparent); color: var(--sig-kev); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-kev) 40%, transparent); }
 .badge-rules { background: color-mix(in srgb, var(--sig-rules) 18%, transparent); color: var(--sig-rules); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-rules) 38%, transparent); }
+.badge-auto { background: color-mix(in srgb, var(--sig-auto) 18%, transparent); color: var(--sig-auto); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-auto) 40%, transparent); }
+.badge-total { background: color-mix(in srgb, var(--sig-total) 18%, transparent); color: var(--sig-total); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-total) 38%, transparent); }
+.badge-ransom { background: color-mix(in srgb, var(--sig-ransom) 20%, transparent); color: var(--sig-ransom); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-ransom) 42%, transparent); }
+.badge-mine { background: color-mix(in srgb, var(--sig-mine) 20%, transparent); color: var(--sig-mine); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-mine) 44%, transparent); }
+/* 이미 수정판을 쓰고 있는 건 — 눈에 덜 띄게 내려 시선을 취약 추정 쪽에 남긴다 */
+.badge-mine-fixed { background: color-mix(in srgb, var(--sev-low) 14%, transparent); color: var(--sev-low); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-low) 34%, transparent); }
+
+/* 알려진 악성 패키지 경고 — 취약점과 성격이 달라 목록 위에 따로 세운다 */
+.mal-banner { margin: 0 0 12px; padding: 14px 16px; border-radius: var(--radius); background: color-mix(in srgb, var(--sev-critical) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--sev-critical) 40%, transparent); color: var(--text); font-size: 13.5px; }
+.mal-banner .mal-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.mal-banner .mal-list code { font-size: 11.5px; padding: 2px 6px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); }
+.mal-banner .mal-note { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+
+/* 내 SBOM과 일치한 행 — 목록에서 즉시 눈에 띄게 */
+tr.row-mine td:first-child { box-shadow: inset 3px 0 0 var(--sig-mine); }
+
+/* Linux 커널 접이식 그룹 — 목록의 절반을 차지하는 커널 CVE를 한 줄로 묶는다 */
+.kernel-fold td { background: color-mix(in srgb, var(--surface-2) 80%, transparent); font-weight: 600; color: var(--text); cursor: pointer; }
+.kernel-fold:hover td { background: var(--surface-2); }
+.kernel-fold .fold-caret { display: inline-block; margin-right: 8px; color: var(--text-muted); }
+.kernel-fold .fold-count { margin-left: 8px; font-weight: 500; color: var(--text-muted); }
+.kernel-fold .fold-meta { float: right; font-weight: 500; font-size: 12px; color: var(--text-faint); }
+
+/* SBOM에서 그대로 찾을 수 있는 패키지 이름 — 제품명만으로는 대조가 안 된다 */
+.pkg-keys { display: inline-flex; gap: 4px; margin-left: 6px; flex-wrap: wrap; }
+.pkg-keys code { font-size: 10.5px; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
+
+/* SBOM 불러오기 — 파일은 브라우저 밖으로 나가지 않는다 */
+.sbom-box { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sbom-btn { padding: 8px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s; }
+.sbom-btn:hover { color: var(--accent); border-color: var(--accent); }
+.sbom-clear { padding: 8px 10px; background: transparent; border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-faint); font-size: 12px; font-family: inherit; cursor: pointer; }
+.sbom-note { flex-basis: 100%; font-size: 11.5px; color: var(--text-faint); }
+.sbom-status { flex-basis: 100%; font-size: 12px; color: var(--text-faint); }
 
 .seg-btn.signal.active[data-signal="asset"] { color: var(--accent); }
 
