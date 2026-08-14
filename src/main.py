@@ -19,7 +19,7 @@ from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
 from rule_manager import RuleManager
-from rate_limiter import rate_limit_manager, gemini_error_kind
+from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
 # KST 타임존 (한국 표준시)
 KST = pytz.timezone('Asia/Seoul')
@@ -478,13 +478,9 @@ Do NOT add intro/outro.
     return fallback
 
 
-def _gemini_backoff(kind: str, attempt: int, msg: str) -> float:
-    """재시도 전 대기 시간. 분당 한도(429)는 서버가 알려준 재개 시각을 우선 따르되,
-    파이프라인이 통째로 잠들지 않도록 상한(30초)을 둔다."""
-    if kind == "rate":
-        hinted = rate_limit_manager.parse_retry_after(msg)
-        return min(hinted if hinted else 8.0 * attempt, 30.0)
-    return 2.0 * attempt  # 503/500: 2s, 4s
+# 대기 규칙도 rate_limiter가 소유한다 — 분류(gemini_error_kind)와 같은 자리에 둬야
+# 번역과 분석이 서로 다른 규칙으로 기다리는 일이 생기지 않는다.
+_gemini_backoff = gemini_backoff
 
 
 # 오류 분류는 rate_limiter가 소유한다 — 분석 경로(analyzer)와 같은 기준을 써야
@@ -1243,13 +1239,14 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         report_url = None
         rules_info = None
         if should_alert and full_report:
-            # 분석 3티어(gpt-oss/qwen + Gemini 비상) 전부 소진 시에만 Issue 보류.
-            # Groq만 소진이면 Gemini 비상 티어로 분석해 알림 지연 없이 진행한다.
+            # 분석 티어(Gemini 주력 + Groq 비상)가 전부 소진됐을 때만 Issue 보류.
+            # 한쪽만 소진이면 다른 쪽이 분석하므로 알림이 지연되지 않는다 — 그래서 조건이
+            # AND다(어느 쪽이 주력인지와 무관하게 '둘 다 불가'만 잡는다).
             # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
             # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
             if (rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None
                     and rate_limit_manager.is_rpd_exhausted("gemini_analysis")):
-                logger.warning(f"⚠️ {cve_id}: 분석 전 티어(Groq+Gemini) 소진 → Issue 보류(다음 실행 재처리)")
+                logger.warning(f"⚠️ {cve_id}: 분석 티어 전부 소진 → Issue 보류(다음 실행 재처리)")
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
 
@@ -1882,12 +1879,13 @@ def _main():
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
-    # 분석 티어 소진 경고
-    if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
-        if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
-            logger.warning("🚫 분석 전 티어(Groq 2모델 + Gemini 비상) 소진 → 일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
+    # 분석 티어 소진 경고 — 주력(Gemini) 기준으로 본다
+    if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
+        if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
+            logger.warning("🚫 분석 티어 전부(Gemini 주력 + Groq 비상) 소진 → "
+                           "일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
         else:
-            logger.warning("⚠️ Groq 전 모델 TPD 소진 → 분석이 Gemini 비상 티어(flash-lite)로 수행됨")
+            logger.warning("⚠️ Gemini 주력 RPD 소진 → 분석이 Groq 비상 티어로 수행됨")
 
     # Step 9: Slack 배치 요약 전송 (High 추적 건수 포함 — Issue 없이도 규모는 파악되게)
     repo = os.environ.get("GITHUB_REPOSITORY", "")

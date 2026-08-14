@@ -37,6 +37,18 @@ def gemini_error_kind(msg: str) -> str:
     return "other"
 
 
+def gemini_backoff(kind: str, attempt: int, msg: str, manager=None) -> float:
+    """재시도 전 대기 시간. 분당 한도(429)는 서버가 알려준 재개 시각을 우선 따르되,
+    파이프라인이 통째로 잠들지 않도록 상한(30초)을 둔다.
+
+    분류(gemini_error_kind)와 같은 파일에 둔다 — 번역과 분석이 서로 다른 규칙으로
+    기다리면 한쪽만 조용히 예산을 더 태우게 된다."""
+    if kind == "rate":
+        hinted = (manager or rate_limit_manager).parse_retry_after(msg)
+        return min(hinted if hinted else 8.0 * attempt, 30.0)
+    return 2.0 * attempt  # 503/500: 2s, 4s
+
+
 @dataclass
 class RateLimitInfo:
     """API Rate Limit 정보"""
@@ -541,8 +553,17 @@ class RateLimitManager:
         - "try again in 45.5s" → 45.5초
         - "try again in 2m" → 120초
         - "Retry-After: 60" → 60초
+        - Google AI Studio의 retryDelay 필드 → 그 값
         """
         msg = str(error_message)
+
+        # Google AI Studio는 429 본문에 {"retryDelay": "27s"} 형태로 재개 시각을 준다.
+        # 아래 "retry in ..." 패턴만 보면 이걸 놓치고 기본 백오프로 떨어진다 —
+        # 서버가 알려준 값을 두고 임의로 기다리면 429를 한 번 더 받는다.
+        match = re.search(r'retryDelay["\']?\s*[:=]\s*["\']?(?:(\d+)m)?(\d+\.?\d*)s',
+                          msg, re.IGNORECASE)
+        if match:
+            return int(match.group(1) or 0) * 60 + float(match.group(2))
 
         # 분+초 복합 형식: "10m3.072s", "2m30s"
         match = re.search(r'(?:retry|try again) in (\d+)m(\d+\.?\d*)s', msg, re.IGNORECASE)
