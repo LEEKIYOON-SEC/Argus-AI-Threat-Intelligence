@@ -15,11 +15,12 @@ import osv_index
 from database import ArgusDB
 from logger import logger
 
-_OUT = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "docs", "data", "cve-packages.json"
+_DATA = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data"
 )
-_CVES = os.path.join(os.path.dirname(_OUT), "cves.json")
+_OUT = os.path.join(_DATA, "cve-packages.json")
+_MAL_OUT = os.path.join(_DATA, "malicious-packages.json")
+_CVES = os.path.join(_DATA, "cves.json")
 
 
 def _tracked_cve_ids() -> list:
@@ -36,9 +37,7 @@ def _tracked_cve_ids() -> list:
         pass
 
     try:
-        db = ArgusDB()
-        rows = db.get_rows_missing_published(limit=50000)  # id만 필요 — 추적 행 전량
-        ids = [r["id"] for r in rows if r.get("id")]
+        ids = ArgusDB().get_tracked_ids()
         logger.info(f"대상 CVE {len(ids):,}건 (DB)")
         return ids
     except Exception as e:
@@ -60,8 +59,17 @@ def main() -> int:
     if not index:
         logger.warning("매칭된 패키지가 없습니다 — 기존 파일을 덮어쓰지 않고 종료")
         return 1
+    ok = osv_index.write_index(index, _OUT)
 
-    return 0 if osv_index.write_index(index, _OUT) else 1
+    # 악성 패키지 목록 — 실패해도 역인덱스는 이미 저장됐으므로 전체를 실패시키지 않는다
+    logger.info("─" * 60)
+    mal = osv_index.build_malicious_index()
+    if mal:
+        osv_index.write_malicious(mal, _MAL_OUT)
+    else:
+        logger.warning("악성 패키지 목록이 비어 있습니다 — 기존 파일 유지")
+
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":

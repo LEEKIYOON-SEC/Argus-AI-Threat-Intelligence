@@ -711,6 +711,45 @@ CVEs:
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
 
+# CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 저장소에 커밋한 파일).
+# 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 파일을 읽을 뿐이라 API 호출 0.
+_PKG_INDEX: Optional[Dict] = None
+
+
+def _package_index() -> Dict:
+    """docs/data/cve-packages.json을 1회 읽어 캐시. 없으면 빈 dict(기능만 조용히 생략)."""
+    global _PKG_INDEX
+    if _PKG_INDEX is None:
+        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                            "docs", "data", "cve-packages.json")
+        try:
+            with open(path, encoding="utf-8") as f:
+                _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
+            logger.info(f"패키지 사전 로드: {len(_PKG_INDEX):,}건")
+        except (OSError, ValueError):
+            _PKG_INDEX = {}
+    return _PKG_INDEX
+
+
+def _fixed_version_lines(cve_id: str) -> str:
+    """OSV가 알려주는 수정 버전. 체크리스트의 '패치 적용'에 목표가 없으면 무용지물이라
+    리포트에 함께 싣는다. 사전에 없으면 빈 문자열 → 블록 자체가 생략된다."""
+    pkgs = _package_index().get(cve_id) or {}
+    lines = []
+    for pkg, eco_map in sorted(pkgs.items()):
+        for eco, fixes in sorted((eco_map or {}).items()):
+            good = [f for f in (fixes or []) if f]
+            if good:
+                lines.append(f"| `{pkg}` | {eco} | **{', '.join(good)}** |")
+    if not lines:
+        return ""
+    return ("\n## 📦 패치 버전 (OSV)\n"
+            "| 패키지 | 배포판·생태계 | 이 버전 이상으로 |\n| :--- | :--- | :--- |\n"
+            + "\n".join(lines[:12])
+            + "\n\n<sub>출처: [OSV.dev](https://osv.dev) (CC-BY 4.0) — 설치된 배포판·릴리스에 "
+              "맞는 행을 보세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
+
+
 def _rule_license_note(rule_info: Dict) -> str:
     """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
     lic = rule_info.get('license')
@@ -862,7 +901,13 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} |\n"
     if not affected_rows:
         affected_rows = "| - | - | - |"
-    
+
+    # OSV 수정 버전 — 없으면 빈 문자열이라 블록이 통째로 빠진다
+    fixed_block = _fixed_version_lines(cve_data['id'])
+    patch_hint = ""
+    if fixed_block:
+        patch_hint = " *(목표 버전은 아래 '패치 버전' 표 참조)*"
+
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
     
@@ -947,7 +992,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 | 벤더 | 제품 | 버전 |
 | :--- | :--- | :--- |
 {affected_rows}
-
+{fixed_block}
 ## 🔍 AI 심층 분석
 ### 기술적 근본 원인
 {analysis.get('root_cause', '-')}
@@ -971,7 +1016,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 <!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. -->
 - [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
 - [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
-- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조)
+- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조){patch_hint}
 - [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
 - [ ] 조치 결과 기록 후 이슈 종료
 
@@ -982,7 +1027,8 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 
 ---
 <sub>📊 **데이터 출처**: CVE(cvelistV5, CC0) · NVD(NIST, 공공) · CISA KEV·SSVC/vulnrichment(공공/CC0) ·
-EPSS([FIRST.org](https://www.first.org/epss/)) · GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
+EPSS([FIRST.org](https://www.first.org/epss/)) · [OSV.dev](https://osv.dev)(CC-BY 4.0) ·
+GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
 PoC/ExploitDB(원문 미게시·링크만). 공개 탐지 룰은 각 출처·라이선스 고지를 보존합니다.
 AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않습니다.</sub>
 """

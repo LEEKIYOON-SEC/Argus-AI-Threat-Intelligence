@@ -419,6 +419,31 @@ class ArgusDB:
             logger.warning(f"{cve_id} 번역 갱신 실패: {e}")
             return False
 
+    def get_tracked_ids(self, page_size: int = 1000, max_rows: int = 50000) -> List[str]:
+        """추적 중인(대시보드 노출) CVE의 id만 페이지네이션으로 전량 조회.
+
+        id 하나만 select하므로 전량을 받아도 수백 KB에 그친다 — 패키지 역인덱스를
+        만들 대상 목록을 얻는 용도라 다른 컬럼이 필요 없다."""
+        ids: List[str] = []
+        offset = 0
+        try:
+            while offset < max_rows:
+                response = self._execute(
+                    self.client.table("cves")
+                    .select("id")
+                    .not_.is_("last_alert_state", "null")
+                    .order("updated_at", desc=True)
+                    .range(offset, offset + page_size - 1)
+                )
+                batch = response.data or []
+                ids.extend(r["id"] for r in batch if r.get("id"))
+                if len(batch) < page_size:
+                    break
+                offset += page_size
+        except Exception as e:
+            logger.error(f"추적 CVE id 조회 실패: {e}")
+        return ids
+
     def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
         """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상.
 
