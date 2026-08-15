@@ -159,6 +159,48 @@ def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
         data.pop("rpd", None)
     _write_state(data)
 
+# ─────────────────────────────────────────────
+# NVD CPE → 영향 자산(벤더/제품)
+# 수집 파이프라인과 소급 백필(backfill_vendors)이 같은 규칙을 써야 해서 모듈 레벨에 둔다.
+# 주의: main.is_target_asset의 CPE 매칭은 일부러 이 함수를 쓰지 않는다 — 거기서는
+# 벤더가 와일드카드(*)여도 '*/product' 감시와 매칭돼야 하므로 규칙이 더 느슨하다.
+# ─────────────────────────────────────────────
+def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
+    """CPE 2.3에서 (vendor, product, version). 미상/와일드카드는 쓸 수 없어 버린다.
+    형식: cpe:2.3:<part>:<vendor>:<product>:<version>:..."""
+    parts = str(cpe or '').split(':')
+    if len(parts) < 6 or not parts[0].startswith('cpe'):
+        return None
+    vendor, product, version = parts[3], parts[4], parts[5]
+    if vendor in ('', '*', '-') or product in ('', '*', '-'):
+        return None
+    return vendor, product, version
+
+
+def affected_from_cpes(cpes: List[str], limit: int = 5) -> List[Dict]:
+    """CPE 목록 → affected 항목. 같은 (벤더, 제품)은 한 번만 담는다.
+    표시용이라 limit을 넘길 이유가 없다(버전 범위가 많으면 CPE가 수십 개씩 나온다)."""
+    seen, out = set(), []
+    for cpe in cpes or []:
+        parsed = parse_cpe(cpe)
+        if not parsed:
+            continue
+        vendor, product, version = parsed
+        key = (vendor.lower(), product.lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({
+            "vendor": vendor.replace('_', ' '),
+            "product": product.replace('_', ' '),
+            "versions": version if version not in ('*', '-', '') else "정보 없음",
+            "patch_version": None,
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
 class Collector:
     def __init__(self):
         self.kev_set: Set[str] = set()
@@ -960,17 +1002,16 @@ class Collector:
             logger.debug(f"GitHub Advisory 실패 ({cve_id}): {e}")
             return {"has_advisory": False}
     
-    @staticmethod
-    def _parse_cpe(cpe: str):
-        """CPE 2.3 문자열에서 (vendor, product, version) 추출.
-        형식: cpe:2.3:a:vendor:product:version:update:... — 미상/와일드카드는 제외."""
-        parts = cpe.split(':')
-        if len(parts) < 6 or not parts[0].startswith('cpe'):
-            return None
-        vendor, product, version = parts[3], parts[4], parts[5]
-        if vendor in ('', '*', '-') or product in ('', '*', '-'):
-            return None
-        return vendor, product, version
+
+    def fill_affected_from_nvd(self, cve_data: Dict) -> Dict:
+        """벤더가 비어 있으면 NVD를 조회해 affected(벤더/제품)를 채운다.
+
+        NVD 조회와 CPE 보강은 항상 같이 다닌다 — 조회만 하고 보강을 안 하면 nvd_cpe만
+        들고 affected는 n/a로 남는다. 실제로 그 상태였고, 보강이 고위험 전용 경로에만
+        있어서 추적 CVE의 1.6%가 벤더 없이 남았다(실측 198건)."""
+        if not cve_data.get('_nvd_enriched'):
+            cve_data = self.enrich_from_nvd(cve_data)
+        return self._augment_affected_from_cpe(cve_data)
 
     def _augment_affected_from_cpe(self, cve_data: Dict) -> Dict:
         """CVE 자체 affected에 유효한 벤더가 없을 때 NVD CPE로 벤더/제품을 보강한다.
@@ -984,22 +1025,7 @@ class Collector:
         )
         if has_valid_vendor:
             return cve_data  # CVE 자체 데이터 우선
-        seen, derived = set(), []
-        for cpe in cpes:
-            parsed = self._parse_cpe(cpe)
-            if not parsed:
-                continue
-            vendor, product, version = parsed
-            key = (vendor.lower(), product.lower())
-            if key in seen:
-                continue
-            seen.add(key)
-            derived.append({
-                "vendor": vendor.replace('_', ' '),
-                "product": product.replace('_', ' '),
-                "versions": version if version not in ('*', '-', '') else "정보 없음",
-                "patch_version": None,
-            })
+        derived = affected_from_cpes(cpes)
         if derived:
             cve_data['affected'] = derived
             logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")
@@ -1041,9 +1067,7 @@ class Collector:
 
         # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
         #    자산 매칭 단계에서 이미 선제 조회했으면 재호출 생략
-        if not cve_data.get('_nvd_enriched'):
-            cve_data = self.enrich_from_nvd(cve_data)
-        cve_data = self._augment_affected_from_cpe(cve_data)
+        cve_data = self.fill_affected_from_nvd(cve_data)
 
         # 2. PoC 존재 여부 (nomi-sec → trickest 네트워크 검색)
         poc_info = self.check_poc_exists(cve_id)

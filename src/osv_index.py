@@ -9,7 +9,8 @@ Alpine secdb)와 GitHub Advisory를 정규화해 "이 CVE는 어느 패키지인
 뒀으므로, 그 전량 덤프를 받아 CVE → 패키지명 역인덱스를 만든다.
 
 자산 정보는 이 과정에 전혀 들어가지 않는다 — 공개 취약점 DB만 가공한다. 실제 대조는
-사용자 브라우저가 로컬 SBOM CSV로 수행하므로 패키지 목록이 밖으로 나가지 않는다.
+사용자 PC의 tools/sbom_match.py가 로컬 SBOM CSV로 수행하므로 패키지 목록이 밖으로
+나가지 않는다.
 
 주의: OSV는 **소스 패키지명** 기준이다. 검증 결과 `libcurl4` 0건 / `curl` 68건,
 `libssl3` 0건 / `openssl` 43건. SBOM 쪽에서도 소스명을 우선 써야 맞는다.
@@ -30,7 +31,7 @@ _BASE = "https://storage.googleapis.com/osv-vulnerabilities"
 
 # 받을 생태계. 크기는 2026-08 기준 all.zip 실측치.
 #   Ubuntu(588MB)·npm(209MB)이 크지만 러너 디스크(14GB)와 캐시 한도(10GB) 안이고,
-#   덤프는 스캔 후 버린다 — 저장소에 커밋되는 건 수백 KB짜리 역인덱스뿐이다.
+#   덤프는 스캔 후 버린다 — 배포되는 건 역인덱스뿐이다(전송 gzip 0.6MB).
 ECOSYSTEMS = ["Debian", "Ubuntu", "Alpine", "npm", "PyPI", "Maven", "Go"]
 
 _TIMEOUT = 180
@@ -90,17 +91,16 @@ def build_index(cve_ids: Iterable[str],
                 ecosystems: List[str] = None) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
     """추적 중인 CVE의 {CVE: {패키지명: {생태계: [수정버전...]}}} 역인덱스.
 
-    전량을 담으면 커밋되는 파일이 수 MB 늘어난다. 대시보드에 없는 CVE는 대조할 일도
-    없으므로 우리가 가진 목록으로 좁힌다. (실측: 9,463건 대상 664KB · 매칭률 59%)
+    전량을 담으면 배포 파일이 수 MB 늘어난다. 우리가 추적하지 않는 CVE는 대조할 일도
+    없으므로 가진 목록으로 좁힌다. (실측: 11,958건 대상 20.8MB · 전송 gzip 0.6MB)
 
     생태계를 키로 두는 이유: 같은 패키지라도 배포판 릴리스마다 수정 버전이 다르다.
     예) linux → Debian:12는 6.1.25-1, Debian:13은 6.1.11-1. 하나로 합치면 사용자가
     자기 릴리스에 맞는 목표 버전을 고를 수 없다.
 
-    수정 버전을 목록으로 두는 이유: 여기서 하나로 줄이려면 버전 비교가 필요한데,
-    문자열 정렬은 1.10 < 1.9로 뒤집힌다. 제대로 비교하려면 dpkg 규칙을 파이썬에도
-    구현해야 하고 그러면 브라우저 쪽 비교기와 이중 관리가 된다. 비교는 판정하는
-    쪽(대시보드) 한 곳에서만 하고, 여기서는 후보를 그대로 넘긴다."""
+    수정 버전을 목록으로 두는 이유: 여기서 하나로 줄이려면 dpkg 버전 비교가 필요한데
+    (문자열 정렬은 1.10 < 1.9로 뒤집힌다), 그 규칙은 판정하는 쪽(tools/sbom_match.py)에
+    이미 있다. 두 곳에 두면 갈라지므로 여기서는 후보를 그대로 넘긴다."""
     wanted = {c for c in cve_ids if c}
     if not wanted:
         return {}
@@ -179,8 +179,8 @@ def build_malicious_index(ecosystems: List[str] = None) -> List[str]:
 
 
 def write_malicious(names: List[str], path: str) -> bool:
-    """악성 패키지 이름 목록 저장. 대시보드가 SBOM을 불러올 때만 내려받는다
-    (약 5MB — 초기 로드에 얹으면 손해라 지연 로딩한다)."""
+    """악성 패키지 이름 목록 저장. tools/sbom_match.py가 --check-malicious일 때만
+    내려받는다 (약 5MB — 기본으로 받게 하면 손해라 옵트인이다)."""
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         payload = {
@@ -201,7 +201,8 @@ def write_malicious(names: List[str], path: str) -> bool:
 
 
 def write_index(index: Dict, path: str) -> bool:
-    """역인덱스를 JSON으로 저장. 대시보드가 SBOM 대조에 사용한다."""
+    """역인덱스를 JSON으로 저장. tools/sbom_match.py의 대조와 대시보드의
+    패키지명·패치 버전 표시, 리포트의 패치 버전 블록이 함께 쓴다."""
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         payload = {

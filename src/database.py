@@ -444,11 +444,11 @@ class ArgusDB:
             logger.error(f"추적 CVE id 조회 실패: {e}")
         return ids
 
-    def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
-        """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상.
+    def _tracked_states(self, limit: int = 20000) -> List[Dict]:
+        """추적 행의 id + last_alert_state. 소급 백필의 공통 입력.
 
-        JSONB 내부 키의 존재 여부는 서버 필터로 표현하기 번거로워 파이썬에서 거른다.
-        추적 행만 대상이다(마커는 대시보드·차트에 안 나오므로 채울 이유가 없다)."""
+        JSONB 내부 조건(키 존재·배열 내부 값)은 서버 필터로 표현하기 번거로워
+        호출부가 파이썬에서 거른다. 마커 행은 대시보드에 안 나오므로 제외한다."""
         try:
             response = self._execute(
                 self.client.table("cves")
@@ -457,11 +457,28 @@ class ArgusDB:
                 .order("updated_at", desc=True)
                 .limit(limit)
             )
-            return [r for r in (response.data or [])
-                    if not (r.get("last_alert_state") or {}).get("published")]
+            return response.data or []
         except Exception as e:
-            logger.error(f"공개일 백필 후보 조회 실패: {e}")
+            logger.error(f"추적 행 조회 실패: {e}")
             return []
+
+    def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
+        """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상."""
+        return [r for r in self._tracked_states(limit)
+                if not (r.get("last_alert_state") or {}).get("published")]
+
+    def get_rows_missing_vendor(self, limit: int = 20000) -> List[Dict]:
+        """영향 벤더가 하나도 없는 추적 행 — NVD CPE 소급 백필 대상.
+
+        원본 CNA 레코드가 'n/a'인 경우가 있는데, 그때도 NVD CPE에는 벤더/제품이
+        들어 있곤 한다. 벤더가 비면 대시보드 벤더 필터에서 통째로 빠진다."""
+        def has_vendor(state: Dict) -> bool:
+            return any(
+                str(a.get("vendor") or "").strip().lower() not in ("", "unknown", "n/a", "-")
+                for a in (state.get("affected") or []) if isinstance(a, dict)
+            )
+        return [r for r in self._tracked_states(limit)
+                if not has_vendor(r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:
         """파이프라인 진행 상태(워터마크·실패추적·RPD). 없거나 실패하면 None.
@@ -495,18 +512,39 @@ class ArgusDB:
             logger.error(f"파이프라인 상태 저장 실패: {e}")
             return False
 
-    _PUBLISHED_CHUNK = 200
+    _STATE_CHUNK = 200
 
-    def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
-        """이미 조회한 행에 {cve_id: 공개일}을 채워 배치 저장. 갱신 성공 건수 반환.
+    def bulk_save_states(self, updates: List[Dict], label: str = "상태") -> int:
+        """[{id, last_alert_state}, ...]를 묶어 저장. 갱신 성공 건수 반환.
 
-        rows는 get_rows_missing_published()가 돌려준 그대로 — id와 last_alert_state가
-        이미 들어 있다. 예전에는 행마다 get_cve()로 같은 값을 다시 읽었는데, 대상이
-        1만 건을 넘자 왕복이 2만 회를 넘어 워크플로 타임아웃(60분)에 걸릴 위험이 컸고
-        Supabase egress도 크게 썼다(불변 원칙 2). 가진 값을 쓰고 200건씩 묶어 저장한다.
+        행마다 저장하면 대상이 1만 건을 넘을 때 왕복이 그만큼 늘어 워크플로
+        타임아웃(60분)에 걸리고 Supabase egress도 크게 쓴다(불변 원칙 2).
 
         payload에 updated_at을 넣지 않는다 — PostgREST는 준 컬럼만 갱신하므로 그 값이
         대시보드의 '확인일'로 그대로 보존된다. 백필 때문에 확인일이 밀리면 안 된다."""
+        if not updates:
+            return 0
+        done = 0
+        for i in range(0, len(updates), self._STATE_CHUNK):
+            chunk = updates[i:i + self._STATE_CHUNK]
+            try:
+                self._execute(self.client.table("cves").upsert(chunk))
+                done += len(chunk)
+            except Exception as e:
+                # 묶음이 실패하면 어느 행 탓인지 알 수 없다 → 행 단위로 되돌아간다.
+                # WAF 콘텐츠 차단 대응이 upsert_cve에 있으므로 그 경로를 그대로 쓴다.
+                logger.warning(f"{label} 배치 저장 실패({len(chunk)}건): {e} → 행 단위 재시도")
+                for item in chunk:
+                    if self.upsert_cve(item):
+                        done += 1
+            logger.info(f"  {label} 저장 {min(i + len(chunk), len(updates)):,}/{len(updates):,}")
+        return done
+
+    def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
+        """이미 조회한 행에 {cve_id: 공개일}을 채워 저장. 갱신 성공 건수 반환.
+
+        rows는 get_rows_missing_published()가 돌려준 그대로 — id와 last_alert_state가
+        이미 들어 있어 다시 읽을 필요가 없다."""
         pending = []
         for row in rows:
             cve_id = row.get("id")
@@ -517,25 +555,7 @@ class ArgusDB:
             state = dict(state)
             state["published"] = day
             pending.append({"id": cve_id, "last_alert_state": state})
-
-        if not pending:
-            return 0
-
-        done = 0
-        for i in range(0, len(pending), self._PUBLISHED_CHUNK):
-            chunk = pending[i:i + self._PUBLISHED_CHUNK]
-            try:
-                self._execute(self.client.table("cves").upsert(chunk))
-                done += len(chunk)
-            except Exception as e:
-                # 묶음이 실패하면 어느 행 탓인지 알 수 없다 → 행 단위로 되돌아간다.
-                # WAF 콘텐츠 차단 대응이 upsert_cve에 있으므로 그 경로를 그대로 쓴다.
-                logger.warning(f"공개일 배치 저장 실패({len(chunk)}건): {e} → 행 단위 재시도")
-                for item in chunk:
-                    if self.upsert_cve(item):
-                        done += 1
-            logger.info(f"  공개일 저장 {min(i + len(chunk), len(pending)):,}/{len(pending):,}")
-        return done
+        return self.bulk_save_states(pending, "공개일")
 
     def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
         """외부 피드(KEV/EPSS/Metasploit) 단독 변화로 고위험 승격 가능성이 있는 '현재 저위험' CVE.

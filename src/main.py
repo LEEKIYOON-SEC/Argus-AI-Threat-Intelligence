@@ -380,15 +380,21 @@ def _epss_surge_candidates(collector: Collector, db: ArgusDB, exclude: set,
     return drifted
 
 
-def _needs_cpe_for_matching(cve_data: Dict) -> bool:
-    """자산 매칭에 NVD CPE 선제 조회가 필요한지 판단.
+def _needs_cpe_lookup(cve_data: Dict) -> bool:
+    """NVD CPE 선제 조회가 필요한지 — CVE에 유효한 벤더가 하나도 없으면 True.
 
-    전체 감시(*/*)면 매칭이 항상 참이라 불필요. 특정 자산 감시인데 CVE의 affected에
-    유효한 벤더가 하나도 없으면(Unknown/N-A), NVD CPE 없이는 벤더 매칭이 불가능해
-    감시 대상 CVE를 놓칠 수 있다 → 이때만 True (NVD 1회 조회 비용 발생)."""
-    targets = config.get_target_assets()
-    if any(t.get('vendor') == '*' and t.get('product') == '*' for t in targets):
-        return False
+    조회 이유가 둘이다:
+      1) 자산 매칭 — 특정 자산 감시(*/* 아님)면 벤더 없이는 매칭 자체가 불가능해
+         감시 대상 CVE를 놓친다.
+      2) 표시·필터 — 전체 감시(*/*)라도 벤더가 비면 대시보드 벤더 필터에서 통째로
+         빠지고 리포트의 '영향 받는 자산'이 n/a로 남는다.
+
+    예전에는 1)만 보고 전체 감시에서 건너뛰었다. 매칭 관점에선 맞지만 그 부작용으로
+    표시용 벤더까지 같이 잃어, 추적 CVE의 1.6%(실측 198건)가 벤더 없이 남았다.
+    원본 CNA 레코드가 'n/a'여도 NVD CPE에는 있는 경우가 있다
+    (예: CVE-2020-29574 → cpe:2.3:o:sophos:cyberoamos).
+
+    비용은 벤더 없는 CVE에 대해서만 NVD 1회다(실측 유입의 1.6%)."""
     return not any(
         str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a')
         for a in (cve_data.get('affected') or [])
@@ -1121,10 +1127,10 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             return {"cve_id": cve_id, "status": "handled", "stage": "done"}
 
         # Step 2: 자산 필터링 (affected vendor/product 우선, NVD CPE 보조, description 보조)
-        # 특정 자산 감시(*/* 아님) + CVE에 유효 벤더 없음이면 NVD CPE를 선제 조회해 매칭
-        # 소스를 확보한다(자산 매칭 누락 방지). 전체 감시(*/*)에서는 호출 안 함(비용 0).
-        if _needs_cpe_for_matching(raw_data):
-            collector.enrich_from_nvd(raw_data)
+        # 유효 벤더가 없으면 NVD CPE를 조회해 affected를 채운다 — 매칭 소스 확보이자
+        # 대시보드 벤더 필터·리포트 표시를 위한 것이다(_needs_cpe_lookup 주석 참조).
+        if _needs_cpe_lookup(raw_data):
+            collector.fill_affected_from_nvd(raw_data)
         is_target, match_info, match_type = is_target_asset(raw_data)
         if not is_target:
             logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")

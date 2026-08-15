@@ -19,6 +19,7 @@ on:
         options:
           - package-index      # CVE ↔ 패키지 역인덱스 재생성
           - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
+          - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
       backfill_days:
         description: '공개일 백필 소급 기간(일)'
         default: '400'
@@ -66,6 +67,14 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: python src/backfill_published.py
+
+      - name: Backfill affected vendors
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: python src/backfill_vendors.py
 
       # 이 잡은 인덱스만 만든다. 매시간 갱신되는 cves.json·stats.json은 지금
       # 서비스 중인 사이트에서 받아 채워야 배포가 그것들을 지우지 않는다.
