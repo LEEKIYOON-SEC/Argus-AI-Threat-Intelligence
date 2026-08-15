@@ -94,6 +94,9 @@ def main() -> int:
             time.sleep(gap)
 
     ok = db.bulk_save_states(updates, "영향 벤더")
+    if ok:
+        # updated_at을 건드리지 않으므로 증분 export가 이 변경을 못 본다 → 전량 1회 요청
+        db.request_full_export()
     logger.info("=" * 60)
     logger.info(f"벤더 백필 완료: 복구 {hit:,} · NVD에도 없음 {miss:,} · 저장 {ok:,}건")
     if len(rows) > len(targets):

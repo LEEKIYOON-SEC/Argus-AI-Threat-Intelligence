@@ -212,6 +212,24 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
+def _take_full_export_flag(client) -> bool:
+    """백필이 남긴 '전량 export 요청' 표시를 읽고 지운다.
+
+    백필은 '확인일'을 보존하려고 updated_at을 건드리지 않는데, 증분 export는 그 컬럼으로
+    바뀐 행을 찾는다. 표시가 없으면 백필 결과가 대시보드에 영영 나타나지 않는다."""
+    try:
+        r = client.table("pipeline_state").select("state").eq("id", 1).limit(1).execute()
+        st = ((r.data or [{}])[0] or {}).get("state") or {}
+        if not st.get("force_full_export"):
+            return False
+        st.pop("force_full_export", None)
+        client.table("pipeline_state").upsert({"id": 1, "state": st}).execute()
+        return True
+    except Exception as e:
+        print(f"  전량 export 표시 확인 실패(무시): {e}", flush=True)
+        return False
+
+
 def _fetch_live_export() -> tuple:
     """지금 배포돼 있는 cves.json·stats.json. 못 받으면 (None, None).
 
@@ -504,7 +522,11 @@ def main():
 
     # CVE 데이터 — 직전 결과가 쓸 만하면 바뀐 행만 가져와 병합한다(증분).
     print("[1/4] CVE 데이터 export...", flush=True)
-    previous, since = load_previous_export(data_dir)
+    if _take_full_export_flag(client):
+        print("  백필 반영 요청 있음 → 이번은 전량 export", flush=True)
+        previous, since = None, None
+    else:
+        previous, since = load_previous_export(data_dir)
     if previous is None:
         cve_data = export_cves(client)
         print(f"  전량 export: {len(cve_data)}건", flush=True)
