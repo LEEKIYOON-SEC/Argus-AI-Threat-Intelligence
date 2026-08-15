@@ -973,9 +973,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
             info = rules['yara']
             rules_section += f"### Yara Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yara\n{info['code']}\n```\n\n"
     else:
-        rules_section = ("## 🔎 공개 탐지 룰\n\n"
-                         "> 현재 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 이 CVE에 대한 탐지 룰은 확인되지 않았습니다. "
-                         "공개 룰이 등록되면 정기 재확인 시 자동 반영됩니다. 그 전에는 위의 분석·공격 시나리오·대응 방안을 참고하세요.\n")
+        # 룰이 없으면 섹션을 통째로 뺀다. 실측으로 리포트의 98.9%가 이 경우인데,
+        # "없습니다"를 세 줄로 설명해 봐야 읽는 사람에게 주는 정보가 없다.
+        # (패치 버전 블록도 같은 이유로 없으면 생략한다.)
+        rules_section = ""
 
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
 
