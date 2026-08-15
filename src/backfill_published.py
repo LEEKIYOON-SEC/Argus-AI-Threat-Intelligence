@@ -96,7 +96,7 @@ def main() -> int:
         logger.warning("채울 공개일을 하나도 못 받았습니다 — 저장 생략")
         return 1
 
-    ok = db.bulk_set_published(published)
+    ok = db.bulk_set_published(rows, published)
     logger.info("=" * 60)
     logger.info(f"백필 완료: {ok:,}/{len(targets):,}건 갱신")
     logger.info("=" * 60)

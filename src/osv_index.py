@@ -124,9 +124,18 @@ def build_index(cve_ids: Iterable[str],
                 # 레코드의 실제 생태계 문자열(Debian:12 등)을 그대로 쓴다 — 덤프 이름
                 # (Debian)만으로는 릴리스를 구분할 수 없다.
                 pkg_eco = pkg_info.get("ecosystem") or eco
-                fixes = _fixed_versions(aff)
+                fixes = [f for f in _fixed_versions(aff) if f]
                 for c in cves:
+                    # 패키지명 자리는 수정 버전이 없어도 만든다 — 이름 대조("이 CVE가
+                    # 내 자산인가")가 그 키로 이뤄지므로 빼면 매칭이 통째로 사라진다.
                     slot = index.setdefault(c, {}).setdefault(pkg, {})
+                    # 생태계 항목은 수정 버전이 있을 때만 담는다. 빈 배열은 판정에 쓸 수
+                    # 없는데다 실제로 해를 끼쳤다 — 대시보드의 생태계 선택이 빈 배열도
+                    # 유효한 항목으로 보고 골라버려, 다른 릴리스에 수정 버전이 있는데도
+                    # '버전 미확인'으로 떨어뜨렸다. 크기도 문제였다: 전체 생태계 항목의
+                    # 76%가 빈 항목이라 파일이 34.9MB까지 불었다.
+                    if not fixes:
+                        continue
                     merged = sorted(set(slot.get(pkg_eco) or []) | set(fixes))
                     slot[pkg_eco] = merged[:_MAX_FIXED]
                     hits += 1
