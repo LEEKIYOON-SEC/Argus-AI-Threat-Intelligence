@@ -707,23 +707,42 @@ CVEs:
 # [3] GitHub Issue 생성/업데이트
 # ==============================================================================
 
-# CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 저장소에 커밋한 파일).
-# 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 파일을 읽을 뿐이라 API 호출 0.
+# CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 Pages에 배포하는 파일).
+# 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 공개 정적 파일이라 DB 호출 0.
 _PKG_INDEX: Optional[Dict] = None
 
 
 def _package_index() -> Dict:
-    """docs/data/cve-packages.json을 1회 읽어 캐시. 없으면 빈 dict(기능만 조용히 생략)."""
+    """CVE→패키지 사전을 1회 읽어 캐시. 못 구하면 빈 dict(기능만 조용히 생략).
+
+    배포본을 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로 체크아웃에는 없거나
+    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다."""
     global _PKG_INDEX
-    if _PKG_INDEX is None:
-        path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                            "docs", "data", "cve-packages.json")
+    if _PKG_INDEX is not None:
+        return _PKG_INDEX
+
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" in repo:
+        owner, name = repo.split("/", 1)
+        url = f"https://{owner.lower()}.github.io/{name}/data/cve-packages.json"
         try:
-            with open(path, encoding="utf-8") as f:
-                _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
-            logger.info(f"패키지 사전 로드: {len(_PKG_INDEX):,}건")
-        except (OSError, ValueError):
-            _PKG_INDEX = {}
+            import urllib.request
+            req = urllib.request.Request(url, headers={"User-Agent": "argus-report"})
+            with urllib.request.urlopen(req, timeout=180) as r:
+                _PKG_INDEX = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
+            logger.info(f"패키지 사전 로드(배포본): {len(_PKG_INDEX):,}건")
+            return _PKG_INDEX
+        except Exception as e:
+            logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "docs", "data", "cve-packages.json")
+    try:
+        with open(path, encoding="utf-8") as f:
+            _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
+        logger.info(f"패키지 사전 로드(파일): {len(_PKG_INDEX):,}건")
+    except (OSError, ValueError):
+        _PKG_INDEX = {}
     return _PKG_INDEX
 
 
