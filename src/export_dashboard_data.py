@@ -168,9 +168,9 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         entry["degraded"] = bool(state.get("waf_degraded"))
         # 공격 벡터 (모달 시각화용). 이 필드가 도입되기 전 행에는 없다 → 프론트에서 생략 처리
         entry["cvss_vector"] = _s(state, "cvss_vector")
-        # 등록 자산(assets.json의 구체 룰)에 매칭된 CVE — '내 자산' 패널/필터용.
-        # 판정은 파이프라인(is_target_asset)이 한 것을 그대로 쓴다(프론트 재구현 없음).
-        entry["asset_match"] = state.get("match_type") == "asset"
+        # 자산 매칭 여부(match_type)는 공개 JSON에 싣지 않는다. 대시보드는 누구나
+        # 볼 수 있는 정적 사이트라, 어떤 CVE가 우리 자산인지가 그대로 드러난다.
+        # 판정 자체는 DB에 남아 티어링·알림에 계속 쓰인다.
 
         # P5 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit)
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")

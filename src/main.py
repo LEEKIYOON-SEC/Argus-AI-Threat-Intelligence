@@ -928,9 +928,6 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 
     # OSV 수정 버전 — 없으면 빈 문자열이라 블록이 통째로 빠진다
     fixed_block = _fixed_version_lines(cve_data['id'])
-    patch_hint = ""
-    if fixed_block:
-        patch_hint = " *(목표 버전은 아래 '패치 버전' 표 참조)*"
 
     # 대응 방안
     mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
@@ -976,9 +973,10 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
             info = rules['yara']
             rules_section += f"### Yara Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yara\n{info['code']}\n```\n\n"
     else:
-        rules_section = ("## 🔎 공개 탐지 룰\n\n"
-                         "> 현재 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 이 CVE에 대한 탐지 룰은 확인되지 않았습니다. "
-                         "공개 룰이 등록되면 정기 재확인 시 자동 반영됩니다. 그 전에는 위의 분석·공격 시나리오·대응 방안을 참고하세요.\n")
+        # 룰이 없으면 섹션을 통째로 뺀다. 실측으로 리포트의 98.9%가 이 경우인데,
+        # "없습니다"를 세 줄로 설명해 봐야 읽는 사람에게 주는 정보가 없다.
+        # (패치 버전 블록도 같은 이유로 없으면 생략한다.)
+        rules_section = ""
 
     now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
 
@@ -1035,14 +1033,6 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
 
 ## 🛡️ 권고 대응 방안
 {mitigation_list}
-
-## ✅ 조치 체크리스트
-<!-- 이 이슈를 그대로 작업 티켓으로 사용하세요. -->
-- [ ] 영향 자산 식별 (위 '영향 받는 자산'과 사내 인벤토리 대조)
-- [ ] 노출 여부 확인 (해당 서비스가 외부에 열려 있는지)
-- [ ] 패치·완화 조치 적용 (위 권고 대응 방안 참조){patch_hint}
-- [ ] 탐지 룰 배포 (아래 공개 탐지 룰이 있는 경우)
-- [ ] 조치 결과 기록 후 이슈 종료
 
 {rules_section}
 
