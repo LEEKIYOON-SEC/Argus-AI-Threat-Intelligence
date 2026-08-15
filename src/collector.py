@@ -21,8 +21,10 @@ class CollectorError(Exception):
 # 워터마크(진행 지점 북마크) — 누락 0 수집의 핵심
 # GitHub Actions 무료 cron은 불규칙(수시간~수일 지연)이라 "최근 N시간" 고정 창은
 # 실행 간격이 창보다 크면 그 사이 CVE를 영구 누락한다. 대신 "마지막으로 처리한
-# 시각"을 파일에 기록하고, 다음 실행이 그 시각 이후 전부를 조회해 빈틈을 없앤다.
-# 파일은 워크플로가 매 실행 docs/data/를 커밋하므로 git으로 영속된다(DB 불필요).
+# 시각"을 기록하고, 다음 실행이 그 시각 이후 전부를 조회해 빈틈을 없앤다.
+# 저장 위치는 Supabase의 pipeline_state 테이블(1행). 예전에는 docs/data/에 파일로
+# 두고 매 실행 커밋해 영속시켰는데, 그것 때문에 시간당 커밋이 1건씩 쌓였다.
+# 아래 파일 경로는 자격증명 없이 도는 로컬 실행용 폴백으로만 남는다.
 # ─────────────────────────────────────────────
 _STATE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -156,6 +158,48 @@ def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
     else:
         data.pop("rpd", None)
     _write_state(data)
+
+# ─────────────────────────────────────────────
+# NVD CPE → 영향 자산(벤더/제품)
+# 수집 파이프라인과 소급 백필(backfill_vendors)이 같은 규칙을 써야 해서 모듈 레벨에 둔다.
+# 주의: main.is_target_asset의 CPE 매칭은 일부러 이 함수를 쓰지 않는다 — 거기서는
+# 벤더가 와일드카드(*)여도 '*/product' 감시와 매칭돼야 하므로 규칙이 더 느슨하다.
+# ─────────────────────────────────────────────
+def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
+    """CPE 2.3에서 (vendor, product, version). 미상/와일드카드는 쓸 수 없어 버린다.
+    형식: cpe:2.3:<part>:<vendor>:<product>:<version>:..."""
+    parts = str(cpe or '').split(':')
+    if len(parts) < 6 or not parts[0].startswith('cpe'):
+        return None
+    vendor, product, version = parts[3], parts[4], parts[5]
+    if vendor in ('', '*', '-') or product in ('', '*', '-'):
+        return None
+    return vendor, product, version
+
+
+def affected_from_cpes(cpes: List[str], limit: int = 5) -> List[Dict]:
+    """CPE 목록 → affected 항목. 같은 (벤더, 제품)은 한 번만 담는다.
+    표시용이라 limit을 넘길 이유가 없다(버전 범위가 많으면 CPE가 수십 개씩 나온다)."""
+    seen, out = set(), []
+    for cpe in cpes or []:
+        parsed = parse_cpe(cpe)
+        if not parsed:
+            continue
+        vendor, product, version = parsed
+        key = (vendor.lower(), product.lower())
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append({
+            "vendor": vendor.replace('_', ' '),
+            "product": product.replace('_', ' '),
+            "versions": version if version not in ('*', '-', '') else "정보 없음",
+            "patch_version": None,
+        })
+        if len(out) >= limit:
+            break
+    return out
+
 
 class Collector:
     def __init__(self):
@@ -958,17 +1002,16 @@ class Collector:
             logger.debug(f"GitHub Advisory 실패 ({cve_id}): {e}")
             return {"has_advisory": False}
     
-    @staticmethod
-    def _parse_cpe(cpe: str):
-        """CPE 2.3 문자열에서 (vendor, product, version) 추출.
-        형식: cpe:2.3:a:vendor:product:version:update:... — 미상/와일드카드는 제외."""
-        parts = cpe.split(':')
-        if len(parts) < 6 or not parts[0].startswith('cpe'):
-            return None
-        vendor, product, version = parts[3], parts[4], parts[5]
-        if vendor in ('', '*', '-') or product in ('', '*', '-'):
-            return None
-        return vendor, product, version
+
+    def fill_affected_from_nvd(self, cve_data: Dict) -> Dict:
+        """벤더가 비어 있으면 NVD를 조회해 affected(벤더/제품)를 채운다.
+
+        NVD 조회와 CPE 보강은 항상 같이 다닌다 — 조회만 하고 보강을 안 하면 nvd_cpe만
+        들고 affected는 n/a로 남는다. 실제로 그 상태였고, 보강이 고위험 전용 경로에만
+        있어서 추적 CVE의 1.6%가 벤더 없이 남았다(실측 198건)."""
+        if not cve_data.get('_nvd_enriched'):
+            cve_data = self.enrich_from_nvd(cve_data)
+        return self._augment_affected_from_cpe(cve_data)
 
     def _augment_affected_from_cpe(self, cve_data: Dict) -> Dict:
         """CVE 자체 affected에 유효한 벤더가 없을 때 NVD CPE로 벤더/제품을 보강한다.
@@ -982,22 +1025,7 @@ class Collector:
         )
         if has_valid_vendor:
             return cve_data  # CVE 자체 데이터 우선
-        seen, derived = set(), []
-        for cpe in cpes:
-            parsed = self._parse_cpe(cpe)
-            if not parsed:
-                continue
-            vendor, product, version = parsed
-            key = (vendor.lower(), product.lower())
-            if key in seen:
-                continue
-            seen.add(key)
-            derived.append({
-                "vendor": vendor.replace('_', ' '),
-                "product": product.replace('_', ' '),
-                "versions": version if version not in ('*', '-', '') else "정보 없음",
-                "patch_version": None,
-            })
+        derived = affected_from_cpes(cpes)
         if derived:
             cve_data['affected'] = derived
             logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")
@@ -1039,9 +1067,7 @@ class Collector:
 
         # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
         #    자산 매칭 단계에서 이미 선제 조회했으면 재호출 생략
-        if not cve_data.get('_nvd_enriched'):
-            cve_data = self.enrich_from_nvd(cve_data)
-        cve_data = self._augment_affected_from_cpe(cve_data)
+        cve_data = self.fill_affected_from_nvd(cve_data)
 
         # 2. PoC 존재 여부 (nomi-sec → trickest 네트워크 검색)
         poc_info = self.check_poc_exists(cve_id)
