@@ -248,8 +248,21 @@ def export_stats(cve_data: list) -> dict:
                 if vendor:
                     product_vendor.setdefault(product, vendor)
 
-    # 일별 추이 (최근 30일, 정렬)
-    daily_trend = sorted(daily_counts.items(), key=lambda x: x[0])[-30:]
+    # 일별 추이 — 오늘부터 거슬러 30일 창을 날짜로 고정하고 빈 날은 0으로 채운다.
+    # 이전 구현(sorted(...)[-30:])은 '최근 30개 날짜'라서 최근 30일이 아니었다. 확인일
+    # 기준일 땐 매일 데이터가 있어 우연히 맞아 보였지만, 공개일로 바꾸자 값이 드문드문
+    # 있어 8개월치가 30칸에 들어갔다(관측: 2025-12-20 ~ 2026-08-14). 창을 날짜로 고정하면
+    # 창 밖 과거와 미래 날짜(레코드 오류)가 함께 걸러진다.
+    today = now.date()
+    daily_trend = []
+    for i in range(29, -1, -1):
+        day = (today - dt.timedelta(days=i)).isoformat()
+        daily_trend.append((day, daily_counts.get(day, 0)))
+
+    # 공개일이 채워진 행 수. 백필이 끝나기 전에는 추이가 전체의 일부만 그리므로,
+    # 대시보드가 "공개일 확인 N건 기준"이라고 밝힐 수 있게 함께 싣는다. 커버리지가
+    # 100%가 되면 프런트에서 자연히 사라지는 안내다.
+    trend_covered = sum(daily_counts.values())
 
     # 제품 TOP 10 — 실질 노출 파악의 기준. 벤더 기준은 재배포 벤더(Red Hat 등)가
     # 제품 수만큼 자동으로 상위를 차지해 '무엇이 위험한가'를 알려주지 못한다.
@@ -265,6 +278,7 @@ def export_stats(cve_data: list) -> dict:
             "kernel_count": kernel_count,
             "severity": dict(severity_counts),
             "daily_trend": [{"date": d, "count": c} for d, c in daily_trend],
+            "trend_covered": trend_covered,
             "top_products": [{"product": p, "vendor": product_vendor.get(p, ""), "count": c}
                              for p, c in product_top],
             "top_vendors": [{"vendor": v, "count": c} for v, c in vendor_top],
