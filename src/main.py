@@ -380,21 +380,24 @@ def _epss_surge_candidates(collector: Collector, db: ArgusDB, exclude: set,
     return drifted
 
 
+def _wildcard_only() -> bool:
+    """감시 설정이 전체 감시(*/*)뿐인지. 그러면 매칭이 항상 참이라 매칭용 조회가 불필요."""
+    return any(t.get('vendor') == '*' and t.get('product') == '*'
+               for t in config.get_target_assets())
+
+
 def _needs_cpe_lookup(cve_data: Dict) -> bool:
-    """NVD CPE 선제 조회가 필요한지 — CVE에 유효한 벤더가 하나도 없으면 True.
+    """유효한 벤더가 하나도 없으면 True — NVD CPE로 채울 여지가 있다는 뜻.
 
-    조회 이유가 둘이다:
-      1) 자산 매칭 — 특정 자산 감시(*/* 아님)면 벤더 없이는 매칭 자체가 불가능해
-         감시 대상 CVE를 놓친다.
-      2) 표시·필터 — 전체 감시(*/*)라도 벤더가 비면 대시보드 벤더 필터에서 통째로
-         빠지고 리포트의 '영향 받는 자산'이 n/a로 남는다.
-
-    예전에는 1)만 보고 전체 감시에서 건너뛰었다. 매칭 관점에선 맞지만 그 부작용으로
-    표시용 벤더까지 같이 잃어, 추적 CVE의 1.6%(실측 198건)가 벤더 없이 남았다.
     원본 CNA 레코드가 'n/a'여도 NVD CPE에는 있는 경우가 있다
     (예: CVE-2020-29574 → cpe:2.3:o:sophos:cyberoamos).
 
-    비용은 벤더 없는 CVE에 대해서만 NVD 1회다(실측 유입의 1.6%)."""
+    조회가 필요한 이유는 둘이고, 호출 시점이 다르다:
+      1) 자산 매칭 — 특정 자산 감시(*/* 아님)면 벤더 없이는 매칭이 불가능하므로
+         is_target_asset 앞에서 조회해야 한다.
+      2) 표시·필터 — 벤더가 비면 대시보드 벤더 필터에서 통째로 빠진다. 이건 추적이
+         확정된 뒤에 채우면 된다. 마커로 끝날 CVE(전체 감시 + 저위험)는 affected를
+         저장조차 하지 않으므로 그 전에 조회하면 순수 낭비다."""
     return not any(
         str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a')
         for a in (cve_data.get('affected') or [])
@@ -1127,9 +1130,9 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             return {"cve_id": cve_id, "status": "handled", "stage": "done"}
 
         # Step 2: 자산 필터링 (affected vendor/product 우선, NVD CPE 보조, description 보조)
-        # 유효 벤더가 없으면 NVD CPE를 조회해 affected를 채운다 — 매칭 소스 확보이자
-        # 대시보드 벤더 필터·리포트 표시를 위한 것이다(_needs_cpe_lookup 주석 참조).
-        if _needs_cpe_lookup(raw_data):
+        # 매칭에 벤더가 필요할 때만 선제 조회한다. 전체 감시(*/*)면 매칭이 항상 참이라
+        # 여기서 조회할 이유가 없고, 표시용 벤더는 추적이 확정된 뒤에 채운다(아래).
+        if not _wildcard_only() and _needs_cpe_lookup(raw_data):
             collector.fill_affected_from_nvd(raw_data)
         is_target, match_info, match_type = is_target_asset(raw_data)
         if not is_target:
@@ -1224,6 +1227,13 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
                 "github_advisory": raw_data.get('github_advisory', {}),
                 "nvd_cpe": raw_data.get('nvd_cpe', []),
             })
+
+        # 대시보드에 남을 CVE인데 벤더가 비어 있으면 여기서 채운다. 마커·T3는 위에서
+        # 이미 반환됐고(affected를 저장하지도 않는다), should_alert는 방금
+        # enrich_threat_intel이 채웠다. 남는 건 '추적만 하는' CVE뿐이라 비용이 작다.
+        if not should_alert and _needs_cpe_lookup(current_state):
+            collector.fill_affected_from_nvd(raw_data)
+            current_state["affected"] = raw_data["affected"]
 
         # 여기 도달 = (1) 알림 대상(critical/자산high/에스컬레이션), 또는 (2) 추적 대상
         # (high 단독·자산 low). → 번역(Phase B, 배치)과 완성(Phase C)으로 넘긴다.

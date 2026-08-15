@@ -20,6 +20,7 @@ Alpine secdb)와 GitHub Advisory를 정규화해 "이 CVE는 어느 패키지인
 import io
 import json
 import os
+import re
 import zipfile
 from typing import Dict, Iterable, List, Set
 
@@ -84,7 +85,20 @@ def _fixed_versions(aff: dict) -> List[str]:
     return sorted(out)
 
 
-_MAX_FIXED = 3   # 생태계당 보관할 수정 버전 수 — 크기 상한
+def _vkey(v: str):
+    """상한을 자를 때 쓰는 자연 정렬 키. 숫자 구간을 수치로 본다.
+
+    사전순으로 자르면 '가장 낮은 수정본'이 잘려나간다 — 실측으로 Tomcat
+    ['10.1.53','11.0.20','9.0.116']에서 9.0.116이 밀려났다. 판정하는 쪽은 그 최저값을
+    목표 버전으로 쓰므로 여기서 잘리면 안 된다. dpkg 완전 구현은 판정하는 쪽
+    (tools/sbom_match.py)에 있고, 여기서는 순서만 어긋나지 않으면 충분하다."""
+    return [(0, int(x)) if x.isdigit() else (1, x)
+            for x in re.split(r'(\d+)', str(v or '')) if x]
+
+
+# 생태계당 보관할 수정 버전 수. 여러 갈래를 함께 관리하는 제품(Tomcat 9/10/11,
+# Quarkus 3.8/3.15/3.18)은 갈래마다 수정본이 있어 3개로는 사용자의 갈래가 빠질 수 있다.
+_MAX_FIXED = 10
 
 
 def build_index(cve_ids: Iterable[str],
@@ -136,7 +150,7 @@ def build_index(cve_ids: Iterable[str],
                     # 76%가 빈 항목이라 파일이 34.9MB까지 불었다.
                     if not fixes:
                         continue
-                    merged = sorted(set(slot.get(pkg_eco) or []) | set(fixes))
+                    merged = sorted(set(slot.get(pkg_eco) or []) | set(fixes), key=_vkey)
                     slot[pkg_eco] = merged[:_MAX_FIXED]
                     hits += 1
         logger.info(f"  {eco}: 매칭 {hits:,}건")

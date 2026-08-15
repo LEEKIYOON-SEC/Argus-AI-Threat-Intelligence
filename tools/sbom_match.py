@@ -132,6 +132,13 @@ _TYPE_MAP = {"npm": "npm", "pypi": "PyPI", "python": "PyPI", "maven": "Maven",
              "golang": "Go", "go": "Go", "apk": "Alpine", "deb": "Debian"}
 
 
+def _series(v: str) -> str:
+    """버전의 갈래(major.minor). epoch(1:)와 리비전은 떼고 본다 — 1:9.0.116 → 9.0."""
+    up = split_deb(v)[1]
+    m = re.match(r"^(\d+\.\d+)", up)
+    return m.group(1) if m else ""
+
+
 def sbom_ecosystem(row: Dict) -> str:
     purl = str(row.get("purl") or "")
     m = _DISTRO.search(purl)
@@ -171,11 +178,22 @@ def version_verdict(installed: str, eco_map: Optional[Dict[str, List[str]]],
     if not fixes or not installed:
         return {"verdict": "unknown", "target": "", "eco": eco}
     try:
+        # 설치본과 같은 갈래(major.minor)의 수정본이 있으면 그것만 본다.
+        #
+        # 여러 갈래를 동시에 관리하는 제품이 흔하다 — Tomcat 9 / 10.1 / 11,
+        # Quarkus 3.8 / 3.15 / 3.18. OSV는 갈래별 수정본을 모두 주는데, 전체에서
+        # 최저값을 고르면 다른 갈래의 번호를 답으로 내놓게 된다. 그냥 틀린 답이
+        # 아니라 위험하다: Tomcat 10.1.40(취약)이 최저값 9.0.116보다 높다는 이유로
+        # '수정판'으로 판정돼, 고쳐야 할 것을 안전하다고 보고한다.
+        # 같은 갈래가 없으면(예: 8.5.x 사용 중인데 수정본은 9/10/11뿐) 전체를 본다.
+        branch = _series(installed)
+        same = [f for f in fixes if branch and _series(f) == branch]
+        pool = same or fixes
         # 하나라도 설치버전 이하면 이미 그 수정본을 넘어선 것
-        if any(cmp_version(installed, f) >= 0 for f in fixes):
+        if any(cmp_version(installed, f) >= 0 for f in pool):
             return {"verdict": "fixed", "target": "", "eco": eco}
         # 아직이면 가장 낮은 목표를 올릴 버전으로 제시
-        target = sorted(fixes, key=functools.cmp_to_key(cmp_version))[0]
+        target = sorted(pool, key=functools.cmp_to_key(cmp_version))[0]
         return {"verdict": "vulnerable", "target": target, "eco": eco}
     except Exception:
         return {"verdict": "unknown", "target": fixes[0], "eco": eco}
@@ -295,7 +313,6 @@ def build_results(cves: List[Dict], keys: Dict[str, Dict], pkg_index: Dict) -> L
     return out
 
 
-_SERIES = re.compile(r"^(\d+\.\d+)")
 _COLLAPSE_MIN = 20
 
 
@@ -313,14 +330,10 @@ def package_summary(pkg: str, rows: List[Dict]) -> str:
     vuln = [r for r in rows if r["verdict"] == "vulnerable"]
     installed = rows[0]["installed"]
     kev = sum(1 for r in rows if r["kev"])
-    m = _SERIES.match(installed or "")
+    branch = _series(installed or "")
     target = ""
-    if m:
-        same = []
-        for r in vuln:
-            t = _SERIES.match(r["target"] or "")
-            if t and t.group(1) == m.group(1):
-                same.append(r["target"])
+    if branch:
+        same = [r["target"] for r in vuln if _series(r["target"] or "") == branch]
         if same:
             target = sorted(same, key=functools.cmp_to_key(cmp_version))[-1]
     goal = f" → {target}" if target else ""

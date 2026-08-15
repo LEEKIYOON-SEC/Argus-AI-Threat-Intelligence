@@ -177,10 +177,30 @@ def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
     return vendor, product, version
 
 
-def affected_from_cpes(cpes: List[str], limit: int = 5) -> List[Dict]:
-    """CPE 목록 → affected 항목. 같은 (벤더, 제품)은 한 번만 담는다.
-    표시용이라 limit을 넘길 이유가 없다(버전 범위가 많으면 CPE가 수십 개씩 나온다)."""
-    seen, out = set(), []
+def _meaningful(v) -> str:
+    """표시할 값이 있으면 그 값, 없으면 ''. CNA가 넣는 자리표시자를 걸러낸다."""
+    s = str(v or '').strip()
+    return '' if s.lower() in ('', 'unknown', 'n/a', '-', 'n/a (단일 버전)', '정보 없음') else s
+
+
+def _key(s: str) -> str:
+    """제품명 비교용 정규화 — CPE는 'postgresql', CNA는 'PostgreSQL'로 쓴다."""
+    return re.sub(r'[\s_-]+', '', str(s or '').lower())
+
+
+def affected_from_cpes(cpes: List[str], existing: List[Dict] = None,
+                       limit: int = 5) -> List[Dict]:
+    """CPE 목록 → affected 항목. 기존 항목이 있으면 덮어쓰지 않고 벤더만 채운다.
+
+    통째로 갈아끼우면 CNA가 준 정보를 잃는다. 실측으로 벤더 없는 198건 중 119건이
+    제품명과 상세 버전 범위를 갖고 있었다 — 예를 들어
+
+        product='PostgreSQL'  versions='18 부터 18.5 이전, 17 부터 17.11 이전, ...'
+
+    이걸 CPE 유래 항목(versions='정보 없음')으로 바꾸면 벤더 하나를 얻고 버전 범위를
+    통째로 버리는 셈이다. 그래서 제품명이 있는 항목은 그대로 두고 벤더만 채운다.
+    제품명조차 없는 항목(vendor/product 모두 n/a)만 CPE 유래 항목으로 대체한다."""
+    seen, derived = set(), []
     for cpe in cpes or []:
         parsed = parse_cpe(cpe)
         if not parsed:
@@ -190,15 +210,34 @@ def affected_from_cpes(cpes: List[str], limit: int = 5) -> List[Dict]:
         if key in seen:
             continue
         seen.add(key)
-        out.append({
+        derived.append({
             "vendor": vendor.replace('_', ' '),
             "product": product.replace('_', ' '),
             "versions": version if version not in ('*', '-', '') else "정보 없음",
             "patch_version": None,
         })
-        if len(out) >= limit:
+        if len(derived) >= limit:
             break
-    return out
+    if not derived:
+        return []
+
+    keepers = [a for a in (existing or []) if isinstance(a, dict) and _meaningful(a.get('product'))]
+    if not keepers:
+        return derived      # 살릴 게 없으면 CPE 유래로 채운다
+
+    # 제품명이 맞는 CPE에서 벤더를 가져온다. 못 찾으면 CPE 벤더가 하나뿐일 때만
+    # 그것을 쓴다 — 여러 벤더 중 아무거나 붙이면 틀린 벤더를 심는 셈이다.
+    by_product = {_key(d['product']): d['vendor'] for d in derived}
+    vendors = {d['vendor'] for d in derived}
+    sole = next(iter(vendors)) if len(vendors) == 1 else ''
+    out = []
+    for a in keepers:
+        vendor = by_product.get(_key(a.get('product'))) or sole
+        out.append({**a, "vendor": vendor} if vendor else dict(a))
+    # CNA가 언급하지 않은 제품이 CPE에 더 있으면 뒤에 덧붙인다 (버리지 않는다)
+    known = {_key(a.get('product')) for a in keepers}
+    out.extend(d for d in derived if _key(d['product']) not in known)
+    return out[:limit]
 
 
 class Collector:
@@ -1025,7 +1064,7 @@ class Collector:
         )
         if has_valid_vendor:
             return cve_data  # CVE 자체 데이터 우선
-        derived = affected_from_cpes(cpes)
+        derived = affected_from_cpes(cpes, existing)
         if derived:
             cve_data['affected'] = derived
             logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")

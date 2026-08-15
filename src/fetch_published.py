@@ -12,6 +12,7 @@ GitHub Pages를 아티팩트로 배포하면 한 번의 배포가 사이트 전�
 
     python src/fetch_published.py cve-packages.json malicious-packages.json
 """
+import json
 import os
 import sys
 import urllib.request
@@ -47,10 +48,19 @@ def fetch(name: str, base: str) -> bool:
         return False
     if not data:
         return False
+    # 잘린 응답을 그대로 배포하면 대시보드가 깨진다 — 파싱되는지 먼저 본다.
+    if name.endswith(".json"):
+        try:
+            json.loads(data.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError) as e:
+            print(f"  {name}: 내려받은 내용이 온전치 않음({e}) — 무시", flush=True)
+            return False
     path = os.path.join(_DATA_DIR, name)
     os.makedirs(_DATA_DIR, exist_ok=True)
-    with open(path, "wb") as f:
+    tmp = f"{path}.tmp"
+    with open(tmp, "wb") as f:
         f.write(data)
+    os.replace(tmp, path)
     print(f"  {name}: 현재 사이트에서 이어받음 ({len(data) / 1e6:.1f} MB)", flush=True)
     return True
 

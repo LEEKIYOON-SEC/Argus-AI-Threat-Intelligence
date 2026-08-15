@@ -45,6 +45,18 @@ def _l(state: dict, key: str) -> list:
     return v if isinstance(v, list) else []
 
 
+def _write_json(path: str, payload) -> None:
+    """임시 파일에 쓰고 원자적으로 바꿔치운다.
+
+    바로 덮어쓰면 도중에 죽었을 때 잘린 JSON이 남는다. 데이터 파일을 더는 커밋하지
+    않으므로 그 잘린 파일이 곧바로 배포돼 대시보드가 깨지고, 다음 실행이 그걸
+    출발점으로 읽는다. os.replace는 같은 파일시스템에서 원자적이다."""
+    tmp = f"{path}.tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, path)
+
+
 def export_cves(client, days: int = 90, since: str = None) -> list:
     """최근 N일 CVE 데이터 export (페이지네이션으로 전체 로드).
 
@@ -441,8 +453,11 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
 
     tracked = _count(client, tracked=True)
     remaining = _count(client)
-    print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 마커 {remaining - tracked:,} "
-          f"· 이번 삭제 {deleted_count + purged_count + capped:,}", flush=True)
+    # '상태없음'은 마커(비자산 저위험 dedup용)와 보존정책이 JSONB를 비운 과거 행이
+    # 섞인 수다. 둘을 나누려면 조회가 한 번 더 필요한데 그 값으로 할 일이 없다.
+    print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 상태없음 {remaining - tracked:,} "
+          f"(마커 + 보존정책이 비운 과거 행) · 이번 삭제 "
+          f"{deleted_count + purged_count + capped:,}", flush=True)
 
     return cleaned
 
@@ -499,16 +514,14 @@ def main():
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
     cve_path = os.path.join(data_dir, "cves.json")
-    with open(cve_path, "w", encoding="utf-8") as f:
-        json.dump(cve_data, f, ensure_ascii=False, indent=2)
+    _write_json(cve_path, cve_data)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     # 통계
     print("[2/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
-    with open(stats_path, "w", encoding="utf-8") as f:
-        json.dump(stats, f, ensure_ascii=False, indent=2)
+    _write_json(stats_path, stats)
     print(f"  Stats → {stats_path}", flush=True)
 
     # 주간 리포트 (직전 ISO 주가 아직 발행되지 않았을 때만)
