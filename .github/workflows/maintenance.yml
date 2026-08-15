@@ -24,9 +24,9 @@ on:
         default: '400'
 
 permissions:
-  contents: write
+  contents: read      # 결과물은 커밋하지 않고 Pages 아티팩트로 배포한다
 
-# 매시간 파이프라인과 같은 파일(docs/data/)을 커밋하므로 겹치면 안 된다
+# 매시간 파이프라인과 같은 사이트를 배포하므로 겹치면 안 된다
 concurrency:
   group: argus-pipeline
   cancel-in-progress: false
@@ -35,6 +35,9 @@ jobs:
   maintenance:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    # 인덱스를 새로 만든 실행만 배포한다 (공개일 백필은 DB만 바꾸므로 배포 불필요)
+    outputs:
+      artifact: ${{ steps.carry.outcome }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -64,15 +67,36 @@ jobs:
           BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: python src/backfill_published.py
 
-      - name: Commit results
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/data/cve-packages.json docs/data/malicious-packages.json || true
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "chore: update package index [skip ci]"
-            git pull --rebase origin main
-            git push
-          fi
+      # 이 잡은 인덱스만 만든다. 매시간 갱신되는 cves.json·stats.json은 지금
+      # 서비스 중인 사이트에서 받아 채워야 배포가 그것들을 지우지 않는다.
+      - name: Carry forward published data
+        id: carry
+        if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' }}
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ARGUS_FRESH_FILES: cve-packages.json,malicious-packages.json
+        run: python src/fetch_published.py
+
+      - name: Upload Pages artifact
+        if: ${{ steps.carry.outcome == 'success' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: maintenance
+    if: ${{ needs.maintenance.outputs.artifact == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

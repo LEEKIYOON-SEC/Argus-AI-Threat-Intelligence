@@ -112,10 +112,11 @@ SBOM과 CVE 레코드의 표기가 서로 달라서
 
 ### 터미널에서 대조하기 (`tools/sbom_match.py`)
 
-대시보드에도 SBOM 대조가 있지만, 브라우저 파일 선택이 막힌 환경에서는 쓸 수 없습니다.
-같은 판정을 터미널에서 하는 스크립트를 뒀습니다. **표준 라이브러리만 쓰므로 `pip install`이
-필요 없고**, 자산 목록은 어디로도 전송되지 않습니다 — 공개된 인덱스 파일을 내려받아
-로컬에서 대조할 뿐입니다.
+자산 목록 전체를 CVE와 맞춰보는 일은 터미널에서 합니다. 브라우저에서 하려면 SBOM 파일을
+올려야 하는데, 파일 선택이 막힌 업무 환경에서는 쓸 수 없고 자산 목록을 브라우저에 넣는 것
+자체가 부담이기 때문입니다. **표준 라이브러리만 쓰므로 `pip install`이 필요 없고**, 자산
+목록은 어디로도 전송되지 않습니다 — 공개된 인덱스 파일을 내려받아 로컬에서 대조할 뿐입니다.
+(대시보드는 CVE별 패키지 이름과 패치 버전을 보여주는 데까지만 합니다.)
 
 ```bash
 # SBOM을 CSV로 (name 열만 있으면 동작하고, 나머지는 있으면 정확도가 올라갑니다)
@@ -139,9 +140,6 @@ CVE-2026-4800   High       lodash   4.17.20   4.17.21           취약 추정
 패키지를 한 번 올리는 단위인데, 전부 늘어놓으면 정작 손댈 나머지가 묻히기 때문입니다
 (실측: 4,301건 중 4,297건이 커널이라 나머지 4건이 안 보였습니다). 목표 버전은 설치된 것과
 같은 시리즈에서 고릅니다 — 전체 최댓값을 쓰면 6.1 계열 사용자에게 7.1로 올리라는 답이 나갑니다.
-
-브라우저와 터미널이 같은 SBOM에 다른 답을 내면 둘 다 못 믿게 되므로,
-같은 케이스 표를 양쪽 구현에 먹여 결과가 일치하는지 검사합니다 — `python3 tests/test_sbom_match.py`.
 
 ---
 
@@ -360,10 +358,30 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 | `NVD_API_KEY` | [nvd.nist.gov](https://nvd.nist.gov/developers/request-an-api-key) | 선택 (없으면 조회 속도 제한) |
 | `VULNCHECK_API_KEY` | [vulncheck.com](https://vulncheck.com) | 선택 (없으면 건너뜀) |
 
-### 3. 실행
+### 3. DB 테이블
+
+`cves` 외에 파이프라인 진행 상태를 담는 1행짜리 테이블이 필요합니다. Supabase SQL Editor에서:
+
+```sql
+create table if not exists pipeline_state (
+  id         int primary key,
+  state      jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+insert into pipeline_state (id, state) values (1, '{}'::jsonb)
+  on conflict (id) do nothing;
+```
+
+워터마크(마지막 처리 시각)·실패 추적·일일 요청 수가 여기 들어갑니다. 예전에는 이 상태를
+`docs/data/pipeline_state.json`으로 매 실행 커밋해 영속시켰는데, 그것 때문에 시간당 커밋이
+1건씩 쌓였습니다.
+
+### 4. 실행
 
 - **Actions** 탭에서 워크플로를 활성화하면 정기 실행됩니다. (`.github/workflows/argus.yml`)
-- **Settings → Pages** 를 `docs/` 로 설정하면 대시보드가 게시됩니다.
+- **Settings → Pages → Source** 를 **`GitHub Actions`** 로 설정합니다.
+  대시보드는 브랜치가 아니라 워크플로가 만든 아티팩트로 배포됩니다 — 데이터 파일을
+  커밋하지 않으므로 저장소가 더 커지지 않습니다.
 
 </details>
 

@@ -45,8 +45,13 @@ def _l(state: dict, key: str) -> list:
     return v if isinstance(v, list) else []
 
 
-def export_cves(client, days: int = 90) -> list:
-    """최근 N일 CVE 데이터 export (페이지네이션으로 전체 로드)"""
+def export_cves(client, days: int = 90, since: str = None) -> list:
+    """최근 N일 CVE 데이터 export (페이지네이션으로 전체 로드).
+
+    since를 주면 그 시각 이후 바뀐 행만 가져온다(증분). 매시간 90일치 전 행
+    (~12,000행 × rules_snapshot·last_alert_state JSONB)을 통째로 읽으면 회당 ~15MB라
+    월 10GB를 넘어 Supabase 무료 한도(5GB)를 초과했다 — 불변 원칙 2 위반이었다.
+    """
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
 
     rows = []
@@ -54,10 +59,11 @@ def export_cves(client, days: int = 90) -> list:
     offset = 0
     while True:
         # last_alert_state가 null인 행은 마커(비자산 저위험 dedup용) — 대시보드 비노출
-        response = client.table("cves") \
+        query = client.table("cves") \
             .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
-            .gte("updated_at", cutoff) \
-            .not_.is_("last_alert_state", "null") \
+            .gte("updated_at", since or cutoff) \
+            .not_.is_("last_alert_state", "null")
+        response = query \
             .order("updated_at", desc=True) \
             .range(offset, offset + page_size - 1) \
             .execute()
@@ -107,6 +113,10 @@ def export_cves(client, days: int = 90) -> list:
             # Supabase는 null 컬럼도 키를 포함해 반환하므로 .get의 default가 발동하지 않음
             # → or 체인으로 폴백 (알림 없는 추적 CVE는 updated_at 사용)
             "date": row.get("last_alert_at") or row.get("updated_at") or "",
+            # 증분 병합에서 보존 창(90일)을 판정하는 기준. 'date'로 대신하면 오래 전
+            # 알림이 나간 뒤 최근에 재처리된 행이 창 밖으로 잘못 밀려 전량 export와
+            # 결과가 갈린다. 화면에는 쓰지 않는다.
+            "updated": row.get("updated_at") or "",
         }
 
         # affected 정보 간략화
@@ -185,6 +195,92 @@ def export_cves(client, days: int = 90) -> list:
         result.append(entry)
 
     return result
+
+
+_FULL_EXPORT_MAX_AGE_H = 24
+
+
+def _fetch_live_export() -> tuple:
+    """지금 배포돼 있는 cves.json·stats.json. 못 받으면 (None, None).
+
+    Pages는 공개 정적 파일이라 Supabase egress를 전혀 쓰지 않는다 — 증분의 출발점을
+    DB가 아니라 사이트에서 가져오는 이유다."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" not in repo:
+        return None, None
+    owner, name = repo.split("/", 1)
+    base = f"https://{owner.lower()}.github.io/{name}/data"
+    try:
+        import urllib.request
+
+        def get(fn):
+            req = urllib.request.Request(f"{base}/{fn}", headers={"User-Agent": "argus-export"})
+            with urllib.request.urlopen(req, timeout=180) as r:
+                return json.loads(r.read().decode("utf-8"))
+
+        rows = get("cves.json")
+        generated_at = get("stats.json").get("generated_at")
+        if isinstance(rows, list) and rows and generated_at:
+            print(f"  직전 export를 배포본에서 읽음 ({len(rows)}건)", flush=True)
+            return rows, generated_at
+    except Exception as e:
+        print(f"  배포본을 읽지 못함({e}) → 체크아웃 사본 확인", flush=True)
+    return None, None
+
+
+def load_previous_export(data_dir: str) -> tuple:
+    """직전 export 결과와 그 시각. 증분의 출발점이 없으면 (None, None).
+
+    (None, None)이면 호출부가 전량 export로 돌아간다 — 파일이 없거나 깨졌거나
+    너무 오래됐을 때 스스로 복구되는 경로다."""
+    if os.environ.get("ARGUS_FULL_EXPORT") == "1":
+        print("  ARGUS_FULL_EXPORT=1 → 전량 export", flush=True)
+        return None, None
+    try:
+        # 지금 서비스 중인 사이트를 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로
+        # 체크아웃에 남은 사본은 커밋을 멈춘 시점에 얼어붙은 옛날 것이고, 그걸
+        # 출발점으로 삼으면 그 사이 변경이 통째로 빠진다. 받지 못하면(최초 배포 전,
+        # 네트워크 차단) 체크아웃 사본으로 물러난다 — 오래됐으면 아래 24시간
+        # 검사가 전량 export로 돌려놓는다.
+        rows, generated_at = _fetch_live_export()
+        if rows is None:
+            with open(os.path.join(data_dir, "cves.json"), encoding="utf-8") as f:
+                rows = json.load(f)
+            with open(os.path.join(data_dir, "stats.json"), encoding="utf-8") as f:
+                generated_at = json.load(f).get("generated_at")
+        if not isinstance(rows, list) or not rows or not generated_at:
+            return None, None
+        # 직전 결과에 'updated'가 없으면 이 기능 도입 이전 파일 — 창 판정 기준이 없어
+        # 병합하면 행이 잘못 빠진다. 한 번은 전량으로 돌려 기준을 채운다.
+        if not any(r.get("updated") for r in rows[:50]):
+            print("  직전 파일에 병합 기준(updated)이 없음 → 전량 export", flush=True)
+            return None, None
+        prev = dt.datetime.fromisoformat(str(generated_at).replace("Z", "+00:00"))
+        age_h = (dt.datetime.now(dt.timezone.utc) - prev).total_seconds() / 3600
+        if age_h > _FULL_EXPORT_MAX_AGE_H:
+            print(f"  직전 export가 {age_h:.0f}시간 전 → 전량 export로 재동기화", flush=True)
+            return None, None
+        # 실행이 겹치거나 시계가 어긋나도 놓치지 않도록 10분 겹쳐서 가져온다
+        return rows, (prev - dt.timedelta(minutes=10)).isoformat()
+    except Exception as e:
+        print(f"  직전 export를 읽지 못함({e}) → 전량 export", flush=True)
+        return None, None
+
+
+def merge_exports(previous: list, fresh: list, days: int = 90) -> list:
+    """직전 결과에 이번에 바뀐 행을 덮어쓰고 보존 창을 다시 적용한다.
+
+    DB에서 사라진 행(보존 정책의 삭제·JSONB null화)은 증분 조회로 알 수 없지만,
+    그 처리는 전부 창(90일) 바깥에서만 일어나므로 여기서 창을 다시 적용하면 함께
+    빠진다. 창 안쪽 행이 사라지는 경로는 없다."""
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    by_id = {r.get("id"): r for r in previous if r.get("id")}
+    for r in fresh:
+        if r.get("id"):
+            by_id[r["id"]] = r
+    merged = [r for r in by_id.values() if (r.get("updated") or "") >= cutoff]
+    merged.sort(key=lambda r: r.get("updated") or "", reverse=True)
+    return merged
 
 
 def export_stats(cve_data: list) -> dict:
@@ -286,8 +382,9 @@ def export_stats(cve_data: list) -> dict:
     }
 
 
-def apply_retention_policy(client, days: int = 120, marker_days: int = 30) -> int:
-    """DB 용량 방어 (불변 원칙 2). 두 단계:
+def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
+                           delete_days: int = 180, max_rows: int = 20000) -> int:
+    """DB 용량 방어 (불변 원칙 2). 네 단계:
 
     1) 최근 days일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
        상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없음.
@@ -318,7 +415,48 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30) -> in
     if deleted_count:
         print(f"  마커 {deleted_count}건 삭제 ({marker_days}일 경과)", flush=True)
 
+    # 3) delete_days 지난 행은 완전 삭제. 지금까지는 JSONB만 비우고 행은 영구 누적이라
+    #    수동 SQL로 정리하고 있었다. 안전한 이유: 조치 이력은 GitHub Issue에 남고
+    #    (불변 원칙 2), 대시보드는 90일만 노출하며, KEV 재등재는 신호 드리프트 대조가
+    #    등재일 기준으로 잡으므로 삭제된 행 때문에 재수집 루프가 생기지 않는다.
+    row_cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=delete_days)).isoformat()
+    purged = client.table("cves").delete().lt("updated_at", row_cutoff).execute()
+    purged_count = len(purged.data or [])
+    if purged_count:
+        print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
+
+    # 4) 행 수 상한 — 유입이 폭주해도 DB가 무한정 커지지 않게 하는 안전판.
+    #    오래된 것부터 초과분만 지운다.
+    capped = 0
+    total = _count(client)
+    if total > max_rows:
+        excess = total - max_rows
+        victims = client.table("cves").select("id") \
+            .order("updated_at", desc=False).limit(excess).execute()
+        ids = [r["id"] for r in (victims.data or []) if r.get("id")]
+        for i in range(0, len(ids), 200):
+            client.table("cves").delete().in_("id", ids[i:i + 200]).execute()
+            capped += len(ids[i:i + 200])
+        print(f"  상한 초과 {capped}건 삭제 (상한 {max_rows:,}행)", flush=True)
+
+    tracked = _count(client, tracked=True)
+    remaining = _count(client)
+    print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 마커 {remaining - tracked:,} "
+          f"· 이번 삭제 {deleted_count + purged_count + capped:,}", flush=True)
+
     return cleaned
+
+
+def _count(client, tracked: bool = False) -> int:
+    """행 수만 센다(데이터 전송 없음). 실패해도 보존 정책을 멈추지 않는다."""
+    try:
+        q = client.table("cves").select("id", count="exact").limit(1)
+        if tracked:
+            q = q.not_.is_("last_alert_state", "null")
+        return q.execute().count or 0
+    except Exception as e:
+        print(f"  [!] 행 수 조회 실패(무시): {e}", flush=True)
+        return 0
 
 
 def _generate_sample_data(data_dir: str):
@@ -349,9 +487,17 @@ def main():
         print("=== Export 완료 (샘플 데이터) ===", flush=True)
         return
 
-    # CVE 데이터
+    # CVE 데이터 — 직전 결과가 쓸 만하면 바뀐 행만 가져와 병합한다(증분).
     print("[1/4] CVE 데이터 export...", flush=True)
-    cve_data = export_cves(client)
+    previous, since = load_previous_export(data_dir)
+    if previous is None:
+        cve_data = export_cves(client)
+        print(f"  전량 export: {len(cve_data)}건", flush=True)
+    else:
+        fresh = export_cves(client, since=since)
+        cve_data = merge_exports(previous, fresh)
+        print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
+              f"(직전 {len(previous)}건)", flush=True)
     cve_path = os.path.join(data_dir, "cves.json")
     with open(cve_path, "w", encoding="utf-8") as f:
         json.dump(cve_data, f, ensure_ascii=False, indent=2)

@@ -30,14 +30,55 @@ _STATE_PATH = os.path.join(
 )
 _BOOTSTRAP_HOURS = 24  # 상태 파일이 없을 때(최초 실행) 소급 조회 기간
 
+_DB_HANDLE = None   # 상태 조회/저장이 한 실행에서 여러 번 일어나므로 붙여 쓴다
+
+
+def _db():
+    """상태 저장용 DB 핸들. 자격증명이 없으면 None (로컬 실행·테스트)."""
+    global _DB_HANDLE
+    if _DB_HANDLE is not None:
+        return _DB_HANDLE or None
+    if not os.environ.get("SUPABASE_URL") or not os.environ.get("SUPABASE_KEY"):
+        return None
+    try:
+        from database import ArgusDB
+        _DB_HANDLE = ArgusDB()
+    except Exception as e:
+        logger.warning(f"상태 DB 연결 실패 → 파일 경로로 진행: {e}")
+        _DB_HANDLE = False   # 재시도하지 않는다 (매번 예외를 내며 느려지는 것 방지)
+    return _DB_HANDLE or None
+
+
 def _read_state() -> Dict:
-    """상태 파일 전체를 읽는다 (워터마크 + 실패 추적). 없으면 빈 dict."""
+    """상태 전체를 읽는다 (워터마크 + 실패 추적 + RPD). 없으면 빈 dict.
+
+    DB 우선, 없으면 파일. 파일 경로는 두 가지를 위해 남는다 — DB로 옮기기 전 마지막
+    커밋본에서 워터마크를 이어받는 전환기, 그리고 자격증명 없이 도는 로컬 실행."""
+    db = _db()
+    if db is not None:
+        state = db.get_pipeline_state()
+        if state:
+            return state
+        logger.info("DB에 파이프라인 상태 없음 → 파일에서 이어받기 시도")
     try:
         with open(_STATE_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data if isinstance(data, dict) else {}
     except (OSError, ValueError, json.JSONDecodeError):
         return {}
+
+
+def _write_state(payload: Dict) -> None:
+    """상태를 저장한다. DB가 있으면 DB에, 없으면 파일에."""
+    db = _db()
+    if db is not None and db.set_pipeline_state(payload):
+        return
+    try:
+        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
+        with open(_STATE_PATH, "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=1, sort_keys=True)
+    except OSError as e:
+        logger.warning(f"상태 파일 저장 실패: {e}")
 
 def read_watermark() -> datetime.datetime:
     """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
@@ -94,37 +135,27 @@ def write_watermark(dt_utc: datetime.datetime,
 
     rpd=None이면 파일에 있던 값을 그대로 남긴다 — 번역을 한 건도 하지 않고 끝나는
     실행(신규 CVE 없음)이 이전 실행의 사용량 기록을 지워버리면 안 되기 때문이다."""
-    try:
-        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
-        payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
-        if failures:
-            payload["failures"] = failures
-        if quarantined:
-            payload["quarantined"] = quarantined
-        carried = rpd if rpd is not None else _read_state().get("rpd")
-        if carried:
-            payload["rpd"] = carried
-        with open(_STATE_PATH, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=1, sort_keys=True)
-        logger.info(f"워터마크 저장: {payload['last_processed_until']}")
-    except OSError as e:
-        logger.warning(f"워터마크 저장 실패: {e}")
+    payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
+    if failures:
+        payload["failures"] = failures
+    if quarantined:
+        payload["quarantined"] = quarantined
+    carried = rpd if rpd is not None else _read_state().get("rpd")
+    if carried:
+        payload["rpd"] = carried
+    _write_state(payload)
+    logger.info(f"워터마크 저장: {payload['last_processed_until']}")
 
 def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
     """RPD 버킷만 갱신한다 (워터마크·격리 상태는 건드리지 않음).
 
     번역 백필처럼 워터마크 저장 이후에 소비되는 호출까지 사용량에 반영하기 위한 것."""
-    try:
-        data = _read_state()
-        if rpd:
-            data["rpd"] = rpd
-        else:
-            data.pop("rpd", None)
-        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
-        with open(_STATE_PATH, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=1, sort_keys=True)
-    except OSError as e:
-        logger.warning(f"RPD 상태 저장 실패: {e}")
+    data = _read_state()
+    if rpd:
+        data["rpd"] = rpd
+    else:
+        data.pop("rpd", None)
+    _write_state(data)
 
 class Collector:
     def __init__(self):
