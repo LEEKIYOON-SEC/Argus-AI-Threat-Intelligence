@@ -1411,17 +1411,17 @@ def _should_send_alert(current: Dict, last: Optional[Dict],
 
     # EPSS 임계 돌파 = critical 승격. 상승폭 조건만 두면 0.08 → 0.12처럼 완만하게
     # 넘어선 건이 빠진다(상승폭 0.04). 임계를 넘는 순간 자체를 트리거로 삼는다.
-    if current['epss'] >= 0.1 and last.get('epss', 0) < 0.1:
+    if current['epss'] >= 0.1 and (last.get('epss') or 0) < 0.1:
         return True, "📈 EPSS 임계 돌파 (≥0.1)", True
     # 이미 임계 이상이던 건이 추가로 크게 오른 경우
-    if current['epss'] >= 0.1 and (current['epss'] - last.get('epss', 0)) > 0.05:
+    if current['epss'] >= 0.1 and (current['epss'] - (last.get('epss') or 0)) > 0.05:
         return True, "📈 EPSS 급증", True
 
     # CVSS 상향: Critical(≥9) 진입은 항상 알림, 7점대 진입은 자산 매칭만 알림
     # (비자산의 7점대 진입은 추적 승격으로 충분 — 하루 수백 건 노이즈 차단)
-    if current['cvss'] >= 9.0 and last.get('cvss', 0) < 9.0:
+    if current['cvss'] >= 9.0 and (last.get('cvss') or 0) < 9.0:
         return True, "🔺 CVSS Critical 상향 (≥9)", True
-    if match_type == "asset" and current['cvss'] >= 7.0 and last.get('cvss', 0) < 7.0:
+    if match_type == "asset" and current['cvss'] >= 7.0 and (last.get('cvss') or 0) < 7.0:
         return True, "🔺 자산 CVSS 상향", True
 
     return False, "", full_report
@@ -1526,8 +1526,10 @@ def check_for_official_rules() -> None:
                         "last_rule_check_at": fake_past,
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
-                except Exception:
-                    pass
+                except Exception as e:
+                    # 실패해도 다음 실행에서 재시도되므로 치명적이지 않지만, 계속
+                    # 실패하면 같은 CVE를 매번 다시 검색하게 되므로 흔적을 남긴다.
+                    logger.warning(f"{cve_id} 룰 재확인 쿨다운 기록 실패: {e}")
                 continue
 
         logger.info(f"=== 공식 룰 재발견 체크 완료 (발견: {found_count}건) ===")
@@ -1583,8 +1585,10 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
                 # → CVSS 상향 트리거는 여기서 안 잡히고(정상: 레코드 변경 경로가 담당) 외부 피드
                 #   전이(KEV/EPSS/ExploitDB/Metasploit)만 판정한다.
                 current = dict(last)
-                # 구버전 state에 cvss/epss 키가 없을 수 있음 → 스칼라 컬럼으로 폴백 (KeyError 방지)
-                current.setdefault('cvss', record.get('cvss_score') or 0.0)
+                # 구버전 state에 cvss/epss 키가 없거나(KeyError) WAF 축소 저장본이 남긴
+                # null일 수 있다(TypeError). setdefault는 '키 없음'만 막으므로 값까지 본다.
+                if current.get('cvss') is None:
+                    current['cvss'] = record.get('cvss_score') or 0.0
                 base_epss = last.get('epss')
                 if base_epss is None:
                     base_epss = record.get('epss_score') or 0.0

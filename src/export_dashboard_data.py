@@ -118,7 +118,7 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             "description": _s(state, "desc_ko") or _s(state, "description")[:300],
             "cvss": row.get("cvss_score", 0) or 0,
             "epss": row.get("epss_score", 0) or 0,
-            "is_kev": row.get("is_kev", False),
+            "is_kev": bool(row.get("is_kev")),
             "cwe": cwe_clean,
             "affected": [],
             "report_url": row.get("report_url"),
@@ -153,8 +153,11 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         if rules.get("yara"):
             rule_engines.append("yara")
         entry["rule_engines"] = rule_engines
-        entry["has_official_rules"] = row.get("has_official_rules", False)
-        entry["rules"] = rules
+        entry["has_official_rules"] = bool(row.get("has_official_rules"))
+        # 룰 원문은 있는 행에만 싣는다. 값이 있는 건 2,201/11,980행뿐인데 전 행에
+        # 빈 객체를 넣으면 파일만 커진다(모달이 없을 때를 이미 처리한다).
+        if rules:
+            entry["rules"] = rules
 
         # PoC 정보
         state_poc = state.get("has_poc", False)
