@@ -97,6 +97,9 @@ def main() -> int:
         return 1
 
     ok = db.bulk_set_published(rows, published)
+    if ok:
+        # updated_at을 건드리지 않으므로 증분 export가 이 변경을 못 본다 → 전량 1회 요청
+        db.request_full_export()
     logger.info("=" * 60)
     logger.info(f"백필 완료: {ok:,}/{len(targets):,}건 갱신")
     logger.info("=" * 60)

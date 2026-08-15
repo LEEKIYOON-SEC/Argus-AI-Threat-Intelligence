@@ -444,23 +444,34 @@ class ArgusDB:
             logger.error(f"추적 CVE id 조회 실패: {e}")
         return ids
 
-    def _tracked_states(self, limit: int = 20000) -> List[Dict]:
-        """추적 행의 id + last_alert_state. 소급 백필의 공통 입력.
+    def _tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
+        """추적 행의 id + last_alert_state 전량. 소급 백필의 공통 입력.
+
+        반드시 range()로 페이지네이션한다. limit(20000)으로 한 번에 요청하면 PostgREST가
+        응답을 db-max-rows(Supabase 기본 1,000행)로 조용히 잘라, 최신 1,000건만 보게 된다.
+        실제로 그래서 벤더 백필이 대상 198건 중 7건만 보고 "완료"로 끝났다.
 
         JSONB 내부 조건(키 존재·배열 내부 값)은 서버 필터로 표현하기 번거로워
         호출부가 파이썬에서 거른다. 마커 행은 대시보드에 안 나오므로 제외한다."""
+        rows: List[Dict] = []
+        offset = 0
         try:
-            response = self._execute(
-                self.client.table("cves")
-                .select("id, last_alert_state")
-                .not_.is_("last_alert_state", "null")
-                .order("updated_at", desc=True)
-                .limit(limit)
-            )
-            return response.data or []
+            while offset < max_rows:
+                response = self._execute(
+                    self.client.table("cves")
+                    .select("id, last_alert_state")
+                    .not_.is_("last_alert_state", "null")
+                    .order("updated_at", desc=True)
+                    .range(offset, offset + page_size - 1)
+                )
+                batch = response.data or []
+                rows.extend(batch)
+                if len(batch) < page_size:
+                    break
+                offset += page_size
         except Exception as e:
-            logger.error(f"추적 행 조회 실패: {e}")
-            return []
+            logger.error(f"추적 행 조회 실패(부분 결과 {len(rows):,}건으로 진행): {e}")
+        return rows
 
     def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
         """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상."""
@@ -511,6 +522,16 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"파이프라인 상태 저장 실패: {e}")
             return False
+
+    def request_full_export(self) -> bool:
+        """다음 export를 전량으로 돌리도록 표시한다.
+
+        백필은 '확인일'을 보존하려고 updated_at을 일부러 건드리지 않는다. 그런데 증분
+        export는 updated_at으로 바뀐 행을 찾으므로, 그대로 두면 백필 결과가 대시보드에
+        영영 나타나지 않는다. 한 번만 전량으로 돌려 반영시킨다."""
+        state = self.get_pipeline_state() or {}
+        state["force_full_export"] = True
+        return self.set_pipeline_state(state)
 
     _STATE_CHUNK = 200
 
