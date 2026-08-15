@@ -30,8 +30,10 @@ _NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 _GAP_NO_KEY, _GAP_KEY = 8.0, 0.7
 
 
-def _fetch_cpe(cve_id: str, api_key: str) -> List[Dict]:
-    """NVD에서 CVE 하나의 CPE를 받아 affected 항목으로 변환. 실패하면 빈 리스트."""
+def _fetch_cpe(cve_id: str, api_key: str, existing: List[Dict] = None) -> List[Dict]:
+    """NVD에서 CVE 하나의 CPE를 받아 affected 항목으로 변환. 실패하면 빈 리스트.
+
+    existing을 넘기면 기존 제품명·버전 범위를 보존하고 벤더만 채운다."""
     headers = {"apiKey": api_key} if api_key else {}
     try:
         r = requests.get(_NVD, params={"cveId": cve_id}, headers=headers, timeout=60)
@@ -48,7 +50,7 @@ def _fetch_cpe(cve_id: str, api_key: str) -> List[Dict]:
             for node in conf.get("nodes") or []
             for m in node.get("cpeMatch") or []]
     # 변환 규칙은 수집 파이프라인과 공유한다 — 두 경로가 다른 벤더명을 만들면 안 된다
-    return affected_from_cpes(cpes)
+    return affected_from_cpes(cpes, existing)
 
 
 def main() -> int:
@@ -78,7 +80,7 @@ def main() -> int:
         state = row.get("last_alert_state")
         if not cve_id or not state:
             continue
-        affected = _fetch_cpe(cve_id, api_key)
+        affected = _fetch_cpe(cve_id, api_key, state.get("affected"))
         if affected:
             hit += 1
             new_state = dict(state)
