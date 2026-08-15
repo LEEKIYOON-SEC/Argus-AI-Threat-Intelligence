@@ -68,8 +68,11 @@ jobs:
           BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: python src/backfill_published.py
 
+      # 주간 스케줄에도 태운다. 벤더가 비는 원인의 대부분은 NVD의 CPE 분석 지연이라
+      # (실측: 벤더 없는 198건의 66%가 올해 CVE, 2024년 이전은 64%가 복구 가능)
+      # 한 번 돌리고 끝낼 일이 아니다. 채워질수록 대상이 줄어 비용도 같이 준다.
       - name: Backfill affected vendors
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors' }}
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}

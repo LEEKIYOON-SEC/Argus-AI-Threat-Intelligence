@@ -279,11 +279,11 @@ class ArgusDB:
 
             for cve_id, record in all_records.items():
                 cvss = record.get('cvss_score', 0) or 0
-                is_kev = record.get('is_kev', False)
+                is_kev = record.get('is_kev') or False
                 epss = record.get('epss_score', 0) or 0
 
                 # 쿨다운 체크 (성공: 7일, 실패: 1일)
-                last_check = record.get('last_rule_check_at', '')
+                last_check = record.get('last_rule_check_at') or ''
                 if last_check:
                     try:
                         last_check_dt = datetime.datetime.fromisoformat(last_check.replace('Z', '+00:00'))
@@ -311,7 +311,12 @@ class ArgusDB:
                 # CVSS 기반 보존 기간
                 max_age_days = 180 if cvss >= 9.0 else 90
 
-                created_at = record.get('last_alert_at', record.get('created_at', ''))
+                # Supabase는 null 컬럼도 키를 포함해 돌려주므로 .get(k, default)의 기본값이
+                # 발동하지 않는다 — None이 그대로 나온다. 예전 코드는 그래서 알림이 나간 적
+                # 없는 행(last_alert_at=null)에서 보존기간 검사를 통째로 건너뛰었고, 오래된
+                # 행이 재확인 슬롯(회당 10건)을 계속 차지했다. created_at은 _RECHECK_COLS에
+                # 없어 어차피 조회되지 않으므로 폴백에서 뺀다.
+                created_at = record.get('last_alert_at') or ''
                 if created_at:
                     try:
                         created_dt = datetime.datetime.fromisoformat(created_at.replace('Z', '+00:00'))
