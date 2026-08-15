@@ -9,6 +9,9 @@ from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from logger import logger
 
+# PostgREST(Supabase)가 한 응답에 돌려주는 최대 행 수. 이보다 크게 요청해도 잘린다.
+_PAGE_MAX = 1000
+
 _ZWSP = "​"  # zero-width space — 화면엔 안 보이지만 WAF 시그니처 문자열은 끊는다
 
 
@@ -453,6 +456,10 @@ class ArgusDB:
 
         JSONB 내부 조건(키 존재·배열 내부 값)은 서버 필터로 표현하기 번거로워
         호출부가 파이썬에서 거른다. 마커 행은 대시보드에 안 나오므로 제외한다."""
+        # 서버가 자르는 한도보다 크게 요청하면 첫 페이지에서 len(batch) < page_size가
+        # 되어 루프가 조기 종료된다. 호출부가 무엇을 넘기든 여기서 강제로 맞춘다 —
+        # 실제로 이 실수로 페이지네이션이 통째로 무력화됐다(호출부가 20000을 넘김).
+        page_size = max(1, min(page_size, _PAGE_MAX))
         rows: List[Dict] = []
         offset = 0
         try:
@@ -473,12 +480,12 @@ class ArgusDB:
             logger.error(f"추적 행 조회 실패(부분 결과 {len(rows):,}건으로 진행): {e}")
         return rows
 
-    def get_rows_missing_published(self, limit: int = 20000) -> List[Dict]:
-        """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상."""
-        return [r for r in self._tracked_states(limit)
+    def get_rows_missing_published(self) -> List[Dict]:
+        """공개일(published)이 아직 없는 추적 행 — 소급 백필 대상 전량."""
+        return [r for r in self._tracked_states()
                 if not (r.get("last_alert_state") or {}).get("published")]
 
-    def get_rows_missing_vendor(self, limit: int = 20000) -> List[Dict]:
+    def get_rows_missing_vendor(self) -> List[Dict]:
         """영향 벤더가 하나도 없는 추적 행 — NVD CPE 소급 백필 대상.
 
         원본 CNA 레코드가 'n/a'인 경우가 있는데, 그때도 NVD CPE에는 벤더/제품이
@@ -488,7 +495,7 @@ class ArgusDB:
                 str(a.get("vendor") or "").strip().lower() not in ("", "unknown", "n/a", "-")
                 for a in (state.get("affected") or []) if isinstance(a, dict)
             )
-        return [r for r in self._tracked_states(limit)
+        return [r for r in self._tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:
