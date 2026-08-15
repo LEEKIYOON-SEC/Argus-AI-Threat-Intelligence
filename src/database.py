@@ -463,25 +463,46 @@ class ArgusDB:
             logger.error(f"공개일 백필 후보 조회 실패: {e}")
             return []
 
-    def bulk_set_published(self, published: Dict[str, str]) -> int:
-        """{cve_id: 공개일}을 last_alert_state에 채운다. 갱신 성공 건수 반환.
+    _PUBLISHED_CHUNK = 200
 
-        upsert는 payload에 있는 컬럼만 갱신하므로 다른 필드는 보존된다. updated_at은
-        건드리지 않는다 — 그 값이 대시보드의 '확인일'이라 백필 때문에 밀리면 안 된다."""
+    def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
+        """이미 조회한 행에 {cve_id: 공개일}을 채워 배치 저장. 갱신 성공 건수 반환.
+
+        rows는 get_rows_missing_published()가 돌려준 그대로 — id와 last_alert_state가
+        이미 들어 있다. 예전에는 행마다 get_cve()로 같은 값을 다시 읽었는데, 대상이
+        1만 건을 넘자 왕복이 2만 회를 넘어 워크플로 타임아웃(60분)에 걸릴 위험이 컸고
+        Supabase egress도 크게 썼다(불변 원칙 2). 가진 값을 쓰고 200건씩 묶어 저장한다.
+
+        payload에 updated_at을 넣지 않는다 — PostgREST는 준 컬럼만 갱신하므로 그 값이
+        대시보드의 '확인일'로 그대로 보존된다. 백필 때문에 확인일이 밀리면 안 된다."""
+        pending = []
+        for row in rows:
+            cve_id = row.get("id")
+            day = published.get(cve_id)
+            state = row.get("last_alert_state")
+            if not day or not state or state.get("published"):
+                continue
+            state = dict(state)
+            state["published"] = day
+            pending.append({"id": cve_id, "last_alert_state": state})
+
+        if not pending:
+            return 0
+
         done = 0
-        for cve_id, day in published.items():
+        for i in range(0, len(pending), self._PUBLISHED_CHUNK):
+            chunk = pending[i:i + self._PUBLISHED_CHUNK]
             try:
-                current = self.get_cve(cve_id)
-                state = (current or {}).get("last_alert_state")
-                if not state or state.get("published"):
-                    continue
-                state = dict(state)
-                state["published"] = day
-                if self.upsert_cve({"id": cve_id, "last_alert_state": state,
-                                    "updated_at": current.get("updated_at")}):
-                    done += 1
+                self._execute(self.client.table("cves").upsert(chunk))
+                done += len(chunk)
             except Exception as e:
-                logger.warning(f"{cve_id} 공개일 갱신 실패: {e}")
+                # 묶음이 실패하면 어느 행 탓인지 알 수 없다 → 행 단위로 되돌아간다.
+                # WAF 콘텐츠 차단 대응이 upsert_cve에 있으므로 그 경로를 그대로 쓴다.
+                logger.warning(f"공개일 배치 저장 실패({len(chunk)}건): {e} → 행 단위 재시도")
+                for item in chunk:
+                    if self.upsert_cve(item):
+                        done += 1
+            logger.info(f"  공개일 저장 {min(i + len(chunk), len(pending)):,}/{len(pending):,}")
         return done
 
     def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
