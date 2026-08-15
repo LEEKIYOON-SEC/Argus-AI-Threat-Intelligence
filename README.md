@@ -286,22 +286,21 @@ CVSS 7점대가 하루 수백 건이라 점수만으로는 순서가 정해지�
 
 ## AI 스택
 
-일일 예산에 여유가 크고 출력 형식이 안정적인 모델을 주력으로 두고, 한도가 차거나 장애가 나면
-다른 공급자로 넘깁니다. 분석 품질은 평균보다 **편차**가 중요합니다 — 어제와 오늘의 리포트가
-다른 모델에서 나오면 기준이 흔들리기 때문입니다.
+분석 품질은 평균보다 **편차**가 중요합니다 — 어제와 오늘의 리포트가 다른 모델에서 나오면
+기준이 흔들리기 때문입니다. 그래서 **역할마다 모델을 2단으로** 두고, 앞 모델이 한도에 걸리거나
+서버 오류를 내면 같은 역할의 다음 모델이 이어받습니다. 한도는 모델별로 따로 잡히므로 앞이
+소진돼도 뒤는 그대로 남아 있습니다.
 
-운영해 보니 Groq는 일일 토큰 한도가 자주 차서 같은 성격의 CVE라도 날마다 다른 모델이 분석했고,
-자유 출력이라 형식이 깨지면 티어가 갈렸습니다. 그래서 주력을 JSON 모드가 되는 쪽으로 옮기고
-Groq는 비상용으로 남겼습니다. 공급자를 둘로 유지하는 것 자체가 목적입니다 — 한 곳이 멈춰도
-분석이 계속되어야 하니까요.
+| 용도 | 모델 | 비고 |
+|---|---|---|
+| **심층 분석** | `gemini-3.5-flash-lite` → `gemini-3.1-flash-lite` | JSON 모드로 구조화 출력 보장. 분석 대상이 Critical뿐이라 하루 6~30건 — RPD 500에 여유가 큽니다 |
+| **한국어 번역** | `gemma-4-31b-it` → `gemma-4-26b-a4b-it` | CVE 제목·설명 요약. 분석과 다른 모델이라 예산을 나눠 쓰지 않습니다 |
 
-| 용도 | 모델 | 공급자 | 비고 |
-|---|---|---|---|
-| **심층 분석 (주)** | `gemini-3.1-flash-lite` | Google AI Studio | JSON 모드로 구조화 출력 보장. 일일 예산에 여유가 커 결과가 일정합니다 |
-| **심층 분석 (비상)** | `gpt-oss-120b` → `qwen3.6-27b` | Groq | 주력 소진·장애 시 폴백. 앞 모델 한도 소진 시 다음 모델로 캐스케이드 |
-| **한국어 번역** | `gemma-4-31b-it` | Google AI Studio | CVE 제목·설명 요약 (분석과 예산 분리) |
+두 단계가 모두 불가하면 **정형 폴백**으로 내려갑니다 — 분석은 안내문, 번역은 영문 원문으로
+리포트가 나가고, 번역은 다음 실행의 백필이 회수합니다. 공급자가 통째로 멈춰도 파이프라인은
+계속 돌고 유실이 아니라 지연으로 흡수됩니다.
 
-> AI API 키(Groq · Google AI Studio)는 **이용자가 직접 발급**해 GitHub Secrets에 등록합니다.
+> AI API 키(Google AI Studio)는 **이용자가 직접 발급**해 GitHub Secrets에 등록합니다.
 > 무료 티어 한도 내 사용을 전제로 설계했으며, 각 AI 서비스의 이용약관은 이용자 책임하에 준수해야 합니다.
 
 ---
@@ -369,7 +368,6 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 
 | Secret | 발급처 | 필수 |
 |---|---|:--:|
-| `GROQ_API_KEY` | [console.groq.com](https://console.groq.com) | ✅ |
 | `GEMINI_API_KEY` | [aistudio.google.com](https://aistudio.google.com) | ✅ |
 | `SUPABASE_URL` · `SUPABASE_KEY` | [supabase.com](https://supabase.com) | ✅ |
 | `SLACK_WEBHOOK_URL` | Slack Incoming Webhook | ✅ |
@@ -409,7 +407,7 @@ insert into pipeline_state (id, state) values (1, '{}'::jsonb)
 ## 운영 비용
 
 개인이나 소규모 팀이 별도 서버 없이 운영할 수 있도록 전부 무료 티어 안에서 돌아가게 만들었습니다.
-실행은 GitHub Actions, 대시보드는 GitHub Pages, DB는 Supabase, AI는 Groq와 Google AI Studio를 씁니다.
+실행은 GitHub Actions, 대시보드는 GitHub Pages, DB는 Supabase, AI는 Google AI Studio를 씁니다.
 
 한도를 지키려고 상세 분석 리포트는 DB가 아니라 GitHub Issue에 남기고, DB에는 대시보드 표시와 재알림
 판단에 필요한 최소 정보만 넣습니다. 외부 API 호출량은 한도 관리자가 미리 조절합니다.

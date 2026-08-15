@@ -11,62 +11,44 @@ class ArgusConfig:
     # ==========================================
     # [1] AI 모델 설정
     # ==========================================
-    MODEL_PHASE_0 = "gemma-4-31b-it"  # 빠른 번역/요약 (Google AI Studio / Gemini API)
-    MODEL_PHASE_1 = "gemini-3.1-flash-lite"  # 심층 분석 주 모델 (Google AI Studio)
-
-    # 심층 분석 주력 — Google AI Studio flash-lite.
-    # 주력으로 둔 근거(실측): 분석은 Critical에만 하므로 하루 6~30건인데 RPD 1,000이라
-    # 30배 여유다. Groq는 TPD 200K×2가 자주 바닥나 같은 성격의 CVE라도 날마다 다른
-    # 모델이 분석했다. 추론 깊이는 gpt-oss보다 낮지만 JSON 모드로 구조화 출력이
-    # 보장돼 파싱 실패로 티어가 갈리는 일이 없다 — 품질의 평균보다 편차가 중요하다.
-    # 번역(Gemma 31B)과 다른 모델이라 AI Studio 한도(모델별)를 나눠 쓰지 않는다.
-    GEMINI_ANALYSIS_MODEL = "gemini-3.1-flash-lite"
-
-    # 심층 분석 비상 티어 — 주력(Gemini)이 소진·장애일 때만 사용.
-    # 없애지 않는 이유: 공급자가 하나면 Google AI Studio 장애에 분석이 통째로 멈춘다.
-    # 공급자를 둘로 유지하는 것이 이중화의 목적이다(불변 원칙 5).
+    # AI는 Google AI Studio 하나만 쓴다. 모델은 각 역할마다 2단이고, 둘 다 불가하면
+    # 정형 폴백(_fallback_analysis / 영문 원문)으로 내려가 파이프라인은 계속 돈다.
     #
-    # 앞 모델의 일일 한도(TPD)가 소진되면 다음 모델로 자동 전환.
-    # gpt-oss-120b와 qwen3.6은 TPD 200K/일이 '각각' 잡혀 실질 일일 예산 400K.
+    #   분석  gemini-3.5-flash-lite  →  gemini-3.1-flash-lite  →  정형 폴백
+    #   번역  gemma-4-31b-it         →  gemma-4-26b-a4b-it     →  영문 원문
     #
-    # ⚠️ compound/compound-mini는 제외한다: agentic 시스템이라 내부적으로 기반 모델
-    # (gpt-oss-120b 등)을 호출하며, 토큰이 '기반 모델의 TPD'로 계상된다(429 로그로 확인:
-    # compound 요청이 openai/gpt-oss-120b TPD 200K 한도에 걸림). 즉 예산이 합산되지 않고
-    # 오히려 웹검색 컨텍스트만큼 같은 예산을 더 빨리 소모 + 다단계 실행으로 지연 + 비정형
-    # 출력으로 파싱 재시도까지 유발 → 캐스케이드에 넣을 이유가 없다.
-    GROQ_MODELS = [
-        "openai/gpt-oss-120b",
-        "qwen/qwen3.6-27b",
-    ]
+    # 공급자를 하나로 좁힌 대신 역할마다 모델을 2단으로 둔다. 이유는 도달률이다 —
+    # 분석은 Critical만이라 하루 6~30건인데 RPD가 500이라 1단이 소진될 일이 거의 없고,
+    # 소진되더라도 같은 역할의 다른 모델이 이어받는다(한도는 모델별로 따로 잡힌다).
+    # 최종 안전망은 정형 폴백이다. 공급자가 통째로 죽어도 리포트는 나가고 워터마크가
+    # 붙잡아 다음 실행에서 재처리된다 — 유실이 아니라 지연이다. 대신 그동안 분석란은
+    # 안내문으로 나간다(불변 원칙 5: 단일 공급자 + 역할별 2단 + 정형 폴백).
 
-    # 모델별 일일 소진 기준. rpd=요청 수/일, tpd=토큰 수/일. None=해당 기준 무제한.
-    GROQ_MODEL_LIMITS = {
-        "openai/gpt-oss-120b": {"rpd": None, "tpd": 200_000},
-        "qwen/qwen3.6-27b":    {"rpd": None, "tpd": 200_000},
-    }
+    # 번역 — Gemma. 한도는 모델마다 별도로 잡힌다(31B 소진이 26B에 영향 없음).
+    MODEL_PHASE_0 = "gemma-4-31b-it"
+    MODEL_PHASE_0_FALLBACK = "gemma-4-26b-a4b-it"
 
-    # 심층 분석 공통 파라미터 (temp/top_p/max는 모델 공통). TPM이 250K로 상향되어 8K 제약이
-    # 사라졌으므로 출력 상한을 넉넉히(4096) 둔다. reasoning은 모델별로 GROQ_MODEL_REASONING에서 지정.
-    GROQ_ANALYSIS_PARAMS = {
+    # 심층 분석 — flash-lite. 3.5가 후속 모델이고 한도는 3.1과 동일(RPM 15 / TPM 250K /
+    # RPD 500)이라 교체해도 예산 구조가 바뀌지 않는다.
+    # 번역(Gemma)과 다른 모델이라 AI Studio 한도를 나눠 쓰지 않는다.
+    MODEL_PHASE_1 = "gemini-3.5-flash-lite"
+    GEMINI_ANALYSIS_MODEL = "gemini-3.5-flash-lite"
+    GEMINI_ANALYSIS_FALLBACK_MODEL = "gemini-3.1-flash-lite"
+
+    # 심층 분석 공통 파라미터. JSON 모드로 구조화 출력이 보장돼 파싱 실패로 티어가
+    # 갈리는 일이 없다 — 품질의 평균보다 편차가 중요하다.
+    ANALYSIS_PARAMS = {
         "temperature": 0.3,  # 일관된 출력 (hallucination 감소)
         "top_p": 0.9,
-        "max_completion_tokens": 4096,
+        "max_output_tokens": 4096,
     }
-
-    # 모델별 reasoning 파라미터 — 모델마다 지원값이 다르다. 값이 없으면(빈 dict) API 호출에서 생략.
-    #   gpt-oss-120b: "low"(최소 추론) / qwen3.6: "none"(비추론). reasoning_format="parsed"로 JSON 보호.
-    GROQ_MODEL_REASONING = {
-        "openai/gpt-oss-120b": {"reasoning_effort": "low", "reasoning_format": "parsed"},
-        "qwen/qwen3.6-27b": {"reasoning_effort": "none", "reasoning_format": "parsed"},
-    }
-
 
     # ==========================================
     # [2] 성능 최적화 설정
     # ==========================================
     PERFORMANCE = {
-        # TPM이 250K로 상향되어 병렬 워커의 8K TPM 429 폭주 위험이 사라짐 → 병렬 복원.
-        # (Groq RPM 30 + 고위험당 분석 1회라 병렬로도 RPM 여유. 저위험 fetch 병렬화로 처리량↑.)
+        # 분석 TPM 250K에 고위험당 분석 1회라 병렬로도 분당 한도에 여유가 있다.
+        # 저위험 fetch 병렬화로 처리량을 올린다.
         "max_workers": 4,
         "rule_check_interval_days": 7,  # 공식 룰 재확인 주기
         # 실행당 처리 상한. 자산 기준 티어링으로 비자산 저위험(유입의 대부분)은 번역 없이
@@ -122,7 +104,6 @@ class ArgusConfig:
         "SUPABASE_URL",
         "SUPABASE_KEY",
         "SLACK_WEBHOOK_URL",
-        "GROQ_API_KEY",
         "GEMINI_API_KEY"
     ]
     

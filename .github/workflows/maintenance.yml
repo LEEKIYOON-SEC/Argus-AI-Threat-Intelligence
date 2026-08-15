@@ -21,7 +21,9 @@ on:
           - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
           - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
       backfill_days:
-        description: '공개일 백필 소급 기간(일)'
+        # 30일씩 끊어 NVD를 조회한다. 키가 없으면 창당 8초라 7000일이면 ~30분 —
+        # 잡 타임아웃(60분) 안이지만, NVD_API_KEY가 있으면 훨씬 빠르다.
+        description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
 
 permissions:

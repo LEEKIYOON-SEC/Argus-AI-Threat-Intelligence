@@ -403,6 +403,18 @@ def _needs_cpe_lookup(cve_data: Dict) -> bool:
         for a in (cve_data.get('affected') or [])
     )
 
+# 번역 2단. 한도는 모델마다 따로 잡히므로 31B가 소진돼도 26B는 그대로 남아 있다 —
+# 앞 모델이 한도/서버 문제로 못 하면 뒤 모델이 이어받고, 둘 다 안 되면 영문 원문이다.
+_TRANSLATION_STAGES = (
+    (config.MODEL_PHASE_0, "gemini"),
+    (config.MODEL_PHASE_0_FALLBACK, "gemini_fb"),
+)
+
+# 다음 모델로 넘길 사유. 한도·서버 문제는 모델이 바뀌면 풀릴 수 있지만, 안전 차단이나
+# 잘못된 요청("other")은 같은 프롬프트로 같은 결과가 나온다 — 넘겨봐야 호출만 태운다.
+_TR_STAGE_ADVANCE = ("skip", "rate", "transient")
+
+
 def generate_korean_summary(cve_data: Dict, retry_on_transient: bool = False) -> Tuple[str, str]:
     """CVE 제목/설명을 한국어로 번역. 실패 시 영문 원본 폴백.
 
@@ -421,19 +433,36 @@ Do NOT add intro/outro.
 """
 
     fallback = (cve_data['title'], cve_data['description'][:200])
+    max_attempts = 3 if retry_on_transient else 1
 
+    reason = "skip"
+    for model, limiter_key in _TRANSLATION_STAGES:
+        out, reason = _translate_one(prompt, fallback, model, limiter_key, max_attempts)
+        if out is not None:
+            _tr_bump("ok")
+            return out
+        if reason not in _TR_STAGE_ADVANCE:
+            break
+    _tr_bump(_TR_REASON_KEY.get(reason, "en_other"))
+    return fallback
+
+
+def _translate_one(prompt: str, fallback: Tuple[str, str], model: str, limiter_key: str,
+                   max_attempts: int) -> Tuple[Optional[Tuple[str, str]], str]:
+    """단일 CVE를 모델 하나로 번역 시도. (결과, 사유)를 반환한다.
+
+    사유: "ok" · "skip"(일일 한도 소진) · "rate"/"transient"(다음 모델 가치 있음) ·
+          "other"(안전 차단·잘못된 요청 등 — 모델을 바꿔도 같다)."""
     # 무료 Gemma는 과부하 시 503(high demand)/500(INTERNAL) 같은 일시 서버 오류를 낸다.
     # 이는 우리 한도(429)가 아니라 구글 서버측 문제. 고위험만 백오프 재시도로 회복하고
     # 저위험은 즉시 폴백. 그 외(안전 차단·잘못된 요청 등)는 재시도해도 무의미.
-    max_attempts = 3 if retry_on_transient else 1
     for attempt in range(1, max_attempts + 1):
         try:
-            if not rate_limit_manager.check_and_wait("gemini"):
+            if not rate_limit_manager.check_and_wait(limiter_key):
                 # 일일 한도 소진 — 호출해봐야 429만 받는다
-                _tr_bump("en_rpd")
-                return fallback
+                return None, "skip"
             response = gemini_client.models.generate_content(
-                model=config.MODEL_PHASE_0,
+                model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     # 번역은 짧음(제목 + 3줄). 출력 상한을 두지 않으면 gemma-4가
@@ -451,10 +480,10 @@ Do NOT add intro/outro.
             usage = getattr(response, "usage_metadata", None)
             if usage is not None:
                 gemini_tokens = getattr(usage, "total_token_count", 0) or 0
-            rate_limit_manager.record_call("gemini", tokens_used=gemini_tokens)
+            rate_limit_manager.record_call(limiter_key, tokens_used=gemini_tokens)
 
-            text = response.text.strip()
-            title_ko, desc_ko = cve_data['title'], cve_data['description'][:200]
+            text = (response.text or "").strip()
+            title_ko, desc_ko = fallback
 
             for line in text.split('\n'):
                 if line.startswith("제목:"):
@@ -462,8 +491,7 @@ Do NOT add intro/outro.
                 if line.startswith("내용:"):
                     desc_ko = line.replace("내용:", "").strip()
 
-            _tr_bump("ok")
-            return title_ko, desc_ko
+            return (title_ko, desc_ko), "ok"
 
         except Exception as e:
             msg = str(e)
@@ -471,20 +499,18 @@ Do NOT add intro/outro.
             if kind == "rpd":
                 # 공급자가 먼저 일일 소진을 알려줬다 = 우리 카운터가 실제보다 적게 셌다는 뜻.
                 # 소진으로 마킹해 이번 실행의 남은 번역이 429를 반복하지 않게 한다.
-                rate_limit_manager.mark_rpd_exhausted("gemini")
-                logger.warning("번역 일일 한도(RPD) 소진 — 이후 번역은 영문 폴백")
-                _tr_bump("en_rpd")
-                return fallback
+                rate_limit_manager.mark_rpd_exhausted(limiter_key)
+                logger.warning(f"번역 일일 한도(RPD) 소진: {model}")
+                return None, "skip"
             if kind in ("rate", "transient") and attempt < max_attempts:
                 wait = _gemini_backoff(kind, attempt, msg)
-                logger.warning(f"번역 {kind} 오류({attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
+                logger.warning(f"번역 {kind} 오류({model} {attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
                 time.sleep(wait)
                 continue
-            logger.warning(f"번역 실패({kind}): {e}, 원본 사용")
-            _tr_bump(f"en_{kind}")
-            return fallback
+            logger.warning(f"번역 실패({model} {kind}): {e}")
+            return None, kind
 
-    return fallback
+    return None, "transient"
 
 
 # 대기 규칙도 rate_limiter가 소유한다 — 분류(gemini_error_kind)와 같은 자리에 둬야
@@ -524,9 +550,12 @@ def _log_translation_summary() -> None:
     if not (ok or fallback):
         return
     breakdown = " · ".join(f"{label} {snap.get(key, 0)}" for key, label in _TR_LABELS)
-    used, limit = rate_limit_manager.rpd_status("gemini")
+    rpd = " · ".join(
+        f"{model} {u:,}/{l:,}"
+        for model, u, l in ((m,) + rate_limit_manager.rpd_status(k) for m, k in _TRANSLATION_STAGES)
+    )
     logger.info(f"🈯 번역 요약(누적): 한글 {ok}건 · 영문폴백 {fallback}건 "
-                f"({breakdown}) · Gemma RPD {used:,}/{limit:,}")
+                f"({breakdown}) · RPD {rpd}")
 
 
 def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
@@ -632,7 +661,10 @@ def _translate_chunk(chunk: List[Dict],
 
     사유: "ok"(성공) · "parse"(응답 형식 파손 → 개별 폴백 가치 있음) ·
           "api"(호출 실패 → 개별 폴백 무의미) · "skip"(일일 한도 소진)
-    응답 JSON에서 누락된 항목은 영문 폴백으로 채워 성공 시 반환값은 청크 전체를 커버한다."""
+    응답 JSON에서 누락된 항목은 영문 폴백으로 채워 성공 시 반환값은 청크 전체를 커버한다.
+
+    번역 2단(31B → 26B)은 개별 번역과 같은 규칙이다 — 한도/서버 문제면 뒤 모델이
+    이어받고, 형식 파손·안전 차단이면 모델을 바꿔도 같으므로 넘기지 않는다."""
     # 입력 500자·출력 2줄 요약으로 제한 — 배치당 생성 토큰을 줄여 호출당 소요를 절반 이하로
     # (관측: 출력이 크면 배치당 ~60초 → 40청크에 40분, 실행 타임아웃의 주범이었음)
     numbered = "\n".join(
@@ -648,12 +680,25 @@ Output EXACTLY one JSON array with {len(chunk)} objects in the same order, and n
 CVEs:
 {numbered}"""
     max_attempts = 3 if retry_on_transient else 1
+    reason = "skip"
+    for model, limiter_key in _TRANSLATION_STAGES:
+        out, reason = _translate_chunk_with(chunk, prompt, model, limiter_key, max_attempts)
+        if out is not None:
+            return out, "ok"
+        if reason not in _TR_STAGE_ADVANCE:
+            return None, reason
+    return None, reason
+
+
+def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_key: str,
+                          max_attempts: int) -> Tuple[Optional[Dict[str, Tuple[str, str]]], str]:
+    """청크를 모델 하나로 번역 시도. 사유는 _translate_chunk와 같은 어휘를 쓴다."""
     for attempt in range(1, max_attempts + 1):
         try:
-            if not rate_limit_manager.check_and_wait("gemini"):
+            if not rate_limit_manager.check_and_wait(limiter_key):
                 return None, "skip"
             response = gemini_client.models.generate_content(
-                model=config.MODEL_PHASE_0,
+                model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     max_output_tokens=3072,  # 6건 × 제목+2줄 요약 — 잘림 방지(JSON 완결)
@@ -668,7 +713,7 @@ CVEs:
             usage = getattr(response, "usage_metadata", None)
             if usage is not None:
                 tokens = getattr(usage, "total_token_count", 0) or 0
-            rate_limit_manager.record_call("gemini", tokens_used=tokens)
+            rate_limit_manager.record_call(limiter_key, tokens_used=tokens)
 
             text = (response.text or "").strip()
             text = re.sub(r"```(?:json)?\s*\n?", "", text).strip()
@@ -700,15 +745,15 @@ CVEs:
             msg = str(e)
             kind = _gemini_error_kind(msg)
             if kind == "rpd":
-                rate_limit_manager.mark_rpd_exhausted("gemini")
-                logger.warning("일괄 번역 일일 한도(RPD) 소진 — 이후 번역은 영문 폴백")
+                rate_limit_manager.mark_rpd_exhausted(limiter_key)
+                logger.warning(f"일괄 번역 일일 한도(RPD) 소진: {model}")
                 return None, "skip"
             if kind in ("rate", "transient") and attempt < max_attempts:
                 wait = _gemini_backoff(kind, attempt, msg)
-                logger.warning(f"일괄 번역 {kind} 오류({attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
+                logger.warning(f"일괄 번역 {kind} 오류({model} {attempt}/{max_attempts}): {e} → {wait:.0f}s 후 재시도")
                 time.sleep(wait)
                 continue
-            logger.warning(f"일괄 번역 청크 실패({kind}): {e}")
+            logger.warning(f"일괄 번역 청크 실패({model} {kind}): {e}")
             return None, kind
     return None, "api"
 
@@ -1264,13 +1309,12 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         report_url = None
         rules_info = None
         if should_alert and full_report:
-            # 분석 티어(Gemini 주력 + Groq 비상)가 전부 소진됐을 때만 Issue 보류.
-            # 한쪽만 소진이면 다른 쪽이 분석하므로 알림이 지연되지 않는다 — 그래서 조건이
-            # AND다(어느 쪽이 주력인지와 무관하게 '둘 다 불가'만 잡는다).
+            # 분석 2단(3.5 → 3.1)이 모두 소진일 때만 보류한다. 한쪽만 소진이면 다른 쪽이
+            # 분석하므로 알림이 지연되지 않는다 — 그래서 조건이 AND다.
             # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
             # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
-            if (rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None
-                    and rate_limit_manager.is_rpd_exhausted("gemini_analysis")):
+            if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
+                    and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
                 logger.warning(f"⚠️ {cve_id}: 분석 티어 전부 소진 → Issue 보류(다음 실행 재처리)")
                 return {"cve_id": cve_id, "status": "failed"}
             report_url, rules_info = create_github_issue(current_state, alert_reason)
@@ -1547,7 +1591,7 @@ def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNoti
         분석→Issue→Slack→저장). 재처리 안에서 최신 신호로 재판정하므로 알림/저장이 일관된다.
 
     재알림 중복은 없다: 승격이 성공 저장되면 last_alert_state가 갱신돼 다음 스윕에서 current==last가
-    되어 재트리거되지 않는다. Groq 소진 등으로 저장 전 실패하면 Slack도 안 나가고(게이트가
+    되어 재트리거되지 않는다. 분석 한도 소진 등으로 저장 전 실패하면 Slack도 안 나가고(게이트가
     Slack 이전에 조기 반환) last가 그대로라 다음 실행 스윕에서 자연히 재시도된다.
     """
     try:
@@ -1662,7 +1706,7 @@ def _main():
 
     # Step 4.5: 에스컬레이션 재평가 스윕 — 레코드 미변경으로 재수집 큐에 안 올라오는 저위험 CVE의
     # 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 단독 변화 승격을 메운다. KEV 세트가 로드된 직후
-    # 실행해 승격 재알림이 신규 저위험 백로그보다 우선 Groq 예산을 확보하고 타임아웃 전에 완주하게 한다.
+    # 실행해 승격 재알림이 신규 저위험 백로그보다 우선 AI 예산을 확보하고 타임아웃 전에 완주하게 한다.
     check_for_escalations(collector, db, notifier)
 
     # 소프트 데드라인 — Actions timeout(45분)에 killed 되면 워터마크를 못 써 다음 실행이
@@ -1908,13 +1952,24 @@ def _main():
 
     success_count = sum(1 for s in status_by_id.values() if s == 'success')
 
-    # 분석 티어 소진 경고 — 주력(Gemini) 기준으로 본다
+    # 분석 티어 소진 경고
     if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
-        if rate_limit_manager.active_groq_model(config.GROQ_MODELS) is None:
-            logger.warning("🚫 분석 티어 전부(Gemini 주력 + Groq 비상) 소진 → "
+        if rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb"):
+            logger.warning(f"🚫 분석 2단({config.GEMINI_ANALYSIS_MODEL} + "
+                           f"{config.GEMINI_ANALYSIS_FALLBACK_MODEL}) 모두 소진 → "
                            "일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
         else:
-            logger.warning("⚠️ Gemini 주력 RPD 소진 → 분석이 Groq 비상 티어로 수행됨")
+            logger.warning(f"⚠️ {config.GEMINI_ANALYSIS_MODEL} RPD 소진 → "
+                           f"분석이 {config.GEMINI_ANALYSIS_FALLBACK_MODEL}로 수행됨")
+
+    # 번역 티어 소진 경고 — 남은 영문은 다음 실행의 번역 백필이 회수한다
+    if rate_limit_manager.is_rpd_exhausted("gemini"):
+        if rate_limit_manager.is_rpd_exhausted("gemini_fb"):
+            logger.warning(f"🚫 번역 2단({config.MODEL_PHASE_0} + {config.MODEL_PHASE_0_FALLBACK}) "
+                           "모두 소진 → 잔여는 영문, 다음 실행 백필에서 회수")
+        else:
+            logger.warning(f"⚠️ {config.MODEL_PHASE_0} RPD 소진 → "
+                           f"번역이 {config.MODEL_PHASE_0_FALLBACK}로 수행됨")
 
     # Step 9: Slack 배치 요약 전송 (High 추적 건수 포함 — Issue 없이도 규모는 파악되게)
     repo = os.environ.get("GITHUB_REPOSITORY", "")
