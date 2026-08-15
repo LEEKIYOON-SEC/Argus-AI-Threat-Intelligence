@@ -110,6 +110,39 @@ SBOM과 CVE 레코드의 표기가 서로 달라서
 (`Microsoft Corporation` / `microsoft`, `Exchange Server` / `exchange_server`) 대소문자와 `_`·공백 차이는
 코드에서 흡수하고, 벤더를 특정하기 어려우면 `*`로 제품만 지정합니다.
 
+### 터미널에서 대조하기 (`tools/sbom_match.py`)
+
+대시보드에도 SBOM 대조가 있지만, 브라우저 파일 선택이 막힌 환경에서는 쓸 수 없습니다.
+같은 판정을 터미널에서 하는 스크립트를 뒀습니다. **표준 라이브러리만 쓰므로 `pip install`이
+필요 없고**, 자산 목록은 어디로도 전송되지 않습니다 — 공개된 인덱스 파일을 내려받아
+로컬에서 대조할 뿐입니다.
+
+```bash
+# SBOM을 CSV로 (name 열만 있으면 동작하고, 나머지는 있으면 정확도가 올라갑니다)
+syft dir:. -o syft-json | jq -r '["name","source","version","type","purl"],
+    (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' > sbom.csv
+
+python3 tools/sbom_match.py sbom.csv                  # 공개 인덱스를 받아 대조
+python3 tools/sbom_match.py sbom.csv --csv > out.csv  # CSV·JSON 출력
+python3 tools/sbom_match.py sbom.csv --offline ./data # 망분리: 미리 받아둔 파일 사용
+```
+
+```
+CVE             심각도   KEV  패키지      설치        → 목표              판정
+CVE-2026-45447  High       openssl  3.0.11-1  3.0.20-1~deb12u2  취약 추정
+CVE-2026-4800   High       lodash   4.17.20   4.17.21           취약 추정
+
+[묶음] linux 6.1.0-13 → 6.1.180-1 — 관련 CVE 4,297건(취약 추정 4,204 · KEV 4건)
+```
+
+커널처럼 CVE가 수천 건 쏟아지는 패키지는 한 줄로 접습니다. 커널은 CVE마다 고치는 게 아니라
+패키지를 한 번 올리는 단위인데, 전부 늘어놓으면 정작 손댈 나머지가 묻히기 때문입니다
+(실측: 4,301건 중 4,297건이 커널이라 나머지 4건이 안 보였습니다). 목표 버전은 설치된 것과
+같은 시리즈에서 고릅니다 — 전체 최댓값을 쓰면 6.1 계열 사용자에게 7.1로 올리라는 답이 나갑니다.
+
+브라우저와 터미널이 같은 SBOM에 다른 답을 내면 둘 다 못 믿게 되므로,
+같은 케이스 표를 양쪽 구현에 먹여 결과가 일치하는지 검사합니다 — `python3 tests/test_sbom_match.py`.
+
 ---
 
 ## 무엇이 달라졌나
