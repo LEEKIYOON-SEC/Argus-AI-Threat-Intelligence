@@ -16,9 +16,8 @@
 자산 목록은 어디로도 전송되지 않는다. 공개된 인덱스 파일을 GET할 뿐이고 CSV는 로컬에서만
 읽는다. --offline이면 네트워크를 아예 쓰지 않는다.
 
-판정 로직(normPkg·cmpVersion·sbomEcosystem·versionVerdict)은 docs/js/cve-dashboard.js와
-같은 규칙이다. 실행 환경이 달라 코드를 공유할 수 없으므로 규칙을 옮겨 적었고, 두 구현이
-갈라지지 않도록 같은 케이스 표로 교차 검증한다(tests/test_sbom_match.py).
+버전 비교는 dpkg 규칙을 따른다 — 문자열 정렬은 1.10 < 1.9로 뒤집히고, epoch(1:)와
+'~'(프리릴리스)를 무시하면 판정이 반대로 나온다.
 """
 from __future__ import annotations
 
