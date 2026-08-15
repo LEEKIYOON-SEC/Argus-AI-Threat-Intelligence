@@ -463,6 +463,38 @@ class ArgusDB:
             logger.error(f"공개일 백필 후보 조회 실패: {e}")
             return []
 
+    def get_pipeline_state(self) -> Optional[Dict]:
+        """파이프라인 진행 상태(워터마크·실패추적·RPD). 없거나 실패하면 None.
+
+        예전에는 docs/data/pipeline_state.json을 매 실행 커밋해 영속시켰다. 그 방식은
+        시간당 커밋 1건을 만들어 저장소를 계속 불렸다(최근 30일 커밋 323건). 상태는
+        1행이면 충분하므로 DB로 옮긴다."""
+        try:
+            response = self._execute(
+                self.client.table("pipeline_state").select("state").eq("id", 1).limit(1)
+            )
+            rows = response.data or []
+            state = rows[0].get("state") if rows else None
+            return state if isinstance(state, dict) else None
+        except Exception as e:
+            logger.warning(f"파이프라인 상태 조회 실패: {e}")
+            return None
+
+    def set_pipeline_state(self, state: Dict) -> bool:
+        """파이프라인 진행 상태 저장. 실패하면 False.
+
+        실패해도 워터마크가 전진하지 않을 뿐이라 다음 실행이 같은 구간을 다시 본다 —
+        중복은 dedup이 걸러내므로 '누락 0'(불변 원칙 1)은 유지된다."""
+        try:
+            self._execute(self.client.table("pipeline_state").upsert({
+                "id": 1, "state": state,
+                "updated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            }))
+            return True
+        except Exception as e:
+            logger.error(f"파이프라인 상태 저장 실패: {e}")
+            return False
+
     _PUBLISHED_CHUNK = 200
 
     def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:

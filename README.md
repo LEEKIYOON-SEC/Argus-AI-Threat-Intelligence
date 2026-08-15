@@ -358,10 +358,30 @@ Argus가 사용하는 모든 외부 데이터와 그 라이선스입니다. **�
 | `NVD_API_KEY` | [nvd.nist.gov](https://nvd.nist.gov/developers/request-an-api-key) | 선택 (없으면 조회 속도 제한) |
 | `VULNCHECK_API_KEY` | [vulncheck.com](https://vulncheck.com) | 선택 (없으면 건너뜀) |
 
-### 3. 실행
+### 3. DB 테이블
+
+`cves` 외에 파이프라인 진행 상태를 담는 1행짜리 테이블이 필요합니다. Supabase SQL Editor에서:
+
+```sql
+create table if not exists pipeline_state (
+  id         int primary key,
+  state      jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+insert into pipeline_state (id, state) values (1, '{}'::jsonb)
+  on conflict (id) do nothing;
+```
+
+워터마크(마지막 처리 시각)·실패 추적·일일 요청 수가 여기 들어갑니다. 예전에는 이 상태를
+`docs/data/pipeline_state.json`으로 매 실행 커밋해 영속시켰는데, 그것 때문에 시간당 커밋이
+1건씩 쌓였습니다.
+
+### 4. 실행
 
 - **Actions** 탭에서 워크플로를 활성화하면 정기 실행됩니다. (`.github/workflows/argus.yml`)
-- **Settings → Pages** 를 `docs/` 로 설정하면 대시보드가 게시됩니다.
+- **Settings → Pages → Source** 를 **`GitHub Actions`** 로 설정합니다.
+  대시보드는 브랜치가 아니라 워크플로가 만든 아티팩트로 배포됩니다 — 데이터 파일을
+  커밋하지 않으므로 저장소가 더 커지지 않습니다.
 
 </details>
 

@@ -200,6 +200,34 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
+def _fetch_live_export() -> tuple:
+    """지금 배포돼 있는 cves.json·stats.json. 못 받으면 (None, None).
+
+    Pages는 공개 정적 파일이라 Supabase egress를 전혀 쓰지 않는다 — 증분의 출발점을
+    DB가 아니라 사이트에서 가져오는 이유다."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" not in repo:
+        return None, None
+    owner, name = repo.split("/", 1)
+    base = f"https://{owner.lower()}.github.io/{name}/data"
+    try:
+        import urllib.request
+
+        def get(fn):
+            req = urllib.request.Request(f"{base}/{fn}", headers={"User-Agent": "argus-export"})
+            with urllib.request.urlopen(req, timeout=180) as r:
+                return json.loads(r.read().decode("utf-8"))
+
+        rows = get("cves.json")
+        generated_at = get("stats.json").get("generated_at")
+        if isinstance(rows, list) and rows and generated_at:
+            print(f"  직전 export를 배포본에서 읽음 ({len(rows)}건)", flush=True)
+            return rows, generated_at
+    except Exception as e:
+        print(f"  배포본을 읽지 못함({e}) → 체크아웃 사본 확인", flush=True)
+    return None, None
+
+
 def load_previous_export(data_dir: str) -> tuple:
     """직전 export 결과와 그 시각. 증분의 출발점이 없으면 (None, None).
 
@@ -209,10 +237,17 @@ def load_previous_export(data_dir: str) -> tuple:
         print("  ARGUS_FULL_EXPORT=1 → 전량 export", flush=True)
         return None, None
     try:
-        with open(os.path.join(data_dir, "cves.json"), encoding="utf-8") as f:
-            rows = json.load(f)
-        with open(os.path.join(data_dir, "stats.json"), encoding="utf-8") as f:
-            generated_at = json.load(f).get("generated_at")
+        # 지금 서비스 중인 사이트를 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로
+        # 체크아웃에 남은 사본은 커밋을 멈춘 시점에 얼어붙은 옛날 것이고, 그걸
+        # 출발점으로 삼으면 그 사이 변경이 통째로 빠진다. 받지 못하면(최초 배포 전,
+        # 네트워크 차단) 체크아웃 사본으로 물러난다 — 오래됐으면 아래 24시간
+        # 검사가 전량 export로 돌려놓는다.
+        rows, generated_at = _fetch_live_export()
+        if rows is None:
+            with open(os.path.join(data_dir, "cves.json"), encoding="utf-8") as f:
+                rows = json.load(f)
+            with open(os.path.join(data_dir, "stats.json"), encoding="utf-8") as f:
+                generated_at = json.load(f).get("generated_at")
         if not isinstance(rows, list) or not rows or not generated_at:
             return None, None
         # 직전 결과에 'updated'가 없으면 이 기능 도입 이전 파일 — 창 판정 기준이 없어
