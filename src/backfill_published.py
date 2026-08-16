@@ -13,7 +13,7 @@ import datetime
 import os
 import sys
 import time
-from typing import Dict
+from typing import Dict, Tuple
 
 import requests
 
@@ -27,8 +27,11 @@ _GAP_NO_KEY, _GAP_KEY = 8.0, 0.7
 
 
 def _fetch_window(start: datetime.datetime, end: datetime.datetime,
-                  api_key: str) -> Dict[str, str]:
-    """NVD에서 [start, end) 공개 CVE의 {id: 공개일} 수집. 실패해도 예외 없이 빈 dict."""
+                  api_key: str) -> Tuple[Dict[str, str], bool]:
+    """NVD에서 [start, end) 공개 CVE의 {id: 공개일} 수집. ({id: 날짜}, 조회 성공 여부).
+
+    성공 여부를 함께 돌려주는 이유: '한 건도 못 채웠다'가 NVD 장애인지, 남은 대상이
+    조회 창 밖(오래된 CVE)일 뿐인지 구분해야 종료 코드를 옳게 낼 수 있다."""
     headers = {"apiKey": api_key} if api_key else {}
     out: Dict[str, str] = {}
     idx = 0
@@ -45,7 +48,7 @@ def _fetch_window(start: datetime.datetime, end: datetime.datetime,
             data = r.json()
         except (requests.exceptions.RequestException, ValueError) as e:
             logger.warning(f"  NVD 조회 실패 ({start:%Y-%m-%d}): {e}")
-            return out
+            return out, False
 
         for item in data.get("vulnerabilities", []) or []:
             cve = item.get("cve") or {}
@@ -58,7 +61,7 @@ def _fetch_window(start: datetime.datetime, end: datetime.datetime,
         if idx >= total:
             break
         time.sleep(_GAP_KEY if api_key else _GAP_NO_KEY)
-    return out
+    return out, True
 
 
 def main() -> int:
@@ -80,10 +83,13 @@ def main() -> int:
     now = datetime.datetime.now(datetime.timezone.utc)
     published: Dict[str, str] = {}
     step = 30
+    windows = fetched = 0
     for off in range(0, days, step):
         end = now - datetime.timedelta(days=off)
         start = now - datetime.timedelta(days=min(off + step, days))
-        got = _fetch_window(start, end, api_key)
+        got, ok_window = _fetch_window(start, end, api_key)
+        windows += 1 if ok_window else 0
+        fetched += len(got)
         hit = {k: v for k, v in got.items() if k in targets}
         published.update(hit)
         logger.info(f"  {start:%Y-%m-%d} ~ {end:%Y-%m-%d}: 수집 {len(got):,} · 우리 것 {len(hit):,} "
@@ -93,8 +99,15 @@ def main() -> int:
         time.sleep(_GAP_KEY if api_key else _GAP_NO_KEY)
 
     if not published:
-        logger.warning("채울 공개일을 하나도 못 받았습니다 — 저장 생략")
-        return 1
+        # 조회 자체가 안 됐으면 실패(빨간 X가 맞다). 조회는 됐는데 겹치는 게 없으면
+        # 남은 대상이 창 밖(오래된 CVE)이라는 뜻이라 실패가 아니다 — 창을 넓히면 된다.
+        if windows == 0 or fetched == 0:
+            logger.warning("NVD에서 아무것도 받지 못했습니다 — 조회 실패")
+            return 1
+        logger.info(f"최근 {days}일 창에 해당하는 대상이 없습니다 "
+                    f"(NVD {fetched:,}건 조회 · 겹침 0). 남은 {len(targets):,}건은 더 과거의 "
+                    f"CVE이므로 BACKFILL_DAYS를 늘려 다시 실행하세요.")
+        return 0
 
     ok = db.bulk_set_published(rows, published)
     if ok:

@@ -88,13 +88,6 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=0.5
             ),
-            # Groq Free Tier: RPM 30 (분당 요청). 일일 한도(TPD 200K)는
-            # gpt-oss/qwen 모델별로 별도 카운터로 추적.
-            "groq": RateLimitInfo(
-                limit=30,
-                window_seconds=60,
-                min_interval=2.0
-            ),
             "epss": RateLimitInfo(
                 limit=60,
                 window_seconds=60,
@@ -105,18 +98,33 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=2.0
             ),
-            # Gemma 4 Free Tier: RPM 15 / TPM 무제한 / RPD 1,500 (번역 전용)
+            # 아래 4개는 Google AI Studio 모델별 한도(콘솔 실측). 모델마다 따로 잡히므로
+            # 한 모델이 소진돼도 다른 모델은 멀쩡하다 — 그래서 키를 나눈다.
+            #
+            # 번역 Gemma 4 31B: RPM 30 / TPM 16K / RPD 14.4K. 실측 병목은 RPD(4%)가
+            # 아니라 TPM(76%)·RPM(87%)이라 min_interval로 분당 유입을 눌러 둔다.
             "gemini": RateLimitInfo(
+                limit=30,
+                window_seconds=60,
+                min_interval=2.0
+            ),
+            # 번역 폴백 Gemma 4 26B: RPM 30 / TPM 16K. 31B와 같은 등급으로 본다.
+            "gemini_fb": RateLimitInfo(
+                limit=30,
+                window_seconds=60,
+                min_interval=2.0
+            ),
+            # 분석 Gemini 3.5 Flash-Lite: RPM 15 / TPM 250K / RPD 500.
+            "gemini_analysis": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
             ),
-            # Gemini flash-lite (분석 비상 폴백 전용) — 번역과 별도 모델·별도 한도.
-            # 보수적 기본값 RPM 10. 실제 한도는 AI Studio 콘솔 확인 후 조정.
-            "gemini_analysis": RateLimitInfo(
-                limit=10,
+            # 분석 폴백 Gemini 3.1 Flash-Lite: 3.5와 동일 한도.
+            "gemini_analysis_fb": RateLimitInfo(
+                limit=15,
                 window_seconds=60,
-                min_interval=6.0
+                min_interval=4.0
             ),
             # NVD API: API키 있으면 50req/30초
             "nvd": RateLimitInfo(
@@ -156,33 +164,33 @@ class RateLimitManager:
             "rate_limit_hits": 0
         }
 
-        # Groq 모델별 일일 한도 트래킹 — gpt-oss·qwen 각각 TPD 200K가 별도로 잡힌다.
-        # 요청 수(_gr_req)와 토큰 수(_tpd_used)를 모델별로 누적하고, 한도를 넘으면 소진으로
-        # 보고 다음 모델(캐스케이드)로 넘어간다. (rpd 기준도 지원하나 현 캐스케이드는 tpd만 사용.)
-        # (실행마다 상태 초기화 + 429 감지로 실제 일간 소진 반영.)
-        self._tpd_used_model: Dict[str, int] = {}   # 모델별 누적 토큰
-        self._gr_req_model: Dict[str, int] = {}     # 모델별 누적 요청 수
-        self._tpd_reset_model: Dict[str, datetime] = {}
-        self._tpd_exhausted_model: Dict[str, bool] = {}
-
-        # TPM (Tokens Per Minute) 선제 관리 — gpt-oss/qwen 모두 TPM 250K.
-        # 호출당 예약(~6K) « 250K라 사실상 발동 안 하는 안전장치.
+        # TPM(Tokens Per Minute) 선제 관리 — 번역만 등록한다. 콘솔 실측에서 병목이
+        # RPD(4%)나 RPM이 아니라 TPM(76%)이었기 때문이다. 넘기면 429를 맞고 30초씩
+        # 백오프하느니, 분 리셋까지 잠깐 기다리는 편이 싸다.
+        # 분석(flash-lite)은 TPM 250K에 호출이 하루 수십 건이라 등록할 이유가 없다.
         self._tpm_limits: Dict[str, int] = {
-            "groq": 250_000,  # gpt-oss-120b / qwen3.6 공통 TPM
+            "gemini": 16_000,     # Gemma 4 31B
+            "gemini_fb": 16_000,  # Gemma 4 26B
         }
         self._tpm_reserve: Dict[str, int] = {
-            "groq": 6_000,  # 호출당 예약 추정(입력 + max_completion 4096)
+            # 배치 1콜 추정: 6건 × (제목+500자 설명) 입력 + 최대 3,072 출력
+            "gemini": 4_000,
+            "gemini_fb": 4_000,
         }
         self._tpm_used: Dict[str, int] = {api: 0 for api in self._tpm_limits}
         self._tpm_reset_at: Dict[str, datetime] = {
             api: datetime.now() + timedelta(seconds=60) for api in self._tpm_limits
         }
 
-        # RPD (Requests Per Day) 트래킹 — Gemma 4 무료는 TPM이 무제한이라 일간 요청 수(1,500)가
-        # 실질적 일간 상한이다(토큰이 아님). 호출당 1건 누적, 90% 도달 시 경고.
+        # RPD (Requests Per Day) 트래킹. 호출당 1건 누적, 90% 도달 시 경고.
+        # AI Studio 콘솔 실측치. 예전에는 추정치를 넣어 두 값 모두 틀렸다 —
+        # 번역은 실제 14,400인데 1,500에서 끊고 있었고, 분석은 실제 500인데 1,000까지
+        # 허용해 한도 전에 막지 못했다.
         self._rpd_limits: Dict[str, int] = {
-            "gemini": 1_500,           # Gemma 4 (번역): RPD 1,500
-            "gemini_analysis": 1_000,  # flash-lite (분석 비상): 보수적 기본값 — 콘솔 확인 후 조정
+            "gemini": 14_400,             # Gemma 4 31B (번역)
+            "gemini_fb": 14_400,          # Gemma 4 26B (번역 폴백)
+            "gemini_analysis": 500,       # Gemini 3.5 Flash-Lite (분석)
+            "gemini_analysis_fb": 500,    # Gemini 3.1 Flash-Lite (분석 폴백)
         }
         self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
         # RPD는 시간 단위 버킷의 롤링 24시간 합으로 센다. 이유는 두 가지다.
@@ -195,51 +203,7 @@ class RateLimitManager:
         self._rpd_buckets: Dict[str, Dict[str, int]] = {api: {} for api in self._rpd_limits}
         self._rpd_skip_warned: Dict[str, bool] = {}   # SKIP 경고 1회만 (로그 스팸 방지)
 
-        logger.info("Rate Limit Manager v3.5 초기화 완료 (Thread-Safe + 모델별 RPD/TPD 캐스케이드)")
-
-    @staticmethod
-    def _groq_model_limits(model: str) -> Dict[str, Optional[int]]:
-        """모델의 일일 한도 {rpd, tpd} 조회 (config). 미등록 시 TPD 200K 기본."""
-        try:
-            from config import config
-            return config.GROQ_MODEL_LIMITS.get(model, {"rpd": None, "tpd": 200_000})
-        except Exception:
-            return {"rpd": None, "tpd": 200_000}
-
-    def _ensure_groq_model(self, model: str) -> None:
-        """모델별 카운터 지연 초기화. 반드시 _lock 보유 상태에서 호출."""
-        if model not in self._tpd_used_model:
-            self._tpd_used_model[model] = 0
-            self._gr_req_model[model] = 0
-            self._tpd_reset_model[model] = datetime.now() + timedelta(hours=24)
-            self._tpd_exhausted_model[model] = False
-
-    def _groq_model_exhausted(self, model: str, required_tokens: int) -> bool:
-        """이 모델이 다음 호출을 감당 못 하는지 (rpd 또는 tpd 초과). _lock 보유 상태 가정."""
-        self._ensure_groq_model(model)
-        if datetime.now() >= self._tpd_reset_model[model]:  # 일간 리셋
-            self._tpd_used_model[model] = 0
-            self._gr_req_model[model] = 0
-            self._tpd_reset_model[model] = datetime.now() + timedelta(hours=24)
-            self._tpd_exhausted_model[model] = False
-        if self._tpd_exhausted_model[model]:
-            return True
-        lim = self._groq_model_limits(model)
-        rpd, tpd = lim.get("rpd"), lim.get("tpd")
-        if rpd is not None and self._gr_req_model[model] + 1 > rpd:
-            return True
-        if tpd is not None and self._tpd_used_model[model] + required_tokens > tpd:
-            return True
-        return False
-
-    def active_groq_model(self, models, required_tokens: int = 15000):
-        """우선순위 순 models 중 이번 호출을 감당할 여유(rpd·tpd)가 있는 첫 모델을 반환.
-        모두 소진이면 None. (앞 모델 소진 시 다음 모델로 전환하는 캐스케이드의 핵심.)"""
-        with self._lock:
-            for model in models:
-                if not self._groq_model_exhausted(model, required_tokens):
-                    return model
-            return None
+        logger.info("Rate Limit Manager 초기화 완료 (Thread-Safe · RPM/TPM/RPD 모델별 추적)")
 
     def check_and_wait(self, api_name: str, max_wait: Optional[float] = None) -> bool:
         """API 호출 전 반드시 호출. Lock으로 동시 접근 차단.
@@ -355,9 +319,8 @@ class RateLimitManager:
 
         return True
     
-    def record_call(self, api_name: str, tokens_used: int = 0, model: Optional[str] = None):
-        """API 호출 기록 (Thread-Safe). tokens_used가 있으면 TPM/TPD도 업데이트.
-        model이 주어지면(Groq) 해당 모델의 TPD 버킷에 누적한다."""
+    def record_call(self, api_name: str, tokens_used: int = 0):
+        """API 호출 기록 (Thread-Safe). tokens_used가 있으면 TPM도 업데이트."""
         if api_name not in self.limits:
             return
         with self._lock:
@@ -387,36 +350,6 @@ class RateLimitManager:
                     self._tpm_reset_at[api_name] = now + timedelta(seconds=60)
                 self._tpm_used[api_name] += tokens_used
 
-            # Groq 모델별 일일 사용량 (요청 수 + 토큰) — model이 주어진 Groq 호출만
-            if model:
-                self._ensure_groq_model(model)
-                now = datetime.now()
-                if now >= self._tpd_reset_model[model]:
-                    self._tpd_used_model[model] = 0
-                    self._gr_req_model[model] = 0
-                    self._tpd_reset_model[model] = now + timedelta(hours=24)
-                    self._tpd_exhausted_model[model] = False
-                    logger.info(f"🔄 {model} 일일 카운터 리셋")
-
-                self._gr_req_model[model] += 1
-                self._tpd_used_model[model] += tokens_used
-
-                lim = self._groq_model_limits(model)
-                rpd, tpd = lim.get("rpd"), lim.get("tpd")
-                if rpd:
-                    pct = self._gr_req_model[model] / rpd * 100
-                    if pct >= 90:
-                        logger.warning(f"⚠️ {model} RPD 90% 도달! ({self._gr_req_model[model]:,}/{rpd:,})")
-                if tpd:
-                    pct = self._tpd_used_model[model] / tpd * 100
-                    logger.debug(f"{model} TPD: {self._tpd_used_model[model]:,}/{tpd:,} ({pct:.1f}%)")
-                    if pct >= 90:
-                        logger.warning(f"⚠️ {model} TPD 90% 도달! ({self._tpd_used_model[model]:,}/{tpd:,})")
-
-    def is_tpd_exhausted(self, model: str, required_tokens: int = 15000) -> bool:
-        """특정 Groq 모델이 다음 호출을 감당 못 하는지(rpd 또는 tpd 소진) 확인."""
-        with self._lock:
-            return self._groq_model_exhausted(model, required_tokens)
 
     @staticmethod
     def _rpd_bucket_key(when: Optional[datetime] = None) -> str:
@@ -494,23 +427,13 @@ class RateLimitManager:
                 logger.warning(f"🚫 {api_name} 일일 한도(RPD) 소진 마킹 — SKIP 전환")
 
     def handle_429(self, api_name: str, retry_after: Optional[float] = None,
-                   error_message: str = "", model: Optional[str] = None):
-        """429 Too Many Requests 대응 (Thread-Safe). TPD 소진이면 대기 대신 즉시 마킹."""
+                   error_message: str = ""):
+        """429 Too Many Requests 대응 (Thread-Safe).
+
+        일일 한도(RPD) 소진 429는 대기해도 풀리지 않으므로 호출부가
+        mark_rpd_exhausted로 직접 마킹한다 — 여기서는 분당 한도만 다룬다."""
         with self._lock:
             self.stats["rate_limit_hits"] += 1
-
-            # 일일 한도(TPD 토큰 or RPD 요청) 소진 429 → 대기 무의미, 해당 모델 즉시 소진 마킹
-            _msg = error_message.lower()
-            if model and ("tokens per day" in _msg or "tpd" in _msg
-                          or "requests per day" in _msg or "rpd" in _msg or "per day" in _msg):
-                self._ensure_groq_model(model)
-                self._tpd_exhausted_model[model] = True
-                logger.warning(
-                    f"🚫 {model} 일일 한도 소진 429! 다음 모델/SKIP로 전환 "
-                    f"(누적 429: {self.stats['rate_limit_hits']}회)"
-                )
-                self.stats["total_waits"] += 1
-                return
 
             if api_name not in self.limits:
                 wait_time = retry_after if retry_after else 60
@@ -602,22 +525,7 @@ class RateLimitManager:
                     f"  {name:18s}: {info.used:4d}/{info.limit:4d} "
                     f"[{usage_bar}] {info.usage_percent:5.1f}%"
                 )
-        # Groq 모델별 일일 사용량 요약 (모델마다 RPD 또는 TPD 기준)
-        for model in self._tpd_used_model:
-            req = self._gr_req_model.get(model, 0)
-            tok = self._tpd_used_model.get(model, 0)
-            if req == 0 and not self._tpd_exhausted_model.get(model, False):
-                continue
-            lim = self._groq_model_limits(model)
-            rpd, tpd = lim.get("rpd"), lim.get("tpd")
-            exhausted = " (EXHAUSTED)" if self._tpd_exhausted_model.get(model, False) else ""
-            if rpd:  # RPD 기준 모델(현재 미사용 — tpd 기준만)
-                pct = req / rpd * 100
-                logger.info(f"  {(model[:14]+' RPD'):18s}: {req:,}/{rpd:,} [{self._create_usage_bar(pct)}] {pct:5.1f}%{exhausted}")
-            if tpd:  # 추론형: 토큰 기준
-                pct = tok / tpd * 100
-                logger.info(f"  {(model[:14]+' TPD'):18s}: {tok:,}/{tpd:,} [{self._create_usage_bar(pct)}] {pct:5.1f}%{exhausted}")
-        # RPD 요약 (Gemma 일간 요청 수)
+        # RPD 요약 (모델별 일간 요청 수)
         for api, limit in self._rpd_limits.items():
             used = self._rpd_used.get(api, 0)
             if used > 0:

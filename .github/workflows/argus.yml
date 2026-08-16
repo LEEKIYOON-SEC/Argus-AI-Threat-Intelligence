@@ -1,11 +1,17 @@
 name: Argus CVE Monitor
  
 on:
-  # 스케줄 일시 중지 — Groq/Gemini 일일 한도(TPD/RPD) 보존을 위해 자동 실행을 멈춘다.
-  # 자산 기준 티어링 반영·테스트 후 아래 두 줄 주석을 해제해 재개.
   schedule:
      - cron: '18 * * * *'  # 매시 18분 자동 실행
   workflow_dispatch:  # 수동 실행 가능 (테스트용으로 유지)
+    inputs:
+      full_export:
+        # 평소 export는 증분이다 — updated_at이 바뀐 행만 다시 그린다. 백필처럼
+        # updated_at을 건드리지 않는 변경이나 export 코드 자체가 바뀐 경우에는
+        # 손대지 않은 행이 옛 모습 그대로 남으므로, 한 번은 전량으로 다시 그려야 한다.
+        description: '전량 export (증분 대신 90일 전체를 다시 생성)'
+        type: boolean
+        default: false
  
 permissions:
   contents: read      # 데이터 파일을 더는 커밋하지 않는다 (Pages 아티팩트로 배포)
@@ -53,7 +59,6 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
@@ -70,6 +75,8 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          # 스케줄 실행에서는 inputs가 비어 '0'이 된다 (증분 유지)
+          ARGUS_FULL_EXPORT: ${{ inputs.full_export && '1' || '0' }}
         run: python src/export_dashboard_data.py
 
       # 배포는 사이트 전체를 갈아끼운다. 이 잡이 만들지 않은 파일(주 1회 생성되는

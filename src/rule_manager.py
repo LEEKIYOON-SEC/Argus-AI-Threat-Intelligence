@@ -55,7 +55,7 @@ class RuleManager:
 
     def __init__(self):
         self.gh_token = os.environ.get("GH_TOKEN")
-        # AI 룰 생성 제거 — RuleManager는 공개 룰 검색 전용 (Groq 미사용)
+        # AI 룰 생성 제거 — RuleManager는 공개 룰 검색 전용 (AI 미사용)
         logger.info("✅ RuleManager 초기화 완료 (공개 룰 검색 전용: SigmaHQ / ET Open / Yara-Rules)")
 
     def _fetch_network_rules(self, cve_id: str) -> List[Dict[str, str]]:
