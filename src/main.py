@@ -14,7 +14,8 @@ from logger import logger
 from config import config
 from collector import (Collector, read_watermark, write_watermark,
                        read_failure_state, active_quarantine,
-                       read_rpd_state, write_rpd_state)
+                       read_rpd_state, write_rpd_state,
+                       read_backfill_offset, write_backfill_offset)
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
@@ -271,7 +272,17 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
         return
     try:
         pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
-        candidates = db.get_translation_backfill_candidates(limit=pool)
+        # 회전 스캔 — 창을 늘 최신순 앞에서 잡으면 영문으로 굳은 과거 행을 영영 못 본다
+        # (실측: 영문 잔존 111건 중 최신 200위 안에 든 건 0건이었다). 위치를 실행 간에
+        # 이어붙여 전체를 한 바퀴 돈다. 12,000행 / 200 = 60회 ≈ 2.5일에 한 바퀴.
+        total = db.count_tracked()
+        offset = read_backfill_offset()
+        if total and offset >= total:
+            offset = 0
+        candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
+        next_offset = 0 if (total and offset + pool >= total) or not candidates else offset + pool
+        write_backfill_offset(next_offset)
+
         items = []
         for row in candidates:
             state = row.get('last_alert_state') or {}
@@ -284,10 +295,12 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
             if len(items) >= limit:
                 break
         if not items:
-            logger.info("번역 백필: 대상 없음 (최근 추적분 모두 한글화됨)")
+            logger.info(f"번역 백필: 대상 없음 (스캔 {offset:,}~{offset + len(candidates):,}"
+                        f"/{total:,}행 — 다음 실행은 {next_offset:,}부터)")
             return
 
-        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도")
+        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도 "
+                    f"(스캔 {offset:,}~{offset + len(candidates):,}/{total:,}행)")
         translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
         fixed = 0
         for it in items:
@@ -297,7 +310,13 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
                 continue
             if db.update_translation(it['id'], tr[0], tr[1]):
                 fixed += 1
-        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화")
+        # 번역 갱신은 '확인일' 보존을 위해 updated_at을 건드리지 않는다 → 증분 export가
+        # 이 변경을 못 본다. 실제로 고친 게 있을 때만 전량 export를 1회 요청한다.
+        # 영문 백로그가 마르면 이 경로 자체가 안 돌아 자연히 멈춘다(증분으로 복귀).
+        if fixed:
+            db.request_full_export()
+        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화"
+                    f"{' → 다음 export는 전량' if fixed else ''}")
     except Exception as e:
         logger.warning(f"번역 백필 생략(오류): {e}")
 
@@ -1143,8 +1162,10 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "published",
     # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
     "cvss_vector",
-    # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
-    # is_target_asset의 판정을 그대로 싣는다(프론트에서 매칭을 재구현하면 기준이 갈라짐).
+    # 자산 매칭 종류("asset"/"wildcard"). 공개 JSON에는 싣지 않는다(어떤 CVE가 우리
+    # 자산인지 드러남). 여기 남기는 건 에스컬레이션 스윕이 다음 실행에서 이 판정을
+    # 그대로 재사용하기 위해서다 — 없으면 등록 자산 CVE가 스윕에서만 비자산으로
+    # 취급돼 본 경로와 알림 기준이 갈라진다(check_for_escalations 참조).
     "match_type",
     # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
     "cvss", "epss", "is_kev",
@@ -1217,7 +1238,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
-            # 자산 매칭 판정 — 대시보드 '내 자산' 패널이 이 값을 그대로 쓴다
+            # 자산 매칭 판정 — 티어링·알림 조건과 에스컬레이션 스윕이 쓴다(화면 비노출)
             "match_type": match_type,
             # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
             "_exploit_db_url": raw_data.get('_exploit_db_url'),
@@ -1350,7 +1371,12 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         }
         if should_alert:
             db_data["last_alert_at"] = datetime.datetime.now(KST).isoformat()
-            db_data["report_url"] = report_url
+            # report_url은 값이 있을 때만 쓴다. Slack만 나가는 알림(full_report=False,
+            # 예: 저위험 CVE의 ExploitDB 신규 등재)은 Issue를 만들지 않아 None인데,
+            # 그걸 그대로 저장하면 과거에 발행했던 리포트 링크를 지워버린다 —
+            # 대시보드의 '상세 분석 리포트' 버튼이 조용히 사라진다.
+            if report_url:
+                db_data["report_url"] = report_url
 
         if rules_info:
             db_data["has_official_rules"] = rules_info.get('has_official', False)
@@ -1796,7 +1822,8 @@ def _main():
     # 풀가동 시 일 2,880콜로 RPD 1,500을 초과한다 → 배치(10건/호출)로 시간·예산 모두 1/10.
     status_by_id = {}
     max_workers = config.PERFORMANCE["max_workers"]
-    batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
+    # 기본값은 _translate_chunk와 같아야 한다 — 다르면 로그가 실제 배치 크기와 어긋난다
+    batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     logger.info(f"처리 시작 (워커: {max_workers}명, 번역 배치 {batch_size}건/호출)")
 
     # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)

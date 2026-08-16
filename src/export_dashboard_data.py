@@ -154,10 +154,17 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             rule_engines.append("yara")
         entry["rule_engines"] = rule_engines
         entry["has_official_rules"] = bool(row.get("has_official_rules"))
-        # 룰 원문은 있는 행에만 싣는다. 값이 있는 건 2,201/11,980행뿐인데 전 행에
-        # 빈 객체를 넣으면 파일만 커진다(모달이 없을 때를 이미 처리한다).
-        if rules:
-            entry["rules"] = rules
+        # 룰 원문은 '실제로 룰이 있는' 행에만 싣는다.
+        #
+        # `if rules:`로는 안 된다 — rules_snapshot은 룰을 못 찾아도
+        # {"sigma":null,"network":[],"yara":null,"skip_reasons":{}}로 저장되므로 항상
+        # truthy다. 실측으로 배포본의 rules 보유 2,217건 중 2,081건(93.9%)이 이 빈
+        # 껍데기였다. 모달은 어차피 code가 있는 것만 그리므로 순수 낭비였다.
+        # skip_reasons·indicators처럼 아무도 읽지 않는 키도 여기서 함께 떨군다.
+        if rule_engines:
+            entry["rules"] = {
+                k: rules[k] for k in ("sigma", "network", "yara") if rules.get(k)
+            }
 
         # PoC 정보
         state_poc = state.get("has_poc", False)

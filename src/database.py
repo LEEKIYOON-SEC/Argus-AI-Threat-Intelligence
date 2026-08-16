@@ -387,26 +387,44 @@ class ArgusDB:
             logger.error(f"배치 스칼라 조회 실패({column}): {e}")
             return result
 
-    def get_translation_backfill_candidates(self, limit: int = 60) -> List[Dict]:
+    def get_translation_backfill_candidates(self, limit: int = 60,
+                                            offset: int = 0) -> List[Dict]:
         """한국어 번역이 안 된 채 남은 추적 CVE (대시보드 품질 백필용).
 
         번역은 Phase B에서 하지만 시간 예산 초과 시 영문 폴백으로 저장된다. 그 행들은
         레코드가 다시 바뀌지 않는 한 영영 영문으로 남아 대시보드 절반이 영문이 된다.
-        여기서 후보를 받아 재번역한다. '영문 여부' 판정은 JSONB 내부 값 비교라
-        서버 필터로 표현하기 어려워 파이썬에서 거른다 — 그래서 최신순 limit건만 받는다.
-        """
+        '영문 여부' 판정은 JSONB 내부 값의 정규식 검사라 서버 필터로 표현할 수 없어
+        파이썬에서 거른다 — 그래서 한 번에 볼 수 있는 창이 limit건으로 제한된다.
+
+        offset이 필요한 이유: 창을 항상 '최신순 앞에서부터' 잡으면 영영 못 보는 행이
+        생긴다. 매시간 최대 400건이 갱신되므로 최신 200건은 늘 '최근 몇 시간'이고,
+        영문으로 굳은 행은 정의상 갱신이 멈춘 과거 행이라 그 창 밖에 있다. 실측으로
+        영문 잔존 111건 중 최신 200위 안에 든 건 0건 — 백필이 대상을 한 건도 볼 수
+        없었다. 호출부가 매 실행 offset을 밀어 전체를 회전 스캔하게 한다."""
         try:
             response = self._execute(
                 self.client.table("cves")
                 .select("id, last_alert_state")
                 .not_.is_("last_alert_state", "null")
                 .order("updated_at", desc=True)
-                .limit(limit)
+                .range(offset, offset + max(1, min(limit, _PAGE_MAX)) - 1)
             )
             return response.data or []
         except Exception as e:
             logger.error(f"번역 백필 후보 조회 실패: {e}")
             return []
+
+    def count_tracked(self) -> int:
+        """추적 행 수만 센다(데이터 전송 없음). 회전 스캔의 한 바퀴 길이 계산용."""
+        try:
+            r = self._execute(
+                self.client.table("cves").select("id", count="exact")
+                .not_.is_("last_alert_state", "null").limit(1)
+            )
+            return r.count or 0
+        except Exception as e:
+            logger.warning(f"추적 행 수 조회 실패: {e}")
+            return 0
 
     def update_translation(self, cve_id: str, title_ko: str, desc_ko: str) -> bool:
         """기존 last_alert_state의 번역 필드만 갱신 (다른 필드는 보존)."""
