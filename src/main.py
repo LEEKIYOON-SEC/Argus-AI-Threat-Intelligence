@@ -790,17 +790,35 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
 # CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 Pages에 배포하는 파일).
 # 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 공개 정적 파일이라 DB 호출 0.
 _PKG_INDEX: Optional[Dict] = None
+# 적재는 반드시 한 스레드만 — 아래 이유는 _package_index 주석 참조
+_PKG_INDEX_LOCK = threading.Lock()
 
 
 def _package_index() -> Dict:
     """CVE→패키지 사전을 1회 읽어 캐시. 못 구하면 빈 dict(기능만 조용히 생략).
 
     배포본을 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로 체크아웃에는 없거나
-    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다."""
+    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다.
+
+    락이 필요한 이유: Phase C는 워커 4개 병렬이고 알림 대상을 앞으로 정렬하므로,
+    첫 4건이 동시에 create_github_issue → 여기로 들어온다. 전역 변수 검사만 있으면
+    넷 다 None을 보고 각자 내려받아 각자 파싱한다 — 같은 파일을 4번 받고(측정 시점
+    20.8MB × 4) 파싱 메모리도 4배로 튄다(1회 ~102MB). 이중 검사로 첫 스레드만 적재하고
+    나머지는 결과를 그대로 받는다."""
     global _PKG_INDEX
     if _PKG_INDEX is not None:
         return _PKG_INDEX
+    with _PKG_INDEX_LOCK:
+        if _PKG_INDEX is None:
+            _PKG_INDEX = _load_package_index()
+    return _PKG_INDEX
 
+
+def _load_package_index() -> Dict:
+    """실제 적재 (배포본 → 체크아웃 사본 → 빈 dict). 호출은 _package_index를 통해서만.
+
+    전역과 같은 이름을 쓰지 않는다 — 여기서 대입하면 global 선언이 없어 지역 변수가
+    되므로, 이름이 같으면 '캐시에 쓴 줄 알았는데 아니었다'가 되기 딱 좋다."""
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     if "/" in repo:
         owner, name = repo.split("/", 1)
@@ -809,9 +827,9 @@ def _package_index() -> Dict:
             import urllib.request
             req = urllib.request.Request(url, headers={"User-Agent": "argus-report"})
             with urllib.request.urlopen(req, timeout=180) as r:
-                _PKG_INDEX = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
-            logger.info(f"패키지 사전 로드(배포본): {len(_PKG_INDEX):,}건")
-            return _PKG_INDEX
+                idx = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
+            logger.info(f"패키지 사전 로드(배포본): {len(idx):,}건")
+            return idx
         except Exception as e:
             logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
 
@@ -819,11 +837,17 @@ def _package_index() -> Dict:
                         "docs", "data", "cve-packages.json")
     try:
         with open(path, encoding="utf-8") as f:
-            _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
-        logger.info(f"패키지 사전 로드(파일): {len(_PKG_INDEX):,}건")
+            idx = (json.load(f) or {}).get("packages") or {}
+        logger.info(f"패키지 사전 로드(파일): {len(idx):,}건")
+        return idx
     except (OSError, ValueError):
-        _PKG_INDEX = {}
-    return _PKG_INDEX
+        return {}
+
+
+# 리포트 표의 행 상한. 접기 전에는 12였고 커널 CVE가 143행까지 나와 표의 절반 이상이
+# 잘렸다(패치 블록이 실리는 리포트의 56%). 커널 변종을 인덱스에서 접은 뒤 남는
+# 초과분은 6,328건 중 6건뿐이라 20이면 사실상 잘림이 없다.
+_FIXED_ROW_CAP = 20
 
 
 def _fixed_version_lines(cve_id: str) -> str:
@@ -838,11 +862,20 @@ def _fixed_version_lines(cve_id: str) -> str:
                 lines.append(f"| `{pkg}` | {eco} | **{', '.join(good)}** |")
     if not lines:
         return ""
+    shown, omitted = lines[:_FIXED_ROW_CAP], max(0, len(lines) - _FIXED_ROW_CAP)
+    # 잘렸으면 잘렸다고 밝힌다. 조용히 자르면 "내 배포판이 목록에 없다 = 영향 없다"로
+    # 읽힌다 — 표에 없는 것과 해당 없는 것은 전혀 다른 얘기다.
+    note = (f"\n\n<sub>⚠️ 항목이 많아 {omitted}행을 생략했습니다 — 전체는 "
+            f"[OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 확인하세요.</sub>"
+            if omitted else "")
     return ("\n## 📦 패치 버전 (OSV)\n"
             "| 패키지 | 배포판·생태계 | 이 버전 이상으로 |\n| :--- | :--- | :--- |\n"
-            + "\n".join(lines[:12])
+            + "\n".join(shown) + note
             + "\n\n<sub>출처: [OSV.dev](https://osv.dev) (CC-BY 4.0) — 설치된 배포판·릴리스에 "
-              "맞는 행을 보세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
+              "맞는 행을 보세요. Linux 커널은 배포판 기본 패키지(`linux`)만 싣습니다 — "
+              "클라우드·OEM 변종(linux-aws·linux-azure·linux-oem 등)을 쓰신다면 버전 체계가 "
+              f"달라 [OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 해당 변종을 "
+              "확인하세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
 
 
 def _rule_license_note(rule_info: Dict) -> str:
