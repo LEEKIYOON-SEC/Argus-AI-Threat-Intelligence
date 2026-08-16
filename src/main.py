@@ -403,6 +403,11 @@ def _needs_cpe_lookup(cve_data: Dict) -> bool:
         for a in (cve_data.get('affected') or [])
     )
 
+# 우리는 tools를 주지 않으므로 함수 호출 자동 처리(AFC)가 필요 없다. 끄지 않으면
+# SDK가 AFC 루프로 들어가 "Models.generate_content에서 AFC 직접 사용은 권장하지
+# 않는다"는 경고를 남긴다 — 동작은 같지만(도구가 없어 1회 호출 후 탈출) 로그만 흐려진다.
+_NO_AFC = types.AutomaticFunctionCallingConfig(disable=True)
+
 # 번역 2단. 한도는 모델마다 따로 잡히므로 31B가 소진돼도 26B는 그대로 남아 있다 —
 # 앞 모델이 한도/서버 문제로 못 하면 뒤 모델이 이어받고, 둘 다 안 되면 영문 원문이다.
 _TRANSLATION_STAGES = (
@@ -472,7 +477,8 @@ def _translate_one(prompt: str, fallback: Tuple[str, str], model: str, limiter_k
                     safety_settings=[types.SafetySetting(
                         category="HARM_CATEGORY_DANGEROUS_CONTENT",
                         threshold="BLOCK_NONE"
-                    )]
+                    )],
+                    automatic_function_calling=_NO_AFC,
                 )
             )
             # Gemini 토큰 사용량 기록 (프리티어 잔여량 가시화)
@@ -706,7 +712,8 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
                     safety_settings=[types.SafetySetting(
                         category="HARM_CATEGORY_DANGEROUS_CONTENT",
                         threshold="BLOCK_NONE"
-                    )]
+                    )],
+                    automatic_function_calling=_NO_AFC,
                 )
             )
             tokens = 0

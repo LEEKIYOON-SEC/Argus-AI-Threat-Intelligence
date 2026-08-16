@@ -92,7 +92,13 @@ class Analyzer:
                         safety_settings=[genai_types.SafetySetting(
                             category="HARM_CATEGORY_DANGEROUS_CONTENT",
                             threshold="BLOCK_NONE"
-                        )]
+                        )],
+                        # 우리는 tools를 주지 않으므로 함수 호출 자동 처리가 필요 없다.
+                        # 끄지 않으면 SDK가 AFC 루프로 들어가 "권장하지 않는다"는 경고를
+                        # 남긴다 — 동작은 같지만(도구가 없어 1회 호출 후 탈출) 로그만 흐려진다.
+                        automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(
+                            disable=True
+                        ),
                     ),
                 )
                 rate_limit_manager.record_call(limiter_key)
