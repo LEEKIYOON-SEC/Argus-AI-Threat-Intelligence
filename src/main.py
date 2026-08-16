@@ -851,7 +851,7 @@ _FIXED_ROW_CAP = 20
 
 
 def _fixed_version_lines(cve_id: str) -> str:
-    """OSV가 알려주는 수정 버전. 체크리스트의 '패치 적용'에 목표가 없으면 무용지물이라
+    """OSV가 알려주는 수정 버전. '패치 적용'은 올릴 목표가 있어야 실행할 수 있어
     리포트에 함께 싣는다. 사전에 없으면 빈 문자열 → 블록 자체가 생략된다."""
     pkgs = _package_index().get(cve_id) or {}
     lines = []
