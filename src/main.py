@@ -14,7 +14,8 @@ from logger import logger
 from config import config
 from collector import (Collector, read_watermark, write_watermark,
                        read_failure_state, active_quarantine,
-                       read_rpd_state, write_rpd_state)
+                       read_rpd_state, write_rpd_state,
+                       read_backfill_offset, write_backfill_offset)
 from database import ArgusDB
 from notifier import SlackNotifier
 from analyzer import Analyzer
@@ -271,7 +272,17 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
         return
     try:
         pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
-        candidates = db.get_translation_backfill_candidates(limit=pool)
+        # 회전 스캔 — 창을 늘 최신순 앞에서 잡으면 영문으로 굳은 과거 행을 영영 못 본다
+        # (실측: 영문 잔존 111건 중 최신 200위 안에 든 건 0건이었다). 위치를 실행 간에
+        # 이어붙여 전체를 한 바퀴 돈다. 12,000행 / 200 = 60회 ≈ 2.5일에 한 바퀴.
+        total = db.count_tracked()
+        offset = read_backfill_offset()
+        if total and offset >= total:
+            offset = 0
+        candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
+        next_offset = 0 if (total and offset + pool >= total) or not candidates else offset + pool
+        write_backfill_offset(next_offset)
+
         items = []
         for row in candidates:
             state = row.get('last_alert_state') or {}
@@ -284,10 +295,12 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
             if len(items) >= limit:
                 break
         if not items:
-            logger.info("번역 백필: 대상 없음 (최근 추적분 모두 한글화됨)")
+            logger.info(f"번역 백필: 대상 없음 (스캔 {offset:,}~{offset + len(candidates):,}"
+                        f"/{total:,}행 — 다음 실행은 {next_offset:,}부터)")
             return
 
-        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도")
+        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도 "
+                    f"(스캔 {offset:,}~{offset + len(candidates):,}/{total:,}행)")
         translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
         fixed = 0
         for it in items:
@@ -297,7 +310,13 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
                 continue
             if db.update_translation(it['id'], tr[0], tr[1]):
                 fixed += 1
-        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화")
+        # 번역 갱신은 '확인일' 보존을 위해 updated_at을 건드리지 않는다 → 증분 export가
+        # 이 변경을 못 본다. 실제로 고친 게 있을 때만 전량 export를 1회 요청한다.
+        # 영문 백로그가 마르면 이 경로 자체가 안 돌아 자연히 멈춘다(증분으로 복귀).
+        if fixed:
+            db.request_full_export()
+        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화"
+                    f"{' → 다음 export는 전량' if fixed else ''}")
     except Exception as e:
         logger.warning(f"번역 백필 생략(오류): {e}")
 
@@ -771,17 +790,35 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
 # CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 Pages에 배포하는 파일).
 # 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 공개 정적 파일이라 DB 호출 0.
 _PKG_INDEX: Optional[Dict] = None
+# 적재는 반드시 한 스레드만 — 아래 이유는 _package_index 주석 참조
+_PKG_INDEX_LOCK = threading.Lock()
 
 
 def _package_index() -> Dict:
     """CVE→패키지 사전을 1회 읽어 캐시. 못 구하면 빈 dict(기능만 조용히 생략).
 
     배포본을 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로 체크아웃에는 없거나
-    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다."""
+    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다.
+
+    락이 필요한 이유: Phase C는 워커 4개 병렬이고 알림 대상을 앞으로 정렬하므로,
+    첫 4건이 동시에 create_github_issue → 여기로 들어온다. 전역 변수 검사만 있으면
+    넷 다 None을 보고 각자 내려받아 각자 파싱한다 — 같은 파일을 4번 받고(측정 시점
+    20.8MB × 4) 파싱 메모리도 4배로 튄다(1회 ~102MB). 이중 검사로 첫 스레드만 적재하고
+    나머지는 결과를 그대로 받는다."""
     global _PKG_INDEX
     if _PKG_INDEX is not None:
         return _PKG_INDEX
+    with _PKG_INDEX_LOCK:
+        if _PKG_INDEX is None:
+            _PKG_INDEX = _load_package_index()
+    return _PKG_INDEX
 
+
+def _load_package_index() -> Dict:
+    """실제 적재 (배포본 → 체크아웃 사본 → 빈 dict). 호출은 _package_index를 통해서만.
+
+    전역과 같은 이름을 쓰지 않는다 — 여기서 대입하면 global 선언이 없어 지역 변수가
+    되므로, 이름이 같으면 '캐시에 쓴 줄 알았는데 아니었다'가 되기 딱 좋다."""
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     if "/" in repo:
         owner, name = repo.split("/", 1)
@@ -790,9 +827,9 @@ def _package_index() -> Dict:
             import urllib.request
             req = urllib.request.Request(url, headers={"User-Agent": "argus-report"})
             with urllib.request.urlopen(req, timeout=180) as r:
-                _PKG_INDEX = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
-            logger.info(f"패키지 사전 로드(배포본): {len(_PKG_INDEX):,}건")
-            return _PKG_INDEX
+                idx = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
+            logger.info(f"패키지 사전 로드(배포본): {len(idx):,}건")
+            return idx
         except Exception as e:
             logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
 
@@ -800,11 +837,17 @@ def _package_index() -> Dict:
                         "docs", "data", "cve-packages.json")
     try:
         with open(path, encoding="utf-8") as f:
-            _PKG_INDEX = (json.load(f) or {}).get("packages") or {}
-        logger.info(f"패키지 사전 로드(파일): {len(_PKG_INDEX):,}건")
+            idx = (json.load(f) or {}).get("packages") or {}
+        logger.info(f"패키지 사전 로드(파일): {len(idx):,}건")
+        return idx
     except (OSError, ValueError):
-        _PKG_INDEX = {}
-    return _PKG_INDEX
+        return {}
+
+
+# 리포트 표의 행 상한. 접기 전에는 12였고 커널 CVE가 143행까지 나와 표의 절반 이상이
+# 잘렸다(패치 블록이 실리는 리포트의 56%). 커널 변종을 인덱스에서 접은 뒤 남는
+# 초과분은 6,328건 중 6건뿐이라 20이면 사실상 잘림이 없다.
+_FIXED_ROW_CAP = 20
 
 
 def _fixed_version_lines(cve_id: str) -> str:
@@ -819,11 +862,20 @@ def _fixed_version_lines(cve_id: str) -> str:
                 lines.append(f"| `{pkg}` | {eco} | **{', '.join(good)}** |")
     if not lines:
         return ""
+    shown, omitted = lines[:_FIXED_ROW_CAP], max(0, len(lines) - _FIXED_ROW_CAP)
+    # 잘렸으면 잘렸다고 밝힌다. 조용히 자르면 "내 배포판이 목록에 없다 = 영향 없다"로
+    # 읽힌다 — 표에 없는 것과 해당 없는 것은 전혀 다른 얘기다.
+    note = (f"\n\n<sub>⚠️ 항목이 많아 {omitted}행을 생략했습니다 — 전체는 "
+            f"[OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 확인하세요.</sub>"
+            if omitted else "")
     return ("\n## 📦 패치 버전 (OSV)\n"
             "| 패키지 | 배포판·생태계 | 이 버전 이상으로 |\n| :--- | :--- | :--- |\n"
-            + "\n".join(lines[:12])
+            + "\n".join(shown) + note
             + "\n\n<sub>출처: [OSV.dev](https://osv.dev) (CC-BY 4.0) — 설치된 배포판·릴리스에 "
-              "맞는 행을 보세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
+              "맞는 행을 보세요. Linux 커널은 배포판 기본 패키지(`linux`)만 싣습니다 — "
+              "클라우드·OEM 변종(linux-aws·linux-azure·linux-oem 등)을 쓰신다면 버전 체계가 "
+              f"달라 [OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 해당 변종을 "
+              "확인하세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
 
 
 def _rule_license_note(rule_info: Dict) -> str:
@@ -1143,8 +1195,10 @@ _DASHBOARD_STATE_FIELDS = frozenset({
     "published",
     # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
     "cvss_vector",
-    # 자산 매칭 종류("asset"/"wildcard") — 대시보드 '내 자산' 패널용.
-    # is_target_asset의 판정을 그대로 싣는다(프론트에서 매칭을 재구현하면 기준이 갈라짐).
+    # 자산 매칭 종류("asset"/"wildcard"). 공개 JSON에는 싣지 않는다(어떤 CVE가 우리
+    # 자산인지 드러남). 여기 남기는 건 에스컬레이션 스윕이 다음 실행에서 이 판정을
+    # 그대로 재사용하기 위해서다 — 없으면 등록 자산 CVE가 스윕에서만 비자산으로
+    # 취급돼 본 경로와 알림 기준이 갈라진다(check_for_escalations 참조).
     "match_type",
     # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
     "cvss", "epss", "is_kev",
@@ -1217,7 +1271,7 @@ def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
             "has_public_exploit": raw_data.get('has_public_exploit', False),
             "has_metasploit_module": raw_data.get('has_metasploit_module', False),
             "metasploit_modules": raw_data.get('metasploit_modules', []),
-            # 자산 매칭 판정 — 대시보드 '내 자산' 패널이 이 값을 그대로 쓴다
+            # 자산 매칭 판정 — 티어링·알림 조건과 에스컬레이션 스윕이 쓴다(화면 비노출)
             "match_type": match_type,
             # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
             "_exploit_db_url": raw_data.get('_exploit_db_url'),
@@ -1350,7 +1404,12 @@ def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
         }
         if should_alert:
             db_data["last_alert_at"] = datetime.datetime.now(KST).isoformat()
-            db_data["report_url"] = report_url
+            # report_url은 값이 있을 때만 쓴다. Slack만 나가는 알림(full_report=False,
+            # 예: 저위험 CVE의 ExploitDB 신규 등재)은 Issue를 만들지 않아 None인데,
+            # 그걸 그대로 저장하면 과거에 발행했던 리포트 링크를 지워버린다 —
+            # 대시보드의 '상세 분석 리포트' 버튼이 조용히 사라진다.
+            if report_url:
+                db_data["report_url"] = report_url
 
         if rules_info:
             db_data["has_official_rules"] = rules_info.get('has_official', False)
@@ -1796,7 +1855,8 @@ def _main():
     # 풀가동 시 일 2,880콜로 RPD 1,500을 초과한다 → 배치(10건/호출)로 시간·예산 모두 1/10.
     status_by_id = {}
     max_workers = config.PERFORMANCE["max_workers"]
-    batch_size = config.PERFORMANCE.get("translation_batch_size", 10)
+    # 기본값은 _translate_chunk와 같아야 한다 — 다르면 로그가 실제 배치 크기와 어긋난다
+    batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     logger.info(f"처리 시작 (워커: {max_workers}명, 번역 배치 {batch_size}건/호출)")
 
     # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)

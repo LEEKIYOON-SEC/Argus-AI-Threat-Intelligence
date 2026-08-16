@@ -136,17 +136,43 @@ def write_watermark(dt_utc: datetime.datetime,
     상세는 main._main의 워터마크 계산 주석 참조.
 
     rpd=None이면 파일에 있던 값을 그대로 남긴다 — 번역을 한 건도 하지 않고 끝나는
-    실행(신규 CVE 없음)이 이전 실행의 사용량 기록을 지워버리면 안 되기 때문이다."""
-    payload = {"last_processed_until": dt_utc.astimezone(pytz.UTC).isoformat()}
-    if failures:
-        payload["failures"] = failures
-    if quarantined:
-        payload["quarantined"] = quarantined
-    carried = rpd if rpd is not None else _read_state().get("rpd")
-    if carried:
-        payload["rpd"] = carried
+    실행(신규 CVE 없음)이 이전 실행의 사용량 기록을 지워버리면 안 되기 때문이다.
+
+    반드시 기존 상태 위에 덮어쓴다(새 dict로 갈아끼우지 않는다). 예전에는 payload를
+    새로 만들어 저장해서, 백필이 남긴 force_full_export 표시를 다음 매시간 실행이
+    통째로 지워버렸다 — 그래서 백필을 몇 번 돌려도 대시보드에 반영되지 않았다.
+    이 테이블은 워터마크 말고도 다른 소비자가 쓰는 공유 상태다."""
+    payload = _read_state()
+    payload["last_processed_until"] = dt_utc.astimezone(pytz.UTC).isoformat()
+    # 빈 값은 키를 지운다 — 병합이라고 해서 해소된 격리·실패가 남으면 안 된다
+    for key, value in (("failures", failures), ("quarantined", quarantined)):
+        if value:
+            payload[key] = value
+        else:
+            payload.pop(key, None)
+    if rpd is not None:
+        if rpd:
+            payload["rpd"] = rpd
+        else:
+            payload.pop("rpd", None)
     _write_state(payload)
     logger.info(f"워터마크 저장: {payload['last_processed_until']}")
+
+def read_backfill_offset() -> int:
+    """번역 백필의 회전 스캔 위치. 없으면 0.
+
+    한 실행이 볼 수 있는 창은 수백 건인데 추적 행은 만 건대라, 창을 늘 앞에서 잡으면
+    뒤쪽은 영원히 못 본다. 위치를 실행 간에 이어붙여 전체를 한 바퀴 돌게 한다."""
+    v = _read_state().get("translation_scan_offset")
+    return v if isinstance(v, int) and v >= 0 else 0
+
+
+def write_backfill_offset(offset: int) -> None:
+    """회전 스캔 위치 저장 (워터마크·격리 상태는 건드리지 않음)."""
+    data = _read_state()
+    data["translation_scan_offset"] = max(0, int(offset))
+    _write_state(data)
+
 
 def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
     """RPD 버킷만 갱신한다 (워터마크·격리 상태는 건드리지 않음).

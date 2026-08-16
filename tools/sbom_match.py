@@ -155,24 +155,76 @@ def sbom_ecosystem(row: Dict) -> str:
     return _TYPE_MAP.get(typ, "")
 
 
+def eco_parts(eco: str) -> Tuple[str, str, str]:
+    """생태계 문자열을 (배포판, 채널, 릴리스)로 쪼갠다. 비교는 이 형태로만 한다.
+
+      Ubuntu:22.04:LTS                  → ('ubuntu', '',                '22.04')
+      Ubuntu:Pro:FIPS-updates:22.04:LTS → ('ubuntu', 'pro/fips-updates','22.04')
+      Debian:12                         → ('debian', '',                '12')
+      Alpine:v3.19                      → ('alpine', '',                'v3.19')
+      npm                               → ('npm',    '',                '')
+
+    ':LTS' 접미를 떼는 게 핵심이다. SBOM의 purl은 'ubuntu-24.04'라 우리가 만드는 값은
+    'Ubuntu:24.04'인데 인덱스 키는 'Ubuntu:24.04:LTS'다 — 문자열로 비교하면 Ubuntu는
+    정확 릴리스 매칭이 **한 번도** 성공하지 못한다."""
+    segs = [s for s in str(eco or "").split(":") if s]
+    if not segs:
+        return ("", "", "")
+    rest = segs[1:]
+    if rest and rest[-1].upper() == "LTS":
+        rest = rest[:-1]
+    release = rest[-1].lower() if rest else ""
+    channel = "/".join(s.lower() for s in rest[:-1])
+    return (segs[0].lower(), channel, release)
+
+
+def pick_ecosystem(eco_map: Dict[str, List[str]], want_eco: str) -> Tuple[str, bool]:
+    """설치 환경에 맞는 생태계 키를 고른다. (키, 릴리스까지 정확히 맞았는가).
+
+    배포판을 넘나드는 폴백을 금지한다. Debian의 `6.8.9-1`과 Ubuntu의 `6.8.0-1021.23`은
+    버전 체계 자체가 달라 대소 비교에 아무 의미가 없다. 그런데 예전 코드는 맞는 게
+    없으면 아무 생태계나 집어 답했고, 실측으로 Ubuntu 24.04 호스트에서 621건을 남의
+    배포판 버전으로 판정했다 — 그중 441건이 '수정판 추정'이었다. 취약한 호스트를
+    안전하다고 보고하는 것이 이 도구에서 가장 나쁜 오류다.
+
+    우선순위: 같은 배포판+같은 릴리스(기본 채널) → 같은 릴리스(Pro/FIPS 등 특수 채널)
+    → 같은 배포판의 다른 릴리스 → 없음. 설치 환경을 모를 때(want_eco 없음)만 아무거나."""
+    def has(k: str) -> bool:
+        v = eco_map.get(k)
+        return isinstance(v, list) and any(v)
+
+    cands = [k for k in eco_map if has(k)]
+    if not cands:
+        return ("", False)
+    if not want_eco:
+        return (cands[0], False)      # 환경 정보 없음 — 힌트로만 쓴다
+
+    wd, _, wr = eco_parts(want_eco)
+    same_release = [k for k in cands if eco_parts(k)[0] == wd and eco_parts(k)[2] == wr]
+    plain = [k for k in same_release if not eco_parts(k)[1]]
+    if plain:
+        return (plain[0], True)
+    if same_release:
+        return (same_release[0], True)
+    same_distro = [k for k in cands if eco_parts(k)[0] == wd]
+    plain_distro = [k for k in same_distro if not eco_parts(k)[1]]
+    if plain_distro:
+        return (plain_distro[0], False)
+    if same_distro:
+        return (same_distro[0], False)
+    return ("", False)                # 다른 배포판뿐 → 답하지 않는다
+
+
 def version_verdict(installed: str, eco_map: Optional[Dict[str, List[str]]],
                     want_eco: str) -> Dict[str, str]:
     """설치 버전이 수정판인지 판정. verdict: vulnerable | fixed | unknown."""
     if not eco_map:
         return {"verdict": "unknown", "target": "", "eco": ""}
 
-    # 수정 버전이 실제로 있는 생태계만 후보로 본다 — 빈 항목을 고르면 다른 릴리스에
-    # 수정 버전이 있는데도 '미확인'으로 떨어진다.
-    def has(k: str) -> bool:
-        v = eco_map.get(k)
-        return isinstance(v, list) and any(v)
-
-    eco = want_eco if (want_eco and has(want_eco)) else ""
-    if not eco and want_eco:
-        base = want_eco.split(":")[0]
-        eco = next((k for k in eco_map if has(k) and (k == base or k.split(":")[0] == base)), "")
+    eco, exact = pick_ecosystem(eco_map, want_eco)
     if not eco:
-        eco = next((k for k in eco_map if has(k)), "") or next(iter(eco_map), "")
+        # 내 배포판의 수정 버전이 인덱스에 없다. 남의 배포판 숫자로 답하느니 모른다고 한다.
+        return {"verdict": "unknown", "target": "", "eco": ""}
 
     fixes = [f for f in (eco_map.get(eco) or []) if f]
     if not fixes or not installed:
@@ -191,8 +243,15 @@ def version_verdict(installed: str, eco_map: Optional[Dict[str, List[str]]],
         pool = same or fixes
         # 하나라도 설치버전 이하면 이미 그 수정본을 넘어선 것
         if any(cmp_version(installed, f) >= 0 for f in pool):
+            # 다만 릴리스가 정확히 맞았을 때만 '수정판'이라고 말한다. 같은 배포판이라도
+            # 릴리스가 다르면 패치 번호 체계가 갈라진다 — Debian 11의 수정본이
+            # 5.10.5-1인데 Debian 12 호스트의 6.1.50-1을 그것과 비교하면 실제로는
+            # 취약한데 '안전'이 나온다. 오답의 방향이 위험한 쪽이라 모른다고 답한다.
+            if not exact:
+                return {"verdict": "unknown", "target": "", "eco": eco}
             return {"verdict": "fixed", "target": "", "eco": eco}
-        # 아직이면 가장 낮은 목표를 올릴 버전으로 제시
+        # 아직이면 가장 낮은 목표를 올릴 버전으로 제시.
+        # (릴리스가 달라도 '아직 안 올렸다'는 방향은 안전한 쪽이라 그대로 알린다)
         target = sorted(pool, key=functools.cmp_to_key(cmp_version))[0]
         return {"verdict": "vulnerable", "target": target, "eco": eco}
     except Exception:
@@ -226,16 +285,28 @@ def parse_sbom_csv(path: str) -> List[Dict]:
         return rows
 
 
-def index_sbom(rows: List[Dict]) -> Dict[str, Dict]:
-    """정규화 키 → 원본 행. 소스명이 있으면 그쪽이 정답이고, 없으면 name을 쓴다."""
+def index_sbom(rows: List[Dict], kernel_aliases: Optional[set] = None) -> Dict[str, Dict]:
+    """정규화 키 → 원본 행. 소스명이 있으면 그쪽이 정답이고, 없으면 name을 쓴다.
+
+    kernel_aliases: 인덱스가 'linux'로 접어 버린 커널 변종 이름들. Ubuntu는 클라우드
+    커널의 소스 패키지가 linux-aws·linux-azure라, 이 되돌림이 없으면 그런 호스트의
+    커널 CVE가 통째로 안 잡힌다(실측: AWS 4,277건·Azure 4,884건 전량 누락).
+    목록은 인덱스가 실어 보내므로 여기서 이름 규칙을 추측하지 않는다 — 규칙으로
+    'linux-로 시작하면 커널'이라고 하면 linux-firmware·linux-pam 같은 별개 패키지를
+    커널로 오인한다."""
+    aliases = kernel_aliases or set()
     keys: Dict[str, Dict] = {}
     for r in rows:
         for cand in (r.get("source"), r.get("name")):
             if not cand:
                 continue
-            for k in (cand.lower(), norm_pkg(cand)):
+            low = cand.lower()
+            for k in (low, norm_pkg(cand)):
                 if k and k not in keys:
                     keys[k] = r
+            # 접힌 변종이면 기본 이름으로도 찾을 수 있게 한다
+            if low in aliases and "linux" not in keys:
+                keys["linux"] = r
     return keys
 
 
@@ -401,10 +472,15 @@ def main() -> int:
         return 1
 
     pkg_index = pkg_doc.get("packages", pkg_doc) if isinstance(pkg_doc, dict) else {}
+    # 커널 변종 별칭 — 인덱스가 접어 버린 이름들. 없으면(구 인덱스) 빈 집합이라
+    # 예전과 동일하게 동작한다.
+    kernel_aliases = {str(n).lower() for n in
+                      (pkg_doc.get("kernel_aliases") or [] if isinstance(pkg_doc, dict) else [])}
     cves = cve_doc if isinstance(cve_doc, list) else (cve_doc.get("cves") or [])
-    info(f"추적 CVE {len(cves):,}건 · 패키지 인덱스 {len(pkg_index):,}건")
+    info(f"추적 CVE {len(cves):,}건 · 패키지 인덱스 {len(pkg_index):,}건"
+         + (f" · 커널 별칭 {len(kernel_aliases)}종" if kernel_aliases else ""))
 
-    keys = index_sbom(rows)
+    keys = index_sbom(rows, kernel_aliases)
     results = build_results(cves, keys, pkg_index)
     shown = results if args.all else [r for r in results if r["verdict"] != "fixed"]
 

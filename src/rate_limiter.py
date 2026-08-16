@@ -426,46 +426,6 @@ class RateLimitManager:
                 self._rpd_used[api_name] = self._rpd_rolling_sum(api_name)
                 logger.warning(f"🚫 {api_name} 일일 한도(RPD) 소진 마킹 — SKIP 전환")
 
-    def handle_429(self, api_name: str, retry_after: Optional[float] = None,
-                   error_message: str = ""):
-        """429 Too Many Requests 대응 (Thread-Safe).
-
-        일일 한도(RPD) 소진 429는 대기해도 풀리지 않으므로 호출부가
-        mark_rpd_exhausted로 직접 마킹한다 — 여기서는 분당 한도만 다룬다."""
-        with self._lock:
-            self.stats["rate_limit_hits"] += 1
-
-            if api_name not in self.limits:
-                wait_time = retry_after if retry_after else 60
-                logger.warning(f"⚠️ {api_name} 429 수신, {wait_time:.0f}초 대기")
-                time.sleep(wait_time)
-                return
-
-            info = self.limits[api_name]
-            info.used = info.limit
-
-            if retry_after:
-                wait_time = retry_after + 2
-            else:
-                wait_time = info.time_until_reset
-                if wait_time <= 0:
-                    wait_time = info.window_seconds
-
-            logger.warning(
-                f"⚠️ {api_name} 429 수신! {wait_time:.0f}초 대기 "
-                f"(누적 429: {self.stats['rate_limit_hits']}회)"
-            )
-
-        time.sleep(wait_time)
-
-        with self._lock:
-            self.stats["total_waits"] += 1
-            self.stats["total_wait_time"] += wait_time
-            info = self.limits.get(api_name)
-            if info:
-                info.used = 0
-                info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
-    
     @staticmethod
     def parse_retry_after(error_message: str) -> Optional[float]:
         """

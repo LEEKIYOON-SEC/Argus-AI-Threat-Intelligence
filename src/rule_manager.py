@@ -272,7 +272,7 @@ class RuleManager:
         return None
 
     def search_public_only(self, cve_id: str) -> Dict:
-        rules = {"sigma": None, "network": [], "yara": None, "skip_reasons": {}}
+        rules = {"sigma": None, "network": [], "yara": None}
 
         logger.info(f"공개 룰 검색 (AI 미사용): {cve_id}")
 
@@ -283,8 +283,6 @@ class RuleManager:
                 "code": public_sigma,
                 "source": "Public (SigmaHQ)",
                 "verified": True,
-                "indicators": None,
-                "trust": "official-verified",
                 "license": self._license_for_source("SigmaHQ")
             }
 
@@ -298,8 +296,6 @@ class RuleManager:
                     "source": source_str,
                     "engine": rule_info["engine"],
                     "verified": True,
-                    "indicators": None,
-                    "trust": "official-verified",
                     "license": self._license_for_source(source_str)
                 })
 
@@ -310,8 +306,6 @@ class RuleManager:
                 "code": public_yara,
                 "source": "Public (Yara-Rules)",
                 "verified": True,
-                "indicators": None,
-                "trust": "official-verified",
                 "license": self._license_for_source("Yara-Rules")
             }
 

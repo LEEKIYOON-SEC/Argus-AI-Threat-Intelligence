@@ -55,11 +55,11 @@ def main() -> int:
         logger.error("대상 CVE가 없어 중단합니다")
         return 1
 
-    index = osv_index.build_index(ids)
+    index, kernel_aliases = osv_index.build_index(ids)
     if not index:
         logger.warning("매칭된 패키지가 없습니다 — 기존 파일을 덮어쓰지 않고 종료")
         return 1
-    ok = osv_index.write_index(index, _OUT)
+    ok = osv_index.write_index(index, _OUT, kernel_aliases=kernel_aliases)
 
     # 악성 패키지 목록 — 실패해도 역인덱스는 이미 저장됐으므로 전체를 실패시키지 않는다
     logger.info("─" * 60)
