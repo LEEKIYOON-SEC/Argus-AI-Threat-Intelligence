@@ -22,7 +22,7 @@ import json
 import os
 import re
 import zipfile
-from typing import Dict, Iterable, List, Set
+from typing import Dict, Iterable, List, Set, Tuple
 
 import requests
 
@@ -101,8 +101,14 @@ def _vkey(v: str):
 _MAX_FIXED = 10
 
 
-def _fold_kernel_flavors(index: Dict[str, Dict[str, Dict[str, List[str]]]]) -> int:
-    """커널 변종 패키지를 기본 'linux'로 접는다. 접은 항목 수를 반환.
+def _fold_kernel_flavors(index: Dict[str, Dict[str, Dict[str, List[str]]]]) -> Set[str]:
+    """커널 변종 패키지를 기본 'linux'로 접는다. **접어서 사라진 이름들**을 반환.
+
+    반환값이 중요하다: 이 이름들은 SBOM 대조의 조회 키였다. Ubuntu는 클라우드 커널의
+    소스 패키지가 linux-aws·linux-azure라서, 접기만 하고 끝내면 그 호스트의 커널
+    CVE가 통째로 안 잡힌다(실측 재현: AWS 4,277건·Azure 4,884건 전량 누락). 그래서
+    사라진 이름을 인덱스에 별칭 목록으로 함께 실어, 대조하는 쪽이 'linux'로 되돌려
+    찾게 한다. 168종 ≈ 3KB라 접기로 줄인 19MB에 비하면 없는 비용이다.
 
     Ubuntu는 커널을 배포 대상별로 따로 빌드해 소스 패키지를 쪼갠다 — linux-aws,
     linux-azure-5.13, linux-oem-5.13, linux-riscv-5.11 … 한 CVE에 118개까지 붙는다.
@@ -124,7 +130,7 @@ def _fold_kernel_flavors(index: Dict[str, Dict[str, Dict[str, List[str]]]]) -> i
          다른 소스 패키지까지 사라진다 — SBOM 이름 대조가 바로 그 이름으로 이뤄지므로
          조용한 오탐 누락이 된다. (넓은 규칙을 실측했더니 58종이 잘못 사라졌다.)
     """
-    folded = 0
+    aliases: Set[str] = set()
     for pkgs in index.values():
         base = pkgs.get("linux")
         if base is None:
@@ -136,13 +142,16 @@ def _fold_kernel_flavors(index: Dict[str, Dict[str, Dict[str, List[str]]]]) -> i
         variants = [p for p in pkgs if p != "linux" and p.startswith("linux-")]
         for p in variants:
             del pkgs[p]
-        folded += len(variants)
-    return folded
+        aliases.update(variants)
+    return aliases
 
 
-def build_index(cve_ids: Iterable[str],
-                ecosystems: List[str] = None) -> Dict[str, Dict[str, Dict[str, List[str]]]]:
-    """추적 중인 CVE의 {CVE: {패키지명: {생태계: [수정버전...]}}} 역인덱스.
+def build_index(cve_ids: Iterable[str], ecosystems: List[str] = None
+                ) -> Tuple[Dict[str, Dict[str, Dict[str, List[str]]]], List[str]]:
+    """추적 중인 CVE의 (역인덱스, 커널 별칭 목록).
+
+    역인덱스 모양: {CVE: {패키지명: {생태계: [수정버전...]}}}
+    커널 별칭: 접혀서 사라진 변종 이름들 — 대조하는 쪽이 'linux'로 되돌리는 데 쓴다.
 
     전량을 담으면 배포 파일이 수 MB 늘어난다. 우리가 추적하지 않는 CVE는 대조할 일도
     없으므로 가진 목록으로 좁힌다. 좁힌 뒤에도 커널 변종이 용량의 99%를 먹어
@@ -157,7 +166,7 @@ def build_index(cve_ids: Iterable[str],
     이미 있다. 두 곳에 두면 갈라지므로 여기서는 후보를 그대로 넘긴다."""
     wanted = {c for c in cve_ids if c}
     if not wanted:
-        return {}
+        return {}, []
 
     index: Dict[str, Dict[str, Dict[str, List[str]]]] = {}
     for eco in (ecosystems or ECOSYSTEMS):
@@ -195,16 +204,16 @@ def build_index(cve_ids: Iterable[str],
                     hits += 1
         logger.info(f"  {eco}: 매칭 {hits:,}건")
 
-    folded = _fold_kernel_flavors(index)
-    if folded:
-        logger.info(f"  커널 변종 {folded:,}개 항목을 'linux'로 접음")
+    aliases = sorted(_fold_kernel_flavors(index))
+    if aliases:
+        logger.info(f"  커널 변종 {len(aliases):,}종을 'linux'로 접음 (별칭으로 함께 배포)")
 
     with_fix = sum(1 for pkgs in index.values()
                    for ecos in pkgs.values() if any(ecos.values()))
     logger.info(f"OSV 역인덱스: CVE {len(index):,}개에 패키지명 부여 "
                 f"(추적 {len(wanted):,}건 중 {len(index) / max(len(wanted), 1) * 100:.0f}%) "
                 f"· 수정 버전 보유 {with_fix:,}개 항목")
-    return index
+    return index, aliases
 
 
 # 악성 패키지는 언어 생태계에만 존재한다 (배포판 덤프에는 MAL 항목이 0건).
@@ -261,9 +270,12 @@ def write_malicious(names: List[str], path: str) -> bool:
         return False
 
 
-def write_index(index: Dict, path: str) -> bool:
+def write_index(index: Dict, path: str, kernel_aliases: Iterable[str] = ()) -> bool:
     """역인덱스를 JSON으로 저장. tools/sbom_match.py의 대조와 대시보드의
-    패키지명·패치 버전 표시, 리포트의 패치 버전 블록이 함께 쓴다."""
+    패키지명·패치 버전 표시, 리포트의 패치 버전 블록이 함께 쓴다.
+
+    kernel_aliases는 접혀서 사라진 커널 변종 이름들이다. 이게 없으면 Ubuntu
+    클라우드 커널(linux-aws 등)을 쓰는 자산의 커널 CVE가 대조에서 통째로 빠진다."""
     try:
         # dirname이 빈 문자열(디렉터리 없는 상대 경로)이면 makedirs가 터진다
         parent = os.path.dirname(path)
@@ -276,7 +288,9 @@ def write_index(index: Dict, path: str) -> bool:
             "_url": "https://osv.dev",
             # 스키마: {CVE: {패키지명: {생태계: [수정버전...]}}}
             # 3부터 커널 변종(linux-aws 등)은 기본 'linux'로 접혀 있다 (모양은 동일).
+            # 접힌 이름은 kernel_aliases에 남아, 대조하는 쪽이 'linux'로 되돌려 찾는다.
             "schema": 3,
+            "kernel_aliases": sorted(kernel_aliases),
             "packages": index,
         }
         with open(path, "w", encoding="utf-8") as f:
