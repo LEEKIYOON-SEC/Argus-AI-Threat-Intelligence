@@ -32,6 +32,7 @@ import argparse
 import csv
 import functools
 import gzip
+import io
 import json
 import os
 import re
@@ -265,28 +266,68 @@ def version_verdict(installed: str, eco_map: Optional[Dict[str, List[str]]],
 
 # ===== SBOM 읽기 =====
 def parse_sbom_csv(path: str) -> List[Dict]:
-    """syft/jq가 뽑은 CSV를 읽는다. name 열은 필수, 나머지는 있으면 쓴다."""
-    with open(path, newline="", encoding="utf-8-sig", errors="replace") as f:
+    """syft/jq가 뽑은 CSV를 읽는다. name 열은 필수, 나머지는 있으면 쓴다.
+
+    변환 단계가 조용히 어긋나는 경우가 많아(빈 결과, UTF-16 저장, #TYPE 줄) 무엇이
+    잘못됐는지 짚어서 알려준다. "0건입니다"만 나오면 어디를 고쳐야 할지 알 수 없다."""
+    with open(path, "rb") as fb:
+        raw = fb.read()
+    if not raw.strip():
+        raise SystemExit(
+            "오류: CSV가 비어 있습니다.\n"
+            "  변환 명령이 결과를 못 만든 것입니다. SBOM(JSON)에 artifacts가 들어 있는지,\n"
+            "  sbom-*.json 파일명이 실제로 있는지 확인하세요.")
+    # PowerShell 5.1 의 > 리다이렉션은 UTF-16LE 로 쓴다. 그대로 읽으면 헤더가 깨진다.
+    if raw[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        raise SystemExit(
+            "오류: CSV가 UTF-16으로 저장돼 있습니다.\n"
+            "  PowerShell에서 '> sbom.csv' 로 저장하면 이렇게 됩니다.\n"
+            "  Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv 를 쓰세요.")
+
+    text = raw.decode("utf-8-sig", errors="replace")
+    # Export-Csv 를 -NoTypeInformation 없이 쓰면 맨 앞에 #TYPE 줄이 붙는다.
+    if text.lstrip().lower().startswith("#type"):
+        text = text.split("\n", 1)[1] if "\n" in text else ""
+
+    with io.StringIO(text, newline="") as f:
         reader = csv.reader(f)
         try:
             head = [h.strip().lower() for h in next(reader)]
         except StopIteration:
-            return []
+            raise SystemExit("오류: CSV에서 머리글을 읽지 못했습니다.")
         if "name" not in head:
-            raise SystemExit(f"오류: CSV에 'name' 열이 없습니다 (헤더: {', '.join(head) or '없음'})")
+            raise SystemExit(
+                "오류: CSV에 'name' 열이 없습니다 (머리글: %s)\n"
+                "  변환 안 된 원본 JSON을 넘겼을 가능성이 큽니다. sbom.csv 첫 줄이\n"
+                '  "name","source","version","type","purl" 인지 확인하세요.'
+                % (", ".join(head) or "없음"))
 
         def col(n: str) -> int:
             return head.index(n) if n in head else -1
 
         idx = {k: col(k) for k in ("name", "source", "version", "type", "purl")}
         rows = []
+        seen = 0
         for f_ in reader:
             def get(k: str) -> str:
                 i = idx[k]
                 return f_[i].strip() if 0 <= i < len(f_) else ""
+            seen += 1
             if not get("name"):
                 continue
             rows.append({k: get(k) for k in idx})
+
+        if not rows:
+            if seen == 0:
+                raise SystemExit(
+                    "오류: 머리글만 있고 패키지 행이 하나도 없습니다.\n"
+                    "  변환 자체는 됐지만 SBOM의 artifacts가 비어 있었다는 뜻입니다.\n"
+                    "  syft를 스캔 대상 없는 경로에서 돌리지 않았는지 확인하세요\n"
+                    "  (예: 'syft dir:.' 는 그 디렉터리만 봅니다. 서버 전체는 'syft /').")
+            raise SystemExit(
+                "오류: %d개 행을 읽었지만 name 칸이 전부 비어 있습니다.\n"
+                "  변환 명령의 열 선택이 어긋났을 때 이렇게 됩니다.\n"
+                "  sbom.csv를 열어 첫 열에 패키지 이름이 들어 있는지 보세요." % seen)
         return rows
 
 
