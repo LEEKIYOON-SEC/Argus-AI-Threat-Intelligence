@@ -48,7 +48,7 @@
 
 ```
 ┌ 점검 대상 장비에서 ── 사람이 실행 · 자산이 바뀔 때만 ─────────────────────────┐
-│ ① SBOM 뜨기        서버에 접속해 syft 실행 → sbom-linux.json                  │
+│ ① SBOM 뜨기        서버마다 접속해 syft 실행 → sbom-<호스트>.json              │
 │                    (서버에 뭐가 깔렸는지는 그 서버에서만 읽힙니다)             │
 │ ② 이름 등록        SBOM에서 벤더·제품 이름만 골라 assets.json에 적고 커밋      │
 └──────────────────────────────────┬───────────────────────────────────────────┘
@@ -62,7 +62,7 @@
 └──────────────────────────────────┬───────────────────────────────────────────┘
                                    │  CVE↔패키지 대응표를 공개 파일로 게시
 ┌ SBOM을 옮겨둔 곳에서 ── 보통 내 PC · 필요할 때 ──┴───────────────────────────┐
-│ ⑦ 설치 버전 대조   ①의 sbom-linux.json을 CSV로 바꾸고                         │
+│ ⑦ 설치 버전 대조   ①에서 받아온 SBOM들을 CSV 하나로 합치고                    │
 │                    python3 tools/sbom_match.py sbom.csv                       │
 │                    → 대응표를 내려받아 "이 버전 이상으로"를 뽑습니다           │
 └──────────────────────────────────────────────────────────────────────────────┘
@@ -278,14 +278,17 @@ CVSS 7점대가 하루 수백 건이라 점수만으로는 순서가 정해지�
 ### 1단계 · 점검 대상 장비에서 SBOM 뜨기 <sub>(흐름도 ①)</sub>
 
 ```bash
-# Linux 서버에 접속해서
-sudo syft / -o syft-json=sbom-linux.json
+# Linux 서버에 접속해서 — 호스트 이름으로 저장해 두면 나중에 어느 서버인지 찾기 쉽습니다
+sudo syft / -o syft-json=sbom-$(hostname).json
 ```
 
 ```powershell
 # Windows 서버에서
-syft C:\ -o syft-json=sbom-windows.json
+syft C:\ -o syft-json="sbom-$env:COMPUTERNAME.json"
 ```
+
+출력 형식은 둘 다 `syft-json`으로 맞춥니다. **어느 OS를 떴든 파일 구조가 같아서**, 나중에 서버
+종류를 가리지 않고 한꺼번에 처리할 수 있습니다.
 
 ### 2단계 · 여기서 쓰임새가 둘로 갈라집니다
 
@@ -329,28 +332,36 @@ NVD에도 CPE가 없으면 방법이 없습니다 — 표본상 절반 정도가
 다루기 때문입니다. 워크플로가 이 스크립트를 부르지 않고, `src/` 어디서도 불러오지 않습니다.
 표준 라이브러리만 쓰므로 `pip install`도 필요 없습니다.
 
-**어디서 돌리나** — SBOM 파일을 옮겨둔 곳이면 어디든 됩니다. 보통은 1단계에서 만든
-`sbom-*.json`을 **내 PC로 가져와서** 돌립니다. 점검 대상 서버에 Python이 있으면 거기서 바로
-돌리고 결과만 가져와도 됩니다. 정해진 것은 하나뿐입니다 — **GitHub Actions에서는 돌지 않습니다.**
+**어디서 돌리나** — 1단계에서 만든 `sbom-*.json`을 **내 PC로 가져와서** 돌립니다.
+점검 대상 서버에 Python이 있으면 거기서 바로 돌리고 결과만 가져와도 됩니다.
+정해진 것은 하나뿐입니다 — **GitHub Actions에서는 돌지 않습니다.**
 
 **먼저 SBOM(JSON)을 CSV로 바꿉니다.** 스크립트는 CSV를 읽습니다. `name` 열만 있으면 동작하고,
 `source`·`version`·`type`·`purl`이 있으면 판정 정확도가 올라갑니다.
 
-```bash
-# Linux / macOS — jq 사용
-jq -r '["name","source","version","type","purl"],
-    (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' \
-    sbom-linux.json > sbom.csv
-```
+`syft-json`은 **어느 OS를 떴든 구조가 같습니다.** 그래서 변환 명령은 SBOM이 리눅스에서 왔는지
+윈도우에서 왔는지와 무관하고, **지금 내가 앉아 있는 셸**에 따라서만 갈립니다. 서버에서 받아온
+파일이 몇 개든 한 번에 넣어 `sbom.csv` **하나**로 만듭니다.
 
 ```powershell
-# Windows — jq 없이 PowerShell로
-(Get-Content sbom-windows.json -Raw | ConvertFrom-Json).artifacts |
-  Select-Object name, @{n='source';e={$_.metadata.source}}, version, type, purl |
-  Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv
+# 내 PC가 Windows — PowerShell. jq 없이 됩니다.
+Get-ChildItem sbom-*.json | ForEach-Object {
+    (Get-Content $_ -Raw | ConvertFrom-Json).artifacts
+} | Select-Object name, @{n='source';e={$_.metadata.source}}, version, type, purl |
+    Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv
 ```
 
-**그다음 대조를 돌립니다.**
+```bash
+# 내 PC가 Linux · macOS — jq
+jq -rs '["name","source","version","type","purl"],
+    (.[].artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' \
+    sbom-*.json > sbom.csv
+```
+
+리눅스에서 뜬 것과 윈도우에서 뜬 것을 같이 넣어도 됩니다. 서버 48대에서 받아왔다면 48개를
+한 CSV로 합쳐 한 번에 대조합니다. **한 대만 패치가 빠져 있어도 그 줄이 남습니다.**
+
+**그다음 대조를 돌립니다.** 여기서부터는 셸도 가리지 않습니다.
 
 ```bash
 python3 tools/sbom_match.py sbom.csv                   # 화면에 표로
@@ -358,8 +369,9 @@ python3 tools/sbom_match.py sbom.csv --csv > out.csv   # CSV로 저장
 python3 tools/sbom_match.py sbom.csv --json > out.json # JSON으로 저장
 ```
 
+Windows에서는 `python3` 대신 `python`을 씁니다. 그 외에는 옵션까지 전부 같습니다.
+
 ```powershell
-# Windows PowerShell — Python만 설치돼 있으면 동일하게 동작합니다
 python tools\sbom_match.py sbom.csv
 ```
 
