@@ -564,11 +564,45 @@ def main() -> int:
         n_unk = sum(1 for r in results if r["verdict"] == "unknown")
         print(f"\n합계 {len(results):,}건 — 취약 추정 {n_vuln:,} · 버전 미확인 {n_unk:,} · "
               f"수정판 추정 {n_fix:,}" + ("" if args.all else " (수정판은 --all로 표시)"))
+        _report_coverage(rows, pkg_index, results)
 
     if args.check_malicious:
         _report_malicious(rows, args, quiet)
 
     return 0
+
+
+def _report_coverage(rows: List[Dict], pkg_index: Dict, results: List[Dict]) -> None:
+    """대조 대상이 되지 못한 패키지를 밝힌다.
+
+    이 도구는 OSV 전체가 아니라 Argus가 추적 중인 CVE(최근 90일 창의 고위험 건)와만
+    맞춰본다. 그래서 SBOM에 있어도 그 목록에 없는 패키지는 결과에 아예 안 나오는데,
+    아무 말이 없으면 '안 나왔으니 안전하다'로 읽힌다. 판정을 모를 땐 모른다고 말하는
+    것이 이 도구의 원칙이므로, 확인 범위 밖이었다는 사실도 같이 알린다."""
+    index_names = set()
+    for eco_map in pkg_index.values():
+        for name in eco_map:
+            index_names.add(name.lower())
+
+    unchecked = []
+    for r in rows:
+        cands = [c for c in (r.get("source"), r.get("name")) if c]
+        if not any(norm_pkg(c) in index_names for c in cands):
+            unchecked.append(r.get("name", ""))
+    if not unchecked:
+        return
+
+    seen, uniq = set(), []
+    for n in unchecked:
+        if n and n not in seen:
+            seen.add(n)
+            uniq.append(n)
+
+    shown = ", ".join(uniq[:6]) + (f" 외 {len(uniq) - 6}개" if len(uniq) > 6 else "")
+    print(f"\nSBOM {len(rows):,}개 중 {len(uniq):,}개는 추적 목록에 없어 대조하지 못했습니다.")
+    print(f"  {shown}")
+    print("  Argus는 최근 90일 창의 고위험 CVE만 추적합니다. 목록에 없다는 것은")
+    print("  '그 기간에 해당 패키지의 고위험 CVE가 없었다'는 뜻이지, 취약점이 없다는 보증이 아닙니다.")
 
 
 def _report_malicious(rows: List[Dict], args, quiet: bool) -> None:
