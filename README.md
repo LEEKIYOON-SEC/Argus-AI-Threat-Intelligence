@@ -330,7 +330,7 @@ NVD에도 CPE가 없으면 방법이 없습니다 — 표본상 절반 정도가
 
 **이 단계는 파이프라인에 올리지 않습니다.** 어느 호스트에 무엇이 몇 버전으로 깔려 있는지를
 다루기 때문입니다. 워크플로가 이 스크립트를 부르지 않고, `src/` 어디서도 불러오지 않습니다.
-표준 라이브러리만 쓰므로 `pip install`도 필요 없습니다.
+**Python 3.6 이상**이면 되고, 표준 라이브러리만 쓰므로 `pip install`도 필요 없습니다.
 
 **어디서 돌리나** — 1단계에서 만든 `sbom-*.json`을 **내 PC로 가져와서** 돌립니다.
 점검 대상 서버에 Python이 있으면 거기서 바로 돌리고 결과만 가져와도 됩니다.
@@ -344,19 +344,16 @@ NVD에도 CPE가 없으면 방법이 없습니다 — 표본상 절반 정도가
 파일이 몇 개든 한 번에 넣어 `sbom.csv` **하나**로 만듭니다.
 
 ```powershell
-# 내 PC가 Windows — PowerShell. jq 없이 됩니다.
-Get-ChildItem sbom-*.json | ForEach-Object {
-    (Get-Content $_ -Raw | ConvertFrom-Json).artifacts
-} | Select-Object name, @{n='source';e={$_.metadata.source}}, version, type, purl |
-    Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv
+# 내 PC가 Windows — PowerShell. jq 없이 됩니다. (한 줄이라 그대로 붙여넣어도 됩니다)
+Get-ChildItem sbom-*.json | ForEach-Object { (Get-Content $_ -Raw | ConvertFrom-Json).artifacts } | Select-Object name, @{n='source';e={$_.metadata.source}}, version, type, purl | Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv
 ```
 
 ```bash
 # 내 PC가 Linux · macOS — jq
-jq -rs '["name","source","version","type","purl"],
-    (.[].artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' \
-    sbom-*.json > sbom.csv
+jq -rs '["name","source","version","type","purl"], (.[].artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' sbom-*.json > sbom.csv
 ```
+
+<sub>여러 줄로 나눠 쓰면 터미널에 붙여넣을 때 줄바꿈에서 끊길 수 있어 한 줄로 적었습니다.</sub>
 
 리눅스에서 뜬 것과 윈도우에서 뜬 것을 같이 넣어도 됩니다. 서버 48대에서 받아왔다면 48개를
 한 CSV로 합쳐 한 번에 대조합니다. **한 대만 패치가 빠져 있어도 그 줄이 남습니다.**
@@ -369,11 +366,25 @@ python3 tools/sbom_match.py sbom.csv --csv > out.csv   # CSV로 저장
 python3 tools/sbom_match.py sbom.csv --json > out.json # JSON으로 저장
 ```
 
-Windows에서는 `python3` 대신 `python`을 씁니다. 그 외에는 옵션까지 전부 같습니다.
+**Windows에서는 `py -3`을 쓰는 편이 안전합니다.** `python`이 옛 버전이나 Microsoft Store
+안내 창을 가리키고 있는 경우가 흔한데, `py -3`은 설치된 파이썬 3 중 최신을 골라 줍니다.
 
 ```powershell
-python tools\sbom_match.py sbom.csv
+py -3 tools\sbom_match.py sbom.csv
 ```
+
+<details>
+<summary><b>실행이 안 될 때</b></summary>
+
+| 증상 | 원인과 조치 |
+| :--- | :--- |
+| `SyntaxError: future feature annotations is not defined` 또는 f-string 문법 오류 | `python`이 **3.6 미만**(대개 2.7)을 가리키고 있습니다. `python --version`으로 확인하고 `py -3`으로 실행하세요 |
+| `py`도 없음 | 파이썬 3이 설치돼 있지 않습니다. 3.6 이상이면 어느 버전이든 됩니다 |
+| `ModuleNotFoundError` | 이 스크립트에서는 나올 수 없는 오류입니다. 표준 라이브러리만 씁니다 — 다른 파일을 실행한 게 아닌지 확인하세요 |
+| `오류: CSV에 'name' 열이 없습니다` | 변환이 안 된 원본 JSON을 넘겼거나 변환 명령이 중간에 끊긴 경우입니다. `sbom.csv` 첫 줄에 `"name","source",...`가 있는지 보세요 |
+| 여러 줄 명령을 붙여넣으니 깨짐 | 위 변환 명령을 한 줄로 적어둔 이유입니다. 그대로 복사해 쓰세요 |
+
+</details>
 
 스크립트가 하는 일은 **공개된 인덱스 파일 두 개**(`cve-packages.json`·`cves.json`)를 GitHub Pages에서
 내려받아 로컬 CSV와 맞춰보는 것뿐입니다. CSV는 로컬에서만 읽고 **어디로도 전송하지 않습니다.**

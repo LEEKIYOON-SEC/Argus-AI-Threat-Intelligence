@@ -1,14 +1,20 @@
 #!/usr/bin/env python3
-"""syft SBOM과 Argus 추적 CVE를 내 PC에서 대조한다.
+"""syft SBOM과 Argus 추적 CVE를 로컬에서 대조한다 (Python 3.6+, 표준 라이브러리만).
 
 자산 목록 전체를 CVE와 맞춰보는 일은 여기서 한다. 브라우저에서 하려면 SBOM 파일을
 올려야 하는데 파일 선택이 막힌 업무 환경에서는 쓸 수 없고, 자산 목록을 브라우저에
 넣는 것 자체가 부담이다. 이 스크립트는 터미널에서 돌고 표준 라이브러리만 쓴다
 (pip install 불필요). 대시보드는 CVE별 패키지 이름과 패치 버전을 보여주는 데까지만 한다.
 
-  # syft로 SBOM을 뽑고
-  syft dir:. -o syft-json | jq -r '["name","source","version","type","purl"],
-      (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' > sbom.csv
+필요한 파이썬은 3.6 이상이다(f-string). 윈도우에서 `python`이 옛 버전을 가리키는 일이
+잦으므로 런처를 쓰는 편이 안전하다 — `py -3 sbom_match.py sbom.csv`.
+파싱 단계에서 죽으므로 스크립트 안에서 버전을 검사해 안내할 방법이 없다. 그래서 문법을
+3.6 수준으로 맞춰 둔다(내장 제네릭·walrus·__future__ 미사용).
+
+  # 점검 대상 서버에서 SBOM을 뜨고, 받아온 파일들을 CSV 하나로 합친 뒤
+  jq -rs '["name","source","version","type","purl"],
+      (.[].artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' \
+      sbom-*.json > sbom.csv
 
   # 대조
   python3 tools/sbom_match.py sbom.csv
@@ -21,7 +27,6 @@
 버전 비교는 dpkg 규칙을 따른다 — 문자열 정렬은 1.10 < 1.9로 뒤집히고, epoch(1:)와
 '~'(프리릴리스)를 무시하면 판정이 반대로 나온다.
 """
-from __future__ import annotations
 
 import argparse
 import csv
