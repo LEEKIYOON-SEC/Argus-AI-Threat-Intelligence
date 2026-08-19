@@ -47,27 +47,30 @@
 어느 쪽으로 틀리게 할지는 실무에서 판단하고 — 구현은 Claude로 가속했습니다.
 
 ```
-┌ 내 환경에서 직접 ─ 자산이 바뀔 때만 ──────────────────────────────────────────┐
-│ ① 자산 목록 확보   내 서버에서 syft로 SBOM을 뜨고,                             │
-│                    거기 나온 벤더·제품 이름을 assets.json에 등록               │
+┌ 점검 대상 장비에서 ── 사람이 실행 · 자산이 바뀔 때만 ─────────────────────────┐
+│ ① SBOM 뜨기        서버에 접속해 syft 실행 → sbom-linux.json                  │
+│                    (서버에 뭐가 깔렸는지는 그 서버에서만 읽힙니다)             │
+│ ② 이름 등록        SBOM에서 벤더·제품 이름만 골라 assets.json에 적고 커밋      │
 └──────────────────────────────────┬───────────────────────────────────────────┘
-                                   │
-┌ GitHub Actions ─ 매시간 자동, 사람 개입 없음 ────────────────────────────────┐
-│ ② 이름 대조        신규 CVE의 벤더·제품이 assets.json에 있는가?               │
+                                   │  assets.json (이름 몇 줄, 공개해도 무방)
+┌ GitHub Actions ── 매시간 자동 · 사람 개입 없음 ──────────────────────────────┐
+│ ③ 이름 대조        신규 CVE의 벤더·제품이 assets.json에 있는가?               │
 │                                              ← 여기서 대부분 끝납니다         │
-│ ③ 위험도 판단      걸린 것만 CISA KEV · EPSS · ExploitDB · Metasploit · SSVC  │
-│ ④ 대응 근거 확보   패치 목표 버전 + 완화 방안 + 공개 탐지 룰                   │
-│ ⑤ 전달             급한 건은 Slack · 상세는 GitHub Issue · 나머지는 대시보드   │
+│ ④ 위험도 판단      걸린 것만 CISA KEV · EPSS · ExploitDB · Metasploit · SSVC  │
+│ ⑤ 대응 근거 확보   패치 목표 버전 + 완화 방안 + 공개 탐지 룰                   │
+│ ⑥ 전달             급한 건은 Slack · 상세는 GitHub Issue · 나머지는 대시보드   │
 └──────────────────────────────────┬───────────────────────────────────────────┘
-                                   │ ②~⑤가 만든 CVE↔패키지 대응표를 공개
-┌ 내 PC 터미널에서 ─ 필요할 때 ─────┴───────────────────────────────────────────┐
-│ ⑥ 설치 버전 대조   tools/sbom_match.py가 그 대응표를 내려받아                  │
-│                    로컬 SBOM과 맞춰 "이 버전 이상으로" 산출                    │
+                                   │  CVE↔패키지 대응표를 공개 파일로 게시
+┌ SBOM을 옮겨둔 곳에서 ── 보통 내 PC · 필요할 때 ──┴───────────────────────────┐
+│ ⑦ 설치 버전 대조   ①의 sbom-linux.json을 CSV로 바꾸고                         │
+│                    python3 tools/sbom_match.py sbom.csv                       │
+│                    → 대응표를 내려받아 "이 버전 이상으로"를 뽑습니다           │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**②~⑤만 GitHub Actions에서 돕니다.** ①의 `syft`와 ⑥의 버전 대조는 내 환경에서 직접 실행합니다.
-GitHub Actions는 `syft`를 설치하지도, `sbom_match.py`를 부르지도 않습니다.
+**GitHub Actions가 맡는 건 ③~⑥뿐입니다.** ①의 `syft`는 점검 대상 서버에서, ⑦의 버전 대조는
+그 SBOM을 옮겨둔 곳에서 사람이 실행합니다. 워크플로에는 `syft` 설치 단계가 없고
+`sbom_match.py`를 호출하는 줄도 없습니다.
 
 이제 수백 건을 직접 훑지 않습니다. 자산에 걸린 몇 건만 확인하면 되고, 바빠서 건너뛰는 날도
 없어졌습니다. 남는 시간은 실제로 대응해야 하는 취약점에 씁니다.
@@ -76,16 +79,16 @@ GitHub Actions는 `syft`를 설치하지도, `sbom_match.py`를 부르지도 않
 
 같은 말로 불러 헷갈리기 쉬워 갈라 적습니다.
 
-| | ② 이름 대조 | ⑥ 설치 버전 대조 |
+| | ③ 이름 대조 | ⑦ 설치 버전 대조 |
 | :--- | :--- | :--- |
-| **어디서** | GitHub Actions (매시간 자동) | 내 PC 터미널 (필요할 때 수동) |
+| **어디서 도나** | GitHub Actions (매시간 자동) | 터미널 (필요할 때 사람이) |
 | **무엇을 비교** | 벤더·제품 **이름** | 패키지의 **설치 버전** |
-| **입력** | `assets.json` (저장소에 커밋된 이름 목록) | 로컬 SBOM CSV (저장소에 올리지 않음) |
+| **입력** | `assets.json` — 저장소에 커밋된 이름 목록 | `sbom.csv` — 로컬 파일, 저장소에 올리지 않음 |
 | **결과** | 이 CVE를 추적할지 말지 | 취약 추정 / 수정판 추정 / 버전 미확인 + 목표 버전 |
 | **자산 정보** | 이름만 공개 저장소에 있음 | **어디로도 전송되지 않음** |
 
-②는 "우리와 상관있는 CVE인가"를 이름 수준에서 거르는 단계라 GitHub Actions에서 돌려도 됩니다.
-⑥은 어느 호스트에 몇 버전이 깔렸는지를 다루므로 밖으로 내보내지 않고 터미널에서 끝냅니다.
+③은 "우리와 상관있는 CVE인가"를 이름 수준에서 거르는 단계라 GitHub Actions에서 돌려도 됩니다.
+⑦은 어느 호스트에 몇 버전이 깔렸는지를 다루므로 밖으로 내보내지 않고 터미널에서 끝냅니다.
 
 ---
 
@@ -209,8 +212,8 @@ AI 심층 분석(근본 원인 · 공격 벡터 · MITRE ATT&CK · 비즈니스 
 
 ![Architecture](docs/assets/architecture.png)
 
-<sub>왼쪽 점선 구간(자산 식별)은 내 환경에서 직접, 파란 구간(수집 → 이름 대조 → 분석 → 발행)은 GitHub Actions가 매시간 자동으로 돌립니다.
-맨 아래 설치 버전 대조는 내 PC 터미널 몫입니다. 진행 지점은 Supabase에 기록해 실행이 끊겨도 다음 회차가 그 지점부터 이어받습니다.</sub>
+<sub>왼쪽 점선 구간(자산 식별)은 점검 대상 장비에서 사람이, 파란 구간(수집 → 이름 대조 → 분석 → 발행)은 GitHub Actions가 매시간 자동으로 돌립니다.
+맨 아래 설치 버전 대조는 SBOM을 옮겨둔 터미널 몫입니다. 진행 지점은 Supabase에 기록해 실행이 끊겨도 다음 회차가 그 지점부터 이어받습니다.</sub>
 
 자산을 등록하면 하루치가 이렇게 줄어듭니다.
 
@@ -218,10 +221,10 @@ AI 심층 분석(근본 원인 · 공격 벡터 · MITRE ATT&CK · 비즈니스 
 
 ```
 그날 공개된 CVE        1,474건
-      │  ① 자산 대조 — Oracle WebLogic을 자산으로 등록했다면
+      │  이름 대조 — Oracle WebLogic을 자산으로 등록했다면
       ▼
 자산에 영향                25건   ← 나머지 1,449건은 여기서 종료
-      │  ② 심각도 · 악용 신호
+      │  심각도 · 악용 신호
       ▼
 Critical · 즉시 대응       13건   → Issue 리포트 발행 (High 12건은 대시보드 추적)
 ```
@@ -268,23 +271,41 @@ CVSS 7점대가 하루 수백 건이라 점수만으로는 순서가 정해지�
 
 ## 자산 목록은 SBOM으로 만들었습니다
 
-자산을 추측으로 적으면 대조가 의미 없어서, **내 서버에 직접 들어가** `syft`로 실제 설치된 목록을
-뽑았습니다. 이 단계는 GitHub Actions가 아니라 사람이 실행합니다.
+자산을 추측으로 적으면 대조가 의미 없습니다. 그래서 **점검 대상 장비에 직접 들어가** `syft`로
+실제 설치된 목록을 뽑습니다. 이 단계는 GitHub Actions가 아니라 사람이 실행합니다.
+서버에 뭐가 깔려 있는지는 그 서버에서만 읽을 수 있기 때문입니다.
+
+### 1단계 · 점검 대상 장비에서 SBOM 뜨기 <sub>(흐름도 ①)</sub>
 
 ```bash
-# Linux
-sudo syft / -o cyclonedx-json=sbom-linux.json
+# Linux 서버에 접속해서
+sudo syft / -o syft-json=sbom-linux.json
 ```
 
 ```powershell
-# Windows
-syft C:\ -o cyclonedx-json=sbom-windows.json
+# Windows 서버에서
+syft C:\ -o syft-json=sbom-windows.json
 ```
 
-여기서 나온 벤더와 제품명을 `assets.json`에 등록해 쓰고 있습니다.
-SBOM과 CVE 레코드의 표기가 서로 달라서
-(`Microsoft Corporation` / `microsoft`, `Exchange Server` / `exchange_server`) 대소문자와 `_`·공백 차이는
-코드에서 흡수하고, 벤더를 특정하기 어려우면 `*`로 제품만 지정합니다.
+### 2단계 · 여기서 쓰임새가 둘로 갈라집니다
+
+같은 SBOM 파일 하나에서 두 가지가 나옵니다. 목적도, 두는 곳도 다릅니다.
+
+| | ⓐ `assets.json` 등록 | ⓑ `sbom.csv` 변환 |
+| :--- | :--- | :--- |
+| **뽑는 것** | 벤더·제품 **이름**만 골라서 | 패키지·버전 **전부** |
+| **어디에 두나** | 저장소에 커밋 (공개) | 내 PC에만 (공개 안 함) |
+| **누가 쓰나** | GitHub Actions가 매시간 | 내가 필요할 때 터미널에서 |
+| **하는 일** | 이 CVE를 추적할지 결정 | 어느 버전으로 올려야 하는지 산출 |
+
+ⓐ는 `nginx`·`fortinet` 같은 **이름 몇 줄**이라 공개해도 노출이 없습니다.
+ⓑ는 어느 호스트에 몇 버전이 깔렸는지라 공개하면 그대로 공격 지도가 됩니다.
+
+### 3단계 · `assets.json`에 이름 등록 <sub>(흐름도 ②)</sub>
+
+SBOM에 나온 벤더와 제품명을 골라 적습니다. SBOM과 CVE 레코드의 표기가 서로 달라서
+(`Microsoft Corporation` / `microsoft`, `Exchange Server` / `exchange_server`) 대소문자와 `_`·공백
+차이는 코드에서 흡수하고, 벤더를 특정하기 어려우면 `*`로 제품만 지정합니다.
 
 CVE 레코드가 벤더를 아예 안 주는 경우도 있습니다. MITRE가 할당한 레코드는 `vendor: "n/a"`로
 비워두는 일이 잦은데, 그때도 NVD의 CPE에는 값이 들어 있곤 합니다.
@@ -299,25 +320,57 @@ CVE-2020-29574   CNA 원본 : vendor="n/a"          ← 레코드에는 없음
 NVD에도 CPE가 없으면 방법이 없습니다 — 표본상 절반 정도가 그렇고, 대부분 NVD가 아직
 분석을 끝내지 않은 최신 CVE입니다. 주간 잡이 반복해서 훑으며 채워집니다.
 
-### 터미널에서 대조하기 (`tools/sbom_match.py`)
+여기까지가 서버에 필요한 전부입니다. `assets.json`만 커밋해 두면 흐름도 ③~⑥이 매시간 알아서 돕니다.
+아래 4단계는 하지 않아도 파이프라인은 정상 동작합니다. 설치 버전까지 확인하고 싶을 때만 씁니다.
 
-**패키지의 설치 버전까지 맞춰보는 일은 파이프라인에 올리지 않고 터미널에서 합니다.** 앞의 이름 대조와
-달리 어느 호스트에 무엇이 몇 버전으로 깔려 있는지를 다루기 때문입니다. 그 정보가 공개 저장소나
-브라우저로 넘어가면 그 자체가 공격자에게 지도를 주는 셈입니다.
+### 4단계 · 설치 버전까지 대조하기 <sub>(흐름도 ⑦ · `tools/sbom_match.py`)</sub>
 
-그래서 이 스크립트는 **파이프라인과 완전히 분리돼 있습니다.** 워크플로가 부르지 않고, `src/`
-어디서도 불러오지 않습니다. **표준 라이브러리만 쓰므로 `pip install`이 필요 없고**, 하는 일은
-공개된 인덱스 파일을 내려받아 로컬 CSV와 맞춰보는 것뿐입니다. 자산 목록은 어디로도 나가지
-않습니다. (대시보드는 CVE별 패키지 이름과 패치 버전을 보여주는 데까지만 합니다.)
+**이 단계는 파이프라인에 올리지 않습니다.** 어느 호스트에 무엇이 몇 버전으로 깔려 있는지를
+다루기 때문입니다. 워크플로가 이 스크립트를 부르지 않고, `src/` 어디서도 불러오지 않습니다.
+표준 라이브러리만 쓰므로 `pip install`도 필요 없습니다.
+
+**어디서 돌리나** — SBOM 파일을 옮겨둔 곳이면 어디든 됩니다. 보통은 1단계에서 만든
+`sbom-*.json`을 **내 PC로 가져와서** 돌립니다. 점검 대상 서버에 Python이 있으면 거기서 바로
+돌리고 결과만 가져와도 됩니다. 정해진 것은 하나뿐입니다 — **GitHub Actions에서는 돌지 않습니다.**
+
+**먼저 SBOM(JSON)을 CSV로 바꿉니다.** 스크립트는 CSV를 읽습니다. `name` 열만 있으면 동작하고,
+`source`·`version`·`type`·`purl`이 있으면 판정 정확도가 올라갑니다.
 
 ```bash
-# SBOM을 CSV로 (name 열만 있으면 동작하고, 나머지는 있으면 정확도가 올라갑니다)
-syft dir:. -o syft-json | jq -r '["name","source","version","type","purl"],
-    (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' > sbom.csv
+# Linux / macOS — jq 사용
+jq -r '["name","source","version","type","purl"],
+    (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' \
+    sbom-linux.json > sbom.csv
+```
 
-python3 tools/sbom_match.py sbom.csv                  # 공개 인덱스를 받아 대조
-python3 tools/sbom_match.py sbom.csv --csv > out.csv  # CSV·JSON 출력
-python3 tools/sbom_match.py sbom.csv --offline ./data # 망분리: 미리 받아둔 파일 사용
+```powershell
+# Windows — jq 없이 PowerShell로
+(Get-Content sbom-windows.json -Raw | ConvertFrom-Json).artifacts |
+  Select-Object name, @{n='source';e={$_.metadata.source}}, version, type, purl |
+  Export-Csv -NoTypeInformation -Encoding UTF8 sbom.csv
+```
+
+**그다음 대조를 돌립니다.**
+
+```bash
+python3 tools/sbom_match.py sbom.csv                   # 화면에 표로
+python3 tools/sbom_match.py sbom.csv --csv > out.csv   # CSV로 저장
+python3 tools/sbom_match.py sbom.csv --json > out.json # JSON으로 저장
+```
+
+```powershell
+# Windows PowerShell — Python만 설치돼 있으면 동일하게 동작합니다
+python tools\sbom_match.py sbom.csv
+```
+
+스크립트가 하는 일은 **공개된 인덱스 파일 두 개**(`cve-packages.json`·`cves.json`)를 GitHub Pages에서
+내려받아 로컬 CSV와 맞춰보는 것뿐입니다. CSV는 로컬에서만 읽고 **어디로도 전송하지 않습니다.**
+
+인터넷이 막힌 망분리 환경이면 그 두 파일을 미리 받아 폴더에 두고 `--offline`을 씁니다.
+이때는 네트워크를 아예 쓰지 않습니다.
+
+```bash
+python3 tools/sbom_match.py sbom.csv --offline ./data
 ```
 
 ```
