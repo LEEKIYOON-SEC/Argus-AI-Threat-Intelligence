@@ -8,15 +8,13 @@
 해시를 비교했다. 그 경로는 feed.py의 delta 피드가 통째로 대체했다 — 변경 발견이 1 요청이라
 해시 사전대조 자체가 필요 없어졌다(피드가 new/updated를 직접 알려준다).
 """
-import datetime
 import os
 import re
 import time
 from typing import Dict, List, Optional, Set, Tuple
 
-import pytz
 import requests
-from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 import ai_provenance
 import enrichment_sources

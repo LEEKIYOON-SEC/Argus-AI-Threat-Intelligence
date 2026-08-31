@@ -20,7 +20,6 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional, Tuple
 
 import pytz
-import requests
 from google import genai
 from google.genai import types
 
@@ -84,12 +83,12 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
         # (실측: 영문 잔존 111건 중 최신 200위 안에 든 건 0건이었다). 위치를 실행 간에
         # 이어붙여 전체를 한 바퀴 돈다. 12,000행 / 200 = 60회 ≈ 2.5일에 한 바퀴.
         total = db.count_tracked()
-        offset = read_backfill_offset()
+        offset = pstate.read_backfill_offset()
         if total and offset >= total:
             offset = 0
         candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
         next_offset = 0 if (total and offset + pool >= total) or not candidates else offset + pool
-        write_backfill_offset(next_offset)
+        pstate.write_backfill_offset(next_offset)
 
         items = []
         for row in candidates:
