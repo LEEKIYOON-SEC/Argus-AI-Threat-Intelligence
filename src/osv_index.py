@@ -30,10 +30,29 @@ from logger import logger
 
 _BASE = "https://storage.googleapis.com/osv-vulnerabilities"
 
-# 받을 생태계. 크기는 2026-08 기준 all.zip 실측치.
-#   Ubuntu(588MB)·npm(209MB)이 크지만 러너 디스크(14GB)와 캐시 한도(10GB) 안이고,
-#   덤프는 스캔 후 버린다 — 배포되는 건 역인덱스뿐이다(전송 gzip 0.6MB).
-ECOSYSTEMS = ["Debian", "Ubuntu", "Alpine", "npm", "PyPI", "Maven", "Go"]
+# 받을 생태계.
+#
+# 예전에는 7종만 받았다. OSV는 40종 이상을 제공하는데 Red Hat·Rocky·AlmaLinux·SUSE
+# 계열이 통째로 빠져 있어서, RHEL 계열 서버의 패키지 CVE는 패치 목표 버전을 아예 알 수
+# 없었다. 언어 생태계도 절반이 없었다(NuGet·RubyGems·crates.io·Packagist·Hex).
+#
+# grype-db를 붙이는 것보다 이쪽이 싸고 라이선스도 단순하다 — OSV 하나(CC-BY 4.0)로
+# 끝나는 반면, grype-db의 취합 데이터는 원천별 조건(GHSA CC-BY-4.0, RedHat/SUSE/Oracle
+# OVAL은 각 벤더 조건)이 그대로 따라온다.
+#
+# 덤프는 스캔 후 버린다 — 배포되는 건 역인덱스뿐이다. 러너 디스크(14GB) 안에서 돈다.
+ECOSYSTEMS = [
+    # 배포판 — 서버 자산의 대부분
+    "Debian", "Ubuntu", "Alpine", "Red Hat", "Rocky Linux", "AlmaLinux",
+    "SUSE", "openSUSE", "Chainguard", "Wolfi",
+    # 언어 생태계 — 애플리케이션 의존성
+    "npm", "PyPI", "Maven", "Go", "NuGet", "RubyGems", "Packagist",
+    "crates.io", "Hex", "Pub",
+    # 컨테이너 이미지 번들
+    "Bitnami",
+    # CI 공급망
+    "GitHub Actions",
+]
 
 _TIMEOUT = 180
 

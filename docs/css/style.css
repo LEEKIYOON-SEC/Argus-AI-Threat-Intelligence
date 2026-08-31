@@ -37,6 +37,13 @@
   --sig-auto: #38bdf8;
   --sig-total: #a78bfa;
   --sig-ransom: #fb7185;
+  --sig-nuclei: #9146ff;
+
+  /* 위험 티어 — 파이프라인(risk.py)이 판정한 값. 심각도(CVSS) 색과 일부러 다른 색군을
+     쓴다: 둘은 다른 축이고, 같은 색이면 'Critical인데 T2'가 모순처럼 보인다. */
+  --tier-t0: #ff5c57;   /* 관측된 악용 — 즉시 */
+  --tier-t1: #ff9838;   /* 무기화 임박 — 즉시 */
+  --tier-t2: #58a6ff;   /* 관찰 — 알림 없음 */
 
   --radius: 12px;
   --radius-sm: 8px;
@@ -247,6 +254,25 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .badge-ssvc { background: color-mix(in srgb, var(--sig-kev) 20%, transparent); color: var(--sig-kev); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-kev) 40%, transparent); }
 .badge-rules { background: color-mix(in srgb, var(--sig-rules) 18%, transparent); color: var(--sig-rules); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-rules) 38%, transparent); }
 .badge-auto { background: color-mix(in srgb, var(--sig-auto) 18%, transparent); color: var(--sig-auto); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-auto) 40%, transparent); }
+.badge-nuclei { background: color-mix(in srgb, var(--sig-nuclei) 20%, transparent); color: var(--sig-nuclei); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-nuclei) 45%, transparent); }
+
+/* 티어 배지 — 목록 첫 칸에서 심각도 배지와 나란히 선다 */
+.badge-tier { font-weight: 700; letter-spacing: .02em; margin-right: 4px; }
+.badge-tier.tier-T0 { background: color-mix(in srgb, var(--tier-t0) 22%, transparent); color: var(--tier-t0); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t0) 50%, transparent); }
+.badge-tier.tier-T1 { background: color-mix(in srgb, var(--tier-t1) 22%, transparent); color: var(--tier-t1); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t1) 50%, transparent); }
+.badge-tier.tier-T2 { background: color-mix(in srgb, var(--tier-t2) 18%, transparent); color: var(--tier-t2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t2) 40%, transparent); }
+
+/* EPSS percentile — 원시 확률 옆에 '전체 중 몇 %인지'를 작게 붙인다 */
+.epss-rank { font-size: 11px; color: var(--text-faint); white-space: nowrap; }
+
+/* 판정 근거 칩 — 이 CVE가 왜 이 티어인지(발화한 트리거) */
+.trigger-chip {
+  display: inline-block; font-size: 12px; line-height: 1.5;
+  background: color-mix(in srgb, var(--tier-t2) 14%, transparent);
+  color: var(--text); padding: 2px 8px; border-radius: 999px;
+  margin: 0 4px 4px 0;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t2) 32%, transparent);
+}
 .badge-total { background: color-mix(in srgb, var(--sig-total) 18%, transparent); color: var(--sig-total); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-total) 38%, transparent); }
 .badge-ransom { background: color-mix(in srgb, var(--sig-ransom) 20%, transparent); color: var(--sig-ransom); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-ransom) 42%, transparent); }
 /* 이미 수정판을 쓰고 있는 건 — 눈에 덜 띄게 내려 시선을 취약 추정 쪽에 남긴다 */

@@ -214,11 +214,29 @@ def _fixed_version_lines(cve_id: str) -> str:
 
 
 def _rule_license_note(rule_info: Dict) -> str:
-    """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
+    """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①).
+
+    YARA Forge처럼 룰마다 라이선스가 다른 소스가 있어, 인덱스가 실어 준 author와
+    license_url을 그대로 옮긴다 — 여기서 추측하면 고지가 틀린다."""
+    bits = []
     lic = rule_info.get('license')
-    if not lic:
+    if lic:
+        bits.append(f"**License:** {lic}")
+    author = rule_info.get('author')
+    if author:
+        bits.append(f"**Author:** {author}")
+    lic_url = rule_info.get('license_url')
+    if lic_url and lic_url != "N/A":
+        bits.append(f"[라이선스 원문]({lic_url})")
+    url = rule_info.get('url')
+    if url:
+        bits.append(f"[출처]({url})")
+    note = rule_info.get('note')
+    if note:
+        bits.append(note)
+    if not bits:
         return ""
-    return f"\n> **License:** {lic} — 원 룰의 출처·author·라이선스 고지를 보존합니다.\n"
+    return "\n> " + " · ".join(bits) + "\n"
 
 def _priority_banner(cve_data: Dict) -> str:
     """대응 우선순위 배너 — 판정은 risk.py가 하고 여기서는 문장으로 옮기기만 한다.
@@ -285,11 +303,11 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         rules = rule_manager.search_public_only(cve_data['id'])
 
         # Step 3: 공식 룰 존재 여부 확인
-        has_official = any([
-            rules.get('sigma') and rules['sigma'].get('verified'),
-            any(r.get('verified') for r in rules.get('network', [])),  # network는 리스트!
-            rules.get('yara') and rules['yara'].get('verified')
-        ])
+        # 공개 룰셋은 출처 자체가 검증 주체다 — 하나라도 붙었으면 '확보'로 본다
+        has_official = bool(
+            rules.get('network')
+            or any(rules.get(k) for k in ('sigma', 'nuclei', 'splunk', 'yara'))
+        )
         
         # Step 4: 마크다운 리포트 구성
         body = _build_issue_body(cve_data, reason, analysis, rules)
@@ -420,23 +438,36 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     # CVSS 벡터 해석
     vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
     
-    # 공개 탐지 룰 섹션 — 공개 룰(SigmaHQ/ET Open/Yara-Rules)이 있을 때만 표시.
-    # AI 룰 생성은 제거됨 → 공개 룰이 없으면 없음을 안내(불필요한 '미생성' 나열 제거).
-    has_any_rules = rules.get('sigma') or rules.get('network') or rules.get('yara')
+    # 공개 탐지 룰 섹션 — 있을 때만 표시.
+    # 엔진마다 코드펜스 언어와 제목이 다르다: (키, 제목, 펜스 언어)
+    _RULE_KINDS = (
+        ("sigma", "Sigma Rule", "yaml"),
+        ("nuclei", "nuclei Template", "yaml"),
+        ("splunk", "Splunk 탐지 (ESCU)", "yaml"),
+        ("yara", "YARA Rule", "yara"),
+    )
+    has_any_rules = bool(rules.get('network')) or any(rules.get(k) for k, _, _ in _RULE_KINDS)
     if has_any_rules:
+        sources = sorted({r['source'] for r in (rules.get('network') or []) if r.get('source')}
+                         | {rules[k]['source'] for k, _, _ in _RULE_KINDS
+                            if rules.get(k) and rules[k].get('source')})
         rules_section = ("## 🔎 공개 탐지 룰\n\n"
-                         "> 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 확인된 **공식 검증 룰**입니다. "
-                         "보안 장비 적용 전 자사 환경에 맞게 검토하세요.\n\n")
-        if rules.get('sigma'):
-            info = rules['sigma']
-            rules_section += f"### Sigma Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yaml\n{info['code']}\n```\n\n"
-        if rules.get('network'):
-            for idx, net_rule in enumerate(rules['network'], 1):
-                engine_name = net_rule.get('engine', 'unknown').upper()
-                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) 🟢 공식 검증\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
-        if rules.get('yara'):
-            info = rules['yara']
-            rules_section += f"### Yara Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yara\n{info['code']}\n```\n\n"
+                         f"> 공개 룰셋({' / '.join(sources)})에서 확인된 룰입니다. "
+                         "보안 장비 적용 전 자사 환경에 맞게 검토하세요.\n"
+                         "> 각 룰의 출처·author·라이선스 고지를 함께 싣습니다.\n\n")
+        for key, title, fence in _RULE_KINDS:
+            info = rules.get(key)
+            if not info or not info.get('code'):
+                continue
+            extra = ""
+            if key == "nuclei" and info.get('severity'):
+                extra = f" · severity={info['severity']}"
+            rules_section += (f"### {title} ({info['source']}){extra}\n"
+                              f"{_rule_license_note(info)}```{fence}\n{info['code']}\n```\n\n")
+        for idx, net_rule in enumerate(rules.get('network') or [], 1):
+            engine_name = net_rule.get('engine', 'unknown').upper()
+            rules_section += (f"### Network Rule #{idx} ({net_rule['source']} - {engine_name})\n"
+                              f"{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n")
     else:
         # 룰이 없으면 섹션을 통째로 뺀다. 실측으로 리포트의 98.9%가 이 경우인데,
         # "없습니다"를 세 줄로 설명해 봐야 읽는 사람에게 주는 정보가 없다.
@@ -517,27 +548,25 @@ AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않
     return body.strip()
 
 def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
-    comment = f"""## ✅ 공식 탐지 룰 발견
+    """최초 리포트 시점에 없던 공개 룰이 나중에 등록된 경우 기존 이슈에 덧붙인다."""
+    comment = f"""## ✅ 공개 탐지 룰 발견
 
-{cve_id}에 대한 **공식 검증된 탐지 룰**이 새로 발견되었습니다. 아래 룰을 보안 장비에 참고 적용하세요.
+{cve_id}에 대한 **공개 탐지 룰**이 새로 발견되었습니다. 아래 룰을 보안 장비에 참고 적용하세요.
 
 """
-    
-    # Sigma
-    if rules.get('sigma') and rules['sigma'].get('verified'):
-        comment += f"### Sigma Rule ({rules['sigma']['source']})\n{_rule_license_note(rules['sigma'])}```yaml\n{rules['sigma']['code']}\n```\n\n"
+    kinds = (("sigma", "Sigma Rule", "yaml"), ("nuclei", "nuclei Template", "yaml"),
+             ("splunk", "Splunk 탐지 (ESCU)", "yaml"), ("yara", "YARA Rule", "yara"))
+    for key, title, fence in kinds:
+        info = rules.get(key)
+        if not info or not info.get('code'):
+            continue
+        comment += (f"### {title} ({info['source']})\n{_rule_license_note(info)}"
+                    f"```{fence}\n{info['code']}\n```\n\n")
+    for idx, net_rule in enumerate(rules.get('network') or [], 1):
+        engine = net_rule.get('engine', 'unknown').upper()
+        comment += (f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n"
+                    f"{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n")
 
-    # Network (여러 개 가능)
-    if rules.get('network'):
-        for idx, net_rule in enumerate(rules['network'], 1):
-            if net_rule.get('verified'):
-                engine = net_rule.get('engine', 'unknown').upper()
-                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
-
-    # Yara
-    if rules.get('yara') and rules['yara'].get('verified'):
-        comment += f"### Yara Rule ({rules['yara']['source']})\n{_rule_license_note(rules['yara'])}```yara\n{rules['yara']['code']}\n```\n\n"
-    
     notifier = SlackNotifier()
     return notifier.update_github_issue(issue_url, comment)
 
