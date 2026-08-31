@@ -182,6 +182,11 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         entry["has_metasploit_module"] = state.get("has_metasploit_module", False)
         entry["metasploit_modules"] = _l(state, "metasploit_modules")[:3]
         entry["has_nuclei_template"] = state.get("has_nuclei_template", False)
+        # AI가 찾은 취약점 (출처 축) — ANT ID 등 근거를 함께 싣는다
+        entry["ai_discovered"] = state.get("ai_discovered", False)
+        entry["ai_program"] = _s(state, "ai_program")
+        entry["ai_detail"] = _s(state, "ai_detail")
+        entry["ai_url"] = _s(state, "ai_url")
         entry["is_vulncheck_kev"] = state.get("is_vulncheck_kev", False)
 
         # 티어와 발화한 트리거 — 화면의 정렬·필터 기준이 파이프라인 판정과 같아야 한다.

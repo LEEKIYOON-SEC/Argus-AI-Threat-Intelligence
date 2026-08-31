@@ -67,7 +67,7 @@ CISA KEV는 등재 기준 자체가 "조치 방법이 이미 있는 취약점"�
 | 티어 | 조건 | 처리 | 하루 |
 | :--- | :--- | :--- | ---: |
 | **T0** 관측된 악용 | CISA KEV · VulnCheck KEV · SSVC Exploitation=active · Metasploit 모듈 | **Slack 즉시** + 리포트 | ~10건 |
-| **T1** 무기화 임박 | nuclei 템플릿 · Exploit-DB · EPSS 상위 1%(p99) | **Slack 즉시** + 리포트 | ~5건 |
+| **T1** 무기화 임박 | nuclei 템플릿 · Exploit-DB · EPSS 상위 1%(p99) · **AI 발견 공개** | **Slack 즉시** + 리포트 | ~5건 |
 | **T2** 될 가능성 | CVSS 9+ 사전인증 원격 **AND 두 번째 근거** · 무기화 쉬운 CWE + 원격 · SSVC Automatable/Total · EPSS 상위 5% · 주요 벤더 무점수 신규 | 대시보드 추적 + 시간별 요약 | ~144건 |
 | **T3** | 그 외 | **저장하지 않음** | ~1,816건 |
 
@@ -76,6 +76,42 @@ T3을 저장하지 않아도 놓치지 않습니다. 나중에 그 CVE에 신호
 
 **EPSS는 절대 점수 대신 percentile을 씁니다.** 점수 0.1은 임의값이고 모델이 갱신되면 같은 값의
 의미가 달라집니다. 실측(366,357건): p99 ≈ 0.571 (상위 1%), p95 ≈ 0.093 (상위 5%).
+
+---
+
+## AI가 찾은 취약점
+
+AI 에이전트가 찾아 책임공개되는 취약점이 빠르게 늘고 있습니다. 이건 **악용 신호가 아니라
+출처(provenance) 신호**입니다 — 공개 시점에 이미 패치돼 있는 경우가 많지만(Anthropic 레저
+실측 fix_rate 95.3%), 공개와 동시에 상세가 함께 공개되므로 N-day 위험은 실재합니다.
+물량이 하루 1~2건이라 알림에 얹어도 묻히지 않습니다.
+
+두 갈래로 잡습니다.
+
+**① Anthropic Disclosure Ledger** — `red.anthropic.com/2026/cvd/data/payload.json`
+CVE ID ↔ ANT ID를 직접 이어 주는 구조화 데이터입니다(실측 CVE 69건, 레저 전체 2,736건).
+새 공개는 스냅샷 대조로 잡히므로 우리 DB에 그 CVE가 있었는지와 무관합니다.
+
+> 주의: 페이지 URL(`/ledger/payload.json`)은 사이트 셸 HTML을 200으로 돌려줍니다.
+> 실제 경로는 `/data/` 아래입니다 — 여기서 틀리면 조용히 HTML을 파싱하게 됩니다.
+
+**② CVE 레코드의 `credits` 필드** — 소스를 새로 붙일 필요가 없습니다. 우리가 이미 받는
+레코드 안에 있습니다(실측 15% 보유).
+
+```
+"Red Hat would like to thank Google Big Sleep for reporting this issue."
+"Nicholas Carlini using Claude, Anthropic"
+"Thai Duong (Calif.io in collaboration with Claude and Anthropic Research)"
+"Red Hat would like to thank John Walker (ZeroPath) ..."
+```
+
+패턴은 **프로그램 고유명만** 씁니다(Big Sleep · Claude/Anthropic · ZeroPath · XBOW ·
+CodeMender · AIxCC). `AI`·`LLM`·`OpenAI` 같은 일반어를 넣으면
+`Kostya Kortchinsky | OpenAI`처럼 **소속을 발견 주체로 오인**합니다 — OpenAI 소속 사람
+연구원이지 AI가 찾은 게 아닙니다. 매칭된 크레딧 원문을 그대로 들고 다녀, 오탐이 나면
+알림과 대시보드에서 눈에 보이게 했습니다.
+
+대시보드에서 `🧠 AI 발견` 필터로 따로 볼 수 있습니다.
 
 ---
 
@@ -175,6 +211,11 @@ EPSS가 0.11 → 0.17 → 0.23으로 올라도 알림은 한 번입니다.
 | ET Open / Snort Community | 네트워크 룰 | MIT / GPLv2 | 헤더 고지 보존 |
 | **Splunk security_content (ESCU)** | 탐지 룰 | **Apache-2.0** | NOTICE 보존 |
 | **YARA Forge** | YARA 룰 | 룰별 상이 | 룰 메타(author·license_url) 보존 |
+| **Anthropic Disclosure Ledger** | AI 발견 취약점(ANT ID) | 명시 문구 없음 | **사실 데이터만 사용 + 출처 표기** |
+
+> **Anthropic 레저 취급**: 페이지에 명시적 라이선스 문구가 없습니다. 그래서 사실 데이터
+> (CVE ID·ANT ID·프로젝트·버그 클래스·날짜)만 쓰고 출처를 명시하며, 데이터셋 자체를 우리
+> 것처럼 재배포하지 않습니다. EPSS·KEV와 같은 취급입니다.
 
 > **채택하지 않은 것 — Elastic detection-rules**: Elastic License 2.0은 source-available이라
 > 서비스 제공에 제한 조항이 있습니다. 공개 대시보드에 싣기에는 법적 검토 부담이 커서 제외했습니다.

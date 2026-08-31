@@ -36,6 +36,7 @@ import json
 from dataclasses import dataclass
 from typing import Callable, Dict, List, Optional, Set
 
+import ai_provenance
 import enrichment_sources
 import risk
 from logger import logger
@@ -93,6 +94,15 @@ def _epss_critical_ids() -> Optional[Set[str]]:
     return {cve for cve, (_score, pct) in data.items() if pct >= risk.EPSS_P_CRITICAL}
 
 
+def _anthropic_cvd_ids() -> Optional[Set[str]]:
+    """Anthropic 공개 레저에 CVE로 등장한 건 전량.
+
+    레저는 봉인(sealed)이 풀릴 때 비로소 CVE ID가 붙으므로, 이 집합이 늘어나는 것이
+    곧 '새 공개'다. 우리 DB에 그 CVE가 있었는지와 무관하게 잡힌다."""
+    data = ai_provenance.load_anthropic_ledger()
+    return None if data is None else (set(data) or None)
+
+
 #: fast=True 는 5분 주기에서도 부담 없는 것(수 KB~수백 KB).
 #: ExploitDB·Metasploit·nuclei·EPSS는 수 MB라 시간별 bulk-lane에 둔다.
 SOURCES: Dict[str, Source] = {
@@ -104,6 +114,8 @@ SOURCES: Dict[str, Source] = {
         Source("exploitdb", "Exploit-DB", False, "exploitdb", _exploitdb_ids),
         Source("epss_critical", f"EPSS p{risk.EPSS_P_CRITICAL:.0%}", False,
                "epss_critical", _epss_critical_ids),
+        Source("anthropic_cvd", "Anthropic CVD (ANT)", False,
+               "ai_discovered", _anthropic_cvd_ids),
     )
 }
 

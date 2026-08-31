@@ -97,6 +97,11 @@ _TRIGGERS: Tuple[Trigger, ...] = (
     Trigger("nuclei", T1, "nuclei 템플릿 공개 — 대량 스캔·검증 가능", "nuclei-templates (ProjectDiscovery)"),
     Trigger("exploitdb", T1, "Exploit-DB 공개 익스플로잇 등재", "Exploit-DB"),
     Trigger("epss_critical", T1, "EPSS 상위 1% (p99+) — 악용 확률 최상위", "EPSS (FIRST.org)"),
+    # 출처(provenance) 신호 — 악용 관측이 아니라 '누가 찾았나'다. 공개 시점에 대개 이미
+    # 패치돼 있지만(Anthropic 레저 실측 fix_rate 95.3%), 공개되는 순간 상세가 함께
+    # 공개되므로 N-day 위험이 실재한다. 물량이 하루 1~2건이라 알림에 얹어도 묻히지 않는다.
+    Trigger("ai_discovered", T1, "AI가 발견한 취약점 공개 — 상세가 함께 공개됨",
+            "Anthropic CVD / CVE credits"),
 
     # ── T2: 고위험이 '될' 가능성. 알리지 않고 화면과 시간별 요약에 세워 관측한다.
     Trigger("cvss_critical_remote", T2, "CVSS 9.0+ · 사전인증 원격 · 무기화 쉬운 유형", "CVE/NVD"),
@@ -268,6 +273,8 @@ def evaluate(state: Dict) -> Verdict:
     epss_hot = _epss_at(state, EPSS_P_CRITICAL, EPSS_SCORE_CRITICAL)
     if epss_hot:
         fired.add("epss_critical")
+    if state.get("ai_discovered"):
+        fired.add("ai_discovered")
 
     # ── T2 · 될 가능성
     epss_warm = _epss_at(state, EPSS_P_HIGH, EPSS_SCORE_HIGH)

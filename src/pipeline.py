@@ -36,6 +36,8 @@ STATE_FIELDS = frozenset({
     "has_poc", "poc_urls", "has_public_exploit",
     "has_metasploit_module", "metasploit_modules",
     "has_nuclei_template", "nuclei_severity",
+    # AI가 찾은 취약점 (출처 축 — 악용 신호와 별개)
+    "ai_discovered", "ai_program", "ai_detail", "ai_url",
     # 판정 입력
     "cvss", "epss", "epss_percentile", "assigner",
     # 티어와 '이미 알린 트리거' — 반복 발화 억제의 핵심

@@ -24,6 +24,7 @@ import requests
 from google import genai
 from google.genai import types
 
+import ai_provenance
 import enrichment_sources
 import feed
 import pipeline
@@ -732,6 +733,10 @@ def _main() -> None:
 
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
+    # Anthropic 공개 레저 — 2.3MB라 5분 주기(fast-lane)에는 무겁다. 여기서 적재해
+    # collector에 넘기면 이 회차의 판정이 ANT ID까지 본다. fast-lane은 레코드 크레딧
+    # 경로만 쓰는데, 그쪽은 이미 받은 레코드 안에 있어 비용이 0이다.
+    collector.ai_ledger = ai_provenance.load_anthropic_ledger()
 
     # ① 무거운 신호 대조 — 새 무기화 신호는 알림이 나가야 하므로 가장 먼저
     outcomes = sweep_heavy_signals(collector, db, notifier, deadline)

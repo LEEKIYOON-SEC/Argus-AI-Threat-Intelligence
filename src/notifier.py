@@ -142,6 +142,8 @@ class SlackNotifier:
             bits.append("Metasploit 모듈")
         if cve_data.get('has_nuclei_template'):
             bits.append("nuclei 템플릿")
+        if cve_data.get('ai_discovered'):
+            bits.append(f"AI 발견({cve_data.get('ai_program', 'AI')})")
         if cve_data.get('has_public_exploit'):
             bits.append("ExploitDB")
         if cve_data.get('has_poc'):
@@ -221,6 +223,8 @@ class SlackNotifier:
                 credits.append("This product uses VulnCheck KEV")
             if cve_data.get('has_nuclei_template'):
                 credits.append("nuclei-templates(ProjectDiscovery, MIT)")
+            if cve_data.get('ai_program') == "Anthropic CVD":
+                credits.append("Anthropic Disclosure Ledger")
             blocks.append({"type": "context",
                            "elements": [{"type": "mrkdwn", "text": " · ".join(credits)}]})
 

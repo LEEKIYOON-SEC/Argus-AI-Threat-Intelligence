@@ -356,10 +356,23 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         badges += " ![Metasploit](https://img.shields.io/badge/Metasploit-Weaponized-8B0000)"
     if cve_data.get('has_public_exploit'):
         badges += " ![ExploitDB](https://img.shields.io/badge/ExploitDB-Public-orange)"
+    if cve_data.get('ai_discovered'):
+        # 출처 신호 — 악용 관측이 아니라 '누가 찾았나'다. 대개 공개 시점에 이미 패치돼
+        # 있으므로 그 사실을 함께 적어, 읽는 사람이 긴급도를 오해하지 않게 한다.
+        prog = cve_data.get('ai_program', 'AI')
+        detail = cve_data.get('ai_detail', '')
+        url = cve_data.get('ai_url')
+        link = f" — [공개 레저]({url})" if url else ""
+        signal_lines.append(
+            f"- **AI 발견 취약점** ({prog}): {detail}{link}\n"
+            f"  <sub>AI가 찾아 책임공개된 건입니다. 공개 시점에 패치가 이미 나와 있는 경우가"
+            f" 많지만, 공개와 동시에 상세가 함께 공개되므로 N-day 위험은 실재합니다.</sub>")
     if cve_data.get('has_nuclei_template'):
         badges += " ![nuclei](https://img.shields.io/badge/nuclei-Template-9146FF)"
     if cve_data.get('is_vulncheck_kev'):
         badges += " ![VulnCheck KEV](https://img.shields.io/badge/VulnCheck_KEV-Listed-B00020)"
+    if cve_data.get('ai_discovered'):
+        badges += " ![AI Discovered](https://img.shields.io/badge/AI_Discovered-D97706)"
 
     # 위협 신호 상세 (출처 표기 — Metasploit metadata는 BSD-3-Clause)
     signal_lines = []
@@ -541,7 +554,9 @@ CISA KEV·SSVC/vulnrichment(U.S. Government Work / CC0 1.0) ·
 EPSS([FIRST.org](https://www.first.org/epss/)) · [OSV.dev](https://osv.dev)(CC-BY 4.0) ·
 GitHub Advisory · Metasploit Framework(Rapid7, BSD-3-Clause) ·
 [nuclei-templates](https://github.com/projectdiscovery/nuclei-templates)(ProjectDiscovery, MIT) ·
-This product uses VulnCheck KEV · PoC/ExploitDB(원문 미게시·링크만).
+This product uses VulnCheck KEV ·
+[Anthropic Disclosure Ledger](https://red.anthropic.com/2026/cvd/ledger/)(AI 발견 취약점 출처) ·
+PoC/ExploitDB(원문 미게시·링크만).
 공개 탐지 룰은 각 출처·author·라이선스 고지를 보존합니다.
 AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않습니다.</sub>
 """

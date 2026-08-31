@@ -18,6 +18,7 @@ import pytz
 import requests
 from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
 
+import ai_provenance
 import enrichment_sources
 import feed
 from logger import logger
@@ -29,10 +30,9 @@ class CollectorError(Exception):
     pass
 
 # ─────────────────────────────────────────────
-# NVD CPE → 영향 자산(벤더/제품)
-# 수집 파이프라인과 소급 백필(backfill_vendors)이 같은 규칙을 써야 해서 모듈 레벨에 둔다.
-# 주의: main.is_target_asset의 CPE 매칭은 일부러 이 함수를 쓰지 않는다 — 거기서는
-# 벤더가 와일드카드(*)여도 '*/product' 감시와 매칭돼야 하므로 규칙이 더 느슨하다.
+# NVD CPE → 영향 벤더/제품
+# 대시보드의 벤더·제품 필터가 이 값을 쓴다. 수집 경로와 소급 백필(backfill_vendors)이
+# 같은 규칙을 써야 해서 모듈 레벨에 둔다.
 # ─────────────────────────────────────────────
 def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
     """CPE 2.3에서 (vendor, product, version). 미상/와일드카드는 쓸 수 없어 버린다.
@@ -115,6 +115,9 @@ class Collector:
         self.kev_date_added: Dict[str, str] = {}  # CVE → KEV 등재일 (gap-filler용)
         self.kev_ransomware: Set[str] = set()     # KEV 중 랜섬웨어 캠페인 사용 확인분
         self.kev_due_date: Dict[str, str] = {}    # CVE → CISA 조치 기한
+        # Anthropic 공개 레저 (CVE → ANT ID). bulk-lane이 적재해 넣어 준다.
+        # 2.3MB라 5분 주기에는 무거워, fast-lane은 레코드 크레딧 경로만 쓴다.
+        self.ai_ledger: Optional[Dict[str, Dict]] = None
         self.vulncheck_kev_set: Set[str] = set()
         self.epss_cache: Dict[str, float] = {}
         # percentile 을 따로 든다. 절대 점수는 EPSS 모델이 갱신되면 같은 값의 의미가
@@ -198,7 +201,7 @@ class Collector:
         for item in affected_list:
             # cvelistV5에는 "vendor": null 처럼 값이 명시적 null인 레코드가 있다.
             # dict.get(k, 기본값)은 '키가 없을 때'만 기본값을 주므로 None이 그대로 흘러가,
-            # 자산 매칭(_norm/.lower())에서 AttributeError로 그 CVE가 매번 실패한다.
+            # 표시·필터 쪽에서 .lower() 호출로 AttributeError가 나 그 CVE가 매번 실패한다.
             # → 여기서 문자열로 정규화해 모든 소비자(매칭·리포트·대시보드)를 한 번에 보호.
             vendor = item.get('vendor') or 'Unknown'
             product = item.get('product') or 'Unknown'
@@ -296,6 +299,8 @@ class Collector:
                 # 레코드를 할당한 CNA. 점수가 아직 없는 신규 CVE를 지켜볼지 정하는 데 쓴다
                 # (risk.MAJOR_CNAS) — 경계 장비 벤더는 점수보다 KEV가 먼저 오는 일이 잦다.
                 "assigner": "",
+                # 발견자 크레딧 — ai_provenance가 'AI가 찾았는가'를 여기서 읽는다
+                "credits": [],
             }
 
             meta = json_data.get('cveMetadata', {}) or {}
@@ -363,6 +368,13 @@ class Collector:
             for ref in cna.get('references', []):
                 if 'url' in ref:
                     data['references'].append(ref['url'])
+
+            # 크레딧(발견자) — 'AI가 찾은 취약점' 판별에 쓴다. 소스를 새로 붙일 필요가 없는
+            # 이유가 여기다: 우리가 이미 받는 레코드 안에 들어 있다 (실측 15% 보유).
+            for credit in cna.get('credits', []) or []:
+                value = str((credit or {}).get('value') or '').strip()
+                if value:
+                    data['credits'].append(value)
 
             # CISA vulnrichment (ADP 컨테이너) — 이미 받은 레코드에서 파싱 (추가 네트워크 0, CC0)
             self._enrich_from_adp(json_data, data)
@@ -436,7 +448,7 @@ class Collector:
         """NVD에서 CVSS/CWE 보충 (CVEProject에 없을 때) + CPE 수집"""
         api_key = os.environ.get("NVD_API_KEY")
         cve_id = cve_data['id']
-        # 자산 매칭용 선제 조회와 위협인텔 경로의 이중 호출 방지 플래그 ('_' 접두 → DB 미저장)
+        # 이중 호출 방지 플래그 ('_' 접두라 DB 저장에서 자동 제외)
         cve_data['_nvd_enriched'] = True
 
         try:
@@ -667,6 +679,15 @@ class Collector:
             cve_data['nuclei_severity'] = tpl.get('severity', '')
             cve_data['_nuclei_url'] = enrichment_sources.nuclei_template_url(tpl.get('path', ''))
             logger.info(f"  🎯 nuclei 템플릿: {cve_id} ({tpl.get('severity', '?')})")
+        # AI가 찾은 취약점 — Anthropic 공개 레저(구조화) 우선, 없으면 레코드 크레딧.
+        # 레저는 bulk-lane이 적재해 넘겨준다(2.3MB라 5분 주기에는 무겁다). 없으면
+        # 크레딧 경로만 도는데, 그쪽은 레코드에 이미 들어 있어 비용이 0이다.
+        prov = ai_provenance.detect(cve_id, cve_data.get('credits'), self.ai_ledger)
+        if prov:
+            cve_data.update(prov.as_state())
+            logger.info(f"  🤖 AI 발견: {cve_id} ({prov.program}) — {prov.detail[:80]}")
+        else:
+            cve_data['ai_discovered'] = False
         return cve_data
 
     def enrich_threat_intel(self, cve_data: Dict) -> Dict:
@@ -680,8 +701,8 @@ class Collector:
         if 'has_public_exploit' not in cve_data:
             self.enrich_cheap_signals(cve_data)
 
-        # 1. NVD CVSS/CWE 보충 → CPE로 영향자산(벤더/제품) 보강 (자산 매칭 누락 방지)
-        #    자산 매칭 단계에서 이미 선제 조회했으면 재호출 생략
+        # 1. NVD CVSS/CWE 보충 → CPE로 영향 벤더/제품 보강 (대시보드 필터 품질)
+        #    이미 조회했으면 재호출 생략
         cve_data = self.fill_affected_from_nvd(cve_data)
 
         # 2. PoC 존재 여부 (nomi-sec → trickest 네트워크 검색)
