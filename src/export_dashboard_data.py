@@ -175,15 +175,21 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         entry["degraded"] = bool(state.get("waf_degraded"))
         # 공격 벡터 (모달 시각화용). 이 필드가 도입되기 전 행에는 없다 → 프론트에서 생략 처리
         entry["cvss_vector"] = _s(state, "cvss_vector")
-        # 자산 매칭 여부(match_type)는 공개 JSON에 싣지 않는다. 대시보드는 누구나
-        # 볼 수 있는 정적 사이트라, 어떤 CVE가 우리 자산인지가 그대로 드러난다.
-        # 판정 자체는 DB에 남아 티어링·알림에 계속 쓰인다.
 
-        # P5 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit)
+        # 위협 신호 (vulnrichment SSVC / ExploitDB / Metasploit / nuclei / VulnCheck KEV)
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
         entry["has_public_exploit"] = state.get("has_public_exploit", False)
         entry["has_metasploit_module"] = state.get("has_metasploit_module", False)
         entry["metasploit_modules"] = _l(state, "metasploit_modules")[:3]
+        entry["has_nuclei_template"] = state.get("has_nuclei_template", False)
+        entry["is_vulncheck_kev"] = state.get("is_vulncheck_kev", False)
+
+        # 티어와 발화한 트리거 — 화면의 정렬·필터 기준이 파이프라인 판정과 같아야 한다.
+        # 예전에는 화면이 CVSS로 다시 줄을 세워, 알림은 갔는데 목록에서는 아래에 있는
+        # 어긋남이 생겼다. 판정 결과를 그대로 싣고 화면은 그걸 쓰기만 한다.
+        entry["tier"] = _s(state, "tier") or "T2"
+        entry["triggers"] = [t for t in _l(state, "fired_triggers") if isinstance(t, str)]
+        entry["epss_percentile"] = state.get("epss_percentile") or 0
 
         # 자동화 악용 축 — CVSS(피해 크기)와 직교하는 '얼마나 쉽게 널리 자동화되는가'.
         # 값이 없는 행(도입 이전)은 프론트에서 딱지 자체를 생략한다.
@@ -423,50 +429,60 @@ def export_stats(cve_data: list) -> dict:
 
 
 def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
-                           delete_days: int = 180, max_rows: int = 20000) -> int:
-    """DB 용량 방어 (불변 원칙 2). 네 단계:
+                           delete_days: int = 180, watch_days: int = 90,
+                           max_rows: int = 20000) -> int:
+    """DB 용량 방어 (불변 원칙 2).
 
-    1) 최근 days일 이전 레코드의 대용량 JSON 필드(rules_snapshot, last_alert_state)를 null 처리.
-       상세 분석/룰 원문은 GitHub Issue에 영구 보존되므로 데이터 손실 없음.
-       days는 대시보드 노출 창(export_cves의 90일)보다 30일 여유만 둔다 — 그 밖의
-       last_alert_state는 어떤 소비자도 읽지 않아(에스컬레이션 스윕 30일, 룰 재확인은
-       스칼라 컬럼만 사용) 순수 저장 비용이었다.
-    2) marker_days일 지난 마커 행 삭제. 마커 = 비자산 저위험 dedup용(last_alert_state·
-       last_alert_at 모두 null). 삭제해도 안전: 이후 레코드가 바뀌면 '신규'로 재분류되어
-       고위험 승격 시 풀 알림이 나가고, KEV 등재는 gap-filler가 DB 유무와 무관하게 잡는다.
-       (last_alert_at 조건으로 1)에서 null화된 과거 알림 행과는 구분 — 그 행들은 보존.)
+    티어에 따라 보존을 다르게 한다. T2('고위험이 될 가능성')는 실측 하루 144건으로
+    유입의 대부분을 차지하는데, 90일이 지나도록 아무 악용 신호가 붙지 않았다면 그
+    판단은 유효기간이 지난 것이다. 반면 T0/T1(관측된 악용)은 조치 이력으로 남겨야 하므로
+    기존 보존기간을 그대로 둔다.
+
+      1) days일 지난 행의 대용량 JSONB를 null 처리 (상세는 GitHub Issue에 영구 보존)
+      2) (구) 마커 행 청소 — 이제 저위험은 애초에 저장하지 않으므로 언젠가 0으로 수렴한다
+      3) watch_days일 지난 T2 행 삭제
+      4) delete_days일 지난 행 전량 삭제
+      5) 행 수 상한 — 유입이 폭주해도 무한정 커지지 않게 하는 안전판
     """
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    now = dt.datetime.now(dt.timezone.utc)
+
+    def cutoff(n):
+        return (now - dt.timedelta(days=n)).isoformat()
+
     response = client.table("cves") \
         .update({"rules_snapshot": None, "last_alert_state": None}) \
-        .lt("updated_at", cutoff) \
+        .lt("updated_at", cutoff(days)) \
         .not_.is_("last_alert_state", "null") \
         .execute()
     cleaned = len(response.data or [])
 
-    marker_cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=marker_days)).isoformat()
+    # 구 마커 청소 — 새로 생기지는 않는다
     deleted = client.table("cves") \
         .delete() \
         .is_("last_alert_state", "null") \
         .is_("last_alert_at", "null") \
-        .lt("updated_at", marker_cutoff) \
+        .lt("updated_at", cutoff(marker_days)) \
         .execute()
     deleted_count = len(deleted.data or [])
     if deleted_count:
-        print(f"  마커 {deleted_count}건 삭제 ({marker_days}일 경과)", flush=True)
+        print(f"  구 마커 {deleted_count}건 청소 ({marker_days}일 경과)", flush=True)
 
-    # 3) delete_days 지난 행은 완전 삭제. 지금까지는 JSONB만 비우고 행은 영구 누적이라
-    #    수동 SQL로 정리하고 있었다. 안전한 이유: 조치 이력은 GitHub Issue에 남고
-    #    (불변 원칙 2), 대시보드는 90일만 노출하며, KEV 재등재는 신호 드리프트 대조가
-    #    등재일 기준으로 잡으므로 삭제된 행 때문에 재수집 루프가 생기지 않는다.
-    row_cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=delete_days)).isoformat()
-    purged = client.table("cves").delete().lt("updated_at", row_cutoff).execute()
+    # T2 만료 — 알림이 나간 적 없는(=악용 신호가 붙은 적 없는) 관찰 행만 지운다.
+    # last_alert_at이 있으면 T0/T1을 거친 행이므로 건드리지 않는다.
+    watch = client.table("cves") \
+        .delete() \
+        .is_("last_alert_at", "null") \
+        .lt("updated_at", cutoff(watch_days)) \
+        .execute()
+    watch_count = len(watch.data or [])
+    if watch_count:
+        print(f"  관찰(T2) {watch_count}건 만료 삭제 ({watch_days}일간 신호 없음)", flush=True)
+
+    purged = client.table("cves").delete().lt("updated_at", cutoff(delete_days)).execute()
     purged_count = len(purged.data or [])
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
-    # 4) 행 수 상한 — 유입이 폭주해도 DB가 무한정 커지지 않게 하는 안전판.
-    #    오래된 것부터 초과분만 지운다.
     capped = 0
     total = _count(client)
     if total > max_rows:
@@ -481,11 +497,8 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
 
     tracked = _count(client, tracked=True)
     remaining = _count(client)
-    # '상태없음'은 마커(비자산 저위험 dedup용)와 보존정책이 JSONB를 비운 과거 행이
-    # 섞인 수다. 둘을 나누려면 조회가 한 번 더 필요한데 그 값으로 할 일이 없다.
     print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 상태없음 {remaining - tracked:,} "
-          f"(마커 + 보존정책이 비운 과거 행) · 이번 삭제 "
-          f"{deleted_count + purged_count + capped:,}", flush=True)
+          f"· 이번 삭제 {deleted_count + watch_count + purged_count + capped:,}", flush=True)
 
     return cleaned
 

@@ -1,189 +1,32 @@
-import requests
+"""CVE 레코드 해석과 위협 신호 보강.
+
+'무엇이 바뀌었는지'는 feed.py가, '얼마나 위험한지'는 risk.py가, '진행 지점'은 state.py가
+맡는다. 여기 남은 일은 하나다 — **레코드 한 건을 우리 형식의 상태 dict로 바꾸고,
+거기에 외부 위협 신호를 붙이는 것**.
+
+예전에는 여기서 GitHub 커밋 API를 순회하고(최대 300페이지) CVE마다 원문을 받아 콘텐츠
+해시를 비교했다. 그 경로는 feed.py의 delta 피드가 통째로 대체했다 — 변경 발견이 1 요청이라
+해시 사전대조 자체가 필요 없어졌다(피드가 new/updated를 직접 알려준다).
+"""
 import datetime
-import pytz
 import os
 import re
-import json
 import time
-import gzip
-import hashlib
-from typing import List, Dict, Set, Optional, Tuple
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
+from typing import Dict, List, Optional, Set, Tuple
+
+import pytz
+import requests
+from tenacity import retry, retry_if_exception_type, stop_after_attempt, wait_exponential
+
+import enrichment_sources
+import feed
 from logger import logger
 from rate_limiter import rate_limit_manager
-import enrichment_sources
+
 
 class CollectorError(Exception):
     """데이터 수집 관련 에러"""
     pass
-
-# ─────────────────────────────────────────────
-# 워터마크(진행 지점 북마크) — 누락 0 수집의 핵심
-# GitHub Actions 무료 cron은 불규칙(수시간~수일 지연)이라 "최근 N시간" 고정 창은
-# 실행 간격이 창보다 크면 그 사이 CVE를 영구 누락한다. 대신 "마지막으로 처리한
-# 시각"을 기록하고, 다음 실행이 그 시각 이후 전부를 조회해 빈틈을 없앤다.
-# 저장 위치는 Supabase의 pipeline_state 테이블(1행). 예전에는 docs/data/에 파일로
-# 두고 매 실행 커밋해 영속시켰는데, 그것 때문에 시간당 커밋이 1건씩 쌓였다.
-# 아래 파일 경로는 자격증명 없이 도는 로컬 실행용 폴백으로만 남는다.
-# ─────────────────────────────────────────────
-_STATE_PATH = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "docs", "data", "pipeline_state.json"
-)
-_BOOTSTRAP_HOURS = 24  # 상태 파일이 없을 때(최초 실행) 소급 조회 기간
-
-_DB_HANDLE = None   # 상태 조회/저장이 한 실행에서 여러 번 일어나므로 붙여 쓴다
-
-
-def _db():
-    """상태 저장용 DB 핸들. 자격증명이 없으면 None (로컬 실행·테스트)."""
-    global _DB_HANDLE
-    if _DB_HANDLE is not None:
-        return _DB_HANDLE or None
-    if not os.environ.get("SUPABASE_URL") or not os.environ.get("SUPABASE_KEY"):
-        return None
-    try:
-        from database import ArgusDB
-        _DB_HANDLE = ArgusDB()
-    except Exception as e:
-        logger.warning(f"상태 DB 연결 실패 → 파일 경로로 진행: {e}")
-        _DB_HANDLE = False   # 재시도하지 않는다 (매번 예외를 내며 느려지는 것 방지)
-    return _DB_HANDLE or None
-
-
-def _read_state() -> Dict:
-    """상태 전체를 읽는다 (워터마크 + 실패 추적 + RPD). 없으면 빈 dict.
-
-    DB 우선, 없으면 파일. 파일 경로는 두 가지를 위해 남는다 — DB로 옮기기 전 마지막
-    커밋본에서 워터마크를 이어받는 전환기, 그리고 자격증명 없이 도는 로컬 실행."""
-    db = _db()
-    if db is not None:
-        state = db.get_pipeline_state()
-        if state:
-            return state
-        logger.info("DB에 파이프라인 상태 없음 → 파일에서 이어받기 시도")
-    try:
-        with open(_STATE_PATH, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, dict) else {}
-    except (OSError, ValueError, json.JSONDecodeError):
-        return {}
-
-
-def _write_state(payload: Dict) -> None:
-    """상태를 저장한다. DB가 있으면 DB에, 없으면 파일에."""
-    db = _db()
-    if db is not None and db.set_pipeline_state(payload):
-        return
-    try:
-        os.makedirs(os.path.dirname(_STATE_PATH), exist_ok=True)
-        with open(_STATE_PATH, "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=1, sort_keys=True)
-    except OSError as e:
-        logger.warning(f"상태 파일 저장 실패: {e}")
-
-def read_watermark() -> datetime.datetime:
-    """마지막 처리 시각(UTC) 반환. 없으면 now - _BOOTSTRAP_HOURS."""
-    wm = _read_state().get("last_processed_until")
-    if wm:
-        try:
-            return datetime.datetime.fromisoformat(wm.replace("Z", "+00:00"))
-        except ValueError:
-            pass
-    logger.info(f"워터마크 없음/파싱 실패 → 최근 {_BOOTSTRAP_HOURS}h 부트스트랩")
-    return datetime.datetime.now(pytz.UTC) - datetime.timedelta(hours=_BOOTSTRAP_HOURS)
-
-def read_failure_state() -> Tuple[Dict[str, int], Dict[str, str]]:
-    """(연속 실패 횟수, 격리 목록) 반환. 격리 = {cve_id: 격리 시각 ISO}."""
-    data = _read_state()
-    fails = data.get("failures") or {}
-    quarantined = data.get("quarantined") or {}
-    return (
-        {k: int(v) for k, v in fails.items() if isinstance(v, (int, float))},
-        {k: str(v) for k, v in quarantined.items()},
-    )
-
-def read_rpd_state() -> Dict[str, Dict[str, int]]:
-    """이전 실행이 남긴 일일 요청 수(RPD) 버킷. 없으면 빈 dict.
-
-    프로세스는 매 실행 새로 뜨므로 메모리 카운터만으로는 항상 0에서 시작한다 —
-    시간당 실행되는 파이프라인에서는 무료 티어 일일 한도(Gemma 1,500)를 스스로
-    지킬 수 없어 공급자가 429로 끊어버린다. 워터마크와 같은 파일에 이어붙인다."""
-    rpd = _read_state().get("rpd")
-    return rpd if isinstance(rpd, dict) else {}
-
-def active_quarantine(quarantined: Dict[str, str], retry_after_hours: int) -> Set[str]:
-    """아직 격리 유효기간이 지나지 않은 CVE 집합. 기간이 지나면 자동 해제되어 재시도된다
-    (일시 장애가 연속으로 겹쳐 격리된 경우 스스로 회복하게 하는 안전장치)."""
-    now = datetime.datetime.now(pytz.UTC)
-    active = set()
-    for cid, ts in quarantined.items():
-        try:
-            when = datetime.datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
-        except ValueError:
-            continue
-        if (now - when) < datetime.timedelta(hours=retry_after_hours):
-            active.add(cid)
-    return active
-
-def write_watermark(dt_utc: datetime.datetime,
-                    failures: Optional[Dict[str, int]] = None,
-                    quarantined: Optional[Dict[str, str]] = None,
-                    rpd: Optional[Dict[str, Dict[str, int]]] = None) -> None:
-    """처리 완료 지점(UTC) + 실패 추적 상태 + 일일 요청 수(RPD)를 기록.
-
-    실패 추적은 '독약 레코드'가 워터마크를 영구 고정하는 것을 막기 위한 것이다 —
-    상세는 main._main의 워터마크 계산 주석 참조.
-
-    rpd=None이면 파일에 있던 값을 그대로 남긴다 — 번역을 한 건도 하지 않고 끝나는
-    실행(신규 CVE 없음)이 이전 실행의 사용량 기록을 지워버리면 안 되기 때문이다.
-
-    반드시 기존 상태 위에 덮어쓴다(새 dict로 갈아끼우지 않는다). 예전에는 payload를
-    새로 만들어 저장해서, 백필이 남긴 force_full_export 표시를 다음 매시간 실행이
-    통째로 지워버렸다 — 그래서 백필을 몇 번 돌려도 대시보드에 반영되지 않았다.
-    이 테이블은 워터마크 말고도 다른 소비자가 쓰는 공유 상태다."""
-    payload = _read_state()
-    payload["last_processed_until"] = dt_utc.astimezone(pytz.UTC).isoformat()
-    # 빈 값은 키를 지운다 — 병합이라고 해서 해소된 격리·실패가 남으면 안 된다
-    for key, value in (("failures", failures), ("quarantined", quarantined)):
-        if value:
-            payload[key] = value
-        else:
-            payload.pop(key, None)
-    if rpd is not None:
-        if rpd:
-            payload["rpd"] = rpd
-        else:
-            payload.pop("rpd", None)
-    _write_state(payload)
-    logger.info(f"워터마크 저장: {payload['last_processed_until']}")
-
-def read_backfill_offset() -> int:
-    """번역 백필의 회전 스캔 위치. 없으면 0.
-
-    한 실행이 볼 수 있는 창은 수백 건인데 추적 행은 만 건대라, 창을 늘 앞에서 잡으면
-    뒤쪽은 영원히 못 본다. 위치를 실행 간에 이어붙여 전체를 한 바퀴 돌게 한다."""
-    v = _read_state().get("translation_scan_offset")
-    return v if isinstance(v, int) and v >= 0 else 0
-
-
-def write_backfill_offset(offset: int) -> None:
-    """회전 스캔 위치 저장 (워터마크·격리 상태는 건드리지 않음)."""
-    data = _read_state()
-    data["translation_scan_offset"] = max(0, int(offset))
-    _write_state(data)
-
-
-def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
-    """RPD 버킷만 갱신한다 (워터마크·격리 상태는 건드리지 않음).
-
-    번역 백필처럼 워터마크 저장 이후에 소비되는 호출까지 사용량에 반영하기 위한 것."""
-    data = _read_state()
-    if rpd:
-        data["rpd"] = rpd
-    else:
-        data.pop("rpd", None)
-    _write_state(data)
 
 # ─────────────────────────────────────────────
 # NVD CPE → 영향 자산(벤더/제품)
@@ -271,56 +114,42 @@ class Collector:
         self.kev_set: Set[str] = set()
         self.kev_date_added: Dict[str, str] = {}  # CVE → KEV 등재일 (gap-filler용)
         self.kev_ransomware: Set[str] = set()     # KEV 중 랜섬웨어 캠페인 사용 확인분
+        self.kev_due_date: Dict[str, str] = {}    # CVE → CISA 조치 기한
         self.vulncheck_kev_set: Set[str] = set()
         self.epss_cache: Dict[str, float] = {}
+        # percentile 을 따로 든다. 절대 점수는 EPSS 모델이 갱신되면 같은 값의 의미가
+        # 달라지지만 percentile 은 분포 기준이라 그렇지 않다 (risk.py 주석 참조).
+        self.epss_percentile: Dict[str, float] = {}
         self.headers = {
             "Authorization": f"token {os.environ.get('GH_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
     
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
-        retry=retry_if_exception_type(requests.exceptions.RequestException)
-    )
     def fetch_kev(self) -> bool:
-        """CISA KEV 목록 다운로드"""
-        url = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-        
-        try:
-            rate_limit_manager.check_and_wait("kev")
-            logger.info("Fetching CISA KEV list...")
-            
-            response = requests.get(url, timeout=15)
-            response.raise_for_status()
-            rate_limit_manager.record_call("kev")
-            
-            data = response.json()
-            vulns = data.get('vulnerabilities', [])
-            self.kev_set = {vuln['cveID'] for vuln in vulns}
-            # 등재일 매핑 — 최근 등재분 중 DB 미보유 CVE를 잡는 gap-filler에 사용
-            self.kev_date_added = {vuln['cveID']: vuln.get('dateAdded', '') for vuln in vulns}
-            # 랜섬웨어 캠페인에 실제로 쓰인 것 — KEV 안에서도 대응 순서를 가르는 축이다.
-            # (같은 KEV라도 랜섬웨어에 동원된 건 유출·암호화까지 이어진 전례가 있다는 뜻)
-            self.kev_ransomware = {
-                v['cveID'] for v in vulns
-                if str(v.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
-            }
+        """CISA KEV 목록 적재. 실제 다운로드는 enrichment_sources가 한다.
 
-            logger.info(f"Loaded {len(self.kev_set)} KEV entries "
-                        f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
-            return True
-            
-        except requests.exceptions.Timeout:
-            logger.error("KEV API timeout after 15s")
+        같은 실행 안에서 스냅샷 대조(signal_snapshot)도 KEV 전량을 쓰므로, 로더를 한
+        곳으로 모아 캐시를 공유한다 — 예전에는 여기서 따로 받아 같은 파일을 두 번 받았다.
+        """
+        data = enrichment_sources.load_cisa_kev()
+        if data is None:
+            logger.error("KEV 적재 실패 — 이번 실행은 KEV 신호 없이 진행")
             return False
-        except requests.exceptions.RequestException as e:
-            logger.error(f"KEV fetch failed: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Unexpected error in fetch_kev: {e}")
-            return False
-    
+
+        self.kev_set = set(data)
+        self.kev_date_added = {cid: item.get('dateAdded', '') for cid, item in data.items()}
+        # 랜섬웨어 캠페인에 실제로 쓰인 것 — 같은 KEV라도 대응 순서를 가르는 축이다.
+        self.kev_ransomware = {
+            cid for cid, item in data.items()
+            if str(item.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
+        }
+        # 조치 기한 — CISA가 연방기관에 부여하는 마감일. 우리에게 법적 구속력은 없지만
+        # "이 정도로 급하다고 본다"는 공식 판단이라 알림에 그대로 싣는다.
+        self.kev_due_date = {cid: item.get('dueDate', '') for cid, item in data.items()}
+        logger.info(f"KEV {len(self.kev_set)}건 적재 "
+                    f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
+        return True
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
@@ -349,8 +178,10 @@ class Collector:
                 
                 for item in response.json().get('data', []):
                     cve_id = item.get('cve')
-                    epss = float(item.get('epss', 0.0))
-                    self.epss_cache[cve_id] = epss
+                    if not cve_id:
+                        continue
+                    self.epss_cache[cve_id] = float(item.get('epss', 0.0) or 0.0)
+                    self.epss_percentile[cve_id] = float(item.get('percentile', 0.0) or 0.0)
                 
                 logger.debug(f"EPSS batch {chunk_num}/{total_chunks} complete")
                 
@@ -359,274 +190,6 @@ class Collector:
                 continue
         
         return self.epss_cache
-    
-    def fetch_epss_high(self, threshold: float = 0.1) -> Dict[str, float]:
-        """FIRST.org 일일 전량 덤프에서 EPSS가 임계 이상인 CVE만 반환.
-
-        기존 fetch_epss는 'CVE를 주고 점수를 받는' 정방향이라, DB에서 후보를 먼저
-        뽑아야 한다. 그 후보 조건(CVSS·기간·건수)이 곧 사각지대가 되므로 여기서는
-        반대로 '점수가 높은 CVE 전체'를 받아 DB와 대조할 수 있게 한다.
-        전량 35만 건 중 임계 이상은 1~2만 건이며, gz 2~3MB 한 번이면 끝난다.
-
-        실패하면 빈 dict을 반환한다 — 호출부는 기존 스윕 경로로 자연히 폴백된다."""
-        from enrichment_sources import cache_get, cache_put
-
-        raw = cache_get("epss-full.csv.gz", ttl_hours=12)
-        if raw is None:
-            # 당일 파일은 UTC 12시경 게시되므로 최근 3일을 역순으로 시도
-            today = datetime.datetime.now(pytz.UTC).date()
-            for back in range(0, 3):
-                day = (today - datetime.timedelta(days=back)).isoformat()
-                url = f"https://epss.empiricalsecurity.com/epss_scores-{day}.csv.gz"
-                try:
-                    rate_limit_manager.check_and_wait("epss")
-                    resp = requests.get(url, timeout=60)
-                    rate_limit_manager.record_call("epss")
-                    if resp.status_code == 200 and resp.content:
-                        raw = resp.content
-                        cache_put("epss-full.csv.gz", raw)
-                        logger.info(f"📥 EPSS 전량 덤프 수신 ({day}, {len(raw)/1024/1024:.1f}MB)")
-                        break
-                except Exception as e:
-                    logger.warning(f"EPSS 전량 덤프 {day} 수신 실패: {e}")
-            if raw is None:
-                logger.warning("EPSS 전량 덤프 확보 실패 — 드리프트 대조는 건너뛴다")
-                return {}
-        else:
-            logger.info("📥 EPSS 전량 덤프 캐시 로드")
-
-        try:
-            text = gzip.decompress(raw).decode("utf-8", errors="replace")
-        except Exception as e:
-            logger.warning(f"EPSS 덤프 압축 해제 실패: {e}")
-            return {}
-
-        high: Dict[str, float] = {}
-        for line in text.splitlines():
-            if not line or line.startswith("#") or line.startswith("cve,"):
-                continue
-            parts = line.split(",")
-            if len(parts) < 2:
-                continue
-            try:
-                score = float(parts[1])
-            except ValueError:
-                continue
-            if score >= threshold:
-                high[parts[0]] = score
-        logger.info(f"EPSS 임계({threshold}) 이상: {len(high)}건")
-        return high
-
-    # ====================================================================
-    # [3] 콘텐츠 해시 기반 스마트 필터링
-    # ====================================================================
-
-    def _compute_content_hash(self, json_data: dict) -> str:
-        """CVE JSON에서 의미있는 필드만 추출하여 SHA-256 해시 생성.
-
-        날짜/시간, assignerOrgId, serial 등 메타데이터 필드는 제외하여
-        벌크 메타데이터 패치(날짜 형식 변경 등)에 영향받지 않음.
-        """
-        cna = json_data.get('containers', {}).get('cna', {})
-        meaningful = {
-            "descriptions": cna.get('descriptions', []),
-            "affected": cna.get('affected', []),
-            "metrics": cna.get('metrics', []),
-            "problemTypes": cna.get('problemTypes', []),
-            "references": cna.get('references', []),
-            "title": cna.get('title', ''),
-            "state": json_data.get('cveMetadata', {}).get('state', ''),
-        }
-        canonical = json.dumps(meaningful, sort_keys=True, separators=(',', ':'))
-        return hashlib.sha256(canonical.encode()).hexdigest()
-
-    def _extract_cve_id(self, filename: str) -> Optional[str]:
-        """파일명에서 CVE ID 추출"""
-        if filename.endswith(".json") and "CVE-" in filename:
-            match = re.search(r'(CVE-\d{4}-\d{4,7})', filename)
-            if match:
-                return match.group(1)
-        return None
-
-    def _fetch_raw_cve_json(self, cve_id: str) -> Optional[dict]:
-        """raw.githubusercontent.com에서 CVE JSON만 다운로드 (API 한도 미소모).
-
-        enrich_cve()와 달리 NVD/EPSS/PoC 등 외부 API 호출 없음.
-        해시 비교용 경량 사전 검사에 사용.
-        """
-        try:
-            parts = cve_id.split('-')
-            year, id_num = parts[1], parts[2]
-            group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
-
-            raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
-            response = requests.get(raw_url, timeout=15)
-            response.raise_for_status()
-
-            return response.json()
-        except Exception as e:
-            logger.debug(f"{cve_id} raw JSON 조회 실패: {e}")
-            return None
-
-    def peek_cvss(self, cve_id: str) -> Optional[float]:
-        """레코드의 CVSS 점수만 경량 조회 — 이월(백로그) 대기열 심각도 추정용.
-
-        raw JSON(_fetch_raw_cve_json, API 한도 미소모)에서 CNA metrics 우선,
-        없으면 CISA-ADP 보강 점수를 읽는다. enrich_cve()와 달리 NVD/EPSS 등
-        외부 API 호출·부수효과 없음. 실패 또는 점수 없음 → None.
-        """
-        try:
-            raw = self._fetch_raw_cve_json(cve_id)
-            if not raw:
-                return None
-            containers = raw.get('containers', {}) or {}
-            metric_lists = [(containers.get('cna', {}) or {}).get('metrics', []) or []]
-            for adp in containers.get('adp', []) or []:
-                if (adp.get('providerMetadata') or {}).get('shortName') == 'CISA-ADP':
-                    metric_lists.append(adp.get('metrics', []) or [])
-            for metrics in metric_lists:
-                for metric in metrics:
-                    for key in ('cvssV4_0', 'cvssV3_1', 'cvssV3_0'):
-                        if key in metric:
-                            score = metric[key].get('baseScore')
-                            if score:
-                                return float(score)
-            return None
-        except Exception:
-            return None
-
-    @staticmethod
-    def _commit_ts(commit: dict) -> str:
-        c = commit.get("commit", {})
-        return (c.get("committer", {}) or {}).get("date") or (c.get("author", {}) or {}).get("date") or ""
-
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10)
-    )
-    def fetch_cves_since(self, since_dt: datetime.datetime, db=None, max_commit_pages: int = 300,
-                         until_dt: Optional[datetime.datetime] = None,
-                         deadline_ts: Optional[float] = None) -> List[dict]:
-        """워터마크(since_dt) 이후(선택적으로 until_dt까지) 커밋에서 변경된 CVE를 빠짐없이 수집.
-
-        고정 시간창(누락 위험) 대신 '마지막 처리 지점' 이후 전부를 조회한다.
-        스케줄이 아무리 불규칙해도(수시간·수일 지연) 빈틈이 생기지 않는다.
-        until_dt는 초장기 공백 캐치업 시 한 실행의 조회량을 상한하기 위한 것 —
-        창 밖(이후) 커밋은 다음 실행이 전진된 워터마크에서 이어서 수집한다.
-        deadline_ts(time.time() 기준)는 소프트 데드라인 — 커밋 상세 순회가 오름차순이라
-        중간에 멈춰도 안전하다: 워터마크는 '본 것'의 최대 시각까지만 전진하므로
-        못 본 이후 커밋은 다음 실행이 이어서 수집한다(누락 0 유지).
-
-        Returns:
-            List[dict]: [{"cve_id", "commit_ts"(datetime), "is_new"(bool)}], commit_ts 오름차순.
-            is_new=False → DB에 같은 content_hash로 이미 존재(재처리 불필요, 워터마크 전진엔 포함).
-        """
-        since_str = since_dt.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-        params_base = {"since": since_str, "per_page": 100}
-        if until_dt is not None:
-            params_base["until"] = until_dt.astimezone(pytz.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-            logger.info(f"CVE 수집(워터마크 기반): {since_str} ~ {params_base['until']}")
-        else:
-            logger.info(f"CVE 수집(워터마크 기반): {since_str} 이후")
-
-        # 1) 커밋 목록 전체 페이지네이션 (오래된 것까지 포함) — 목록은 파일 미포함이라 저비용
-        commits = []
-        page = 1
-        while page <= max_commit_pages:
-            rate_limit_manager.check_and_wait("github")
-            resp = requests.get(
-                "https://api.github.com/repos/CVEProject/cvelistV5/commits",
-                headers=self.headers,
-                params={**params_base, "page": page},
-                timeout=15,
-            )
-            resp.raise_for_status()
-            rate_limit_manager.record_call("github")
-            batch = resp.json()
-            if not batch:
-                break
-            commits.extend(batch)
-            if len(batch) < 100:
-                break
-            page += 1
-        else:
-            logger.warning(f"⚠️ 커밋 페이지 상한({max_commit_pages}) 도달 — 비정상적으로 긴 공백 가능")
-
-        if not commits:
-            logger.info("신규 커밋 없음")
-            return []
-
-        # 2) 오래된 순(FIFO) 정렬
-        commits.sort(key=self._commit_ts)
-
-        # 3) 커밋별 파일 → CVE, 각 CVE의 최신 커밋 시각 매핑
-        # GitHub 커밋 상세 API는 files를 페이지당 최대 300개로 자르므로, 벌크 커밋
-        # (수백~수천 파일)에서 301번째 이후 CVE가 조용히 누락되지 않게 페이지네이션한다.
-        cve_ts: Dict[str, datetime.datetime] = {}
-        for commit in commits:
-            # 소프트 데드라인: 오름차순 순회라 여기서 멈춰도 안전 (본 것까지만 워터마크 전진)
-            if deadline_ts is not None and time.time() > deadline_ts:
-                logger.warning("⏰ 수집 시간 예산 도달 — 지금까지 상세 조회한 커밋까지만 처리 (이후는 다음 실행)")
-                break
-            try:
-                ts = datetime.datetime.fromisoformat(self._commit_ts(commit).replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
-                ts = datetime.datetime.now(pytz.UTC)
-            file_page = 1
-            while True:
-                rate_limit_manager.check_and_wait("github")
-                cr = requests.get(
-                    commit["url"], headers=self.headers,
-                    params={"page": file_page}, timeout=10,
-                )
-                cr.raise_for_status()
-                rate_limit_manager.record_call("github")
-                files = cr.json().get("files", []) or []
-                for file_info in files:
-                    cid = self._extract_cve_id(file_info.get("filename", ""))
-                    if not cid:
-                        continue
-                    prev = cve_ts.get(cid)
-                    if prev is None or ts > prev:
-                        cve_ts[cid] = ts
-                # 300개 미만이면 마지막 페이지 (300 = 커밋 상세 files 페이지 상한)
-                if len(files) < 300:
-                    break
-                file_page += 1
-
-        if not cve_ts:
-            return []
-
-        # 4) DB 중복 제거 (일반/벌크 구분 없이 전부) — content_hash 같으면 이미 처리됨
-        all_ids = list(cve_ts.keys())
-        existing = db.batch_get_content_hashes(all_ids) if db else {}
-        result = []
-        skipped = 0
-        for cid, ts in cve_ts.items():
-            old_hash = existing.get(cid)
-            if old_hash is None:
-                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
-                continue
-            # 데드라인 도달 시 해시 사전검사(원문 fetch) 생략 — 보수적으로 처리 대상 취급
-            # (중복 처리 가능성은 실행당 상한이 흡수, 누락 방지가 우선)
-            if deadline_ts is not None and time.time() > deadline_ts:
-                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
-                continue
-            raw_json = self._fetch_raw_cve_json(cid)
-            if raw_json is None:
-                # 조회 실패 → 안전하게 처리 대상(재시도)으로 (누락 방지 우선)
-                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
-                continue
-            if self._compute_content_hash(raw_json) != old_hash:
-                result.append({"cve_id": cid, "commit_ts": ts, "is_new": True})
-            else:
-                result.append({"cve_id": cid, "commit_ts": ts, "is_new": False})
-                skipped += 1
-
-        result.sort(key=lambda x: x["commit_ts"])
-        new_count = len(result) - skipped
-        logger.info(f"수집 결과: 후보 {len(result)}건 (신규/변경 {new_count}, 이미처리 {skipped})")
-        return result
     
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
         """Affected 정보 파싱"""
@@ -680,32 +243,23 @@ class Collector:
         return results
     
     def enrich_cve(self, cve_id: str) -> Dict:
-        """CVE 상세 정보 수집.
+        """CVE ID만 아는 상황에서 레코드를 받아 해석한다 (스냅샷 대조 경로).
+
+        평소 경로(fast-lane)는 feed가 이미 레코드를 들고 있으므로 parse_record를 직접
+        부른다 — 같은 파일을 두 번 받지 않기 위해서다.
 
         raw.githubusercontent.com은 부하 시 느려 Read timeout이 잦다. 네트워크 오류는
-        지수 백오프로 재시도하고, 최종 실패 시 state='ERROR'를 반환한다 — 호출측
-        (prepare_single_cve)이 이를 'failed'로 처리해 워터마크가 붙잡고 다음 실행에서
-        재수집하므로 누락되지 않는다. (기존엔 @retry가 함수 내부 except에 예외가 삼켜져
-        재시도가 발동하지 않고 ERROR가 handled로 흘러 CVE가 조용히 누락됐다.)
+        지수 백오프로 재시도하고, 최종 실패 시 state='ERROR'를 반환한다 — 호출측이
+        이를 'failed'로 처리해 워터마크가 붙잡고 다음 실행에서 재수집하므로 누락되지 않는다.
         """
-        parts = cve_id.split('-')
-        year, id_num = parts[1], parts[2]
-        group_dir = "0xxx" if len(id_num) < 4 else id_num[:-3] + "xxx"
-        raw_url = f"https://raw.githubusercontent.com/CVEProject/cvelistV5/main/cves/{year}/{group_dir}/{cve_id}.json"
-
-        json_data = None
         max_attempts = 3
         for attempt in range(1, max_attempts + 1):
             try:
-                rate_limit_manager.check_and_wait("github")
-                response = requests.get(raw_url, timeout=20)
-                if response.status_code == 404:
-                    logger.warning(f"{cve_id} not found (404)")
+                record = feed.fetch_record(cve_id)
+                if record is None:
+                    # 404는 재시도해도 같다 — 재수집 대상으로 붙잡아 둘 이유가 없다
                     return self._error_response(cve_id, state="NOT_FOUND")
-                response.raise_for_status()
-                rate_limit_manager.record_call("github")
-                json_data = response.json()
-                break
+                return self.parse_record(cve_id, record)
             except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
                 if attempt < max_attempts:
                     wait = 2 * attempt  # 2s, 4s
@@ -717,12 +271,15 @@ class Collector:
             except Exception as e:
                 logger.error(f"{cve_id} enrichment failed: {e}")
                 return self._error_response(cve_id)
+        return self._error_response(cve_id)
 
+    def parse_record(self, cve_id: str, json_data: Dict) -> Dict:
+        """cvelistV5 레코드 원문 → 우리 형식의 상태 dict. **네트워크를 쓰지 않는다.**
+
+        feed가 delta ZIP으로 통째로 받아 온 레코드를 그대로 넘길 수 있게 분리했다.
+        """
         try:
             cna = json_data.get('containers', {}).get('cna', {})
-
-            # 콘텐츠 해시 계산 (DB 저장용)
-            content_hash = self._compute_content_hash(json_data)
 
             data = {
                 "id": cve_id,
@@ -736,11 +293,14 @@ class Collector:
                 "affected": [],
                 "ssvc": {},
                 "published": "",
-                "content_hash": content_hash
+                # 레코드를 할당한 CNA. 점수가 아직 없는 신규 CVE를 지켜볼지 정하는 데 쓴다
+                # (risk.MAJOR_CNAS) — 경계 장비 벤더는 점수보다 KEV가 먼저 오는 일이 잦다.
+                "assigner": "",
             }
 
             meta = json_data.get('cveMetadata', {}) or {}
             data['state'] = meta.get('state', 'UNKNOWN')
+            data['assigner'] = str(meta.get('assignerShortName') or '').strip()
             # CVE 공개일 — 우리가 확인한 날짜(updated_at)와 별개다. 백로그를 몰아 처리하면
             # 확인일 기준 집계가 그날 하루에 몰려 실제 공개 추이를 왜곡하므로, 추이 차트는
             # 이 값을 쓴다. (표·필터·정렬은 '우리가 확인한 날' 기준을 그대로 유지)
@@ -861,36 +421,17 @@ class Collector:
     # ====================================================================
 
     def fetch_vulncheck_kev(self) -> bool:
-        """VulnCheck KEV 목록 다운로드 (CISA KEV보다 커버리지 넓음)"""
-        api_key = os.environ.get("VULNCHECK_API_KEY")
-        if not api_key:
-            logger.debug("VULNCHECK_API_KEY 미설정, VulnCheck KEV 건너뜀")
+        """VulnCheck KEV 적재 (CISA KEV보다 넓고 대체로 이르다).
+
+        무료지만 **출처 표기 의무**가 있는 소스다 — 이 신호로 알림이 나갈 때 'VulnCheck KEV'를
+        반드시 함께 싣는다(notifier·리포트에서 처리). 키가 없으면 조용히 건너뛴다."""
+        data = enrichment_sources.load_vulncheck_kev()
+        if data is None:
             return False
-        
-        try:
-            rate_limit_manager.check_and_wait("vulncheck")
-            
-            response = requests.get(
-                "https://api.vulncheck.com/v3/index/vulncheck-kev",
-                headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
-                timeout=15
-            )
-            response.raise_for_status()
-            rate_limit_manager.record_call("vulncheck")
-            
-            data = response.json()
-            for item in data.get('data', []):
-                cve_id = item.get('cveID', '')
-                if cve_id:
-                    self.vulncheck_kev_set.add(cve_id)
-            
-            logger.info(f"VulnCheck KEV 로드: {len(self.vulncheck_kev_set)}건")
-            return True
-            
-        except Exception as e:
-            logger.warning(f"VulnCheck KEV 실패: {e}")
-            return False
-    
+        self.vulncheck_kev_set = set(data)
+        logger.info(f"VulnCheck KEV {len(self.vulncheck_kev_set)}건 적재")
+        return True
+
     def enrich_from_nvd(self, cve_data: Dict) -> Dict:
         """NVD에서 CVSS/CWE 보충 (CVEProject에 없을 때) + CPE 수집"""
         api_key = os.environ.get("NVD_API_KEY")
@@ -1080,7 +621,7 @@ class Collector:
 
     def _augment_affected_from_cpe(self, cve_data: Dict) -> Dict:
         """CVE 자체 affected에 유효한 벤더가 없을 때 NVD CPE로 벤더/제품을 보강한다.
-        자산 매칭(is_target_asset)이 affected를 1차 소스로 쓰므로 매칭 누락 방지에 직접 기여."""
+        벤더가 비면 대시보드 벤더 필터에서 통째로 빠지므로 표시 품질에 직접 기여한다."""
         cpes = cve_data.get('nvd_cpe') or []
         if not cpes:
             return cve_data
@@ -1117,6 +658,15 @@ class Collector:
         cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
         if msf_modules:
             logger.info(f"  🧨 Metasploit 모듈: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+        # nuclei 템플릿 (캐시 인덱스 조회, MIT). 템플릿이 있다는 건 "공격 조건이 재현
+        # 가능한 형태로 정리돼 누구나 대량 스캔할 수 있다"는 뜻이라 무기화 신호로 쓴다.
+        # 원문은 재게시하지 않고 저장소 링크만 싣는다(불변 원칙 8-②와 같은 취급).
+        tpl = enrichment_sources.nuclei_template(cve_id)
+        cve_data['has_nuclei_template'] = tpl is not None
+        if tpl:
+            cve_data['nuclei_severity'] = tpl.get('severity', '')
+            cve_data['_nuclei_url'] = enrichment_sources.nuclei_template_url(tpl.get('path', ''))
+            logger.info(f"  🎯 nuclei 템플릿: {cve_id} ({tpl.get('severity', '?')})")
         return cve_data
 
     def enrich_threat_intel(self, cve_data: Dict) -> Dict:

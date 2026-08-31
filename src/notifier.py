@@ -4,6 +4,8 @@ import re
 import time
 import threading
 from typing import Dict, List, Optional
+
+import risk
 from logger import logger
 
 class NotifierError(Exception):
@@ -44,194 +46,253 @@ class SlackNotifier:
                     return False
         return False
 
-    def collect_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None) -> None:
-        """개별 CVE 알림을 배치 결과에 수집 (thread-safe)"""
-        # 여기서 스칼라를 정규화해 두면 요약 집계(비교·정렬·슬라이싱)가 None에 걸려
-        # 통째로 실패하는 일이 없다 — 수집 시점 한 곳에서만 방어하면 충분하다.
+    def collect_alert(self, cve_data: Dict, reason: str, tier: str,
+                      report_url: Optional[str] = None) -> None:
+        """개별 CVE 알림을 배치 요약용으로 수집 (thread-safe).
+
+        여기서 스칼라를 정규화해 두면 요약 집계(비교·정렬·슬라이싱)가 None에 걸려
+        통째로 실패하는 일이 없다 — 수집 시점 한 곳에서만 방어하면 충분하다."""
         with self._lock:
             self._batch_results.append({
                 "id": cve_data['id'],
                 "title_ko": cve_data.get('title_ko') or cve_data.get('title') or 'N/A',
                 "cvss": cve_data.get('cvss') or 0,
                 "epss": cve_data.get('epss') or 0,
-                "is_kev": cve_data.get('is_kev', False),
-                "has_poc": cve_data.get('has_poc', False),
-                # 요약의 '즉시 알림 N건' 집계(is_urgent)에 필요한 신호 — 빠지면 과소 집계된다
-                "has_metasploit_module": cve_data.get('has_metasploit_module', False),
-                "ssvc_exploitation": cve_data.get('ssvc_exploitation'),
+                "epss_percentile": cve_data.get('epss_percentile') or 0,
+                "is_kev": bool(cve_data.get('is_kev')),
+                "tier": tier,
                 "reason": reason,
                 "report_url": report_url,
             })
-        logger.info(f"Slack 배치 수집: {cve_data['id']}")
 
     def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None,
-                   urgent: Optional[bool] = None) -> bool:
+                   tier: str = risk.T2) -> bool:
+        """알림 발송. 티어는 **파이프라인이 판정한 것을 그대로 받는다**.
+
+        예전에는 여기서 is_urgent()로 다시 판정했다. 그래서 리포트에는 '🔴 긴급'인데
+        Slack은 조용한 상충이 실제로 났다 — 같은 신호를 두 곳에서 해석하면 언젠가
+        갈라진다. 판정의 주인은 risk.py 하나다.
         """
-        CVE 알림 처리:
-        - 긴급(critical 티어) → 즉시 Slack 전송
-        - 나머지 → 배치에 수집 (send_batch_summary에서 일괄 전송)
-
-        urgent: 파이프라인이 이미 판정한 티어를 그대로 받는다(critical 여부). 미지정 시
-        같은 신호 집합으로 자체 판정 — 판정 기준이 두 곳에서 어긋나지 않게 하기 위함이다.
-        (과거엔 여기서만 'KEV or CVSS≥9'로 좁게 판정해, Metasploit 무기화·SSVC active·
-         EPSS 급증 CVE가 GitHub Issue엔 '🔴 긴급'으로 실리면서 Slack은 조용한 상충이 있었다.)
-        """
-        self.collect_alert(cve_data, reason, report_url)
-
-        if urgent is None:
-            urgent = self.is_urgent(cve_data)
-        if urgent:
-            self._send_urgent_alert(cve_data, report_url)
-
+        self.collect_alert(cve_data, reason, tier, report_url)
+        if tier in risk.ALERTING_TIERS:
+            return self._send_immediate(cve_data, reason, tier, report_url)
         return True
 
     @staticmethod
-    def is_urgent(cve_data: Dict) -> bool:
-        """실제 악용·무기화 신호 또는 최상위 심각도 = 즉시 알림 대상.
-        main._risk_tier의 critical 조건과 동일하게 유지할 것."""
-        return bool(
-            cve_data.get('is_kev')
-            or cve_data.get('has_metasploit_module')
-            or cve_data.get('ssvc_exploitation') == 'active'
-            or (cve_data.get('epss') or 0) >= 0.1
-            or (cve_data.get('cvss') or 0) >= 9.0
-        )
+    def _fixed_target(cve_id: str) -> str:
+        """OSV 역인덱스가 아는 패치 목표 버전 한 줄. 없으면 빈 문자열.
 
-    def _send_urgent_alert(self, cve_data: Dict, report_url: Optional[str] = None) -> bool:
-        """긴급 CVE 즉시 알림 (실제 악용·무기화 신호 또는 CVSS 9+)"""
+        '무엇을 하라'가 없는 알림은 결국 사람이 다시 찾아봐야 한다. 이미 만들어 둔
+        인덱스를 여기서 한 번 더 쓴다(공개 정적 파일이라 DB 비용 0)."""
         try:
-            # None 안전 추출 — 값이 명시적 null이면 .get의 기본값이 발동하지 않아
-            # 비교 연산에서 TypeError가 나고, 예외를 삼키는 구조 탓에 긴급 알림이 통째로 유실된다.
-            # (판정부 is_urgent는 이미 같은 방식으로 방어하고 있어 기준을 맞춘다)
-            display_title = cve_data.get('title_ko') or cve_data.get('title') or 'N/A'
-            cvss = cve_data.get('cvss') or 0
-            epss = cve_data.get('epss') or 0
+            import report as report_mod
+            pkgs = report_mod._package_index().get(cve_id) or {}
+        except Exception:
+            return ""
+        picks = []
+        for pkg, eco_map in sorted(pkgs.items()):
+            for eco, fixes in sorted((eco_map or {}).items()):
+                good = [f for f in (fixes or []) if f]
+                if good:
+                    picks.append(f"`{pkg}` {eco} → *{good[0]}*")
+            if len(picks) >= 3:
+                break
+        if not picks:
+            return ""
+        more = " …" if len(pkgs) > len(picks) else ""
+        return " / ".join(picks[:3]) + more
 
-            # 긴급 배지 — '왜 긴급인지'를 배지로 그대로 보여준다
-            badges = []
-            if cve_data.get('is_kev'):
-                badges.append("KEV")
-            if cve_data.get('has_metasploit_module'):
-                badges.append("무기화(MSF)")
-            if cve_data.get('ssvc_exploitation') == 'active':
-                badges.append("악용 진행형")
-            if (epss or 0) >= 0.1:
-                badges.append(f"EPSS {epss*100:.1f}%")
-            if cvss >= 9.0:
-                badges.append(f"CVSS {cvss}")
-            if cve_data.get('has_poc'):
-                badges.append("PoC")
-            badge_text = " | ".join(badges)
+    @staticmethod
+    def _attack_conditions(cve_data: Dict) -> str:
+        """공격 조건을 사람 말로. 점수 하나보다 이게 판단을 빨리 만든다."""
+        m = risk.parse_vector(cve_data.get('cvss_vector'))
+        if not m:
+            return ""
+        parts = []
+        av = {"N": "네트워크", "A": "인접 네트워크", "L": "로컬", "P": "물리 접근"}.get(m.get("AV"))
+        if av:
+            parts.append(av)
+        if m.get("PR") == "N":
+            parts.append("인증 불필요")
+        elif m.get("PR") in ("L", "H"):
+            parts.append("인증 필요")
+        if m.get("UI") == "N":
+            parts.append("사용자 관여 없음")
+        elif m.get("UI") in ("R", "A", "P"):
+            parts.append("사용자 관여 필요")
+        if m.get("AC") == "L" or m.get("AT") == "N":
+            parts.append("조건 단순")
+        return " · ".join(parts)
+
+    @staticmethod
+    def _indicators(cve_data: Dict) -> str:
+        """지표 한 줄. EPSS는 percentile을 함께 적는다 — 0.09가 상위 5%라는 걸
+        숫자만 봐서는 알 수 없기 때문이다."""
+        bits = []
+        cvss = cve_data.get('cvss') or 0
+        if cvss:
+            bits.append(f"CVSS {cvss}")
+        pct = cve_data.get('epss_percentile') or 0
+        epss = cve_data.get('epss') or 0
+        if pct:
+            bits.append(f"EPSS {epss * 100:.1f}% (상위 {max(0.1, (1 - pct) * 100):.1f}%)")
+        elif epss:
+            bits.append(f"EPSS {epss * 100:.1f}%")
+        if cve_data.get('has_metasploit_module'):
+            bits.append("Metasploit 모듈")
+        if cve_data.get('has_nuclei_template'):
+            bits.append("nuclei 템플릿")
+        if cve_data.get('has_public_exploit'):
+            bits.append("ExploitDB")
+        if cve_data.get('has_poc'):
+            bits.append("PoC")
+        return " · ".join(bits)
+
+    def _send_immediate(self, cve_data: Dict, reason: str, tier: str,
+                        report_url: Optional[str] = None) -> bool:
+        """T0/T1 즉시 알림.
+
+        판단에 필요한 것을 메시지 안에서 끝낸다 — 무엇이 바뀌었나 · 무엇에 영향 ·
+        어디까지 올리면 되나 · 어떤 조건에서 공격되나 · 지표. 예전 메시지는 제목과
+        배지뿐이라 결국 이슈를 열어봐야 했다."""
+        try:
+            cve_id = cve_data['id']
+            title = cve_data.get('title_ko') or cve_data.get('title') or 'N/A'
+            head = "🚨 즉시 대응" if tier == risk.T0 else "⚠️ 높음"
+
+            lines = [f"*{title}*", ""]
+            lines.append(f"*무엇이 바뀌었나* · {reason}")
+
+            affected = [a for a in (cve_data.get('affected') or []) if isinstance(a, dict)]
+            if affected:
+                shown = []
+                for a in affected[:2]:
+                    vendor = str(a.get('vendor') or '').strip()
+                    product = str(a.get('product') or '').strip()
+                    versions = str(a.get('versions') or '').strip()
+                    name = f"{vendor} {product}".strip() or product or vendor
+                    if name and name.lower() not in ('unknown', 'n/a'):
+                        shown.append(f"{name}" + (f" ({versions})" if versions and
+                                                  versions != '정보 없음' else ""))
+                if shown:
+                    more = f" 외 {len(affected) - len(shown)}건" if len(affected) > len(shown) else ""
+                    lines.append(f"*영향* · {' / '.join(shown)}{more}")
+
+            target = self._fixed_target(cve_id)
+            if target:
+                lines.append(f"*패치 목표* · {target}")
+
+            cond = self._attack_conditions(cve_data)
+            if cond:
+                lines.append(f"*공격 조건* · {cond}")
+
+            ind = self._indicators(cve_data)
+            if ind:
+                lines.append(f"*지표* · {ind}")
+
+            due = cve_data.get('kev_due_date')
+            if due:
+                lines.append(f"*CISA 조치 기한* · {due}")
 
             blocks = [
-                {"type": "header", "text": {"type": "plain_text", "text": f"🚨 긴급: {cve_data['id']}"}},
-                {"type": "section", "text": {"type": "mrkdwn", "text":
-                    f"*{display_title}*\n\n"
-                    f"*{badge_text}*  |  EPSS {epss*100:.2f}%"
-                }},
+                {"type": "header",
+                 "text": {"type": "plain_text", "text": f"{head}: {cve_id}"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)}},
             ]
 
+            elements = []
             if report_url:
-                blocks.append({
-                    "type": "actions",
-                    "elements": [{"type": "button", "text": {"type": "plain_text", "text": "상세 분석 리포트"}, "url": report_url, "style": "danger"}]
-                })
+                elements.append({"type": "button", "style": "danger",
+                                 "text": {"type": "plain_text", "text": "상세 리포트"},
+                                 "url": report_url})
+            elements.append({"type": "button",
+                             "text": {"type": "plain_text", "text": "CVE 원문"},
+                             "url": f"https://www.cve.org/CVERecord?id={cve_id}"})
+            refs = [r for r in (cve_data.get('references') or []) if r]
+            if refs:
+                elements.append({"type": "button",
+                                 "text": {"type": "plain_text", "text": "벤더 권고"},
+                                 "url": refs[0]})
+            blocks.append({"type": "actions", "elements": elements[:3]})
 
-            success = self._send_slack_with_retry({"blocks": blocks}, f"긴급 알림 ({cve_data['id']})")
-            if success:
-                logger.info(f"Slack 긴급 알림 전송: {cve_data['id']} ({badge_text})")
-            return success
+            # 출처 표기 의무가 있는 소스가 판정에 쓰였으면 반드시 함께 싣는다.
+            credits = ["출처: CISA KEV · EPSS(FIRST.org)"]
+            if cve_data.get('is_vulncheck_kev'):
+                credits.append("This product uses VulnCheck KEV")
+            if cve_data.get('has_nuclei_template'):
+                credits.append("nuclei-templates(ProjectDiscovery, MIT)")
+            blocks.append({"type": "context",
+                           "elements": [{"type": "mrkdwn", "text": " · ".join(credits)}]})
+
+            ok = self._send_slack_with_retry({"blocks": blocks}, f"즉시 알림 ({cve_id})")
+            if ok:
+                logger.info(f"Slack 즉시 알림: {cve_id} [{tier}] {reason}")
+            return ok
 
         except Exception as e:
-            logger.error(f"Slack 긴급 알림 실패: {e}")
+            logger.error(f"Slack 즉시 알림 실패: {e}")
             return False
 
-    def send_batch_summary(self, dashboard_url: Optional[str] = None, tracked_high: int = 0) -> bool:
-        """수집된 CVE 결과를 한 번에 요약 전송.
+    def send_batch_summary(self, dashboard_url: Optional[str] = None,
+                           tracked: int = 0) -> bool:
+        """한 회차 요약. 즉시 알림이 이미 나간 건들의 '전체 그림'을 한 번 더 준다.
 
-        tracked_high: 이번 실행에서 Issue 없이 대시보드 추적만 시작한 High(CVSS 7~8.9
-        단독) 건수 — 알림 노이즈 없이 규모는 파악되도록 요약에 집계한다."""
-        if not self._batch_results and tracked_high == 0:
-            logger.info("Slack 배치 알림: 전송할 CVE 없음")
+        tracked: 알림 없이 대시보드 추적만 시작한 T2 건수 — 알림 노이즈를 늘리지 않으면서
+        규모는 보이게 한다."""
+        if not self._batch_results and not tracked:
+            logger.debug("배치 요약: 보낼 것 없음")
             return True
 
         try:
-            total = len(self._batch_results)
-            high_risk = [r for r in self._batch_results if r['cvss'] >= 7.0]
-            critical = [r for r in self._batch_results if r['cvss'] >= 9.0]
-            kev_list = [r for r in self._batch_results if r['is_kev']]
-            poc_list = [r for r in self._batch_results if r['has_poc']]
+            rows = list(self._batch_results)
+            t0 = [r for r in rows if r.get('tier') == risk.T0]
+            t1 = [r for r in rows if r.get('tier') == risk.T1]
 
-            # 헤더
+            lines = [f"*알림 {len(rows)}건*"]
+            if t0:
+                lines.append(f"• 🚨 *T0 관측된 악용:* {len(t0)}건")
+            if t1:
+                lines.append(f"• ⚠️ *T1 무기화 임박:* {len(t1)}건")
+            if tracked:
+                lines.append(f"• 📋 *T2 관찰 등록:* {tracked}건 — 대시보드에서 확인")
+
             blocks = [
-                {"type": "header", "text": {"type": "plain_text", "text": f"🛡️ Argus CVE 탐지 요약 (알림 {total}건)"}},
+                {"type": "header",
+                 "text": {"type": "plain_text", "text": f"🛡️ Argus 요약 (알림 {len(rows)}건)"}},
+                {"type": "section", "text": {"type": "mrkdwn", "text": "\n".join(lines)}},
             ]
 
-            # 요약 통계 — total은 '이번 실행 알림 전체'다(긴급 + 배치). 과거엔 이를
-            # '긴급 알림'으로 표기해 실제 즉시 알림 건수와 어긋났다.
-            urgent_n = sum(1 for r in self._batch_results if self.is_urgent(r))
-            summary_lines = [
-                f"*알림 {total}건* (즉시 알림 {urgent_n}건)",
-                f"• 🔴 *Critical (CVSS 9+):* {len(critical)}건",
-                f"• 🟠 *High Risk (CVSS 7+):* {len(high_risk)}건",
-                f"• 🚨 *KEV 등재:* {len(kev_list)}건",
-            ]
-            if poc_list:
-                summary_lines.append(f"• 🔥 *PoC 공개:* {len(poc_list)}건")
-            if tracked_high:
-                summary_lines.append(
-                    f"• 📋 *High(CVSS 7~8.9) 추적 등록:* {tracked_high}건 — 대시보드에서 확인"
-                )
+            if rows:
+                rows.sort(key=lambda r: (risk.tier_rank(r.get('tier', risk.T2)),
+                                         -(r.get('cvss') or 0)))
+                items = []
+                for r in rows[:8]:
+                    link = f" <{r['report_url']}|상세>" if r.get('report_url') else ""
+                    items.append(f"• `{r['id']}` {r.get('reason', '')}"
+                                 f" — {str(r.get('title_ko', ''))[:48]}{link}")
+                if len(rows) > 8:
+                    items.append(f"  … 외 {len(rows) - 8}건")
+                blocks.append({"type": "divider"})
+                blocks.append({"type": "section",
+                               "text": {"type": "mrkdwn", "text": "\n".join(items)}})
 
-            blocks.append({
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": "\n".join(summary_lines)}
-            })
-
-            blocks.append({"type": "divider"})
-
-            # 고위험 CVE 목록 (최대 5개)
-            if high_risk:
-                high_risk.sort(key=lambda x: x['cvss'], reverse=True)
-                lines = []
-                for r in high_risk[:5]:
-                    kev_badge = " 🚨KEV" if r['is_kev'] else ""
-                    poc_badge = " 🔥PoC" if r['has_poc'] else ""
-                    report_link = f" <{r['report_url']}|상세>" if r.get('report_url') else ""
-                    lines.append(
-                        f"• `{r['id']}` (CVSS {r['cvss']}){kev_badge}{poc_badge} - {r['title_ko'][:50]}{report_link}"
-                    )
-                if len(high_risk) > 5:
-                    lines.append(f"  … 외 {len(high_risk) - 5}건")
-
-                blocks.append({
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": "*🔴 고위험 CVE:*\n" + "\n".join(lines)}
-                })
-
-            # 대시보드 링크
             if dashboard_url:
-                blocks.append({
-                    "type": "actions",
-                    "elements": [{"type": "button", "text": {"type": "plain_text", "text": "📊 대시보드에서 전체 확인"}, "url": dashboard_url, "style": "primary"}]
-                })
+                blocks.append({"type": "actions", "elements": [
+                    {"type": "button", "style": "primary",
+                     "text": {"type": "plain_text", "text": "📊 대시보드"},
+                     "url": dashboard_url}]})
 
-            blocks.append({
-                "type": "context",
-                "elements": [{"type": "mrkdwn", "text": "상세 분석은 웹 대시보드 또는 GitHub Issue에서 확인하세요."}]
-            })
-
-            success = self._send_slack_with_retry({"blocks": blocks}, "배치 요약")
-            if success:
-                logger.info(f"Slack 배치 요약 전송 완료: {total}건 (고위험 {len(high_risk)}건)")
+            ok = self._send_slack_with_retry({"blocks": blocks}, "배치 요약")
+            if ok:
+                logger.info(f"Slack 요약 전송: 알림 {len(rows)}건 · 추적 {tracked}건")
                 with self._lock:
                     self._batch_results = []
-            return success
+            return ok
 
         except Exception as e:
             logger.error(f"배치 요약 생성 에러: {e}")
             return False
-    
+
     def send_pipeline_warning(self, title: str, detail: str) -> bool:
         """파이프라인 운영 경고 (격리 발생 등) — 조용한 실패로 묻히면 안 되는 상태 변화 통지."""
         try:

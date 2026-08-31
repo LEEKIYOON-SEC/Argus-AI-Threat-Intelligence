@@ -1,32 +1,48 @@
+"""bulk-lane — 매시간 돌며 fast-lane이 남긴 것을 채우고 무거운 대조를 수행한다.
+
+fast-lane은 알림만 책임진다. 여기서 하는 일은 넷이다.
+  ① 무거운 신호 소스 대조 (nuclei · Metasploit · ExploitDB · EPSS 전량)
+  ② 알림은 나갔지만 리포트가 없는 CVE에 AI 심층 분석 리포트를 붙인다
+  ③ 대시보드에 실릴 CVE의 한국어 번역
+  ④ 공개 탐지 룰 재발견
+
+무거운 일을 알림에서 떼어 낸 것이 이번 개편의 핵심이다. 예전에는 번역이 시간 예산을
+다 먹으면 Critical 알림까지 통째로 다음 실행으로 밀렸다(코드 주석에 남은 실측:
+"알림 5/31건만 발송"). 이제 그런 일이 구조적으로 일어나지 않는다 — 알림은 이미 나갔다.
+"""
+import datetime
+import json
 import os
 import re
-import json
-import datetime
 import threading
 import time
-import requests
+from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, List, Optional, Tuple
+
 import pytz
-from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
-from typing import Dict, List, Tuple, Optional
+import requests
 from google import genai
 from google.genai import types
-from logger import logger
-from config import config
-from collector import (Collector, read_watermark, write_watermark,
-                       read_failure_state, active_quarantine,
-                       read_rpd_state, write_rpd_state,
-                       read_backfill_offset, write_backfill_offset)
-from database import ArgusDB
-from notifier import SlackNotifier
-from analyzer import Analyzer
-from rule_manager import RuleManager
-from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
-# KST 타임존 (한국 표준시)
+import enrichment_sources
+import feed
+import pipeline
+import risk
+import signal_snapshot
+import state as pstate
+from collector import Collector
+from config import config
+from database import ArgusDB
+from logger import logger
+from notifier import SlackNotifier
+from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
+from report import create_github_issue, update_github_issue_with_official_rules
+from rule_manager import RuleManager
+
 KST = pytz.timezone('Asia/Seoul')
 
 # Gemini 클라이언트 (한국어 번역용). HTTP 타임아웃 120초 — 응답이 행에 걸려
-# 파이프라인 전체(시간 예산)를 잡아먹는 것을 방지. 실패는 영문 폴백이 흡수.
+# 시간 예산을 통째로 잡아먹는 것을 방지. 실패는 영문 폴백이 흡수한다.
 try:
     gemini_client = genai.Client(
         api_key=os.environ.get("GEMINI_API_KEY"),
@@ -35,219 +51,6 @@ try:
 except Exception:  # 구버전 SDK 등 http_options 미지원 시
     gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY"))
 
-# ==============================================================================
-# [1] CVSS 벡터 해석 매핑
-# ==============================================================================
-CVSS_MAP = {
-    # ==========================================
-    # [CVSS 3.1 Base Metrics]
-    # ==========================================
-    "AV:N": "공격 경로: 네트워크 (Network)", "AV:A": "공격 경로: 인접 (Adjacent)", "AV:L": "공격 경로: 로컬 (Local)", "AV:P": "공격 경로: 물리적 (Physical)",
-    "AC:L": "복잡성: 낮음", "AC:H": "복잡성: 높음",
-    "PR:N": "필요 권한: 없음", "PR:L": "필요 권한: 낮음", "PR:H": "필요 권한: 높음",
-    "UI:N": "사용자 관여: 없음", "UI:R": "사용자 관여: 필수",
-    "S:U": "범위: 변경 없음", "S:C": "범위: 변경됨 (Changed)",
-    "C:H": "기밀성: 높음", "C:L": "기밀성: 낮음", "C:N": "기밀성: 없음",
-    "I:H": "무결성: 높음", "I:L": "무결성: 낮음", "I:N": "무결성: 없음",
-    "A:H": "가용성: 높음", "A:L": "가용성: 낮음", "A:N": "가용성: 없음",
-
-    # ==========================================
-    # [CVSS 3.1 Temporal / Threat Metrics]
-    # ==========================================
-    "E:X": "악용 가능성: 미정의", "E:U": "악용 가능성: 입증 안됨", "E:P": "악용 가능성: 개념 증명(PoC)", "E:F": "악용 가능성: 기능적", "E:H": "악용 가능성: 높음",
-    "RL:X": "대응 수준: 미정의", "RL:O": "대응 수준: 공식 패치", "RL:T": "대응 수준: 임시 수정", "RL:W": "대응 수준: 우회 가능", "RL:U": "대응 수준: 사용 불가",
-    "RC:X": "보고 신뢰도: 미정의", "RC:U": "보고 신뢰도: 미확인", "RC:R": "보고 신뢰도: 합리적", "RC:C": "보고 신뢰도: 확인됨",
-
-    # ==========================================
-    # [CVSS 3.1 Environmental Metrics]
-    # ==========================================
-    "MAV:N": "수정된 경로: 네트워크", "MAV:A": "수정된 경로: 인접", "MAV:L": "수정된 경로: 로컬", "MAV:P": "수정된 경로: 물리적",
-    "MAC:L": "수정된 복잡성: 낮음", "MAC:H": "수정된 복잡성: 높음",
-    "MPR:N": "수정된 권한: 없음", "MPR:L": "수정된 권한: 낮음", "MPR:H": "수정된 권한: 높음",
-    "MUI:N": "수정된 관여: 없음", "MUI:R": "수정된 관여: 필수",
-    "MS:U": "수정된 범위: 변경 없음", "MS:C": "수정된 범위: 변경됨",
-    "MC:H": "수정된 기밀성: 높음", "MC:L": "수정된 기밀성: 낮음", "MC:N": "수정된 기밀성: 없음",
-    "MI:H": "수정된 무결성: 높음", "MI:L": "수정된 무결성: 낮음", "MI:N": "수정된 무결성: 없음",
-    "MA:H": "수정된 가용성: 높음", "MA:L": "수정된 가용성: 낮음", "MA:N": "수정된 가용성: 없음",
-    "CR:X": "기밀성 요구: 미정의", "CR:L": "기밀성 요구: 낮음", "CR:M": "기밀성 요구: 보통", "CR:H": "기밀성 요구: 높음",
-    "IR:X": "무결성 요구: 미정의", "IR:L": "무결성 요구: 낮음", "IR:M": "무결성 요구: 보통", "IR:H": "무결성 요구: 높음",
-    "AR:X": "가용성 요구: 미정의", "AR:L": "가용성 요구: 낮음", "AR:M": "가용성 요구: 보통", "AR:H": "가용성 요구: 높음",
-
-    # ==========================================
-    # [CVSS 4.0 Base Metrics]
-    # ==========================================
-    "AT:N": "공격 기술: 없음", "AT:P": "공격 기술: 존재(Present)",
-    "VC:H": "취약시스템 기밀성: 높음", "VC:L": "취약시스템 기밀성: 낮음", "VC:N": "취약시스템 기밀성: 없음",
-    "VI:H": "취약시스템 무결성: 높음", "VI:L": "취약시스템 무결성: 낮음", "VI:N": "취약시스템 무결성: 없음",
-    "VA:H": "취약시스템 가용성: 높음", "VA:L": "취약시스템 가용성: 낮음", "VA:N": "취약시스템 가용성: 없음",
-    "SC:H": "후속시스템 기밀성: 높음", "SC:L": "후속시스템 기밀성: 낮음", "SC:N": "후속시스템 기밀성: 없음",
-    "SI:H": "후속시스템 무결성: 높음", "SI:L": "후속시스템 무결성: 낮음", "SI:N": "후속시스템 무결성: 없음",
-    "SA:H": "후속시스템 가용성: 높음", "SA:L": "후속시스템 가용성: 낮음", "SA:N": "후속시스템 가용성: 없음",
-
-    # ==========================================
-    # [CVSS 4.0 Environmental (Modified Base) Metrics]
-    # ==========================================
-    "MAT:N": "수정된 공격 기술: 없음", "MAT:P": "수정된 공격 기술: 존재",
-    "MVC:H": "수정된 취약시스템 기밀성: 높음", "MVC:L": "수정된 취약시스템 기밀성: 낮음", "MVC:N": "수정된 취약시스템 기밀성: 없음",
-    "MVI:H": "수정된 취약시스템 무결성: 높음", "MVI:L": "수정된 취약시스템 무결성: 낮음", "MVI:N": "수정된 취약시스템 무결성: 없음",
-    "MVA:H": "수정된 취약시스템 가용성: 높음", "MVA:L": "수정된 취약시스템 가용성: 낮음", "MVA:N": "수정된 취약시스템 가용성: 없음",
-    "MSC:H": "수정된 후속시스템 기밀성: 높음", "MSC:L": "수정된 후속시스템 기밀성: 낮음", "MSC:N": "수정된 후속시스템 기밀성: 없음", "MSC:S": "수정된 후속시스템 기밀성: 안전(Safety)",
-    "MSI:H": "수정된 후속시스템 무결성: 높음", "MSI:L": "수정된 후속시스템 무결성: 낮음", "MSI:N": "수정된 후속시스템 무결성: 없음", "MSI:S": "수정된 후속시스템 무결성: 안전(Safety)",
-    "MSA:H": "수정된 후속시스템 가용성: 높음", "MSA:L": "수정된 후속시스템 가용성: 낮음", "MSA:N": "수정된 후속시스템 가용성: 없음", "MSA:S": "수정된 후속시스템 가용성: 안전(Safety)",
-
-    # ==========================================
-    # [CVSS 4.0 Supplemental Metrics]
-    # ==========================================
-    "S:X": "안전(Safety): 미정의", "S:N": "안전(Safety): 무시 가능", "S:P": "안전(Safety): 존재(Present)",
-    "AU:X": "자동화 가능성: 미정의", "AU:N": "자동화 가능성: 아니오", "AU:Y": "자동화 가능성: 예",
-    "R:X": "복구(Recovery): 미정의", "R:A": "복구: 자동", "R:U": "복구: 사용자", "R:I": "복구: 복구 불가",
-    "V:X": "가치 밀도: 미정의", "V:D": "가치 밀도: 분산(Diffuse)", "V:C": "가치 밀도: 집중(Concentrated)",
-    "RE:X": "대응 노력: 미정의", "RE:L": "대응 노력: 낮음", "RE:M": "대응 노력: 보통", "RE:H": "대응 노력: 높음",
-    "U:X": "긴급성: 미정의", "U:Clear": "긴급성: 명확함", "U:Green": "긴급성: 낮음(Green)", "U:Amber": "긴급성: 주의(Amber)", "U:Red": "긴급성: 높음(Red)"
-}
-
-# ==============================================================================
-# [2] 유틸리티 함수들
-# ==============================================================================
-
-def parse_cvss_vector(vector_str: str) -> str:
-    if not vector_str or vector_str == "N/A":
-        return "정보 없음"
-    
-    parts = vector_str.split('/')
-    mapped_parts = []
-    
-    for part in parts:
-        if ':' in part:
-            full_key = part
-            desc = CVSS_MAP.get(full_key, f"**{part}**")
-            if full_key in CVSS_MAP:
-                mapped_parts.append(f"• {desc}")
-            else:
-                mapped_parts.append(f"• {part}")
-    
-    return "<br>".join(mapped_parts)
-
-def is_target_asset(cve_data: Dict) -> Tuple[bool, Optional[str], Optional[str]]:
-    """자산 매칭 판정. 반환: (매칭 여부, 매칭 근거, 매칭 종류).
-
-    매칭 종류(match_type)가 자산 기준 티어링의 핵심이다:
-      "asset"    — 등록된 구체 자산 룰에 매칭 → 저위험도 추적(번역+대시보드)
-      "wildcard" — 구체 룰엔 안 맞고 */*(전체 감시)로만 매칭 → 고위험/에스컬레이션만 수신,
-                   신규 저위험은 마커만 저장(대시보드 비노출)
-      None       — 어느 룰에도 안 맞음 → 처리 안 함
-    구체 룰을 전부 먼저 검사하고, 실패했을 때만 wildcard로 분류한다."""
-    # 벤더/제품 표기 차이(언더스코어 vs 공백)를 흡수해 매칭 누락 방지.
-    # None 허용 — 레코드/DB 상태에 null이 섞여도 매칭이 죽지 않아야 한다.
-    def _norm(s) -> str:
-        return str(s or '').lower().replace('_', ' ').strip()
-
-    has_wildcard = False
-    for target in config.get_target_assets():
-        t_vendor = _norm(target.get('vendor', ''))
-        t_product = _norm(target.get('product', ''))
-
-        # 전체 감시 룰은 기억만 하고 구체 룰부터 검사 (asset 판정이 우선)
-        if t_vendor == "*" and t_product == "*":
-            has_wildcard = True
-            continue
-
-        # 벤더 무관 룰(*/product)은 벤더가 비어 있어도 제품만으로 판정해야 한다 —
-        # 애초에 '벤더를 모를 때' 쓰라고 있는 표기이므로, 벤더 불명을 이유로 건너뛰면
-        # 그 기능이 가장 필요한 케이스에서만 매칭이 실패한다.
-        vendor_agnostic = (t_vendor == "*")
-
-        # 1차: affected 필드의 구조화된 vendor/product 매칭
-        for affected in cve_data.get('affected') or []:
-            a_vendor = _norm(affected.get('vendor'))
-            a_product = _norm(affected.get('product'))
-
-            unknown_vendor = a_vendor in ('', 'unknown', 'n/a')
-            # 벤더가 필요한 룰인데 벤더가 불명 → 이 항목으로는 판정 불가 (2·3차에서 확인)
-            if unknown_vendor and not vendor_agnostic:
-                continue
-            # 벤더 무관 룰인데 제품마저 불명 → 판정 근거 없음
-            if vendor_agnostic and a_product in ('', 'unknown', 'n/a'):
-                continue
-
-            vendor_match = vendor_agnostic or (t_vendor in a_vendor) or (a_vendor in t_vendor)
-            product_match = (t_product == "*") or (t_product in a_product) or (a_product in t_product)
-
-            if vendor_match and product_match:
-                return True, f"Matched (affected): {a_vendor or '*'}/{a_product}", "asset"
-
-        # 2차: NVD CPE의 vendor/product 매칭 (affected가 비거나 불명일 때 보완)
-        for cpe in cve_data.get('nvd_cpe') or []:
-            parts = str(cpe).split(':')
-            if len(parts) < 5:
-                continue
-            c_vendor, c_product = _norm(parts[3]), _norm(parts[4])
-            unknown_vendor = c_vendor in ('', '*', '-')
-            if unknown_vendor and not vendor_agnostic:
-                continue
-            if vendor_agnostic and c_product in ('', '*', '-'):
-                continue
-            vendor_match = vendor_agnostic or (t_vendor in c_vendor) or (c_vendor in t_vendor)
-            product_match = (t_product == "*") or (t_product in c_product) or (c_product in t_product)
-            if vendor_match and product_match:
-                return True, f"Matched (NVD CPE): {c_vendor or '*'}/{c_product}", "asset"
-
-        # 3차(보조): description 텍스트 매칭
-        desc_lower = str(cve_data.get('description') or '').lower()
-        if desc_lower and t_vendor in desc_lower and (t_product == "*" or t_product in desc_lower):
-            return True, f"Matched (description): {t_vendor}/{t_product}", "asset"
-
-    if has_wildcard:
-        return True, "All Assets (*)", "wildcard"
-    return False, None, None
-
-def _log_deferred_severity_estimate(deferred: List[Dict], collector: Collector,
-                                    deadline_ts: float) -> None:
-    """이월(백로그) 대기열의 심각도 분포를 표본 추출로 추정해 로그로 남긴다 (관측 전용).
-
-    이월분은 레코드를 아직 받지 않아 정확한 분류가 불가 — 표본 N건만 raw JSON
-    (peek_cvss, API 한도 미소모)으로 레코드 CVSS(CNA→CISA-ADP)를 읽어 전체로 외삽한다.
-    실제 처리 시의 티어(KEV/EPSS/Metasploit/SSVC 신호 반영)와는 다를 수 있는 참고 추정치.
-    KEV 해당 건수는 메모리 세트 조회라 전수 집계. 실패 시 조용히 생략 — 파이프라인 무영향.
-    """
-    sample_n = config.PERFORMANCE.get("deferred_severity_sample", 80)
-    if sample_n <= 0 or not deferred:
-        return
-    if time.time() > deadline_ts - 120:  # 시간 예산 임박 → 관측은 생략하고 본 처리에 양보
-        return
-    try:
-        ids = [c['cve_id'] for c in deferred]
-        kev_cnt = sum(1 for i in ids if i in collector.kev_set)
-        # 균등 간격 표본 — 커밋시각 순 정렬이므로 기간 전체를 고르게 커버한다
-        step = max(1, len(ids) // sample_n)
-        sample = ids[::step][:sample_n]
-        buckets = {"critical": 0, "high": 0, "medium": 0, "low": 0, "unknown": 0}
-        with ThreadPoolExecutor(max_workers=config.PERFORMANCE["max_workers"]) as ex:
-            for score in ex.map(collector.peek_cvss, sample):
-                if not score:
-                    buckets["unknown"] += 1
-                elif score >= 9.0:
-                    buckets["critical"] += 1
-                elif score >= 7.0:
-                    buckets["high"] += 1
-                elif score >= 4.0:
-                    buckets["medium"] += 1
-                else:
-                    buckets["low"] += 1
-        n, total = len(sample), len(ids)
-
-        def fmt(key: str) -> str:
-            return f"~{round(total * buckets[key] / n)}건({buckets[key] / n * 100:.0f}%)"
-
-        kev_note = f" · KEV {kev_cnt}건(전수)" if kev_cnt else ""
-        logger.info(
-            f"📊 이월 {total}건 심각도 추정(표본 {n}건, 레코드 CVSS 기준): "
-            f"Critical {fmt('critical')} / High {fmt('high')} / Medium {fmt('medium')} / "
-            f"Low {fmt('low')} / 점수미상 {fmt('unknown')}{kev_note}"
-        )
-    except Exception as e:
-        logger.debug(f"이월 심각도 추정 생략: {e}")
-
 
 def _looks_english(text: str) -> bool:
     """한글이 한 글자도 없는 (=번역 안 된) 텍스트인지. 짧은 제품명 등 오탐 방지로 길이 하한."""
@@ -255,21 +58,25 @@ def _looks_english(text: str) -> bool:
     return len(t) > 25 and not re.search(r'[가-힣]', t)
 
 
-def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
-    """영문으로 남은 추적 CVE의 제목·설명을 재번역 (대시보드 품질 백필).
 
-    Phase B가 시간 예산에 걸리면 그 회차 CVE는 영문 폴백으로 저장되고, 레코드가 다시
-    바뀌지 않는 한 영영 영문으로 남는다(대시보드 절반이 영문이 되는 원인). 매 실행
-    소량씩 재번역해 점진적으로 해소한다. 시간·건수 상한이 있어 본 파이프라인을 침범하지 않는다.
-    """
+def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
+    """대시보드에 실리는 CVE의 제목·설명을 한국어로. 갱신 건수 반환.
+
+    fast-lane은 번역을 하지 않으므로(알림을 붙잡지 않기 위해) 추적이 시작된 CVE는 전부
+    영문 상태로 들어온다. 그것을 여기서 채운다 — 이제 '백필'이 아니라 번역의 주 경로다.
+
+    저위험 전량 추적을 그만두면서 대상이 하루 수천 건에서 수십~수백 건으로 줄어, 요청대로
+    **대시보드에 실리는 것을 전부 한글화**하는 게 예산 안에 들어온다.
+
+    조회는 updated_at 최신순이라 방금 추적을 시작한 행이 창의 앞에 온다. 그래도 못 본
+    과거 행을 위해 회전 스캔(offset)을 남겨 둔다 — 창을 늘 앞에서만 잡으면 영문으로
+    굳은 오래된 행을 영영 못 보기 때문이다."""
     limit = config.PERFORMANCE.get("translation_backfill_per_run", 0)
     if limit <= 0:
-        return
-    # 본 처리를 마친 뒤 남는 시간에만 — 예산이 빠듯하면 통째로 생략
-    reserve = config.PERFORMANCE.get("phase_c_reserve_minutes", 8) * 60
-    if time.time() > deadline_ts - reserve:
-        logger.info("번역 백필 생략 (시간 예산 부족)")
-        return
+        return 0
+    if time.time() > deadline_ts:
+        logger.info("번역 생략 (시간 예산 도달)")
+        return 0
     try:
         pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
         # 회전 스캔 — 창을 늘 최신순 앞에서 잡으면 영문으로 굳은 과거 행을 영영 못 본다
@@ -295,11 +102,11 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
             if len(items) >= limit:
                 break
         if not items:
-            logger.info(f"번역 백필: 대상 없음 (스캔 {offset:,}~{offset + len(candidates):,}"
+            logger.info(f"번역: 대상 없음 (스캔 {offset:,}~{offset + len(candidates):,}"
                         f"/{total:,}행 — 다음 실행은 {next_offset:,}부터)")
-            return
+            return 0
 
-        logger.info(f"🈯 번역 백필: 영문 잔존 {len(items)}건 재번역 시도 "
+        logger.info(f"🈯 번역: 영문 {len(items)}건 처리 "
                     f"(스캔 {offset:,}~{offset + len(candidates):,}/{total:,}행)")
         translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
         fixed = 0
@@ -315,112 +122,14 @@ def backfill_translations(db: ArgusDB, deadline_ts: float) -> None:
         # 영문 백로그가 마르면 이 경로 자체가 안 돌아 자연히 멈춘다(증분으로 복귀).
         if fixed:
             db.request_full_export()
-        logger.info(f"🈯 번역 백필 완료: {fixed}/{len(items)}건 한글화"
+        logger.info(f"🈯 번역 완료: {fixed}/{len(items)}건 한글화"
                     f"{' → 다음 export는 전량' if fixed else ''}")
+        return fixed
     except Exception as e:
-        logger.warning(f"번역 백필 생략(오류): {e}")
+        logger.warning(f"번역 생략(오류): {e}")
+        return 0
 
 
-def _iso_after(ts: str, cutoff: datetime.datetime) -> bool:
-    """ISO 시각 문자열이 cutoff 이후인지 (파싱 실패 시 True — 임의 삭제 방지)."""
-    try:
-        return datetime.datetime.fromisoformat(str(ts).replace("Z", "+00:00")) >= cutoff
-    except ValueError:
-        return True
-
-
-def _kev_drift_candidates(collector: Collector, db: ArgusDB, exclude: set,
-                          new_days: int = 14) -> List[str]:
-    """CISA KEV 목록을 DB와 대조해 아직 KEV로 반영되지 않은 CVE를 찾는다.
-
-    두 종류를 다르게 취급한다.
-      ① 플래그 미반영 — DB에 있는데 is_kev=false. 우리가 이미 추적 중인 CVE가 나중에
-         KEV에 오른 경우로, **등재일과 무관하게 전량** 잡는다. 예전에는 이걸 아무도
-         못 봤다: 레코드 무변경이라 재수집이 안 되고, 에스컬레이션 스윕은 CVSS<7만 봤고,
-         gap-filler는 '존재 여부'만 봐서 마커 행(last_alert_state=null)까지 건너뛰었다.
-      ② DB 미보유 — 최근 N일 등재분만 잡는다(기존 gap-filler 취지). 기간 제한이 필요한
-         이유는 보존정책이 오래된 행을 지우기 때문이다. 전량을 잡으면 '수집 → 저장 →
-         보존정책 삭제 → 재수집'이 매 실행 반복된다.
-
-    비용: 스칼라 2개(id, is_kev)만 조회하므로 전량(1,600여 건) 대조도 수십 KB에 그친다."""
-    kev_ids = [cid for cid in collector.kev_set if cid not in exclude]
-    if not kev_ids:
-        return []
-    flags = db.batch_get_scalar(kev_ids, "is_kev")   # DB 미보유 id는 결과에 없음
-
-    stale = [cid for cid in kev_ids if cid in flags and not flags[cid]]
-
-    cutoff = (datetime.datetime.now(datetime.timezone.utc)
-              - datetime.timedelta(days=new_days)).strftime('%Y-%m-%d')
-    missing = [cid for cid in kev_ids
-               if cid not in flags and (collector.kev_date_added.get(cid) or '') >= cutoff]
-
-    drifted = stale + missing
-    if drifted:
-        logger.info(f"🚨 KEV 드리프트 {len(drifted)}건 "
-                    f"(플래그 미반영 {len(stale)} · 최근 {new_days}일 미보유 {len(missing)}) "
-                    f"— KEV 전량 {len(kev_ids)}건 대조")
-    return drifted
-
-
-def _epss_surge_candidates(collector: Collector, db: ArgusDB, exclude: set,
-                           threshold: float = 0.1) -> List[str]:
-    """EPSS 전량 덤프에서 임계 이상인 CVE 중, DB에 저장된 점수가 아직 임계 미만인 것.
-
-    KEV와 같은 이유로 방향을 뒤집는다. 다만 임계 이상이 1~2만 건이라 전량 대조는
-    대역폭이 아까우므로, 직전 실행의 임계 이상 집합과 비교해 '새로 넘어선 것'만 본다.
-    스냅샷이 없으면(최초 실행·캐시 유실) 이번 회차는 건너뛴다 — 다음 회차부터 델타가
-    생기고, 그 사이 구간은 기존 에스컬레이션 스윕이 계속 커버한다."""
-    from enrichment_sources import cache_get, cache_put
-
-    high = collector.fetch_epss_high(threshold)
-    if not high:
-        return []
-
-    prev_raw = cache_get("epss-high-prev.json", ttl_hours=72)
-    try:
-        prev = set(json.loads(prev_raw.decode())) if prev_raw else None
-    except (ValueError, AttributeError):
-        prev = None
-
-    cache_put("epss-high-prev.json", json.dumps(sorted(high)).encode())
-    if prev is None:
-        logger.info("EPSS 임계 스냅샷 최초 기록 — 이번 회차 델타 판정은 건너뜀")
-        return []
-
-    surged = [cid for cid in high if cid not in prev and cid not in exclude]
-    if not surged:
-        return []
-    stored = db.batch_get_scalar(surged, "epss_score")
-    drifted = [cid for cid in surged
-               if cid in stored and (stored.get(cid) or 0.0) < threshold]
-    if drifted:
-        logger.info(f"📈 EPSS 임계 신규 돌파 {len(surged)}건 중 DB 미반영 {len(drifted)}건")
-    return drifted
-
-
-def _wildcard_only() -> bool:
-    """감시 설정이 전체 감시(*/*)뿐인지. 그러면 매칭이 항상 참이라 매칭용 조회가 불필요."""
-    return any(t.get('vendor') == '*' and t.get('product') == '*'
-               for t in config.get_target_assets())
-
-
-def _needs_cpe_lookup(cve_data: Dict) -> bool:
-    """유효한 벤더가 하나도 없으면 True — NVD CPE로 채울 여지가 있다는 뜻.
-
-    원본 CNA 레코드가 'n/a'여도 NVD CPE에는 있는 경우가 있다
-    (예: CVE-2020-29574 → cpe:2.3:o:sophos:cyberoamos).
-
-    조회가 필요한 이유는 둘이고, 호출 시점이 다르다:
-      1) 자산 매칭 — 특정 자산 감시(*/* 아님)면 벤더 없이는 매칭이 불가능하므로
-         is_target_asset 앞에서 조회해야 한다.
-      2) 표시·필터 — 벤더가 비면 대시보드 벤더 필터에서 통째로 빠진다. 이건 추적이
-         확정된 뒤에 채우면 된다. 마커로 끝날 CVE(전체 감시 + 저위험)는 affected를
-         저장조차 하지 않으므로 그 전에 조회하면 순수 낭비다."""
-    return not any(
-        str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a')
-        for a in (cve_data.get('affected') or [])
-    )
 
 # 우리는 tools를 주지 않으므로 함수 호출 자동 처리(AFC)가 필요 없다. 끄지 않으면
 # SDK가 AFC 루프로 들어가 "Models.generate_content에서 AFC 직접 사용은 권장하지
@@ -583,7 +292,7 @@ def _log_translation_summary() -> None:
                 f"({breakdown}) · RPD {rpd}")
 
 
-def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
+def generate_korean_summaries_batch(items: List[Dict], priority_ids: set,
                                     deadline_ts: Optional[float] = None) -> Dict[str, Tuple[str, str]]:
     """대시보드/알림에 노출되는 CVE(마커 제외)의 제목·설명을 한국어로 번역.
 
@@ -601,7 +310,7 @@ def generate_korean_summaries_batch(items: List[Dict], high_risk_ids: set,
 
     # 알림 대상(Critical/자산High)을 앞 청크로 — 시간 예산에 걸려 잔여가 영문 폴백되더라도
     # Issue/Slack에 나가는 핵심 건은 항상 한국어 번역을 확보한다.
-    items = sorted(items, key=lambda it: 0 if it['id'] in high_risk_ids else 1)
+    items = sorted(items, key=lambda it: 0 if it['id'] in priority_ids else 1)
 
     batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     chunks = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
@@ -783,754 +492,8 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
             return None, kind
     return None, "api"
 
-# ==============================================================================
-# [3] GitHub Issue 생성/업데이트
-# ==============================================================================
 
-# CVE → 패키지·수정버전 사전 (주간 워크플로가 만들어 Pages에 배포하는 파일).
-# 리포트에 "어디까지 올리면 되는지"를 싣기 위한 것 — 공개 정적 파일이라 DB 호출 0.
-_PKG_INDEX: Optional[Dict] = None
-# 적재는 반드시 한 스레드만 — 아래 이유는 _package_index 주석 참조
-_PKG_INDEX_LOCK = threading.Lock()
-
-
-def _package_index() -> Dict:
-    """CVE→패키지 사전을 1회 읽어 캐시. 못 구하면 빈 dict(기능만 조용히 생략).
-
-    배포본을 먼저 본다. 데이터 파일을 더는 커밋하지 않으므로 체크아웃에는 없거나
-    옛날 것이다. 로컬 실행처럼 배포본을 못 받는 경우를 위해 파일 경로도 남긴다.
-
-    락이 필요한 이유: Phase C는 워커 4개 병렬이고 알림 대상을 앞으로 정렬하므로,
-    첫 4건이 동시에 create_github_issue → 여기로 들어온다. 전역 변수 검사만 있으면
-    넷 다 None을 보고 각자 내려받아 각자 파싱한다 — 같은 파일을 4번 받고(측정 시점
-    20.8MB × 4) 파싱 메모리도 4배로 튄다(1회 ~102MB). 이중 검사로 첫 스레드만 적재하고
-    나머지는 결과를 그대로 받는다."""
-    global _PKG_INDEX
-    if _PKG_INDEX is not None:
-        return _PKG_INDEX
-    with _PKG_INDEX_LOCK:
-        if _PKG_INDEX is None:
-            _PKG_INDEX = _load_package_index()
-    return _PKG_INDEX
-
-
-def _load_package_index() -> Dict:
-    """실제 적재 (배포본 → 체크아웃 사본 → 빈 dict). 호출은 _package_index를 통해서만.
-
-    전역과 같은 이름을 쓰지 않는다 — 여기서 대입하면 global 선언이 없어 지역 변수가
-    되므로, 이름이 같으면 '캐시에 쓴 줄 알았는데 아니었다'가 되기 딱 좋다."""
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" in repo:
-        owner, name = repo.split("/", 1)
-        url = f"https://{owner.lower()}.github.io/{name}/data/cve-packages.json"
-        try:
-            import urllib.request
-            req = urllib.request.Request(url, headers={"User-Agent": "argus-report"})
-            with urllib.request.urlopen(req, timeout=180) as r:
-                idx = (json.loads(r.read().decode("utf-8")) or {}).get("packages") or {}
-            logger.info(f"패키지 사전 로드(배포본): {len(idx):,}건")
-            return idx
-        except Exception as e:
-            logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
-
-    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                        "docs", "data", "cve-packages.json")
-    try:
-        with open(path, encoding="utf-8") as f:
-            idx = (json.load(f) or {}).get("packages") or {}
-        logger.info(f"패키지 사전 로드(파일): {len(idx):,}건")
-        return idx
-    except (OSError, ValueError):
-        return {}
-
-
-# 리포트 표의 행 상한. 접기 전에는 12였고 커널 CVE가 143행까지 나와 표의 절반 이상이
-# 잘렸다(패치 블록이 실리는 리포트의 56%). 커널 변종을 인덱스에서 접은 뒤 남는
-# 초과분은 6,328건 중 6건뿐이라 20이면 사실상 잘림이 없다.
-_FIXED_ROW_CAP = 20
-
-
-def _fixed_version_lines(cve_id: str) -> str:
-    """OSV가 알려주는 수정 버전. '패치 적용'은 올릴 목표가 있어야 실행할 수 있어
-    리포트에 함께 싣는다. 사전에 없으면 빈 문자열 → 블록 자체가 생략된다."""
-    pkgs = _package_index().get(cve_id) or {}
-    lines = []
-    for pkg, eco_map in sorted(pkgs.items()):
-        for eco, fixes in sorted((eco_map or {}).items()):
-            good = [f for f in (fixes or []) if f]
-            if good:
-                lines.append(f"| `{pkg}` | {eco} | **{', '.join(good)}** |")
-    if not lines:
-        return ""
-    shown, omitted = lines[:_FIXED_ROW_CAP], max(0, len(lines) - _FIXED_ROW_CAP)
-    # 잘렸으면 잘렸다고 밝힌다. 조용히 자르면 "내 배포판이 목록에 없다 = 영향 없다"로
-    # 읽힌다 — 표에 없는 것과 해당 없는 것은 전혀 다른 얘기다.
-    note = (f"\n\n<sub>⚠️ 항목이 많아 {omitted}행을 생략했습니다 — 전체는 "
-            f"[OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 확인하세요.</sub>"
-            if omitted else "")
-    return ("\n## 📦 패치 버전 (OSV)\n"
-            "| 패키지 | 배포판·생태계 | 이 버전 이상으로 |\n| :--- | :--- | :--- |\n"
-            + "\n".join(shown) + note
-            + "\n\n<sub>출처: [OSV.dev](https://osv.dev) (CC-BY 4.0) — 설치된 배포판·릴리스에 "
-              "맞는 행을 보세요. Linux 커널은 배포판 기본 패키지(`linux`)만 싣습니다 — "
-              "클라우드·OEM 변종(linux-aws·linux-azure·linux-oem 등)을 쓰신다면 버전 체계가 "
-              f"달라 [OSV.dev](https://osv.dev/vulnerability/{cve_id})에서 해당 변종을 "
-              "확인하세요. 실제 적용 전 벤더 권고를 확인하시기 바랍니다.</sub>\n")
-
-
-def _rule_license_note(rule_info: Dict) -> str:
-    """공식 룰 재게시 시 출처·author·라이선스 고지 보존 (불변 원칙 8-①)"""
-    lic = rule_info.get('license')
-    if not lic:
-        return ""
-    return f"\n> **License:** {lic} — 원 룰의 출처·author·라이선스 고지를 보존합니다.\n"
-
-def _priority_banner(cve_data: Dict) -> str:
-    """실제 악용 신호 조합으로 대응 우선순위를 산출 (AI 호출 없이 기존 필드만 사용).
-
-    이슈를 여는 즉시 '오늘 패치 vs 이번 주'를 판단하게 해준다. 판정 축은 _risk_tier와
-    동일한 신호(KEV/무기화/PoC·EPSS/CVSS)를 쓰되, 실무 대응 시급성 기준으로 더 세분한다."""
-    if cve_data.get('is_kev'):
-        level, why = "🔴 즉시 대응", "CISA KEV 등재 — 실제 악용 확인됨"
-    elif cve_data.get('ssvc_exploitation') == 'active' or cve_data.get('has_metasploit_module'):
-        level, why = "🔴 긴급", "무기화·악용 진행형 신호 존재 (SSVC active / Metasploit)"
-    elif (cve_data.get('has_public_exploit') or cve_data.get('has_poc')
-          or cve_data.get('epss', 0.0) >= 0.1):
-        level, why = "🟠 높음", "공개 익스플로잇·PoC 또는 EPSS 급증 — 악용 가능성 상승"
-    elif cve_data.get('cvss', 0.0) >= 9.0:
-        level, why = "🟠 높음", "CVSS Critical (악용 신호는 아직 미확인)"
-    else:
-        level, why = "🟡 주의", "고위험 점수, 실제 악용 신호는 미확인"
-    return f"> **⚡ 대응 우선순위: {level}** — {why}"
-
-def _epss_caption(cve_data: Dict) -> str:
-    """EPSS 숫자에 의미를 붙인다 — 신규 CVE는 낮은 게 정상이라 오해 방지 (FIRST.org 출처)."""
-    epss = cve_data.get('epss', 0.0) or 0.0
-    surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
-    return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
-
-def _issue_labels(cve_data: Dict) -> List[str]:
-    """이슈 트리아지용 동적 라벨 — 심각도 + 실제 악용 신호.
-    이슈가 다수 쌓여도 `label:kev`·`label:severity:critical` 등으로 필터 가능.
-    (GitHub는 이슈 생성 시 없는 라벨을 자동 생성하므로 사전 등록 불필요.)"""
-    score = cve_data.get('cvss', 0.0) or 0.0
-    labels = ["security", "cve"]
-    labels.append("severity:critical" if score >= 9.0
-                  else "severity:high" if score >= 7.0 else "severity:medium")
-    if cve_data.get('is_kev'):
-        labels.append("kev")
-    if cve_data.get('has_metasploit_module') or cve_data.get('ssvc_exploitation') == 'active':
-        labels.append("exploited")
-    if cve_data.get('has_public_exploit') or cve_data.get('has_poc'):
-        labels.append("poc")
-    return labels
-
-def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Optional[Dict]]:
-    token = os.environ.get("GH_TOKEN")
-    repo = os.environ.get("GITHUB_REPOSITORY")
-    
-    if not repo:
-        logger.warning("GITHUB_REPOSITORY 미설정, Issue 생성 건너뜀")
-        return None, None
-    
-    try:
-        # Step 1: AI 심층 분석 (핵심 산출물 — 근본원인·공격 시나리오·MITRE·벡터)
-        logger.info(f"AI 분석 시작: {cve_data['id']}")
-        analyzer = Analyzer()
-        analysis = analyzer.analyze_cve(cve_data)
-
-        # Step 2: 공개 탐지 룰 검색만 (AI 룰 생성 없음 — 공개 룰 있을 때만 채움)
-        rule_manager = RuleManager()
-        rules = rule_manager.search_public_only(cve_data['id'])
-
-        # Step 3: 공식 룰 존재 여부 확인
-        has_official = any([
-            rules.get('sigma') and rules['sigma'].get('verified'),
-            any(r.get('verified') for r in rules.get('network', [])),  # network는 리스트!
-            rules.get('yara') and rules['yara'].get('verified')
-        ])
-        
-        # Step 4: 마크다운 리포트 구성
-        body = _build_issue_body(cve_data, reason, analysis, rules)
-        
-        # Step 5: GitHub API 호출
-        url = f"https://api.github.com/repos/{repo}/issues"
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-        payload = {
-            "title": f"[Argus] {cve_data['id']}: {cve_data['title_ko']}",
-            "body": body,
-            "labels": _issue_labels(cve_data)
-        }
-        
-        response = requests.post(url, headers=headers, json=payload, timeout=15)
-        response.raise_for_status()
-        
-        issue_url = response.json().get("html_url")
-        logger.info(f"GitHub Issue 생성 성공: {issue_url}")
-        
-        return issue_url, {"has_official": has_official, "rules": rules}
-        
-    except Exception as e:
-        logger.error(f"GitHub Issue 생성 실패: {e}")
-        return None, None
-
-def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) -> str:
-    # CVSS 배지 색상
-    score = cve_data['cvss']
-    if score >= 9.0: color = "FF0000"
-    elif score >= 7.0: color = "FD7E14"
-    elif score >= 4.0: color = "FFC107"
-    elif score > 0: color = "28A745"
-    else: color = "CCCCCC"
-    
-    kev_color = "FF0000" if cve_data['is_kev'] else "CCCCCC"
-
-    badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{kev_color})"
-
-    # P5 위협 신호 배지
-    if cve_data.get('ssvc_exploitation') == 'active':
-        badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
-    if cve_data.get('has_metasploit_module'):
-        badges += " ![Metasploit](https://img.shields.io/badge/Metasploit-Weaponized-8B0000)"
-    if cve_data.get('has_public_exploit'):
-        badges += " ![ExploitDB](https://img.shields.io/badge/ExploitDB-Public-orange)"
-
-    # 위협 신호 상세 (출처 표기 — Metasploit metadata는 BSD-3-Clause)
-    signal_lines = []
-    ssvc = cve_data.get('ssvc') or {}
-    if ssvc:
-        parts = [f"{k}={v}" for k, v in ssvc.items()]
-        signal_lines.append(f"- **CISA SSVC** (vulnrichment, CC0): {', '.join(parts)}")
-    if cve_data.get('has_metasploit_module'):
-        mods = cve_data.get('metasploit_modules', [])
-        mod_str = ", ".join(f"`{m}`" for m in mods) if mods else "존재"
-        signal_lines.append(f"- **Metasploit 모듈** (Metasploit Framework, Rapid7, BSD-3-Clause): {mod_str}")
-    if cve_data.get('has_public_exploit'):
-        edb_url = cve_data.get('_exploit_db_url')
-        link = f" — [Exploit-DB]({edb_url})" if edb_url else ""
-        signal_lines.append(f"- **공개 익스플로잇**: ExploitDB 등재{link}")
-    if cve_data.get('has_poc'):
-        # PoC 원문은 재게시하지 않고 출처 링크만 표기 (불변 원칙 8-②)
-        poc_urls = cve_data.get('poc_urls', [])
-        poc_link = f" — [PoC 링크]({poc_urls[0]})" if poc_urls else ""
-        signal_lines.append(
-            f"- **PoC 공개** (출처: nomi-sec/trickest, 원문 미게시·링크만): "
-            f"{cve_data.get('poc_count', len(poc_urls))}건{poc_link}")
-    threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
-
-    cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
-    
-    # 영향받는 자산 테이블
-    affected_rows = ""
-    for item in cve_data.get('affected', []):
-        affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} |\n"
-    if not affected_rows:
-        affected_rows = "| - | - | - |"
-
-    # OSV 수정 버전 — 없으면 빈 문자열이라 블록이 통째로 빠진다
-    fixed_block = _fixed_version_lines(cve_data['id'])
-
-    # 대응 방안
-    mitigation_list = "\n".join([f"- {m}" for m in analysis.get('mitigation', [])])
-    
-    # 참고 자료 (PoC·Exploit-DB는 원문 대신 링크만 게시 — 불변 원칙 8-②)
-    # URL 기준 dedup: PoC/EDB URL이 references에 이미 있으면 그 자리에 주석만 병기(중복 행 방지),
-    # references에 없으면 새 행으로 추가. → 링크는 1회만, 출처 주석은 유실 없이 보존.
-    notes = {}
-    if cve_data.get('_exploit_db_url'):
-        notes[cve_data['_exploit_db_url']] = " (Exploit-DB PoC)"
-    for u in cve_data.get('poc_urls', [])[:3]:
-        notes.setdefault(u, " (PoC, nomi-sec/trickest)")
-    ref_items = []
-    seen = set()
-    for r in cve_data['references']:
-        if r and r not in seen:
-            ref_items.append(f"{r}{notes.get(r, '')}")
-            seen.add(r)
-    for u, note in notes.items():          # references에 없던 PoC/EDB 링크만 추가
-        if u not in seen:
-            ref_items.append(f"{u}{note}")
-            seen.add(u)
-    ref_list = "\n".join([f"- {r}" for r in ref_items]) if ref_items else "- 등록된 참고 링크 없음"
-
-    # CVSS 벡터 해석
-    vector_details = parse_cvss_vector(cve_data.get('cvss_vector', 'N/A'))
-    
-    # 공개 탐지 룰 섹션 — 공개 룰(SigmaHQ/ET Open/Yara-Rules)이 있을 때만 표시.
-    # AI 룰 생성은 제거됨 → 공개 룰이 없으면 없음을 안내(불필요한 '미생성' 나열 제거).
-    has_any_rules = rules.get('sigma') or rules.get('network') or rules.get('yara')
-    if has_any_rules:
-        rules_section = ("## 🔎 공개 탐지 룰\n\n"
-                         "> 공개 룰셋(SigmaHQ / ET Open / Yara-Rules)에서 확인된 **공식 검증 룰**입니다. "
-                         "보안 장비 적용 전 자사 환경에 맞게 검토하세요.\n\n")
-        if rules.get('sigma'):
-            info = rules['sigma']
-            rules_section += f"### Sigma Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yaml\n{info['code']}\n```\n\n"
-        if rules.get('network'):
-            for idx, net_rule in enumerate(rules['network'], 1):
-                engine_name = net_rule.get('engine', 'unknown').upper()
-                rules_section += f"### Network Rule #{idx} ({net_rule['source']} - {engine_name}) 🟢 공식 검증\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
-        if rules.get('yara'):
-            info = rules['yara']
-            rules_section += f"### Yara Rule ({info['source']}) 🟢 공식 검증\n{_rule_license_note(info)}```yara\n{info['code']}\n```\n\n"
-    else:
-        # 룰이 없으면 섹션을 통째로 뺀다. 실측으로 리포트의 98.9%가 이 경우인데,
-        # "없습니다"를 세 줄로 설명해 봐야 읽는 사람에게 주는 정보가 없다.
-        # (패치 버전 블록도 같은 이유로 없으면 생략한다.)
-        rules_section = ""
-
-    now_kst = datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S (KST)')
-
-    # 대응 우선순위 배너 + EPSS 의미 캡션
-    priority = _priority_banner(cve_data)
-    epss_caption = _epss_caption(cve_data)
-
-    # 취약점 개요 — AI 해석(근본원인)의 대조 기준이 되는 원문. desc_ko(한글) 우선,
-    # 영문 원문은 <details>로 접어 제공(한글 폴백으로 둘이 같으면 영문 블록 생략).
-    desc_ko = (cve_data.get('desc_ko') or '').strip()
-    desc_en = (cve_data.get('description') or '').strip()
-    overview_section = ""
-    if desc_ko and desc_ko != 'N/A':
-        overview_section = f"## 📄 취약점 개요\n{desc_ko}\n"
-        if desc_en and desc_en != 'N/A' and desc_en != desc_ko:
-            overview_section += f"\n<details><summary>원문 (English)</summary>\n\n> {desc_en}\n\n</details>\n"
-        overview_section += "\n"
-    elif desc_en and desc_en != 'N/A':
-        overview_section = f"## 📄 취약점 개요\n{desc_en}\n\n"
-
-    body = f"""# 🛡️ {cve_data['title_ko']}
-
-> **탐지 일시:** {now_kst}
-> **탐지 사유:** {reason}
-
-{priority}
-
-{badges}
-{epss_caption}
-
-**취약점 유형 (CWE):** {cwe_str}
-
-{threat_signals}
-{overview_section}## 📦 영향 받는 자산 (벤더 / 제품 / 버전)
-| 벤더 | 제품 | 버전 |
-| :--- | :--- | :--- |
-{affected_rows}
-{fixed_block}
-## 🔍 AI 심층 분석
-### 기술적 근본 원인
-{analysis.get('root_cause', '-')}
-
-### 🎯 공격 벡터 상세
-| 항목 | 내용 |
-| :--- | :--- |
-| **공식 벡터** | `{cve_data.get('cvss_vector', 'N/A')}` |
-| **상세 해석** | {vector_details} |
-
-### 🏹 공격 시나리오 (MITRE ATT&CK)
-{analysis.get('scenario', '정보 없음')}
-
-### 💥 비즈니스 영향
-{analysis.get('impact', '-')}
-
-## 🛡️ 권고 대응 방안
-{mitigation_list}
-
-{rules_section}
-
-## 🔗 참고 자료
-{ref_list}
-
----
-<sub>📊 **데이터 출처**: CVE(cvelistV5, CC0) · NVD(NIST, 공공) · CISA KEV·SSVC/vulnrichment(공공/CC0) ·
-EPSS([FIRST.org](https://www.first.org/epss/)) · [OSV.dev](https://osv.dev)(CC-BY 4.0) ·
-GitHub Advisory · Metasploit(Rapid7, BSD-3) ·
-PoC/ExploitDB(원문 미게시·링크만). 공개 탐지 룰은 각 출처·라이선스 고지를 보존합니다.
-AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않습니다.</sub>
-"""
-    return body.strip()
-
-def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
-    comment = f"""## ✅ 공식 탐지 룰 발견
-
-{cve_id}에 대한 **공식 검증된 탐지 룰**이 새로 발견되었습니다. 아래 룰을 보안 장비에 참고 적용하세요.
-
-"""
-    
-    # Sigma
-    if rules.get('sigma') and rules['sigma'].get('verified'):
-        comment += f"### Sigma Rule ({rules['sigma']['source']})\n{_rule_license_note(rules['sigma'])}```yaml\n{rules['sigma']['code']}\n```\n\n"
-
-    # Network (여러 개 가능)
-    if rules.get('network'):
-        for idx, net_rule in enumerate(rules['network'], 1):
-            if net_rule.get('verified'):
-                engine = net_rule.get('engine', 'unknown').upper()
-                comment += f"### Network Rule #{idx} ({net_rule['source']} - {engine})\n{_rule_license_note(net_rule)}```bash\n{net_rule['code']}\n```\n\n"
-
-    # Yara
-    if rules.get('yara') and rules['yara'].get('verified'):
-        comment += f"### Yara Rule ({rules['yara']['source']})\n{_rule_license_note(rules['yara'])}```yara\n{rules['yara']['code']}\n```\n\n"
-    
-    notifier = SlackNotifier()
-    return notifier.update_github_issue(issue_url, comment)
-
-# ==============================================================================
-# [4] CVE 처리 (단일)
-# ==============================================================================
-
-# last_alert_state(JSONB)에 저장할 필드 화이트리스트 — DB 용량 최소화.
-# 대시보드 표시용(export_dashboard_data) + 다음 실행 에스컬레이션 비교용(_should_send_alert)만 포함.
-# 제외: id(중복)·cvss_vector·references·poc_count·is_vulncheck_kev·github_advisory·nvd_cpe (미표시/미비교).
-_DASHBOARD_STATE_FIELDS = frozenset({
-    # 대시보드 표시
-    "title", "title_ko", "description", "desc_ko", "cwe", "affected",
-    "has_poc", "poc_urls", "ssvc", "ssvc_exploitation",
-    "has_public_exploit", "has_metasploit_module", "metasploit_modules",
-    # 자동화 악용 축 — 위험도 판정(_risk_tier)과 대시보드 딱지에 사용
-    "ssvc_automatable", "ssvc_technical_impact", "is_kev_ransomware",
-    # CVE 공개일 — 추이 차트 전용 (표/필터의 '확인일'과 별개)
-    "published",
-    # 공격 벡터 시각화용 (모달 칩). 문자열 1개(~60B)라 용량 영향 미미
-    "cvss_vector",
-    # 자산 매칭 종류("asset"/"wildcard"). 공개 JSON에는 싣지 않는다(어떤 CVE가 우리
-    # 자산인지 드러남). 여기 남기는 건 에스컬레이션 스윕이 다음 실행에서 이 판정을
-    # 그대로 재사용하기 위해서다 — 없으면 등록 자산 CVE가 스윕에서만 비자산으로
-    # 취급돼 본 경로와 알림 기준이 갈라진다(check_for_escalations 참조).
-    "match_type",
-    # 에스컬레이션 비교용 (다음 실행에서 last_state로 참조)
-    "cvss", "epss", "is_kev",
-})
-
-def prepare_single_cve(cve_id: str, collector: Collector, db: ArgusDB) -> Dict:
-    """Phase A — 수집·분류·(알림 대상만) 위협인텔까지. 번역/완성은 별도 단계.
-
-    반환 stage:
-      "done"  → 여기서 처리 종료(비발행/비대상/T3 최소갱신/보류). status 포함.
-      "ready" → 번역(Phase B)·완성(Phase C) 대기. current_state 등 컨텍스트 포함.
-    번역을 배치(Phase B)로 묶기 위한 분리다 — 개별 번역은 Gemma RPM 15에 묶여
-    실행당 8분+를 소모하고 RPD 1,500도 초과해 처리 상한을 올릴 수 없었다."""
-    try:
-        # Step 1: CVE 상세 정보 수집
-        raw_data = collector.enrich_cve(cve_id)
-
-        # 수집 실패(네트워크 등) → failed로 워터마크가 붙잡아 다음 실행 재수집 (누락 0).
-        # 404/비발행 등 정상적으로 처리할 게 없는 상태는 handled로 통과(워터마크 전진).
-        if raw_data.get('state') == 'ERROR':
-            logger.warning(f"{cve_id}: 수집 실패 → failed (다음 실행 재수집)")
-            return {"cve_id": cve_id, "status": "failed", "stage": "done"}
-        if raw_data.get('state') != 'PUBLISHED':
-            logger.debug(f"{cve_id}: PUBLISHED 상태 아님, 건너뜀")
-            return {"cve_id": cve_id, "status": "handled", "stage": "done"}
-
-        # Step 2: 자산 필터링 (affected vendor/product 우선, NVD CPE 보조, description 보조)
-        # 매칭에 벤더가 필요할 때만 선제 조회한다. 전체 감시(*/*)면 매칭이 항상 참이라
-        # 여기서 조회할 이유가 없고, 표시용 벤더는 추적이 확정된 뒤에 채운다(아래).
-        if not _wildcard_only() and _needs_cpe_lookup(raw_data):
-            collector.fill_affected_from_nvd(raw_data)
-        is_target, match_info, match_type = is_target_asset(raw_data)
-        if not is_target:
-            logger.debug(f"{cve_id}: 감시 대상 아님, 건너뜀")
-            return {"cve_id": cve_id, "status": "handled", "stage": "done"}
-
-        # Step 2.5: 값싼 위험 신호만 먼저 (메모리/캐시, 네트워크 0) — 고위험 판별용.
-        # 값비싼 위협인텔(NVD/PoC/Advisory)은 고위험으로 판정된 CVE에만 이후 수집 → 처리량 확보.
-        collector.enrich_cheap_signals(raw_data)
-
-        # Step 3: 현재 상태 구성 (값싼 신호까지; PoC/Advisory/NVD-CPE는 고위험만 이후 보강)
-        current_state = {
-            "id": cve_id,
-            "title": raw_data['title'],
-            "cvss": raw_data['cvss'],
-            "cvss_vector": raw_data['cvss_vector'],
-            "is_kev": cve_id in collector.kev_set,
-            "epss": collector.epss_cache.get(cve_id, 0.0),
-            "description": raw_data['description'],
-            "cwe": raw_data['cwe'],
-            "references": raw_data['references'],
-            "affected": raw_data['affected'],
-            "has_poc": raw_data.get('has_poc', False),
-            "poc_count": raw_data.get('poc_count', 0),
-            "poc_urls": raw_data.get('poc_urls', []),
-            "is_vulncheck_kev": raw_data.get('is_vulncheck_kev', False),
-            "github_advisory": raw_data.get('github_advisory', {}),
-            "nvd_cpe": raw_data.get('nvd_cpe', []),
-            # 공개일 — 추이 차트 전용 (표/필터는 확인일 기준 유지)
-            "published": raw_data.get('published', ''),
-            # P5 데이터 소스 확대 신호
-            "ssvc": raw_data.get('ssvc', {}),
-            "ssvc_exploitation": (raw_data.get('ssvc') or {}).get('exploitation'),
-            # SSVC의 나머지 두 축 — CISA가 CVE마다 판정해 붙여주는데 그동안 리포트에
-            # 글자로만 찍히고 판정에는 쓰이지 않았다. automatable은 "정찰~익스플로잇을
-            # 신뢰성 있게 자동화할 수 있는가"라, CVSS가 낮아도 대량 공격 대상이 된다.
-            "ssvc_automatable": (raw_data.get('ssvc') or {}).get('automatable'),
-            "ssvc_technical_impact": (raw_data.get('ssvc') or {}).get('technical_impact'),
-            "is_kev_ransomware": raw_data.get('is_kev_ransomware', False),
-            "has_public_exploit": raw_data.get('has_public_exploit', False),
-            "has_metasploit_module": raw_data.get('has_metasploit_module', False),
-            "metasploit_modules": raw_data.get('metasploit_modules', []),
-            # 자산 매칭 판정 — 티어링·알림 조건과 에스컬레이션 스윕이 쓴다(화면 비노출)
-            "match_type": match_type,
-            # ExploitDB 링크(원문 미게시, 링크만 — 8-②). '_' 접두라 DB 저장에서 자동 제외.
-            "_exploit_db_url": raw_data.get('_exploit_db_url'),
-        }
-        
-        # Step 4: 티어 분류 + 알림 필요성 판단
-        last_record = db.get_cve(cve_id)
-        last_state = last_record.get('last_alert_state') if last_record else None
-
-        tier = _risk_tier(current_state)
-        should_alert, alert_reason, full_report = _should_send_alert(
-            current_state, last_state, match_type, tier
-        )
-
-        # 알림 트리거 없음 → 자산 기준 티어링:
-        #   - 추적 중(last_state 보유 = 추적 or 과거 알림): 최소 갱신(T3).
-        #   - 비자산(wildcard) 미추적 + low: 마커만 저장 — 번역/위협인텔/대시보드 없음.
-        #     마커(상태 없는 행)는 재커밋 dedup용이며, 레코드가 바뀌면 '신규'로 재분류된다.
-        #   - 그 외(high 티어 전체, 자산 low, 과거 마커의 자산 승격): 아래로 진행해
-        #     추적 시작(번역+대시보드; high는 Slack 배치 요약에 건수 집계).
-        # T3와 마커의 저장 payload는 동일(스칼라+해시) — last_alert_state 부재가 마커의 정의.
-        if not should_alert:
-            is_tracked = last_state is not None
-            if is_tracked or (match_type == "wildcard" and tier == "low"):
-                saved = db.upsert_cve({
-                    "id": cve_id,
-                    "cvss_score": current_state['cvss'],
-                    "epss_score": current_state['epss'],
-                    "is_kev": current_state['is_kev'],
-                    "updated_at": datetime.datetime.now(KST).isoformat(),
-                    "content_hash": raw_data.get('content_hash')
-                })
-                # 저장 실패 = 미처리 → 워터마크가 붙잡아 다음 실행에서 재시도 (누락 방지)
-                return {"cve_id": cve_id, "status": "handled" if saved else "failed",
-                        "stage": "done", "skipped_low_wildcard": not is_tracked}
-
-        # 고위험/에스컬레이션(should_alert)만 값비싼 위협인텔(NVD/PoC/Advisory) 풀 수집 → 상태 보강.
-        # 저위험(T2)은 생략해 처리량 확보(번역은 유지). NVD가 CVSS를 보정할 수 있으나 고위험만 필요.
-        if should_alert:
-            raw_data = collector.enrich_threat_intel(raw_data)
-            current_state.update({
-                "cvss": raw_data['cvss'],            # NVD 보정 반영
-                "cvss_vector": raw_data['cvss_vector'],
-                "cwe": raw_data['cwe'],
-                "affected": raw_data['affected'],    # CPE 벤더 보강 반영
-                "has_poc": raw_data.get('has_poc', False),
-                "poc_count": raw_data.get('poc_count', 0),
-                "poc_urls": raw_data.get('poc_urls', []),
-                "github_advisory": raw_data.get('github_advisory', {}),
-                "nvd_cpe": raw_data.get('nvd_cpe', []),
-            })
-
-        # 대시보드에 남을 CVE인데 벤더가 비어 있으면 여기서 채운다. 마커·T3는 위에서
-        # 이미 반환됐고(affected를 저장하지도 않는다), should_alert는 방금
-        # enrich_threat_intel이 채웠다. 남는 건 '추적만 하는' CVE뿐이라 비용이 작다.
-        if not should_alert and _needs_cpe_lookup(current_state):
-            collector.fill_affected_from_nvd(raw_data)
-            current_state["affected"] = raw_data["affected"]
-
-        # 여기 도달 = (1) 알림 대상(critical/자산high/에스컬레이션), 또는 (2) 추적 대상
-        # (high 단독·자산 low). → 번역(Phase B, 배치)과 완성(Phase C)으로 넘긴다.
-        if should_alert:
-            logger.info(f"알림 발송 준비: {cve_id} ({alert_reason}, Report: {full_report})")
-        return {
-            "cve_id": cve_id, "stage": "ready",
-            "current_state": current_state, "raw_data": raw_data,
-            "should_alert": should_alert, "alert_reason": alert_reason,
-            "full_report": full_report, "tier": tier,
-        }
-
-    except Exception as e:
-        logger.error(f"{cve_id} 준비 실패: {e}", exc_info=True)
-        # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
-        return {"cve_id": cve_id, "status": "failed", "stage": "done"}
-
-
-def finalize_single_cve(prep: Dict, translation: Optional[Tuple[str, str]],
-                        db: ArgusDB, notifier: SlackNotifier) -> Dict:
-    """Phase C — 번역 결과 반영 후 Issue/Slack/DB 저장. prep은 prepare_single_cve의 ready 반환값.
-
-    translation이 None이면(배치 번역 실패 등) 영문 폴백 — 기존 단건 번역 실패 폴백과 동일 정책."""
-    cve_id = prep["cve_id"]
-    try:
-        current_state = prep["current_state"]
-        raw_data = prep["raw_data"]
-        should_alert = prep["should_alert"]
-        alert_reason = prep["alert_reason"]
-        full_report = prep["full_report"]
-
-        # Step 5b: 번역 반영 (배치 결과 또는 영문 폴백)
-        if translation is None:
-            translation = (current_state['title'], (current_state.get('description') or '')[:200])
-        current_state['title_ko'], current_state['desc_ko'] = translation
-
-        # Step 6: 풀 리포트 대상(critical/자산high)만 GitHub Issue (AI 심층 분석 + 공개 룰) 생성
-        report_url = None
-        rules_info = None
-        if should_alert and full_report:
-            # 분석 2단(3.5 → 3.1)이 모두 소진일 때만 보류한다. 한쪽만 소진이면 다른 쪽이
-            # 분석하므로 알림이 지연되지 않는다 — 그래서 조건이 AND다.
-            # 보류 시 Slack/DB저장 없이 failed로 반환해 워터마크가 붙잡고 다음 실행에서 완전 재처리
-            # (Slack 미발송 → 중복알림 없음, content_hash 미저장 → 재수집됨 → 누락 없음).
-            if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
-                    and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
-                logger.warning(f"⚠️ {cve_id}: 분석 티어 전부 소진 → Issue 보류(다음 실행 재처리)")
-                return {"cve_id": cve_id, "status": "failed"}
-            report_url, rules_info = create_github_issue(current_state, alert_reason)
-
-        # Step 7: Slack 알림 (알림 대상만 — 저위험 신규는 발송 안 함).
-        # 긴급 여부는 파이프라인이 이미 판정한 티어를 그대로 넘긴다 — 리포트의 '🔴 긴급'과
-        # Slack 즉시 알림이 서로 다른 기준으로 갈라지지 않게.
-        if should_alert:
-            notifier.send_alert(current_state, alert_reason, report_url,
-                                urgent=(prep.get("tier") == "critical"))
-
-        # Step 8: DB 저장 (content_hash 포함)
-        # last_alert_state(JSONB)에는 대시보드 표시 + 다음 실행 에스컬레이션 비교에 필요한 필드만
-        # 저장한다 — DB 용량 최소화(불변 원칙 2). github_advisory/references/nvd_cpe/cvss_vector 등
-        # 대시보드·비교에 안 쓰는 큰 필드와 임시 컨텍스트(_로 시작)는 제외. PoC 원문 미저장(8-②).
-        clean_state = {k: current_state[k] for k in _DASHBOARD_STATE_FIELDS if k in current_state}
-
-        db_data = {
-            "id": cve_id,
-            "cvss_score": current_state['cvss'],
-            "epss_score": current_state['epss'],
-            "is_kev": current_state['is_kev'],
-            "last_alert_state": clean_state,
-            "updated_at": datetime.datetime.now(KST).isoformat(),
-            "content_hash": raw_data.get('content_hash')
-        }
-        if should_alert:
-            db_data["last_alert_at"] = datetime.datetime.now(KST).isoformat()
-            # report_url은 값이 있을 때만 쓴다. Slack만 나가는 알림(full_report=False,
-            # 예: 저위험 CVE의 ExploitDB 신규 등재)은 Issue를 만들지 않아 None인데,
-            # 그걸 그대로 저장하면 과거에 발행했던 리포트 링크를 지워버린다 —
-            # 대시보드의 '상세 분석 리포트' 버튼이 조용히 사라진다.
-            if report_url:
-                db_data["report_url"] = report_url
-
-        if rules_info:
-            db_data["has_official_rules"] = rules_info.get('has_official', False)
-            db_data["rules_snapshot"] = rules_info.get('rules')
-            db_data["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
-
-        saved = db.upsert_cve(db_data)
-        if not saved:
-            # 저장 실패 = DB/대시보드에 영구 미반영 위험 → failed로 워터마크가 붙잡아 재처리.
-            # (T1은 알림이 이미 나갔으므로 재실행 시 content_hash 미저장 → 재처리되지만
-            #  escalation 비교 기준(last_state)이 그대로라 중복 알림은 '신규' 케이스에 한정됨)
-            return {"cve_id": cve_id, "status": "failed"}
-
-        # 고위험 알림 = success, 저위험 추적 = handled (둘 다 워터마크 전진 대상)
-        return {"cve_id": cve_id, "status": "success" if should_alert else "handled"}
-
-    except Exception as e:
-        logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)
-        # 실패 = 미처리 → 워터마크가 이 CVE를 건너뛰지 않아야 다음 실행에서 재시도됨
-        return {"cve_id": cve_id, "status": "failed"}
-
-
-def process_single_cve(cve_id: str, collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> Optional[Dict]:
-    """단건 처리 경로 (에스컬레이션 스윕 등 소량 호출용) — prepare → 단건 번역 → finalize.
-    메인 배치 경로(_main Phase A/B/C)와 동일한 로직을 단건으로 잇는 래퍼다."""
-    prep = prepare_single_cve(cve_id, collector, db)
-    if prep.get("stage") != "ready":
-        return {"cve_id": cve_id, "status": prep.get("status", "failed")}
-    translation = generate_korean_summary(prep["current_state"], retry_on_transient=prep["should_alert"])
-    return finalize_single_cve(prep, translation, db, notifier)
-
-def _risk_tier(current: Dict) -> str:
-    """위험 3단 티어. 실무 유입에서 CVSS 7점대는 하루 수백 건(CISA ADP가 무점수 CVE에
-    7.x를 일괄 부여)이라, '진짜 긴급'과 'CVSS만 높음'을 분리해야 알림이 의미를 가진다.
-
-    critical — 실제 악용/무기화 신호 또는 최상위 심각도. 풀 알림(Issue+AI분석+Slack).
-    high     — CVSS 7~8.9 단독, 또는 자동화 악용 신호. 번역+대시보드 추적 + Slack 요약 건수만.
-               (자산 등록 CVE는 high도 풀 알림 — 실제 대응 대상이므로.)
-    low      — 그 외. 자산이면 추적, 비자산이면 마커.
-
-    KEV 등재분의 약 11%가 CVSS 7 미만이라 점수만으로는 실제 악용을 놓친다. 그 중 악용
-    신호가 붙은 것은 위 critical 조건이 이미 잡고, 여기서는 '아직 신호는 없지만 대량
-    자동화가 가능한' 저위험을 high로 끌어올려 대시보드에 보이게 한다. 알림은 늘지 않는다.
-    """
-    if (current['is_kev']
-            or current.get('has_metasploit_module')
-            or current.get('ssvc_exploitation') == 'active'
-            or current.get('epss', 0.0) >= 0.1
-            or current['cvss'] >= 9.0):
-        return "critical"
-    # CISA SSVC Automatable=yes → 정찰~익스플로잇 자동화 가능. CVSS와 무관하게 추적한다.
-    # (critical로 올리지 않는 이유: 아직 악용이 관측된 게 아니라 '가능하다'는 판정이라,
-    #  알림 물량을 늘리기보다 화면에 세워두고 예측력을 관측한 뒤 정하는 편이 안전하다)
-    if current['cvss'] >= 7.0 or current.get('ssvc_automatable') == 'yes':
-        return "high"
-    return "low"
-
-
-def _should_send_alert(current: Dict, last: Optional[Dict],
-                       match_type: Optional[str] = "wildcard",
-                       tier: Optional[str] = None) -> Tuple[bool, str, bool]:
-    """알림 판정. 반환: (알림 여부, 사유, full_report — Issue+AI분석 대상 여부).
-
-    full_report = critical 티어 또는 자산 매칭 high. Slack-only 알림(예: 저위험의
-    ExploitDB 등재 전환)은 알림은 가되 Issue는 만들지 않는다(기존 정책 유지)."""
-    tier = tier or _risk_tier(current)
-    full_report = tier == "critical" or (tier == "high" and match_type == "asset")
-
-    # 신규 CVE: critical(또는 자산 high)만 알림. high 단독은 추적+요약, low는 추적/마커.
-    if last is None:
-        if tier == "critical":
-            return True, "🆕 신규 Critical 취약점", True
-        if tier == "high" and match_type == "asset":
-            return True, "🆕 자산 High 취약점", True
-        # 공개 익스플로잇이 이미 있는 채로 들어온 건. tier에는 반영하지 않는다 —
-        # ExploitDB에는 오래된 PoC가 다수라 critical로 올리면 AI 분석 예산이 샌다.
-        # 다만 '공격 코드가 이미 공개된 상태'를 조용히 넘기면 안 되므로 알림은 보낸다
-        # (Issue 발행은 full_report 기준 — 전이 경로의 ExploitDB 정책과 동일).
-        if current.get('has_public_exploit'):
-            return True, "💥 신규 + ExploitDB 공개 익스플로잇", full_report
-        return False, "", full_report
-
-    # ── 에스컬레이션(전이) 트리거 — 실제 악용/무기화 신호는 항상 알림 ──
-    # KEV 등재
-    if current['is_kev'] and not last.get('is_kev'):
-        return True, "🚨 KEV 등재", True
-
-    # Metasploit 모듈 신규 등장 → 무기화됨
-    if current.get('has_metasploit_module') and not last.get('has_metasploit_module'):
-        return True, "🧨 Metasploit 모듈 공개 (무기화)", True
-
-    # SSVC Exploitation active 전환 → 실제 악용 확인
-    if current.get('ssvc_exploitation') == 'active' and last.get('ssvc_exploitation') != 'active':
-        return True, "🎯 SSVC Exploitation=Active (실제 악용)", True
-
-    # ExploitDB 공개 익스플로잇 신규 등장 (Slack 알림, Issue는 full_report일 때만)
-    if current.get('has_public_exploit') and not last.get('has_public_exploit'):
-        return True, "💥 ExploitDB 공개 익스플로잇", full_report
-
-    # EPSS 임계 돌파 = critical 승격. 상승폭 조건만 두면 0.08 → 0.12처럼 완만하게
-    # 넘어선 건이 빠진다(상승폭 0.04). 임계를 넘는 순간 자체를 트리거로 삼는다.
-    if current['epss'] >= 0.1 and (last.get('epss') or 0) < 0.1:
-        return True, "📈 EPSS 임계 돌파 (≥0.1)", True
-    # 이미 임계 이상이던 건이 추가로 크게 오른 경우
-    if current['epss'] >= 0.1 and (current['epss'] - (last.get('epss') or 0)) > 0.05:
-        return True, "📈 EPSS 급증", True
-
-    # CVSS 상향: Critical(≥9) 진입은 항상 알림, 7점대 진입은 자산 매칭만 알림
-    # (비자산의 7점대 진입은 추적 승격으로 충분 — 하루 수백 건 노이즈 차단)
-    if current['cvss'] >= 9.0 and (last.get('cvss') or 0) < 9.0:
-        return True, "🔺 CVSS Critical 상향 (≥9)", True
-    if match_type == "asset" and current['cvss'] >= 7.0 and (last.get('cvss') or 0) < 7.0:
-        return True, "🔺 자산 CVSS 상향", True
-
-    return False, "", full_report
-
-# ==============================================================================
-# [5] 공식 룰 재발견
-# ==============================================================================
-
-def check_for_official_rules() -> None:
+def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
     """
     공개(공식) 룰 재발견 체크.
 
@@ -1544,8 +507,6 @@ def check_for_official_rules() -> None:
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
-        db = ArgusDB()
-        notifier = SlackNotifier()
         rule_manager = RuleManager()
 
         # 배치 제한을 DB 조회로 밀어넣는다 — 후보 전량을 받아 파이썬에서 자르면
@@ -1637,447 +598,181 @@ def check_for_official_rules() -> None:
     except Exception as e:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
+
+
 # ==============================================================================
-# [5.5] 에스컬레이션 재평가 스윕 (외부 피드 단독 변화 → 고위험 승격)
+# 리포트 보강 — 알림은 나갔는데 상세 리포트가 없는 건을 채운다
 # ==============================================================================
+def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
+    """T0/T1 알림이 나간 CVE 중 report_url이 없는 것에 AI 심층 분석 리포트를 붙인다.
 
-def check_for_escalations(collector: Collector, db: ArgusDB, notifier: SlackNotifier) -> None:
-    """외부 피드(KEV/EPSS/ExploitDB/Metasploit) 단독 변화로 저위험→고위험 승격되는 CVE 재평가.
+    fast-lane은 Issue를 만들지 않는다 — AI 분석은 느리고, 알림이 그 지연을 기다릴
+    이유가 없기 때문이다. Slack은 이미 갔고, 여기서 '읽을 문서'를 뒤이어 만든다.
 
-    파이프라인은 cvelistV5 커밋(레코드 변경)을 트리거로 재수집한다. 따라서 레코드는 그대로인데
-    외부 피드만 바뀐 경우(예: EPSS만 급등, Metasploit 모듈만 신규 공개, KEV 등재가 레코드
-    업데이트를 동반하지 않은 경우)에는 그 CVE가 재수집 큐에 안 올라와 에스컬레이션 재알림이
-    누락될 수 있다. 이 스윕이 그 사각지대를 메운다.
+    분석 2단이 모두 소진이면 건너뛴다. report_url이 여전히 비어 있어 다음 실행이
+    같은 건을 다시 집으므로 유실이 아니라 지연이다."""
+    if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
+            and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
+        logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
+        return 0
 
-    2단계로 값싸게 처리한다:
-      Phase A (사전필터, 네트워크 0): '현재 저위험' 후보의 최신 외부 신호(KEV 세트 멤버십,
-        EPSS 배치, ExploitDB/Metasploit 캐시 인덱스)로 current를 만들어 저장된 last와
-        _should_send_alert로 비교 — 승격 트리거가 잡히는 CVE만 추린다.
-      Phase B (승격분만): 그 CVE를 process_single_cve로 풀 재처리(레코드 재수집→위협인텔→
-        분석→Issue→Slack→저장). 재처리 안에서 최신 신호로 재판정하므로 알림/저장이 일관된다.
+    rows = db.get_missing_report_candidates(limit=limit)
+    if not rows:
+        logger.info("리포트 보강: 대상 없음")
+        return 0
 
-    재알림 중복은 없다: 승격이 성공 저장되면 last_alert_state가 갱신돼 다음 스윕에서 current==last가
-    되어 재트리거되지 않는다. 분석 한도 소진 등으로 저장 전 실패하면 Slack도 안 나가고(게이트가
-    Slack 이전에 조기 반환) last가 그대로라 다음 실행 스윕에서 자연히 재시도된다.
-    """
-    try:
-        logger.info("=== 에스컬레이션 재평가 스윕 시작 ===")
-        days = config.PERFORMANCE.get("escalation_sweep_days", 30)
-        limit = config.PERFORMANCE.get("escalation_candidate_limit", 300)
-        candidates = db.get_escalation_candidates(days=days, limit=limit)
-        if not candidates:
-            logger.info("에스컬레이션 후보 없음")
-            return
+    logger.info(f"📝 리포트 보강 대상 {len(rows)}건")
+    made = 0
+    for row in rows:
+        if time.time() > deadline_ts:
+            logger.warning("⏰ 시간 예산 도달 — 리포트 보강 중단 (다음 실행 이어받음)")
+            break
+        state = row.get('last_alert_state') or {}
+        state.setdefault('id', row['id'])
+        state.setdefault('cvss', row.get('cvss_score') or 0.0)
+        state.setdefault('epss', row.get('epss_score') or 0.0)
+        state.setdefault('is_kev', bool(row.get('is_kev')))
+        state.setdefault('references', [])
+        # 리포트 제목은 한국어를 쓴다. 아직 번역 전이면 영문 제목으로 낸다 —
+        # 리포트를 번역까지 기다리게 하면 그만큼 대응이 늦어진다.
+        state.setdefault('title_ko', state.get('title') or row['id'])
+        reason = " · ".join(
+            risk.TRIGGERS[k].label for k in (state.get('fired_triggers') or [])
+            if k in risk.TRIGGERS) or "고위험 판정"
+        try:
+            url, rules_info = create_github_issue(state, reason)
+        except Exception as e:
+            logger.error(f"{row['id']} 리포트 생성 실패: {e}")
+            continue
+        if not url:
+            continue
+        payload = {"id": row['id'], "report_url": url,
+                   "updated_at": row.get('updated_at')
+                   or datetime.datetime.now(KST).isoformat()}
+        if rules_info:
+            payload["has_official_rules"] = rules_info.get('has_official', False)
+            payload["rules_snapshot"] = rules_info.get('rules')
+            payload["last_rule_check_at"] = datetime.datetime.now(KST).isoformat()
+        if db.upsert_cve(payload):
+            made += 1
+    logger.info(f"📝 리포트 보강 완료: {made}/{len(rows)}건")
+    return made
 
-        # 외부 피드 최신값 — EPSS만 배치 네트워크(50건/요청), 나머지는 메모리/캐시.
-        collector.fetch_epss([r['id'] for r in candidates])
 
-        escalated: List[str] = []
-        for record in candidates:
-            try:
-                cve_id = record['id']
-                last = record.get('last_alert_state')
-                if not last:
-                    continue
+# ==============================================================================
+# 무거운 신호 대조
+# ==============================================================================
+def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
+                        deadline_ts: float) -> List[pipeline.Outcome]:
+    """nuclei · Metasploit · ExploitDB · EPSS 전량을 지난 회차와 대조한다.
 
-                # current = last 복사 후 외부 피드 4개 필드만 최신값으로 덮어씀.
-                # 레코드 기반 필드(cvss/cwe/affected/ssvc)는 레코드 미변경이라 last 그대로 둔다
-                # → CVSS 상향 트리거는 여기서 안 잡히고(정상: 레코드 변경 경로가 담당) 외부 피드
-                #   전이(KEV/EPSS/ExploitDB/Metasploit)만 판정한다.
-                current = dict(last)
-                # 구버전 state에 cvss/epss 키가 없거나(KeyError) WAF 축소 저장본이 남긴
-                # null일 수 있다(TypeError). setdefault는 '키 없음'만 막으므로 값까지 본다.
-                if current.get('cvss') is None:
-                    current['cvss'] = record.get('cvss_score') or 0.0
-                base_epss = last.get('epss')
-                if base_epss is None:
-                    base_epss = record.get('epss_score') or 0.0
-                current['is_kev'] = cve_id in collector.kev_set
-                current['epss'] = collector.epss_cache.get(cve_id, base_epss)
-                # ExploitDB/Metasploit 신호는 캐시 인덱스 조회 — collector 로직 재사용(네트워크 0)
-                probe = {'id': cve_id}
-                collector.enrich_cheap_signals(probe)
-                current['has_public_exploit'] = probe.get('has_public_exploit') or last.get('has_public_exploit', False)
-                current['has_metasploit_module'] = probe.get('has_metasploit_module') or last.get('has_metasploit_module', False)
-                # 랜섬웨어 플래그도 KEV 피드에서 오는 값이라 매 실행 최신으로 덮는다
-                # (SSVC/CVSS 등 레코드 기반 필드는 위 주석대로 last를 그대로 둔다)
-                current['is_kev_ransomware'] = probe.get('is_kev_ransomware', False)
+    수 MB짜리 인덱스라 5분 주기에는 무겁다. 대신 이 신호들은 분 단위로 다투는 성격이
+    아니다 — 템플릿이나 모듈이 공개되는 것은 시간 단위 사건이다."""
+    outcomes: List[pipeline.Outcome] = []
+    cap = config.PERFORMANCE.get("snapshot_cap", 80)
+    epss_index = enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
-                # 자산 매칭 종류는 저장된 판정을 그대로 쓴다 — 기본값('wildcard')로 두면
-                # 등록 자산 CVE가 스윕에서만 비자산으로 취급돼 본 경로와 기준이 갈린다.
-                # (미저장 구버전 행은 기존과 동일하게 wildcard로 보수적 판정)
-                should, reason, _ = _should_send_alert(
-                    current, last, match_type=last.get('match_type') or "wildcard")
-                if should:
-                    logger.info(f"🔁 {cve_id}: 외부 피드 에스컬레이션 감지 ({reason})")
-                    escalated.append(cve_id)
-            except Exception as e:
-                # 한 레코드의 이상 데이터가 스윕 전체를 중단시키지 않게 격리
-                logger.warning(f"{record.get('id', '?')} 에스컬레이션 재평가 실패: {e}")
+    for diff in signal_snapshot.sweep(db, cap=cap,
+                                      only=[k for k, s in signal_snapshot.SOURCES.items()
+                                            if not s.fast]):
+        if not diff.added:
+            continue
+        processed: List[str] = []
+        for cve_id in diff.added:
+            if time.time() > deadline_ts:
+                logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
+                break
+            record = feed.fetch_record(cve_id)
+            if record is None:
                 continue
-
-        if not escalated:
-            logger.info(f"에스컬레이션 후보 {len(candidates)}건 재평가 — 승격 없음")
-            return
-
-        max_reprocess = config.PERFORMANCE.get("max_escalation_reprocess", 20)
-        to_reprocess = escalated[:max_reprocess]
-        if len(escalated) > len(to_reprocess):
-            logger.warning(f"에스컬레이션 {len(escalated)}건 중 {len(to_reprocess)}건 재처리, 나머지는 다음 실행 스윕에서")
-        logger.info(f"에스컬레이션 {len(to_reprocess)}건 풀 재처리")
-        for cve_id in to_reprocess:
             try:
-                process_single_cve(cve_id, collector, db, notifier)
+                st = pipeline.build_state(cve_id, record, collector, epss_index)
             except Exception as e:
-                logger.error(f"{cve_id} 에스컬레이션 재처리 실패: {e}")
+                logger.warning(f"{cve_id} 상태 구성 실패: {e}")
+                continue
+            if st is None:
+                processed.append(cve_id)
+                continue
+            out = pipeline.process(st, db, notifier,
+                                   reason_prefix=f"[{diff.source.label}] ",
+                                   make_report=create_github_issue)
+            outcomes.append(out)
+            if not out.needs_retry:
+                processed.append(cve_id)
+        signal_snapshot.commit(db, diff, processed)
+    return outcomes
 
-        logger.info(f"=== 에스컬레이션 재평가 스윕 완료 (승격 감지: {len(escalated)}건, 재처리: {len(to_reprocess)}건) ===")
-
-    except Exception as e:
-        logger.error(f"에스컬레이션 스윕 실패: {e}")
 
 # ==============================================================================
-# [6] 메인 실행 로직
+# 메인
 # ==============================================================================
+def _dashboard_url() -> Optional[str]:
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" not in repo:
+        return None
+    owner, name = repo.split("/", 1)
+    return f"https://{owner.lower()}.github.io/{name}/"
 
-def _main():
-    start_time = time.time()
+
+def _main() -> None:
+    started = time.time()
     logger.info("=" * 60)
-    logger.info(f"Argus Phase 1 시작 (Model: {config.MODEL_PHASE_1})")
+    logger.info("Argus bulk-lane 시작")
     logger.info("=" * 60)
-    
-    # Step 1: 헬스체크
-    health = config.health_check()
-    if not all(health.values()):
-        logger.error(f"헬스체크 실패: {health}")
+
+    if not all(config.health_check().values()):
+        logger.error("헬스체크 실패")
         return
-    logger.info(f"✅ 헬스체크 통과: {health}")
-    
-    # Step 2: 모듈 초기화
+
+    deadline = started + config.PERFORMANCE.get("bulk_deadline_minutes", 38) * 60
     collector = Collector()
     db = ArgusDB()
     notifier = SlackNotifier()
+    rate_limit_manager.import_rpd_state(pstate.read_rpd_state())
 
-    # 이전 실행들의 일일 요청 수(RPD)를 이어받는다 — 프로세스가 매 실행 새로 뜨는 탓에
-    # 카운터가 늘 0에서 시작해 무료 티어 일일 한도를 스스로 못 지키던 문제의 해소.
-    # 첫 Gemma 호출(에스컬레이션 스윕 단건 번역)보다 먼저 실행되어야 한다.
-    rate_limit_manager.import_rpd_state(read_rpd_state())
-
-    # Step 3: 공식 룰 재발견
-    check_for_official_rules()
-    
-    # Step 4: KEV 및 최신 CVE 수집 (워터마크 기반 — 누락 0)
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
 
-    # Step 4.5: 에스컬레이션 재평가 스윕 — 레코드 미변경으로 재수집 큐에 안 올라오는 저위험 CVE의
-    # 외부 피드(KEV/EPSS/ExploitDB/Metasploit) 단독 변화 승격을 메운다. KEV 세트가 로드된 직후
-    # 실행해 승격 재알림이 신규 저위험 백로그보다 우선 AI 예산을 확보하고 타임아웃 전에 완주하게 한다.
-    check_for_escalations(collector, db, notifier)
+    # ① 무거운 신호 대조 — 새 무기화 신호는 알림이 나가야 하므로 가장 먼저
+    outcomes = sweep_heavy_signals(collector, db, notifier, deadline)
+    if outcomes:
+        logger.info(pipeline.summarize(outcomes))
 
-    # 소프트 데드라인 — Actions timeout(45분)에 killed 되면 워터마크를 못 써 다음 실행이
-    # 수집을 통째로 반복한다. 그 전에 스스로 잔여 작업을 failed로 남기고(워터마크가 붙잡음)
-    # 워터마크 저장·요약까지 '항상 깨끗하게' 끝내는 것이 전진의 핵심.
-    soft_deadline_ts = start_time + config.PERFORMANCE.get("soft_deadline_minutes", 38) * 60
+    # ② 리포트 보강 — fast-lane이 Slack만 보낸 건에 읽을 문서를 붙인다
+    backfill_reports(db, deadline)
 
-    def _over_deadline() -> bool:
-        return time.time() > soft_deadline_ts
+    # ③ 번역 — 대시보드에 실리는 것을 전부 한글로
+    translate_tracked(db, deadline)
 
-    run_start_utc = datetime.datetime.now(datetime.timezone.utc)
-    watermark = read_watermark()
-    # 경계 커밋을 놓치지 않도록 소량 겹침(overlap) — 중복은 DB dedup이 흡수
-    since_dt = watermark - datetime.timedelta(minutes=5)
-    # 초장기 공백(수일+) 캐치업 상한: 한 실행의 조회 창을 최대 12시간으로 제한.
-    # 무제한 조회는 커밋 상세 호출 폭증 → 타임아웃 → 워터마크 미저장 → 같은 작업
-    # 반복(진행 불가)으로 이어질 수 있다. 창 밖 커밋은 다음 실행이 전진된 워터마크에서
-    # 이어서 수집하므로 누락은 없다 (실행당 12h씩 따라잡음).
-    catchup_horizon = watermark + datetime.timedelta(hours=12)
-    until_dt = catchup_horizon if catchup_horizon < run_start_utc else None
-    fetched = collector.fetch_cves_since(since_dt, db=db, until_dt=until_dt,
-                                         deadline_ts=soft_deadline_ts)
+    # ④ 공개 탐지 룰 재발견 (있으면 기존 Issue에 댓글)
+    if time.time() < deadline:
+        check_for_official_rules(db, notifier)
 
-    if not fetched:
-        # 창 내 신규 커밋 없음 → 창 끝까지만 전진 (창 이후 커밋은 다음 실행이 수집)
-        write_watermark(min(catchup_horizon, run_start_utc),
-                        rpd=rate_limit_manager.export_rpd_state())
-        logger.info("처리할 CVE 없음 (워터마크 전진)")
-        return
+    pstate.write_rpd_state(rate_limit_manager.export_rpd_state())
 
-    # Step 5: 신규만 처리 대상. 우선순위 = KEV(실제 악용 확인) 먼저, 그 안에서는 커밋 오래된 순(FIFO).
-    # KEV 멤버십은 메모리 세트라 값싸게 판별 가능 → 백로그가 커도 알려진 악용 취약점을 먼저 처리한다.
-    # (CVSS 기반 완전 정렬은 CVE별 fetch가 필요해 백로그 전체엔 비쌈 → KEV 우선으로 핵심만 앞당김.)
-    new_items = [c for c in fetched if c['is_new']]
-    # 격리(quarantine) 중인 CVE는 이번 실행에서 건드리지 않는다 — 아래 워터마크 계산 주석 참조.
-    # 격리 유효기간이 지난 건은 active_quarantine이 자동 제외 → 다시 정상 처리 대상이 된다.
-    fail_counts, quarantined = read_failure_state()
-    quarantine_hours = config.PERFORMANCE.get("quarantine_retry_hours", 24)
-    held = active_quarantine(quarantined, quarantine_hours)
-    if held:
-        blocked = [c['cve_id'] for c in new_items if c['cve_id'] in held]
-        if blocked:
-            logger.warning(f"⛔ 격리 중 {len(blocked)}건 이번 실행 제외 (예: {blocked[:3]}) — "
-                           f"{quarantine_hours}h 후 자동 재시도")
-        new_items = [c for c in new_items if c['cve_id'] not in held]
-    kev_set = collector.kev_set
-    new_items.sort(key=lambda c: (0 if c['cve_id'] in kev_set else 1, c['commit_ts']))
-    max_per_run = config.PERFORMANCE.get("max_cves_per_run", 15)
-    to_process = new_items[:max_per_run]
-    deferred = new_items[max_per_run:]
-    if deferred:
-        logger.warning(f"신규 {len(new_items)}건 중 {len(to_process)}건 처리, {len(deferred)}건 다음 실행으로 이월(워터마크 뒤에 보존)")
-        # 이월분의 심각도 분포를 표본으로 추정해 남긴다 — Medium/Low가 대부분이면
-        # (비자산은 마커, 에스컬레이션 승격 시 재알림) 백로그를 기다려도 안전함을 즉시 확인.
-        _log_deferred_severity_estimate(deferred, collector, soft_deadline_ts)
+    tracked = sum(1 for o in outcomes if o.status == "tracked")
+    notifier.send_batch_summary(dashboard_url=_dashboard_url(), tracked=tracked)
 
-    target_cve_ids = [c['cve_id'] for c in to_process]
-
-    # Step 5.5: 신호 드리프트 대조 — 신호 소스(KEV/EPSS) 쪽에서 역방향으로 훑어
-    # DB의 저장 상태와 어긋난 CVE를 큐 앞에 추가한다. DB에서 후보를 고르는 방식은
-    # 그 선정 조건(CVSS·기간·건수·마커 여부)이 그대로 사각지대가 되므로 방향을 뒤집었다.
-    # 워터마크 흐름(to_process/deferred)과 별개라 워터마크 계산에는 불포함 —
-    # 실패해도 다음 실행에서 같은 대조가 다시 잡는다(신호가 소스에 남아 있는 한).
-    drift_cap = config.PERFORMANCE.get("max_drift_candidates", 60)
-    seen = set(target_cve_ids)
-    kev_extra = _kev_drift_candidates(collector, db, exclude=seen)[:drift_cap]
-    seen.update(kev_extra)
-    epss_extra = _epss_surge_candidates(collector, db, exclude=seen)[:drift_cap]
-    signal_extra = kev_extra + epss_extra
-    target_cve_ids = signal_extra + target_cve_ids
-
-    # Step 6: EPSS 수집
-    collector.fetch_epss(target_cve_ids)
-    logger.info(f"분석 대상: {len(target_cve_ids)}건 "
-                f"(신호 드리프트 {len(signal_extra)}건: KEV {len(kev_extra)} · EPSS {len(epss_extra)})")
-
-    # Step 7: CVE 처리 — 3단계 파이프라인
-    #   Phase A(병렬): 수집·분류·위협인텔 / B(배치): 한국어 번역 / C(병렬): Issue·Slack·저장
-    # 번역을 CVE마다 개별 호출하면 Gemma RPM 15(4초 간격)에 직렬화되어 실행당 8분+를 먹고,
-    # 풀가동 시 일 2,880콜로 RPD 1,500을 초과한다 → 배치(10건/호출)로 시간·예산 모두 1/10.
-    status_by_id = {}
-    max_workers = config.PERFORMANCE["max_workers"]
-    # 기본값은 _translate_chunk와 같아야 한다 — 다르면 로그가 실제 배치 크기와 어긋난다
-    batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
-    logger.info(f"처리 시작 (워커: {max_workers}명, 번역 배치 {batch_size}건/호출)")
-
-    # Phase A: 수집·분류 (병렬) — 데드라인 도달 시 잔여 취소(미기록 → 아래 안전망이 failed 처리)
-    prepared = []
-    marker_skips = 0   # 비자산 저위험 마커 처리 수 (백로그 해소 관측용)
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {executor.submit(prepare_single_cve, cid, collector, db): cid for cid in target_cve_ids}
-        for future in as_completed(futures):
-            if _over_deadline():
-                executor.shutdown(wait=False, cancel_futures=True)
-                logger.warning("⏰ 시간 예산 도달 — Phase A 잔여 취소 (다음 실행에서 재처리)")
-                break
-            cid = futures[future]
-            try:
-                prep = future.result() or {}
-            except Exception as e:
-                logger.error(f"{cid} 준비 중 예외 발생: {e}")
-                status_by_id[cid] = "failed"
-                continue
-            if prep.get("skipped_low_wildcard"):
-                marker_skips += 1
-            if prep.get("stage") == "ready":
-                prepared.append(prep)
-            else:
-                status_by_id[cid] = prep.get("status", "failed")
-
-    # 분류 요약 — "신규 N건 중 무엇이 몇 건인지" 실행마다 즉시 보이게
-    alert_cnt = sum(1 for p in prepared if p["should_alert"])
-    tracked_high = sum(1 for p in prepared if not p["should_alert"] and p.get("tier") == "high")
-    tracked_low = len(prepared) - alert_cnt - tracked_high
-    updated_cnt = sum(1 for s in status_by_id.values() if s == "handled") - marker_skips
-    logger.info(
-        f"📊 분류: 대상 {len(target_cve_ids)}건 → 알림(Critical/자산High) {alert_cnt} / "
-        f"High 추적 {tracked_high} / 자산저위험 추적 {tracked_low} / "
-        f"비자산 마커 {marker_skips} / 기존갱신·스킵 {max(updated_cnt, 0)}"
-    )
-
-    if _over_deadline():
-        # 번역/완성 없이 종료 — prepared 전부 미완료(failed) 처리해 다음 실행에서 온전히 재처리
-        logger.warning(f"⏰ 시간 예산 도달 — 준비된 {len(prepared)}건 포함 잔여분 다음 실행으로")
-        prepared = []
-    else:
-        # Phase B: 일괄 번역 (Gemma 호출 = ceil(n/배치)) — 데드라인을 Phase C 예약분만큼
-        # 앞당겨 전달. 번역이 전체 예산을 소진하면 Phase C(Issue·Slack·저장)가 0초로 시작해
-        # Critical 알림까지 통째로 다음 실행으로 밀리는 기아가 발생했던 것의 방지책.
-        tr_items = [{"id": p["cve_id"], "title": p["current_state"]["title"],
-                     "description": p["current_state"]["description"]} for p in prepared]
-        high_risk_ids = {p["cve_id"] for p in prepared if p["should_alert"]}
-        phase_c_reserve = config.PERFORMANCE.get("phase_c_reserve_minutes", 8) * 60
-        translations = generate_korean_summaries_batch(tr_items, high_risk_ids,
-                                                       deadline_ts=soft_deadline_ts - phase_c_reserve)
-
-        # Phase C: 완성 — Issue/Slack/저장 (병렬).
-        # 고위험(알림 대상)을 먼저 제출해 데드라인이 닥쳐도 핵심 알림부터 완료되게 한다.
-        prepared.sort(key=lambda p: (0 if p["should_alert"] else 1))
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(finalize_single_cve, p, translations.get(p["cve_id"]),
-                                db, notifier): p["cve_id"]
-                for p in prepared
-            }
-            for future in as_completed(futures):
-                if _over_deadline():
-                    executor.shutdown(wait=False, cancel_futures=True)
-                    logger.warning("⏰ 시간 예산 도달 — Phase C 미시작 잔여 취소 (실행 중 건은 완료 후 기록)")
-                    break
-                cid = futures[future]
-                try:
-                    result = future.result() or {}
-                    status_by_id[cid] = result.get("status", "failed")
-                except Exception as e:
-                    logger.error(f"{cid} 처리 중 예외 발생: {e}")
-                    status_by_id[cid] = "failed"
-
-            # 드레인: 데드라인 break 후에도 '이미 실행 중'인 건은 취소 불가 → 완료를 기다려
-            # 실제 결과를 기록한다. (기존엔 Issue/DB 저장까지 끝난 건도 안전망이 failed로
-            # 오기록 → "알림 0건" 오표기 + 다음 실행 불필요 재수집. with 종료가 어차피
-            # 실행 중 스레드를 join하므로 추가 대기 비용은 없음.)
-            # 주의: as_completed 루프로 드레인하면 안 됨 — shutdown(cancel_futures=True)의
-            # cancel()은 waiter를 깨우지 않아 루프가 영원히 블록된다(검증됨).
-            for future, cid in futures.items():
-                if cid in status_by_id:
-                    continue  # 루프에서 이미 기록됨
-                if future.cancelled():
-                    status_by_id[cid] = "failed"  # 미시작 취소분 → 워터마크가 붙잡아 재처리
-                    continue
-                try:
-                    result = future.result() or {}
-                    status_by_id[cid] = result.get("status", "failed")
-                except CancelledError:
-                    status_by_id[cid] = "failed"
-                except Exception as e:
-                    logger.error(f"{cid} 처리 중 예외 발생: {e}")
-                    status_by_id[cid] = "failed"
-
-    # 안전망: 상태가 기록되지 않은 처리 대상(취소·미완료)은 전부 failed —
-    # 워터마크 계산이 이들을 '처리됨'으로 오인해 건너뛰면 영구 누락이므로 반드시 필요.
-    for c in to_process:
-        status_by_id.setdefault(c['cve_id'], "failed")
-
-    # Step 8: 워터마크 전진 계산 (누락 0의 핵심)
-    #
-    # 미처리(unhandled) = 실패한 처리분 + 상한으로 이월된 분. 이들의 최소 커밋시각 앞까지만 전진.
-    # 단, '영구 실패' 레코드는 반드시 격리해야 한다 — 매번 실패하는 CVE 1건이 있으면
-    # 워터마크가 그 시각에 영구 고정되고, 조회 창(watermark+12h)도 함께 얼어붙어
-    # 그 이후의 신규 CVE를 영원히 못 본다(파이프라인 전면 정지). 연속 N회 실패한 CVE는
-    # 워터마크 계산에서 제외(격리)해 전진시키고, quarantine_retry_hours 후 자동 재시도한다.
-    max_fail = config.PERFORMANCE.get("max_consecutive_failures", 3)
-    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
-    newly_quarantined = []
-    for c in to_process:
-        cid = c['cve_id']
-        st = status_by_id.get(cid)
-        if st == 'failed':
-            fail_counts[cid] = fail_counts.get(cid, 0) + 1
-            if fail_counts[cid] >= max_fail and cid not in quarantined:
-                quarantined[cid] = now_iso
-                newly_quarantined.append(cid)
-        elif st in ('success', 'handled'):
-            # 성공 → 실패 이력·격리 해제 (일시 장애가 회복된 경우)
-            fail_counts.pop(cid, None)
-            quarantined.pop(cid, None)
-
-    if newly_quarantined:
-        logger.error(
-            f"⛔ 연속 {max_fail}회 실패로 격리: {len(newly_quarantined)}건 {newly_quarantined[:5]} — "
-            f"워터마크 전진을 위해 제외 (파이프라인 정지 방지). "
-            f"{config.PERFORMANCE.get('quarantine_retry_hours', 24)}h 후 자동 재시도"
-        )
-        notifier.send_pipeline_warning(
-            "⛔ CVE 격리 발생",
-            f"연속 {max_fail}회 처리 실패로 {len(newly_quarantined)}건을 격리했습니다. "
-            f"워터마크 정지를 막기 위한 조치이며 자동 재시도됩니다.\n"
-            f"`{', '.join(newly_quarantined[:10])}`"
-        )
-
-    # 격리분은 unhandled에서 제외 — 이것이 워터마크를 전진시켜 파이프라인을 살린다
-    held_now = set(quarantined)
-    unhandled_ts = [c['commit_ts'] for c in to_process
-                    if status_by_id.get(c['cve_id']) == 'failed' and c['cve_id'] not in held_now]
-    unhandled_ts += [c['commit_ts'] for c in deferred]
-    if unhandled_ts:
-        new_watermark = min(unhandled_ts)  # 이 시각 이후는 다음 실행에서 재수집
-    else:
-        # 전부 처리됨 → 이번에 본 가장 최신 커밋 시각까지 전진
-        new_watermark = max(c['commit_ts'] for c in fetched)
-
-    # 상태 파일 비대화 방지 — 격리 유효기간이 한참 지난 항목은 정리(재시도 후 성공 시 삭제됨)
-    stale_cut = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=7)
-    quarantined = {k: v for k, v in quarantined.items()
-                   if _iso_after(v, stale_cut)}
-    fail_counts = {k: v for k, v in fail_counts.items() if k in held_now or v > 0}
-    write_watermark(new_watermark, failures=fail_counts, quarantined=quarantined,
-                    rpd=rate_limit_manager.export_rpd_state())
-
-    # 워터마크 저장 이후에 백필 — 여기서 무슨 일이 나도 이번 회차의 전진은 이미 확정이다
-    backfill_translations(db, soft_deadline_ts)
-    # 백필이 소비한 호출까지 반영 (워터마크는 그대로 두고 사용량만 갱신)
-    write_rpd_state(rate_limit_manager.export_rpd_state())
-
-    success_count = sum(1 for s in status_by_id.values() if s == 'success')
-
-    # 분석 티어 소진 경고
-    if rate_limit_manager.is_rpd_exhausted("gemini_analysis"):
-        if rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb"):
-            logger.warning(f"🚫 분석 2단({config.GEMINI_ANALYSIS_MODEL} + "
-                           f"{config.GEMINI_ANALYSIS_FALLBACK_MODEL}) 모두 소진 → "
-                           "일부 고위험 CVE 보류, 다음 실행에서 자동 재처리")
-        else:
-            logger.warning(f"⚠️ {config.GEMINI_ANALYSIS_MODEL} RPD 소진 → "
-                           f"분석이 {config.GEMINI_ANALYSIS_FALLBACK_MODEL}로 수행됨")
-
-    # 번역 티어 소진 경고 — 남은 영문은 다음 실행의 번역 백필이 회수한다
-    if rate_limit_manager.is_rpd_exhausted("gemini"):
-        if rate_limit_manager.is_rpd_exhausted("gemini_fb"):
-            logger.warning(f"🚫 번역 2단({config.MODEL_PHASE_0} + {config.MODEL_PHASE_0_FALLBACK}) "
-                           "모두 소진 → 잔여는 영문, 다음 실행 백필에서 회수")
-        else:
-            logger.warning(f"⚠️ {config.MODEL_PHASE_0} RPD 소진 → "
-                           f"번역이 {config.MODEL_PHASE_0_FALLBACK}로 수행됨")
-
-    # Step 9: Slack 배치 요약 전송 (High 추적 건수 포함 — Issue 없이도 규모는 파악되게)
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    dashboard_url = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/" if '/' in repo else None
-    notifier.send_batch_summary(dashboard_url=dashboard_url, tracked_high=tracked_high)
-
-    # Step 10: 결과 요약
-    elapsed = time.time() - start_time
     logger.info("=" * 60)
-    logger.info(f"처리 완료: 알림 {success_count}건 / 처리 {len(target_cve_ids)}건 "
-                f"(비자산 저위험 마커 {marker_skips}건) / 이월 {len(deferred)}건")
-    logger.info(f"워터마크: {new_watermark.isoformat()}")
-    logger.info(f"소요 시간: {elapsed:.1f}초")
+    logger.info(f"bulk-lane 완료 · {time.time() - started:.1f}초")
     logger.info("=" * 60)
-
-    # Step 11: Rate Limit 사용 요약
     rate_limit_manager.print_summary()
 
 
 def _notify_pipeline_failure(error: Exception) -> None:
-    """파이프라인 최상위 실패를 Slack에 알림 (알림 자체의 실패는 무시하고 넘어감)"""
+    """최상위 실패를 Slack에 알림 (알림 자체의 실패는 무시하고 넘어간다)."""
     try:
-        webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
-        if not webhook_url:
-            return
-        payload = {
-            "blocks": [
-                {"type": "header", "text": {"type": "plain_text", "text": "🔴 Argus 파이프라인 실패"}},
-                {"type": "section", "text": {"type": "mrkdwn", "text": f"```{type(error).__name__}: {error}```"}},
-            ]
-        }
-        requests.post(webhook_url, json=payload, timeout=10)
+        SlackNotifier().send_pipeline_warning(
+            "🔴 Argus bulk-lane 실패", f"```{type(error).__name__}: {error}```")
     except Exception:
         pass
 
 
-def main():
+def main() -> None:
     try:
         _main()
     except Exception as e:
-        logger.error(f"파이프라인 최상위 실패: {e}", exc_info=True)
+        logger.error(f"bulk-lane 최상위 실패: {e}", exc_info=True)
         _notify_pipeline_failure(e)
 
 
