@@ -1,324 +1,145 @@
+"""공개 탐지 룰 조회 — 인덱스에서 찾고, 원문은 필요할 때만 받는다.
+
+예전에는 **CVE 한 건마다** SigmaHQ 전체 파일과 ET Open 룰셋 3종(각 수십 MB)을 정규식으로
+선형 스캔했다. 히트율은 실측 1.1% — 98.9%는 수십 MB를 훑어 '없음'을 확인하는 데 시간을
+썼고, 그 검색이 매시간 실행의 맨 앞에 있었다.
+
+이제 주 1회 build_rule_index.py가 만든 CVE→룰 위치 인덱스를 조회한다. 조회는 O(1)이고,
+룰 원문은 리포트를 발행하는 순간에만 받는다.
+
+원문을 재게시할 때는 출처·author·라이선스 고지를 함께 싣는다(불변 원칙 8-①).
+그 고지는 인덱스가 항목마다 들고 있으므로 여기서 추측하지 않는다.
+"""
+import json
 import os
-import io
-import re
-import tarfile
 import threading
+from typing import Dict, List, Optional
+
 import requests
-from typing import Dict, Optional, List
+
 from logger import logger
-from rate_limiter import rate_limit_manager
 
-# AI 룰 생성 제거 이후 RuleManager는 '공개 룰 검색기'다. 공개 룰(SigmaHQ/ET Open/
-# Yara-Rules)은 출처 자체가 검증 주체이므로 별도 파서 검증(pySigma 등)을 하지 않는다.
+_INDEX_LOCK = threading.Lock()
+_INDEX: Optional[Dict[str, List[Dict]]] = None
 
-# 디스크 캐시(24h TTL)는 enrichment_sources와 공유한다.
-# (매시간 실행에서 재다운로드 방지 + collector와 동일 캐시 파일 재사용)
-from enrichment_sources import (
-    cache_get as _cache_get,
-    cache_put as _cache_put,
-)
+_LOCAL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                      "docs", "data", "detection-rules.json")
+
+#: 리포트에 싣는 룰 원문의 상한. 넘으면 잘라 싣고 원문 링크를 준다.
+_MAX_RULE_CHARS = 6000
+
+
+def _index() -> Dict[str, List[Dict]]:
+    """인덱스를 1회 적재해 캐시. 못 구하면 빈 dict(기능만 조용히 생략).
+
+    배포본을 먼저 본다 — 데이터 파일을 커밋하지 않으므로 체크아웃에는 없거나 옛날 것이다.
+    락이 필요한 이유는 report 생성이 병렬이라 여럿이 동시에 들어오기 때문이다."""
+    global _INDEX
+    if _INDEX is not None:
+        return _INDEX
+    with _INDEX_LOCK:
+        if _INDEX is None:
+            _INDEX = _load()
+    return _INDEX
+
+
+def _load() -> Dict[str, List[Dict]]:
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" in repo:
+        owner, name = repo.split("/", 1)
+        url = f"https://{owner.lower()}.github.io/{name}/data/detection-rules.json"
+        try:
+            import urllib.request
+            req = urllib.request.Request(url, headers={"User-Agent": "argus-rules"})
+            with urllib.request.urlopen(req, timeout=120) as r:
+                idx = (json.loads(r.read().decode("utf-8")) or {}).get("rules") or {}
+            logger.info(f"탐지 룰 인덱스 로드(배포본): {len(idx):,}건")
+            return idx
+        except Exception as e:
+            logger.warning(f"탐지 룰 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+    try:
+        with open(_LOCAL, encoding="utf-8") as f:
+            idx = (json.load(f) or {}).get("rules") or {}
+        logger.info(f"탐지 룰 인덱스 로드(파일): {len(idx):,}건")
+        return idx
+    except (OSError, ValueError):
+        logger.info("탐지 룰 인덱스 없음 — 룰 섹션은 생략된다")
+        return {}
+
+
+def _fetch_text(entry: Dict) -> Optional[str]:
+    """룰 원문. 인덱스에 code가 있으면(네트워크 룰) 그대로, 없으면 raw로 받는다."""
+    if entry.get("code"):
+        return entry["code"]
+    url = entry.get("url") or ""
+    raw = (url.replace("https://github.com/", "https://raw.githubusercontent.com/")
+              .replace("/blob/", "/"))
+    if not raw.startswith("http"):
+        return None
+    try:
+        resp = requests.get(raw, timeout=30, headers={"User-Agent": "argus-rules"})
+        resp.raise_for_status()
+        text = resp.text
+        if len(text) > _MAX_RULE_CHARS:
+            text = text[:_MAX_RULE_CHARS] + "\n# … (생략 — 전체는 출처 링크 참조)"
+        return text
+    except requests.exceptions.RequestException as e:
+        logger.debug(f"룰 원문 수신 실패({raw}): {e}")
+        return None
 
 
 class RuleManager:
-    # 룰셋 캐시 (클래스 수준 - 모든 인스턴스·워커 공유)
-    _sigma_files: Dict[str, str] = {}
-    _yara_files: Dict[str, str] = {}
-    _network_rules_cache: Dict[str, str] = {}
-    # 병렬 워커 간 중복 다운로드 방지
-    _download_lock = threading.Lock()
-
-    # 공식 룰 재게시 시 보존해야 할 출처·라이선스 고지 (불변 원칙 8-①)
-    _SOURCE_LICENSES = [
-        ("SigmaHQ", "DRL 1.1 — 재게시 시 author 표기 보존 의무"),
-        ("ET Open", "MIT — 레거시 SID 1–3464는 GPLv2 (헤더 고지 보존)"),
-        ("Community", "GPLv2 (Snort Community Rules)"),
-        ("Yara-Rules", "GPL-2.0 — 출처·라이선스 표기 유지"),
-    ]
-
-    @staticmethod
-    def _license_for_source(source: str) -> Optional[str]:
-        """룰 출처 문자열에서 라이선스 고지 문구를 찾는다"""
-        for key, lic in RuleManager._SOURCE_LICENSES:
-            if key.lower() in source.lower():
-                return lic
-        return None
-
-    @staticmethod
-    def _cve_pattern(cve_id: str) -> "re.Pattern":
-        """CVE ID 정확 매칭 패턴.
-
-        단순 부분 문자열 검색(`cve_id in content`)은 짧은 ID가 긴 ID의 접두사가 되어
-        오탐한다 — 예: CVE-2026-9323 검색이 CVE-2026-93231용 룰에 매칭돼 '엉뚱한 CVE의
-        탐지 룰'이 리포트에 실린다. 보안 도구에서 이는 대응자를 오도하는 결함이므로
-        뒤에 숫자가 오지 않는 경우만 매칭한다(끝 경계 고정)."""
-        return re.compile(re.escape(cve_id) + r'(?!\d)', re.IGNORECASE)
+    """인덱스 조회기. 예전의 '룰셋 다운로드 + 전수 스캔'은 build_rule_index.py로 옮겼다."""
 
     def __init__(self):
-        self.gh_token = os.environ.get("GH_TOKEN")
-        # AI 룰 생성 제거 — RuleManager는 공개 룰 검색 전용 (AI 미사용)
-        logger.info("✅ RuleManager 초기화 완료 (공개 룰 검색 전용: SigmaHQ / ET Open / Yara-Rules)")
+        logger.debug("RuleManager 초기화 (인덱스 조회 전용)")
 
-    def _fetch_network_rules(self, cve_id: str) -> List[Dict[str, str]]:
-        logger.debug(f"네트워크 룰셋 검색 시작: {cve_id}")
-
-        found_rules = []
-
-        # 캐시가 비어있으면 룰셋 다운로드 (첫 실행 시)
-        if not RuleManager._network_rules_cache:
-            self._download_all_rulesets()
-
-        pattern = self._cve_pattern(cve_id)
-        # 각 룰셋에서 CVE 검색
-        for ruleset_name, ruleset_content in RuleManager._network_rules_cache.items():
-            for line in ruleset_content.splitlines():
-                # CVE ID가 (정확히) 포함되고, 주석이 아니고, alert 키워드가 있는 줄
-                if pattern.search(line) and "alert" in line and not line.strip().startswith("#"):
-                    # 엔진 타입 결정
-                    engine_type = self._detect_engine_type(ruleset_name)
-                    
-                    found_rules.append({
-                        "code": line.strip(),
-                        "source": ruleset_name,  # 예: "Snort 3 ET Open"
-                        "engine": engine_type    # 예: "snort3"
-                    })
-                    
-                    logger.info(f"✅ {ruleset_name}에서 룰 발견")
-                    break  # 룰셋당 첫 번째 매칭만 (중복 방지)
-        
-        if not found_rules:
-            logger.debug("❌ 모든 네트워크 룰셋에서 찾지 못함")
-        else:
-            logger.info(f"✅ 총 {len(found_rules)}개 엔진의 룰 발견")
-        
-        return found_rules
-    
-    def _download_all_rulesets(self):
-        with RuleManager._download_lock:
-            if RuleManager._network_rules_cache:
-                return
-
-            logger.info("📥 네트워크 룰셋 로드 중...")
-
-            # (이름, URL, tarball 내 추출 대상 파일명 — None이면 plain text)
-            sources = [
-                ("Snort 2.9 Community", "https://www.snort.org/downloads/community/community-rules.tar.gz", "community.rules"),
-                ("Snort 3 Community", "https://www.snort.org/downloads/community/snort3-community-rules.tar.gz", "snort3-community.rules"),
-                ("Snort 2.9 ET Open", "https://rules.emergingthreats.net/open/snort-2.9.0/emerging-all.rules", None),
-                ("Suricata 5 ET Open", "https://rules.emergingthreats.net/open/suricata-5.0/emerging-all.rules", None),
-                ("Suricata 7 ET Open", "https://rules.emergingthreats.net/open/suricata-7.0/emerging-all.rules", None),
-            ]
-
-            for name, url, member_hint in sources:
-                cache_key = re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-') + ".rules"
-
-                cached = _cache_get(cache_key)
-                if cached is not None:
-                    RuleManager._network_rules_cache[name] = cached.decode('utf-8', errors='ignore')
-                    logger.info(f"  ✅ {name} 캐시 로드")
-                    continue
-
-                try:
-                    logger.debug(f"  - {name} 다운로드 중...")
-                    response = requests.get(url, timeout=60)
-                    if response.status_code != 200:
-                        logger.debug(f"  ⚠️ {name} 다운로드 실패: HTTP {response.status_code}")
-                        continue
-
-                    if member_hint:
-                        content = None
-                        with tarfile.open(fileobj=io.BytesIO(response.content), mode="r:gz") as tar:
-                            for member in tar.getmembers():
-                                if member_hint in member.name:
-                                    f = tar.extractfile(member)
-                                    if f:
-                                        content = f.read().decode('utf-8', errors='ignore')
-                                    break
-                        if content is None:
-                            logger.debug(f"  ⚠️ {name}: tarball에서 {member_hint} 미발견")
-                            continue
-                    else:
-                        content = response.text
-
-                    RuleManager._network_rules_cache[name] = content
-                    _cache_put(cache_key, content.encode('utf-8'))
-                    logger.info(f"  ✅ {name} 로드 완료")
-                except Exception as e:
-                    logger.warning(f"  ⚠️ {name} 다운로드 실패: {e}")
-
-            logger.info(f"✅ 네트워크 룰셋 로드 완료 ({len(RuleManager._network_rules_cache)}개 소스)")
-    
-    def _detect_engine_type(self, ruleset_name: str) -> str:
-        name_lower = ruleset_name.lower()
-        
-        # Snort 버전 감지
-        if "snort 2.9" in name_lower or "snort 2" in name_lower:
-            return "snort2"
-        elif "snort 3" in name_lower or "snort3" in name_lower:
-            return "snort3"
-        
-        # Suricata 버전 감지
-        elif "suricata 5" in name_lower:
-            return "suricata5"
-        elif "suricata 7" in name_lower:
-            return "suricata7"
-        elif "suricata edge" in name_lower:
-            return "suricata-edge"
-        
-        else:
-            return "unknown"
-
-    # ====================================================================
-    # [1-2] SigmaHQ / Yara-Rules tarball 로컬 검색
-    # ====================================================================
-
-    def _fetch_tarball(self, cache_key: str, url: str, display_name: str) -> Optional[bytes]:
-        """tarball을 디스크 캐시 우선으로 가져온다 (miss 시 다운로드 후 캐시)"""
-        data = _cache_get(cache_key)
-        if data is not None:
-            logger.info(f"📥 {display_name} 캐시 로드")
-            return data
-
-        logger.info(f"📥 {display_name} 다운로드 중...")
-        headers = {"Authorization": f"token {self.gh_token}"} if self.gh_token else {}
-        try:
-            rate_limit_manager.check_and_wait("ruleset_download")
-            response = requests.get(url, headers=headers, timeout=60)
-            response.raise_for_status()
-            rate_limit_manager.record_call("ruleset_download")
-            _cache_put(cache_key, response.content)
-            return response.content
-        except Exception as e:
-            logger.warning(f"  ⚠️ {display_name} 다운로드 실패: {e}")
-            return None
-
-    def _download_sigma_repo(self):
-        """SigmaHQ/sigma tarball(디스크 캐시)에서 rules/*.yml 파일 캐시"""
-        with RuleManager._download_lock:
-            if RuleManager._sigma_files:
-                return
-
-            data = self._fetch_tarball("sigmahq.tar.gz", "https://api.github.com/repos/SigmaHQ/sigma/tarball", "SigmaHQ 룰셋")
-            if data is None:
-                return
-
-            try:
-                count = 0
-                with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
-                    for member in tar.getmembers():
-                        if member.isfile() and member.name.endswith('.yml') and '/rules' in member.name:
-                            f = tar.extractfile(member)
-                            if f:
-                                content = f.read().decode('utf-8', errors='ignore')
-                                RuleManager._sigma_files[member.name] = content
-                                count += 1
-
-                logger.info(f"  ✅ SigmaHQ 로드 완료 ({count}개 룰)")
-            except Exception as e:
-                logger.warning(f"  ⚠️ SigmaHQ 압축 해제 실패: {e}")
-
-    def _download_yara_repo(self):
-        """Yara-Rules/rules tarball(디스크 캐시)에서 *.yar 파일 캐시"""
-        with RuleManager._download_lock:
-            if RuleManager._yara_files:
-                return
-
-            data = self._fetch_tarball("yara-rules.tar.gz", "https://api.github.com/repos/Yara-Rules/rules/tarball", "Yara-Rules 룰셋")
-            if data is None:
-                return
-
-            try:
-                count = 0
-                with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
-                    for member in tar.getmembers():
-                        if member.isfile() and (member.name.endswith('.yar') or member.name.endswith('.yara')):
-                            f = tar.extractfile(member)
-                            if f:
-                                content = f.read().decode('utf-8', errors='ignore')
-                                RuleManager._yara_files[member.name] = content
-                                count += 1
-
-                logger.info(f"  ✅ Yara-Rules 로드 완료 ({count}개 룰)")
-            except Exception as e:
-                logger.warning(f"  ⚠️ Yara-Rules 압축 해제 실패: {e}")
-
-    def _search_local_sigma(self, cve_id: str) -> Optional[str]:
-        """SigmaHQ 로컬 캐시에서 CVE ID 검색"""
-        if not RuleManager._sigma_files:
-            self._download_sigma_repo()
-
-        pattern = self._cve_pattern(cve_id)
-        for filepath, content in RuleManager._sigma_files.items():
-            if pattern.search(content):
-                filename = filepath.split('/')[-1]
-                logger.info(f"✅ SigmaHQ 로컬에서 발견: {filename}")
-                return content
-
-        logger.debug(f"❌ SigmaHQ 로컬: {cve_id} 없음")
-        return None
-
-    def _search_local_yara(self, cve_id: str) -> Optional[str]:
-        """Yara-Rules 로컬 캐시에서 CVE ID 검색"""
-        if not RuleManager._yara_files:
-            self._download_yara_repo()
-
-        pattern = self._cve_pattern(cve_id)
-        for filepath, content in RuleManager._yara_files.items():
-            if pattern.search(content):
-                filename = filepath.split('/')[-1]
-                logger.info(f"✅ Yara-Rules 로컬에서 발견: {filename}")
-                return content
-
-        logger.debug(f"❌ Yara-Rules 로컬: {cve_id} 없음")
-        return None
+    @staticmethod
+    def lookup(cve_id: str) -> List[Dict]:
+        """CVE에 매핑된 룰 항목들 (원문 없이 위치·출처·라이선스만). 없으면 빈 목록."""
+        return _index().get(cve_id.upper(), [])
 
     def search_public_only(self, cve_id: str) -> Dict:
-        rules = {"sigma": None, "network": [], "yara": None}
+        """리포트용 룰 묶음. 원문은 여기서만 받는다.
 
-        logger.info(f"공개 룰 검색 (AI 미사용): {cve_id}")
+        반환 형식은 기존 소비자(report._build_issue_body, notifier)를 위해 유지한다:
+            {"sigma": {...} | None, "network": [...], "yara": {...} | None,
+             "nuclei": {...} | None, "splunk": {...} | None}
+        """
+        entries = self.lookup(cve_id)
+        rules: Dict = {"sigma": None, "network": [], "yara": None,
+                       "nuclei": None, "splunk": None}
+        if not entries:
+            return rules
 
-        # Sigma (tarball 로컬 검색 - Code Search API 사용 안 함)
-        public_sigma = self._search_local_sigma(cve_id)
-        if public_sigma:
-            rules['sigma'] = {
-                "code": public_sigma,
-                "source": "Public (SigmaHQ)",
-                "verified": True,
-                "license": self._license_for_source("SigmaHQ")
+        for entry in entries:
+            engine = entry.get("engine", "")
+            packed = {
+                "source": entry.get("source", ""),
+                "engine": engine,
+                "license": entry.get("license", ""),
+                "note": entry.get("note", ""),
+                "url": entry.get("url", ""),
+                "author": entry.get("author", ""),
+                "license_url": entry.get("license_url", ""),
+                "verified": True,      # 공개 룰셋은 출처 자체가 검증 주체다
             }
+            if engine in ("snort2", "snort3", "suricata5", "suricata7"):
+                if len(rules["network"]) >= 3:
+                    continue
+                code = _fetch_text(entry)
+                if code:
+                    rules["network"].append({**packed, "code": code})
+            elif engine in ("sigma", "yara", "nuclei", "splunk"):
+                if rules.get(engine):
+                    continue           # 엔진당 하나면 충분하다
+                code = _fetch_text(entry)
+                if code:
+                    rules[engine] = {**packed, "code": code}
 
-        # Snort/Suricata (기존 tarball 방식 유지)
-        network_rules = self._fetch_network_rules(cve_id)
-        if network_rules:
-            for rule_info in network_rules:
-                source_str = f"Public ({rule_info['source']})"
-                rules['network'].append({
-                    "code": rule_info["code"],
-                    "source": source_str,
-                    "engine": rule_info["engine"],
-                    "verified": True,
-                    "license": self._license_for_source(source_str)
-                })
-
-        # Yara (tarball 로컬 검색 - Code Search API 사용 안 함)
-        public_yara = self._search_local_yara(cve_id)
-        if public_yara:
-            rules['yara'] = {
-                "code": public_yara,
-                "source": "Public (Yara-Rules)",
-                "verified": True,
-                "license": self._license_for_source("Yara-Rules")
-            }
-
-        # 결과 요약
-        found = []
-        if rules['sigma']: found.append("Sigma")
-        if rules['network']: found.append(f"Network({len(rules['network'])})")
-        if rules['yara']: found.append("Yara")
-
+        found = [k for k in ("sigma", "yara", "nuclei", "splunk") if rules.get(k)]
+        if rules["network"]:
+            found.append(f"network({len(rules['network'])})")
         if found:
-            logger.info(f"  ✅ 공개 룰 발견: {', '.join(found)}")
-        else:
-            logger.debug(f"  공개 룰 없음: {cve_id}")
-
+            logger.info(f"  ✅ 공개 룰: {cve_id} — {', '.join(found)}")
         return rules
-    

@@ -1,0 +1,62 @@
+name: Argus Fast Lane
+
+# 고위험 취약점을 '빨리' 알리는 것만 담당한다.
+# AI 번역·심층 분석·탐지 룰 검색은 여기서 하지 않는다 — 전부 bulk-lane(argus.yml)이 맡는다.
+# 알림이 무거운 작업 뒤에 줄을 서면 신속성은 구조적으로 나오지 않기 때문이다.
+#
+# 이 저장소는 public이라 Actions 분이 무제한이다. 예전 README에 있던 '2,000분/월'
+# 제약은 private 저장소 기준이라 여기엔 해당하지 않는다 — 5분 주기가 실제로 가능하다.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write        # 스냅샷 대조로 잡힌 고위험 건의 리포트 발행
+
+# fast-lane끼리만 직렬화한다. bulk-lane(argus-pipeline)과 그룹을 나누는 게 핵심 —
+# 같은 그룹에 두면 38분짜리 bulk 실행 뒤에 알림이 통째로 밀린다.
+concurrency:
+  group: argus-fast
+  cancel-in-progress: false
+
+jobs:
+  fast:
+    runs-on: ubuntu-latest
+    # 정상 소요는 1~2분. 파이프라인은 fast_deadline_minutes(5분)에 스스로 마무리하고
+    # 워터마크를 저장하므로, 이 값은 그게 실패했을 때의 최후 안전장치다.
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 신호 인덱스(KEV·ExploitDB·Metasploit·nuclei·EPSS) 디스크 캐시.
+      # 캐시가 없어도 동작은 같고 첫 회차만 느려진다.
+      - name: Cache signal indexes
+        uses: actions/cache@v4
+        with:
+          path: .cache/rulesets
+          key: signals-${{ github.run_id }}
+          restore-keys: |
+            signals-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run fast lane
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
+        run: python src/fast_lane.py

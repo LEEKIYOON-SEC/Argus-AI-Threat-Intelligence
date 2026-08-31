@@ -95,4 +95,5 @@ def _fresh() -> set:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or ["cves.json", "stats.json",
-                                   "cve-packages.json", "malicious-packages.json"]))
+                                   "cve-packages.json", "malicious-packages.json",
+                                   "detection-rules.json"]))

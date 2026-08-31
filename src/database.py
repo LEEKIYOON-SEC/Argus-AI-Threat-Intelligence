@@ -122,8 +122,9 @@ class ArgusDB:
 
         스칼라(점수·플래그)와 리포트 링크만 남긴다. 상세 원문은 이미 GitHub Issue에
         보존돼 있고, 대시보드 행은 리포트로 연결되므로 정보 손실이 아니라 '요약 저장'이다.
-        목적: 어떤 콘텐츠든 저장을 성사시켜 content_hash를 전진 → 매 실행 중복 이슈/재분석
-        (poison-pill)을 끊는 것. 표시용 한국어 요약은 ZWSP로 무력화해 함께 보존 시도."""
+        목적: 어떤 콘텐츠든 저장을 성사시켜 발화 이력(fired_triggers)을 남기는 것 —
+        저장이 실패하면 다음 실행이 같은 CVE를 '처음 보는 것'으로 보고 같은 알림을
+        또 보낸다. 표시용 한국어 요약은 ZWSP로 무력화해 함께 보존 시도."""
         st = data.get("last_alert_state") or {}
         safe_state = {
             "title_ko": _neutralize(st.get("title_ko") or st.get("title", "")),
@@ -136,14 +137,21 @@ class ArgusDB:
             "ssvc_automatable": st.get("ssvc_automatable"),
             "ssvc_technical_impact": st.get("ssvc_technical_impact"),
             "is_kev_ransomware": st.get("is_kev_ransomware", False),
+            "is_vulncheck_kev": st.get("is_vulncheck_kev", False),
             "published": st.get("published", ""),
             "has_poc": st.get("has_poc", False),
             "has_public_exploit": st.get("has_public_exploit", False),
             "has_metasploit_module": st.get("has_metasploit_module", False),
+            "has_nuclei_template": st.get("has_nuclei_template", False),
+            "epss_percentile": st.get("epss_percentile"),
+            # 티어와 발화 이력은 축소 저장본에서도 반드시 보존한다 — 빠뜨리면 WAF에 걸린
+            # CVE만 다음 실행에서 '처음 보는 것'이 되어 같은 알림이 다시 나간다.
+            "tier": st.get("tier"),
+            "fired_triggers": st.get("fired_triggers", []),
             "waf_degraded": True,  # 대시보드/모달에서 '원문은 리포트 참조' 안내에 사용 가능
         }
         keep = ("id", "cvss_score", "epss_score", "is_kev", "updated_at",
-                "content_hash", "last_alert_at", "report_url",
+                "last_alert_at", "report_url",
                 "has_official_rules", "last_rule_check_at")
         out = {k: data[k] for k in keep if k in data}
         out["last_alert_state"] = safe_state
@@ -343,28 +351,6 @@ class ArgusDB:
             logger.error(f"룰 재확인 후보 조회 실패: {e}")
             return []
     
-    def batch_get_content_hashes(self, cve_ids: List[str]) -> Dict[str, str]:
-        """여러 CVE의 콘텐츠 해시를 한번에 조회 (API 호출 최소화)"""
-        result = {}
-        if not cve_ids:
-            return result
-
-        try:
-            for i in range(0, len(cve_ids), 50):
-                chunk = cve_ids[i:i+50]
-                response = self._execute(
-                    self.client.table("cves").select("id, content_hash").in_("id", chunk)
-                )
-                for row in (response.data or []):
-                    if row.get('content_hash'):
-                        result[row['id']] = row['content_hash']
-
-            logger.debug(f"배치 해시 조회: {len(cve_ids)}건 요청, {len(result)}건 발견")
-            return result
-        except Exception as e:
-            logger.error(f"배치 해시 조회 실패: {e}")
-            return result
-
     def batch_get_scalar(self, cve_ids: List[str], column: str) -> Dict[str, Any]:
         """CVE별 스칼라 컬럼 1개를 배치 조회. DB에 없는 id는 결과에 포함되지 않는다.
 
@@ -608,38 +594,79 @@ class ArgusDB:
             pending.append({"id": cve_id, "last_alert_state": state})
         return self.bulk_save_states(pending, "공개일")
 
-    def get_escalation_candidates(self, days: int = 30, limit: int = 300) -> List[Dict]:
-        """외부 피드(KEV/EPSS/Metasploit) 단독 변화로 고위험 승격 가능성이 있는 '현재 저위험' CVE.
+    def get_missing_report_candidates(self, limit: int = 20) -> List[Dict]:
+        """알림은 나갔는데 상세 리포트가 없는 CVE (fast-lane이 Slack만 보낸 건).
 
-        파이프라인은 cvelistV5 커밋(레코드 변경)을 트리거로 재수집하므로, 레코드는 그대로인데
-        외부 피드만 바뀐 CVE는 재수집 큐에 안 올라와 에스컬레이션(재알림)이 누락될 수 있다.
-        이 후보들을 주기적으로 재평가하기 위한 읽기 전용 조회다(스키마 변경 없음).
-
-        대상 = is_kev=false 인 추적 행(최근 N일, 최신순 limit건).
-
-        예전에는 여기에 cvss_score < 7 조건이 있었다. '이미 고위험이면 알림이 나갔다'는
-        전제였는데, High(7~8.9)는 대시보드 추적만 하고 리포트·즉시 알림이 나가지 않으므로
-        전제가 성립하지 않았다. 그 결과 High/Critical 행이 나중에 Metasploit·ExploitDB
-        신호를 얻어도 재평가되지 않았다 → 조건을 제거했다.
-
-        KEV·EPSS 전이는 main의 신호 드리프트 대조(_kev_drift_candidates /
-        _epss_surge_candidates)가 소스 쪽에서 역방향으로 잡으므로 여기서는 중복되지 않는다.
-        이 스윕은 전량 목록이 없는 신호(Metasploit·ExploitDB)를 담당한다.
-        last_alert_state(JSONB)에 비교용 필드가 모두 있으므로 그대로 반환한다.
-        """
+        정렬은 위험 순이다 — 예산이 모자라 일부만 만들게 되면 T0부터 만들어야 한다.
+        last_alert_state를 함께 받는 이유는 리포트 본문이 그 안의 필드를 쓰기 때문이다."""
         try:
-            cutoff = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)).isoformat()
-            response = self._execute(
+            r = self._execute(
                 self.client.table("cves")
-                .select("id, cvss_score, epss_score, is_kev, last_alert_state, report_url, updated_at")
-                .gte("updated_at", cutoff)
-                .eq("is_kev", False)
+                .select("id, cvss_score, epss_score, is_kev, last_alert_state, updated_at")
+                .not_.is_("last_alert_at", "null")
+                .is_("report_url", "null")
                 .not_.is_("last_alert_state", "null")
-                .order("updated_at", desc=True)
+                .order("is_kev", desc=True)
+                .order("last_alert_at", desc=True)
                 .limit(limit)
             )
-            return response.data or []
+            return r.data or []
         except Exception as e:
-            logger.error(f"에스컬레이션 후보 조회 실패: {e}")
+            logger.error(f"리포트 보강 후보 조회 실패: {e}")
             return []
 
+    # ==================================================================
+    # 신호 스냅샷 — 소스측 대조의 '지난번 집합'
+    # ==================================================================
+    # 왜 별도 테이블인가: cves 테이블은 '우리가 추적하는 CVE'고, 이건 '업스트림이 그때
+    # 무엇을 갖고 있었는가'다. 성격이 달라 섞으면 보존정책이 서로를 지운다.
+    #
+    #   create table if not exists signal_snapshots (
+    #     source     text primary key,
+    #     digest     text        not null,
+    #     cve_ids    jsonb       not null default '[]'::jsonb,
+    #     updated_at timestamptz not null default now()
+    #   );
+
+    def get_snapshot_digest(self, source: str) -> Optional[str]:
+        """스냅샷 지문만 조회 (수십 바이트).
+
+        이게 게이팅의 핵심이다 — 업스트림이 안 바뀐 실행에서는 여기서 끝나므로
+        수십만 건짜리 집합을 읽지 않는다(불변 원칙 2)."""
+        try:
+            r = self._execute(
+                self.client.table("signal_snapshots").select("digest")
+                .eq("source", source).limit(1)
+            )
+            rows = r.data or []
+            return rows[0].get("digest") if rows else None
+        except Exception as e:
+            logger.warning(f"스냅샷 지문 조회 실패({source}): {e}")
+            return None
+
+    def get_snapshot_ids(self, source: str) -> set:
+        """저장된 CVE 집합. 실패하면 빈 집합 — 호출부가 '조회 실패'로 보고 건너뛴다."""
+        try:
+            r = self._execute(
+                self.client.table("signal_snapshots").select("cve_ids")
+                .eq("source", source).limit(1)
+            )
+            rows = r.data or []
+            ids = rows[0].get("cve_ids") if rows else None
+            return {str(x) for x in ids} if isinstance(ids, list) else set()
+        except Exception as e:
+            logger.warning(f"스냅샷 집합 조회 실패({source}): {e}")
+            return set()
+
+    def save_snapshot(self, source: str, digest: str, ids) -> bool:
+        try:
+            self._execute(self.client.table("signal_snapshots").upsert({
+                "source": source,
+                "digest": digest,
+                "cve_ids": sorted(ids),
+                "updated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            }))
+            return True
+        except Exception as e:
+            logger.error(f"스냅샷 저장 실패({source}): {e}")
+            return False
