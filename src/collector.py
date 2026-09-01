@@ -80,6 +80,7 @@ class Collector:
         self.kev_date_added: Dict[str, str] = {}
         self.kev_ransomware: Set[str] = set()
         self.kev_due_date: Dict[str, str] = {}
+        self.kev_product: Dict[str, Tuple[str, str]] = {}
         self.ai_ledger: Optional[Dict[str, Dict]] = None
         self.vulncheck_kev_set: Set[str] = set()
         self.epss_cache: Dict[str, float] = {}
@@ -102,6 +103,15 @@ class Collector:
             if str(item.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
         }
         self.kev_due_date = {cid: item.get('dueDate', '') for cid, item in data.items()}
+        # CISA 가 정리해 둔 벤더/제품. 옛날 CVE 레코드는 affected 블록이 없어
+        # vendor/product 가 'n/a' 인 경우가 많은데(KEV 무작위 60건 중 42%),
+        # 하필 그게 지금 악용 중인 것들이라 화면에서 제품으로 찾을 수가 없었다.
+        # KEV 쪽 표기는 사람이 정리한 것이라 깨끗하다.
+        self.kev_product = {
+            cid: (str(item.get('vendorProject') or '').strip(),
+                  str(item.get('product') or '').strip())
+            for cid, item in data.items()
+        }
         logger.info(f"KEV {len(self.kev_set)}건 적재 "
                     f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
         return True
@@ -546,6 +556,28 @@ class Collector:
             logger.info(f"  🤖 AI 발견: {cve_id} ({prov.program}) — {prov.detail[:80]}")
         else:
             cve_data['ai_discovered'] = False
+        self.fill_product_from_kev(cve_data)
+        return cve_data
+
+    def fill_product_from_kev(self, cve_data: Dict) -> Dict:
+        # 옛날 CVE 레코드에는 affected 블록이 없어 vendor/product 가 'n/a' 로 남는다.
+        # 무작위 60건 실측으로 KEV 의 42%가 그랬다 — 그런데 그게 지금 악용 중인 것들이라,
+        # 화면에서 제품 이름으로 찾을 수 없다는 뜻이었다(제목에만 적혀 있다).
+        # CISA 가 KEV 에 붙여 둔 vendorProject/product 는 사람이 정리한 값이라 깨끗하다.
+        # 레코드가 제대로 채워져 있으면 손대지 않는다 — 그쪽이 더 상세하다.
+        vendor, product = self.kev_product.get(cve_data.get('id'), ('', ''))
+        if not product:
+            return cve_data
+        affected = cve_data.get('affected') or []
+        if any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict)):
+            return cve_data
+        cve_data['affected'] = [{
+            "vendor": vendor or "Unknown",
+            "product": product,
+            "versions": affected[0].get('versions') if affected else "정보 없음",
+            "patch_version": affected[0].get('patch_version') if affected else None,
+            "source": "CISA KEV",
+        }]
         return cve_data
 
     def enrich_threat_intel(self, cve_data: Dict) -> Dict:
