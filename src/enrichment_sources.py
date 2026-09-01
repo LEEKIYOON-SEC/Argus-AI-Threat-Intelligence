@@ -46,7 +46,9 @@ EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 _METASPLOIT_URL = "https://raw.githubusercontent.com/rapid7/metasploit-framework/master/db/modules_metadata_base.json"
 _NUCLEI_URL = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/cves.json"
 _CISA_KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-_VULNCHECK_KEV_URL = "https://api.vulncheck.com/v3/index/vulncheck-kev"
+# 커뮤니티(무료) 티어는 /v3/backup/ 이다. /v3/index/ 는 페이지네이션 조회로 상위 티어
+# 전용이라, 유효한 커뮤니티 토큰으로도 401이 난다 (실제로 그렇게 실패했다).
+_VULNCHECK_BACKUP_URL = "https://api.vulncheck.com/v3/backup/vulncheck-kev"
 
 _lock = threading.Lock()
 
@@ -305,48 +307,114 @@ def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
     return out
 
 
-def load_vulncheck_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
+def _vulncheck_download_url(api_key: str) -> Optional[str]:
+    """백업 스냅샷의 임시 다운로드 URL. /v3/backup/ 은 레코드를 바로 주지 않고
+    `data[0].url` 로 아카이브 링크를 준다."""
+    try:
+        rate_limit_manager.check_and_wait("vulncheck")
+        resp = requests.get(
+            _VULNCHECK_BACKUP_URL,
+            headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
+            timeout=60,
+        )
+        rate_limit_manager.record_call("vulncheck")
+        if resp.status_code == 401:
+            logger.error(
+                "VulnCheck KEV 401 — 토큰이 거부됐습니다. 확인할 것: "
+                "① VULNCHECK_API_KEY 값이 맞는지(앞뒤 공백·따옴표 포함) "
+                "② vulncheck.com 계정에서 토큰이 활성 상태인지. "
+                "이 신호 없이도 파이프라인은 정상 동작합니다(CISA KEV로 대체)."
+            )
+            return None
+        resp.raise_for_status()
+        entries = (resp.json() or {}).get("data") or []
+        url = entries[0].get("url") if entries else None
+        if not url:
+            logger.warning("VulnCheck KEV: 백업 목록이 비어 있음")
+        return url
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"VulnCheck KEV 백업 URL 조회 실패: {e}")
+        return None
+
+
+def _vulncheck_records(payload: bytes) -> list:
+    """백업 아카이브(zip) 또는 JSON 본문에서 KEV 레코드 목록을 꺼낸다.
+
+    아카이브 안의 파일 이름·개수는 보장된 계약이 아니라서, .json 으로 끝나는 것을
+    모두 훑어 리스트를 이어 붙인다."""
+    import io
+    import zipfile
+
+    if payload[:2] == b"PK":
+        out = []
+        try:
+            with zipfile.ZipFile(io.BytesIO(payload)) as zf:
+                for name in zf.namelist():
+                    if not name.endswith(".json"):
+                        continue
+                    try:
+                        doc = json.loads(zf.read(name).decode("utf-8", errors="ignore"))
+                    except ValueError:
+                        continue
+                    if isinstance(doc, list):
+                        out.extend(doc)
+                    elif isinstance(doc, dict):
+                        out.extend(doc.get("data") or [])
+        except zipfile.BadZipFile as e:
+            logger.warning(f"VulnCheck KEV 아카이브 해제 실패: {e}")
+        return out
+    try:
+        doc = json.loads(payload.decode("utf-8", errors="ignore"))
+    except ValueError as e:
+        logger.warning(f"VulnCheck KEV 파싱 실패: {e}")
+        return []
+    return doc if isinstance(doc, list) else (doc.get("data") or [])
+
+
+def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
     """VulnCheck KEV 전량 → {CVE: 항목}. 키가 없거나 실패하면 None.
 
-    CISA KEV보다 넓고 대체로 이르다. 무료지만 **출처 표기 의무**가 있어,
-    이 신호로 알림이 나갈 때는 'VulnCheck KEV'를 반드시 함께 싣는다."""
-    api_key = os.environ.get("VULNCHECK_API_KEY")
+    CISA KEV보다 넓고 대체로 이르다. 무료지만 **출처 표기 의무**가 있어
+    ("This product uses VulnCheck KEV"), 이 신호로 알림이 나갈 때 반드시 함께 싣는다.
+
+    커뮤니티 티어는 두 단계다 — /v3/backup/ 으로 스냅샷 URL을 받고, 그 URL에서
+    아카이브를 내려받는다. 예전에는 /v3/index/ 를 직접 불렀는데 그건 상위 티어의
+    페이지네이션 조회라 유효한 커뮤니티 토큰으로도 401이 난다."""
+    api_key = (os.environ.get("VULNCHECK_API_KEY") or "").strip()
     if not api_key:
         logger.debug("VULNCHECK_API_KEY 미설정 → VulnCheck KEV 건너뜀")
         return None
 
-    raw = cache_get("vulncheck-kev.json", ttl_hours=ttl_hours)
+    raw = cache_get("vulncheck-kev.bin", ttl_hours=ttl_hours)
     if raw is None:
-        try:
-            rate_limit_manager.check_and_wait("vulncheck")
-            response = requests.get(
-                _VULNCHECK_KEV_URL,
-                headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
-                params={"limit": 10000},
-                timeout=60,
-            )
-            response.raise_for_status()
-            rate_limit_manager.record_call("vulncheck")
-            raw = response.content
-            cache_put("vulncheck-kev.json", raw)
-        except Exception as e:
-            logger.warning(f"VulnCheck KEV 수신 실패: {e}")
+        url = _vulncheck_download_url(api_key)
+        if not url:
             return None
-    try:
-        data = json.loads(raw.decode("utf-8", errors="ignore"))
-    except ValueError as e:
-        logger.warning(f"VulnCheck KEV 파싱 실패: {e}")
-        return None
-    out = {}
-    for item in data.get("data", []) or []:
+        try:
+            resp = requests.get(url, timeout=120)
+            resp.raise_for_status()
+            raw = resp.content
+            cache_put("vulncheck-kev.bin", raw)
+            logger.info(f"📥 VulnCheck KEV 스냅샷 수신 ({len(raw) / 1024 / 1024:.1f}MB)")
+        except requests.exceptions.RequestException as e:
+            logger.warning(f"VulnCheck KEV 스냅샷 수신 실패: {e}")
+            return None
+
+    out: Dict[str, Dict] = {}
+    for item in _vulncheck_records(raw):
+        if not isinstance(item, dict):
+            continue
         cve_id = item.get("cveID") or item.get("cve_id")
-        # cve가 배열로 오는 스키마 변형도 받아 준다
         if not cve_id:
+            # 스키마 변형: cve 가 배열로 오는 경우
             arr = item.get("cve") or []
             cve_id = arr[0] if isinstance(arr, list) and arr else None
         if cve_id:
             out[str(cve_id).upper()] = item
-    logger.info(f"📥 VulnCheck KEV {len(out)}건 (출처 표기 의무 있음)")
+    if not out:
+        logger.warning("VulnCheck KEV: 레코드를 하나도 읽지 못함 → 이번 회차 생략")
+        return None
+    logger.info(f"📥 VulnCheck KEV {len(out)}건 (This product uses VulnCheck KEV)")
     return out
 
 

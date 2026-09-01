@@ -356,17 +356,6 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         badges += " ![Metasploit](https://img.shields.io/badge/Metasploit-Weaponized-8B0000)"
     if cve_data.get('has_public_exploit'):
         badges += " ![ExploitDB](https://img.shields.io/badge/ExploitDB-Public-orange)"
-    if cve_data.get('ai_discovered'):
-        # 출처 신호 — 악용 관측이 아니라 '누가 찾았나'다. 대개 공개 시점에 이미 패치돼
-        # 있으므로 그 사실을 함께 적어, 읽는 사람이 긴급도를 오해하지 않게 한다.
-        prog = cve_data.get('ai_program', 'AI')
-        detail = cve_data.get('ai_detail', '')
-        url = cve_data.get('ai_url')
-        link = f" — [공개 레저]({url})" if url else ""
-        signal_lines.append(
-            f"- **AI 발견 취약점** ({prog}): {detail}{link}\n"
-            f"  <sub>AI가 찾아 책임공개된 건입니다. 공개 시점에 패치가 이미 나와 있는 경우가"
-            f" 많지만, 공개와 동시에 상세가 함께 공개되므로 N-day 위험은 실재합니다.</sub>")
     if cve_data.get('has_nuclei_template'):
         badges += " ![nuclei](https://img.shields.io/badge/nuclei-Template-9146FF)"
     if cve_data.get('is_vulncheck_kev'):
@@ -392,6 +381,17 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         signal_lines.append(
             f"- **nuclei 템플릿 공개** (nuclei-templates, ProjectDiscovery, MIT): "
             f"대량 스캔·검증 가능{f' · severity={sev}' if sev else ''}{link}")
+    if cve_data.get('ai_discovered'):
+        # 출처 신호 — 악용 관측이 아니라 '누가 찾았나'다. 대개 공개 시점에 이미 패치돼
+        # 있으므로 그 사실을 함께 적어, 읽는 사람이 긴급도를 오해하지 않게 한다.
+        prog = cve_data.get('ai_program') or 'AI'
+        detail = cve_data.get('ai_detail') or ''
+        ai_url = cve_data.get('ai_url')
+        ai_link = f" — [공개 레저]({ai_url})" if ai_url else ""
+        signal_lines.append(
+            f"- **AI 발견 취약점** ({prog}): {detail}{ai_link}\n"
+            f"  <sub>AI가 찾아 책임공개된 건입니다. 공개 시점에 패치가 이미 나와 있는 경우가"
+            f" 많지만, 공개와 동시에 상세가 함께 공개되므로 N-day 위험은 실재합니다.</sub>")
     ssvc = cve_data.get('ssvc') or {}
     if ssvc:
         parts = [f"{k}={v}" for k, v in ssvc.items()]

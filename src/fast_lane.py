@@ -16,7 +16,6 @@
 import datetime
 import os
 import time
-from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Optional, Tuple
 
 import pytz
