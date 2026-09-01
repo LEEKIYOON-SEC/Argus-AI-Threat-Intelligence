@@ -1,27 +1,4 @@
 #!/usr/bin/env python3
-"""오래된 CVE 리포트 이슈를 정리한다 — 트리아지 화면을 되돌리기 위한 1회성 도구.
-
-Argus는 고위험 CVE마다 GitHub Issue로 상세 리포트를 발행해 왔고, 닫는 경로가 없었다.
-그 결과 열린 이슈가 4,866건까지 쌓여 `label:kev`로 걸러도 목록이 화면을 넘어간다 —
-'지금 봐야 하는 것'을 찾는 용도로는 이미 쓸 수 없는 상태다.
-
-무엇을 닫는가:
-  · 라벨 `cve`가 붙은 Argus 발행 이슈 중
-  · KEV·무기화 라벨(`kev` / `exploited`)이 **없고**
-  · N일(기본 180) 이상 갱신이 없는 것
-
-닫아도 안전한 이유: 이슈는 '읽는 리포트'이지 대응 추적 도구가 아니다. 본문은 닫혀도
-그대로 남아 사후 점검·감사에 쓸 수 있고, 그 CVE에 나중에 악용 신호가 붙으면 파이프라인이
-소스측 대조로 다시 잡아 **새 알림**을 낸다(signal_snapshot). 닫는 것이 정보를 지우지 않는다.
-
-  python3 tools/close_stale_issues.py                  # 어떤 것이 닫힐지만 본다(기본)
-  python3 tools/close_stale_issues.py --apply          # 실제로 닫는다
-  python3 tools/close_stale_issues.py --days 365 --apply
-  python3 tools/close_stale_issues.py --keep-labels kev,exploited,poc --apply
-
-표준 라이브러리만 쓴다(pip install 불필요) — tools/sbom_match.py와 같은 방침.
-필요한 것은 issues:write 권한의 GH_TOKEN과 GITHUB_REPOSITORY뿐이다.
-"""
 from __future__ import annotations
 
 import argparse
@@ -41,7 +18,6 @@ _UA = "argus-issue-cleanup"
 
 def _request(url: str, token: str, method: str = "GET",
              payload: Optional[Dict] = None) -> tuple:
-    """(상태코드, 본문, 헤더). 2차 레이트리밋은 호출부가 처리한다."""
     data = json.dumps(payload).encode() if payload is not None else None
     req = urllib.request.Request(url, data=data, method=method, headers={
         "Authorization": f"token {token}",
@@ -58,7 +34,6 @@ def _request(url: str, token: str, method: str = "GET",
 
 
 def _sleep_for_ratelimit(headers: Dict, attempt: int) -> float:
-    """GitHub이 알려준 재개 시각을 우선 따르고, 없으면 지수 백오프."""
     retry_after = headers.get("Retry-After")
     if retry_after:
         try:
@@ -77,7 +52,6 @@ def _sleep_for_ratelimit(headers: Dict, attempt: int) -> float:
 
 
 def iter_open_issues(repo: str, token: str, label: str) -> Iterator[Dict]:
-    """라벨이 붙은 열린 이슈를 전부 훑는다 (PR은 제외)."""
     page = 1
     while True:
         q = urllib.parse.urlencode({
@@ -100,7 +74,6 @@ def iter_open_issues(repo: str, token: str, label: str) -> Iterator[Dict]:
         if not body:
             return
         for item in body:
-            # /issues 는 PR도 함께 준다. pull_request 키가 있으면 PR이다.
             if "pull_request" not in item:
                 yield item
         if len(body) < 100:
@@ -161,7 +134,6 @@ def main() -> int:
         except (ValueError, TypeError):
             continue
         if updated >= cutoff:
-            # 정렬이 updated 오름차순이라, 여기 닿으면 이후는 전부 최신이다
             kept_recent += 1
             break
         targets.append(issue)
@@ -191,7 +163,6 @@ def main() -> int:
             closed += 1
         if i % 50 == 0:
             print(f"  진행 {i:,}/{len(targets):,} (종료 {closed:,})", file=sys.stderr)
-        # 대량 쓰기는 2차 레이트리밋에 걸리기 쉬워 간격을 둔다
         time.sleep(0.6)
     print(f"\n종료 완료: {closed:,}/{len(targets):,}건", file=sys.stderr)
     return 0 if closed == len(targets) else 1

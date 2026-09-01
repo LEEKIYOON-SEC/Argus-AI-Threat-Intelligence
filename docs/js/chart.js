@@ -1,6 +1,3 @@
-/**
- * Argus Dashboard — 외부 라이브러리 없는 Canvas 막대 차트 (호버 툴팁 포함)
- */
 
 function cssVar(name, fallback) {
   const v = getComputedStyle(document.body).getPropertyValue(name).trim();
@@ -34,7 +31,6 @@ function drawBarChart(canvasId, data, options = {}) {
 
   ctx.clearRect(0, 0, w, h);
 
-  // 가로 그리드 + Y 라벨
   ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   ctx.fillStyle = axisText;
@@ -72,17 +68,15 @@ function drawBarChart(canvasId, data, options = {}) {
     ctx.closePath();
     ctx.fill();
 
-    // X 라벨 (혼잡 방지: 최대 ~10개)
     if (data.length <= 12 || i % Math.ceil(data.length / 10) === 0) {
       ctx.fillStyle = axisText;
       ctx.font = '9px -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      const lbl = (d.label || '').slice(5); // MM-DD
+      const lbl = (d.label || '').slice(5);
       ctx.fillText(lbl, x + barW / 2, h - pad.bottom + 15);
     }
   });
 
-  // ---- 호버 툴팁 ----
   let tip = canvas.parentElement.querySelector('.chart-tip');
   if (!tip) {
     tip = document.createElement('div');

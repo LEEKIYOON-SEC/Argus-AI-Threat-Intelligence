@@ -23,6 +23,7 @@ on:
           - rule-index         # CVE ↔ 공개 탐지 룰 역인덱스 재생성
           - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
           - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
+          - backfill-exploited # 현재 악용 중(KEV) 전량 소급 — 여러 번 돌리면 수렴
       backfill_days:
         # 30일씩 끊어 NVD를 조회한다. 키가 없으면 창당 8초라 7000일이면 ~30분 —
         # 잡 타임아웃(60분) 안이지만, NVD_API_KEY가 있으면 훨씬 빠르다.
@@ -85,6 +86,22 @@ jobs:
       # 주간 스케줄에도 태운다. 벤더가 비는 원인의 대부분은 NVD의 CPE 분석 지연이라
       # (실측: 벤더 없는 198건의 66%가 올해 CVE, 2024년 이전은 64%가 복구 가능)
       # 한 번 돌리고 끝낼 일이 아니다. 채워질수록 대상이 줄어 비용도 같이 준다.
+      # 스냅샷 최초 기록은 전량을 '이미 아는 것'으로 저장하고 처리는 하지 않는다
+      # (첫 실행 알림 폭풍 방지). 그래서 그 시점에 이미 KEV였던 CVE가 DB에 없다.
+      # 한 번에 800건씩 채우고, 남으면 다시 돌리면 이어서 채운다. 알림은 나가지 않는다.
+      - name: Backfill currently exploited (KEV)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-exploited' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
+          BACKFILL_LIMIT: '800'
+        run: python src/backfill_exploited.py
+
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
         env:

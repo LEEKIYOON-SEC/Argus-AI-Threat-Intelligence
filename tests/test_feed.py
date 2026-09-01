@@ -1,12 +1,4 @@
 #!/usr/bin/env python3
-"""feed.py 파싱 회귀 테스트 — 네트워크 없이 합성 데이터로 돌린다.
-
-    python3 tests/test_feed.py
-
-지키는 것은 모듈 주석에 적힌 '두 함정'이다.
-  · 배치 fetchTime 기준으로 걸러야 한다 (dateUpdated 기준이면 실측 6.4%가 사라진다)
-  · Range로 잘린 JSON 배열에서 완성된 객체만 뽑아야 한다
-"""
 import datetime
 import json
 import os
@@ -14,9 +6,9 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-import pytz  # noqa: E402
+import pytz
 
-import feed  # noqa: E402
+import feed
 
 
 def ts(s):
@@ -29,12 +21,9 @@ def item(cve, updated):
 
 
 BATCHES = [
-    # 최신순 (deltaLog와 같은 순서)
     {"fetchTime": "2026-08-30T12:00:00.000Z", "new": [item("CVE-2026-3", "2026-08-30T11:58:00.000Z")],
      "updated": []},
     {"fetchTime": "2026-08-30T11:00:00.000Z", "new": [],
-     # ★ 핵심: 배치는 11:00인데 레코드가 밝힌 시각은 6시간 전이다.
-     #   dateUpdated로 거르면 이 항목이 사라진다.
      "updated": [item("CVE-2026-2", "2026-08-30T05:00:00.000Z")]},
     {"fetchTime": "2026-08-30T10:00:00.000Z", "new": [item("CVE-2026-1", "2026-08-30T09:59:00.000Z")],
      "updated": []},
@@ -99,8 +88,6 @@ def main() -> int:
     check(feed._parse_array_prefix("") == [], "빈 입력은 빈 목록", failures)
 
     print("\n── 상한 절단은 배치 경계에서 ──")
-    # 실측 형태를 그대로 옮긴 것이다: 작은 배치들 사이에 거대한 배치 하나가 섞인다
-    # (2026-09-01, 6시간 창 24배치 · 중앙 4건 · 최대 477건).
     def batch_of(n, when):
         t = ts(when)
         return [feed.Change(cve_id=f"CVE-X-{when[-9:-1]}-{i}", batch_at=t) for i in range(n)]
@@ -108,9 +95,6 @@ def main() -> int:
     seq = (batch_of(4, "2026-08-30T10:00:00Z") + batch_of(400, "2026-08-30T10:30:00Z")
            + batch_of(6, "2026-08-30T11:00:00Z"))
     kept, horizon = feed.cap_by_batch(seq, 300, ts("2026-08-30T11:00:00Z"))
-    # 상한 300은 400건짜리 배치 한가운데 떨어진다. 예전 코드는 여기서 그냥 잘라
-    # horizon을 10:30에 뒀고, 다음 실행이 batch_at <= 10:30 을 건너뛰어 나머지 296건이
-    # 영원히 사라졌다.
     kept_ids = {c.cve_id for c in kept}
     for when in ("2026-08-30T10:00:00Z", "2026-08-30T10:30:00Z", "2026-08-30T11:00:00Z"):
         grp = {c.cve_id for c in seq if c.batch_at == ts(when)}
@@ -118,7 +102,6 @@ def main() -> int:
               f"{when[11:16]} 배치를 쪼개지 않는다 (전부 포함이거나 전부 제외)", failures)
     check(len(kept) == 404 and horizon == ts("2026-08-30T10:30:00Z"),
           f"상한에 걸린 배치는 통째로 포함하고 그 다음부터 자른다 ({len(kept)}건)", failures)
-    # 남은 6건은 horizon 뒤에 있으므로 다음 회차가 반드시 다시 본다 = 유실 0
     dropped = [c for c in seq if c.cve_id not in kept_ids]
     check(all(c.batch_at > horizon for c in dropped),
           "버린 건은 전부 horizon 뒤 — 다음 회차가 다시 집는다", failures)

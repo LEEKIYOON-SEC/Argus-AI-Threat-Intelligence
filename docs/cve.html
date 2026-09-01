@@ -26,7 +26,6 @@
   </header>
 
   <main class="container">
-    <!-- KPI strip (위협 중심) -->
     <section class="kpi-grid">
       <div class="kpi is-new">
         <div class="kpi-label" title="악용 신호가 관측됐거나(T0·T1) 고위험이 될 가능성이 있는 건(T2)만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다.">추적 중 CVE</div>
@@ -55,7 +54,6 @@
       </div>
     </section>
 
-    <!-- Panels: trend + distribution -->
     <section class="panels">
       <div class="panel">
         <h3>📈 일별 공개 추이 <span style="font-weight:500;color:var(--text-faint);text-transform:none;letter-spacing:0;">CVE 공개일 기준 · 최근 30일<span id="trend-coverage"></span></span></h3>
@@ -69,9 +67,7 @@
       </div>
     </section>
 
-    <!-- Filter bar -->
     <section class="filter-bar">
-      <!-- 위쪽: 검색 + 벤더 + 제품 + 월 + 일 -->
       <div class="filter-row">
         <div class="search-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -83,7 +79,6 @@
         <select class="filter-select" id="day-filter" title="일별 조회 (월 선택 시 해당 월의 날짜만)"><option value="">전체 일자</option></select>
       </div>
 
-      <!-- 아래: 심각도 + 위협신호(좌) / 다운로드(우) -->
       <div class="filter-row">
         <div class="seg" id="severity-seg">
           <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
@@ -99,14 +94,8 @@
           <button class="seg-btn signal" data-signal="auto" title="CISA SSVC Automatable=yes — 점수가 낮아도 대량 자동 공격 대상">🤖 자동화 가능</button>
           <button class="seg-btn signal" data-signal="ai" title="AI가 찾아 책임공개된 취약점 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 이미 패치된 경우가 많지만 상세가 함께 공개됩니다.">🧠 AI 발견</button>
           <button class="seg-btn signal" data-signal="patched" title="OSV가 수정 버전을 알려주는 건 — 올릴 목표가 있는 것부터 처리할 때">🩹 패치 있음</button>
+          <button class="seg-btn signal" data-signal="alerted" title="Slack 즉시 알림이 나간 건만. 악용 중·무기화 임박이 여기 해당하고, 관찰 구간은 빠집니다.">🔔 알림 나간 건</button>
         </div>
-        <select class="filter-select" id="tier-filter" title="파이프라인이 실제로 알림을 보낼 때 쓰는 것과 같은 기준입니다. '악용 중'과 '무기화 임박'은 즉시 알림이 나간 건, '관찰'은 알림 없이 세워만 둔 건입니다.">
-          <option value="">전체 등급</option>
-          <option value="T0">🚨 악용 중 — 악용이 보고된 건</option>
-          <option value="T1">⚠️ 무기화 임박 — 공격 도구 공개</option>
-          <option value="T2">📋 관찰 — 고위험이 될 가능성</option>
-          <option value="T3">· 신호 없음 — 철회됐거나 판정 신호가 없는 건</option>
-        </select>
         <select class="filter-select" id="kernel-filter" title="Linux 커널 CVE는 전부 Linux/Linux로만 표기돼 제품 구분이 없습니다. 커널은 CVE마다 고치는 게 아니라 패키지를 한 번 올리는 단위라, 나머지를 훑을 땐 제외하고 보는 편이 낫습니다.">
           <option value="">커널 포함</option>
           <option value="hide">커널 제외</option>
@@ -125,7 +114,6 @@
 
     <div class="loading" id="loading">불러오는 중…</div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
@@ -153,7 +141,6 @@
     </div>
   </main>
 
-  <!-- Detail Modal -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-hero" id="modal-hero">

@@ -9,28 +9,24 @@ import risk
 from logger import logger
 
 class NotifierError(Exception):
-    """알림 관련 에러"""
     pass
 
 class SlackNotifier:
     MAX_RETRIES = 3
-    RETRY_DELAYS = [2, 5, 10]  # 초
+    RETRY_DELAYS = [2, 5, 10]
 
     def __init__(self):
-        """Slack Webhook 초기화"""
         self.webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
 
         if not self.webhook_url:
             raise NotifierError("SLACK_WEBHOOK_URL이 설정되지 않음")
 
-        # 배치 알림용 결과 수집 (thread-safe)
         self._batch_results: List[Dict] = []
         self._lock = threading.Lock()
 
         logger.info("Slack Notifier 초기화 완료")
 
     def _send_slack_with_retry(self, payload: dict, context: str = "Slack") -> bool:
-        """Slack webhook 전송 + 재시도 (최대 3회, 지수 백오프)"""
         for attempt in range(self.MAX_RETRIES):
             try:
                 response = requests.post(self.webhook_url, json=payload, timeout=10)
@@ -48,10 +44,6 @@ class SlackNotifier:
 
     def collect_alert(self, cve_data: Dict, reason: str, tier: str,
                       report_url: Optional[str] = None) -> None:
-        """개별 CVE 알림을 배치 요약용으로 수집 (thread-safe).
-
-        여기서 스칼라를 정규화해 두면 요약 집계(비교·정렬·슬라이싱)가 None에 걸려
-        통째로 실패하는 일이 없다 — 수집 시점 한 곳에서만 방어하면 충분하다."""
         with self._lock:
             self._batch_results.append({
                 "id": cve_data['id'],
@@ -67,12 +59,6 @@ class SlackNotifier:
 
     def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None,
                    tier: str = risk.T2) -> bool:
-        """알림 발송. 티어는 **파이프라인이 판정한 것을 그대로 받는다**.
-
-        예전에는 여기서 is_urgent()로 다시 판정했다. 그래서 리포트에는 '🔴 긴급'인데
-        Slack은 조용한 상충이 실제로 났다 — 같은 신호를 두 곳에서 해석하면 언젠가
-        갈라진다. 판정의 주인은 risk.py 하나다.
-        """
         self.collect_alert(cve_data, reason, tier, report_url)
         if tier in risk.ALERTING_TIERS:
             return self._send_immediate(cve_data, reason, tier, report_url)
@@ -80,10 +66,6 @@ class SlackNotifier:
 
     @staticmethod
     def _fixed_target(cve_id: str) -> str:
-        """OSV 역인덱스가 아는 패치 목표 버전 한 줄. 없으면 빈 문자열.
-
-        '무엇을 하라'가 없는 알림은 결국 사람이 다시 찾아봐야 한다. 이미 만들어 둔
-        인덱스를 여기서 한 번 더 쓴다(공개 정적 파일이라 DB 비용 0)."""
         try:
             import report as report_mod
             pkgs = report_mod._package_index().get(cve_id) or {}
@@ -104,7 +86,6 @@ class SlackNotifier:
 
     @staticmethod
     def _attack_conditions(cve_data: Dict) -> str:
-        """공격 조건을 사람 말로. 점수 하나보다 이게 판단을 빨리 만든다."""
         m = risk.parse_vector(cve_data.get('cvss_vector'))
         if not m:
             return ""
@@ -126,8 +107,6 @@ class SlackNotifier:
 
     @staticmethod
     def _indicators(cve_data: Dict) -> str:
-        """지표 한 줄. EPSS는 percentile을 함께 적는다 — 0.09가 상위 5%라는 걸
-        숫자만 봐서는 알 수 없기 때문이다."""
         bits = []
         cvss = cve_data.get('cvss') or 0
         if cvss:
@@ -152,11 +131,6 @@ class SlackNotifier:
 
     def _send_immediate(self, cve_data: Dict, reason: str, tier: str,
                         report_url: Optional[str] = None) -> bool:
-        """T0/T1 즉시 알림.
-
-        판단에 필요한 것을 메시지 안에서 끝낸다 — 무엇이 바뀌었나 · 무엇에 영향 ·
-        어디까지 올리면 되나 · 어떤 조건에서 공격되나 · 지표. 예전 메시지는 제목과
-        배지뿐이라 결국 이슈를 열어봐야 했다."""
         try:
             cve_id = cve_data['id']
             title = cve_data.get('title_ko') or cve_data.get('title') or 'N/A'
@@ -217,7 +191,6 @@ class SlackNotifier:
                                  "url": refs[0]})
             blocks.append({"type": "actions", "elements": elements[:3]})
 
-            # 출처 표기 의무가 있는 소스가 판정에 쓰였으면 반드시 함께 싣는다.
             credits = ["출처: CISA KEV · EPSS(FIRST.org)"]
             if cve_data.get('is_vulncheck_kev'):
                 credits.append("This product uses VulnCheck KEV")
@@ -239,10 +212,6 @@ class SlackNotifier:
 
     def send_batch_summary(self, dashboard_url: Optional[str] = None,
                            tracked: int = 0) -> bool:
-        """한 회차 요약. 즉시 알림이 이미 나간 건들의 '전체 그림'을 한 번 더 준다.
-
-        tracked: 알림 없이 대시보드 추적만 시작한 T2 건수 — 알림 노이즈를 늘리지 않으면서
-        규모는 보이게 한다."""
         if not self._batch_results and not tracked:
             logger.debug("배치 요약: 보낼 것 없음")
             return True
@@ -298,7 +267,6 @@ class SlackNotifier:
             return False
 
     def send_pipeline_warning(self, title: str, detail: str) -> bool:
-        """파이프라인 운영 경고 (격리 발생 등) — 조용한 실패로 묻히면 안 되는 상태 변화 통지."""
         try:
             return self._send_slack_with_retry({
                 "blocks": [
@@ -320,7 +288,6 @@ class SlackNotifier:
 
             rule_count = 0
 
-            # Sigma
             if rules_info.get('sigma') and rules_info['sigma'].get('code'):
                 rule_count += 1
                 sigma_code = rules_info['sigma']['code'].strip()
@@ -330,7 +297,6 @@ class SlackNotifier:
                     "text": {"type": "mrkdwn", "text": f"*🟢 Sigma* ({rules_info['sigma']['source']})\n```{preview}```"}
                 })
 
-            # Network (여러 개 - 모두 표시)
             if rules_info.get('network'):
                 for net_rule in rules_info['network']:
                     if net_rule.get('code'):
@@ -343,7 +309,6 @@ class SlackNotifier:
                             "text": {"type": "mrkdwn", "text": f"*🟢 {engine}* ({net_rule['source']})\n```{preview}```"}
                         })
 
-            # Yara
             if rules_info.get('yara') and rules_info['yara'].get('code'):
                 rule_count += 1
                 yara_code = rules_info['yara']['code'].strip()
@@ -359,7 +324,6 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": f"총 {rule_count}개 엔진의 공식 룰 발견. 위 룰을 복사하여 보안 장비에 등록하세요."}]
             })
 
-            # GitHub Issue 링크 (전체 룰 + 상세 분석)
             if original_report_url:
                 blocks.append({
                     "type": "actions",
@@ -379,7 +343,6 @@ class SlackNotifier:
     
     def update_github_issue(self, issue_url: str, comment: str) -> bool:
         try:
-            # URL 파싱
             match = re.search(r'github\.com/([^/]+)/([^/]+)/issues/(\d+)', issue_url)
             if not match:
                 logger.error(f"잘못된 Issue URL: {issue_url}")
@@ -388,7 +351,6 @@ class SlackNotifier:
             owner, repo, issue_number = match.groups()
             api_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}/comments"
             
-            # 댓글 작성
             headers = {
                 "Authorization": f"token {os.environ.get('GH_TOKEN')}",
                 "Accept": "application/vnd.github.v3+json"

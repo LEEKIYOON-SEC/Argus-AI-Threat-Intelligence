@@ -1,13 +1,3 @@
-"""주간 요약 리포트 — 직전 ISO 주의 탐지 결과를 GitHub Issue 한 건으로 발행.
-
-단건 알림만으로는 '이번 주에 무슨 일이 있었나'를 볼 수단이 없다. 이미 export가
-메모리에 들고 있는 대시보드 데이터를 그대로 집계하므로 DB·AI 추가 비용이 0이다.
-
-중복 발행 방지는 상태 파일이 아니라 GitHub 자체를 기준으로 한다 — 같은 제목의
-이슈가 이미 있으면 건너뛴다. 상태 파일 유실·실행 실패에도 정확히 한 번만 발행되고,
-한 주를 놓쳤다면 다음 실행이 자동으로 메운다.
-"""
-
 import os
 import datetime
 import requests
@@ -21,7 +11,6 @@ KST = datetime.timezone(datetime.timedelta(hours=9))
 
 
 def _last_iso_week(today: Optional[datetime.date] = None) -> Tuple[str, datetime.date, datetime.date]:
-    """직전 ISO 주의 (라벨, 시작일(월), 종료일(일))."""
     today = today or datetime.datetime.now(KST).date()
     this_monday = today - datetime.timedelta(days=today.weekday())
     start = this_monday - datetime.timedelta(days=7)
@@ -31,7 +20,6 @@ def _last_iso_week(today: Optional[datetime.date] = None) -> Tuple[str, datetime
 
 
 def _issue_exists(repo: str, token: str, title: str) -> bool:
-    """같은 제목의 주간 리포트가 이미 있는지 (중복 발행 방지의 유일한 기준)."""
     resp = requests.get(
         f"{_API}/repos/{repo}/issues",
         headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},
@@ -55,7 +43,6 @@ def _in_week(entry: Dict, start: datetime.date, end: datetime.date) -> bool:
 
 def build_weekly_body(week_cves: List[Dict], week_label: str,
                       start: datetime.date, end: datetime.date) -> str:
-    """주간 리포트 마크다운. 집계는 전부 대시보드 데이터 기준(추가 조회 없음)."""
     total = len(week_cves)
     critical = [c for c in week_cves if (c.get("cvss") or 0) >= 9.0]
     kev = [c for c in week_cves if c.get("is_kev")]
@@ -63,7 +50,6 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
     poc = [c for c in week_cves if c.get("has_poc")]
     ruled = [c for c in week_cves if (c.get("rule_engines") or []) or c.get("has_official_rules")]
 
-    # 주간 영향 제품 TOP (같은 CVE 내 중복 제품은 1회)
     prod = Counter()
     for c in week_cves:
         seen = set()
@@ -84,7 +70,6 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
         link = f"[{c['id']}]({c['report_url']})" if c.get("report_url") else c["id"]
         return f"| {sev} | {link} | {c.get('cvss', 0)} | {', '.join(sig) or '–'} | {title} |"
 
-    # 주목 CVE — 악용 신호 우선, 그다음 CVSS
     notable = sorted(
         week_cves,
         key=lambda c: (
@@ -144,7 +129,6 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
 
 def publish_weekly_report(cve_data: List[Dict],
                           repo: Optional[str] = None, token: Optional[str] = None) -> Optional[str]:
-    """직전 주 리포트를 GitHub Issue로 발행. 이미 있으면 건너뛴다. 반환: 이슈 URL 또는 None."""
     repo = repo or os.environ.get("GITHUB_REPOSITORY", "")
     token = token or os.environ.get("GH_TOKEN", "")
     if not repo or not token:

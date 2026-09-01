@@ -1,7 +1,3 @@
-/* ==========================================================================
-   Argus CVE Dashboard — 위협 중심 재설계
-   다크 우선. severity=status 색(라벨 항상 동반), 신호=구분 hue.
-   ========================================================================== */
 
 :root {
   --bg: #0b0f16;
@@ -31,21 +27,17 @@
   --sig-msf: #c084fc;
   --sig-edb: #f0883e;
   --sig-poc: #22d3ee;
-  --sig-rules: #3fb950; /* 공개 탐지 룰 — 방어 수단 존재(녹색). 위협 신호와 색상군 분리 */
-  /* 자동화 악용 축 — CVSS(피해 크기)와 직교하는 '얼마나 쉽게 널리 자동화되는가'.
-     기존 위협 신호(적/보라/주황)와 구별되게 청록 계열로 묶는다. */
+  --sig-rules: #3fb950; 
   --sig-auto: #38bdf8;
   --sig-total: #a78bfa;
   --sig-ransom: #fb7185;
   --sig-nuclei: #9146ff;
-  --sig-ai: #d97706;    /* AI 발견 — 출처 축이라 위협 신호 색군과 분리 */
+  --sig-ai: #d97706;    
 
-  /* 위험 티어 — 파이프라인(risk.py)이 판정한 값. 심각도(CVSS) 색과 일부러 다른 색군을
-     쓴다: 둘은 다른 축이고, 같은 색이면 'Critical인데 T2'가 모순처럼 보인다. */
-  --tier-t0: #ff5c57;   /* 관측된 악용 — 즉시 */
-  --tier-t1: #ff9838;   /* 무기화 임박 — 즉시 */
-  --tier-t2: #58a6ff;   /* 관찰 — 알림 없음 */
-  --tier-t3: #6b7280;   /* 신호 없음 — 철회됐거나 판정 신호 없음 */
+  --tier-t0: #ff5c57;   
+  --tier-t1: #ff9838;   
+  --tier-t2: #58a6ff;   
+  --tier-t3: #6b7280;   
 
   --radius: 12px;
   --radius-sm: 8px;
@@ -83,7 +75,6 @@ body {
 }
 .container { max-width: 1320px; margin: 0 auto; padding: 0 24px; }
 
-/* ---------- Header ---------- */
 .header {
   position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px);
   background: color-mix(in srgb, var(--bg) 82%, transparent);
@@ -115,7 +106,6 @@ body {
 
 main { padding: 28px 0 64px; }
 
-/* ---------- KPI strip ---------- */
 .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 22px; }
 .kpi {
   position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--border);
@@ -134,7 +124,6 @@ main { padding: 28px 0 64px; }
 .kpi-value.c-kev { color: var(--sig-kev); }
 .kpi-value.c-weapon { color: var(--sig-msf); }
 
-/* ---------- Panels ---------- */
 .panels { display: grid; grid-template-columns: 1.7fr 1fr; gap: 16px; margin-bottom: 22px; }
 .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); }
 .panel h3 { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
@@ -143,10 +132,7 @@ main { padding: 28px 0 64px; }
 
 .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; font-size: 12px; }
 .dist-row:last-child { margin-bottom: 0; }
-/* 제품명은 'Windows 10 Version 1809'처럼 뒤쪽에 구분 정보가 붙는다 —
-   폭이 좁으면 앞부분만 남아 서로 다른 제품이 같은 이름으로 보인다. 넉넉히 준다. */
 .dist-name { width: 168px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: none; }
-/* 제품 분포 → 클릭 시 해당 제품 필터 */
 .dist-clickable { cursor: pointer; border-radius: 6px; padding: 2px 4px; margin-left: -4px; margin-right: -4px; transition: background .12s; }
 .dist-clickable:hover { background: var(--surface-3); }
 .dist-clickable:hover .dist-name { color: var(--accent); }
@@ -155,13 +141,11 @@ main { padding: 28px 0 64px; }
 .dist-count { width: 40px; text-align: right; color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
 .dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
 
-/* ---------- Filter bar ---------- */
 .filter-bar {
   display: flex; flex-direction: column; gap: 11px; background: var(--surface);
   border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 14px; margin-bottom: 16px; box-shadow: var(--shadow);
 }
 .filter-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-/* 셀렉트가 4개(벤더·제품·월·일)로 늘어 검색창은 축소 — 셀렉트에 우선 폭을 준다 */
 .search-wrap { position: relative; flex: 1 1 200px; min-width: 160px; max-width: 380px; }
 .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-faint); pointer-events: none; }
 .search-input {
@@ -183,7 +167,6 @@ main { padding: 28px 0 64px; }
 .seg-btn.active.sev-c-medium { color: var(--sev-medium); }
 .seg-btn.active.sev-c-low { color: var(--sev-low); }
 
-/* 위협 신호 토글 — 심각도 세그먼트와 동일한 사각형 pill 스타일 */
 .seg-btn.signal.active[data-signal="kev"] { color: var(--sig-kev); }
 .seg-btn.signal.active[data-signal="weaponized"] { color: var(--sig-msf); }
 .seg-btn.signal.active[data-signal="poc"] { color: var(--sig-poc); }
@@ -200,7 +183,6 @@ main { padding: 28px 0 64px; }
 .export-btn.export-highrisk { color: var(--sev-high); border-color: color-mix(in srgb, var(--sev-high) 40%, var(--border)); }
 .export-btn.export-highrisk:hover { background: color-mix(in srgb, var(--sev-high) 12%, var(--surface)); }
 
-/* ---------- Table ---------- */
 .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
 .table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; min-width: 820px; }
@@ -240,7 +222,6 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .vendor-cell { color: var(--text-muted); font-size: 12.5px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .date-cell { color: var(--text-faint); font-size: 12px; white-space: nowrap; }
 
-/* ---------- Badges ---------- */
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; white-space: nowrap; line-height: 1.5; }
 .badge-sev { padding: 3px 10px; }
 .sev-Critical { background: color-mix(in srgb, var(--sev-critical) 18%, transparent); color: var(--sev-critical); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-critical) 35%, transparent); }
@@ -260,17 +241,14 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .badge-ai { background: color-mix(in srgb, var(--sig-ai) 20%, transparent); color: var(--sig-ai); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-ai) 45%, transparent); }
 .badge-nuclei { background: color-mix(in srgb, var(--sig-nuclei) 20%, transparent); color: var(--sig-nuclei); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-nuclei) 45%, transparent); }
 
-/* 티어 배지 — 목록 첫 칸에서 심각도 배지와 나란히 선다 */
 .badge-tier { font-weight: 700; letter-spacing: .02em; margin-right: 4px; }
 .badge-tier.tier-T0 { background: color-mix(in srgb, var(--tier-t0) 22%, transparent); color: var(--tier-t0); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t0) 50%, transparent); }
 .badge-tier.tier-T1 { background: color-mix(in srgb, var(--tier-t1) 22%, transparent); color: var(--tier-t1); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t1) 50%, transparent); }
 .badge-tier.tier-T2 { background: color-mix(in srgb, var(--tier-t2) 18%, transparent); color: var(--tier-t2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t2) 40%, transparent); }
 .badge-tier.tier-T3 { background: color-mix(in srgb, var(--tier-t3) 15%, transparent); color: var(--tier-t3); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier-t3) 35%, transparent); }
 
-/* EPSS percentile — 원시 확률 옆에 '전체 중 몇 %인지'를 작게 붙인다 */
 .epss-rank { font-size: 11px; color: var(--text-faint); white-space: nowrap; }
 
-/* 판정 근거 칩 — 이 CVE가 왜 이 티어인지(발화한 트리거) */
 .trigger-chip {
   display: inline-block; font-size: 12px; line-height: 1.5;
   background: color-mix(in srgb, var(--tier-t2) 14%, transparent);
@@ -280,23 +258,12 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 }
 .badge-total { background: color-mix(in srgb, var(--sig-total) 18%, transparent); color: var(--sig-total); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-total) 38%, transparent); }
 .badge-ransom { background: color-mix(in srgb, var(--sig-ransom) 20%, transparent); color: var(--sig-ransom); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sig-ransom) 42%, transparent); }
-/* 이미 수정판을 쓰고 있는 건 — 눈에 덜 띄게 내려 시선을 취약 추정 쪽에 남긴다 */
 
-/* 알려진 악성 패키지 경고 — 취약점과 성격이 달라 목록 위에 따로 세운다 */
-
-/* 내 SBOM과 일치한 행 — 목록에서 즉시 눈에 띄게 */
-
-/* Linux 커널 접이식 그룹 — 목록의 절반을 차지하는 커널 CVE를 한 줄로 묶는다 */
-
-/* SBOM에서 그대로 찾을 수 있는 패키지 이름 — 제품명만으로는 대조가 안 된다 */
 .pkg-keys { display: inline-flex; gap: 4px; margin-left: 6px; flex-wrap: wrap; }
 .pkg-keys code { font-size: 10.5px; padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }
 
-/* SBOM 불러오기 — 파일은 브라우저 밖으로 나가지 않는다 */
-
 .seg-btn.signal.active[data-signal="asset"] { color: var(--accent); }
 
-/* CVSS 벡터 칩 */
 .vec-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .vec-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 600;
   background: var(--surface-3); color: var(--text-muted); box-shadow: inset 0 0 0 1px var(--border); }
@@ -305,9 +272,6 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .vec-chip.vec-hot b { color: color-mix(in srgb, var(--sev-critical) 70%, var(--text-muted)); }
 .vec-raw { margin-top: 7px; font-family: var(--mono); font-size: 10px; color: var(--text-faint); word-break: break-all; }
 
-/* 패널 내 구분선 (내 자산 ↔ 심각도 분포) */
-
-/* ---------- Pagination ---------- */
 .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 20px; }
 .pagination button { padding: 8px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all .12s; }
 .pagination button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
@@ -318,7 +282,6 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .empty-state { text-align: center; padding: 56px 20px !important; color: var(--text-muted); }
 .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: .5; }
 
-/* ---------- Modal ---------- */
 .modal-overlay { position: fixed; inset: 0; background: rgba(3,6,12,.7); backdrop-filter: blur(4px); display: none; align-items: flex-start; justify-content: center; z-index: 100; padding: 40px 20px; overflow-y: auto; }
 .modal-overlay.active { display: flex; }
 .modal { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 16px; max-width: 760px; width: 100%; box-shadow: var(--shadow-lg); animation: modalIn .22s cubic-bezier(.2,.9,.3,1); }
@@ -363,7 +326,6 @@ tr[data-severity="None"] td.cell-sev::before { background: var(--sev-none); }
 .modal-footnote { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 11px; line-height: 1.6; color: var(--text-faint); }
 .degraded-note { margin-bottom: 14px; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px; line-height: 1.6; color: var(--sev-medium); background: color-mix(in srgb, var(--sev-medium) 12%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--sev-medium) 30%, transparent); }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .panels { grid-template-columns: 1fr; }

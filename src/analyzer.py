@@ -11,12 +11,10 @@ from config import config
 from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
 class AnalyzerError(Exception):
-    """분석 관련 에러"""
     pass
 
 class Analyzer:
     def __init__(self):
-        # HTTP 타임아웃 120초 — 행 방지 (실패는 정형 폴백이 흡수).
         gemini_key = os.environ.get("GEMINI_API_KEY")
         if not gemini_key:
             raise AnalyzerError("GEMINI_API_KEY not found")
@@ -35,11 +33,6 @@ class Analyzer:
         wait=wait_exponential(multiplier=1, min=4, max=30)
     )
     def analyze_cve(self, cve_data: Dict) -> Dict:
-        """CVE 심층 분석. 3.5 → 3.1 → 정형 폴백.
-
-        두 모델은 한도가 따로 잡히므로(각 RPD 500) 앞이 소진돼도 뒤가 살아 있다.
-        둘 다 불가하면 정형 폴백으로 내려간다 — 리포트는 나가되 분석란이 안내문이
-        되고, 워터마크가 붙잡지 않으므로 그 CVE는 이 실행에서 마무리된다."""
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
 
@@ -54,20 +47,10 @@ class Analyzer:
 
         return self._fallback_analysis(cve_data)
 
-    # 한 모델에서의 일시 오류 재시도 횟수. 무한정 붙들면 다음 단계가 늦어지므로 짧게.
     _GEMINI_ATTEMPTS = 3
 
     def _analyze_with_gemini(self, cve_data: Dict, prompt: str,
                              model: str, limiter_key: str) -> Optional[Dict]:
-        """지정한 flash-lite 모델로 분석. 실패하면 None(호출부가 다음 단계로 넘긴다).
-
-        JSON 모드로 구조화 출력을 강제해 비정형 출력에 의한 파싱 실패를 막는다.
-        일시 오류(503·분당 한도)는 여기서 재시도한다 — 구글의 몇 초짜리 혼잡 때문에
-        그 CVE만 다른 모델이 분석하면 리포트 품질이 들쭉날쭉해진다. 일일 한도 소진
-        (rpd)은 기다려도 풀리지 않으므로 즉시 마킹하고 넘긴다.
-
-        limiter_key가 모델마다 다른 이유: AI Studio 한도는 모델별로 따로 잡히므로
-        3.5가 소진돼도 3.1은 멀쩡하다. 한 키를 공유하면 멀쩡한 쪽까지 잠긴다."""
         if not self.gemini_client or not model:
             return None
         if rate_limit_manager.is_rpd_exhausted(limiter_key):
@@ -78,7 +61,7 @@ class Analyzer:
         for attempt in range(1, self._GEMINI_ATTEMPTS + 1):
             try:
                 if not rate_limit_manager.check_and_wait(limiter_key):
-                    return None   # 위 is_rpd_exhausted와 별개로, 동시 실행 중 소진된 경우
+                    return None
                 response = self.gemini_client.models.generate_content(
                     model=model,
                     contents=prompt,
@@ -86,16 +69,11 @@ class Analyzer:
                         temperature=params["temperature"],
                         top_p=params["top_p"],
                         max_output_tokens=params["max_output_tokens"],
-                        # flash-lite는 JSON 모드 지원 → 비정형 출력으로 인한 파싱 실패 차단
                         response_mime_type="application/json",
-                        # 보안 분석 내용이 안전필터에 오차단되지 않게 (번역 경로와 동일 설정)
                         safety_settings=[genai_types.SafetySetting(
                             category="HARM_CATEGORY_DANGEROUS_CONTENT",
                             threshold="BLOCK_NONE"
                         )],
-                        # 우리는 tools를 주지 않으므로 함수 호출 자동 처리가 필요 없다.
-                        # 끄지 않으면 SDK가 AFC 루프로 들어가 "권장하지 않는다"는 경고를
-                        # 남긴다 — 동작은 같지만(도구가 없어 1회 호출 후 탈출) 로그만 흐려진다.
                         automatic_function_calling=genai_types.AutomaticFunctionCallingConfig(
                             disable=True
                         ),
@@ -105,8 +83,6 @@ class Analyzer:
 
                 result = self._extract_json((response.text or "").strip())
                 if result is None or not self._validate_analysis_result(result):
-                    # JSON 모드에서도 필수 키가 빠질 수 있다. 형식 문제는 재시도해도
-                    # 같은 결과일 확률이 높아 다음 모델로 넘긴다.
                     logger.warning(f"{cve_data['id']}: {model} 파싱/검증 실패")
                     return None
                 logger.info(f"{cve_data['id']}: Analysis complete (model={model})")
@@ -114,9 +90,6 @@ class Analyzer:
 
             except Exception as e:
                 kind = gemini_error_kind(str(e))
-                # 일간 quota 429 → 대기 무의미, 즉시 소진 마킹 (이후 CVE는 바로 다음 모델).
-                # 분당 한도 429는 마킹하지 않는다 — 소진 상태는 DB로 실행 간에 유지되므로
-                # 오판하면 그 모델이 최대 24시간 잠긴다.
                 if kind == "rpd":
                     rate_limit_manager.mark_rpd_exhausted(limiter_key)
                     logger.warning(f"{cve_data['id']}: {model} 일일 한도 소진")
@@ -132,20 +105,17 @@ class Analyzer:
         return None
 
     def _extract_json(self, text: str) -> Optional[Dict]:
-        # 1차 시도: 그대로 파싱
         try:
             return json.loads(text)
         except json.JSONDecodeError:
             pass
 
-        # 2차 시도: 마크다운 코드 블록 제거 후 파싱
         cleaned = re.sub(r"```(?:json)?\s*\n?", "", text).strip()
         try:
             return json.loads(cleaned)
         except json.JSONDecodeError:
             pass
 
-        # 3차 시도: 텍스트에서 첫 번째 JSON 객체 추출
         match = re.search(r'\{[\s\S]*\}', text)
         if match:
             try:
@@ -156,29 +126,23 @@ class Analyzer:
         return None
     
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
-        
-        # 추가 위협 인텔리전스 (있으면)
         enriched_section = ""
         
-        # NVD CPE
         if cve_data.get('nvd_cpe'):
             cpe_list = ", ".join(cve_data['nvd_cpe'][:3])
             enriched_section += f"\nNVD CPE: {cpe_list}"
         
-        # PoC 존재 여부
         if cve_data.get('has_poc'):
             poc_urls = cve_data.get('poc_urls', [])
             enriched_section += f"\nPoC: 공개됨 ({cve_data.get('poc_count', 0)}건)"
             if poc_urls:
                 enriched_section += f" - {poc_urls[0]}"
         
-        # GitHub Advisory
         advisory = cve_data.get('github_advisory', {})
         if advisory.get('has_advisory') and advisory.get('packages'):
             pkgs = [f"{p['ecosystem']}/{p['name']}" for p in advisory['packages'][:3]]
             enriched_section += f"\nAffected Packages: {', '.join(pkgs)}"
         
-        # VulnCheck KEV
         if cve_data.get('is_vulncheck_kev'):
             enriched_section += "\nVulnCheck KEV: 실제 악용 확인됨"
         
@@ -260,7 +224,6 @@ Do NOT include markdown code fences or any text outside the JSON.
 """
     
     def _validate_analysis_result(self, result: Dict) -> bool:
-        """AI 응답 검증"""
         required_keys = ['root_cause', 'scenario', 'impact', 'mitigation']
 
         for key in required_keys:
@@ -275,7 +238,6 @@ Do NOT include markdown code fences or any text outside the JSON.
         return True
     
     def _fallback_analysis(self, cve_data: Dict) -> Dict:
-        """폴백 분석 결과"""
         logger.warning(f"{cve_data['id']}: Using fallback analysis (AI failed)")
         
         return {

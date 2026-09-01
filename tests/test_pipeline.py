@@ -1,40 +1,23 @@
 #!/usr/bin/env python3
-"""pipeline.RowCache — 직전 상태 조회의 의미론. 네트워크·DB 없이 돈다.
-
-    python3 tests/test_pipeline.py
-
-이 캐시는 성능을 위해 넣었지만, 여기서 지켜야 하는 것은 성능이 아니라 **안전**이다.
-
-한 회차 변경분의 90.5%는 T3이라 애초에 DB에 없다(실측 590건 중 534건). 그런데도
-CVE마다 db.get_cve()를 돌았고, 그 왕복이 fast-lane의 처리 상한을 300건에 묶어 두고
-있었다. 밀린 물량을 따라잡아야 할 때 정확히 반대로 가는 구조였다.
-
-일괄 조회로 바꾸면서 생기는 위험이 하나 있다. **'조회했는데 없다'와 '조회를 못 했다'를
-같게 취급하면 안 된다.** 조회 실패를 '없다'로 처리하는 순간 직전 상태가 사라진 것처럼
-보이고, 이미 알린 CVE가 신규로 판정돼 같은 알림이 다시 나간다. 반복 발화 억제를
-통째로 무너뜨리는 경로라, 아래 '조회 실패' 절이 이 파일의 핵심이다.
-"""
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-import pipeline  # noqa: E402
+import pipeline
 
 
 class FakeDB:
-    """일괄 조회는 지정한 청크에서만 성공하고, 나머지는 '조회 실패'로 남는다."""
-
     def __init__(self, rows, fail_ids=()):
         self.rows = rows
         self.fail_ids = set(fail_ids)
-        self.single_calls = []          # 개별 폴백이 몇 번 일어났는지
+        self.single_calls = []
 
     def get_cves(self, ids):
         found, covered = {}, set()
         for cid in ids:
             if cid in self.fail_ids:
-                continue                # covered 에 넣지 않는다 = '모른다'
+                continue
             covered.add(cid)
             if cid in self.rows:
                 found[cid] = self.rows[cid]
