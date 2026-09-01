@@ -69,8 +69,50 @@ def main() -> int:
         if not ok:
             failures.append(key)
 
+    retention_guard(failures)
+
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
+
+
+RETENTION_CASES = (
+    # 소급 채우기(silent=True)는 last_alert_at 을 남기지 않는다. 보존 정책의 만료 삭제가
+    # 바로 그 조건(last_alert_at IS NULL + 오래됨)을 쓰므로, 지금 악용 중인 T0 행이
+    # 관찰 만료로 오인돼 지워질 수 있었다. 2015~2020년 KEV 는 레코드가 더는 안 바뀐다.
+    ("소급으로 넣은 CISA KEV 행",
+     {"id": "CVE-2015-7755", "is_kev": True, "cvss_score": 9.8, "epss_score": 0.3,
+      "last_alert_state": {"tier": "T0", "is_kev": True}}, True),
+    ("VulnCheck KEV 전용 행",
+     {"id": "CVE-2019-1", "is_kev": False, "cvss_score": 7.5, "epss_score": 0.01,
+      "last_alert_state": {"tier": "T0", "is_vulncheck_kev": True}}, True),
+    ("Metasploit 모듈 (저장된 tier 없음)",
+     {"id": "CVE-2018-1", "is_kev": False, "cvss_score": 8.0, "epss_score": 0.02,
+      "last_alert_state": {"has_metasploit_module": True}}, True),
+    ("nuclei 템플릿 (T1)",
+     {"id": "CVE-2021-1", "is_kev": False, "cvss_score": 7.0, "epss_score": 0.0,
+      "last_alert_state": {"has_nuclei_template": True}}, True),
+    ("관찰 구간 (T2)",
+     {"id": "CVE-2022-1", "is_kev": False, "cvss_score": 8.1, "epss_score": 0.12,
+      "last_alert_state": {"tier": "T2", "epss_percentile": 0.96}}, False),
+    ("신호 없음 (T3)",
+     {"id": "CVE-2023-1", "is_kev": False, "cvss_score": 5.0, "epss_score": 0.001,
+      "last_alert_state": {"tier": "T3"}}, False),
+    ("이미 비워진 행",
+     {"id": "CVE-2017-1", "is_kev": False, "cvss_score": 0, "epss_score": 0,
+      "last_alert_state": None}, False),
+)
+
+
+def retention_guard(failures):
+    print("\n── 보존 정책이 악용 중인 행을 지우지 않는다 ──")
+    for desc, row, keep in RETENTION_CASES:
+        got = edd._is_alerting_row(row)
+        if got == keep:
+            print(f"  OK   {desc:36s} → {'보존' if got else '삭제 가능'}")
+        else:
+            failures.append(desc)
+            print(f"  FAIL {desc:36s} → {'보존' if got else '삭제 가능'} "
+                  f"(기대 {'보존' if keep else '삭제 가능'})")
 
 
 if __name__ == "__main__":

@@ -63,8 +63,12 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
             .gte("updated_at", since or cutoff) \
             .not_.is_("last_alert_state", "null")
+        # 정렬 키는 id 다. updated_at 으로 정렬하면 안 된다 — fast-lane 이 5분마다 별도
+        # 워크플로로 돌며 이 테이블에 쓰고, 그러면 페이지를 넘기는 사이에 행이 앞으로
+        # 튀어 경계를 넘나든다. offset 페이징에서 그건 곧 '어떤 행은 건너뛰고 어떤 행은
+        # 두 번 읽는다'는 뜻이고, 회차마다 결과 건수가 달라진다.
         response = query \
-            .order("updated_at", desc=True) \
+            .order("id") \
             .range(offset, offset + page_size - 1) \
             .execute()
 
@@ -343,6 +347,17 @@ def export_stats(cve_data: list) -> dict:
     }
 
 
+def _is_alerting_row(row: dict) -> bool:
+    """지금도 악용 중이거나 무기화된 건인가 — 보존 정책이 지우면 안 되는 행.
+
+    저장된 티어와 신호에서 유도한 티어 중 더 위험한 쪽으로 본다(_tier_of 와 같은 규칙).
+    오래돼서 지우는 것과 위험해서 남기는 것이 부딪히면 남기는 쪽이 맞다."""
+    state = row.get("last_alert_state") or {}
+    entry = {"is_kev": bool(row.get("is_kev") or state.get("is_kev")),
+             "cvss": row.get("cvss_score") or 0, "epss": row.get("epss_score") or 0}
+    return risk.is_alerting(_tier_of(state, entry))
+
+
 def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
                            delete_days: int = 180, watch_days: int = 90,
                            max_rows: int = 20000) -> int:
@@ -351,12 +366,17 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     def cutoff(n):
         return (now - dt.timedelta(days=n)).isoformat()
 
-    response = client.table("cves") \
-        .update({"rules_snapshot": None, "last_alert_state": None}) \
+    cleaned = 0
+    stale = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
         .lt("updated_at", cutoff(days)) \
         .not_.is_("last_alert_state", "null") \
         .execute()
-    cleaned = len(response.data or [])
+    blank = [r["id"] for r in (stale.data or []) if r.get("id") and not _is_alerting_row(r)]
+    for i in range(0, len(blank), 200):
+        client.table("cves") \
+            .update({"rules_snapshot": None, "last_alert_state": None}) \
+            .in_("id", blank[i:i + 200]).execute()
+        cleaned += len(blank[i:i + 200])
 
     deleted = client.table("cves") \
         .delete() \
@@ -368,17 +388,33 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     if deleted_count:
         print(f"  구 마커 {deleted_count}건 청소 ({marker_days}일 경과)", flush=True)
 
-    watch = client.table("cves") \
-        .delete() \
+    # 이 쓸기는 원래 '관찰(T2)에 오래 신호가 안 붙은 행'을 겨냥한 것이고, 그 판별을
+    # last_alert_at IS NULL 로 대신했다. 그런데 소급 채우기(backfill_exploited, silent=True)가
+    # 들어오면서 그 전제가 깨졌다 — 지금 악용 중인 T0 행도 last_alert_at 이 비어 있다.
+    # 2015~2020년 KEV처럼 레코드가 더는 안 바뀌는 건은 90일이면 그대로 지워진다.
+    # 그래서 조건으로 거르지 않고, 후보를 받아 티어를 확인한 뒤 지운다.
+    watch_count = 0
+    cand = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
         .is_("last_alert_at", "null") \
         .lt("updated_at", cutoff(watch_days)) \
         .execute()
-    watch_count = len(watch.data or [])
-    if watch_count:
-        print(f"  관찰(T2) {watch_count}건 만료 삭제 ({watch_days}일간 신호 없음)", flush=True)
+    victims = [r["id"] for r in (cand.data or [])
+               if r.get("id") and not _is_alerting_row(r)]
+    kept = len(cand.data or []) - len(victims)
+    for i in range(0, len(victims), 200):
+        client.table("cves").delete().in_("id", victims[i:i + 200]).execute()
+        watch_count += len(victims[i:i + 200])
+    if watch_count or kept:
+        print(f"  관찰 {watch_count}건 만료 삭제 ({watch_days}일간 신호 없음)"
+              f"{f' · 악용 중이라 보존 {kept}건' if kept else ''}", flush=True)
 
-    purged = client.table("cves").delete().lt("updated_at", cutoff(delete_days)).execute()
-    purged_count = len(purged.data or [])
+    purged_count = 0
+    old_rows = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
+        .lt("updated_at", cutoff(delete_days)).execute()
+    gone = [r["id"] for r in (old_rows.data or []) if r.get("id") and not _is_alerting_row(r)]
+    for i in range(0, len(gone), 200):
+        client.table("cves").delete().in_("id", gone[i:i + 200]).execute()
+        purged_count += len(gone[i:i + 200])
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
@@ -386,9 +422,10 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     total = _count(client)
     if total > max_rows:
         excess = total - max_rows
-        victims = client.table("cves").select("id") \
-            .order("updated_at", desc=False).limit(excess).execute()
-        ids = [r["id"] for r in (victims.data or []) if r.get("id")]
+        victims = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
+            .order("updated_at", desc=False).limit(excess * 2).execute()
+        ids = [r["id"] for r in (victims.data or [])
+               if r.get("id") and not _is_alerting_row(r)][:excess]
         for i in range(0, len(ids), 200):
             client.table("cves").delete().in_("id", ids[i:i + 200]).execute()
             capped += len(ids[i:i + 200])

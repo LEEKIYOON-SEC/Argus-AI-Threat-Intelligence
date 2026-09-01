@@ -39,8 +39,15 @@ except Exception:
 
 
 def _looks_english(text: str) -> bool:
+    # 한글이 하나도 없고 라틴 문자가 실질적으로 있으면 미번역으로 본다.
+    # 예전에는 len > 25 를 요구했는데, 실측(628건)으로 25자 이하 제목이 0.2%뿐이라
+    # 큰 영향은 아니었지만 'nodejs node vulnerability'(25자) 같은 건이 영영 안 걸렸다.
     t = (text or '').strip()
-    return len(t) > 25 and not re.search(r'[가-힣]', t)
+    if not t or t in ("N/A", "-"):
+        return False
+    if re.search(r'[가-힣]', t):
+        return False
+    return len(re.findall(r'[A-Za-z]', t)) >= 8
 
 
 def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
@@ -64,7 +71,11 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
         for row in candidates:
             state = row.get('last_alert_state') or {}
             title_ko = state.get('title_ko') or state.get('title') or ''
-            if not _looks_english(title_ko):
+            desc_ko = state.get('desc_ko') or state.get('description') or ''
+            # 제목만 보면 안 된다 — 제목은 한글인데 본문이 영문으로 남은 행이 생긴다
+            # (번역이 부분 성공했거나, 설명이 나중에 채워진 경우). 그런 행은 제목 검사만
+            # 통과해 두 번 다시 후보로 올라오지 않았다.
+            if not (_looks_english(title_ko) or _looks_english(desc_ko)):
                 continue
             items.append({"id": row['id'],
                           "title": state.get('title') or title_ko,
