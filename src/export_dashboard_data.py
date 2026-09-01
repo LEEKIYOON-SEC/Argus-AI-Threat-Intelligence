@@ -113,14 +113,27 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             "updated": row.get("updated_at") or "",
         }
 
-        for aff in _l(state, "affected")[:3]:
+        # 영향 제품은 **전량**을 싣는다. 예전에는 3개로 잘랐는데, 실측(664건)으로 CVE 의
+        # 51.9%가 3개를 넘고 전체 제품 항목의 71%가 잘려 나갔다. 그 상태로는 '내가 쓰는
+        # 제품이 영향받나'를 검색으로 확인할 수 없다 — 8번째에 있으면 안 나온다.
+        # (예: CVE-2026-14164 는 23개 중 OpenShift 가 8번째라 검색에 안 걸렸다)
+        # 같은 vendor+product 가 스트림별로 여러 줄 오므로 버전 문자열을 합쳐 접는다.
+        seen_aff = {}
+        for aff in _l(state, "affected"):
             if not isinstance(aff, dict):
                 continue
-            entry["affected"].append({
-                "vendor": _s(aff, "vendor", "Unknown"),
-                "product": _s(aff, "product", "Unknown"),
-                "versions": _s(aff, "versions"),
-            })
+            vendor = _s(aff, "vendor", "Unknown")
+            product = _s(aff, "product", "Unknown")
+            versions = _s(aff, "versions")
+            key = (vendor.strip().lower(), product.strip().lower())
+            if key in seen_aff:
+                prev = seen_aff[key]
+                if versions and versions not in ("정보 없음", "") and versions not in prev["versions"]:
+                    prev["versions"] = f"{prev['versions']}, {versions}" if prev["versions"] else versions
+                continue
+            item = {"vendor": vendor, "product": product, "versions": versions}
+            seen_aff[key] = item
+            entry["affected"].append(item)
 
         rules = row.get("rules_snapshot") or {}
         rule_engines = []
@@ -189,6 +202,58 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
     return result
 
 
+#: 목록 표에 그대로 싣는 영향 제품 수. 나머지는 cve-products.json 에서 찾는다.
+TABLE_AFFECTED = 3
+
+
+def build_product_index(entries: list) -> dict:
+    """영향 제품 역인덱스 — 이름을 사전에 한 번만 담고 CVE 는 번호만 참조한다.
+
+    왜 따로 파일로 빼는가: 영향 제품을 자르지 않고 cves.json 에 그대로 실으면 실측
+    12.3MB 가 더 붙는다(현재 배포본이 이미 22.7MB). 그런데 제품 이름은 지독하게
+    반복된다 — 표본 664건에서 제품 항목 4,653개가 고유 이름으로는 321개뿐이었다.
+    사전으로 접으면 같은 정보가 1.6MB(gzip 0.2MB)에 들어간다.
+    """
+    vend, prod, vers = {}, {}, {}
+
+    def idx(table, value):
+        value = (value or "").strip()
+        if not value:
+            return -1
+        if value not in table:
+            table[value] = len(table)
+        return table[value]
+
+    mapping = {}
+    for e in entries:
+        items = [[idx(vend, a.get("vendor")), idx(prod, a.get("product")),
+                  idx(vers, a.get("versions"))]
+                 for a in (e.get("affected") or []) if isinstance(a, dict)]
+        if items:
+            mapping[e.get("id", "")] = items
+    return {
+        "vendors": list(vend), "products": list(prod), "versions": list(vers),
+        "map": mapping,
+        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+    }
+
+
+def decode_product_index(index: dict) -> dict:
+    """{CVE: [{vendor, product, versions}, …]} 로 되돌린다 (병합·검증용)."""
+    v, p, s = (index.get("vendors") or [], index.get("products") or [],
+               index.get("versions") or [])
+
+    def at(table, i):
+        return table[i] if isinstance(i, int) and 0 <= i < len(table) else ""
+
+    out = {}
+    for cve, items in (index.get("map") or {}).items():
+        out[cve] = [{"vendor": at(v, it[0]), "product": at(p, it[1]),
+                     "versions": at(s, it[2])}
+                    for it in items if isinstance(it, list) and len(it) >= 3]
+    return out
+
+
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
@@ -204,6 +269,24 @@ def _take_full_export_flag(client) -> bool:
     except Exception as e:
         print(f"  전량 export 표시 확인 실패(무시): {e}", flush=True)
         return False
+
+
+def fetch_live_products() -> dict:
+    """배포 중인 제품 인덱스. 증분 export 는 바뀐 CVE 만 다시 만들므로, 나머지 CVE 의
+    제품 목록은 여기서 이어받아야 한다 — 안 그러면 갱신 안 된 CVE 가 인덱스에서 사라진다."""
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" not in repo:
+        return {}
+    owner, name = repo.split("/", 1)
+    try:
+        import urllib.request
+        url = f"https://{owner.lower()}.github.io/{name}/data/cve-products.json"
+        req = urllib.request.Request(url, headers={"User-Agent": "argus-export"})
+        with urllib.request.urlopen(req, timeout=180) as r:
+            return decode_product_index(json.loads(r.read().decode("utf-8")))
+    except Exception as e:
+        print(f"  직전 제품 인덱스를 읽지 못함({e}) → 이번 회차분으로만 만든다", flush=True)
+        return {}
 
 
 def _fetch_live_export() -> tuple:
@@ -489,6 +572,32 @@ def main():
         cve_data = merge_exports(previous, fresh)
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
+    # 영향 제품은 별도 파일(사전 압축)로 뺀다. cves.json 에 전량을 실으면 실측으로
+    # 12.3MB 가 더 붙는다 — 이미 22.7MB 인 파일이라 감당이 안 된다.
+    # 증분 export 는 바뀐 CVE 만 새로 만들므로, 나머지는 배포본 인덱스에서 이어받는다.
+    carried = fetch_live_products() if previous is not None else {}
+    merged_products = []
+    for e in cve_data:
+        aff = e.get("affected") or []
+        if not aff and carried.get(e.get("id")):
+            aff = carried[e["id"]]
+            e["affected"] = aff
+        merged_products.append({"id": e.get("id"), "affected": aff})
+
+    prod_index = build_product_index(merged_products)
+    prod_path = os.path.join(data_dir, "cve-products.json")
+    _write_json(prod_path, prod_index)
+    total_items = sum(len(v) for v in prod_index["map"].values())
+    print(f"  영향 제품 인덱스: {len(prod_index['map']):,}건 · 항목 {total_items:,}개 "
+          f"(고유 제품 {len(prod_index['products']):,}) → {prod_path}", flush=True)
+
+    # 표에 그리는 몫만 남기고 자른다 (검색·상세는 위 인덱스를 쓴다)
+    for e in cve_data:
+        aff = e.get("affected") or []
+        if len(aff) > TABLE_AFFECTED:
+            e["affected"] = aff[:TABLE_AFFECTED]
+            e["affected_total"] = len(aff)
+
     cve_path = os.path.join(data_dir, "cves.json")
     _write_json(cve_path, cve_data)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
