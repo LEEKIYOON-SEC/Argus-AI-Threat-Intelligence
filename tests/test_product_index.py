@@ -103,8 +103,66 @@ def main() -> int:
     check(json.loads(json.dumps(index, ensure_ascii=False))["map"] == index["map"],
           "그대로 직렬화된다", failures)
 
+    kev_fallback(failures)
+
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
+
+
+def kev_fallback(failures):
+    # 옛날 CVE 레코드에는 affected 블록이 없어 vendor/product 가 'n/a' 다. 실측으로
+    # CISA KEV 무작위 120건 중 39건(32%)이 그랬다 — 하필 지금 악용 중인 것들이라
+    # 제품 이름으로 찾을 수가 없었다(제목에만 있었다). CISA 가 KEV 에 붙여 둔
+    # vendorProject/product 는 사람이 정리한 값이라 그걸 폴백으로 쓴다.
+    from collector import Collector
+
+    col = Collector()
+    col.kev_product = {
+        "CVE-2015-5119": ("Adobe", "Flash Player"),
+        "CVE-2013-5065": ("Microsoft", "Windows"),
+        "CVE-2026-0001": ("Acme", "Gateway"),
+    }
+
+    print("\n── 제품명이 없는 KEV 를 CISA 표기로 메운다 ──")
+    cases = (
+        ("affected 가 n/a 뿐", {"id": "CVE-2015-5119",
+                              "affected": [{"vendor": "n/a", "product": "n/a", "versions": "모든 버전"}]},
+         "Adobe", "Flash Player"),
+        ("affected 가 아예 없음", {"id": "CVE-2013-5065", "affected": []},
+         "Microsoft", "Windows"),
+        ("affected 가 Unknown", {"id": "CVE-2026-0001",
+                                "affected": [{"vendor": "Unknown", "product": "Unknown", "versions": ""}]},
+         "Acme", "Gateway"),
+    )
+    for desc, data, want_v, want_p in cases:
+        col.fill_product_from_kev(data)
+        got = (data["affected"] or [{}])[0]
+        ok = got.get("vendor") == want_v and got.get("product") == want_p
+        check(ok, f"{desc} → {got.get('vendor')} / {got.get('product')}", failures)
+
+    print("\n── 레코드가 멀쩡하면 손대지 않는다 (그쪽이 더 상세하다) ──")
+    real = {"id": "CVE-2015-5119",
+            "affected": [{"vendor": "Adobe", "product": "Adobe Flash Player Desktop Runtime",
+                          "versions": "18.0.0.194 이전"}]}
+    col.fill_product_from_kev(real)
+    check(len(real["affected"]) == 1
+          and real["affected"][0]["product"] == "Adobe Flash Player Desktop Runtime",
+          "이미 있는 상세한 제품명을 KEV 표기로 덮어쓰지 않는다", failures)
+
+    print("\n── KEV 가 아니면 아무것도 하지 않는다 ──")
+    other = {"id": "CVE-2026-9999", "affected": [{"vendor": "n/a", "product": "n/a", "versions": ""}]}
+    col.fill_product_from_kev(other)
+    check(other["affected"][0]["product"] == "n/a",
+          "KEV 목록에 없는 CVE 는 그대로 둔다", failures)
+
+    print("\n── 버전 정보는 살린다 ──")
+    keep = {"id": "CVE-2015-5119",
+            "affected": [{"vendor": "n/a", "product": "n/a", "versions": "18.0.0.194 이전",
+                          "patch_version": "18.0.0.194"}]}
+    col.fill_product_from_kev(keep)
+    check(keep["affected"][0]["versions"] == "18.0.0.194 이전"
+          and keep["affected"][0]["patch_version"] == "18.0.0.194",
+          "제품명만 갈아끼우고 버전·패치 정보는 그대로 둔다", failures)
 
 
 if __name__ == "__main__":
