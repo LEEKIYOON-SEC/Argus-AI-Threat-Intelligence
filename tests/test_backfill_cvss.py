@@ -26,8 +26,9 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
+import backfill_cvss  # noqa: E402
 import risk  # noqa: E402
-from backfill_cvss import _priority, recompute, version_of  # noqa: E402
+from backfill_cvss import _priority, apply_scores, recompute, version_of  # noqa: E402
 
 
 def rec(cna=None, adp=None):
@@ -144,6 +145,89 @@ def main() -> int:
     check(risk.evaluate(st).tier == risk.T2, "점수 없는 주요 CNA 는 T2 로 잡혀 있었다", failures)
     new = recompute(st, rec(cna={"cvssV3_1": blk(6.5, "CVSS:3.1/AV:N/AC:L/PR:L/UI:R")}))
     check(new["tier"] == risk.T3, f"6.5 로 확인되면 T3 로 내려간다 ({new['tier']})", failures)
+
+    print("\n── NVD 폴백: cvelistV5 에 metrics 가 아예 없는 옛 CVE ──")
+    # 실측: 화면의 N/A 574건 중 572건이 cvelistV5 에 metrics 자체가 없다. 2016년 이전
+    # CVE 가 구형 포맷에서 일괄 변환된 탓이고, 그중 571건이 T0(관측된 악용)다.
+    # CVE-2016-0736 이 그 예 — cna.metrics 는 null 이고 NVD 에만 3.0=7.5 가 있다.
+    calls = []
+
+    def fake_nvd(payload):
+        def _f(cve_id, api_key="", timeout=60):
+            calls.append(cve_id)
+            if payload is None:
+                raise RuntimeError("NVD 조회 실패: 403")
+            return payload
+        return _f
+
+    real = backfill_cvss.nvd_cvss
+    real_sleep = backfill_cvss.time.sleep
+    backfill_cvss.time.sleep = lambda s: None
+    try:
+        st = {"id": "CVE-2016-0736", "cvss": 0.0, "cvss_vector": "N/A", "tier": risk.T0,
+              "is_vulncheck_kev": True, "fired_triggers": ["vulncheck_kev"]}
+        results = [("CVE-2016-0736", st, recompute(st, {"containers": {"cna": {}}}))]
+        check(results[0][2]["cvss"] == 0.0, "cvelistV5 만으로는 여전히 0.0", failures)
+
+        backfill_cvss.nvd_cvss = fake_nvd({"3.0": (7.5, "CVSS:3.0/AV:N/AC:L/PR:N/UI:N")})
+        fixed, v2, fail = backfill_cvss._fill_from_nvd(results, budget=60)
+        got = results[0][2]
+        check((fixed, v2, fail) == (1, 0, 0), f"NVD 로 1건 채움 ({fixed},{v2},{fail})", failures)
+        check(got["cvss"] == 7.5 and got["cvss_version"] == "3.0",
+              f"7.5 (v3.0) 이 들어간다 ({got['cvss']} v{got['cvss_version']})", failures)
+        check(got["tier"] == risk.T0 and got["fired_triggers"] == ["vulncheck_kev"],
+              "티어도 발화 이력도 그대로", failures)
+
+        print("\n  ── 점수가 이미 있는 행은 NVD 를 부르지 않는다 ──")
+        calls.clear()
+        ok_state = {"id": "CVE-Q", "cvss": 8.1, "cvss_vector": "CVSS:3.1/AV:N",
+                    "cvss_version": "3.1"}
+        backfill_cvss._fill_from_nvd([("CVE-Q", ok_state, dict(ok_state))], budget=60)
+        check(not calls, f"호출 0회 (실제 {len(calls)}회) — 쓸데없는 요청을 안 한다", failures)
+
+        print("\n  ── CVSS 2.0 만 있는 옛 CVE ──")
+        # 실측(표본 25건): 3.x/4.0 있음 16% · 2.0 만 있음 84%. 2.0 을 버리면 T0 480여 건이
+        # 심각도 칸을 계속 비워 둔다. 대신 3.x/4.0 과 한 max 에 섞지 않고, 버전을 밝힌다.
+        st2 = {"id": "CVE-1999-0502", "cvss": 0.0, "cvss_vector": "N/A", "tier": risk.T0,
+               "is_kev": True, "fired_triggers": ["kev"]}
+        res2 = [("CVE-1999-0502", st2, dict(st2))]
+        backfill_cvss.nvd_cvss = fake_nvd({"2.0": (10.0, "AV:N/AC:L/Au:N/C:C/I:C/A:C")})
+        fixed, v2, fail = backfill_cvss._fill_from_nvd(res2, budget=60)
+        g = res2[0][2]
+        check((fixed, v2) == (1, 1), f"2.0 으로 채운 것을 따로 센다 ({fixed},{v2})", failures)
+        check(g["cvss"] == 10.0 and g["cvss_version"] == "2.0",
+              f"화면에 v2.0 이라고 적힌다 ({g['cvss']} v{g['cvss_version']})", failures)
+        check(g["tier"] == risk.T0, f"KEV 라 T0 그대로 ({g['tier']})", failures)
+
+        print("\n  ── 조회가 계속 실패하면 멈춘다 (레이트리밋) ──")
+        calls.clear()
+        many = [(f"CVE-2000-{i:04d}", {"id": f"CVE-2000-{i:04d}", "cvss": 0.0},
+                 {"id": f"CVE-2000-{i:04d}", "cvss": 0.0, "cvss_vector": "N/A"})
+                for i in range(40)]
+        backfill_cvss.nvd_cvss = fake_nvd(None)
+        fixed, v2, fail = backfill_cvss._fill_from_nvd(many, budget=60)
+        check(len(calls) <= 5, f"연속 5회 실패에서 중단 (실제 {len(calls)}회 호출)", failures)
+        check(fixed == 0 and fail == len(calls), f"채운 것 0 · 실패 {fail}", failures)
+    finally:
+        backfill_cvss.nvd_cvss = real
+        backfill_cvss.time.sleep = real_sleep
+
+    print("\n── 2.0 을 3.x 와 한 max 에 섞지 않는다 ──")
+    # v2 와 v3 는 척도가 달라 비교 자체가 성립하지 않는다 (CVE-2016-0736: v2=5.0 v3.0=7.5).
+    # nvd_cvss 는 3.x/4.0 이 하나라도 있으면 2.0 을 아예 담지 않는다.
+    st3 = {"id": "CVE-R", "cvss": 0.0, "cvss_vector": "N/A"}
+    both_versions = apply_scores(st3, {"3.0": (7.5, "CVSS:3.0/AV:N"), "2.0": (9.0, "AV:N")})
+    check(both_versions["cvss"] == 9.0,
+          "혹시 둘이 함께 들어오면 max 규칙 그대로 (낮춰 부르지 않는다)", failures)
+
+    print("\n── v2 벡터로는 cvss_critical_remote 가 켜질 수 없다 ──")
+    # v2 는 PR 대신 Au 를 쓴다 → is_remote_unauth 가 False.
+    v2_state = {"id": "S", "cvss": 10.0, "cvss_vector": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "assigner": "microsoft", "cwe": ["CWE-78"]}
+    check("cvss_critical_remote" not in risk.evaluate(v2_state).triggers,
+          "10.0 짜리 v2 벡터여도 안 켜진다", failures)
+    check(not risk.is_remote_unauth(v2_state["cvss_vector"]),
+          "is_remote_unauth 가 v2 벡터를 원격·무인증으로 오인하지 않는다", failures)
 
     print("\n── 급한 것부터 처리한다 ──")
     rows = [

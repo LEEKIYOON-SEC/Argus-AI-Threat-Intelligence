@@ -419,12 +419,19 @@ class ArgusDB:
         return [r for r in self._tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 
-    def get_rows_missing_cvss_version(self) -> List[Dict]:
-        # cvss_version 키의 유무가 곧 "이 행이 어느 코드로 쓰였는지"다. 지금 파이프라인은
-        # 점수가 없어도 빈 문자열로 항상 넣는다(collector.parse_record). 키가 아예 없는
-        # 행은 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것이다.
+    def get_rows_needing_cvss(self) -> List[Dict]:
+        # 두 종류를 잡는다.
+        #  1. cvss_version 키가 없는 행 — 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것.
+        #     지금 파이프라인은 점수가 없어도 빈 문자열로 항상 넣으므로(parse_record),
+        #     키의 유무가 곧 "어느 코드가 쓴 행인지"다.
+        #  2. 점수가 0 인 행 — 키가 이미 있어도 다시 본다. 2016년 이전 CVE 는 구형 CVE
+        #     포맷에서 일괄 변환돼 cvelistV5 에 metrics 블록 자체가 없다(실측 N/A 574건
+        #     중 572건). NVD 조회가 실패해 못 채운 행을 다음 실행이 다시 집어야 한다.
+        def needs(state: Dict) -> bool:
+            return ("cvss_version" not in state
+                    or float(state.get("cvss") or 0.0) <= 0.0)
         return [r for r in self._tracked_states()
-                if "cvss_version" not in (r.get("last_alert_state") or {})]
+                if needs(r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:
         try:
