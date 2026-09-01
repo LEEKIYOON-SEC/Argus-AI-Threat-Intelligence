@@ -254,6 +254,41 @@ def decode_product_index(index: dict) -> dict:
     return out
 
 
+def live_ids(client, days: int = 90):
+    """지금 DB 에 있는(대시보드에 실려야 할) CVE id 전량. **조회 실패면 None.**
+
+    증분 export 의 병합은 `직전 배포본 ∪ 이번에 바뀐 행`이라, DB 에서 사라진 행을
+    스스로 지우지 못한다. 그래서 다음이 벌어졌다.
+
+      번역이 돌면  → request_full_export() → 전량 export → 건수 = DB 실제
+      번역이 안 돌면(Gemma 503 등) → 병합 → 건수 = 직전 배포본 ∪ 신규 (더 큼)
+
+    '추적 중 CVE'가 회차마다 오르내린 이유가 이것이다. 두 경로가 같은 집합을 만들지
+    않았다. id 만 받아 오면 13,000건에 200KB 남짓이라, 전량 export 를 다시 도는 것보다
+    훨씬 싸게 회원 자격을 맞출 수 있다.
+
+    None 을 돌려주는 것이 중요하다 — 조회 실패를 '전부 사라졌다'로 읽으면 대시보드가
+    통째로 비워진다.
+    """
+    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
+    found, offset, page_size = set(), 0, 1000
+    while True:
+        try:
+            r = client.table("cves").select("id") \
+                .gte("updated_at", cutoff) \
+                .not_.is_("last_alert_state", "null") \
+                .order("id").range(offset, offset + page_size - 1).execute()
+        except Exception as e:
+            print(f"  [!] id 목록 조회 실패({e}) → 이번 회차는 병합에서 제외하지 않는다",
+                  flush=True)
+            return None
+        page = r.data or []
+        found.update(row["id"] for row in page if row.get("id"))
+        if len(page) < page_size:
+            return found
+        offset += page_size
+
+
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
@@ -340,12 +375,20 @@ def load_previous_export(data_dir: str) -> tuple:
         return None, None
 
 
-def merge_exports(previous: list, fresh: list, days: int = 90) -> list:
+def merge_exports(previous: list, fresh: list, days: int = 90, keep=None) -> list:
+    # keep = 지금 DB 에 있는 id 집합. None 이면 조회를 못 한 것이므로 아무것도 떨구지
+    # 않는다(그걸 '전부 사라짐'으로 읽으면 대시보드가 비워진다).
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
     by_id = {r.get("id"): r for r in previous if r.get("id")}
     for r in fresh:
         if r.get("id"):
             by_id[r["id"]] = r
+    if keep is not None:
+        dropped = [k for k in by_id if k not in keep]
+        for k in dropped:
+            del by_id[k]
+        if dropped:
+            print(f"  DB 에서 사라진 {len(dropped):,}건을 병합에서 제외", flush=True)
     merged = [r for r in by_id.values() if (r.get("updated") or "") >= cutoff]
     merged.sort(key=lambda r: r.get("updated") or "", reverse=True)
     return merged
@@ -501,18 +544,39 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
+    # 행수 상한. 두 가지를 지킨다.
+    #
+    #  ① 세는 대상은 **추적 행**이다. 예전에는 _count(client) 로 전체를 셌는데, 상태가
+    #     비워진 옛 행까지 포함돼 상한에 먼저 닿았고, 그러면 오래된 순 삭제가 마커를
+    #     다 먹은 뒤 **살아 있는 추적 행**으로 넘어갔다.
+    #  ② 대시보드가 지금 보여주는 구간(90일) 안의 행은 지우지 않는다. 26일 된 KEV 를
+    #     행수 때문에 지우면 '악용 중인 것을 빠짐없이 본다'는 목적 자체가 깨진다.
+    #     상한에 걸리는데 지울 게 없으면 그건 risk.py 임계를 조일 신호지, 조용히
+    #     지울 일이 아니다.
+    #
+    # 이게 '추적 중 CVE'가 오르내린 원인의 절반이었다 — DB 에서는 지워지는데 증분
+    # 병합은 배포본을 이어받아 그대로 들고 있었고, 전량 export 때만 숫자가 떨어졌다.
     capped = 0
-    total = _count(client)
-    if total > max_rows:
-        excess = total - max_rows
-        victims = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
+    tracked_now = _count(client, tracked=True)
+    if tracked_now > max_rows:
+        excess = tracked_now - max_rows
+        window = cutoff(watch_days)
+        victims = client.table("cves") \
+            .select("id, is_kev, cvss_score, epss_score, last_alert_state") \
+            .lt("updated_at", window) \
             .order("updated_at", desc=False).limit(excess * 2).execute()
         ids = [r["id"] for r in (victims.data or [])
                if r.get("id") and not _is_alerting_row(r)][:excess]
         for i in range(0, len(ids), 200):
             client.table("cves").delete().in_("id", ids[i:i + 200]).execute()
             capped += len(ids[i:i + 200])
-        print(f"  상한 초과 {capped}건 삭제 (상한 {max_rows:,}행)", flush=True)
+        if capped < excess:
+            print(f"  ⚠️ 추적 {tracked_now:,}행 > 상한 {max_rows:,} 이지만 "
+                  f"{capped:,}건만 지울 수 있다 — 나머지는 {watch_days}일 안이거나 "
+                  f"악용 중이라 보존한다. 물량이 계속 늘면 risk.py 임계를 조여야 한다",
+                  flush=True)
+        elif capped:
+            print(f"  상한 초과 {capped:,}건 삭제 (추적 상한 {max_rows:,}행)", flush=True)
 
     tracked = _count(client, tracked=True)
     remaining = _count(client)
@@ -569,7 +633,7 @@ def main():
         print(f"  전량 export: {len(cve_data)}건", flush=True)
     else:
         fresh = export_cves(client, since=since)
-        cve_data = merge_exports(previous, fresh)
+        cve_data = merge_exports(previous, fresh, keep=live_ids(client))
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
     # 영향 제품은 별도 파일(사전 압축)로 뺀다. cves.json 에 전량을 실으면 실측으로
