@@ -110,7 +110,8 @@ class SlackNotifier:
         bits = []
         cvss = cve_data.get('cvss') or 0
         if cvss:
-            bits.append(f"CVSS {cvss}")
+            ver = str(cve_data.get("cvss_version") or "").strip()
+            bits.append(f"CVSS {cvss}" + (f" (v{ver})" if ver else ""))
         pct = cve_data.get('epss_percentile') or 0
         epss = cve_data.get('epss') or 0
         if pct:

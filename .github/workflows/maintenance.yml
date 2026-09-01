@@ -24,11 +24,18 @@ on:
           - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
           - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
           - backfill-exploited # 현재 악용 중(KEV) 전량 소급 — 여러 번 돌리면 수렴
+          - backfill-cvss      # CVSS 버전 소급 (4.0만 읽고 끊던 옛 행 보정)
       backfill_days:
         # 30일씩 끊어 NVD를 조회한다. 키가 없으면 창당 8초라 7000일이면 ~30분 —
         # 잡 타임아웃(60분) 안이지만, NVD_API_KEY가 있으면 훨씬 빠르다.
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
+      dry_run:
+        # backfill-cvss 전용. 레코드는 다 받아서 계산하고 저장만 하지 않는다 —
+        # 얼마나 올라가는지, 등급이 어디로 움직이는지를 쓰기 전에 로그로 본다.
+        description: 'backfill-cvss: 계산만 하고 저장하지 않기'
+        type: boolean
+        default: false
 
 permissions:
   contents: read      # 결과물은 커밋하지 않고 Pages 아티팩트로 배포한다
@@ -101,6 +108,20 @@ jobs:
           VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
           BACKFILL_LIMIT: '800'
         run: python src/backfill_exploited.py
+
+      # 옛 코드는 metrics를 돌다 CVSS를 하나 만나면 거기서 끊었다. 4.0 블록이 먼저 오면
+      # 3.x를 못 봤고(실측 22%가 두 버전을 갖고 대부분 값이 다르다), 4.0에 baseScore가
+      # 없으면 3.x에 9.8이 있어도 화면에 N/A로 떴다. 파이프라인은 고쳤지만 이미 저장된
+      # 행은 옛 값 그대로다. 이 잡이 그 행들을 소급해 맞춘다.
+      # 점수를 내리지 않고(NVD 보충분이 지워지는 걸 막는다) Slack도 부르지 않는다.
+      # 한 번에 1500건, 남으면 다시 돌리면 이어서 처리한다. 다 채우면 할 일이 없어진다.
+      - name: Backfill CVSS versions
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-cvss' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          BACKFILL_CVSS_LIMIT: '1500'
+        run: python src/backfill_cvss.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}

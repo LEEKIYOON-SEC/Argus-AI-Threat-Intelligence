@@ -90,6 +90,14 @@ def main() -> int:
         except Exception as e:
             check(False, f"{desc} → {type(e).__name__}: {e}", failures)
 
+    print("\n── CVSS 버전 표기 ──")
+    # 4.0 과 3.x 는 산식이 달라 실측 22%가 두 버전을 갖고 대부분 점수가 다르다.
+    # 어느 버전인지 안 밝히면 NVD 에서 다른 값을 본 사람이 무엇이 맞는지 알 수 없다.
+    body = report._build_issue_body(dict(AT_ALERT, cvss_version="3.1"), "사유", ANALYSIS, {})
+    check("CVSS%20v3.1" in body, "배지에 버전이 붙는다 (v3.1)", failures)
+    body = report._build_issue_body(AT_ALERT, "사유", ANALYSIS, {})
+    check("badge/CVSS-" in body, "버전을 모르면 그냥 CVSS 로 (안 터진다)", failures)
+
     print("\n── 제목 폴백 순서 ──")
     cases = (({"id": "X", "title": "En", "title_ko": "한글"}, "한글", "번역본이 있으면 그걸"),
              ({"id": "X", "title": "En"}, "En", "번역 전이면 영문 원문"),

@@ -158,6 +158,14 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 
         entry["degraded"] = bool(state.get("waf_degraded"))
         entry["cvss_vector"] = _s(state, "cvss_vector")
+        # 어느 CVSS 버전의 점수인지, 그리고 다른 버전은 몇 점인지. 4.0 과 3.x 는 산식이
+        # 달라 실측 20.7%가 어긋난다 — 버전 표시 없이 숫자만 띄우면 NVD 에서 다른 값을
+        # 본 사람이 무엇이 맞는지 알 수 없다.
+        entry["cvss_version"] = _s(state, "cvss_version")
+        scores = state.get("cvss_scores")
+        if isinstance(scores, dict) and len(scores) > 1:
+            entry["cvss_alt"] = {k: v[0] for k, v in scores.items()
+                                 if isinstance(v, (list, tuple)) and v}
 
         entry["ssvc_exploitation"] = state.get("ssvc_exploitation") or (state.get("ssvc") or {}).get("exploitation")
         entry["has_public_exploit"] = state.get("has_public_exploit", False)
