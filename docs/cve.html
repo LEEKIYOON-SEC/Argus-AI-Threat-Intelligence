@@ -27,30 +27,35 @@
 
   <main class="container">
     <section class="kpi-grid">
-      <div class="kpi is-new">
-        <div class="kpi-label" title="악용 신호가 관측됐거나(T0·T1) 고위험이 될 가능성이 있는 건(T2)만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다.">추적 중 CVE</div>
+      <div class="kpi is-new" data-kpi="" role="button" tabindex="0"
+           title="악용 신호가 관측됐거나 고위험이 될 가능성이 있는 건만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다. 클릭하면 신호 필터를 모두 해제합니다.">
+        <div class="kpi-label">추적 중 CVE</div>
         <div class="kpi-value" id="stat-total">-</div>
         <div class="kpi-sub" id="stat-24h-sub">최근 24시간 - 건 신규</div>
       </div>
-      <div class="kpi is-kev">
-        <div class="kpi-label" title="CISA KEV · VulnCheck KEV · SSVC Exploitation=active · Metasploit 모듈 — 악용이 보고된 건입니다. 즉시 알림이 나갑니다.">🚨 악용 중</div>
-        <div class="kpi-value c-kev" id="stat-t0">-</div>
-        <div class="kpi-sub">즉시 알림 대상</div>
+      <div class="kpi is-kev" data-kpi="kev" role="button" tabindex="0"
+           title="CISA KEV · VulnCheck KEV · SSVC Exploitation=active — 악용이 보고된 건입니다. 즉시 알림이 나갑니다. 클릭하면 이 건만 봅니다.">
+        <div class="kpi-label">🚨 악용 중</div>
+        <div class="kpi-value c-kev" id="stat-kev">-</div>
+        <div class="kpi-sub">지금 공격받고 있음</div>
       </div>
-      <div class="kpi is-critical">
-        <div class="kpi-label" title="nuclei 템플릿 · Exploit-DB · EPSS 상위 1% — 악용 보고는 없지만 공격 도구가 이미 공개된 건입니다. 즉시 알림이 나갑니다.">⚠️ 무기화 임박</div>
-        <div class="kpi-value c-critical" id="stat-t1">-</div>
-        <div class="kpi-sub">즉시 알림 대상</div>
-      </div>
-      <div class="kpi">
-        <div class="kpi-label" title="고위험이 '될' 가능성이 있는 건. 알림은 보내지 않고 여기서 관측합니다 — 신호가 하나라도 붙으면 T0/T1로 올라가 알림이 나갑니다.">📋 관찰</div>
-        <div class="kpi-value" id="stat-t2">-</div>
-        <div class="kpi-sub">알림 없이 추적</div>
-      </div>
-      <div class="kpi is-weapon">
-        <div class="kpi-label" title="Metasploit 모듈 · Exploit-DB · nuclei 템플릿 — 공격 도구가 공개된 건 (위험 등급과 직교하는 축)">🧨 무기화됨</div>
+      <div class="kpi is-weapon" data-kpi="weaponized" role="button" tabindex="0"
+           title="Metasploit 모듈 · Exploit-DB · nuclei 템플릿 — 공격 도구가 이미 공개돼 누구나 쓸 수 있는 건입니다. 클릭하면 이 건만 봅니다.">
+        <div class="kpi-label">🧨 무기화</div>
         <div class="kpi-value c-weapon" id="stat-weapon">-</div>
         <div class="kpi-sub">Metasploit · EDB · nuclei</div>
+      </div>
+      <div class="kpi is-poc" data-kpi="poc" role="button" tabindex="0"
+           title="PoC가 공개된 건. 완성된 익스플로잇은 아니지만 무기화까지의 거리가 짧습니다. 클릭하면 이 건만 봅니다.">
+        <div class="kpi-label">🔬 PoC 공개</div>
+        <div class="kpi-value c-poc" id="stat-poc">-</div>
+        <div class="kpi-sub">무기화 직전 단계</div>
+      </div>
+      <div class="kpi is-ai" data-kpi="ai" role="button" tabindex="0"
+           title="AI가 찾아 책임공개된 건 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 대개 패치돼 있지만 상세가 함께 공개됩니다. 클릭하면 이 건만 봅니다.">
+        <div class="kpi-label">🧠 AI 발견</div>
+        <div class="kpi-value c-ai" id="stat-ai">-</div>
+        <div class="kpi-sub">공개와 동시에 N-day</div>
       </div>
     </section>
 
