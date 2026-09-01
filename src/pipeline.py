@@ -101,10 +101,52 @@ def build_state(cve_id: str, record: Dict, collector,
 
 
 # ──────────────────────────────────────────────────────────────────────────
+# 직전 상태 조회 — 건별 왕복을 없앤다
+# ──────────────────────────────────────────────────────────────────────────
+class RowCache:
+    """처리할 CVE의 기존 행을 미리 한 번에 받아 두는 캐시.
+
+    없으면 process()가 CVE마다 db.get_cve()를 부른다. 그런데 한 회차 변경분의 압도적
+    다수는 T3이라 애초에 DB에 없다(실측 590건 중 534건 = 90.5%). 즉 왕복의 90%가
+    '없음'을 확인하려고 도는 것이었다. 상한을 300에 묶어 둔 진짜 이유도 이것이었다.
+
+    **'없다'와 '모른다'를 반드시 구분한다.** 조회 실패를 '없다'로 처리하면 직전 상태가
+    사라진 것처럼 보여 이미 알린 CVE가 다시 알림으로 나간다. 조회가 성사된 id만
+    covered에 담고, 나머지는 개별 조회로 폴백한다.
+    """
+
+    __slots__ = ("_db", "_rows", "_covered")
+
+    def __init__(self, db, cve_ids=()):
+        self._db = db
+        self._rows: Dict[str, Dict] = {}
+        self._covered: set = set()
+        ids = list(dict.fromkeys(cve_ids))
+        if ids:
+            self._rows, self._covered = db.get_cves(ids)
+            logger.info(f"기존 행 일괄 조회 {len(self._rows)}/{len(ids)}건 "
+                        f"(개별 왕복 {len(self._covered)}회 절약)")
+
+    def get(self, cve_id: str) -> Optional[Dict]:
+        row = self._rows.get(cve_id)
+        if row is not None:
+            return row
+        if cve_id in self._covered:
+            return None                      # 조회했고, 확실히 없다
+        return self._db.get_cve(cve_id)      # 안 받아왔거나 조회 실패 → 개별 확인
+
+    def forget(self, cve_id: str) -> None:
+        """저장 후 캐시를 무효화 — 같은 회차에 같은 CVE가 두 번 올 수 있다
+        (변경분에서 한 번, 신호 스냅샷 대조에서 또 한 번)."""
+        self._rows.pop(cve_id, None)
+        self._covered.discard(cve_id)
+
+
+# ──────────────────────────────────────────────────────────────────────────
 # 판정 → 저장/알림
 # ──────────────────────────────────────────────────────────────────────────
 def process(state: Dict, db, notifier, *, reason_prefix: str = "",
-            make_report=None) -> Outcome:
+            make_report=None, rows: Optional["RowCache"] = None) -> Outcome:
     """상태 하나를 판정하고 그 결과대로 저장·알림한다.
 
     make_report: 알림 대상일 때 GitHub Issue를 만드는 콜러블(state, reason) -> (url, rules_info).
@@ -113,7 +155,7 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
     """
     cve_id = state['id']
     try:
-        last_row = db.get_cve(cve_id)
+        last_row = rows.get(cve_id) if rows is not None else db.get_cve(cve_id)
         last = (last_row or {}).get('last_alert_state')
         decision = risk.decide(state, last)
 
@@ -122,6 +164,8 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             # 화면에서 빠지게 한다 (신호가 철회된 CVE를 계속 띄워 두지 않는다).
             if last is not None:
                 _save(db, state, decision, last, alerted=False)
+                if rows is not None:
+                    rows.forget(cve_id)
                 return Outcome(cve_id, "tracked", decision.tier, decision, state)
             return Outcome(cve_id, "skipped", decision.tier, decision, state)
 
@@ -140,6 +184,8 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             # failed로 남겨 워터마크가 붙잡고 재처리하게 한다.
             return Outcome(cve_id, "failed", decision.tier, decision, state)
 
+        if rows is not None:
+            rows.forget(cve_id)
         return Outcome(cve_id, "alerted" if decision.alert else "tracked",
                        decision.tier, decision, state)
 

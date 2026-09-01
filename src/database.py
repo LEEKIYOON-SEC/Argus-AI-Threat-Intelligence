@@ -173,6 +173,43 @@ class ArgusDB:
             logger.error(f"CVE 조회 실패 ({cve_id}): {e}")
             return None
 
+    def get_cves(self, cve_ids) -> Tuple[Dict[str, Dict], set]:
+        """여러 CVE를 한 번에 조회. → (찾은 행 {id: row}, **조회가 성사된** id 집합)
+
+        두 번째 값이 왜 필요한가: '조회했는데 없다'와 '조회를 못 했다'는 완전히 다르다.
+        조회 실패를 '없다'로 처리하면 직전 상태가 없는 것처럼 보여 이미 알린 CVE가
+        신규로 판정되고, 같은 알림이 다시 나간다. 그래서 성사된 청크의 id만 담아
+        호출부가 나머지는 개별 조회로 폴백하게 한다.
+
+        건별 조회를 없애려고 만들었다. fast-lane 한 회차의 변경분은 대부분 T3이라
+        (실측 590건 중 534건 = 90.5%) DB에 있을 리가 없는데도 전부 왕복을 돌았다.
+        """
+        ids = [str(c) for c in cve_ids if c]
+        rows: Dict[str, Dict] = {}
+        covered: set = set()
+        if not ids:
+            return rows, covered
+
+        # PostgREST는 GET 쿼리스트링으로 필터를 보낸다. CVE-2026-12345 가 15~18바이트라
+        # 200개면 ~3.5KB — 프록시·게이트웨이의 통상 URL 한도(8KB) 안이다.
+        chunk_size = 200
+        for i in range(0, len(ids), chunk_size):
+            chunk = ids[i:i + chunk_size]
+            try:
+                r = self._execute(
+                    self.client.table("cves").select("*").in_("id", chunk)
+                )
+                for row in (r.data or []):
+                    rid = row.get("id")
+                    if rid:
+                        rows[rid] = row
+                covered.update(chunk)
+            except Exception as e:
+                # 이 청크는 '모름'으로 남긴다 — covered에 넣지 않으므로 개별 조회로 간다
+                logger.warning(f"CVE 일괄 조회 실패 ({len(chunk)}건): {_describe_error(e)} "
+                               f"→ 해당 건은 개별 조회로 폴백")
+        return rows, covered
+
     def upsert_cve(self, data: Dict) -> bool:
         """CVE 저장. 실패 유형별로 다르게 대응한다 —
 

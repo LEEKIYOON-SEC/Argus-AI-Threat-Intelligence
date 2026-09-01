@@ -98,6 +98,41 @@ def main() -> int:
     check(feed._parse_array_prefix("not json") == [], "쓰레기 입력은 빈 목록", failures)
     check(feed._parse_array_prefix("") == [], "빈 입력은 빈 목록", failures)
 
+    print("\n── 상한 절단은 배치 경계에서 ──")
+    # 실측 형태를 그대로 옮긴 것이다: 작은 배치들 사이에 거대한 배치 하나가 섞인다
+    # (2026-09-01, 6시간 창 24배치 · 중앙 4건 · 최대 477건).
+    def batch_of(n, when):
+        t = ts(when)
+        return [feed.Change(cve_id=f"CVE-X-{when[-9:-1]}-{i}", batch_at=t) for i in range(n)]
+
+    seq = (batch_of(4, "2026-08-30T10:00:00Z") + batch_of(400, "2026-08-30T10:30:00Z")
+           + batch_of(6, "2026-08-30T11:00:00Z"))
+    kept, horizon = feed.cap_by_batch(seq, 300, ts("2026-08-30T11:00:00Z"))
+    # 상한 300은 400건짜리 배치 한가운데 떨어진다. 예전 코드는 여기서 그냥 잘라
+    # horizon을 10:30에 뒀고, 다음 실행이 batch_at <= 10:30 을 건너뛰어 나머지 296건이
+    # 영원히 사라졌다.
+    kept_ids = {c.cve_id for c in kept}
+    for when in ("2026-08-30T10:00:00Z", "2026-08-30T10:30:00Z", "2026-08-30T11:00:00Z"):
+        grp = {c.cve_id for c in seq if c.batch_at == ts(when)}
+        check(not (grp & kept_ids) or grp <= kept_ids,
+              f"{when[11:16]} 배치를 쪼개지 않는다 (전부 포함이거나 전부 제외)", failures)
+    check(len(kept) == 404 and horizon == ts("2026-08-30T10:30:00Z"),
+          f"상한에 걸린 배치는 통째로 포함하고 그 다음부터 자른다 ({len(kept)}건)", failures)
+    # 남은 6건은 horizon 뒤에 있으므로 다음 회차가 반드시 다시 본다 = 유실 0
+    dropped = [c for c in seq if c.cve_id not in kept_ids]
+    check(all(c.batch_at > horizon for c in dropped),
+          "버린 건은 전부 horizon 뒤 — 다음 회차가 다시 집는다", failures)
+
+    solo = batch_of(500, "2026-08-30T10:00:00Z") + batch_of(3, "2026-08-30T11:00:00Z")
+    kept, horizon = feed.cap_by_batch(solo, 300, ts("2026-08-30T11:00:00Z"))
+    check(len(kept) == 500 and horizon == ts("2026-08-30T10:00:00Z"),
+          "배치 하나가 상한보다 크면 통째로 처리한다 (쪼개면 유실되므로)", failures)
+
+    small = batch_of(5, "2026-08-30T10:00:00Z")
+    kept, horizon = feed.cap_by_batch(small, 300, ts("2026-08-30T11:00:00Z"))
+    check(len(kept) == 5 and horizon == ts("2026-08-30T11:00:00Z"),
+          "상한 아래면 손대지 않는다 (horizon도 그대로)", failures)
+
     print("\n── 워터마크 없음 / 미래 ──")
     now = datetime.datetime.now(pytz.UTC)
     changes, horizon = feed.changes_since(now + datetime.timedelta(hours=1), now=now)

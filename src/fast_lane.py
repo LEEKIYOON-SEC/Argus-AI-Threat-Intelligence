@@ -59,7 +59,8 @@ def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float
 
 
 def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: ArgusDB,
-                      notifier: SlackNotifier, epss_index, deadline: float
+                      notifier: SlackNotifier, epss_index, deadline: float,
+                      rows: Optional[pipeline.RowCache] = None
                       ) -> Tuple[List[pipeline.Outcome], Dict[str, datetime.datetime]]:
     """변경분을 판정한다. (결과, 실패한 CVE의 배치 시각) — 뒤엣것이 워터마크를 붙잡는다."""
     outcomes: List[pipeline.Outcome] = []
@@ -87,7 +88,7 @@ def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Argu
             outcomes.append(pipeline.Outcome(change.cve_id, "skipped"))
             continue
 
-        out = pipeline.process(st, db, notifier)
+        out = pipeline.process(st, db, notifier, rows=rows)
         outcomes.append(out)
         if out.needs_retry:
             failed_at[change.cve_id] = change.batch_at
@@ -96,7 +97,8 @@ def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Argu
 
 
 def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
-                   epss_index, deadline: float) -> List[pipeline.Outcome]:
+                   epss_index, deadline: float,
+                   rows: Optional[pipeline.RowCache] = None) -> List[pipeline.Outcome]:
     """가벼운 신호 소스를 지난 회차와 대조해 새로 올라온 CVE를 처리한다.
 
     이 경로가 '저위험을 DB에 쌓아두지 않아도 되는' 이유다 — 우리가 그 CVE를 알고
@@ -124,7 +126,7 @@ def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
                 processed.append(cve_id)      # 비발행 — 다시 볼 이유 없다
                 continue
             out = pipeline.process(st, db, notifier,
-                                   reason_prefix=f"[{diff.source.label}] ")
+                                   reason_prefix=f"[{diff.source.label}] ", rows=rows)
             outcomes.append(out)
             if not out.needs_retry:
                 processed.append(cve_id)
@@ -190,19 +192,17 @@ def run() -> None:
     # ── ① 변경분
     watermark = pstate.read_watermark()
     changes, horizon = feed.changes_since(watermark)
-    cap = config.PERFORMANCE.get("fast_max_changes", 300)
-    if len(changes) > cap:
-        logger.warning(f"변경 {len(changes)}건 > 상한 {cap} — 오래된 순으로 {cap}건만 "
-                       f"이번 회차에 처리 (나머지는 워터마크가 붙잡는다)")
-        horizon = changes[cap - 1].batch_at
-        changes = changes[:cap]
+    cap = config.PERFORMANCE.get("fast_max_changes", 1500)
+    changes, horizon = feed.cap_by_batch(changes, cap, horizon)
     feed.fill_records(changes, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
 
+    # 기존 행을 한 번에 받아 둔다 — 건별 왕복이 상한을 300에 묶어 둔 진짜 원인이었다
+    rows = pipeline.RowCache(db, [c.cve_id for c in changes])
     outcomes, failed_at = _evaluate_changes(changes, collector, db, notifier,
-                                            epss_index, deadline)
+                                            epss_index, deadline, rows)
 
     # ── ② 신호 소스 대조 (워터마크와 무관 — 실패해도 다음 회차가 다시 잡는다)
-    outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline)
+    outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline, rows)
 
     # ── ③ 워터마크
     _advance_watermark(horizon, failed_at)

@@ -18,7 +18,37 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 from supabase import create_client
+import risk
 from weekly_report import publish_weekly_report
+
+
+def _tier_of(state: dict, entry: dict) -> str:
+    """행에 표시할 티어. 저장값과 **행이 실제로 가진 신호**를 대조해 더 위험한 쪽을 쓴다.
+
+    예전에는 `_s(state, "tier") or "T2"`였는데, 그 기본값이 화면을 거짓말하게 만들었다.
+    tier는 이번 개편에서 새로 생긴 필드라 그 이전에 저장된 행에는 아예 없고, 결과적으로
+    **CISA KEV에 올라 있는 CVE가 '관찰(T2)'로 표시됐다.** 없는 값을 T2로 단정한 게
+    원인이지, 판정 자체는 멀쩡했다.
+
+    판정(risk.evaluate)은 상태 dict의 순수 함수라 여기서 그대로 부를 수 있다. 그러면
+    화면과 파이프라인이 같은 기준을 쓰게 된다 — 화면에만 있는 별도 잣대를 없애는 것이
+    이번 개편의 방향이기도 하다.
+
+    더 위험한 쪽을 고르는 이유: 저장값은 '파이프라인이 마지막으로 판정한 결과'이고
+    유도값은 '이 행이 지금 들고 있는 신호'다. 보통 같지만, 어긋나면 화면이 위험을
+    낮춰 부르는 쪽으로 틀리면 안 된다.
+    """
+    derived = risk.evaluate({
+        **state,
+        # 스칼라는 별도 컬럼이 정본이다 (state 쪽이 비어 있는 과거 행이 있다)
+        "is_kev": entry.get("is_kev", False),
+        "cvss": entry.get("cvss", 0) or 0,
+        "epss": entry.get("epss", 0) or 0,
+    }).tier
+    stored = _s(state, "tier")
+    if stored not in (risk.T0, risk.T1, risk.T2, risk.T3):
+        return derived
+    return min(stored, derived, key=risk.tier_rank)
 
 
 def _get_client():
@@ -192,7 +222,7 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         # 티어와 발화한 트리거 — 화면의 정렬·필터 기준이 파이프라인 판정과 같아야 한다.
         # 예전에는 화면이 CVSS로 다시 줄을 세워, 알림은 갔는데 목록에서는 아래에 있는
         # 어긋남이 생겼다. 판정 결과를 그대로 싣고 화면은 그걸 쓰기만 한다.
-        entry["tier"] = _s(state, "tier") or "T2"
+        entry["tier"] = _tier_of(state, entry)
         entry["triggers"] = [t for t in _l(state, "fired_triggers") if isinstance(t, str)]
         entry["epss_percentile"] = state.get("epss_percentile") or 0
 

@@ -58,6 +58,9 @@ _RANGE_STEPS: Tuple[Optional[int], ...] = (256 * 1024, 1024 * 1024, 4 * 1024 * 1
 
 #: 공백이 이보다 길면 일별 ZIP으로 레코드 원문을 미리 채운다(개별 fetch 폭증 방지).
 BULK_PREFILL_HOURS = 3
+#: 공백이 짧아도 변경분이 이보다 많으면 ZIP을 쓴다. 손익분기는 실측 기준이다 —
+#: 개별 fetch 14건/s vs ZIP 하나 2.5초(600건 커버) → 100건 언저리에서 ZIP이 이긴다.
+PREFILL_MIN_CHANGES = 120
 #: 한 실행이 따라잡을 최대 구간. 나머지는 전진된 워터마크에서 다음 실행이 이어받는다.
 CATCHUP_MAX_HOURS = 24
 #: 워터마크가 아예 없을 때(최초 실행) 소급할 기간
@@ -246,7 +249,11 @@ def prefill_records(changes: List[Change], since: datetime.datetime,
     if not changes:
         return 0
     span_h = (now - since).total_seconds() / 3600.0
-    if span_h < BULK_PREFILL_HOURS:
+    # 공백이 짧아도 **건수가 많으면** ZIP이 이긴다. 실측(2026-09-01): 하루치 ZIP 하나가
+    # 607건 중 591건을 2.5초에 덮는 반면, 개별 fetch는 8워커로 초당 14건이라 같은 양에
+    # 40초 넘게 든다. 릴리스가 몰리는 시간대에는 30분 공백에도 수백 건이 한꺼번에 온다
+    # (한 배치가 477건인 경우를 실측했다) — 시간만 보면 그 구간을 놓친다.
+    if span_h < BULK_PREFILL_HOURS and len(changes) < PREFILL_MIN_CHANGES:
         return 0
 
     pool: Dict[str, dict] = {}
@@ -310,6 +317,50 @@ def changes_since(since: Optional[datetime.datetime],
     if prefill:
         prefill_records(changes, since, now)
     return changes, horizon
+
+
+def cap_by_batch(changes: List[Change], cap: int, horizon: datetime.datetime
+                 ) -> Tuple[List[Change], datetime.datetime]:
+    """한 회차 처리량 상한 — 자르되 **반드시 배치 경계에서** 자른다.
+
+    배치 중간에서 자르면 조용히 유실된다. 워터마크는 배치 시각 하나로 표현되고, 다음
+    실행의 _collect는 `batch_at <= 워터마크`인 배치를 통째로 건너뛴다. 그래서 300번째와
+    301번째가 같은 배치에 속하면, 워터마크를 그 배치 시각에 놓는 순간 301번째부터는
+    **다시 오지 않는다.** 누락 0 원칙을 정면으로 깨는 실제 버그였다.
+
+    이론적인 걱정이 아니다. 배치 크기는 극단적으로 고르지 않다 — 2026-09-01 실측으로
+    6시간 창의 24개 배치 중 중앙값은 4건인데 한 배치가 477건이었다. 상한 300으로 그
+    배치를 만나면 177건이 사라진다.
+
+    그래서 **상한은 하한처럼 동작한다**: 상한에 걸리는 순간의 배치는 통째로 포함하고,
+    그 다음 배치부터 자른다. 넘치는 몫은 호출부의 시간 데드라인이 받아 낸다(데드라인은
+    남은 건을 실패로 남겨 워터마크가 그 앞에서 멈추게 하므로 쪼개도 안전하다).
+
+    '상한 직전에서 멈춘다'로 하지 않은 이유: 위 실측 형태(4건·400건·6건, 상한 300)에서
+    그 방식은 410건 중 4건만 처리하고 끝난다. 유실은 없지만 한 회차를 통째로 버리는
+    셈이고, 밀린 물량을 따라잡아야 하는 상황에서는 정확히 반대로 가는 선택이다.
+    """
+    if len(changes) <= cap:
+        return changes, horizon
+
+    kept: List[Change] = []
+    cut_at = None
+    for change in changes:                     # changes 는 batch_at 오름차순
+        if change.batch_at != cut_at:          # 새 배치의 시작
+            if len(kept) >= cap:
+                break
+            cut_at = change.batch_at
+        kept.append(change)
+
+    if not kept:                               # 첫 배치 하나가 상한보다 크다
+        cut_at = changes[0].batch_at
+        kept = [c for c in changes if c.batch_at == cut_at]
+        logger.warning(f"단일 배치가 {len(kept)}건 — 상한 {cap}을 넘지만 쪼개면 유실되므로 "
+                       f"통째로 처리한다 (초과분은 시간 데드라인이 받는다)")
+
+    logger.warning(f"변경 {len(changes)}건 > 상한 {cap} — 배치 경계에서 잘라 {len(kept)}건만 "
+                   f"이번 회차에 처리 (나머지 {len(changes) - len(kept)}건은 다음 회차)")
+    return kept, cut_at
 
 
 def fetch_record(cve_id: str, timeout: int = 20) -> Optional[dict]:
