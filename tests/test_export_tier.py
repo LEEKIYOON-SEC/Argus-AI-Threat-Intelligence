@@ -47,6 +47,12 @@ CASES = (
 )
 
 
+def check(cond, msg, failures):
+    print(("  OK   " if cond else "  FAIL ") + msg)
+    if not cond:
+        failures.append(msg)
+
+
 def main() -> int:
     failures = []
     print("── 저장된 tier가 없거나 어긋날 때 ──")
@@ -70,6 +76,7 @@ def main() -> int:
             failures.append(key)
 
     retention_guard(failures)
+    merge_membership(failures)
 
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
@@ -113,6 +120,43 @@ def retention_guard(failures):
             failures.append(desc)
             print(f"  FAIL {desc:36s} → {'보존' if got else '삭제 가능'} "
                   f"(기대 {'보존' if keep else '삭제 가능'})")
+
+
+def merge_membership(failures):
+    # '추적 중 CVE' 가 회차마다 오르내린 원인. 증분 export 의 병합은
+    # `직전 배포본 ∪ 이번에 바뀐 행` 이라 DB 에서 사라진 행을 스스로 지우지 못한다.
+    #
+    #   번역이 돌면   → request_full_export() → 전량 → 건수 = DB 실제 (낮음)
+    #   번역이 안 돌면 → 병합 → 건수 = 배포본 ∪ 신규 (높음)
+    #
+    # 두 경로가 같은 집합을 만들지 않았다. 이제 id 목록으로 회원 자격을 맞춘다.
+    import datetime as dt
+
+    now = dt.datetime.now(dt.timezone.utc)
+    def ts(days):
+        return (now - dt.timedelta(days=days)).isoformat()
+
+    previous = ([{"id": f"CVE-A-{i}", "updated": ts(3)} for i in range(5)]
+                + [{"id": f"CVE-GONE-{i}", "updated": ts(10)} for i in range(3)])
+    fresh = [{"id": "CVE-A-0", "updated": ts(0)}, {"id": "CVE-NEW-1", "updated": ts(0)}]
+    live = {f"CVE-A-{i}" for i in range(5)} | {"CVE-NEW-1"}
+
+    print("\n── 증분 병합이 전량 export 와 같은 집합을 만든다 ──")
+    got = {r["id"] for r in edd.merge_exports(previous, fresh, keep=live)}
+    check(got == live, f"병합 결과 == DB 실제 집합 ({len(got)}건)", failures)
+    check(not any("GONE" in i for i in got),
+          "DB 에서 사라진 행이 배포본에 남지 않는다", failures)
+
+    print("\n── 조회 실패는 '전부 사라짐'이 아니다 ──")
+    kept = edd.merge_exports(previous, fresh, keep=None)
+    check(len(kept) == 9,
+          f"keep=None 이면 아무것도 안 떨군다 ({len(kept)}건) — 대시보드가 비워지지 않는다",
+          failures)
+
+    print("\n── 90일 밖은 병합에서도 빠진다 ──")
+    old_row = [{"id": "CVE-OLD", "updated": ts(200)}]
+    got2 = {r["id"] for r in edd.merge_exports(old_row, [], keep={"CVE-OLD"})}
+    check("CVE-OLD" not in got2, "DB 에 있어도 90일 밖이면 제외", failures)
 
 
 if __name__ == "__main__":

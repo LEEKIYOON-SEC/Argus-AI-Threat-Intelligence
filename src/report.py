@@ -193,6 +193,17 @@ def _epss_caption(cve_data: Dict) -> str:
     surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
     return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
 
+def _display_title(cve_data: dict) -> str:
+    # 알림 시점(fast-lane/스냅샷 대조)의 상태에는 title_ko 가 없다 — 번역은 bulk-lane 이
+    # 나중에 채운다. 예전에는 cve_data['title_ko'] 로 바로 꺼내 KeyError 가 났고,
+    # create_github_issue 의 except 가 "GitHub Issue 생성 실패: 'title_ko'" 한 줄로
+    # 삼켰다. 그래서 알림에 리포트 링크가 없이 나가고, 다음 시간의 리포트 보강이
+    # (거기서만 setdefault 로 메우고 있어서) 뒤늦게 만들어 주고 있었다.
+    return (str(cve_data.get('title_ko') or '').strip()
+            or str(cve_data.get('title') or '').strip()
+            or cve_data.get('id', 'CVE'))
+
+
 def _issue_labels(cve_data: Dict) -> List[str]:
     verdict = risk.evaluate(cve_data)
     labels = ["security", "cve", f"tier:{verdict.tier.lower()}"]
@@ -238,7 +249,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
             "Accept": "application/vnd.github.v3+json"
         }
         payload = {
-            "title": f"[Argus] {cve_data['id']}: {cve_data['title_ko']}",
+            "title": f"[Argus] {cve_data['id']}: {_display_title(cve_data)}",
             "body": body,
             "labels": _issue_labels(cve_data)
         }
@@ -256,16 +267,18 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         return None, None
 
 def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) -> str:
-    score = cve_data['cvss']
+    analysis = analysis or {}
+    rules = rules or {}
+    score = cve_data.get('cvss') or 0
     if score >= 9.0: color = "FF0000"
     elif score >= 7.0: color = "FD7E14"
     elif score >= 4.0: color = "FFC107"
     elif score > 0: color = "28A745"
     else: color = "CCCCCC"
     
-    kev_color = "FF0000" if cve_data['is_kev'] else "CCCCCC"
+    kev_color = "FF0000" if cve_data.get('is_kev') else "CCCCCC"
 
-    badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{cve_data['epss']*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data['is_kev'] else 'No'}-{kev_color})"
+    badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
 
     if cve_data.get('ssvc_exploitation') == 'active':
         badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
@@ -325,11 +338,12 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
             f"{cve_data.get('poc_count', len(poc_urls))}건{poc_link}")
     threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
 
-    cwe_str = ", ".join(cve_data['cwe']) if cve_data['cwe'] else "N/A"
+    cwe_str = ", ".join(cve_data.get('cwe') or []) or "N/A"
     
     affected_rows = ""
-    for item in cve_data.get('affected', []):
-        affected_rows += f"| {item['vendor']} | {item['product']} | {item['versions']} |\n"
+    for item in cve_data.get('affected') or []:
+        affected_rows += (f"| {item.get('vendor') or '-'} | {item.get('product') or '-'} "
+                          f"| {item.get('versions') or '-'} |\n")
     if not affected_rows:
         affected_rows = "| - | - | - |"
 
@@ -344,7 +358,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         notes.setdefault(u, " (PoC, nomi-sec/trickest)")
     ref_items = []
     seen = set()
-    for r in cve_data['references']:
+    for r in cve_data.get('references') or []:
         if r and r not in seen:
             ref_items.append(f"{r}{notes.get(r, '')}")
             seen.add(r)
@@ -403,7 +417,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     elif desc_en and desc_en != 'N/A':
         overview_section = f"## 📄 취약점 개요\n{desc_en}\n\n"
 
-    body = f"""# 🛡️ {cve_data['title_ko']}
+    body = f"""# 🛡️ {_display_title(cve_data)}
 
 > **탐지 일시:** {now_kst}
 > **탐지 사유:** {reason}
