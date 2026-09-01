@@ -390,7 +390,11 @@ class ArgusDB:
                     self.client.table("cves")
                     .select("id, last_alert_state")
                     .not_.is_("last_alert_state", "null")
-                    .order("updated_at", desc=True)
+                    # 정렬 키는 id 다. 이건 전수 스캔이고, updated_at 으로 정렬하면
+                    # 페이지를 넘기는 동안 fast-lane 이 갱신한 행이 맨 앞으로 올라와
+                    # 창을 통째로 밀어낸다 — 어떤 행은 두 번 보이고 어떤 행은 영영
+                    # 안 보인다. 백필이 같은 행만 계속 붙잡던 이유다.
+                    .order("id")
                     .range(offset, offset + page_size - 1)
                 )
                 batch = response.data or []
@@ -414,6 +418,13 @@ class ArgusDB:
             )
         return [r for r in self._tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
+
+    def get_rows_missing_cvss_version(self) -> List[Dict]:
+        # cvss_version 키의 유무가 곧 "이 행이 어느 코드로 쓰였는지"다. 지금 파이프라인은
+        # 점수가 없어도 빈 문자열로 항상 넣는다(collector.parse_record). 키가 아예 없는
+        # 행은 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것이다.
+        return [r for r in self._tracked_states()
+                if "cvss_version" not in (r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:
         try:
