@@ -96,7 +96,12 @@ class RowCache:
 
 
 def process(state: Dict, db, notifier, *, reason_prefix: str = "",
-            make_report=None, rows: Optional["RowCache"] = None) -> Outcome:
+            make_report=None, rows: Optional["RowCache"] = None,
+            silent: bool = False) -> Outcome:
+    # silent=True: Slack 도 last_alert_at 도 남기지 않는다. fired_triggers 는 기록하므로
+    # 다음 실행에서 재알림이 나가지 않는다. 소급 채우기 전용.
+    # last_alert_at 을 남기면 get_missing_report_candidates 가 그 행을 리포트 대상으로
+    # 집어 GitHub Issue 를 대량 생성한다 (is_kev DESC 정렬이라 맨 앞에 선다).
     cve_id = state['id']
     try:
         last_row = rows.get(cve_id) if rows is not None else db.get_cve(cve_id)
@@ -111,22 +116,23 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
                 return Outcome(cve_id, "tracked", decision.tier, decision, state)
             return Outcome(cve_id, "skipped", decision.tier, decision, state)
 
+        announce = decision.alert and not silent
         report_url = None
         rules_info = None
-        if decision.alert and make_report is not None:
+        if announce and make_report is not None:
             report_url, rules_info = make_report(state, decision.reason)
 
-        if decision.alert:
+        if announce:
             reason = f"{reason_prefix}{decision.reason}" if reason_prefix else decision.reason
             notifier.send_alert(state, reason, report_url, tier=decision.tier)
 
-        if not _save(db, state, decision, last, alerted=decision.alert,
+        if not _save(db, state, decision, last, alerted=announce,
                      report_url=report_url, rules_info=rules_info):
             return Outcome(cve_id, "failed", decision.tier, decision, state)
 
         if rows is not None:
             rows.forget(cve_id)
-        return Outcome(cve_id, "alerted" if decision.alert else "tracked",
+        return Outcome(cve_id, "alerted" if announce else "tracked",
                        decision.tier, decision, state)
 
     except Exception as e:

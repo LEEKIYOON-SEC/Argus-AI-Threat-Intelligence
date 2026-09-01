@@ -77,8 +77,69 @@ def main() -> int:
     check(cache.get("CVE-A") == rows["CVE-A"] and db.single_calls == ["CVE-A"],
           "비워 두면 전부 개별 조회 (기존 동작과 같다)", failures)
 
+    silent_mode(failures)
+
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
+
+
+class SaveDB:
+    def __init__(self): self.saved = {}
+    def get_cve(self, cid): return self.saved.get(cid)
+    def get_cves(self, ids):
+        return {c: self.saved[c] for c in ids if c in self.saved}, set(ids)
+    def upsert_cve(self, payload):
+        self.saved.setdefault(payload["id"], {}).update(payload)
+        return True
+
+
+class Notifier:
+    def __init__(self): self.sent = []
+    def send_alert(self, state, reason, url=None, tier=None):
+        self.sent.append(state["id"])
+
+
+def silent_mode(failures):
+    # silent=True 는 소급 채우기(backfill_exploited.py) 전용이다. 여기서 지키는 것 둘:
+    #   ① Slack 을 보내지 않는다 — KEV 1,687건이 한꺼번에 나가면 안 된다
+    #   ② last_alert_at 을 남기지 않는다 — 남기면 get_missing_report_candidates 가
+    #      (is_kev DESC 정렬이라 맨 앞에서) 그 행들을 집어 GitHub Issue 를 대량 생성한다
+    # 그러면서도 fired_triggers 는 기록해야 한다. 안 그러면 다음 실행이 전부 '신규'로 보고
+    # 결국 알림 폭풍이 난다 — 억제를 미루기만 한 꼴이 된다.
+    kev = {"id": "CVE-2020-1472", "cvss": 10.0, "epss": 0.9, "is_kev": True,
+           "title": "Zerologon",
+           "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"}
+
+    print("\n── 소급 채우기 (silent=True) ──")
+    db, notifier = SaveDB(), Notifier()
+    out = pipeline.process(dict(kev), db, None, silent=True)
+    row = db.saved["CVE-2020-1472"]
+    state = row["last_alert_state"]
+    check(out.tier == "T0", f"티어는 정상 판정된다 (={out.tier})", failures)
+    check(out.status == "tracked", f"상태는 tracked — alerted 가 아니다 (={out.status})", failures)
+    check("last_alert_at" not in row,
+          "last_alert_at 을 남기지 않는다 → 리포트 대량 생성이 안 걸린다", failures)
+    check("kev" in state["fired_triggers"],
+          f"fired_triggers 는 기록한다 (={state['fired_triggers']})", failures)
+    check(row["is_kev"] is True, "대시보드에 '악용 중'으로 뜬다", failures)
+
+    print("\n── 소급 뒤 정상 실행 ──")
+    pipeline.process(dict(kev), db, notifier)
+    check(not notifier.sent, f"같은 신호로는 재알림이 없다 (보낸 것 {notifier.sent})", failures)
+
+    kev_msf = dict(kev, has_metasploit_module=True)
+    pipeline.process(kev_msf, db, notifier)
+    check(notifier.sent == ["CVE-2020-1472"],
+          "새 트리거(Metasploit)가 붙으면 그때는 알림이 나간다", failures)
+    check("last_alert_at" in db.saved["CVE-2020-1472"],
+          "그 시점에 비로소 last_alert_at 이 기록된다", failures)
+
+    print("\n── 대조: 평소 경로 ──")
+    db2, n2 = SaveDB(), Notifier()
+    pipeline.process(dict(kev), db2, n2)
+    check(n2.sent == ["CVE-2020-1472"], "silent 없이는 알림이 나간다", failures)
+    check("last_alert_at" in db2.saved["CVE-2020-1472"],
+          "silent 없이는 last_alert_at 이 기록된다", failures)
 
 
 if __name__ == "__main__":

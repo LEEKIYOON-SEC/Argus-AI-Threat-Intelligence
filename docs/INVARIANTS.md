@@ -73,7 +73,13 @@ p90.0 = 0.041  36,640건
 
 **최초 기록의 함정**: `stored_digest is None`이면 전량을 '이미 아는 것'으로 저장하고
 **처리하지 않는다**(첫 실행 알림 폭풍 방지). 그래서 그 시점에 이미 KEV였던 CVE는 DB에
-들어오지 않는다 → `src/backfill_exploited.py`로 소급한다.
+들어오지 않는다 → `src/backfill_exploited.py`로 소급한다(`silent=True`).
+
+소급은 `pipeline.process(silent=True)`로 돈다. Slack 을 보내지 않는 것뿐 아니라
+**`last_alert_at` 도 남기지 않는다** — 남기면 `get_missing_report_candidates`가
+(`is_kev DESC` 정렬이라 맨 앞에서) 그 행들을 집어 GitHub Issue 를 대량 생성한다.
+`fired_triggers` 는 기록하므로 다음 실행에서 재알림은 없고, 새 신호가 붙으면 그때
+정상적으로 알림이 나간다.
 
 방향을 뒤집은 이유: 예전 DB측 스윕은 조회 조건(`최근 30일 · 300건 · is_kev=false`)이
 그대로 사각지대였다. 2년 전 저위험 CVE에 오늘 Metasploit 모듈이 올라오면 영영 못 봤다.
@@ -116,7 +122,8 @@ p90.0 = 0.041  36,640건
 | `rules`는 실제로 룰이 있는 행에만 싣는다 (`rules_snapshot`은 빈 껍데기라도 truthy) | 실측 2,217건 중 2,081건(93.9%)이 빈 껍데기였다 |
 
 **등급 드롭다운을 없앤 이유**: 신호 칩(악용 중·무기화·PoC…)과 거의 완전히 겹쳤다.
-겹치지 않는 것은 '알림이 나갔는가' 하나뿐이라 그것만 칩으로 남겼다.
+'알림이 나갔는가' 칩도 함께 뺐다 — 대시보드에서 이미 확인되고, Slack 한 건이 누락됐을 때
+그 사실이 화면에서도 가려지는 쪽이 오히려 문제다.
 
 ---
 
@@ -144,7 +151,7 @@ max_consecutive_failures    3   독약 레코드가 워터마크를 영구 고�
 quarantine_retry_hours     24
 ```
 
-Actions 분은 **무제한**이다(public 저장소). README에 있던 '2,000분/월'은 private 기준.
+Actions 분은 **무제한**이다(public 저장소). '2,000분/월' 제약은 private 저장소 기준이다.
 
 AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 분석 `gemini-3.5-flash-lite` → `gemini-3.1-flash-lite`,
@@ -184,4 +191,60 @@ VulnCheck 커뮤니티 티어는 `/v3/backup/`이다. `/v3/index/`는 상위 티
   (pyflakes)를 두 워크플로의 실행 전 단계에 두는 이유다. 실제로 이 방식으로 세 개를 놓쳤다.
 - 알림 물량 10~30건/일 유지. 50건을 넘으면 `risk.py` 임계 재조정.
 - 탐지 → Slack p95 15분 미만.
-- DB는 수동 관리. 마이그레이션이 필요하면 README의 SQL을 Supabase 콘솔에서 1회 실행.
+- DB는 수동 관리. 스키마는 아래 SQL을 Supabase 콘솔에서 1회 실행.
+
+---
+
+## 11. 설정 (README를 지웠으므로 여기 남긴다)
+
+**GitHub Secrets**
+
+| Secret | 발급처 | 필수 |
+|:---|:---|:--:|
+| `GEMINI_API_KEY` | aistudio.google.com | ✅ |
+| `SUPABASE_URL` · `SUPABASE_KEY` | supabase.com | ✅ |
+| `SLACK_WEBHOOK_URL` | Slack Incoming Webhook | ✅ |
+| `GH_TOKEN` | GitHub PAT (issues:write) | ✅ |
+| `NVD_API_KEY` | nvd.nist.gov | 선택 |
+| `VULNCHECK_API_KEY` | vulncheck.com | 선택 (있으면 T0 커버리지↑) |
+
+**DB 스키마** — Supabase SQL Editor에서 1회
+
+```sql
+create table if not exists cves (
+  id                 text primary key,
+  cvss_score         double precision,
+  epss_score         double precision,
+  is_kev             boolean,
+  last_alert_state   jsonb,
+  rules_snapshot     jsonb,
+  report_url         text,
+  has_official_rules boolean,
+  last_rule_check_at timestamptz,
+  last_alert_at      timestamptz,
+  updated_at         timestamptz
+);
+
+create table if not exists pipeline_state (
+  id         int primary key,
+  state      jsonb       not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+insert into pipeline_state (id, state) values (1, '{}'::jsonb)
+  on conflict (id) do nothing;
+
+create table if not exists signal_snapshots (
+  source     text primary key,
+  digest     text        not null,
+  cve_ids    jsonb       not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
+```
+
+`signal_snapshots`가 없어도 파이프라인은 죽지 않지만 **소스측 에스컬레이션 대조가
+동작하지 않는다.**
+
+**첫 실행 순서**: Actions 탭에서 워크플로 활성화(`argus-fast.yml` 5분 ·
+`argus.yml` 시간별) → Settings → Pages → Source 를 `GitHub Actions` 로 →
+Argus Maintenance 에서 `package-index`·`rule-index`를 한 번씩 수동 실행 →
+`backfill-exploited` 로 현재 악용 중인 CVE를 채운다(§3).
