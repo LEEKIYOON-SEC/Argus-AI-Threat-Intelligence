@@ -74,6 +74,54 @@ def affected_from_cpes(cpes: List[str], existing: List[Dict] = None,
     return out[:limit]
 
 
+_CVSS_KEYS = (("cvssV4_0", "4.0"), ("cvssV3_1", "3.1"), ("cvssV3_0", "3.0"))
+
+
+def collect_cvss(containers) -> dict:
+    """레코드의 모든 CVSS 를 버전별로 모은다 → {"3.1": (9.8, "CVSS:3.1/..."), …}
+
+    예전에는 metrics 를 돌면서 4.0 을 만나면 바로 break 했다. 그런데 4.0 과 3.x 는
+    산식이 달라 점수가 자주 어긋난다 — 실측(203건) **20.7%가 다르다.**
+    CVE-2026-82703 은 4.0=5.1 인데 3.1=6.6, CVE-2026-82954 는 4.0=9.4 / 3.1=9.9 다.
+    그런데 화면에는 어느 버전인지 표시도 없어서, NVD 에서 9.8 을 본 사람이 우리 화면의
+    다른 숫자를 보면 무슨 일인지 알 수가 없다. 그래서 전부 모아 두고 함께 보여준다.
+    """
+    found = {}
+    for container in containers:
+        if not isinstance(container, dict):
+            continue
+        for metric in (container.get("metrics") or []):
+            if not isinstance(metric, dict):
+                continue
+            for key, label in _CVSS_KEYS:
+                blk = metric.get(key)
+                if not isinstance(blk, dict):
+                    continue
+                score = blk.get("baseScore")
+                if score is None:
+                    continue
+                try:
+                    score = float(score)
+                except (TypeError, ValueError):
+                    continue
+                found.setdefault(label, (score, blk.get("vectorString") or "N/A"))
+    return found
+
+
+def pick_cvss(found: dict):
+    """(점수, 벡터, 버전). **가장 높은 점수**를 쓴다.
+
+    낮춰 부르지 않는다는 원칙을 그대로 따른다 — 판정에 쓰는 값이 4.0 이라는 이유로
+    3.x 보다 낮으면, 같은 취약점을 남들보다 안전하다고 말하는 셈이다.
+    점수가 같으면 최신 버전(4.0)을 쓴다.
+    """
+    if not found:
+        return 0.0, "N/A", ""
+    order = {"4.0": 0, "3.1": 1, "3.0": 2}
+    label = min(found, key=lambda k: (-found[k][0], order.get(k, 9)))
+    return found[label][0], found[label][1], label
+
+
 class Collector:
     def __init__(self):
         self.kev_set: Set[str] = set()
@@ -230,6 +278,8 @@ class Collector:
                 "title": "N/A",
                 "cvss": 0.0,
                 "cvss_vector": "N/A",
+                "cvss_version": "",
+                "cvss_scores": {},
                 "description": "N/A",
                 "state": "UNKNOWN",
                 "cwe": [],
@@ -269,19 +319,9 @@ class Collector:
                     title = data['description'].split('. ')[0][:110]
             data['title'] = title or 'N/A'
             
-            for metric in cna.get('metrics', []):
-                if 'cvssV4_0' in metric:
-                    data['cvss'] = metric['cvssV4_0'].get('baseScore', 0.0)
-                    data['cvss_vector'] = metric['cvssV4_0'].get('vectorString', 'N/A')
-                    break
-                elif 'cvssV3_1' in metric:
-                    data['cvss'] = metric['cvssV3_1'].get('baseScore', 0.0)
-                    data['cvss_vector'] = metric['cvssV3_1'].get('vectorString', 'N/A')
-                    break
-                elif 'cvssV3_0' in metric:
-                    data['cvss'] = metric['cvssV3_0'].get('baseScore', 0.0)
-                    data['cvss_vector'] = metric['cvssV3_0'].get('vectorString', 'N/A')
-                    break
+            data['cvss_scores'] = collect_cvss([cna])
+            data['cvss'], data['cvss_vector'], data['cvss_version'] = \
+                pick_cvss(data['cvss_scores'])
             
             for pt in cna.get('problemTypes', []):
                 for desc in pt.get('descriptions', []):
@@ -325,13 +365,19 @@ class Collector:
                     for opt in (other.get('content', {}) or {}).get('options', []) or []:
                         for key, val in opt.items():
                             data['ssvc'][key.lower().replace(' ', '_')] = val
-                if data['cvss'] == 0.0:
-                    for key in ('cvssV4_0', 'cvssV3_1', 'cvssV3_0'):
-                        if key in metric:
-                            data['cvss'] = metric[key].get('baseScore', 0.0)
-                            data['cvss_vector'] = metric[key].get('vectorString', 'N/A')
-                            logger.info(f"  ADP CVSS 보강: {data['id']} → {data['cvss']}")
-                            break
+
+            # ADP(CISA vulnrichment 등)가 준 점수도 합친다. CNA 가 4.0 만 냈는데
+            # ADP 가 3.1 을 붙이는 경우가 흔하다 — 그걸 버리면 화면이 남들과 어긋난다.
+            before = data['cvss']
+            extra = collect_cvss([container])
+            for label, val in extra.items():
+                data.setdefault('cvss_scores', {}).setdefault(label, val)
+            if data.get('cvss_scores'):
+                data['cvss'], data['cvss_vector'], data['cvss_version'] = \
+                    pick_cvss(data['cvss_scores'])
+            if before == 0.0 and data['cvss'] > 0:
+                logger.info(f"  ADP CVSS 보강: {data['id']} → {data['cvss']} "
+                            f"(v{data.get('cvss_version') or '?'})")
 
             if not data['cwe']:
                 for pt in container.get('problemTypes', []) or []:
@@ -604,6 +650,8 @@ class Collector:
             "title": "Error",
             "cvss": 0.0,
             "cvss_vector": "N/A",
+            "cvss_version": "",
+            "cvss_scores": {},
             "description": "Error",
             "state": state,
             "cwe": [],

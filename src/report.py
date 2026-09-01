@@ -278,7 +278,11 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     
     kev_color = "FF0000" if cve_data.get('is_kev') else "CCCCCC"
 
-    badges = f"![CVSS](https://img.shields.io/badge/CVSS-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
+    # 4.0 과 3.x 는 산식이 달라 점수가 어긋난다(실측 22%가 두 버전 보유). 어느 버전인지
+    # 안 밝히면 NVD 에서 다른 값을 본 사람이 무엇이 맞는지 알 수 없다.
+    ver = str(cve_data.get('cvss_version') or '').strip()
+    cvss_label = f"CVSS%20v{ver}" if ver else "CVSS"
+    badges = f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
 
     if cve_data.get('ssvc_exploitation') == 'active':
         badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"

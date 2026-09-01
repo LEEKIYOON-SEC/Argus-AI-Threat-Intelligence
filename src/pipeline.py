@@ -20,7 +20,7 @@ STATE_FIELDS = frozenset({
     "has_metasploit_module", "metasploit_modules",
     "has_nuclei_template", "nuclei_severity",
     "ai_discovered", "ai_program", "ai_detail", "ai_url",
-    "cvss", "epss", "epss_percentile", "assigner",
+    "cvss", "cvss_version", "cvss_scores", "epss", "epss_percentile", "assigner",
     "tier", "fired_triggers",
 })
 
