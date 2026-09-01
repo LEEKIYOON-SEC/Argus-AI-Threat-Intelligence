@@ -26,7 +26,6 @@
   </header>
 
   <main class="container">
-    <!-- KPI strip (위협 중심) -->
     <section class="kpi-grid">
       <div class="kpi is-new">
         <div class="kpi-label" title="악용 신호가 관측됐거나(T0·T1) 고위험이 될 가능성이 있는 건(T2)만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다.">추적 중 CVE</div>
@@ -34,28 +33,27 @@
         <div class="kpi-sub" id="stat-24h-sub">최근 24시간 - 건 신규</div>
       </div>
       <div class="kpi is-kev">
-        <div class="kpi-label" title="CISA KEV · VulnCheck KEV · SSVC Exploitation=active · Metasploit 모듈 — 악용이 보고된 건입니다. 즉시 알림이 나갑니다.">🚨 T0 관측된 악용</div>
+        <div class="kpi-label" title="CISA KEV · VulnCheck KEV · SSVC Exploitation=active · Metasploit 모듈 — 악용이 보고된 건입니다. 즉시 알림이 나갑니다.">🚨 악용 중</div>
         <div class="kpi-value c-kev" id="stat-t0">-</div>
         <div class="kpi-sub">즉시 알림 대상</div>
       </div>
       <div class="kpi is-critical">
-        <div class="kpi-label" title="nuclei 템플릿 · Exploit-DB · EPSS 상위 1% — 악용 보고는 없지만 공격 도구가 이미 공개된 건입니다. 즉시 알림이 나갑니다.">⚠️ T1 무기화 임박</div>
+        <div class="kpi-label" title="nuclei 템플릿 · Exploit-DB · EPSS 상위 1% — 악용 보고는 없지만 공격 도구가 이미 공개된 건입니다. 즉시 알림이 나갑니다.">⚠️ 무기화 임박</div>
         <div class="kpi-value c-critical" id="stat-t1">-</div>
         <div class="kpi-sub">즉시 알림 대상</div>
       </div>
       <div class="kpi">
-        <div class="kpi-label" title="고위험이 '될' 가능성이 있는 건. 알림은 보내지 않고 여기서 관측합니다 — 신호가 하나라도 붙으면 T0/T1로 올라가 알림이 나갑니다.">📋 T2 관찰</div>
+        <div class="kpi-label" title="고위험이 '될' 가능성이 있는 건. 알림은 보내지 않고 여기서 관측합니다 — 신호가 하나라도 붙으면 T0/T1로 올라가 알림이 나갑니다.">📋 관찰</div>
         <div class="kpi-value" id="stat-t2">-</div>
         <div class="kpi-sub">알림 없이 추적</div>
       </div>
       <div class="kpi is-weapon">
-        <div class="kpi-label" title="Metasploit 모듈 · Exploit-DB · nuclei 템플릿 — 공격 도구가 공개된 건 (티어와 직교하는 축)">🧨 무기화됨</div>
+        <div class="kpi-label" title="Metasploit 모듈 · Exploit-DB · nuclei 템플릿 — 공격 도구가 공개된 건 (위험 등급과 직교하는 축)">🧨 무기화됨</div>
         <div class="kpi-value c-weapon" id="stat-weapon">-</div>
         <div class="kpi-sub">Metasploit · EDB · nuclei</div>
       </div>
     </section>
 
-    <!-- Panels: trend + distribution -->
     <section class="panels">
       <div class="panel">
         <h3>📈 일별 공개 추이 <span style="font-weight:500;color:var(--text-faint);text-transform:none;letter-spacing:0;">CVE 공개일 기준 · 최근 30일<span id="trend-coverage"></span></span></h3>
@@ -69,9 +67,7 @@
       </div>
     </section>
 
-    <!-- Filter bar -->
     <section class="filter-bar">
-      <!-- 위쪽: 검색 + 벤더 + 제품 + 월 + 일 -->
       <div class="filter-row">
         <div class="search-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -83,7 +79,6 @@
         <select class="filter-select" id="day-filter" title="일별 조회 (월 선택 시 해당 월의 날짜만)"><option value="">전체 일자</option></select>
       </div>
 
-      <!-- 아래: 심각도 + 위협신호(좌) / 다운로드(우) -->
       <div class="filter-row">
         <div class="seg" id="severity-seg">
           <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
@@ -100,12 +95,6 @@
           <button class="seg-btn signal" data-signal="ai" title="AI가 찾아 책임공개된 취약점 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 이미 패치된 경우가 많지만 상세가 함께 공개됩니다.">🧠 AI 발견</button>
           <button class="seg-btn signal" data-signal="patched" title="OSV가 수정 버전을 알려주는 건 — 올릴 목표가 있는 것부터 처리할 때">🩹 패치 있음</button>
         </div>
-        <select class="filter-select" id="tier-filter" title="파이프라인이 판정한 위험 티어입니다. T0·T1은 즉시 알림이 나간 건, T2는 알림 없이 관측만 하는 건입니다.">
-          <option value="">전체 티어</option>
-          <option value="T0">T0 관측된 악용</option>
-          <option value="T1">T1 무기화 임박</option>
-          <option value="T2">T2 관찰</option>
-        </select>
         <select class="filter-select" id="kernel-filter" title="Linux 커널 CVE는 전부 Linux/Linux로만 표기돼 제품 구분이 없습니다. 커널은 CVE마다 고치는 게 아니라 패키지를 한 번 올리는 단위라, 나머지를 훑을 땐 제외하고 보는 편이 낫습니다.">
           <option value="">커널 포함</option>
           <option value="hide">커널 제외</option>
@@ -124,13 +113,12 @@
 
     <div class="loading" id="loading">불러오는 중…</div>
 
-    <!-- Table -->
     <div class="table-wrap">
       <div class="table-scroll">
         <table>
           <thead>
             <tr>
-              <th class="cell-sev sortable" data-sort="tier" title="파이프라인이 판정한 위험 티어 · CVSS 심각도">티어 · 심각도</th>
+              <th class="cell-sev sortable" data-sort="tier" title="파이프라인이 알림을 보낼 때 쓰는 것과 같은 위험 등급 · CVSS 심각도">위험 등급 · 심각도</th>
               <th class="sortable" data-sort="id">CVE ID</th>
               <th>취약점</th>
               <th class="sortable" data-sort="cvss">CVSS</th>
@@ -152,7 +140,6 @@
     </div>
   </main>
 
-  <!-- Detail Modal -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-hero" id="modal-hero">

@@ -1,26 +1,4 @@
 #!/usr/bin/env python3
-"""syft SBOM과 Argus 추적 CVE를 내 PC에서 대조한다.
-
-자산 목록 전체를 CVE와 맞춰보는 일은 여기서 한다. 브라우저에서 하려면 SBOM 파일을
-올려야 하는데 파일 선택이 막힌 업무 환경에서는 쓸 수 없고, 자산 목록을 브라우저에
-넣는 것 자체가 부담이다. 이 스크립트는 터미널에서 돌고 표준 라이브러리만 쓴다
-(pip install 불필요). 대시보드는 CVE별 패키지 이름과 패치 버전을 보여주는 데까지만 한다.
-
-  # syft로 SBOM을 뽑고
-  syft dir:. -o syft-json | jq -r '["name","source","version","type","purl"],
-      (.artifacts[] | [.name, (.metadata.source // ""), .version, .type, .purl]) | @csv' > sbom.csv
-
-  # 대조
-  python3 tools/sbom_match.py sbom.csv
-  python3 tools/sbom_match.py sbom.csv --csv > result.csv
-  python3 tools/sbom_match.py sbom.csv --offline ./data   # 망분리: 미리 받아둔 파일 사용
-
-자산 목록은 어디로도 전송되지 않는다. 공개된 인덱스 파일을 GET할 뿐이고 CSV는 로컬에서만
-읽는다. --offline이면 네트워크를 아예 쓰지 않는다.
-
-버전 비교는 dpkg 규칙을 따른다 — 문자열 정렬은 1.10 < 1.9로 뒤집히고, epoch(1:)와
-'~'(프리릴리스)를 무시하면 판정이 반대로 나온다.
-"""
 from __future__ import annotations
 
 import argparse
@@ -40,9 +18,6 @@ _DIGITS = "0123456789"
 _ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
-# ===== 패키지명 정규화 =====
-# 배포판이 이름에 붙이는 장식을 걷어낸다. OSV는 소스 패키지명 기준이라
-# libcurl4 → curl 처럼 접두/접미를 벗겨야 맞는다.
 _PRE = re.compile(r"^(lib|python3?-|py3?-|perl-|ruby-|golang-|node-|php-)")
 _SUF = re.compile(r"-(dev|devel|common|utils|bin|doc|data|runtime|tools)$")
 _TAIL = re.compile(r"[0-9._-]+$")
@@ -54,14 +29,10 @@ def norm_pkg(name: str) -> str:
         return ""
     s = _PRE.sub("", s, count=1)
     s = _SUF.sub("", s, count=1)
-    s = _TAIL.sub("", s, count=1)      # 끝의 버전 꼬리 (libssl3, python3.11)
+    s = _TAIL.sub("", s, count=1)
     return s
 
 
-# ===== 버전 비교 =====
-# 문자열 정렬은 1.10 < 1.9로 뒤집히므로 세그먼트 단위로 본다.
-# dpkg 규칙: epoch(N:) 우선, 그다음 upstream, 마지막 revision.
-# '~'는 어떤 것보다도 작다 — 1.0~rc1 < 1.0 (프리릴리스 표기).
 _DEB = re.compile(r"^(?:(\d+):)?(.*?)(?:-([^-]*))?$")
 
 
@@ -73,7 +44,6 @@ def split_deb(v: str) -> Tuple[int, str, str]:
 
 
 def _rank(s: str, i: int) -> int:
-    """한 글자의 dpkg 순위. 범위를 넘으면 0(JS의 undefined와 같게)."""
     if i >= len(s):
         return 0
     c = s[i]
@@ -87,17 +57,14 @@ def _rank(s: str, i: int) -> int:
 
 
 def cmp_chunk(a: str, b: str) -> int:
-    """한 조각을 dpkg 순서로 비교. 숫자는 수치로, 문자는 사전순, '~'는 최하위."""
     i = j = 0
     while i < len(a) or j < len(b):
-        # 비숫자 구간 비교
         while (i < len(a) and a[i] not in _DIGITS) or (j < len(b) and b[j] not in _DIGITS):
             d = _rank(a, i) - _rank(b, j)
             if d:
                 return -1 if d < 0 else 1
             i += 1
             j += 1
-        # 숫자 구간 비교 (앞의 0 무시)
         na = nb = ""
         while i < len(a) and a[i] in _DIGITS:
             na += a[i]
@@ -124,8 +91,6 @@ def cmp_version(a: str, b: str) -> int:
     return cmp_chunk(ra, rb)
 
 
-# ===== 생태계 =====
-# syft purl 예: pkg:deb/debian/curl@7.88.1-10?arch=amd64&distro=debian-12 → Debian:12
 _DISTRO = re.compile(r"distro=([a-z]+)-?([0-9.]*)", re.I)
 _PTYPE = re.compile(r"^pkg:([a-z]+)/", re.I)
 _TYPE_MAP = {"npm": "npm", "pypi": "PyPI", "python": "PyPI", "maven": "Maven",
@@ -133,7 +98,6 @@ _TYPE_MAP = {"npm": "npm", "pypi": "PyPI", "python": "PyPI", "maven": "Maven",
 
 
 def _series(v: str) -> str:
-    """버전의 갈래(major.minor). epoch(1:)와 리비전은 떼고 본다 — 1:9.0.116 → 9.0."""
     up = split_deb(v)[1]
     m = re.match(r"^(\d+\.\d+)", up)
     return m.group(1) if m else ""
@@ -156,17 +120,6 @@ def sbom_ecosystem(row: Dict) -> str:
 
 
 def eco_parts(eco: str) -> Tuple[str, str, str]:
-    """생태계 문자열을 (배포판, 채널, 릴리스)로 쪼갠다. 비교는 이 형태로만 한다.
-
-      Ubuntu:22.04:LTS                  → ('ubuntu', '',                '22.04')
-      Ubuntu:Pro:FIPS-updates:22.04:LTS → ('ubuntu', 'pro/fips-updates','22.04')
-      Debian:12                         → ('debian', '',                '12')
-      Alpine:v3.19                      → ('alpine', '',                'v3.19')
-      npm                               → ('npm',    '',                '')
-
-    ':LTS' 접미를 떼는 게 핵심이다. SBOM의 purl은 'ubuntu-24.04'라 우리가 만드는 값은
-    'Ubuntu:24.04'인데 인덱스 키는 'Ubuntu:24.04:LTS'다 — 문자열로 비교하면 Ubuntu는
-    정확 릴리스 매칭이 **한 번도** 성공하지 못한다."""
     segs = [s for s in str(eco or "").split(":") if s]
     if not segs:
         return ("", "", "")
@@ -179,16 +132,6 @@ def eco_parts(eco: str) -> Tuple[str, str, str]:
 
 
 def pick_ecosystem(eco_map: Dict[str, List[str]], want_eco: str) -> Tuple[str, bool]:
-    """설치 환경에 맞는 생태계 키를 고른다. (키, 릴리스까지 정확히 맞았는가).
-
-    배포판을 넘나드는 폴백을 금지한다. Debian의 `6.8.9-1`과 Ubuntu의 `6.8.0-1021.23`은
-    버전 체계 자체가 달라 대소 비교에 아무 의미가 없다. 그런데 예전 코드는 맞는 게
-    없으면 아무 생태계나 집어 답했고, 실측으로 Ubuntu 24.04 호스트에서 621건을 남의
-    배포판 버전으로 판정했다 — 그중 441건이 '수정판 추정'이었다. 취약한 호스트를
-    안전하다고 보고하는 것이 이 도구에서 가장 나쁜 오류다.
-
-    우선순위: 같은 배포판+같은 릴리스(기본 채널) → 같은 릴리스(Pro/FIPS 등 특수 채널)
-    → 같은 배포판의 다른 릴리스 → 없음. 설치 환경을 모를 때(want_eco 없음)만 아무거나."""
     def has(k: str) -> bool:
         v = eco_map.get(k)
         return isinstance(v, list) and any(v)
@@ -197,7 +140,7 @@ def pick_ecosystem(eco_map: Dict[str, List[str]], want_eco: str) -> Tuple[str, b
     if not cands:
         return ("", False)
     if not want_eco:
-        return (cands[0], False)      # 환경 정보 없음 — 힌트로만 쓴다
+        return (cands[0], False)
 
     wd, _, wr = eco_parts(want_eco)
     same_release = [k for k in cands if eco_parts(k)[0] == wd and eco_parts(k)[2] == wr]
@@ -212,55 +155,36 @@ def pick_ecosystem(eco_map: Dict[str, List[str]], want_eco: str) -> Tuple[str, b
         return (plain_distro[0], False)
     if same_distro:
         return (same_distro[0], False)
-    return ("", False)                # 다른 배포판뿐 → 답하지 않는다
+    return ("", False)
 
 
 def version_verdict(installed: str, eco_map: Optional[Dict[str, List[str]]],
                     want_eco: str) -> Dict[str, str]:
-    """설치 버전이 수정판인지 판정. verdict: vulnerable | fixed | unknown."""
     if not eco_map:
         return {"verdict": "unknown", "target": "", "eco": ""}
 
     eco, exact = pick_ecosystem(eco_map, want_eco)
     if not eco:
-        # 내 배포판의 수정 버전이 인덱스에 없다. 남의 배포판 숫자로 답하느니 모른다고 한다.
         return {"verdict": "unknown", "target": "", "eco": ""}
 
     fixes = [f for f in (eco_map.get(eco) or []) if f]
     if not fixes or not installed:
         return {"verdict": "unknown", "target": "", "eco": eco}
     try:
-        # 설치본과 같은 갈래(major.minor)의 수정본이 있으면 그것만 본다.
-        #
-        # 여러 갈래를 동시에 관리하는 제품이 흔하다 — Tomcat 9 / 10.1 / 11,
-        # Quarkus 3.8 / 3.15 / 3.18. OSV는 갈래별 수정본을 모두 주는데, 전체에서
-        # 최저값을 고르면 다른 갈래의 번호를 답으로 내놓게 된다. 그냥 틀린 답이
-        # 아니라 위험하다: Tomcat 10.1.40(취약)이 최저값 9.0.116보다 높다는 이유로
-        # '수정판'으로 판정돼, 고쳐야 할 것을 안전하다고 보고한다.
-        # 같은 갈래가 없으면(예: 8.5.x 사용 중인데 수정본은 9/10/11뿐) 전체를 본다.
         branch = _series(installed)
         same = [f for f in fixes if branch and _series(f) == branch]
         pool = same or fixes
-        # 하나라도 설치버전 이하면 이미 그 수정본을 넘어선 것
         if any(cmp_version(installed, f) >= 0 for f in pool):
-            # 다만 릴리스가 정확히 맞았을 때만 '수정판'이라고 말한다. 같은 배포판이라도
-            # 릴리스가 다르면 패치 번호 체계가 갈라진다 — Debian 11의 수정본이
-            # 5.10.5-1인데 Debian 12 호스트의 6.1.50-1을 그것과 비교하면 실제로는
-            # 취약한데 '안전'이 나온다. 오답의 방향이 위험한 쪽이라 모른다고 답한다.
             if not exact:
                 return {"verdict": "unknown", "target": "", "eco": eco}
             return {"verdict": "fixed", "target": "", "eco": eco}
-        # 아직이면 가장 낮은 목표를 올릴 버전으로 제시.
-        # (릴리스가 달라도 '아직 안 올렸다'는 방향은 안전한 쪽이라 그대로 알린다)
         target = sorted(pool, key=functools.cmp_to_key(cmp_version))[0]
         return {"verdict": "vulnerable", "target": target, "eco": eco}
     except Exception:
         return {"verdict": "unknown", "target": fixes[0], "eco": eco}
 
 
-# ===== SBOM 읽기 =====
 def parse_sbom_csv(path: str) -> List[Dict]:
-    """syft/jq가 뽑은 CSV를 읽는다. name 열은 필수, 나머지는 있으면 쓴다."""
     with open(path, newline="", encoding="utf-8-sig", errors="replace") as f:
         reader = csv.reader(f)
         try:
@@ -286,14 +210,6 @@ def parse_sbom_csv(path: str) -> List[Dict]:
 
 
 def index_sbom(rows: List[Dict], kernel_aliases: Optional[set] = None) -> Dict[str, Dict]:
-    """정규화 키 → 원본 행. 소스명이 있으면 그쪽이 정답이고, 없으면 name을 쓴다.
-
-    kernel_aliases: 인덱스가 'linux'로 접어 버린 커널 변종 이름들. Ubuntu는 클라우드
-    커널의 소스 패키지가 linux-aws·linux-azure라, 이 되돌림이 없으면 그런 호스트의
-    커널 CVE가 통째로 안 잡힌다(실측: AWS 4,277건·Azure 4,884건 전량 누락).
-    목록은 인덱스가 실어 보내므로 여기서 이름 규칙을 추측하지 않는다 — 규칙으로
-    'linux-로 시작하면 커널'이라고 하면 linux-firmware·linux-pam 같은 별개 패키지를
-    커널로 오인한다."""
     aliases = kernel_aliases or set()
     keys: Dict[str, Dict] = {}
     for r in rows:
@@ -304,33 +220,29 @@ def index_sbom(rows: List[Dict], kernel_aliases: Optional[set] = None) -> Dict[s
             for k in (low, norm_pkg(cand)):
                 if k and k not in keys:
                     keys[k] = r
-            # 접힌 변종이면 기본 이름으로도 찾을 수 있게 한다
             if low in aliases and "linux" not in keys:
                 keys["linux"] = r
     return keys
 
 
 def sbom_match(cve: Dict, keys: Dict[str, Dict], pkg_index: Dict) -> Optional[Dict]:
-    """CVE 하나가 내 SBOM의 어느 줄과 맞는지. 없으면 None."""
     pkg_map = pkg_index.get(cve.get("id")) or {}
-    for p in pkg_map:                                   # 1순위: OSV 사전 (정확)
+    for p in pkg_map:
         hit = keys.get(str(p).lower()) or keys.get(norm_pkg(p))
         if hit:
             v = version_verdict(hit.get("version", ""), pkg_map[p], sbom_ecosystem(hit))
             return {"row": hit, "via": "osv", "pkg": p, **v}
-    for a in (cve.get("affected") or []):               # 2순위: 제품명 정규화 (보조)
+    for a in (cve.get("affected") or []):
         prod = a.get("product") or ""
         if not prod:
             continue
         hit = keys.get(prod.lower()) or keys.get(norm_pkg(prod))
-        # 이름 정규화로 붙은 건 OSV 사전에 없어 수정 버전을 모른다 → 판정 보류
         if hit:
             return {"row": hit, "via": "name", "pkg": prod,
                     "verdict": "unknown", "target": "", "eco": ""}
     return None
 
 
-# ===== 데이터 적재 =====
 def load_json(name: str, base_url: str, offline: Optional[str]) -> Optional[Dict]:
     if offline:
         path = os.path.join(offline, name)
@@ -348,7 +260,6 @@ def load_json(name: str, base_url: str, offline: Optional[str]) -> Optional[Dict
     return json.loads(raw.decode("utf-8"))
 
 
-# ===== 출력 =====
 _VERDICT_KO = {"vulnerable": "취약 추정", "fixed": "수정판 추정", "unknown": "버전 미확인"}
 _ORDER = {"vulnerable": 0, "unknown": 1, "fixed": 2}
 _SEV_ORDER = {"Critical": 0, "High": 1, "Medium": 2, "Low": 3, "None": 4}
@@ -388,16 +299,6 @@ _COLLAPSE_MIN = 20
 
 
 def package_summary(pkg: str, rows: List[Dict]) -> str:
-    """CVE가 쏟아지는 패키지 하나를 한 줄로 접는다.
-
-    커널이 대표적이다 — CVE마다 고치는 게 아니라 패키지를 한 번 올리는 단위인데,
-    수천 줄을 늘어놓으면 정작 손댈 다른 패키지가 안 보인다(실측: 4,301건 중 4,297건이
-    커널이라 나머지 4건이 묻혔다). 커널 플래그(is_kernel)가 아니라 건수로 접는 이유는
-    그 플래그가 linux 패키지 행을 전부 덮지 못하고, 같은 문제가 다른 패키지에서도
-    생길 수 있어서다.
-
-    목표 버전은 설치된 것과 같은 시리즈(major.minor) 안에서 가장 높은 것을 고른다.
-    전체 최댓값을 쓰면 6.1 계열 사용자에게 7.1로 올리라는 엉뚱한 답이 나간다."""
     vuln = [r for r in rows if r["verdict"] == "vulnerable"]
     installed = rows[0]["installed"]
     kev = sum(1 for r in rows if r["kev"])
@@ -472,8 +373,6 @@ def main() -> int:
         return 1
 
     pkg_index = pkg_doc.get("packages", pkg_doc) if isinstance(pkg_doc, dict) else {}
-    # 커널 변종 별칭 — 인덱스가 접어 버린 이름들. 없으면(구 인덱스) 빈 집합이라
-    # 예전과 동일하게 동작한다.
     kernel_aliases = {str(n).lower() for n in
                       (pkg_doc.get("kernel_aliases") or [] if isinstance(pkg_doc, dict) else [])}
     cves = cve_doc if isinstance(cve_doc, list) else (cve_doc.get("cves") or [])
@@ -497,7 +396,6 @@ def main() -> int:
     elif not shown:
         print("일치하는 CVE가 없습니다.")
     else:
-        # CSV·JSON은 전량을 그대로 낸다(기계가 읽는 출력) — 접는 것은 화면 문제다.
         by_pkg: Dict[str, List[Dict]] = {}
         for r in shown:
             by_pkg.setdefault(r["package"], []).append(r)
@@ -526,10 +424,6 @@ def main() -> int:
 
 
 def _report_malicious(rows: List[Dict], args, quiet: bool) -> None:
-    """알려진 악성 패키지 이름 대조.
-
-    취약점과 성격이 다르다 — 고치는 게 아니라 '설치되어 있으면 안 되는 것'이다.
-    이름만 대조하므로 확정이 아니라 '확인해 보라'는 경고다."""
     try:
         doc = load_json("malicious-packages.json", args.base_url, args.offline)
     except Exception as e:
@@ -542,7 +436,6 @@ def _report_malicious(rows: List[Dict], args, quiet: bool) -> None:
         return
     hits = []
     for r in rows:
-        # npm·PyPI 행만 검사한다 — deb 패키지가 npm 악성 이름과 우연히 겹치는 오탐 배제
         if sbom_ecosystem(r) not in ("npm", "PyPI"):
             continue
         if str(r.get("name", "")).lower() in names:

@@ -1,23 +1,11 @@
 #!/usr/bin/env python3
-"""ai_provenance.py 회귀 테스트 — 네트워크 없이 돈다.
-
-    python3 tests/test_ai_provenance.py
-
-여기서 지키는 것은 **정밀도**다. 이 매처는 자유텍스트(크레딧 문자열)를 보고 판단하므로
-패턴을 조금만 넓혀도 소속을 발견 주체로 오인한다. 실제로 'Kostya Kortchinsky | OpenAI'는
-OpenAI 소속 사람 연구원이지 AI가 찾은 게 아니다 — 'openai' 같은 일반어를 넣는 순간
-이런 건이 전부 AI 발견으로 둔갑한다.
-
-아래 '오탐이면 안 되는 것' 목록이 그 계약이다.
-"""
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-import ai_provenance as ap  # noqa: E402
+import ai_provenance as ap
 
-# 실제 cvelistV5 크레딧에서 그대로 가져온 문자열들 (2026-08 실측)
 SHOULD_HIT = [
     (["Red Hat would like to thank Google Big Sleep for reporting this issue."],
      "Google Big Sleep"),
@@ -29,15 +17,14 @@ SHOULD_HIT = [
     (["Found by XBOW"], "XBOW"),
 ]
 
-# 오탐이면 안 되는 것 — 전부 사람이거나 무관한 문자열이다
 SHOULD_MISS = [
-    ["Kostya Kortchinsky | OpenAI"],          # OpenAI 소속 '사람' 연구원
+    ["Kostya Kortchinsky | OpenAI"],
     ["George Chen"],
     ["WPScan"],
     ["Professor Le Yu of Nanjing University of Posts and Telecommunications"],
-    ["reported by an AI enthusiast"],          # 일반어 'AI'로는 잡지 않는다
-    ["Anthropic Inc. is not involved"],        # 'anthropic' 단독으로는 잡지 않는다
-    ["automated fuzzing found this"],          # 자동 퍼징 ≠ AI 발견
+    ["reported by an AI enthusiast"],
+    ["Anthropic Inc. is not involved"],
+    ["automated fuzzing found this"],
     [],
     None,
 ]

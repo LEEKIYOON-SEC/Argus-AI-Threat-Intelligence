@@ -4,8 +4,6 @@ name: Argus Fast Lane
 # AI 번역·심층 분석·탐지 룰 검색은 여기서 하지 않는다 — 전부 bulk-lane(argus.yml)이 맡는다.
 # 알림이 무거운 작업 뒤에 줄을 서면 신속성은 구조적으로 나오지 않기 때문이다.
 #
-# 이 저장소는 public이라 Actions 분이 무제한이다. 예전 README에 있던 '2,000분/월'
-# 제약은 private 저장소 기준이라 여기엔 해당하지 않는다 — 5분 주기가 실제로 가능하다.
 
 on:
   schedule:
@@ -53,6 +51,16 @@ jobs:
       # 감싸여 있어, 이런 버그는 실행 중 조용한 실패("… 생략(오류)")로만 보인다.
       - name: Static check
         run: python tests/test_lint.py
+
+      # 회귀 테스트 — 전부 네트워크·DB 없이 돈다(수 초). 여기서 지키는 것은
+      # 판정 경계, 워터마크 누락 0, 스냅샷 의미론, 화면 등급이 판정과 어긋나지 않는 것.
+      - name: Regression tests
+        run: |
+          set -e
+          for t in tests/test_*.py; do
+            [ "$t" = "tests/test_lint.py" ] && continue
+            echo "── $t"; python "$t"
+          done
 
       - name: Run fast lane
         env:

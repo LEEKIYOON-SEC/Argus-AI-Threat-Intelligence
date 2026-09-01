@@ -1,32 +1,3 @@
-"""CVE ↔ 공개 탐지 룰 역인덱스 생성 — 주 1회 별도 실행.
-
-━━ 왜 인덱스로 바꿨나 ━━
-
-예전 rule_manager는 **CVE 한 건마다** SigmaHQ 전체 파일과 ET Open 룰셋 3종(각 수십 MB)을
-정규식으로 선형 스캔했다. 히트율은 실측 1.1%다 — 즉 98.9%의 경우 수십 MB를 훑어 "없음"을
-확인하는 데 시간을 썼다. 게다가 그 검색이 매시간 실행의 맨 앞(Step 3)에 있었다.
-
-룰셋은 시간 단위로 바뀌지 않는다. 주 1회 CVE→룰 인덱스를 만들어 두면 조회가 O(1)이 되고,
-알림 경로에서 룰 검색이 통째로 빠진다.
-
-━━ 무엇을 담나 ━━
-
-**룰 원문이 아니라 위치만** 담는다. 원문은 Issue를 발행하는 순간에만 받아 오면 되고,
-인덱스에 넣으면 파일이 수십 MB로 불어난다. 대신 출처·author·라이선스는 인덱스에
-함께 실어, 재게시할 때 고지가 유실되지 않게 한다(불변 원칙 8-①).
-
-━━ 라이선스 (전부 원문 확인) ━━
-
-  SigmaHQ            DRL 1.1        author 표기 보존 의무
-  ET Open            MIT            (레거시 SID 1–3464는 GPLv2 — 헤더 고지 보존)
-  Snort Community    GPLv2          헤더 고지 보존
-  nuclei-templates   MIT            ProjectDiscovery, Inc. 저작권 고지 보존
-  Splunk ESCU        Apache-2.0     NOTICE 보존
-  YARA Forge         룰별 상이       룰 메타(author·source_url·license_url)를 그대로 보존
-
-Elastic detection-rules는 넣지 않았다. Elastic License 2.0은 source-available이라
-서비스 제공에 제한 조항이 있어, 공개 대시보드에 싣기에는 법적 검토 부담이 크다.
-"""
 import io
 import json
 import os
@@ -48,7 +19,6 @@ _OUT = os.path.join(_DATA, "detection-rules.json")
 _CVE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 _TIMEOUT = 180
 
-#: {engine: (라이선스, 표기 문구)}
 LICENSES = {
     "sigma": ("DRL 1.1", "SigmaHQ — 재게시 시 원 룰의 author 표기 보존"),
     "nuclei": ("MIT", "nuclei-templates (ProjectDiscovery, Inc.)"),
@@ -68,7 +38,6 @@ def _add(index: Dict[str, List[Dict]], cve: str, entry: Dict) -> None:
 
 
 def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
-    """저장소 tarball. GH_TOKEN이 있으면 붙인다(익명 한도 회피)."""
     token = os.environ.get("GH_TOKEN")
     headers = {"User-Agent": "argus-rule-index"}
     if token:
@@ -84,9 +53,6 @@ def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
         return None
 
 
-# ──────────────────────────────────────────────────────────────────────────
-# 소스별 수집
-# ──────────────────────────────────────────────────────────────────────────
 def collect_sigma(index: Dict[str, List[Dict]]) -> int:
     data = _github_tarball("SigmaHQ", "sigma", "SigmaHQ")
     if data is None:
@@ -154,13 +120,6 @@ _YARA_FORGE = ("https://github.com/YARAHQ/yara-forge/releases/latest/download/"
 
 
 def collect_yara(index: Dict[str, List[Dict]]) -> int:
-    """YARA Forge core 패키지. 예전에 쓰던 Yara-Rules/rules를 대체한다.
-
-    교체 이유는 커버리지가 아니라 관리 상태와 라이선스다 — 기존 소스는 수년째 방치돼
-    있고 GPL-2.0 단일이라 원 저작자 표기가 남지 않는다. YARA Forge는 룰마다
-    author·source_url·license_url을 메타로 보존한다(실측: CVE 참조 룰 129개 전부 보유).
-    커버리지 자체는 크지 않다(고유 CVE 68건) — YARA는 파일·메모리 탐지라 CVE 단위로
-    붙는 경우가 원래 드물다. 있으면 싣고 없으면 마는 부가 정보로 다룬다."""
     lic, note = LICENSES["yara"]
     try:
         resp = requests.get(_YARA_FORGE, timeout=_TIMEOUT,
@@ -201,7 +160,6 @@ def collect_yara(index: Dict[str, List[Dict]]) -> int:
 
 
 def collect_nuclei(index: Dict[str, List[Dict]]) -> int:
-    """nuclei 템플릿. 위험 신호(risk.nuclei)로도 쓰이지만 탐지·검증 룰이기도 하다."""
     idx = enrichment_sources.load_nuclei_index()
     lic, note = LICENSES["nuclei"]
     for cve, meta in idx.items():
@@ -229,8 +187,6 @@ _NETWORK_SOURCES = [
 
 
 def collect_network(index: Dict[str, List[Dict]]) -> int:
-    """Snort/Suricata 룰. 룰 한 줄이 곧 룰 전체라 여기서는 **원문을 그대로 담는다**
-    (한 줄이라 용량 부담이 없고, 그러면 발행 시점에 다시 받을 필요가 없다)."""
     total = 0
     for label, url, member_hint, engine in _NETWORK_SOURCES:
         lic, note = LICENSES[engine]
@@ -272,7 +228,6 @@ def collect_network(index: Dict[str, List[Dict]]) -> int:
     return total
 
 
-# ──────────────────────────────────────────────────────────────────────────
 def main() -> int:
     logger.info("=" * 60)
     logger.info("CVE ↔ 공개 탐지 룰 역인덱스 생성")
@@ -284,7 +239,6 @@ def main() -> int:
         try:
             fn(index)
         except Exception as e:
-            # 한 소스의 장애가 나머지를 막지 않게 한다
             logger.error(f"{fn.__name__} 실패 → 계속 진행: {e}")
 
     if not index:

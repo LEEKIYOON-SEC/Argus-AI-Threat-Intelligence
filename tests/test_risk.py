@@ -1,25 +1,15 @@
 #!/usr/bin/env python3
-"""risk.py 판정 회귀 테스트 — 표준 라이브러리만 쓴다 (pip install 불필요).
-
-    python3 tests/test_risk.py
-
-이 파일이 지키는 것은 '판정 경계'다. 임계값이나 트리거를 손댈 때 여기가 깨지면,
-알림이 나가던 조합이 조용해지거나 그 반대가 됐다는 뜻이다. 특히 아래 두 가지는
-실제로 사고가 났던 지점이라 반드시 남긴다.
-  · 반복 발화 — EPSS가 계단식으로 오를 때 같은 CVE가 매번 알림을 냈다.
-  · 전환 시 알림 폭풍 — fired_triggers가 없는 과거 행이 전부 '신규'로 보이는 경우.
-"""
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-import risk  # noqa: E402
+import risk
 
-V31 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"          # 원격·무인증·무관여
+V31 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
 V40 = "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N"
-LOCAL = "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"        # 로컬·권한 필요
-ADJACENT = "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"     # 인접 네트워크
+LOCAL = "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+ADJACENT = "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
 
 TIER_CASES = [
     ("KEV + 랜섬웨어",        {"is_kev": True, "is_kev_ransomware": True,
@@ -39,9 +29,6 @@ TIER_CASES = [
     ("SSVC total impact",    {"ssvc_technical_impact": "total", "cvss": 4.0}, risk.T2),
     ("무점수 + 주요 CNA",      {"cvss": 0, "assigner": "Fortinet"}, risk.T2),
 
-    # ── 아래는 '알리지 않아야 하는' 쪽. 노이즈의 주범이라 경계를 고정한다.
-    # 실측: CVSS만으로 알리면 하루 128~162건이 나온다. 그래서 점수 단독은 어떤 티어도
-    # 만들지 못하게 못박는다 — 이 세 줄이 그 계약이다.
     ("CVSS 9.8 단독(근거 없음)", {"cvss": 9.8, "cvss_vector": V31}, risk.T3),
     ("CVSS 10 단독(근거 없음)",  {"cvss": 10.0, "cvss_vector": V40}, risk.T3),
     ("CVSS 7.5 원격무인증",     {"cvss": 7.5, "cvss_vector": V31}, risk.T3),

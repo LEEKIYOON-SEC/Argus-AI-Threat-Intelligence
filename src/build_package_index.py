@@ -1,12 +1,3 @@
-"""CVE ↔ 패키지 역인덱스 생성 — 주 1회 별도 실행.
-
-대시보드가 사용자의 SBOM(sbom-list.csv)과 대조할 때 쓰는 사전을 만든다. 대조 자체는
-브라우저에서 일어나므로 자산 정보는 이 파이프라인에 들어오지 않는다.
-
-매시간 파이프라인과 분리한 이유: OSV 덤프가 합계 ~900MB라 내려받고 훑는 데 몇 분이
-걸린다. 취약점↔패키지 매핑은 시간 단위로 바뀌지 않으므로 주 1회면 충분하고, 무엇보다
-매시간 실행의 시간 예산(38분)을 잠식하면 안 된다.
-"""
 import json
 import os
 import sys
@@ -24,8 +15,6 @@ _CVES = os.path.join(_DATA, "cves.json")
 
 
 def _tracked_cve_ids() -> list:
-    """대시보드에 노출 중인 CVE 목록. export가 만든 cves.json을 우선 쓰고,
-    없으면 DB에서 직접 읽는다(워크플로 순서에 의존하지 않게)."""
     try:
         with open(_CVES, encoding="utf-8") as f:
             rows = json.load(f)
@@ -61,7 +50,6 @@ def main() -> int:
         return 1
     ok = osv_index.write_index(index, _OUT, kernel_aliases=kernel_aliases)
 
-    # 악성 패키지 목록 — 실패해도 역인덱스는 이미 저장됐으므로 전체를 실패시키지 않는다
     logger.info("─" * 60)
     mal = osv_index.build_malicious_index()
     if mal:

@@ -1,24 +1,3 @@
-"""
-공유 위협 인텔리전스 소스 (P5 데이터 소스 확대)
-
-collector와 rule_manager가 함께 쓰는 저비용 인덱스 소스를 한 곳에서 관리한다:
-- 디스크 캐시 헬퍼 (24h TTL) — 룰셋/인덱스 매시간 재다운로드 방지
-- ExploitDB files_exploits.csv 매핑 → has_public_exploit 신호 (P2에서 구축한 캐시 재활용)
-- Metasploit modules_metadata_base.json → has_metasploit_module "무기화됨" 신호 (BSD-3-Clause)
-
-라이선스:
-- ExploitDB: 개별 PoC 저작권은 각 제출자. 원문 재게시 금지, 링크만 (불변 원칙 8-②).
-  여기서는 CVE→파일 매핑(사실 정보)과 boolean 신호만 다룬다.
-- Metasploit metadata: BSD-3-Clause. 모듈명·CVE 참조는 사실 메타데이터.
-  재게시 시 출처(Metasploit Framework, Rapid7) 표기.
-- nuclei-templates: MIT (ProjectDiscovery, Inc.). CVE→템플릿 매핑과 템플릿 경로만 쓴다.
-  재게시 시 출처 표기. 템플릿이 있다는 것은 "누구나 대량 스캔·검증할 수 있다"는 뜻이라
-  탐지 룰인 동시에 무기화 신호다.
-- CISA KEV: U.S. Government Work (퍼블릭 도메인). 제한 없음.
-- VulnCheck KEV: 무료. **"prominent attribution to VulnCheck" 표기 의무**가 있으므로
-  이 신호가 알림·리포트에 쓰일 때는 반드시 출처를 함께 싣는다.
-"""
-
 import csv
 import io
 import json
@@ -33,9 +12,6 @@ import requests
 from logger import logger
 from rate_limiter import rate_limit_manager
 
-# ─────────────────────────────────────────────
-# 디스크 캐시 (24h TTL) — rule_manager와 동일 디렉토리·키를 공유해 중복 다운로드 방지
-# ─────────────────────────────────────────────
 _CACHE_DIR = os.environ.get(
     "ARGUS_CACHE_DIR",
     os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".cache", "rulesets")
@@ -46,8 +22,6 @@ EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 _METASPLOIT_URL = "https://raw.githubusercontent.com/rapid7/metasploit-framework/master/db/modules_metadata_base.json"
 _NUCLEI_URL = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/cves.json"
 _CISA_KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
-# 커뮤니티(무료) 티어는 /v3/backup/ 이다. /v3/index/ 는 페이지네이션 조회로 상위 티어
-# 전용이라, 유효한 커뮤니티 토큰으로도 401이 난다 (실제로 그렇게 실패했다).
 _VULNCHECK_BACKUP_URL = "https://api.vulncheck.com/v3/backup/vulncheck-kev"
 
 _lock = threading.Lock()
@@ -76,16 +50,12 @@ def cache_put(name: str, content: bytes) -> None:
         logger.debug(f"캐시 쓰기 실패 ({name}): {e}")
 
 
-# ─────────────────────────────────────────────
-# ExploitDB — CVE → (파일 경로, EDB-ID)
-# ─────────────────────────────────────────────
 _exploitdb_index: Dict[str, Tuple[str, str]] = {}
 _exploitdb_loaded = False
 _CVE_RE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 
 
 def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
-    """files_exploits.csv(캐시)에서 CVE→exploit 파일 매핑 구축"""
     global _exploitdb_loaded
     with _lock:
         if _exploitdb_loaded:
@@ -126,18 +96,13 @@ def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
 
 
 def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
-    """CVE에 매핑된 (exploit 파일 경로, EDB-ID) 반환"""
     load_exploitdb_index()
     return _exploitdb_index.get(cve_id.upper())
 
 
-# ─────────────────────────────────────────────
-# Metasploit — CVE → 모듈 메타데이터 (BSD-3-Clause)
-# ─────────────────────────────────────────────
 _msf_index: Dict[str, List[Dict]] = {}
 _msf_loaded = False
 
-# Metasploit 랭크: 값이 높을수록 신뢰도 높음
 _MSF_RANK_NAMES = {
     0: "manual", 100: "low", 200: "average", 300: "normal",
     400: "good", 500: "great", 600: "excellent",
@@ -145,7 +110,6 @@ _MSF_RANK_NAMES = {
 
 
 def load_metasploit_index() -> Dict[str, List[Dict]]:
-    """modules_metadata_base.json(캐시)에서 CVE→모듈 매핑 구축"""
     global _msf_loaded
     with _lock:
         if _msf_loaded:
@@ -175,7 +139,6 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
                 cves = set()
                 for ref in refs:
                     if isinstance(ref, str):
-                        # "CVE-2021-1234" 또는 "CVE,2021-1234" 형태 모두 대응
                         for m in _CVE_RE.findall(ref.replace(",", "-")):
                             cves.add(m.upper())
                 if not cves:
@@ -197,26 +160,16 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
 
 
 def metasploit_modules(cve_id: str) -> List[Dict]:
-    """CVE에 매핑된 Metasploit 모듈 목록 (신뢰도 높은 순).
-    비어 있으면 무기화 신호 없음 — 호출측이 bool()로 판별한다."""
     load_metasploit_index()
     mods = _msf_index.get(cve_id.upper(), [])
     return sorted(mods, key=lambda m: m.get("rank", 0), reverse=True)
 
 
-# ─────────────────────────────────────────────
-# nuclei-templates — CVE → 템플릿 (MIT, ProjectDiscovery)
-#
-# 탐지 룰이면서 동시에 무기화 신호다. 템플릿이 올라왔다는 건 "공격 조건이 재현 가능한
-# 형태로 정리돼 누구나 대량 스캔할 수 있다"는 뜻이라, KEV 등재보다 앞서는 경우가 많다.
-# cves.json은 JSON Lines(줄마다 객체 하나)이며 실측 4,363건 / 2.1MB.
-# ─────────────────────────────────────────────
 _nuclei_index: Dict[str, Dict] = {}
 _nuclei_loaded = False
 
 
 def load_nuclei_index() -> Dict[str, Dict]:
-    """cves.json(캐시)에서 CVE→템플릿 메타 구축."""
     global _nuclei_loaded
     with _lock:
         if _nuclei_loaded:
@@ -262,25 +215,15 @@ def load_nuclei_index() -> Dict[str, Dict]:
 
 
 def nuclei_template(cve_id: str) -> Optional[Dict]:
-    """CVE에 매핑된 nuclei 템플릿 메타. 없으면 None."""
     load_nuclei_index()
     return _nuclei_index.get(cve_id.upper())
 
 
 def nuclei_template_url(path: str) -> str:
-    """템플릿 경로 → 저장소 URL (원문은 재게시하지 않고 링크만 싣는다)."""
     return f"https://github.com/projectdiscovery/nuclei-templates/blob/main/{path}"
 
 
-# ─────────────────────────────────────────────
-# KEV 목록 — 스냅샷 대조가 '전량 집합'으로 쓴다
-# ─────────────────────────────────────────────
 def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
-    """CISA KEV 전량 → {CVE: 항목}. 실패하면 None.
-
-    None과 빈 dict를 구분하는 게 중요하다 — 스냅샷 대조에서 '수신 실패'를 '전부 사라짐'으로
-    읽으면 다음 실행에서 전량이 신규로 보여 알림 폭풍이 난다.
-    TTL이 짧은 이유: 이 목록의 변화가 곧 T0 알림이라 캐시로 지연시키면 안 된다."""
     raw = cache_get("cisa-kev.json", ttl_hours=ttl_hours)
     if raw is None:
         try:
@@ -308,8 +251,6 @@ def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
 
 
 def _vulncheck_download_url(api_key: str) -> Optional[str]:
-    """백업 스냅샷의 임시 다운로드 URL. /v3/backup/ 은 레코드를 바로 주지 않고
-    `data[0].url` 로 아카이브 링크를 준다."""
     try:
         rate_limit_manager.check_and_wait("vulncheck")
         resp = requests.get(
@@ -338,10 +279,6 @@ def _vulncheck_download_url(api_key: str) -> Optional[str]:
 
 
 def _vulncheck_records(payload: bytes) -> list:
-    """백업 아카이브(zip) 또는 JSON 본문에서 KEV 레코드 목록을 꺼낸다.
-
-    아카이브 안의 파일 이름·개수는 보장된 계약이 아니라서, .json 으로 끝나는 것을
-    모두 훑어 리스트를 이어 붙인다."""
     import io
     import zipfile
 
@@ -372,14 +309,6 @@ def _vulncheck_records(payload: bytes) -> list:
 
 
 def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
-    """VulnCheck KEV 전량 → {CVE: 항목}. 키가 없거나 실패하면 None.
-
-    CISA KEV보다 넓고 대체로 이르다. 무료지만 **출처 표기 의무**가 있어
-    ("This product uses VulnCheck KEV"), 이 신호로 알림이 나갈 때 반드시 함께 싣는다.
-
-    커뮤니티 티어는 두 단계다 — /v3/backup/ 으로 스냅샷 URL을 받고, 그 URL에서
-    아카이브를 내려받는다. 예전에는 /v3/index/ 를 직접 불렀는데 그건 상위 티어의
-    페이지네이션 조회라 유효한 커뮤니티 토큰으로도 401이 난다."""
     api_key = (os.environ.get("VULNCHECK_API_KEY") or "").strip()
     if not api_key:
         logger.debug("VULNCHECK_API_KEY 미설정 → VulnCheck KEV 건너뜀")
@@ -406,7 +335,6 @@ def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
             continue
         cve_id = item.get("cveID") or item.get("cve_id")
         if not cve_id:
-            # 스키마 변형: cve 가 배열로 오는 경우
             arr = item.get("cve") or []
             cve_id = arr[0] if isinstance(arr, list) and arr else None
         if cve_id:
@@ -418,21 +346,10 @@ def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
     return out
 
 
-# ─────────────────────────────────────────────
-# EPSS 전량 덤프 — 점수와 percentile을 함께 읽는다
-#
-# percentile이 중요한 이유는 risk.py 주석에 있다: 절대 점수는 EPSS 모델이 갱신되면
-# 같은 값의 의미가 달라지지만 percentile은 분포 기준이라 그렇지 않다.
-# 출처 표기 요청이 있는 소스다 (FIRST.org).
-# ─────────────────────────────────────────────
 _EPSS_CURRENT_URL = "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz"
 
 
 def load_epss_full(ttl_hours: int = 6) -> Optional[Dict[str, Tuple[float, float]]]:
-    """EPSS 전량 → {CVE: (score, percentile)}. 실패하면 None.
-
-    실측 366,357건 / gz 2.5MB. 정방향 API(CVE를 주고 점수를 받는)와 달리 '전량'이라,
-    '점수가 높은 CVE 전체'를 우리 DB와 대조하는 역방향 사용이 가능하다."""
     import gzip
 
     raw = cache_get("epss-full.csv.gz", ttl_hours=ttl_hours)
@@ -473,14 +390,6 @@ def load_epss_full(ttl_hours: int = 6) -> Optional[Dict[str, Tuple[float, float]
 
 
 def load_epss_above(min_percentile: float) -> Optional[Dict[str, Tuple[float, float]]]:
-    """EPSS 전량 중 percentile이 임계 이상인 것만. 실패하면 None.
-
-    fast-lane이 판정에만 쓰려고 366,357건을 통째로 메모리에 드는 것을 피하기 위한 것이다.
-    임계 미만은 어차피 어떤 EPSS 트리거도 켜지 못하므로(risk.EPSS_P_HIGH가 하한),
-    없는 것과 판정 결과가 같다. 실측 p90 이상은 36,636건으로 1/10이다.
-
-    주의: 여기 없는 CVE의 '표시용 정확한 점수'는 0이 아니라 **모름**이다. 추적이 확정된
-    소수에 대해서만 Collector.fetch_epss로 정확한 값을 채운다."""
     full = load_epss_full()
     if full is None:
         return None

@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
-"""signal_snapshot.py 회귀 테스트 — 네트워크 없이 합성 소스로 돌린다.
-
-    python3 tests/test_signal_snapshot.py
-
-지키는 것은 모듈 주석의 '안전 규칙 두 가지'다.
-  · 수신 실패(None)를 빈 집합으로 저장하지 않는다 → 알림 폭풍 방지
-  · 저장은 합집합이다 → 신호가 빠졌다 들어와도 재알림하지 않는다
-그리고 최초 기록이 조용해야 한다는 것. 셋 다 실제로 사고가 날 수 있는 지점이다.
-"""
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "src"))
 
-import signal_snapshot as ss  # noqa: E402
+import signal_snapshot as ss
 
 
 def make_source(key, ids):
-    """ids가 None이면 '수신 실패'를 흉내낸다."""
     return ss.Source(key, key, True, "kev", lambda: (set(ids) if ids is not None else None))
 
 
@@ -76,7 +66,7 @@ def main() -> int:
           "실패해도 저장된 집합을 건드리지 않는다 (알림 폭풍 방지)", failures)
 
     print("\n── 합집합 저장: 신호가 빠졌다 돌아와도 재알림 없음 ──")
-    out = sweep(store, make_source("s", ["CVE-1", "CVE-2"]))      # 3·4·5가 빠짐
+    out = sweep(store, make_source("s", ["CVE-1", "CVE-2"]))
     check(out == [], "제외만 일어나면 알릴 게 없다", failures)
     out = sweep(store, make_source("s", ["CVE-1", "CVE-2", "CVE-3", "CVE-4", "CVE-5"]))
     check(out == [], "빠졌다 돌아온 신호는 재알림하지 않는다", failures)
