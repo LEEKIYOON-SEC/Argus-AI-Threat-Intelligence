@@ -317,7 +317,12 @@ class ArgusDB:
                 self.client.table("cves")
                 .select("id, last_alert_state")
                 .not_.is_("last_alert_state", "null")
-                .order("updated_at", desc=True)
+                # 정렬 키는 id 다. updated_at 으로 정렬하면 순회가 절대 수렴하지 않는다 —
+                # fast-lane 이 5분마다 수십 행의 updated_at 을 갱신해 맨 앞으로 올리므로,
+                # offset 이 200씩 전진하는 동안 새로 갱신된 행이 그보다 빠르게 앞에 쌓인다.
+                # 결과적으로 창은 늘 '최근에 바뀐 것' 근처에 머물고, 조용한 행은 영영
+                # 스캔되지 않는다. 번역이 안 되는 CVE가 고정적으로 남던 이유다.
+                .order("id")
                 .range(offset, offset + max(1, min(limit, _PAGE_MAX)) - 1)
             )
             return response.data or []
