@@ -426,6 +426,11 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 | Splunk security_content | Apache-2.0 | 표기 |
 | YARA Forge | GPL-3.0 도구 + **룰별 메타데이터** | 룰별 author·license 보존 |
 | Metasploit | BSD-3-Clause | 표기 |
+| SigmaHQ sigma | DRL 1.1 | 룰별 author 보존 |
+| Emerging Threats Open · Snort Community | MIT (레거시 SID 1–3464 는 GPLv2) | 표기 |
+| nomi-sec/PoC-in-GitHub | **CC0 1.0** (LICENSE 확인) | 없음 — 다만 **URL 만 인용하고 PoC 원문은 게시하지 않는다** |
+| Exploit-DB | 링크만 사용 | 원문 미게시 |
+| NVD (NIST) | U.S. Government Work | 표기 |
 | OSV.dev | CC-BY 4.0 | 표기 |
 | VulnCheck KEV | 무료 | **"This product uses VulnCheck KEV" 필수** |
 | Anthropic CVD 레저 | 명시 없음 | 사실만 인용, 데이터셋 재배포 금지 |
