@@ -378,24 +378,22 @@ class ArgusDB:
 
 
     def get_tracked_ids(self, page_size: int = 1000, max_rows: int = 50000) -> List[str]:
+        page_size = max(1, min(page_size, _PAGE_MAX))
         ids: List[str] = []
         offset = 0
-        try:
-            while offset < max_rows:
-                response = self._execute(
-                    self.client.table("cves")
-                    .select("id")
-                    .not_.is_("last_alert_state", "null")
-                    .order("updated_at", desc=True)
-                    .range(offset, offset + page_size - 1)
-                )
-                batch = response.data or []
-                ids.extend(r["id"] for r in batch if r.get("id"))
-                if len(batch) < page_size:
-                    break
-                offset += page_size
-        except Exception as e:
-            logger.error(f"추적 CVE id 조회 실패: {e}")
+        while offset < max_rows:
+            response = self._execute(
+                self.client.table("cves")
+                .select("id")
+                .not_.is_("last_alert_state", "null")
+                .order("id")
+                .range(offset, offset + page_size - 1)
+            )
+            batch = response.data or []
+            ids.extend(r["id"] for r in batch if r.get("id"))
+            if len(batch) < page_size:
+                break
+            offset += page_size
         return ids
 
 
@@ -403,8 +401,8 @@ class ArgusDB:
         page_size = max(1, min(page_size, _PAGE_MAX))
         rows: List[Dict] = []
         offset = 0
-        try:
-            while offset < max_rows:
+        while offset < max_rows:
+            try:
                 response = self._execute(
                     self.client.table("cves")
                     .select("id, last_alert_state")
@@ -412,13 +410,15 @@ class ArgusDB:
                     .order("id")
                     .range(offset, offset + page_size - 1)
                 )
-                batch = response.data or []
-                rows.extend(batch)
-                if len(batch) < page_size:
-                    break
-                offset += page_size
-        except Exception as e:
-            logger.error(f"추적 행 조회 실패(부분 결과 {len(rows):,}건으로 진행): {e}")
+            except Exception as e:
+                logger.error(f"추적 행 조회 실패 (offset {offset:,}, 여기까지 "
+                             f"{len(rows):,}건) — 이 뒤는 '없음'이 아니라 '못 봤음'이다: {e}")
+                raise
+            batch = response.data or []
+            rows.extend(batch)
+            if len(batch) < page_size:
+                break
+            offset += page_size
         return rows
 
 
