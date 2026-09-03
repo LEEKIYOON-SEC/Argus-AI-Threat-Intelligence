@@ -81,6 +81,8 @@ def main() -> int:
 
     silent_mode(failures)
 
+    slack_failure(failures)
+    cvss_not_wiped(failures)
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
 
@@ -99,6 +101,7 @@ class Notifier:
     def __init__(self): self.sent = []
     def send_alert(self, state, reason, url=None, tier=None):
         self.sent.append(state["id"])
+        return True
 
 
 def silent_mode(failures):
@@ -137,6 +140,67 @@ def silent_mode(failures):
     check("last_alert_at" in db2.saved["CVE-2020-1472"],
           "silent 없이는 last_alert_at 이 기록된다", failures)
 
+
+
+def slack_failure(failures):
+    store = {}
+
+    class DB:
+        def get_cve(self, c):
+            return store.get(c)
+
+        def upsert_cve(self, p):
+            store.setdefault(p["id"], {}).update(p)
+            return True
+
+    class Slack:
+        def __init__(self, ok):
+            self.ok = ok
+            self.calls = 0
+
+        def send_alert(self, *a, **k):
+            self.calls += 1
+            return self.ok
+
+    st = {"id": "CVE-2026-X", "is_kev": True, "cvss": 9.8, "title": "T", "cwe": [],
+          "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N"}
+
+    dead = Slack(False)
+    out = pipeline.process(dict(st), DB(), dead)
+    row = store["CVE-2026-X"]
+    state = row["last_alert_state"]
+    check(out.status != "alerted", f"전송 실패면 alerted 가 아니다 ({out.status})", failures)
+    check(state["fired_triggers"] == [],
+          f"발화 이력을 남기지 않는다 ({state['fired_triggers']})", failures)
+    check("last_alert_at" not in row, "last_alert_at 도 안 남긴다", failures)
+
+    live = Slack(True)
+    out = pipeline.process(dict(st), DB(), live)
+    check(live.calls == 1, f"다음 회차가 다시 알린다 ({live.calls}회)", failures)
+    check(out.status == "alerted", f"이번엔 alerted ({out.status})", failures)
+    check("kev" in store["CVE-2026-X"]["last_alert_state"]["fired_triggers"],
+          "성공하면 발화 이력이 남는다", failures)
+
+    again = Slack(True)
+    pipeline.process(dict(st), DB(), again)
+    check(again.calls == 0, f"이미 알린 건은 다시 안 알린다 ({again.calls}회)", failures)
+
+
+def cvss_not_wiped(failures):
+    stored = {"id": "C", "cvss": 7.5, "cvss_vector": "CVSS:3.0/AV:N",
+              "cvss_version": "3.0", "cvss_scores": {"3.0": [7.5, "CVSS:3.0/AV:N"]}}
+    fresh = {"id": "C", "cvss": 0.0, "cvss_vector": "N/A", "cvss_version": "",
+             "cvss_scores": {}}
+    pipeline.carry_forward(fresh, stored)
+    check(fresh["cvss"] == 7.5, f"레코드에 점수가 없으면 이전 점수를 지킨다 ({fresh['cvss']})",
+          failures)
+    check(fresh["cvss_version"] == "3.0", "버전도 함께", failures)
+
+    lower = {"id": "C", "cvss": 5.3, "cvss_vector": "CVSS:3.1/AV:L",
+             "cvss_version": "3.1", "cvss_scores": {"3.1": [5.3, "CVSS:3.1/AV:L"]}}
+    pipeline.carry_forward(lower, stored)
+    check(lower["cvss"] == 5.3,
+          f"레코드가 실제로 낮은 점수를 주면 그걸 따른다 ({lower['cvss']})", failures)
 
 if __name__ == "__main__":
     sys.exit(main())

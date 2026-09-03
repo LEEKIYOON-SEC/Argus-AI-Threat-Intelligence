@@ -101,10 +101,19 @@ class RowCache:
         self._covered.discard(cve_id)
 
 
+_CVSS_KEYS = ("cvss", "cvss_vector", "cvss_version", "cvss_scores")
+
+
 def carry_forward(state: Dict, last: Optional[Dict]) -> Dict:
-    if isinstance(last, dict):
-        for key in STATE_FIELDS:
-            if key not in state and key in last:
+    if not isinstance(last, dict):
+        return state
+    for key in STATE_FIELDS:
+        if key not in state and key in last:
+            state[key] = last[key]
+    if (float(state.get("cvss") or 0.0) <= 0.0 and not state.get("cvss_scores")
+            and float(last.get("cvss") or 0.0) > 0.0):
+        for key in _CVSS_KEYS:
+            if key in last:
                 state[key] = last[key]
     return state
 
@@ -133,17 +142,23 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
         if announce and make_report is not None:
             report_url, rules_info = make_report(state, decision.reason)
 
+        sent = True
         if announce:
             reason = f"{reason_prefix}{decision.reason}" if reason_prefix else decision.reason
-            notifier.send_alert(state, reason, report_url, tier=decision.tier)
+            sent = notifier.send_alert(state, reason, report_url, tier=decision.tier) is not False
+            if not sent:
+                logger.error(f"{cve_id} Slack 전송 실패 — 발화 이력을 남기지 않는다 "
+                             f"(다음 회차가 다시 알린다)")
 
-        if not _save(db, state, decision, last, alerted=announce,
+        new_triggers = decision.new_triggers if sent else frozenset()
+        if not _save(db, state, decision, last, alerted=announce and sent,
+                     new_triggers=new_triggers,
                      report_url=report_url, rules_info=rules_info):
             return Outcome(cve_id, "failed", decision.tier, decision, state)
 
         if rows is not None:
             rows.forget(cve_id)
-        return Outcome(cve_id, "alerted" if announce else "tracked",
+        return Outcome(cve_id, "alerted" if (announce and sent) else "tracked",
                        decision.tier, decision, state)
 
     except Exception as e:
@@ -153,11 +168,12 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
 
 def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
           alerted: bool, report_url: Optional[str] = None,
-          rules_info: Optional[Dict] = None) -> bool:
+          rules_info: Optional[Dict] = None, new_triggers=None) -> bool:
     now = datetime.datetime.now(KST).isoformat()
     clean = {k: state[k] for k in STATE_FIELDS if k in state}
     clean["tier"] = decision.tier
-    clean["fired_triggers"] = risk.merge_fired(last, decision.new_triggers)
+    clean["fired_triggers"] = risk.merge_fired(
+        last, decision.new_triggers if new_triggers is None else new_triggers)
 
     payload = {
         "id": state['id'],

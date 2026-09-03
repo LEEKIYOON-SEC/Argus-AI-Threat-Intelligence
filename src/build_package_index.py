@@ -48,6 +48,8 @@ def main() -> int:
     if not index:
         logger.warning("매칭된 패키지가 없습니다 — 기존 파일을 덮어쓰지 않고 종료")
         return 1
+    if osv_index.too_many_failed():
+        return 1
     ok = osv_index.write_index(index, _OUT, kernel_aliases=kernel_aliases)
 
     logger.info("─" * 60)

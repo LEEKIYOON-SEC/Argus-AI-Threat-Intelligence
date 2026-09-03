@@ -23,6 +23,10 @@ ECOSYSTEMS = [
 _TIMEOUT = 180
 
 
+FAILED_ECOSYSTEMS: Set[str] = set()
+MAX_FAILED_RATIO = 0.2
+
+
 def _iter_vulns(eco: str) -> Iterable[dict]:
     url = f"{_BASE}/{eco}/all.zip"
     logger.info(f"  OSV 덤프 내려받는 중: {eco}")
@@ -31,6 +35,7 @@ def _iter_vulns(eco: str) -> Iterable[dict]:
         resp.raise_for_status()
     except requests.exceptions.RequestException as e:
         logger.warning(f"  OSV {eco} 다운로드 실패 → 이 생태계 생략: {e}")
+        FAILED_ECOSYSTEMS.add(eco)
         return
 
     try:
@@ -44,6 +49,20 @@ def _iter_vulns(eco: str) -> Iterable[dict]:
                     continue
     except zipfile.BadZipFile as e:
         logger.warning(f"  OSV {eco} 압축 해제 실패 → 생략: {e}")
+        FAILED_ECOSYSTEMS.add(eco)
+
+
+def too_many_failed(ecosystems: List[str] = None) -> bool:
+    total = len(ecosystems or ECOSYSTEMS)
+    failed = len(FAILED_ECOSYSTEMS & set(ecosystems or ECOSYSTEMS))
+    if failed and failed > total * MAX_FAILED_RATIO:
+        logger.error(f"OSV 생태계 {failed}/{total}개를 못 받았다 "
+                     f"({', '.join(sorted(FAILED_ECOSYSTEMS))}) — 기존 인덱스를 덮어쓰지 않는다")
+        return True
+    if failed:
+        logger.warning(f"OSV 생태계 {failed}/{total}개 누락: "
+                       f"{', '.join(sorted(FAILED_ECOSYSTEMS))}")
+    return False
 
 
 def _cve_aliases(rec: dict) -> Set[str]:
