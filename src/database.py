@@ -83,6 +83,19 @@ class ArgusDB:
 
 
     @staticmethod
+    def _neutralize_deep(value, depth: int = 0):
+        if depth > 6:
+            return value
+        if isinstance(value, str):
+            return _neutralize(value)
+        if isinstance(value, list):
+            return [ArgusDB._neutralize_deep(v, depth + 1) for v in value]
+        if isinstance(value, dict):
+            return {k: ArgusDB._neutralize_deep(v, depth + 1) for k, v in value.items()}
+        return value
+
+
+    @staticmethod
     def _waf_neutralized_copy(data: Dict) -> Dict:
         d = copy.deepcopy(data)
         st = d.get("last_alert_state")
@@ -98,35 +111,41 @@ class ArgusDB:
         return d
 
 
+    _WAF_CLIP = (("description", 300), ("desc_ko", 300),
+                 ("title", 200), ("title_ko", 200))
+    _WAF_LIST_CAP = (("affected", 20), ("references", 5), ("poc_urls", 3),
+                     ("metasploit_modules", 3), ("cwe", 10))
+
+
     @staticmethod
     def _waf_minimal_copy(data: Dict) -> Dict:
-        st = data.get("last_alert_state") or {}
-        safe_state = {
-            "title_ko": _neutralize(st.get("title_ko") or st.get("title", "")),
-            "desc_ko": _neutralize((st.get("desc_ko") or "")[:300]),
-            "cwe": st.get("cwe", []),
-            "cvss": st.get("cvss"), "epss": st.get("epss"), "is_kev": st.get("is_kev"),
-            "ssvc_exploitation": st.get("ssvc_exploitation"),
-            "ssvc_automatable": st.get("ssvc_automatable"),
-            "ssvc_technical_impact": st.get("ssvc_technical_impact"),
-            "is_kev_ransomware": st.get("is_kev_ransomware", False),
-            "is_vulncheck_kev": st.get("is_vulncheck_kev", False),
-            "published": st.get("published", ""),
-            "has_poc": st.get("has_poc", False),
-            "has_public_exploit": st.get("has_public_exploit", False),
-            "has_metasploit_module": st.get("has_metasploit_module", False),
-            "has_nuclei_template": st.get("has_nuclei_template", False),
-            "epss_percentile": st.get("epss_percentile"),
-            "tier": st.get("tier"),
-            "fired_triggers": st.get("fired_triggers", []),
-            "waf_degraded": True,
-        }
-        keep = ("id", "cvss_score", "epss_score", "is_kev", "updated_at",
-                "last_alert_at", "report_url",
-                "has_official_rules", "last_rule_check_at")
-        out = {k: data[k] for k in keep if k in data}
-        out["last_alert_state"] = safe_state
-        return out
+        d = ArgusDB._waf_neutralized_copy(data)
+        st = d.get("last_alert_state")
+        if not isinstance(st, dict):
+            return d
+        for key, cap in ArgusDB._WAF_CLIP:
+            if isinstance(st.get(key), str) and len(st[key]) > cap:
+                st[key] = st[key][:cap]
+        for key, cap in ArgusDB._WAF_LIST_CAP:
+            if isinstance(st.get(key), list) and len(st[key]) > cap:
+                st[key] = st[key][:cap]
+        d["last_alert_state"] = ArgusDB._neutralize_deep(st)
+        d["last_alert_state"]["waf_degraded"] = True
+        return d
+
+
+    _WAF_TEXT = ("description", "title", "references", "poc_urls",
+                 "_exploit_db_url", "_nuclei_url", "ai_detail", "ai_url")
+
+
+    @staticmethod
+    def _waf_text_stripped_copy(data: Dict) -> Dict:
+        d = ArgusDB._waf_minimal_copy(data)
+        st = d.get("last_alert_state")
+        if isinstance(st, dict):
+            for key in ArgusDB._WAF_TEXT:
+                st.pop(key, None)
+        return d
 
 
     def get_cve(self, cve_id: str) -> Optional[Dict]:
@@ -196,10 +215,16 @@ class ArgusDB:
 
         ok, err3 = self._try_upsert(self._waf_minimal_copy(data))
         if ok:
-            logger.info(f"CVE 저장 성공 (WAF 축소본, 원문은 리포트 참조): {cid}")
+            logger.info(f"CVE 저장 성공 (WAF 축소본 — 본문만 줄이고 신호는 전부 보존): {cid}")
             return True
 
-        logger.error(f"CVE 저장 실패 ({cid}) — WAF 축소본까지 실패: {_describe_error(err3)}")
+        ok, err4 = self._try_upsert(self._waf_text_stripped_copy(data))
+        if ok:
+            logger.warning(f"CVE 저장 성공 (WAF 본문 제거 — 원문은 리포트 참조): {cid}")
+            return True
+
+        logger.error(f"CVE 저장 실패 ({cid}) — 본문 제거까지 실패: "
+                     f"{_describe_error(err4)} (직전 오류: {_describe_error(err3)})")
         return False
     
     _RECHECK_COLS = ("id, cvss_score, epss_score, is_kev, has_official_rules, "
