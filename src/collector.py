@@ -1,20 +1,11 @@
 import os
 import re
-import time
 from typing import Dict, List, Optional, Set, Tuple
-
-import requests
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 import ai_provenance
 import enrichment_sources
-import feed
 from logger import logger
-from rate_limiter import rate_limit_manager
 
-
-class CollectorError(Exception):
-    pass
 
 def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
     parts = str(cpe or '').split(':')
@@ -72,6 +63,47 @@ def affected_from_cpes(cpes: List[str], existing: List[Dict] = None,
     known = {_key(a.get('product')) for a in keepers}
     out.extend(d for d in derived if _key(d['product']) not in known)
     return out[:limit]
+
+
+def _clip(text: str, limit: int) -> str:
+    """단어 중간에서 자르지 않는다.
+
+    CNA 가 title 을 안 주면 설명 첫 문장을 제목으로 쓰는데, 그냥 [:110] 이면
+    'CVE-2016-0193' 처럼 '…or cause a de' 로 끊긴다. 그 문자열이 그대로 화면 제목이 되고
+    번역 입력으로도 들어간다.
+    """
+    text = (text or "").strip()
+    if len(text) <= limit:
+        return text
+    cut = text[:limit].rsplit(" ", 1)[0].rstrip(" ,;:-")
+    return (cut or text[:limit]) + "…"
+
+
+_SSVC_FLAT = ("exploitation", "automatable", "technical_impact")
+
+
+def flatten_ssvc(data: Dict) -> Dict:
+    """중첩된 ssvc 를 risk.evaluate 가 읽는 평탄한 키로 옮긴다.
+
+    CISA vulnrichment 의 SSVC 는 ADP 컨테이너에서 `data['ssvc']['exploitation']` 처럼
+    중첩으로 들어온다. 그런데 risk.evaluate 는 `state['ssvc_exploitation']` 평탄한 키만
+    읽는다. 이 한 줄이 없어서 **트리거 3개가 통째로 죽어 있었다** —
+
+        ssvc_active        T0  악용 진행형        실측 439건이 발화했어야 했다
+        ssvc_automatable   T2  자동화 대량공격    실측 1,647건
+        ssvc_total_impact  T2  완전 장악          실측 3,699건
+
+    export 와 database._waf_minimal_copy 는 중첩본을 폴백으로 읽고 있어서 화면에는
+    보였다. 판정만 못 봤다 — 화면에 'SSVC: active' 가 뜨는데 등급은 T3 인 상태였다.
+    """
+    ssvc = data.get("ssvc")
+    if not isinstance(ssvc, dict):
+        return data
+    for key in _SSVC_FLAT:
+        value = ssvc.get(key)
+        if isinstance(value, str) and value.strip():
+            data[f"ssvc_{key}"] = value.strip().lower()
+    return data
 
 
 _CVSS_KEYS = (("cvssV4_0", "4.0"), ("cvssV3_1", "3.1"), ("cvssV3_0", "3.0"))
@@ -164,45 +196,6 @@ class Collector:
                     f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
         return True
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10)
-    )
-    def fetch_epss(self, cve_ids: List[str]) -> Dict[str, float]:
-        if not cve_ids:
-            return {}
-        
-        chunk_size = 50
-        total_chunks = (len(cve_ids) + chunk_size - 1) // chunk_size
-        
-        logger.info(f"Fetching EPSS scores for {len(cve_ids)} CVEs ({total_chunks} batches)")
-        
-        for i in range(0, len(cve_ids), chunk_size):
-            chunk = cve_ids[i:i + chunk_size]
-            chunk_num = (i // chunk_size) + 1
-            
-            try:
-                rate_limit_manager.check_and_wait("epss")
-                
-                url = f"https://api.first.org/data/v1/epss?cve={','.join(chunk)}"
-                response = requests.get(url, timeout=10)
-                response.raise_for_status()
-                rate_limit_manager.record_call("epss")
-                
-                for item in response.json().get('data', []):
-                    cve_id = item.get('cve')
-                    if not cve_id:
-                        continue
-                    self.epss_cache[cve_id] = float(item.get('epss', 0.0) or 0.0)
-                    self.epss_percentile[cve_id] = float(item.get('percentile', 0.0) or 0.0)
-                
-                logger.debug(f"EPSS batch {chunk_num}/{total_chunks} complete")
-                
-            except Exception as e:
-                logger.warning(f"EPSS batch {chunk_num} failed: {e}")
-                continue
-        
-        return self.epss_cache
     
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
         results = []
@@ -248,26 +241,6 @@ class Collector:
         
         return results
     
-    def enrich_cve(self, cve_id: str) -> Dict:
-        max_attempts = 3
-        for attempt in range(1, max_attempts + 1):
-            try:
-                record = feed.fetch_record(cve_id)
-                if record is None:
-                    return self._error_response(cve_id, state="NOT_FOUND")
-                return self.parse_record(cve_id, record)
-            except (requests.exceptions.Timeout, requests.exceptions.ConnectionError) as e:
-                if attempt < max_attempts:
-                    wait = 2 * attempt
-                    logger.warning(f"{cve_id} 수집 일시오류({attempt}/{max_attempts}): {e} → {wait}s 후 재시도")
-                    time.sleep(wait)
-                    continue
-                logger.error(f"{cve_id} 수집 최종 실패(네트워크) → 다음 실행 재수집")
-                return self._error_response(cve_id)
-            except Exception as e:
-                logger.error(f"{cve_id} enrichment failed: {e}")
-                return self._error_response(cve_id)
-        return self._error_response(cve_id)
 
     def parse_record(self, cve_id: str, json_data: Dict) -> Dict:
         try:
@@ -316,7 +289,7 @@ class Collector:
                         and vendor.split()[0].lower() not in product.lower()
                     title = f"{vendor} {product} vulnerability" if use_vendor else f"{product} vulnerability"
                 elif data['description'] != 'N/A':
-                    title = data['description'].split('. ')[0][:110]
+                    title = _clip(data['description'].split('. ')[0], 110)
             data['title'] = title or 'N/A'
             
             data['cvss_scores'] = collect_cvss([cna])
@@ -340,6 +313,7 @@ class Collector:
                     data['credits'].append(value)
 
             self._enrich_from_adp(json_data, data)
+            flatten_ssvc(data)
 
             logger.debug(f"Enriched {cve_id}: CVSS={data['cvss']}, State={data['state']}, SSVC={data['ssvc'].get('exploitation','-')}")
             return data
@@ -395,187 +369,13 @@ class Collector:
         logger.info(f"VulnCheck KEV {len(self.vulncheck_kev_set)}건 적재")
         return True
 
-    def enrich_from_nvd(self, cve_data: Dict) -> Dict:
-        api_key = os.environ.get("NVD_API_KEY")
-        cve_id = cve_data['id']
-        cve_data['_nvd_enriched'] = True
-
-        try:
-            rate_limit_manager.check_and_wait("nvd")
-            
-            headers = {}
-            if api_key:
-                headers["apiKey"] = api_key
-            
-            response = requests.get(
-                f"https://services.nvd.nist.gov/rest/json/cves/2.0?cveId={cve_id}",
-                headers=headers, timeout=15
-            )
-            response.raise_for_status()
-            rate_limit_manager.record_call("nvd")
-            
-            data = response.json()
-            vulns = data.get('vulnerabilities', [])
-            if not vulns:
-                return cve_data
-            
-            cve_item = vulns[0].get('cve', {})
-            metrics = cve_item.get('metrics', {})
-            
-            if cve_data['cvss'] == 0.0:
-                for key in ['cvssMetricV40', 'cvssMetricV31', 'cvssMetricV30']:
-                    metric_list = metrics.get(key, [])
-                    if metric_list:
-                        cvss_data = metric_list[0].get('cvssData', {})
-                        cve_data['cvss'] = cvss_data.get('baseScore', 0.0)
-                        cve_data['cvss_vector'] = cvss_data.get('vectorString', 'N/A')
-                        logger.info(f"  NVD CVSS 보충: {cve_id} → {cve_data['cvss']}")
-                        break
-            
-            if not cve_data['cwe']:
-                for weakness in cve_item.get('weaknesses', []):
-                    for desc in weakness.get('description', []):
-                        cwe_val = desc.get('value', '')
-                        if cwe_val and cwe_val != 'NVD-CWE-noinfo':
-                            cve_data['cwe'].append(cwe_val)
-            
-            cpe_list = []
-            for config in cve_item.get('configurations', []):
-                for node in config.get('nodes', []):
-                    for match in node.get('cpeMatch', []):
-                        if match.get('vulnerable'):
-                            cpe_list.append(match.get('criteria', ''))
-            if cpe_list:
-                cve_data['nvd_cpe'] = cpe_list[:5]
-            
-            return cve_data
-            
-        except Exception as e:
-            logger.debug(f"NVD enrichment 실패 ({cve_id}): {e}")
-            return cve_data
-    
-    def check_poc_exists(self, cve_id: str) -> Dict:
-        result = self._check_nomi_sec(cve_id)
-        if result['has_poc']:
-            return result
-
-        result = self._check_trickest(cve_id)
-        return result
-
-    def _check_nomi_sec(self, cve_id: str) -> Dict:
-        try:
-            parts = cve_id.split('-')
-            year = parts[1]
-
-            if not rate_limit_manager.check_and_wait("github", max_wait=60):
-                return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-
-            url = f"https://raw.githubusercontent.com/nomi-sec/PoC-in-GitHub/master/{year}/{cve_id}.json"
-            response = requests.get(url, timeout=10)
-            rate_limit_manager.record_call("github")
-
-            if response.status_code == 200:
-                poc_data = response.json()
-                poc_urls = []
-                if isinstance(poc_data, list):
-                    poc_urls = [p.get('html_url', '') for p in poc_data[:3] if p.get('html_url')]
-
-                logger.info(f"  🔥 PoC 발견 (nomi-sec): {cve_id} ({len(poc_urls)}개)")
-                return {"has_poc": True, "poc_count": len(poc_data) if isinstance(poc_data, list) else 1, "poc_urls": poc_urls}
-
-            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-
-        except Exception as e:
-            logger.debug(f"nomi-sec PoC 확인 실패 ({cve_id}): {e}")
-            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-
-    def _check_trickest(self, cve_id: str) -> Dict:
-        try:
-            parts = cve_id.split('-')
-            year = parts[1]
-
-            url = f"https://raw.githubusercontent.com/trickest/cve/main/{year}/{cve_id}.md"
-            response = requests.get(url, timeout=10)
-
-            if response.status_code == 200:
-                content = response.text
-                poc_urls = re.findall(r'https://github\.com/[^\s\)]+', content)
-                poc_urls = list(dict.fromkeys(poc_urls))[:3]
-
-                logger.info(f"  🔥 PoC 발견 (trickest): {cve_id} ({len(poc_urls)}개)")
-                return {"has_poc": True, "poc_count": len(poc_urls) or 1, "poc_urls": poc_urls}
-
-            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-
-        except Exception as e:
-            logger.debug(f"trickest PoC 확인 실패 ({cve_id}): {e}")
-            return {"has_poc": False, "poc_count": 0, "poc_urls": []}
-    
-    def check_github_advisory(self, cve_id: str) -> Dict:
-        try:
-            if not rate_limit_manager.check_and_wait("github_advisory", max_wait=30):
-                return {"has_advisory": False}
-            
-            response = requests.get(
-                f"https://api.github.com/advisories?cve_id={cve_id}",
-                headers=self.headers, timeout=10
-            )
-            response.raise_for_status()
-            rate_limit_manager.record_call("github_advisory")
-            
-            advisories = response.json()
-            if not advisories:
-                return {"has_advisory": False}
-            
-            adv = advisories[0]
-            packages = []
-            for vuln in adv.get('vulnerabilities', []):
-                pkg = vuln.get('package', {})
-                if pkg:
-                    packages.append({
-                        "ecosystem": pkg.get('ecosystem', 'Unknown'),
-                        "name": pkg.get('name', 'Unknown'),
-                        "vulnerable_range": vuln.get('vulnerable_version_range', ''),
-                        "patched": vuln.get('patched_versions', '')
-                    })
-            
-            result = {
-                "has_advisory": True,
-                "severity": adv.get('severity', 'unknown'),
-                "packages": packages[:5],
-                "ghsa_id": adv.get('ghsa_id', '')
-            }
-            
-            if packages:
-                logger.info(f"  📦 GitHub Advisory 발견: {cve_id} ({len(packages)}개 패키지)")
-            
-            return result
-            
-        except Exception as e:
-            logger.debug(f"GitHub Advisory 실패 ({cve_id}): {e}")
-            return {"has_advisory": False}
     
 
-    def fill_affected_from_nvd(self, cve_data: Dict) -> Dict:
-        if not cve_data.get('_nvd_enriched'):
-            cve_data = self.enrich_from_nvd(cve_data)
-        return self._augment_affected_from_cpe(cve_data)
 
-    def _augment_affected_from_cpe(self, cve_data: Dict) -> Dict:
-        cpes = cve_data.get('nvd_cpe') or []
-        if not cpes:
-            return cve_data
-        existing = cve_data.get('affected') or []
-        has_valid_vendor = any(
-            str(a.get('vendor') or '').lower() not in ('', 'unknown', 'n/a') for a in existing
-        )
-        if has_valid_vendor:
-            return cve_data
-        derived = affected_from_cpes(cpes, existing)
-        if derived:
-            cve_data['affected'] = derived
-            logger.info(f"  📦 NVD CPE로 영향자산 보강: {cve_data['id']} ({len(derived)}건)")
-        return cve_data
+    
+    
+
+
 
     def enrich_cheap_signals(self, cve_data: Dict) -> Dict:
         cve_id = cve_data['id']
@@ -626,23 +426,6 @@ class Collector:
         }]
         return cve_data
 
-    def enrich_threat_intel(self, cve_data: Dict) -> Dict:
-        cve_id = cve_data['id']
-        logger.info(f"위협 인텔리전스 수집(고위험): {cve_id}")
-
-        if 'has_public_exploit' not in cve_data:
-            self.enrich_cheap_signals(cve_data)
-
-        cve_data = self.fill_affected_from_nvd(cve_data)
-
-        poc_info = self.check_poc_exists(cve_id)
-        cve_data['has_poc'] = poc_info['has_poc']
-        cve_data['poc_count'] = poc_info['poc_count']
-        cve_data['poc_urls'] = poc_info['poc_urls']
-
-        cve_data['github_advisory'] = self.check_github_advisory(cve_id)
-
-        return cve_data
     
     def _error_response(self, cve_id: str, state: str = "ERROR") -> Dict:
         return {

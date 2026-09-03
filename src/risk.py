@@ -45,8 +45,7 @@ _TRIGGERS: Tuple[Trigger, ...] = (
 
     Trigger("cvss_critical_remote", T2, "CVSS 9.0+ · 사전인증 원격 · 무기화 쉬운 유형", "CVE/NVD"),
     Trigger("weaponizable_cwe", T2, "사전인증 원격 + 무기화 비율 높은 취약점 유형(CWE)", "CVE/NVD"),
-    Trigger("ssvc_automatable", T2, "CISA SSVC Automatable=yes — 자동화 대량 공격 가능", "CISA vulnrichment"),
-    Trigger("ssvc_total_impact", T2, "CISA SSVC Technical Impact=total — 완전 장악", "CISA vulnrichment"),
+    Trigger("ssvc_high", T2, "CISA SSVC 자동화 대량 공격 가능 + 완전 장악", "CISA vulnrichment"),
     Trigger("epss_high", T2, "EPSS 상위 5% (p95+)", "EPSS (FIRST.org)"),
     Trigger("poc", T2, "PoC 공개 확인", "nomi-sec / trickest"),
     Trigger("unscored_major_cna", T2, "주요 벤더 신규 CVE · 점수 미부여 — 재평가 대기", "CVE"),
@@ -175,10 +174,15 @@ def evaluate(state: Dict) -> Verdict:
     total_impact = state.get("ssvc_technical_impact") == "total"
     if epss_warm:
         fired.add("epss_high")
-    if automatable:
-        fired.add("ssvc_automatable")
-    if total_impact:
-        fired.add("ssvc_total_impact")
+    # 둘 중 하나만으로는 안 건다. CISA 는 아주 후하게 붙인다 — 실측(배포본 13,275행)으로
+    # Technical Impact=total 이 28%, Automatable=yes 가 12%다. 하나만 쓰면 최근 24시간
+    # 변경분 1,487건 중 1,001건이 T2 가 되어 추적 물량이 146 → 1,490건/일 로 10배가 된다
+    # (90일 보존이면 13만 행, 배포 파일 230MB — 화면이 못 버틴다).
+    # 둘을 함께 요구하면 220건/일 이고, 의미도 그쪽이 맞다: '자동화로 대량 공격이 되는데
+    # 성공하면 완전 장악'. CISA SSVC 결정 트리도 그 조합을 상위 사분면으로 본다.
+    # 벡터 조건(원격·무인증)을 더 걸어 봐도 217건/일 로 거의 안 줄어 굳이 안 건다.
+    if automatable and total_impact:
+        fired.add("ssvc_high")
     if state.get("has_poc"):
         fired.add("poc")
     if remote_unauth and weaponizable:

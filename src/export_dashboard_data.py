@@ -14,9 +14,27 @@ import risk
 from weekly_report import publish_weekly_report
 
 
+#: rule_manager 가 CVE 당 하나씩 돌려주는 룰 종류 (network 는 목록이라 따로 다룬다)
+_SINGLE_RULE_KEYS = ("sigma", "nuclei", "splunk", "yara")
+
+
+def _flat_ssvc(state: dict) -> dict:
+    """중첩 ssvc 를 판정이 읽는 평탄한 키로 편다 — 저장된 옛 행에는 중첩본만 있다."""
+    nested = state.get("ssvc")
+    if not isinstance(nested, dict):
+        return {}
+    out = {}
+    for key in ("exploitation", "automatable", "technical_impact"):
+        v = state.get(f"ssvc_{key}") or nested.get(key)
+        if isinstance(v, str) and v.strip():
+            out[f"ssvc_{key}"] = v.strip().lower()
+    return out
+
+
 def _tier_of(state: dict, entry: dict) -> str:
     derived = risk.evaluate({
         **state,
+        **_flat_ssvc(state),
         "is_kev": entry.get("is_kev", False),
         "cvss": entry.get("cvss", 0) or 0,
         "epss": entry.get("epss", 0) or 0,
@@ -135,21 +153,23 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             seen_aff[key] = item
             entry["affected"].append(item)
 
+        # rule_manager 는 sigma·nuclei·splunk·yara·network 를 돌려주고 리포트도 그 다섯을
+        # 렌더한다. 여기서만 sigma·network·yara 세 가지로 잘라서, nuclei 템플릿과 Splunk
+        # ESCU 탐지가 대시보드에서만 조용히 사라지고 있었다.
         rules = row.get("rules_snapshot") or {}
         rule_engines = []
-        if rules.get("sigma"):
-            rule_engines.append("sigma")
+        for key in _SINGLE_RULE_KEYS:
+            if rules.get(key):
+                rule_engines.append(key)
         for net_rule in (rules.get("network") or []):
             engine = net_rule.get("engine") or "network"
             if engine not in rule_engines:
                 rule_engines.append(engine)
-        if rules.get("yara"):
-            rule_engines.append("yara")
         entry["rule_engines"] = rule_engines
         entry["has_official_rules"] = bool(row.get("has_official_rules"))
         if rule_engines:
             entry["rules"] = {
-                k: rules[k] for k in ("sigma", "network", "yara") if rules.get(k)
+                k: rules[k] for k in _SINGLE_RULE_KEYS + ("network",) if rules.get(k)
             }
 
         state_poc = state.get("has_poc", False)

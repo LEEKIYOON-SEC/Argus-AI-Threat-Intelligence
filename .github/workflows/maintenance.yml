@@ -25,15 +25,16 @@ on:
           - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
           - backfill-exploited # 현재 악용 중(KEV) 전량 소급 — 여러 번 돌리면 수렴
           - backfill-cvss      # CVSS 버전 소급 (4.0만 읽고 끊던 옛 행 보정)
+          - backfill-signals   # SSVC 평탄화 + 등급·발화이력 정합 (알림 폭풍 방지)
       backfill_days:
         # 30일씩 끊어 NVD를 조회한다. 키가 없으면 창당 8초라 7000일이면 ~30분 —
         # 잡 타임아웃(60분) 안이지만, NVD_API_KEY가 있으면 훨씬 빠르다.
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
       dry_run:
-        # backfill-cvss 전용. 레코드는 다 받아서 계산하고 저장만 하지 않는다 —
+        # backfill-cvss / backfill-signals 전용. 전부 계산하고 저장만 하지 않는다 —
         # 얼마나 올라가는지, 등급이 어디로 움직이는지를 쓰기 전에 로그로 본다.
-        description: 'backfill-cvss: 계산만 하고 저장하지 않기'
+        description: 'backfill-cvss·signals: 계산만 하고 저장하지 않기'
         type: boolean
         default: false
 
@@ -109,19 +110,38 @@ jobs:
           BACKFILL_LIMIT: '800'
         run: python src/backfill_exploited.py
 
-      # 옛 코드는 metrics를 돌다 CVSS를 하나 만나면 거기서 끊었다. 4.0 블록이 먼저 오면
-      # 3.x를 못 봤고(실측 22%가 두 버전을 갖고 대부분 값이 다르다), 4.0에 baseScore가
-      # 없으면 3.x에 9.8이 있어도 화면에 N/A로 떴다. 파이프라인은 고쳤지만 이미 저장된
-      # 행은 옛 값 그대로다. 이 잡이 그 행들을 소급해 맞춘다.
-      # 점수를 내리지 않고(NVD 보충분이 지워지는 걸 막는다) Slack도 부르지 않는다.
-      # 한 번에 1500건, 남으면 다시 돌리면 이어서 처리한다. 다 채우면 할 일이 없어진다.
+      # 두 가지를 고친다.
+      #  1. 옛 코드는 metrics를 돌다 CVSS를 하나 만나면 거기서 끊었다. 4.0이 먼저 오면
+      #     3.x를 못 봤다 — 실측 23%가 두 버전을 갖고 14.5%는 점수가 올라간다.
+      #  2. 2016년 이전 CVE는 구형 CVE 포맷에서 일괄 변환돼 cvelistV5에 metrics 블록이
+      #     아예 없다. 화면의 N/A 574건 중 572건이 이 경우고, 그중 571건이 T0다.
+      #     소스에 없는 건 재판독으로 못 고치므로 NVD를 한 번 더 본다(퍼블릭 도메인).
+      # NVD_API_KEY가 있으면 건당 0.7초, 없으면 8초다 — 574건이면 7분 vs 76분이라
+      # 예산(기본 2400초)을 넘기면 남은 건 다음 실행이 이어서 본다.
+      # 점수를 내리지 않고 Slack도 부르지 않는다. 다 채우면 대상이 0이 된다.
       - name: Backfill CVSS versions
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-cvss' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           BACKFILL_CVSS_LIMIT: '1500'
+          BACKFILL_CVSS_NVD_BUDGET: '2400'
         run: python src/backfill_cvss.py ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      # CISA vulnrichment의 SSVC는 ssvc 중첩 딕셔너리로 저장돼 왔는데 risk.evaluate는
+      # 평탄한 ssvc_exploitation만 읽었다 — 트리거 3개(T0 하나 포함)가 통째로 죽어 있었다.
+      # 실측: ssvc_active 439건 · ssvc_automatable 1,647건 · ssvc_total_impact 3,699건.
+      # 코드는 고쳤지만 저장된 행을 그냥 두면, 그 CVE가 다음에 한 번 바뀌는 순간
+      # ssvc_active(T0)가 '처음 보는 신호'가 되어 Slack이 순차적으로 439번 터진다.
+      # 이 잡이 미리 발화 이력에 채워 넣어 그걸 막는다. 네트워크를 쓰지 않아 몇 초면 끝난다.
+      # 코드 배포 직후 한 번만 돌리면 되고, 그 뒤로는 새로 관측되는 것만 알림이 나간다.
+      - name: Reconcile SSVC signals
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-signals' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python src/backfill_signals.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}

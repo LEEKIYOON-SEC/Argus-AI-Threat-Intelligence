@@ -4,7 +4,7 @@ import time
 import copy
 import datetime
 from supabase import create_client, Client
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from logger import logger
@@ -293,23 +293,6 @@ class ArgusDB:
             logger.error(f"룰 재확인 후보 조회 실패: {e}")
             return []
     
-    def batch_get_scalar(self, cve_ids: List[str], column: str) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
-        if not cve_ids:
-            return result
-        try:
-            for i in range(0, len(cve_ids), 50):
-                chunk = cve_ids[i:i + 50]
-                response = self._execute(
-                    self.client.table("cves").select(f"id, {column}").in_("id", chunk)
-                )
-                for row in (response.data or []):
-                    result[row['id']] = row.get(column)
-            return result
-        except Exception as e:
-            logger.error(f"배치 스칼라 조회 실패({column}): {e}")
-            return result
-
     def get_translation_backfill_candidates(self, limit: int = 60,
                                             offset: int = 0) -> List[Dict]:
         try:
@@ -380,7 +363,7 @@ class ArgusDB:
             logger.error(f"추적 CVE id 조회 실패: {e}")
         return ids
 
-    def _tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
+    def tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
         page_size = max(1, min(page_size, _PAGE_MAX))
         rows: List[Dict] = []
         offset = 0
@@ -407,7 +390,7 @@ class ArgusDB:
         return rows
 
     def get_rows_missing_published(self) -> List[Dict]:
-        return [r for r in self._tracked_states()
+        return [r for r in self.tracked_states()
                 if not (r.get("last_alert_state") or {}).get("published")]
 
     def get_rows_missing_vendor(self) -> List[Dict]:
@@ -416,15 +399,22 @@ class ArgusDB:
                 str(a.get("vendor") or "").strip().lower() not in ("", "unknown", "n/a", "-")
                 for a in (state.get("affected") or []) if isinstance(a, dict)
             )
-        return [r for r in self._tracked_states()
+        return [r for r in self.tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 
-    def get_rows_missing_cvss_version(self) -> List[Dict]:
-        # cvss_version 키의 유무가 곧 "이 행이 어느 코드로 쓰였는지"다. 지금 파이프라인은
-        # 점수가 없어도 빈 문자열로 항상 넣는다(collector.parse_record). 키가 아예 없는
-        # 행은 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것이다.
-        return [r for r in self._tracked_states()
-                if "cvss_version" not in (r.get("last_alert_state") or {})]
+    def get_rows_needing_cvss(self) -> List[Dict]:
+        # 두 종류를 잡는다.
+        #  1. cvss_version 키가 없는 행 — 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것.
+        #     지금 파이프라인은 점수가 없어도 빈 문자열로 항상 넣으므로(parse_record),
+        #     키의 유무가 곧 "어느 코드가 쓴 행인지"다.
+        #  2. 점수가 0 인 행 — 키가 이미 있어도 다시 본다. 2016년 이전 CVE 는 구형 CVE
+        #     포맷에서 일괄 변환돼 cvelistV5 에 metrics 블록 자체가 없다(실측 N/A 574건
+        #     중 572건). NVD 조회가 실패해 못 채운 행을 다음 실행이 다시 집어야 한다.
+        def needs(state: Dict) -> bool:
+            return ("cvss_version" not in state
+                    or float(state.get("cvss") or 0.0) <= 0.0)
+        return [r for r in self.tracked_states()
+                if needs(r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:
         try:
