@@ -16,27 +16,10 @@ from database import ArgusDB
 from logger import logger
 
 
-#: 이번 수정으로 **새로 켜지는** 알림 트리거. 기본값은 이것만 발화 이력에 심는다.
 SEED_DEFAULT = frozenset({"ssvc_active"})
 
 
 def reconcile(state: Dict, seed_all: bool = False) -> Dict:
-    """저장된 state 에서 SSVC 를 평탄화하고 등급·발화이력을 다시 맞춘다.
-
-    네트워크를 쓰지 않는다 — 필요한 값이 이미 행 안에 있다. CISA vulnrichment 의 SSVC 는
-    `ssvc` 중첩 딕셔너리로 저장돼 왔고, risk.evaluate 는 평탄한 `ssvc_exploitation` 만
-    읽었다. 그래서 화면에는 'SSVC: active' 가 뜨는데 판정은 T3 인 행이 쌓였다.
-
-    **fired_triggers 를 함께 채우는 것이 이 도구의 핵심이다.** 평탄화만 하고 두면, 그
-    CVE 가 다음에 한 번이라도 바뀌는 순간 risk.decide 가 ssvc_active(T0)를 '처음 보는
-    신호'로 읽고 Slack 을 쏜다. 실측 432건이 그 대상이라 순차적으로 터진다. 여기서
-    미리 '이미 발화한 것'으로 기록해 두면 새로 관측되는 것만 알림이 나간다.
-
-    기본값은 **이번 수정이 새로 켜는 트리거만** 심는다(SEED_DEFAULT). 지금 발화하는데
-    이력에 없는 다른 트리거(kev·metasploit 등)도 실측 480여 건 있는데, 그건 별개의
-    미진단 상태라 여기서 조용히 덮으면 나가야 할 알림을 영영 막는다. 전부 맞추려면
-    seed_all=True 를 명시한다.
-    """
     new = dict(state)
     flatten_ssvc(new)
 
@@ -87,7 +70,6 @@ def run(dry_run: bool, seed_all: bool = False) -> int:
     if dry_run:
         ok = 0
     else:
-        # updated_at 은 건드리지 않는다 — 보존 정책이 그 값으로 나이를 센다.
         ok = db.bulk_save_states(updates, "SSVC 정합")
         if ok:
             db.request_full_export()

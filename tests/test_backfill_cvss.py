@@ -1,25 +1,4 @@
 #!/usr/bin/env python3
-"""CVSS 소급 보정 — 옛 행을 고치되, 낮추지도 알리지도 않는지.
-
-    python3 tests/test_backfill_cvss.py
-
-왜 있나: 옛 코드는 metrics 를 돌다 CVSS 를 하나 만나면 거기서 끊었다. 그래서 4.0 블록이
-먼저 오면 3.x 를 못 봤고, 4.0 에 baseScore 가 없으면 점수가 통째로 N/A 로 남았다.
-지금 파이프라인은 고쳤지만 **이미 저장된 행은 그 값을 그대로 갖고 있다** — 새로 처리되는
-CVE 부터만 맞다. 그 간극을 메우는 게 src/backfill_cvss.py 다.
-
-여기서 지키는 계약 셋:
-
-1. **점수를 내리지 않는다.** 이 도구의 일은 버려진 버전을 되찾는 것이지 레코드를 다시
-   동기화하는 게 아니다. 소스가 진짜로 하향 수정됐다면 delta 피드가 정상 경로로 고친다.
-   특히 NVD 보충으로 받은 점수는 cvelistV5 레코드에 아예 없어서, 낮추기를 허용하면
-   멀쩡한 9.8 이 0.0 으로 지워진다.
-2. **알림을 켤 수 없다.** CVSS 가 건드리는 트리거는 cvss_critical_remote 와
-   unscored_major_cna 뿐이고 둘 다 T2 다. 알림은 T0/T1 트리거만 낸다. 이건 우연이
-   아니라 지켜야 할 성질이라서 여기서 전수로 확인한다.
-3. **한 번 처리한 행은 다시 안 잡힌다.** 대상 선정 기준이 cvss_version 키의 유무이므로,
-   점수가 안 변해도 키는 반드시 심어야 한다. 안 그러면 매 실행이 같은 행을 다시 받아온다.
-"""
 import os
 import sys
 
@@ -60,7 +39,6 @@ def main() -> int:
         check(got == want, f"{vector!r} → {got!r}", failures)
 
     print("\n── 사용자가 본 증상: 3.x 는 9.8 인데 화면은 N/A ──")
-    # 옛 코드가 죽던 모양 그대로 — 4.0 블록이 먼저 오는데 baseScore 가 없다.
     state = {"id": "CVE-X", "cvss": 0.0, "cvss_vector": "N/A", "tier": risk.T2,
              "assigner": "microsoft", "fired_triggers": []}
     record = {"containers": {"cna": {"metrics": [
@@ -123,8 +101,6 @@ def main() -> int:
     check(new["tier"] == risk.T0, f"KEV 행은 T0 를 유지한다 ({new['tier']})", failures)
 
     print("\n── 알림 트리거를 새로 켤 수 없다 (구조적 성질) ──")
-    # CVSS 가 건드리는 트리거를 전수로 확인한다. 여기에 T0/T1 이 하나라도 들어오면
-    # 이 도구가 조용히 알림을 만들 수 있다는 뜻이므로 즉시 알아야 한다.
     touched = {"cvss_critical_remote", "unscored_major_cna"}
     for key in touched:
         t = risk.TRIGGERS[key]
@@ -147,10 +123,8 @@ def main() -> int:
     check(new["tier"] == risk.T3, f"6.5 로 확인되면 T3 로 내려간다 ({new['tier']})", failures)
 
     print("\n── NVD 폴백: cvelistV5 에 metrics 가 아예 없는 옛 CVE ──")
-    # 실측: 화면의 N/A 574건 중 572건이 cvelistV5 에 metrics 자체가 없다. 2016년 이전
-    # CVE 가 구형 포맷에서 일괄 변환된 탓이고, 그중 571건이 T0(관측된 악용)다.
-    # CVE-2016-0736 이 그 예 — cna.metrics 는 null 이고 NVD 에만 3.0=7.5 가 있다.
     calls = []
+
 
     def fake_nvd(payload):
         def _f(cve_id, api_key="", timeout=60):
@@ -186,8 +160,6 @@ def main() -> int:
         check(not calls, f"호출 0회 (실제 {len(calls)}회) — 쓸데없는 요청을 안 한다", failures)
 
         print("\n  ── CVSS 2.0 만 있는 옛 CVE ──")
-        # 실측(표본 25건): 3.x/4.0 있음 16% · 2.0 만 있음 84%. 2.0 을 버리면 T0 480여 건이
-        # 심각도 칸을 계속 비워 둔다. 대신 3.x/4.0 과 한 max 에 섞지 않고, 버전을 밝힌다.
         st2 = {"id": "CVE-1999-0502", "cvss": 0.0, "cvss_vector": "N/A", "tier": risk.T0,
                "is_kev": True, "fired_triggers": ["kev"]}
         res2 = [("CVE-1999-0502", st2, dict(st2))]
@@ -213,15 +185,12 @@ def main() -> int:
         backfill_cvss.time.sleep = real_sleep
 
     print("\n── 2.0 을 3.x 와 한 max 에 섞지 않는다 ──")
-    # v2 와 v3 는 척도가 달라 비교 자체가 성립하지 않는다 (CVE-2016-0736: v2=5.0 v3.0=7.5).
-    # nvd_cvss 는 3.x/4.0 이 하나라도 있으면 2.0 을 아예 담지 않는다.
     st3 = {"id": "CVE-R", "cvss": 0.0, "cvss_vector": "N/A"}
     both_versions = apply_scores(st3, {"3.0": (7.5, "CVSS:3.0/AV:N"), "2.0": (9.0, "AV:N")})
     check(both_versions["cvss"] == 9.0,
           "혹시 둘이 함께 들어오면 max 규칙 그대로 (낮춰 부르지 않는다)", failures)
 
     print("\n── v2 벡터로는 cvss_critical_remote 가 켜질 수 없다 ──")
-    # v2 는 PR 대신 Au 를 쓴다 → is_remote_unauth 가 False.
     v2_state = {"id": "S", "cvss": 10.0, "cvss_vector": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
                 "assigner": "microsoft", "cwe": ["CWE-78"]}
     check("cvss_critical_remote" not in risk.evaluate(v2_state).triggers,

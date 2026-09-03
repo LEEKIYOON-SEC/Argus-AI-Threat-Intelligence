@@ -39,9 +39,6 @@ except Exception:
 
 
 def _looks_english(text: str) -> bool:
-    # 한글이 하나도 없고 라틴 문자가 실질적으로 있으면 미번역으로 본다.
-    # 예전에는 len > 25 를 요구했는데, 실측(628건)으로 25자 이하 제목이 0.2%뿐이라
-    # 큰 영향은 아니었지만 'nodejs node vulnerability'(25자) 같은 건이 영영 안 걸렸다.
     t = (text or '').strip()
     if not t or t in ("N/A", "-"):
         return False
@@ -50,37 +47,22 @@ def _looks_english(text: str) -> bool:
     return len(re.findall(r'[A-Za-z]', t)) >= 8
 
 
-def _translation_budget() -> int:
-    """이번 회차에 번역할 수 있는 최대 건수 — 남은 일일 한도에서 계산한다.
+_TOKENS_PER_ITEM = 250
 
-    RPD/TPD 는 24시간 롤링이라 한 회차에 다 써 버리면 그날 남은 회차가 아무것도 못 한다.
-    그렇다고 아껴 봐야 bulk-lane 은 하루 5회밖에 안 도니(실측) 잘게 쪼개는 것도 손해다.
-    그래서 **남은 한도의 (1 - reserve) 를 통째로 쓰되, 안전 상한으로 자른다.**
-    한도가 실제로 소진되면 rate_limit_manager 가 SKIP 을 돌려주고 그 회차는 거기서
-    멈춘다 — 버킷이 24시간 롤링이라 시간이 지나면 저절로 풀리고 다음 회차가 이어받는다.
-    """
-    cap = config.PERFORMANCE.get("translation_max_per_run", 1500)
+
+def _translation_budget() -> int:
     batch = max(1, config.PERFORMANCE.get("translation_batch_size", 6))
     reserve = config.PERFORMANCE.get("translation_daily_reserve", 0.15)
+    minutes = config.PERFORMANCE.get("translation_minutes", 18)
 
-    # 두 단은 **각자 별도 한도**를 가진 폴백이다. 한 단이 소진돼도 다른 단으로 계속
-    # 돌아가므로, 단별로 따로 계산해 **가장 여유 있는 쪽**을 예산으로 삼는다.
-    # (예전 초안은 단을 돌며 min 을 누적해서, 1단이 소진되면 2단이 멀쩡해도 0 이 됐다.)
     best = 0
     for _model, key in _TRANSLATION_STAGES:
-        req_left, tok_left = rate_limit_manager.daily_headroom(key)
-        allowed = cap
-        if req_left is not None:
-            allowed = min(allowed, int(req_left * (1 - reserve)) * batch)
-        if tok_left is not None:
-            # 청크 하나가 쓰는 토큰 실측 근사 — 입력(제목+설명 500자 x batch)과 출력 합.
-            allowed = min(allowed, int(tok_left * (1 - reserve)) // _TOKENS_PER_ITEM)
+        allowed = int(rate_limit_manager.daily_headroom(key) * (1 - reserve)) * batch
+        tpm = rate_limit_manager.minute_token_headroom(key)
+        if tpm:
+            allowed = min(allowed, (tpm // _TOKENS_PER_ITEM) * minutes)
         best = max(best, allowed)
-    return max(0, min(cap, best))
-
-
-#: 청크 한 건당 토큰 실측 근사 (입력 ~170 + 출력 ~80). TPD 예산 환산에만 쓴다.
-_TOKENS_PER_ITEM = 250
+    return max(0, best)
 
 
 def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
@@ -91,8 +73,7 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
         return 0
     budget = _translation_budget()
     if budget <= 0:
-        logger.warning("번역 생략 — 번역 모델의 일일 한도(RPD/TPD)가 남아 있지 않다 "
-                       "(24h 롤링이라 시간이 지나면 저절로 풀린다)")
+        logger.warning("번역 생략 — 번역 모델의 일일 한도(RPD)가 남아 있지 않다")
         return 0
 
     pool = max(1, config.PERFORMANCE.get("translation_backfill_pool", 200))
@@ -102,12 +83,8 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
 
     done = 0
     scanned_total = 0
-    # 한 바퀴를 넘겨 돌지 않는다. 백로그가 비면 영문이 안 나오는데, 그때 예산이 남았다고
-    # 계속 돌면 시간 예산이 다 할 때까지 같은 표를 몇 바퀴씩 다시 읽는다.
     max_windows = (total // pool + 2) if total else 25
     try:
-        # 한 창(200행)에 영문이 몇 건 없을 수도 있다. 예산이 남아 있으면 다음 창으로
-        # 계속 넘어간다 — 예전에는 창 하나만 보고 끝냈다.
         while done < budget and time.time() < stop_ts and max_windows > 0:
             max_windows -= 1
             offset = pstate.read_backfill_offset()
@@ -115,9 +92,6 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
                 offset = 0
             candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
             if not candidates:
-                # 빈 응답은 '끝'일 수도 있고 조회 실패일 수도 있다(get_… 은 예외를 삼키고
-                # [] 를 돌려준다). 실패를 '끝'으로 읽어 0 으로 되감으면 뒤쪽 행은 영영
-                # 안 온다. 창을 그대로 두고 다음 회차가 같은 자리를 다시 보게 한다.
                 logger.info(f"번역: 후보 없음 (스캔 {offset:,}/{total:,}행 — 다음 실행도 "
                             f"{offset:,}부터. 조회 실패였다면 여기서 다시 본다)")
                 break
@@ -129,9 +103,6 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
                 state = row.get('last_alert_state') or {}
                 title_ko = state.get('title_ko') or state.get('title') or ''
                 desc_ko = state.get('desc_ko') or state.get('description') or ''
-                # 제목만 보면 안 된다 — 제목은 한글인데 본문이 영문으로 남은 행이 생긴다
-                # (번역이 부분 성공했거나, 설명이 나중에 채워진 경우). 그런 행은 제목
-                # 검사만 통과해 두 번 다시 후보로 올라오지 않았다.
                 if not (_looks_english(title_ko) or _looks_english(desc_ko)):
                     continue
                 items.append({"id": row['id'],
@@ -141,14 +112,7 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
                 if len(items) >= budget - done:
                     break
 
-            # 창은 **실제로 소화한 만큼만** 전진한다. 예전에는 한도(24건)에서 멈춰 놓고
-            # offset 을 창 크기(200)만큼 밀었다 — 그래서 한 창에 영문이 24건을 넘으면
-            # 나머지는 offset 이 지나가 버려 한 바퀴(13,275행 ÷ 200 = 66회차) 뒤에나
-            # 다시 왔고, 그때도 똑같이 앞 24건에서 잘렸다. 실측으로 미번역 2,340건 중
-            # **1,447건이 구조적으로 도달 불가**였다. CVE-2016-0193 이 그중 하나다.
             next_offset = offset + scanned
-            # 표 끝에 닿았다는 신호 둘: count 를 넘었거나, 창을 다 못 채웠거나.
-            # count 조회가 실패해 total 이 0 이어도 후자로 잡힌다.
             wrapped = bool(total and next_offset >= total) or len(candidates) < pool
             pstate.write_backfill_offset(0 if wrapped else next_offset)
             scanned_total += scanned
@@ -331,10 +295,12 @@ def generate_korean_summaries_batch(items: List[Dict], priority_ids: set,
     lock = threading.Lock()
     state = {"done": 0, "deadline_warned": False, "fell_back": 0}
 
+
     def _individual(it: Dict, allow_retry: bool) -> Tuple[str, str]:
         return generate_korean_summary(
             {"title": it['title'], "description": it['description']},
             retry_on_transient=allow_retry)
+
 
     def _do_chunk(chunk: List[Dict]) -> Dict[str, Tuple[str, str]]:
         out: Dict[str, Tuple[str, str]] = {}

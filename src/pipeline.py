@@ -14,9 +14,6 @@ KST = pytz.timezone('Asia/Seoul')
 STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected", "published",
     "cvss_vector",
-    # references 가 빠져 있었다. 수집은 하는데 저장이 안 돼서, 알림 시점에는 'CVE 원문·
-    # 벤더 권고' 버튼이 나오다가 리포트 보강(backfill_reports)이 저장된 state 로 다시
-    # 만들면 참고 자료 절이 통째로 비었고, analyzer 에 넘기는 분석 입력에서도 사라졌다.
     "references", "_nuclei_url", "_exploit_db_url",
     "is_kev", "is_kev_ransomware", "kev_due_date", "is_vulncheck_kev",
     "ssvc", "ssvc_exploitation", "ssvc_automatable", "ssvc_technical_impact",
@@ -37,9 +34,11 @@ class Outcome:
     decision: Optional[risk.Decision] = None
     state: Optional[Dict] = field(default=None, repr=False)
 
+
     @property
     def needs_retry(self) -> bool:
         return self.status == "failed"
+
 
     @property
     def alerted(self) -> bool:
@@ -64,17 +63,18 @@ def build_state(cve_id: str, record: Dict, collector,
         epss_score = collector.epss_cache.get(cve_id, 0.0)
         epss_pct = collector.epss_percentile.get(cve_id, 0.0)
 
-    raw.update({
-        "is_kev": cve_id in collector.kev_set,
-        "kev_due_date": collector.kev_due_date.get(cve_id, ""),
-        "epss": epss_score,
-        "epss_percentile": epss_pct,
-    })
+    if collector.kev_loaded:
+        raw["is_kev"] = cve_id in collector.kev_set
+        raw["kev_due_date"] = collector.kev_due_date.get(cve_id, "")
+    if epss_index is not None or collector.epss_cache:
+        raw["epss"] = epss_score
+        raw["epss_percentile"] = epss_pct
     return raw
 
 
 class RowCache:
     __slots__ = ("_db", "_rows", "_covered")
+
 
     def __init__(self, db, cve_ids=()):
         self._db = db
@@ -86,6 +86,7 @@ class RowCache:
             logger.info(f"기존 행 일괄 조회 {len(self._rows)}/{len(ids)}건 "
                         f"(개별 왕복 {len(self._covered)}회 절약)")
 
+
     def get(self, cve_id: str) -> Optional[Dict]:
         row = self._rows.get(cve_id)
         if row is not None:
@@ -94,22 +95,28 @@ class RowCache:
             return None
         return self._db.get_cve(cve_id)
 
+
     def forget(self, cve_id: str) -> None:
         self._rows.pop(cve_id, None)
         self._covered.discard(cve_id)
 
 
+def carry_forward(state: Dict, last: Optional[Dict]) -> Dict:
+    if isinstance(last, dict):
+        for key in STATE_FIELDS:
+            if key not in state and key in last:
+                state[key] = last[key]
+    return state
+
+
 def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             make_report=None, rows: Optional["RowCache"] = None,
             silent: bool = False) -> Outcome:
-    # silent=True: Slack 도 last_alert_at 도 남기지 않는다. fired_triggers 는 기록하므로
-    # 다음 실행에서 재알림이 나가지 않는다. 소급 채우기 전용.
-    # last_alert_at 을 남기면 get_missing_report_candidates 가 그 행을 리포트 대상으로
-    # 집어 GitHub Issue 를 대량 생성한다 (is_kev DESC 정렬이라 맨 앞에 선다).
     cve_id = state['id']
     try:
         last_row = rows.get(cve_id) if rows is not None else db.get_cve(cve_id)
         last = (last_row or {}).get('last_alert_state')
+        carry_forward(state, last)
         decision = risk.decide(state, last)
 
         if decision.tier == risk.T3:

@@ -10,8 +10,10 @@ from logger import logger
 from config import config
 from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
+
 class AnalyzerError(Exception):
     pass
+
 
 class Analyzer:
     def __init__(self):
@@ -27,6 +29,7 @@ class Analyzer:
             self.gemini_client = genai.Client(api_key=gemini_key)
         logger.info(f"Analyzer initialized ({config.GEMINI_ANALYSIS_MODEL} "
                     f"→ {config.GEMINI_ANALYSIS_FALLBACK_MODEL} → 정형 폴백)")
+
 
     @retry(
         stop=stop_after_attempt(3),
@@ -48,6 +51,7 @@ class Analyzer:
         return self._fallback_analysis(cve_data)
 
     _GEMINI_ATTEMPTS = 3
+
 
     def _analyze_with_gemini(self, cve_data: Dict, prompt: str,
                              model: str, limiter_key: str) -> Optional[Dict]:
@@ -104,6 +108,7 @@ class Analyzer:
                 return None
         return None
 
+
     def _extract_json(self, text: str) -> Optional[Dict]:
         try:
             return json.loads(text)
@@ -124,7 +129,8 @@ class Analyzer:
                 pass
 
         return None
-    
+
+
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
         enriched_section = ""
         
@@ -222,7 +228,8 @@ Return ONLY a valid JSON object:
 
 Do NOT include markdown code fences or any text outside the JSON.
 """
-    
+
+
     def _validate_analysis_result(self, result: Dict) -> bool:
         required_keys = ['root_cause', 'scenario', 'impact', 'mitigation']
 
@@ -236,7 +243,8 @@ Do NOT include markdown code fences or any text outside the JSON.
             return False
 
         return True
-    
+
+
     def _fallback_analysis(self, cve_data: Dict) -> Dict:
         logger.warning(f"{cve_data['id']}: Using fallback analysis (AI failed)")
         

@@ -52,11 +52,12 @@ def cache_put(name: str, content: bytes) -> None:
 
 _exploitdb_index: Dict[str, Tuple[str, str]] = {}
 _exploitdb_loaded = False
+_exploitdb_ok = False
 _CVE_RE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 
 
 def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
-    global _exploitdb_loaded
+    global _exploitdb_loaded, _exploitdb_ok
     with _lock:
         if _exploitdb_loaded:
             return _exploitdb_index
@@ -88,11 +89,17 @@ def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
                     continue
                 for cve in _CVE_RE.findall(codes):
                     _exploitdb_index.setdefault(cve.upper(), (file_path, edb_id))
+            _exploitdb_ok = bool(_exploitdb_index)
             logger.info(f"  ✅ Exploit-DB 인덱스 로드 완료 ({len(_exploitdb_index)}개 CVE 매핑)")
         except Exception as e:
             logger.warning(f"  ⚠️ Exploit-DB CSV 파싱 실패: {e}")
 
     return _exploitdb_index
+
+
+def exploitdb_ok() -> bool:
+    load_exploitdb_index()
+    return _exploitdb_ok
 
 
 def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
@@ -102,6 +109,7 @@ def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
 
 _msf_index: Dict[str, List[Dict]] = {}
 _msf_loaded = False
+_msf_ok = False
 
 _MSF_RANK_NAMES = {
     0: "manual", 100: "low", 200: "average", 300: "normal",
@@ -110,7 +118,7 @@ _MSF_RANK_NAMES = {
 
 
 def load_metasploit_index() -> Dict[str, List[Dict]]:
-    global _msf_loaded
+    global _msf_loaded, _msf_ok
     with _lock:
         if _msf_loaded:
             return _msf_index
@@ -152,11 +160,17 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
                 }
                 for cve in cves:
                     _msf_index.setdefault(cve, []).append(entry)
+            _msf_ok = bool(_msf_index)
             logger.info(f"  ✅ Metasploit 인덱스 로드 완료 ({len(_msf_index)}개 CVE 매핑)")
         except Exception as e:
             logger.warning(f"  ⚠️ Metasploit 메타데이터 파싱 실패: {e}")
 
     return _msf_index
+
+
+def metasploit_ok() -> bool:
+    load_metasploit_index()
+    return _msf_ok
 
 
 def metasploit_modules(cve_id: str) -> List[Dict]:
@@ -167,10 +181,11 @@ def metasploit_modules(cve_id: str) -> List[Dict]:
 
 _nuclei_index: Dict[str, Dict] = {}
 _nuclei_loaded = False
+_nuclei_ok = False
 
 
 def load_nuclei_index() -> Dict[str, Dict]:
-    global _nuclei_loaded
+    global _nuclei_loaded, _nuclei_ok
     with _lock:
         if _nuclei_loaded:
             return _nuclei_index
@@ -209,9 +224,15 @@ def load_nuclei_index() -> Dict[str, Dict]:
                 "severity": info.get("Severity", ""),
                 "path": obj.get("file_path", ""),
             }
+        _nuclei_ok = bool(_nuclei_index)
         logger.info(f"  ✅ nuclei-templates 인덱스 로드 완료 ({len(_nuclei_index)}개 CVE 매핑)")
 
     return _nuclei_index
+
+
+def nuclei_ok() -> bool:
+    load_nuclei_index()
+    return _nuclei_ok
 
 
 def nuclei_template(cve_id: str) -> Optional[Dict]:

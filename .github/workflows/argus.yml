@@ -85,19 +85,6 @@ jobs:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
-          # 일일 한도는 AI Studio(aistudio.google.com/rate-limit)에서만 확인할 수 있고
-          # 모델·계정마다 다르다. 코드를 고치지 않고 여기서 맞출 수 있게 열어 둔다.
-          # 비워 두면 rate_limiter.py의 기본값을 쓰고, TPD는 0(=추적만 안 함)이다.
-          # 값을 넣으면 번역이 그 한도 안에서 최대한 돌고, 소진되면 그 자리에서 멈춘다
-          # (버킷이 24시간 롤링이라 시간이 지나면 저절로 풀리고 다음 회차가 이어받는다).
-          ARGUS_RPD_GEMINI: ${{ vars.ARGUS_RPD_GEMINI }}
-          ARGUS_TPD_GEMINI: ${{ vars.ARGUS_TPD_GEMINI }}
-          ARGUS_RPD_GEMINI_FB: ${{ vars.ARGUS_RPD_GEMINI_FB }}
-          ARGUS_TPD_GEMINI_FB: ${{ vars.ARGUS_TPD_GEMINI_FB }}
-          ARGUS_RPD_ANALYSIS: ${{ vars.ARGUS_RPD_ANALYSIS }}
-          ARGUS_TPD_ANALYSIS: ${{ vars.ARGUS_TPD_ANALYSIS }}
-          ARGUS_RPD_ANALYSIS_FB: ${{ vars.ARGUS_RPD_ANALYSIS_FB }}
-          ARGUS_TPD_ANALYSIS_FB: ${{ vars.ARGUS_TPD_ANALYSIS_FB }}
         run: python src/main.py
  
       # if: always() — bulk-lane이 중간에 실패해도 이미 DB에 저장된 것은 배포한다.

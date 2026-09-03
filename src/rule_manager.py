@@ -74,9 +74,11 @@ class RuleManager:
     def __init__(self):
         logger.debug("RuleManager 초기화 (인덱스 조회 전용)")
 
+
     @staticmethod
     def lookup(cve_id: str) -> List[Dict]:
         return _index().get(cve_id.upper(), [])
+
 
     def search_public_only(self, cve_id: str) -> Dict:
         entries = self.lookup(cve_id)

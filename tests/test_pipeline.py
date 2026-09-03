@@ -13,6 +13,7 @@ class FakeDB:
         self.fail_ids = set(fail_ids)
         self.single_calls = []
 
+
     def get_cves(self, ids):
         found, covered = {}, set()
         for cid in ids:
@@ -22,6 +23,7 @@ class FakeDB:
             if cid in self.rows:
                 found[cid] = self.rows[cid]
         return found, covered
+
 
     def get_cve(self, cve_id):
         self.single_calls.append(cve_id)
@@ -100,12 +102,6 @@ class Notifier:
 
 
 def silent_mode(failures):
-    # silent=True 는 소급 채우기(backfill_exploited.py) 전용이다. 여기서 지키는 것 둘:
-    #   ① Slack 을 보내지 않는다 — KEV 1,687건이 한꺼번에 나가면 안 된다
-    #   ② last_alert_at 을 남기지 않는다 — 남기면 get_missing_report_candidates 가
-    #      (is_kev DESC 정렬이라 맨 앞에서) 그 행들을 집어 GitHub Issue 를 대량 생성한다
-    # 그러면서도 fired_triggers 는 기록해야 한다. 안 그러면 다음 실행이 전부 '신규'로 보고
-    # 결국 알림 폭풍이 난다 — 억제를 미루기만 한 꼴이 된다.
     kev = {"id": "CVE-2020-1472", "cvss": 10.0, "epss": 0.9, "is_kev": True,
            "title": "Zerologon",
            "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"}

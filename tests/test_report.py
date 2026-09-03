@@ -1,23 +1,4 @@
 #!/usr/bin/env python3
-"""리포트 본문 — 알림 시점의 상태로도 만들어지는지.
-
-    python3 tests/test_report.py
-
-왜 있나: 실행 로그에 이게 찍혔다.
-
-    [ERROR] GitHub Issue 생성 실패: 'title_ko'
-    [INFO] Slack 즉시 알림: CVE-2026-5027 [T0] ...
-
-`report.py` 가 `cve_data['title_ko']` 를 직접 꺼냈는데, **알림 시점의 상태에는 그 키가
-없다** — 번역은 bulk-lane 이 나중에 채운다. KeyError 를 create_github_issue 의 except 가
-삼켜서 한 줄 로그로만 보였고, 알림은 리포트 링크 없이 나갔다.
-
-한 시간 뒤 리포트 보강(backfill_reports)에서는 성공했는데, 거기서만 setdefault 로
-title_ko·references·cvss 를 메우고 있었기 때문이다. 즉 **호출 경로마다 필요한 키가
-다르다**는 사실을 한쪽만 알고 있었다. 그래서 report.py 쪽에서 가정을 없앴다.
-
-여기서 지키는 계약: 리포트 본문은 **id 하나만 있어도** 만들어진다. 없는 값은 폴백한다.
-"""
 import importlib.util
 import os
 import sys
@@ -37,8 +18,6 @@ import report  # noqa: E402
 ANALYSIS = {"summary": "요약", "root_cause": "원인", "attack_scenario": "시나리오",
             "impact": "영향", "mitigation": ["패치 적용"], "detection": "탐지"}
 
-# 알림 시점(fast-lane / 스냅샷 대조)이 넘기는 상태 — pipeline.build_state 의 출력 모양.
-# title 은 있고 title_ko 는 없다.
 AT_ALERT = {
     "id": "CVE-2026-5027", "title": "Langflow - Path Traversal",
     "description": "A path traversal issue…", "cvss": 9.8, "epss": 0.42,
@@ -91,8 +70,6 @@ def main() -> int:
             check(False, f"{desc} → {type(e).__name__}: {e}", failures)
 
     print("\n── CVSS 버전 표기 ──")
-    # 4.0 과 3.x 는 산식이 달라 실측 22%가 두 버전을 갖고 대부분 점수가 다르다.
-    # 어느 버전인지 안 밝히면 NVD 에서 다른 값을 본 사람이 무엇이 맞는지 알 수 없다.
     body = report._build_issue_body(dict(AT_ALERT, cvss_version="3.1"), "사유", ANALYSIS, {})
     check("CVSS%20v3.1" in body, "배지에 버전이 붙는다 (v3.1)", failures)
     body = report._build_issue_body(AT_ALERT, "사유", ANALYSIS, {})

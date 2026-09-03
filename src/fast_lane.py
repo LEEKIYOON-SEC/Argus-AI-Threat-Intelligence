@@ -46,10 +46,6 @@ def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Argu
     outcomes: List[pipeline.Outcome] = []
     failed_at: Dict[str, datetime.datetime] = {}
 
-    # 남은 구간은 **소비한 개수**로 끊는다. 예전에는 len(outcomes) 로 끊었는데,
-    # record 가 없거나 상태 구성이 터진 건은 outcomes 에 안 담기므로 그만큼 인덱스가
-    # 앞으로 밀렸다 — 이미 알림까지 나간 CVE 가 '실패'로 다시 기록되고, 그 실패 카운터가
-    # 3 을 넘으면 멀쩡한 CVE 가 격리됐다.
     for i, change in enumerate(changes):
         if time.time() > deadline:
             logger.warning(f"⏰ 시간 예산 도달 — 잔여 {len(changes) - i}건은 "

@@ -128,13 +128,16 @@ class Verdict:
     tier: str
     triggers: FrozenSet[str] = field(default_factory=frozenset)
 
+
     @property
     def alerting_triggers(self) -> FrozenSet[str]:
         return self.triggers & ALERTING_TRIGGERS
 
+
     @property
     def tracked(self) -> bool:
         return self.tier != T3
+
 
     def labels(self) -> Tuple[str, ...]:
         return tuple(t.label for t in _TRIGGERS if t.key in self.triggers)
@@ -174,13 +177,6 @@ def evaluate(state: Dict) -> Verdict:
     total_impact = state.get("ssvc_technical_impact") == "total"
     if epss_warm:
         fired.add("epss_high")
-    # 둘 중 하나만으로는 안 건다. CISA 는 아주 후하게 붙인다 — 실측(배포본 13,275행)으로
-    # Technical Impact=total 이 28%, Automatable=yes 가 12%다. 하나만 쓰면 최근 24시간
-    # 변경분 1,487건 중 1,001건이 T2 가 되어 추적 물량이 146 → 1,490건/일 로 10배가 된다
-    # (90일 보존이면 13만 행, 배포 파일 230MB — 화면이 못 버틴다).
-    # 둘을 함께 요구하면 220건/일 이고, 의미도 그쪽이 맞다: '자동화로 대량 공격이 되는데
-    # 성공하면 완전 장악'. CISA SSVC 결정 트리도 그 조합을 상위 사분면으로 본다.
-    # 벡터 조건(원격·무인증)을 더 걸어 봐도 217건/일 로 거의 안 줄어 굳이 안 건다.
     if automatable and total_impact:
         fired.add("ssvc_high")
     if state.get("has_poc"):
@@ -221,6 +217,7 @@ class Decision:
     new_triggers: FrozenSet[str]
     reason: str
     full_report: bool
+
 
     @property
     def tracked(self) -> bool:

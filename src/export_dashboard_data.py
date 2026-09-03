@@ -14,12 +14,10 @@ import risk
 from weekly_report import publish_weekly_report
 
 
-#: rule_manager 가 CVE 당 하나씩 돌려주는 룰 종류 (network 는 목록이라 따로 다룬다)
 _SINGLE_RULE_KEYS = ("sigma", "nuclei", "splunk", "yara")
 
 
 def _flat_ssvc(state: dict) -> dict:
-    """중첩 ssvc 를 판정이 읽는 평탄한 키로 편다 — 저장된 옛 행에는 중첩본만 있다."""
     nested = state.get("ssvc")
     if not isinstance(nested, dict):
         return {}
@@ -81,10 +79,6 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
             .gte("updated_at", since or cutoff) \
             .not_.is_("last_alert_state", "null")
-        # 정렬 키는 id 다. updated_at 으로 정렬하면 안 된다 — fast-lane 이 5분마다 별도
-        # 워크플로로 돌며 이 테이블에 쓰고, 그러면 페이지를 넘기는 사이에 행이 앞으로
-        # 튀어 경계를 넘나든다. offset 페이징에서 그건 곧 '어떤 행은 건너뛰고 어떤 행은
-        # 두 번 읽는다'는 뜻이고, 회차마다 결과 건수가 달라진다.
         response = query \
             .order("id") \
             .range(offset, offset + page_size - 1) \
@@ -131,11 +125,6 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             "updated": row.get("updated_at") or "",
         }
 
-        # 영향 제품은 **전량**을 싣는다. 예전에는 3개로 잘랐는데, 실측(664건)으로 CVE 의
-        # 51.9%가 3개를 넘고 전체 제품 항목의 71%가 잘려 나갔다. 그 상태로는 '내가 쓰는
-        # 제품이 영향받나'를 검색으로 확인할 수 없다 — 8번째에 있으면 안 나온다.
-        # (예: CVE-2026-14164 는 23개 중 OpenShift 가 8번째라 검색에 안 걸렸다)
-        # 같은 vendor+product 가 스트림별로 여러 줄 오므로 버전 문자열을 합쳐 접는다.
         seen_aff = {}
         for aff in _l(state, "affected"):
             if not isinstance(aff, dict):
@@ -153,9 +142,6 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             seen_aff[key] = item
             entry["affected"].append(item)
 
-        # rule_manager 는 sigma·nuclei·splunk·yara·network 를 돌려주고 리포트도 그 다섯을
-        # 렌더한다. 여기서만 sigma·network·yara 세 가지로 잘라서, nuclei 템플릿과 Splunk
-        # ESCU 탐지가 대시보드에서만 조용히 사라지고 있었다.
         rules = row.get("rules_snapshot") or {}
         rule_engines = []
         for key in _SINGLE_RULE_KEYS:
@@ -178,9 +164,6 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 
         entry["degraded"] = bool(state.get("waf_degraded"))
         entry["cvss_vector"] = _s(state, "cvss_vector")
-        # 어느 CVSS 버전의 점수인지, 그리고 다른 버전은 몇 점인지. 4.0 과 3.x 는 산식이
-        # 달라 실측 20.7%가 어긋난다 — 버전 표시 없이 숫자만 띄우면 NVD 에서 다른 값을
-        # 본 사람이 무엇이 맞는지 알 수 없다.
         entry["cvss_version"] = _s(state, "cvss_version")
         scores = state.get("cvss_scores")
         if isinstance(scores, dict) and len(scores) > 1:
@@ -230,19 +213,12 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
     return result
 
 
-#: 목록 표에 그대로 싣는 영향 제품 수. 나머지는 cve-products.json 에서 찾는다.
 TABLE_AFFECTED = 3
 
 
 def build_product_index(entries: list) -> dict:
-    """영향 제품 역인덱스 — 이름을 사전에 한 번만 담고 CVE 는 번호만 참조한다.
-
-    왜 따로 파일로 빼는가: 영향 제품을 자르지 않고 cves.json 에 그대로 실으면 실측
-    12.3MB 가 더 붙는다(현재 배포본이 이미 22.7MB). 그런데 제품 이름은 지독하게
-    반복된다 — 표본 664건에서 제품 항목 4,653개가 고유 이름으로는 321개뿐이었다.
-    사전으로 접으면 같은 정보가 1.6MB(gzip 0.2MB)에 들어간다.
-    """
     vend, prod, vers = {}, {}, {}
+
 
     def idx(table, value):
         value = (value or "").strip()
@@ -267,9 +243,9 @@ def build_product_index(entries: list) -> dict:
 
 
 def decode_product_index(index: dict) -> dict:
-    """{CVE: [{vendor, product, versions}, …]} 로 되돌린다 (병합·검증용)."""
     v, p, s = (index.get("vendors") or [], index.get("products") or [],
                index.get("versions") or [])
+
 
     def at(table, i):
         return table[i] if isinstance(i, int) and 0 <= i < len(table) else ""
@@ -283,21 +259,6 @@ def decode_product_index(index: dict) -> dict:
 
 
 def live_ids(client, days: int = 90):
-    """지금 DB 에 있는(대시보드에 실려야 할) CVE id 전량. **조회 실패면 None.**
-
-    증분 export 의 병합은 `직전 배포본 ∪ 이번에 바뀐 행`이라, DB 에서 사라진 행을
-    스스로 지우지 못한다. 그래서 다음이 벌어졌다.
-
-      번역이 돌면  → request_full_export() → 전량 export → 건수 = DB 실제
-      번역이 안 돌면(Gemma 503 등) → 병합 → 건수 = 직전 배포본 ∪ 신규 (더 큼)
-
-    '추적 중 CVE'가 회차마다 오르내린 이유가 이것이다. 두 경로가 같은 집합을 만들지
-    않았다. id 만 받아 오면 13,000건에 200KB 남짓이라, 전량 export 를 다시 도는 것보다
-    훨씬 싸게 회원 자격을 맞출 수 있다.
-
-    None 을 돌려주는 것이 중요하다 — 조회 실패를 '전부 사라졌다'로 읽으면 대시보드가
-    통째로 비워진다.
-    """
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
     found, offset, page_size = set(), 0, 1000
     while True:
@@ -335,8 +296,6 @@ def _take_full_export_flag(client) -> bool:
 
 
 def fetch_live_products() -> dict:
-    """배포 중인 제품 인덱스. 증분 export 는 바뀐 CVE 만 다시 만들므로, 나머지 CVE 의
-    제품 목록은 여기서 이어받아야 한다 — 안 그러면 갱신 안 된 CVE 가 인덱스에서 사라진다."""
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     if "/" not in repo:
         return {}
@@ -360,6 +319,7 @@ def _fetch_live_export() -> tuple:
     base = f"https://{owner.lower()}.github.io/{name}/data"
     try:
         import urllib.request
+
 
         def get(fn):
             req = urllib.request.Request(f"{base}/{fn}", headers={"User-Agent": "argus-export"})
@@ -404,8 +364,6 @@ def load_previous_export(data_dir: str) -> tuple:
 
 
 def merge_exports(previous: list, fresh: list, days: int = 90, keep=None) -> list:
-    # keep = 지금 DB 에 있는 id 집합. None 이면 조회를 못 한 것이므로 아무것도 떨구지
-    # 않는다(그걸 '전부 사라짐'으로 읽으면 대시보드가 비워진다).
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
     by_id = {r.get("id"): r for r in previous if r.get("id")}
     for r in fresh:
@@ -433,6 +391,7 @@ def export_stats(cve_data: list) -> dict:
     recent_24h = 0
     kev_count = 0
     kernel_count = 0
+
 
     def _clean(v: str) -> str:
         v = (v or "").strip()
@@ -502,10 +461,6 @@ def export_stats(cve_data: list) -> dict:
 
 
 def _is_alerting_row(row: dict) -> bool:
-    """지금도 악용 중이거나 무기화된 건인가 — 보존 정책이 지우면 안 되는 행.
-
-    저장된 티어와 신호에서 유도한 티어 중 더 위험한 쪽으로 본다(_tier_of 와 같은 규칙).
-    오래돼서 지우는 것과 위험해서 남기는 것이 부딪히면 남기는 쪽이 맞다."""
     state = row.get("last_alert_state") or {}
     entry = {"is_kev": bool(row.get("is_kev") or state.get("is_kev")),
              "cvss": row.get("cvss_score") or 0, "epss": row.get("epss_score") or 0}
@@ -516,6 +471,7 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
                            delete_days: int = 180, watch_days: int = 90,
                            max_rows: int = 20000) -> int:
     now = dt.datetime.now(dt.timezone.utc)
+
 
     def cutoff(n):
         return (now - dt.timedelta(days=n)).isoformat()
@@ -542,11 +498,6 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     if deleted_count:
         print(f"  구 마커 {deleted_count}건 청소 ({marker_days}일 경과)", flush=True)
 
-    # 이 쓸기는 원래 '관찰(T2)에 오래 신호가 안 붙은 행'을 겨냥한 것이고, 그 판별을
-    # last_alert_at IS NULL 로 대신했다. 그런데 소급 채우기(backfill_exploited, silent=True)가
-    # 들어오면서 그 전제가 깨졌다 — 지금 악용 중인 T0 행도 last_alert_at 이 비어 있다.
-    # 2015~2020년 KEV처럼 레코드가 더는 안 바뀌는 건은 90일이면 그대로 지워진다.
-    # 그래서 조건으로 거르지 않고, 후보를 받아 티어를 확인한 뒤 지운다.
     watch_count = 0
     cand = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
         .is_("last_alert_at", "null") \
@@ -572,18 +523,6 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
-    # 행수 상한. 두 가지를 지킨다.
-    #
-    #  ① 세는 대상은 **추적 행**이다. 예전에는 _count(client) 로 전체를 셌는데, 상태가
-    #     비워진 옛 행까지 포함돼 상한에 먼저 닿았고, 그러면 오래된 순 삭제가 마커를
-    #     다 먹은 뒤 **살아 있는 추적 행**으로 넘어갔다.
-    #  ② 대시보드가 지금 보여주는 구간(90일) 안의 행은 지우지 않는다. 26일 된 KEV 를
-    #     행수 때문에 지우면 '악용 중인 것을 빠짐없이 본다'는 목적 자체가 깨진다.
-    #     상한에 걸리는데 지울 게 없으면 그건 risk.py 임계를 조일 신호지, 조용히
-    #     지울 일이 아니다.
-    #
-    # 이게 '추적 중 CVE'가 오르내린 원인의 절반이었다 — DB 에서는 지워지는데 증분
-    # 병합은 배포본을 이어받아 그대로 들고 있었고, 전량 export 때만 숫자가 떨어졌다.
     capped = 0
     tracked_now = _count(client, tracked=True)
     if tracked_now > max_rows:
@@ -656,25 +595,30 @@ def main():
         previous, since = None, None
     else:
         previous, since = load_previous_export(data_dir)
+    fresh_ids = set()
     if previous is None:
         cve_data = export_cves(client)
         print(f"  전량 export: {len(cve_data)}건", flush=True)
     else:
         fresh = export_cves(client, since=since)
+        fresh_ids = {r.get("id") for r in fresh if r.get("id")}
         cve_data = merge_exports(previous, fresh, keep=live_ids(client))
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
-    # 영향 제품은 별도 파일(사전 압축)로 뺀다. cves.json 에 전량을 실으면 실측으로
-    # 12.3MB 가 더 붙는다 — 이미 22.7MB 인 파일이라 감당이 안 된다.
-    # 증분 export 는 바뀐 CVE 만 새로 만들므로, 나머지는 배포본 인덱스에서 이어받는다.
     carried = fetch_live_products() if previous is not None else {}
     merged_products = []
+    restored = 0
     for e in cve_data:
         aff = e.get("affected") or []
-        if not aff and carried.get(e.get("id")):
-            aff = carried[e["id"]]
-            e["affected"] = aff
+        if e.get("id") not in fresh_ids:
+            full = carried.get(e.get("id")) or []
+            if len(full) > len(aff):
+                restored += len(full) - len(aff)
+                aff = full
+                e["affected"] = aff
         merged_products.append({"id": e.get("id"), "affected": aff})
+    if restored:
+        print(f"  직전 인덱스에서 제품 항목 {restored:,}개 이어받음", flush=True)
 
     prod_index = build_product_index(merged_products)
     prod_path = os.path.join(data_dir, "cve-products.json")
@@ -683,7 +627,6 @@ def main():
     print(f"  영향 제품 인덱스: {len(prod_index['map']):,}건 · 항목 {total_items:,}개 "
           f"(고유 제품 {len(prod_index['products']):,}) → {prod_path}", flush=True)
 
-    # 표에 그리는 몫만 남기고 자른다 (검색·상세는 위 인덱스를 쓴다)
     for e in cve_data:
         aff = e.get("affected") or []
         if len(aff) > TABLE_AFFECTED:

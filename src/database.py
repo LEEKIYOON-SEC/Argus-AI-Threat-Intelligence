@@ -45,8 +45,10 @@ def _neutralize(s):
                lambda m: m.group(1)[0] + _ZWSP + m.group(1)[1:], s)
     return s
 
+
 class DatabaseError(Exception):
     pass
+
 
 class ArgusDB:
     def __init__(self):
@@ -62,6 +64,7 @@ class ArgusDB:
         except Exception as e:
             raise DatabaseError(f"Supabase 연결 실패: {e}")
 
+
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10),
@@ -70,12 +73,14 @@ class ArgusDB:
     def _execute(self, query):
         return query.execute()
 
+
     def _try_upsert(self, data: Dict) -> Tuple[bool, Optional[BaseException]]:
         try:
             self._execute(self.client.table("cves").upsert(data))
             return True, None
         except Exception as e:
             return False, e
+
 
     @staticmethod
     def _waf_neutralized_copy(data: Dict) -> Dict:
@@ -91,6 +96,7 @@ class ArgusDB:
                         if k in aff:
                             aff[k] = _neutralize(aff[k])
         return d
+
 
     @staticmethod
     def _waf_minimal_copy(data: Dict) -> Dict:
@@ -122,6 +128,7 @@ class ArgusDB:
         out["last_alert_state"] = safe_state
         return out
 
+
     def get_cve(self, cve_id: str) -> Optional[Dict]:
         try:
             response = self._execute(self.client.table("cves").select("*").eq("id", cve_id))
@@ -136,6 +143,7 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"CVE 조회 실패 ({cve_id}): {e}")
             return None
+
 
     def get_cves(self, cve_ids) -> Tuple[Dict[str, Dict], set]:
         ids = [str(c) for c in cve_ids if c]
@@ -160,6 +168,7 @@ class ArgusDB:
                 logger.warning(f"CVE 일괄 조회 실패 ({len(chunk)}건): {_describe_error(e)} "
                                f"→ 해당 건은 개별 조회로 폴백")
         return rows, covered
+
 
     def upsert_cve(self, data: Dict) -> bool:
         cid = data.get('id')
@@ -196,12 +205,14 @@ class ArgusDB:
     _RECHECK_COLS = ("id, cvss_score, epss_score, is_kev, has_official_rules, "
                      "last_rule_check_at, last_alert_at, report_url")
 
+
     def get_rule_recheck_candidates(self, limit: int = 10) -> List[Dict]:
         try:
             fetch_n = max(limit * 3, 30)
             cutoff_7d = (datetime.datetime.now(datetime.timezone.utc)
                          - datetime.timedelta(days=7)).isoformat()
             cooldown = f"last_rule_check_at.is.null,last_rule_check_at.lt.{cutoff_7d}"
+
 
             def _query(base):
                 return self._execute(
@@ -292,7 +303,8 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"룰 재확인 후보 조회 실패: {e}")
             return []
-    
+
+
     def get_translation_backfill_candidates(self, limit: int = 60,
                                             offset: int = 0) -> List[Dict]:
         try:
@@ -300,11 +312,6 @@ class ArgusDB:
                 self.client.table("cves")
                 .select("id, last_alert_state")
                 .not_.is_("last_alert_state", "null")
-                # 정렬 키는 id 다. updated_at 으로 정렬하면 순회가 절대 수렴하지 않는다 —
-                # fast-lane 이 5분마다 수십 행의 updated_at 을 갱신해 맨 앞으로 올리므로,
-                # offset 이 200씩 전진하는 동안 새로 갱신된 행이 그보다 빠르게 앞에 쌓인다.
-                # 결과적으로 창은 늘 '최근에 바뀐 것' 근처에 머물고, 조용한 행은 영영
-                # 스캔되지 않는다. 번역이 안 되는 CVE가 고정적으로 남던 이유다.
                 .order("id")
                 .range(offset, offset + max(1, min(limit, _PAGE_MAX)) - 1)
             )
@@ -312,6 +319,7 @@ class ArgusDB:
         except Exception as e:
             logger.error(f"번역 백필 후보 조회 실패: {e}")
             return []
+
 
     def count_tracked(self) -> int:
         try:
@@ -323,6 +331,7 @@ class ArgusDB:
         except Exception as e:
             logger.warning(f"추적 행 수 조회 실패: {e}")
             return 0
+
 
     def update_translation(self, cve_id: str, title_ko: str, desc_ko: str) -> bool:
         try:
@@ -341,6 +350,7 @@ class ArgusDB:
         except Exception as e:
             logger.warning(f"{cve_id} 번역 갱신 실패: {e}")
             return False
+
 
     def get_tracked_ids(self, page_size: int = 1000, max_rows: int = 50000) -> List[str]:
         ids: List[str] = []
@@ -363,6 +373,7 @@ class ArgusDB:
             logger.error(f"추적 CVE id 조회 실패: {e}")
         return ids
 
+
     def tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
         page_size = max(1, min(page_size, _PAGE_MAX))
         rows: List[Dict] = []
@@ -373,10 +384,6 @@ class ArgusDB:
                     self.client.table("cves")
                     .select("id, last_alert_state")
                     .not_.is_("last_alert_state", "null")
-                    # 정렬 키는 id 다. 이건 전수 스캔이고, updated_at 으로 정렬하면
-                    # 페이지를 넘기는 동안 fast-lane 이 갱신한 행이 맨 앞으로 올라와
-                    # 창을 통째로 밀어낸다 — 어떤 행은 두 번 보이고 어떤 행은 영영
-                    # 안 보인다. 백필이 같은 행만 계속 붙잡던 이유다.
                     .order("id")
                     .range(offset, offset + page_size - 1)
                 )
@@ -389,9 +396,11 @@ class ArgusDB:
             logger.error(f"추적 행 조회 실패(부분 결과 {len(rows):,}건으로 진행): {e}")
         return rows
 
+
     def get_rows_missing_published(self) -> List[Dict]:
         return [r for r in self.tracked_states()
                 if not (r.get("last_alert_state") or {}).get("published")]
+
 
     def get_rows_missing_vendor(self) -> List[Dict]:
         def has_vendor(state: Dict) -> bool:
@@ -402,19 +411,14 @@ class ArgusDB:
         return [r for r in self.tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 
+
     def get_rows_needing_cvss(self) -> List[Dict]:
-        # 두 종류를 잡는다.
-        #  1. cvss_version 키가 없는 행 — 버전을 한 개만 읽고 끊던 옛 코드가 남긴 것.
-        #     지금 파이프라인은 점수가 없어도 빈 문자열로 항상 넣으므로(parse_record),
-        #     키의 유무가 곧 "어느 코드가 쓴 행인지"다.
-        #  2. 점수가 0 인 행 — 키가 이미 있어도 다시 본다. 2016년 이전 CVE 는 구형 CVE
-        #     포맷에서 일괄 변환돼 cvelistV5 에 metrics 블록 자체가 없다(실측 N/A 574건
-        #     중 572건). NVD 조회가 실패해 못 채운 행을 다음 실행이 다시 집어야 한다.
         def needs(state: Dict) -> bool:
             return ("cvss_version" not in state
                     or float(state.get("cvss") or 0.0) <= 0.0)
         return [r for r in self.tracked_states()
                 if needs(r.get("last_alert_state") or {})]
+
 
     def get_pipeline_state(self) -> Optional[Dict]:
         try:
@@ -428,6 +432,7 @@ class ArgusDB:
             logger.warning(f"파이프라인 상태 조회 실패: {e}")
             return None
 
+
     def set_pipeline_state(self, state: Dict) -> bool:
         try:
             self._execute(self.client.table("pipeline_state").upsert({
@@ -439,12 +444,14 @@ class ArgusDB:
             logger.error(f"파이프라인 상태 저장 실패: {e}")
             return False
 
+
     def request_full_export(self) -> bool:
         state = self.get_pipeline_state() or {}
         state["force_full_export"] = True
         return self.set_pipeline_state(state)
 
     _STATE_CHUNK = 200
+
 
     def bulk_save_states(self, updates: List[Dict], label: str = "상태") -> int:
         if not updates:
@@ -463,6 +470,7 @@ class ArgusDB:
             logger.info(f"  {label} 저장 {min(i + len(chunk), len(updates)):,}/{len(updates):,}")
         return done
 
+
     def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
         pending = []
         for row in rows:
@@ -475,6 +483,7 @@ class ArgusDB:
             state["published"] = day
             pending.append({"id": cve_id, "last_alert_state": state})
         return self.bulk_save_states(pending, "공개일")
+
 
     def get_missing_report_candidates(self, limit: int = 20) -> List[Dict]:
         try:
@@ -506,6 +515,7 @@ class ArgusDB:
             logger.warning(f"스냅샷 지문 조회 실패({source}): {e}")
             return None
 
+
     def get_snapshot_ids(self, source: str) -> set:
         try:
             r = self._execute(
@@ -518,6 +528,7 @@ class ArgusDB:
         except Exception as e:
             logger.warning(f"스냅샷 집합 조회 실패({source}): {e}")
             return set()
+
 
     def save_snapshot(self, source: str, digest: str, ids) -> bool:
         try:

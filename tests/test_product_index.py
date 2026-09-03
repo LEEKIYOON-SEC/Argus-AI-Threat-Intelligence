@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-"""영향 제품 인덱스 — 검색이 '내가 쓰는 제품'을 놓치지 않는지.
-
-    python3 tests/test_product_index.py
-
-왜 있나: 대시보드는 영향 제품을 3개만 싣고 있었다. 실측(2026-09-01, 664건)으로
-CVE 의 51.9%가 3개를 넘고 **전체 제품 항목의 71%가 잘려 나갔다.** 그 상태에서는
-검색이 거짓말을 한다 — CVE-2026-14164 는 Red Hat 제품 14개에 영향을 주는데
-OpenShift 는 7번째라 'OpenShift' 로 검색하면 나오지 않았다.
-
-전량을 그대로 실으면 cves.json 에 12.3MB 가 더 붙는다(이미 22.7MB). 그런데 제품
-이름은 지독하게 반복돼서(항목 4,653개 → 고유 이름 321개) 사전으로 접으면 1.6MB 다.
-그래서 이름을 한 번만 담고 CVE 는 번호만 참조하는 별도 파일로 뺐다.
-
-여기서 지키는 계약은 둘이다.
-  · 왕복(encode → decode)에서 제품이 하나도 사라지지 않는다
-  · 사전이 실제로 접힌다 (안 접히면 파일 크기 전제가 무너진다)
-"""
 import importlib.util
 import json
 import os
@@ -41,7 +24,6 @@ def rh(product, versions="정보 없음"):
     return {"vendor": "Red Hat", "product": product, "versions": versions}
 
 
-# 실제 CVE-2026-14164 의 모양 (Red Hat 이 스트림마다 한 줄씩 낸다)
 BIG = [rh("Red Hat Enterprise Linux 10"), rh("Red Hat Enterprise Linux 10.0 Extended Update Support"),
        rh("Red Hat Enterprise Linux 9"), rh("Red Hat Enterprise Linux 9.2 Update Services for SAP Solutions"),
        rh("Red Hat Enterprise Linux 9.4 Update Services for SAP Solutions"),
@@ -53,7 +35,6 @@ ENTRIES = [
     {"id": "CVE-2026-14164", "affected": BIG},
     {"id": "CVE-2026-0001", "affected": [{"vendor": "Acme", "product": "Gateway", "versions": "< 2.0"}]},
     {"id": "CVE-2026-0002", "affected": []},
-    # 이름이 겹치는 건 — 사전이 접히는지 보는 표본
     {"id": "CVE-2026-0003", "affected": [rh("Red Hat Enterprise Linux 9"), rh("Red Hat Discovery 2")]},
 ]
 
@@ -105,15 +86,12 @@ def main() -> int:
 
     kev_fallback(failures)
 
+    check_carry(failures)
     print(f"\n{'통과' if not failures else '실패 ' + str(len(failures)) + '건'}")
     return 1 if failures else 0
 
 
 def kev_fallback(failures):
-    # 옛날 CVE 레코드에는 affected 블록이 없어 vendor/product 가 'n/a' 다. 실측으로
-    # CISA KEV 무작위 120건 중 39건(32%)이 그랬다 — 하필 지금 악용 중인 것들이라
-    # 제품 이름으로 찾을 수가 없었다(제목에만 있었다). CISA 가 KEV 에 붙여 둔
-    # vendorProject/product 는 사람이 정리한 값이라 그걸 폴백으로 쓴다.
     from collector import Collector
 
     col = Collector()
@@ -164,6 +142,39 @@ def kev_fallback(failures):
           and keep["affected"][0]["patch_version"] == "18.0.0.194",
           "제품명만 갈아끼우고 버전·패치 정보는 그대로 둔다", failures)
 
+
+
+def check_carry(failures):
+    TABLE_AFFECTED = edd.TABLE_AFFECTED
+    build_product_index = edd.build_product_index
+    decode_product_index = edd.decode_product_index
+    FULL = [{"vendor": "V", "product": f"P{i}", "versions": "1"} for i in range(23)]
+    carried = decode_product_index(build_product_index([{"id": "CVE-X", "affected": FULL}]))
+    row = {"id": "CVE-X", "affected": FULL[:TABLE_AFFECTED], "affected_total": len(FULL)}
+
+    sizes = []
+    for _ in range(5):
+        e = dict(row)
+        aff = e.get("affected") or []
+        full = carried.get(e["id"]) or []
+        if len(full) > len(aff):
+            aff = full
+            e["affected"] = aff
+        carried = decode_product_index(build_product_index([{"id": e["id"], "affected": aff}]))
+        sizes.append(len(carried["CVE-X"]))
+        if len(e["affected"]) > TABLE_AFFECTED:
+            e["affected"] = e["affected"][:TABLE_AFFECTED]
+        row = e
+    ok = all(n == len(FULL) for n in sizes)
+    print(("  OK   " if ok else "  FAIL ") + f"증분 export 5회차 후에도 제품 {sizes}")
+    if not ok:
+        failures.append("증분 export 가 제품 목록을 표 상한으로 깎는다")
+
+    src = open(os.path.join(ROOT, "src", "export_dashboard_data.py"), encoding="utf-8").read()
+    cond = "if len(full) > len(aff):" in src and "fresh_ids" in src
+    print(("  OK   " if cond else "  FAIL ") + "직전 인덱스가 더 길면 그걸 쓴다 (fresh 행은 제외)")
+    if not cond:
+        failures.append("export 가 carried 를 빈 경우에만 쓴다")
 
 if __name__ == "__main__":
     sys.exit(main())

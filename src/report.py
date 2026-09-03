@@ -173,6 +173,7 @@ def _rule_license_note(rule_info: Dict) -> str:
         return ""
     return "\n> " + " · ".join(bits) + "\n"
 
+
 def _priority_banner(cve_data: Dict) -> str:
     verdict = risk.evaluate(cve_data)
     labels = verdict.labels()
@@ -193,12 +194,8 @@ def _epss_caption(cve_data: Dict) -> str:
     surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
     return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
 
+
 def _display_title(cve_data: dict) -> str:
-    # 알림 시점(fast-lane/스냅샷 대조)의 상태에는 title_ko 가 없다 — 번역은 bulk-lane 이
-    # 나중에 채운다. 예전에는 cve_data['title_ko'] 로 바로 꺼내 KeyError 가 났고,
-    # create_github_issue 의 except 가 "GitHub Issue 생성 실패: 'title_ko'" 한 줄로
-    # 삼켰다. 그래서 알림에 리포트 링크가 없이 나가고, 다음 시간의 리포트 보강이
-    # (거기서만 setdefault 로 메우고 있어서) 뒤늦게 만들어 주고 있었다.
     return (str(cve_data.get('title_ko') or '').strip()
             or str(cve_data.get('title') or '').strip()
             or cve_data.get('id', 'CVE'))
@@ -266,6 +263,7 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         logger.error(f"GitHub Issue 생성 실패: {e}")
         return None, None
 
+
 def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) -> str:
     analysis = analysis or {}
     rules = rules or {}
@@ -278,8 +276,6 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     
     kev_color = "FF0000" if cve_data.get('is_kev') else "CCCCCC"
 
-    # 4.0 과 3.x 는 산식이 달라 점수가 어긋난다(실측 22%가 두 버전 보유). 어느 버전인지
-    # 안 밝히면 NVD 에서 다른 값을 본 사람이 무엇이 맞는지 알 수 없다.
     ver = str(cve_data.get('cvss_version') or '').strip()
     cvss_label = f"CVSS%20v{ver}" if ver else "CVSS"
     badges = f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
@@ -477,6 +473,7 @@ AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않
 """
     return body.strip()
 
+
 def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
     comment = f"""## ✅ 공개 탐지 룰 발견
 
@@ -498,4 +495,3 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
 
     notifier = SlackNotifier()
     return notifier.update_github_issue(issue_url, comment)
-

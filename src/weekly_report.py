@@ -59,6 +59,7 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
                 seen.add(p)
                 prod[p] += 1
 
+
     def _row(c: Dict) -> str:
         sev = c.get("severity", "-")
         sig = []
