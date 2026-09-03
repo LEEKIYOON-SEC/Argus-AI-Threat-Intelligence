@@ -137,9 +137,9 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             return Outcome(cve_id, "skipped", decision.tier, decision, state)
 
         announce = decision.alert and not silent
-        report_url = None
+        report_url = (last_row or {}).get('report_url')
         rules_info = None
-        if announce and make_report is not None:
+        if announce and make_report is not None and not report_url:
             report_url, rules_info = make_report(state, decision.reason)
 
         sent = True
@@ -185,8 +185,8 @@ def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
     }
     if alerted:
         payload["last_alert_at"] = now
-        if report_url:
-            payload["report_url"] = report_url
+    if report_url:
+        payload["report_url"] = report_url
     if rules_info:
         payload["has_official_rules"] = rules_info.get('has_official', False)
         payload["rules_snapshot"] = rules_info.get('rules')

@@ -185,6 +185,25 @@ def slack_failure(failures):
     pipeline.process(dict(st), DB(), again)
     check(again.calls == 0, f"이미 알린 건은 다시 안 알린다 ({again.calls}회)", failures)
 
+    store.clear()
+    made = []
+
+    def make_report(state, reason):
+        made.append(state["id"])
+        return f"https://github.com/x/issues/{len(made)}", {"has_official": False, "rules": {}}
+
+    for _ in range(3):
+        pipeline.process(dict(st), DB(), Slack(False), make_report=make_report)
+    check(len(made) == 1, f"전송이 실패해도 리포트는 한 번만 만든다 ({len(made)}개)", failures)
+    check(store["CVE-2026-X"].get("report_url") == "https://github.com/x/issues/1",
+          f"만든 리포트 URL 은 알림 성공 여부와 무관하게 기록한다 "
+          f"({store['CVE-2026-X'].get('report_url')})", failures)
+
+    ok = Slack(True)
+    pipeline.process(dict(st), DB(), ok, make_report=make_report)
+    check(len(made) == 1, f"복구된 뒤에도 새로 안 만든다 ({len(made)}개)", failures)
+    check("last_alert_at" in store["CVE-2026-X"], "이번엔 last_alert_at 기록", failures)
+
 
 def cvss_not_wiped(failures):
     stored = {"id": "C", "cvss": 7.5, "cvss_vector": "CVSS:3.0/AV:N",
