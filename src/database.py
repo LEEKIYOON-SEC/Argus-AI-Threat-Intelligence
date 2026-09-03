@@ -4,7 +4,7 @@ import time
 import copy
 import datetime
 from supabase import create_client, Client
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from logger import logger
@@ -293,23 +293,6 @@ class ArgusDB:
             logger.error(f"룰 재확인 후보 조회 실패: {e}")
             return []
     
-    def batch_get_scalar(self, cve_ids: List[str], column: str) -> Dict[str, Any]:
-        result: Dict[str, Any] = {}
-        if not cve_ids:
-            return result
-        try:
-            for i in range(0, len(cve_ids), 50):
-                chunk = cve_ids[i:i + 50]
-                response = self._execute(
-                    self.client.table("cves").select(f"id, {column}").in_("id", chunk)
-                )
-                for row in (response.data or []):
-                    result[row['id']] = row.get(column)
-            return result
-        except Exception as e:
-            logger.error(f"배치 스칼라 조회 실패({column}): {e}")
-            return result
-
     def get_translation_backfill_candidates(self, limit: int = 60,
                                             offset: int = 0) -> List[Dict]:
         try:
@@ -380,7 +363,7 @@ class ArgusDB:
             logger.error(f"추적 CVE id 조회 실패: {e}")
         return ids
 
-    def _tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
+    def tracked_states(self, page_size: int = 1000, max_rows: int = 50000) -> List[Dict]:
         page_size = max(1, min(page_size, _PAGE_MAX))
         rows: List[Dict] = []
         offset = 0
@@ -407,7 +390,7 @@ class ArgusDB:
         return rows
 
     def get_rows_missing_published(self) -> List[Dict]:
-        return [r for r in self._tracked_states()
+        return [r for r in self.tracked_states()
                 if not (r.get("last_alert_state") or {}).get("published")]
 
     def get_rows_missing_vendor(self) -> List[Dict]:
@@ -416,7 +399,7 @@ class ArgusDB:
                 str(a.get("vendor") or "").strip().lower() not in ("", "unknown", "n/a", "-")
                 for a in (state.get("affected") or []) if isinstance(a, dict)
             )
-        return [r for r in self._tracked_states()
+        return [r for r in self.tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 
     def get_rows_needing_cvss(self) -> List[Dict]:
@@ -430,7 +413,7 @@ class ArgusDB:
         def needs(state: Dict) -> bool:
             return ("cvss_version" not in state
                     or float(state.get("cvss") or 0.0) <= 0.0)
-        return [r for r in self._tracked_states()
+        return [r for r in self.tracked_states()
                 if needs(r.get("last_alert_state") or {})]
 
     def get_pipeline_state(self) -> Optional[Dict]:

@@ -25,8 +25,12 @@ TIER_CASES = [
     ("고위험 CWE + 원격",      {"cvss": 6.1, "cvss_vector": V31, "cwe": ["CWE-502"]}, risk.T2),
     ("CVSS 9.8 + CWE 근거",   {"cvss": 9.8, "cvss_vector": V31, "cwe": ["CWE-502"]}, risk.T2),
     ("CVSS 9.8 + 주요 CNA",   {"cvss": 9.8, "cvss_vector": V31, "assigner": "microsoft"}, risk.T2),
-    ("SSVC automatable",     {"ssvc_automatable": "yes", "cvss": 4.0}, risk.T2),
-    ("SSVC total impact",    {"ssvc_technical_impact": "total", "cvss": 4.0}, risk.T2),
+    # SSVC 는 둘을 함께 요구한다. CISA 가 후하게 붙여서 하나만 쓰면 최근 24h 변경분
+    # 1,487건 중 1,001건이 T2 가 된다 — 추적 물량 146 → 1,490건/일(10배).
+    ("SSVC 자동화+완전장악",   {"ssvc_automatable": "yes", "ssvc_technical_impact": "total",
+                            "cvss": 4.0}, risk.T2),
+    ("SSVC automatable 단독",  {"ssvc_automatable": "yes", "cvss": 4.0}, risk.T3),
+    ("SSVC total impact 단독", {"ssvc_technical_impact": "total", "cvss": 4.0}, risk.T3),
     ("무점수 + 주요 CNA",      {"cvss": 0, "assigner": "Fortinet"}, risk.T2),
 
     ("CVSS 9.8 단독(근거 없음)", {"cvss": 9.8, "cvss_vector": V31}, risk.T3),

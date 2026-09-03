@@ -9,7 +9,6 @@ class ArgusConfig:
     MODEL_PHASE_0 = "gemma-4-31b-it"
     MODEL_PHASE_0_FALLBACK = "gemma-4-26b-a4b-it"
 
-    MODEL_PHASE_1 = "gemini-3.5-flash-lite"
     GEMINI_ANALYSIS_MODEL = "gemini-3.5-flash-lite"
     GEMINI_ANALYSIS_FALLBACK_MODEL = "gemini-3.1-flash-lite"
 
@@ -43,11 +42,6 @@ class ArgusConfig:
         "SUPABASE_KEY",
         "SLACK_WEBHOOK_URL",
         "GEMINI_API_KEY"
-    ]
-    
-    OPTIONAL_ENV_VARS = [
-        "NVD_API_KEY",
-        "VULNCHECK_API_KEY"
     ]
     
     def __init__(self):

@@ -14,6 +14,10 @@ KST = pytz.timezone('Asia/Seoul')
 STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected", "published",
     "cvss_vector",
+    # references 가 빠져 있었다. 수집은 하는데 저장이 안 돼서, 알림 시점에는 'CVE 원문·
+    # 벤더 권고' 버튼이 나오다가 리포트 보강(backfill_reports)이 저장된 state 로 다시
+    # 만들면 참고 자료 절이 통째로 비었고, analyzer 에 넘기는 분석 입력에서도 사라졌다.
+    "references", "_nuclei_url", "_exploit_db_url",
     "is_kev", "is_kev_ransomware", "kev_due_date", "is_vulncheck_kev",
     "ssvc", "ssvc_exploitation", "ssvc_automatable", "ssvc_technical_impact",
     "has_poc", "poc_urls", "has_public_exploit",

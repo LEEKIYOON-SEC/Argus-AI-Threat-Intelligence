@@ -64,11 +64,18 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
         if total and offset >= total:
             offset = 0
         candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
-        next_offset = 0 if (total and offset + pool >= total) or not candidates else offset + pool
-        pstate.write_backfill_offset(next_offset)
+        if not candidates:
+            # 빈 응답은 '끝'일 수도 있고 조회 실패일 수도 있다(get_… 은 예외를 삼키고 []
+            # 를 돌려준다). 실패를 '끝'으로 읽어 0 으로 되감으면 뒤쪽 행은 영영 안 온다.
+            # 창을 그대로 두고 다음 회차가 같은 자리를 다시 보게 한다.
+            logger.info(f"번역: 후보 없음 (스캔 {offset:,}/{total:,}행 — 다음 실행도 "
+                        f"{offset:,}부터. 조회 실패였다면 여기서 다시 본다)")
+            return 0
 
         items = []
+        scanned = 0
         for row in candidates:
+            scanned += 1
             state = row.get('last_alert_state') or {}
             title_ko = state.get('title_ko') or state.get('title') or ''
             desc_ko = state.get('desc_ko') or state.get('description') or ''
@@ -82,13 +89,25 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
                           "description": state.get('description') or state.get('desc_ko') or ''})
             if len(items) >= limit:
                 break
+
+        # 창은 **실제로 소화한 만큼만** 전진한다. 예전에는 한도(24건)에서 멈춰 놓고
+        # offset 을 창 크기(200)만큼 밀었다 — 그래서 한 창에 영문이 24건을 넘으면
+        # 나머지는 offset 이 지나가 버려 한 바퀴(13,000행 ÷ 200 = 65회차) 뒤에나
+        # 다시 왔고, 그때도 똑같이 앞 24건에서 잘렸다. 실측으로 미번역 2,340건 중
+        # **1,447건이 구조적으로 도달 불가**였다. CVE-2016-0193 이 그중 하나다.
+        next_offset = offset + scanned
+        if total and next_offset >= total:
+            next_offset = 0
+        pstate.write_backfill_offset(next_offset)
+
         if not items:
-            logger.info(f"번역: 대상 없음 (스캔 {offset:,}~{offset + len(candidates):,}"
+            logger.info(f"번역: 대상 없음 (스캔 {offset:,}~{offset + scanned:,}"
                         f"/{total:,}행 — 다음 실행은 {next_offset:,}부터)")
             return 0
 
         logger.info(f"🈯 번역: 영문 {len(items)}건 처리 "
-                    f"(스캔 {offset:,}~{offset + len(candidates):,}/{total:,}행)")
+                    f"(스캔 {offset:,}~{offset + scanned:,}/{total:,}행 — "
+                    f"다음 실행은 {next_offset:,}부터)")
         translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
         fixed = 0
         for it in items:
