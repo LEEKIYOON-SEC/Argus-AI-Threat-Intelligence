@@ -354,6 +354,11 @@ class Collector:
             cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
             if msf_modules:
                 logger.info(f"  🧨 Metasploit 모듈: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+        if enrichment_sources.poc_ok():
+            urls = enrichment_sources.poc_urls(cve_id)
+            cve_data['has_poc'] = bool(urls)
+            if urls:
+                cve_data['poc_urls'] = urls
         if enrichment_sources.nuclei_ok():
             tpl = enrichment_sources.nuclei_template(cve_id)
             cve_data['has_nuclei_template'] = tpl is not None
@@ -365,7 +370,7 @@ class Collector:
         if prov:
             cve_data.update(prov.as_state())
             logger.info(f"  🤖 AI 발견: {cve_id} ({prov.program}) — {prov.detail[:80]}")
-        else:
+        elif self.ai_ledger is not None:
             cve_data['ai_discovered'] = False
         self.fill_product_from_kev(cve_data)
         return cve_data
@@ -373,10 +378,13 @@ class Collector:
 
     def fill_product_from_kev(self, cve_data: Dict) -> Dict:
         vendor, product = self.kev_product.get(cve_data.get('id'), ('', ''))
-        if not product:
-            return cve_data
         affected = cve_data.get('affected') or []
-        if any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict)):
+        usable = any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict))
+        if not product:
+            if not self.kev_loaded and not usable:
+                cve_data.pop('affected', None)
+            return cve_data
+        if usable:
             return cve_data
         cve_data['affected'] = [{
             "vendor": vendor or "Unknown",

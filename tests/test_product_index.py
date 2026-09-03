@@ -95,6 +95,7 @@ def kev_fallback(failures):
     from collector import Collector
 
     col = Collector()
+    col.kev_loaded = True
     col.kev_product = {
         "CVE-2015-5119": ("Adobe", "Flash Player"),
         "CVE-2013-5065": ("Microsoft", "Windows"),
@@ -132,6 +133,17 @@ def kev_fallback(failures):
     col.fill_product_from_kev(other)
     check(other["affected"][0]["product"] == "n/a",
           "KEV 목록에 없는 CVE 는 그대로 둔다", failures)
+
+    print("\n── KEV 를 못 받은 회차면 빈 제품으로 덮지 않는다 ──")
+    off = Collector()
+    blank = {"id": "CVE-2026-9999", "affected": [{"vendor": "n/a", "product": "n/a"}]}
+    off.fill_product_from_kev(blank)
+    check("affected" not in blank,
+          "KEV 미적재 + 쓸 만한 제품 없음 → 키를 지워 이월에 맡긴다", failures)
+    kept_real = {"id": "CVE-2026-9999", "affected": [{"vendor": "Acme", "product": "Gateway"}]}
+    off.fill_product_from_kev(kept_real)
+    check(kept_real["affected"][0]["product"] == "Gateway",
+          "레코드에 제품이 있으면 그대로 둔다", failures)
 
     print("\n── 버전 정보는 살린다 ──")
     keep = {"id": "CVE-2015-5119",

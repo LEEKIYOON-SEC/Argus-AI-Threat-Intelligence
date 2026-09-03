@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pytz
 
+import ai_provenance
 import enrichment_sources
 import feed
 import pipeline
@@ -36,6 +37,7 @@ def _dashboard_url() -> Optional[str]:
 def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float]]]:
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
+    collector.ai_ledger = ai_provenance.load_anthropic_ledger()
     return enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
 

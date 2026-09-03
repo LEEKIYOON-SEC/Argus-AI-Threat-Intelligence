@@ -21,6 +21,7 @@ _CACHE_TTL_HOURS = 24
 EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 _METASPLOIT_URL = "https://raw.githubusercontent.com/rapid7/metasploit-framework/master/db/modules_metadata_base.json"
 _NUCLEI_URL = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/cves.json"
+_POC_URL = "https://raw.githubusercontent.com/nomi-sec/PoC-in-GitHub/master/README.md"
 _CISA_KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 _VULNCHECK_BACKUP_URL = "https://api.vulncheck.com/v3/backup/vulncheck-kev"
 
@@ -242,6 +243,60 @@ def nuclei_template(cve_id: str) -> Optional[Dict]:
 
 def nuclei_template_url(path: str) -> str:
     return f"https://github.com/projectdiscovery/nuclei-templates/blob/main/{path}"
+
+
+_poc_index: Dict[str, List[str]] = {}
+_poc_loaded = False
+_poc_ok = False
+_POC_BLOCK = re.compile(r"^### (CVE-\d{4}-\d{4,})", re.M)
+_POC_LINK = re.compile(r"https://github\.com/[^\s\)\]]+")
+
+
+def load_poc_index() -> Dict[str, List[str]]:
+    global _poc_loaded, _poc_ok
+    with _lock:
+        if _poc_loaded:
+            return _poc_index
+        _poc_loaded = True
+
+        raw = cache_get("poc-in-github.md")
+        if raw is None:
+            logger.info("📥 PoC-in-GitHub 인덱스 다운로드 중...")
+            try:
+                rate_limit_manager.check_and_wait("ruleset_download")
+                response = requests.get(_POC_URL, timeout=120)
+                response.raise_for_status()
+                rate_limit_manager.record_call("ruleset_download")
+                raw = response.content
+                cache_put("poc-in-github.md", raw)
+            except Exception as e:
+                logger.warning(f"  ⚠️ PoC-in-GitHub 다운로드 실패: {e}")
+                return _poc_index
+        else:
+            logger.info("📥 PoC-in-GitHub 인덱스 캐시 로드")
+
+        try:
+            parts = _POC_BLOCK.split(raw.decode("utf-8", errors="ignore"))
+            for i in range(1, len(parts) - 1, 2):
+                urls = _POC_LINK.findall(parts[i + 1])
+                if urls:
+                    _poc_index[parts[i].upper()] = urls[:3]
+            _poc_ok = bool(_poc_index)
+            logger.info(f"  ✅ PoC 인덱스 로드 완료 ({len(_poc_index)}개 CVE 매핑)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ PoC-in-GitHub 파싱 실패: {e}")
+
+    return _poc_index
+
+
+def poc_ok() -> bool:
+    load_poc_index()
+    return _poc_ok
+
+
+def poc_urls(cve_id: str) -> List[str]:
+    load_poc_index()
+    return _poc_index.get(cve_id.upper(), [])
 
 
 def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:

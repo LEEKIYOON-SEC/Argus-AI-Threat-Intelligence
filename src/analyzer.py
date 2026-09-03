@@ -4,7 +4,6 @@ import json
 import time
 from google import genai
 from google.genai import types as genai_types
-from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Dict, Optional
 from logger import logger
 from config import config
@@ -31,10 +30,6 @@ class Analyzer:
                     f"→ {config.GEMINI_ANALYSIS_FALLBACK_MODEL} → 정형 폴백)")
 
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=30)
-    )
     def analyze_cve(self, cve_data: Dict) -> Dict:
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
@@ -83,7 +78,11 @@ class Analyzer:
                         ),
                     ),
                 )
-                rate_limit_manager.record_call(limiter_key)
+                tokens = 0
+                usage = getattr(response, "usage_metadata", None)
+                if usage is not None:
+                    tokens = getattr(usage, "total_token_count", 0) or 0
+                rate_limit_manager.record_call(limiter_key, tokens_used=tokens)
 
                 result = self._extract_json((response.text or "").strip())
                 if result is None or not self._validate_analysis_result(result):
