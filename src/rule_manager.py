@@ -1,7 +1,7 @@
 import json
 import os
 import threading
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 import requests
 
@@ -9,6 +9,7 @@ from logger import logger
 
 _INDEX_LOCK = threading.Lock()
 _INDEX: Optional[Dict[str, List[Dict]]] = None
+_INDEX_OK = False
 
 _LOCAL = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                       "docs", "data", "detection-rules.json")
@@ -17,16 +18,21 @@ _MAX_RULE_CHARS = 6000
 
 
 def _index() -> Dict[str, List[Dict]]:
-    global _INDEX
+    global _INDEX, _INDEX_OK
     if _INDEX is not None:
         return _INDEX
     with _INDEX_LOCK:
         if _INDEX is None:
-            _INDEX = _load()
+            _INDEX, _INDEX_OK = _load()
     return _INDEX
 
 
-def _load() -> Dict[str, List[Dict]]:
+def index_ok() -> bool:
+    _index()
+    return _INDEX_OK
+
+
+def _load() -> Tuple[Dict[str, List[Dict]], bool]:
     repo = os.environ.get("GITHUB_REPOSITORY", "")
     if "/" in repo:
         owner, name = repo.split("/", 1)
@@ -37,17 +43,17 @@ def _load() -> Dict[str, List[Dict]]:
             with urllib.request.urlopen(req, timeout=120) as r:
                 idx = (json.loads(r.read().decode("utf-8")) or {}).get("rules") or {}
             logger.info(f"탐지 룰 인덱스 로드(배포본): {len(idx):,}건")
-            return idx
+            return idx, True
         except Exception as e:
             logger.warning(f"탐지 룰 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
     try:
         with open(_LOCAL, encoding="utf-8") as f:
             idx = (json.load(f) or {}).get("rules") or {}
         logger.info(f"탐지 룰 인덱스 로드(파일): {len(idx):,}건")
-        return idx
+        return idx, True
     except (OSError, ValueError):
-        logger.info("탐지 룰 인덱스 없음 — 룰 섹션은 생략된다")
-        return {}
+        logger.warning("탐지 룰 인덱스를 받지 못했다 — '룰 없음'으로 기록하지 않는다")
+        return {}, False
 
 
 def _fetch_text(entry: Dict) -> Optional[str]:

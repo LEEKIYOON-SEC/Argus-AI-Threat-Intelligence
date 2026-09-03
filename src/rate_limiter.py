@@ -104,20 +104,10 @@ class RateLimitManager:
                 window_seconds=60,
                 min_interval=4.0
             ),
-            "nvd": RateLimitInfo(
-                limit=40,
-                window_seconds=30,
-                min_interval=1.0
-            ),
             "vulncheck": RateLimitInfo(
                 limit=40,
                 window_seconds=60,
                 min_interval=1.5
-            ),
-            "github_advisory": RateLimitInfo(
-                limit=900,
-                window_seconds=3600,
-                min_interval=0.5
             ),
             "ruleset_download": RateLimitInfo(
                 limit=20,

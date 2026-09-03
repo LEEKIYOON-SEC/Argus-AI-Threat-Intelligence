@@ -12,6 +12,7 @@ from analyzer import Analyzer
 from logger import logger
 from notifier import SlackNotifier
 from rule_manager import RuleManager
+from rule_manager import index_ok as rule_manager_index_ok
 
 KST = pytz.timezone('Asia/Seoul')
 
@@ -190,7 +191,10 @@ def _priority_banner(cve_data: Dict) -> str:
 
 
 def _epss_caption(cve_data: Dict) -> str:
-    epss = cve_data.get('epss', 0.0) or 0.0
+    if 'epss' not in cve_data:
+        return ("<sub>EPSS 미상 — 이번 회차에 FIRST.org 지표를 받지 못했습니다. "
+                "0%가 아니라 '모름'입니다.</sub>")
+    epss = cve_data.get('epss') or 0.0
     surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
     return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
 
@@ -232,12 +236,13 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
 
         rule_manager = RuleManager()
         rules = rule_manager.search_public_only(cve_data['id'])
+        rules_known = rule_manager_index_ok()
 
         has_official = bool(
             rules.get('network')
             or any(rules.get(k) for k in ('sigma', 'nuclei', 'splunk', 'yara'))
         )
-        
+
         body = _build_issue_body(cve_data, reason, analysis, rules)
         
         url = f"https://api.github.com/repos/{repo}/issues"
@@ -257,8 +262,10 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         issue_url = response.json().get("html_url")
         logger.info(f"GitHub Issue 생성 성공: {issue_url}")
         
+        if not rules_known:
+            return issue_url, None
         return issue_url, {"has_official": has_official, "rules": rules}
-        
+
     except Exception as e:
         logger.error(f"GitHub Issue 생성 실패: {e}")
         return None, None
@@ -274,11 +281,24 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     elif score > 0: color = "28A745"
     else: color = "CCCCCC"
     
-    kev_color = "FF0000" if cve_data.get('is_kev') else "CCCCCC"
+    if 'is_kev' not in cve_data:
+        kev_text, kev_color = "unknown", "6C757D"
+    elif cve_data.get('is_kev'):
+        kev_text, kev_color = "YES", "FF0000"
+    else:
+        kev_text, kev_color = "No", "CCCCCC"
+
+    if 'epss' not in cve_data:
+        epss_badge = "![EPSS](https://img.shields.io/badge/EPSS-unknown-6C757D)"
+    else:
+        epss_badge = (f"![EPSS](https://img.shields.io/badge/EPSS-"
+                      f"{(cve_data.get('epss') or 0)*100:.2f}%25-blue)")
 
     ver = str(cve_data.get('cvss_version') or '').strip()
     cvss_label = f"CVSS%20v{ver}" if ver else "CVSS"
-    badges = f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
+    badges = (f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) "
+              f"{epss_badge} "
+              f"![KEV](https://img.shields.io/badge/KEV-{kev_text}-{kev_color})")
 
     if cve_data.get('ssvc_exploitation') == 'active':
         badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
@@ -335,7 +355,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         poc_link = f" — [PoC 링크]({poc_urls[0]})" if poc_urls else ""
         signal_lines.append(
             f"- **PoC 공개** (출처: nomi-sec/trickest, 원문 미게시·링크만): "
-            f"{cve_data.get('poc_count', len(poc_urls))}건{poc_link}")
+            f"{len(poc_urls)}건{poc_link}")
     threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
 
     cwe_str = ", ".join(cve_data.get('cwe') or []) or "N/A"

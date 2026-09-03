@@ -132,22 +132,17 @@ class Analyzer:
 
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
         enriched_section = ""
-        
-        if cve_data.get('nvd_cpe'):
-            cpe_list = ", ".join(cve_data['nvd_cpe'][:3])
-            enriched_section += f"\nNVD CPE: {cpe_list}"
-        
+
         if cve_data.get('has_poc'):
-            poc_urls = cve_data.get('poc_urls', [])
-            enriched_section += f"\nPoC: 공개됨 ({cve_data.get('poc_count', 0)}건)"
+            poc_urls = cve_data.get('poc_urls') or []
+            enriched_section += f"\nPoC: 공개됨 ({len(poc_urls)}건)"
             if poc_urls:
                 enriched_section += f" - {poc_urls[0]}"
-        
-        advisory = cve_data.get('github_advisory', {})
-        if advisory.get('has_advisory') and advisory.get('packages'):
-            pkgs = [f"{p['ecosystem']}/{p['name']}" for p in advisory['packages'][:3]]
-            enriched_section += f"\nAffected Packages: {', '.join(pkgs)}"
-        
+
+        if cve_data.get('has_metasploit_module'):
+            mods = cve_data.get('metasploit_modules') or []
+            enriched_section += f"\nMetasploit: 모듈 존재{f' - {mods[0]}' if mods else ''}"
+
         if cve_data.get('is_vulncheck_kev'):
             enriched_section += "\nVulnCheck KEV: 실제 악용 확인됨"
         
@@ -168,8 +163,8 @@ You are a Senior Security Analyst. Analyze the following CVE based STRICTLY on t
 ===
 
 [Context]
-CVE-ID: {cve_data['id']}
-Description: {cve_data['description']}
+CVE-ID: {cve_data.get('id', 'N/A')}
+Description: {cve_data.get('description') or 'N/A'}
 CWE: {', '.join(cve_data.get('cwe', ['Unknown']))}
 CVSS Vector: {cve_data.get('cvss_vector', 'N/A')}
 Affected Products: {json.dumps(cve_data.get('affected', []))}

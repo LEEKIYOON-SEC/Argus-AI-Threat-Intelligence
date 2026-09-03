@@ -26,6 +26,7 @@ from notifier import SlackNotifier
 from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
 from report import create_github_issue, update_github_issue_with_official_rules
 from rule_manager import RuleManager
+from rule_manager import index_ok as rule_manager_index_ok
 
 KST = pytz.timezone('Asia/Seoul')
 
@@ -446,6 +447,10 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
         rule_manager = RuleManager()
+        if not rule_manager_index_ok():
+            logger.warning("탐지 룰 인덱스 미적재 — 재확인을 건너뛴다 "
+                           "(쿨다운을 소모하면 7일간 다시 못 본다)")
+            return
 
         max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
         candidates = db.get_rule_recheck_candidates(limit=max_recheck)
@@ -463,11 +468,11 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             try:
                 rules = rule_manager.search_public_only(cve_id)
 
-                has_official = any([
-                    rules.get('sigma') and rules['sigma'].get('verified'),
-                    any(r.get('verified') for r in rules.get('network', [])),
-                    rules.get('yara') and rules['yara'].get('verified')
-                ])
+                has_official = bool(
+                    any(r.get('verified') for r in rules.get('network') or [])
+                    or any((rules.get(k) or {}).get('verified')
+                           for k in ('sigma', 'yara', 'nuclei', 'splunk'))
+                )
 
                 now_iso = datetime.datetime.now(KST).isoformat()
 
@@ -547,6 +552,8 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
         state.setdefault('epss', row.get('epss_score') or 0.0)
         state.setdefault('is_kev', bool(row.get('is_kev')))
         state.setdefault('references', [])
+        state.setdefault('description', 'N/A')
+        state.setdefault('title', row['id'])
         state.setdefault('title_ko', state.get('title') or row['id'])
         reason = " · ".join(
             risk.TRIGGERS[k].label for k in (state.get('fired_triggers') or [])
