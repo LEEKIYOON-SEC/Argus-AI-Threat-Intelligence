@@ -2,7 +2,7 @@ name: Argus Maintenance
 
 on:
   schedule:
-    - cron: '40 3 * * 0'      # 매주 일요일 03:40 UTC — 역인덱스 갱신
+    - cron: '40 3 * * 0'
   workflow_dispatch:
     inputs:
       task:
@@ -10,13 +10,13 @@ on:
         type: choice
         default: 'package-index'
         options:
-          - package-index      # CVE ↔ 패키지 역인덱스 재생성
-          - rule-index         # CVE ↔ 공개 탐지 룰 역인덱스 재생성
-          - backfill-published # CVE 공개일 소급 (한 번만 돌리면 됨)
-          - backfill-vendors   # 영향 벤더 소급 (NVD CPE로 n/a 복구)
-          - backfill-exploited # 현재 악용 중(KEV) 전량 소급 — 여러 번 돌리면 수렴
-          - backfill-cvss      # CVSS 버전 소급 (4.0만 읽고 끊던 옛 행 보정)
-          - backfill-signals   # SSVC 평탄화 + 등급·발화이력 정합 (알림 폭풍 방지)
+          - package-index
+          - rule-index
+          - backfill-published
+          - backfill-vendors
+          - backfill-exploited
+          - backfill-cvss
+          - backfill-signals
       backfill_days:
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
@@ -26,7 +26,7 @@ on:
         default: false
 
 permissions:
-  contents: read      # 결과물은 커밋하지 않고 Pages 아티팩트로 배포한다
+  contents: read
 
 concurrency:
   group: argus-pipeline
@@ -106,6 +106,7 @@ jobs:
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
