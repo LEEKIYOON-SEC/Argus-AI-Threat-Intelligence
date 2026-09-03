@@ -131,12 +131,16 @@ def main() -> int:
     # 24건을 넘으면 나머지는 offset 이 지나가 버렸다 — 실측 미번역 2,340건 중
     # 1,447건이 구조적으로 도달 불가였다.
     src = open(os.path.join(ROOT, "src", "main.py"), encoding="utf-8").read()
-    body = src[src.index("def translate_tracked"):src.index("_NO_AFC =")]
+    body = src[src.index("def translate_tracked"):src.index("def _translation_exhausted")]
     check("next_offset = offset + scanned" in body,
           "전진 폭이 실제 스캔량(scanned)이다", failures)
     check("offset + pool" not in body, "창 크기(pool)로 밀지 않는다", failures)
-    check(re.search(r"if not candidates:\s*\n(?:.*\n)*?\s*return 0", body) is not None,
-          "후보가 비면 offset 을 건드리지 않고 돌아간다 (조회 실패 ≠ 끝)", failures)
+    # 후보가 비면 offset 을 쓰지 않고 빠져나간다 — 조회 실패를 '끝'으로 읽으면
+    # 순회가 처음으로 되감기고 뒤쪽 행은 영영 안 온다.
+    empty = re.search(r"if not candidates:\s*\n(?:.*\n)*?\s*break\b", body)
+    check(empty is not None, "후보가 비면 빠져나간다", failures)
+    check(empty is not None and "write_backfill_offset" not in empty.group(),
+          "그 경로에서 offset 을 건드리지 않는다 (조회 실패 ≠ 끝)", failures)
 
     print("\n── ⑦ fast-lane 이 처리한 건을 실패로 세지 않는다 ──")
     # 고장: changes[len(outcomes):] 로 끊었는데 record 없는 건은 outcomes 에 안 담겨
