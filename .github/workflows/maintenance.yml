@@ -1,14 +1,5 @@
 name: Argus Maintenance
 
-# 매시간 파이프라인과 분리된 유지보수 작업.
-#  · 패키지 역인덱스: OSV 덤프(22개 생태계)가 크고 훑는 데 몇 분 걸린다. 취약점↔패키지
-#    매핑은 시간 단위로 바뀌지 않으므로 주 1회면 충분하다.
-#  · 탐지 룰 역인덱스: SigmaHQ·ET Open·Snort·nuclei·Splunk ESCU·YARA Forge를 훑어
-#    CVE→룰 위치 사전을 만든다. 예전에는 CVE 한 건마다 이 룰셋 전체를 정규식으로
-#    스캔했다(히트율 1.1%). 인덱스로 바꿔 조회를 O(1)로 만들고 알림 경로에서 뺐다.
-#  · 공개일 백필: 차트를 공개일 기준으로 바꾸면서 기존 행을 한 번 채우는 작업.
-#    다 채우고 나면 수집 시점에 채워지므로 다시 돌릴 일이 없다 → 수동 전용.
-
 on:
   schedule:
     - cron: '40 3 * * 0'      # 매주 일요일 03:40 UTC — 역인덱스 갱신
@@ -27,13 +18,9 @@ on:
           - backfill-cvss      # CVSS 버전 소급 (4.0만 읽고 끊던 옛 행 보정)
           - backfill-signals   # SSVC 평탄화 + 등급·발화이력 정합 (알림 폭풍 방지)
       backfill_days:
-        # 30일씩 끊어 NVD를 조회한다. 키가 없으면 창당 8초라 7000일이면 ~30분 —
-        # 잡 타임아웃(60분) 안이지만, NVD_API_KEY가 있으면 훨씬 빠르다.
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
       dry_run:
-        # backfill-cvss / backfill-signals 전용. 전부 계산하고 저장만 하지 않는다 —
-        # 얼마나 올라가는지, 등급이 어디로 움직이는지를 쓰기 전에 로그로 본다.
         description: 'backfill-cvss·signals: 계산만 하고 저장하지 않기'
         type: boolean
         default: false
@@ -41,7 +28,6 @@ on:
 permissions:
   contents: read      # 결과물은 커밋하지 않고 Pages 아티팩트로 배포한다
 
-# 매시간 파이프라인과 같은 사이트를 배포하므로 겹치면 안 된다
 concurrency:
   group: argus-pipeline
   cancel-in-progress: false
@@ -50,7 +36,6 @@ jobs:
   maintenance:
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    # 인덱스를 새로 만든 실행만 배포한다 (공개일 백필은 DB만 바꾸므로 배포 불필요)
     outputs:
       artifact: ${{ steps.carry.outcome }}
     steps:
@@ -73,8 +58,6 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python src/build_package_index.py
 
-      # GH_TOKEN이 필요한 이유: SigmaHQ·Splunk는 tarball을 api.github.com에서 받는다
-      # (익명 한도로는 매주 실패할 수 있다). 한 소스가 실패해도 나머지로 인덱스를 만든다.
       - name: Build detection rule index
         if: ${{ github.event_name == 'schedule' || inputs.task == 'rule-index' }}
         env:
@@ -91,12 +74,6 @@ jobs:
           BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: python src/backfill_published.py
 
-      # 주간 스케줄에도 태운다. 벤더가 비는 원인의 대부분은 NVD의 CPE 분석 지연이라
-      # (실측: 벤더 없는 198건의 66%가 올해 CVE, 2024년 이전은 64%가 복구 가능)
-      # 한 번 돌리고 끝낼 일이 아니다. 채워질수록 대상이 줄어 비용도 같이 준다.
-      # 스냅샷 최초 기록은 전량을 '이미 아는 것'으로 저장하고 처리는 하지 않는다
-      # (첫 실행 알림 폭풍 방지). 그래서 그 시점에 이미 KEV였던 CVE가 DB에 없다.
-      # 한 번에 800건씩 채우고, 남으면 다시 돌리면 이어서 채운다. 알림은 나가지 않는다.
       - name: Backfill currently exploited (KEV)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-exploited' }}
         env:
@@ -110,15 +87,6 @@ jobs:
           BACKFILL_LIMIT: '800'
         run: python src/backfill_exploited.py
 
-      # 두 가지를 고친다.
-      #  1. 옛 코드는 metrics를 돌다 CVSS를 하나 만나면 거기서 끊었다. 4.0이 먼저 오면
-      #     3.x를 못 봤다 — 실측 23%가 두 버전을 갖고 14.5%는 점수가 올라간다.
-      #  2. 2016년 이전 CVE는 구형 CVE 포맷에서 일괄 변환돼 cvelistV5에 metrics 블록이
-      #     아예 없다. 화면의 N/A 574건 중 572건이 이 경우고, 그중 571건이 T0다.
-      #     소스에 없는 건 재판독으로 못 고치므로 NVD를 한 번 더 본다(퍼블릭 도메인).
-      # NVD_API_KEY가 있으면 건당 0.7초, 없으면 8초다 — 574건이면 7분 vs 76분이라
-      # 예산(기본 2400초)을 넘기면 남은 건 다음 실행이 이어서 본다.
-      # 점수를 내리지 않고 Slack도 부르지 않는다. 다 채우면 대상이 0이 된다.
       - name: Backfill CVSS versions
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-cvss' }}
         env:
@@ -129,13 +97,6 @@ jobs:
           BACKFILL_CVSS_NVD_BUDGET: '2400'
         run: python src/backfill_cvss.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
-      # CISA vulnrichment의 SSVC는 ssvc 중첩 딕셔너리로 저장돼 왔는데 risk.evaluate는
-      # 평탄한 ssvc_exploitation만 읽었다 — 트리거 3개(T0 하나 포함)가 통째로 죽어 있었다.
-      # 실측: ssvc_active 439건 · ssvc_automatable 1,647건 · ssvc_total_impact 3,699건.
-      # 코드는 고쳤지만 저장된 행을 그냥 두면, 그 CVE가 다음에 한 번 바뀌는 순간
-      # ssvc_active(T0)가 '처음 보는 신호'가 되어 Slack이 순차적으로 439번 터진다.
-      # 이 잡이 미리 발화 이력에 채워 넣어 그걸 막는다. 네트워크를 쓰지 않아 몇 초면 끝난다.
-      # 코드 배포 직후 한 번만 돌리면 되고, 그 뒤로는 새로 관측되는 것만 알림이 나간다.
       - name: Reconcile SSVC signals
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-signals' }}
         env:
@@ -151,8 +112,6 @@ jobs:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: python src/backfill_vendors.py
 
-      # 이 잡은 인덱스만 만든다. 매시간 갱신되는 cves.json·stats.json은 지금
-      # 서비스 중인 사이트에서 받아 채워야 배포가 그것들을 지우지 않는다.
       - name: Carry forward published data
         id: carry
         if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' || inputs.task == 'rule-index' }}
