@@ -83,9 +83,6 @@ def main() -> int:
 
 
 RETENTION_CASES = (
-    # 소급 채우기(silent=True)는 last_alert_at 을 남기지 않는다. 보존 정책의 만료 삭제가
-    # 바로 그 조건(last_alert_at IS NULL + 오래됨)을 쓰므로, 지금 악용 중인 T0 행이
-    # 관찰 만료로 오인돼 지워질 수 있었다. 2015~2020년 KEV 는 레코드가 더는 안 바뀐다.
     ("소급으로 넣은 CISA KEV 행",
      {"id": "CVE-2015-7755", "is_kev": True, "cvss_score": 9.8, "epss_score": 0.3,
       "last_alert_state": {"tier": "T0", "is_kev": True}}, True),
@@ -123,13 +120,6 @@ def retention_guard(failures):
 
 
 def merge_membership(failures):
-    # '추적 중 CVE' 가 회차마다 오르내린 원인. 증분 export 의 병합은
-    # `직전 배포본 ∪ 이번에 바뀐 행` 이라 DB 에서 사라진 행을 스스로 지우지 못한다.
-    #
-    #   번역이 돌면   → request_full_export() → 전량 → 건수 = DB 실제 (낮음)
-    #   번역이 안 돌면 → 병합 → 건수 = 배포본 ∪ 신규 (높음)
-    #
-    # 두 경로가 같은 집합을 만들지 않았다. 이제 id 목록으로 회원 자격을 맞춘다.
     import datetime as dt
 
     now = dt.datetime.now(dt.timezone.utc)

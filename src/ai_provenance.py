@@ -31,6 +31,7 @@ class Provenance:
     detail: str
     url: str = ""
 
+
     def as_state(self) -> Dict:
         return {"ai_discovered": True, "ai_program": self.program,
                 "ai_detail": self.detail[:300], "ai_url": self.url}

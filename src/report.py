@@ -12,6 +12,7 @@ from analyzer import Analyzer
 from logger import logger
 from notifier import SlackNotifier
 from rule_manager import RuleManager
+from rule_manager import index_ok as rule_manager_index_ok
 
 KST = pytz.timezone('Asia/Seoul')
 
@@ -173,6 +174,7 @@ def _rule_license_note(rule_info: Dict) -> str:
         return ""
     return "\n> " + " · ".join(bits) + "\n"
 
+
 def _priority_banner(cve_data: Dict) -> str:
     verdict = risk.evaluate(cve_data)
     labels = verdict.labels()
@@ -189,16 +191,15 @@ def _priority_banner(cve_data: Dict) -> str:
 
 
 def _epss_caption(cve_data: Dict) -> str:
-    epss = cve_data.get('epss', 0.0) or 0.0
+    if 'epss' not in cve_data:
+        return ("<sub>EPSS 미상 — 이번 회차에 FIRST.org 지표를 받지 못했습니다. "
+                "0%가 아니라 '모름'입니다.</sub>")
+    epss = cve_data.get('epss') or 0.0
     surge = " · **⚠️ 급증**" if epss >= 0.1 else ""
     return f"<sub>EPSS {epss*100:.2f}% — 향후 30일 내 실제 악용 시도 확률 (출처: FIRST.org){surge}</sub>"
 
+
 def _display_title(cve_data: dict) -> str:
-    # 알림 시점(fast-lane/스냅샷 대조)의 상태에는 title_ko 가 없다 — 번역은 bulk-lane 이
-    # 나중에 채운다. 예전에는 cve_data['title_ko'] 로 바로 꺼내 KeyError 가 났고,
-    # create_github_issue 의 except 가 "GitHub Issue 생성 실패: 'title_ko'" 한 줄로
-    # 삼켰다. 그래서 알림에 리포트 링크가 없이 나가고, 다음 시간의 리포트 보강이
-    # (거기서만 setdefault 로 메우고 있어서) 뒤늦게 만들어 주고 있었다.
     return (str(cve_data.get('title_ko') or '').strip()
             or str(cve_data.get('title') or '').strip()
             or cve_data.get('id', 'CVE'))
@@ -235,12 +236,13 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
 
         rule_manager = RuleManager()
         rules = rule_manager.search_public_only(cve_data['id'])
+        rules_known = rule_manager_index_ok()
 
         has_official = bool(
             rules.get('network')
             or any(rules.get(k) for k in ('sigma', 'nuclei', 'splunk', 'yara'))
         )
-        
+
         body = _build_issue_body(cve_data, reason, analysis, rules)
         
         url = f"https://api.github.com/repos/{repo}/issues"
@@ -260,11 +262,14 @@ def create_github_issue(cve_data: Dict, reason: str) -> Tuple[Optional[str], Opt
         issue_url = response.json().get("html_url")
         logger.info(f"GitHub Issue 생성 성공: {issue_url}")
         
+        if not rules_known:
+            return issue_url, None
         return issue_url, {"has_official": has_official, "rules": rules}
-        
+
     except Exception as e:
         logger.error(f"GitHub Issue 생성 실패: {e}")
         return None, None
+
 
 def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) -> str:
     analysis = analysis or {}
@@ -276,13 +281,24 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
     elif score > 0: color = "28A745"
     else: color = "CCCCCC"
     
-    kev_color = "FF0000" if cve_data.get('is_kev') else "CCCCCC"
+    if 'is_kev' not in cve_data:
+        kev_text, kev_color = "unknown", "6C757D"
+    elif cve_data.get('is_kev'):
+        kev_text, kev_color = "YES", "FF0000"
+    else:
+        kev_text, kev_color = "No", "CCCCCC"
 
-    # 4.0 과 3.x 는 산식이 달라 점수가 어긋난다(실측 22%가 두 버전 보유). 어느 버전인지
-    # 안 밝히면 NVD 에서 다른 값을 본 사람이 무엇이 맞는지 알 수 없다.
+    if 'epss' not in cve_data:
+        epss_badge = "![EPSS](https://img.shields.io/badge/EPSS-unknown-6C757D)"
+    else:
+        epss_badge = (f"![EPSS](https://img.shields.io/badge/EPSS-"
+                      f"{(cve_data.get('epss') or 0)*100:.2f}%25-blue)")
+
     ver = str(cve_data.get('cvss_version') or '').strip()
     cvss_label = f"CVSS%20v{ver}" if ver else "CVSS"
-    badges = f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) ![EPSS](https://img.shields.io/badge/EPSS-{(cve_data.get('epss') or 0)*100:.2f}%25-blue) ![KEV](https://img.shields.io/badge/KEV-{'YES' if cve_data.get('is_kev') else 'No'}-{kev_color})"
+    badges = (f"![CVSS](https://img.shields.io/badge/{cvss_label}-{score}-{color}) "
+              f"{epss_badge} "
+              f"![KEV](https://img.shields.io/badge/KEV-{kev_text}-{kev_color})")
 
     if cve_data.get('ssvc_exploitation') == 'active':
         badges += " ![SSVC](https://img.shields.io/badge/SSVC-Active-red)"
@@ -339,7 +355,7 @@ def _build_issue_body(cve_data: Dict, reason: str, analysis: Dict, rules: Dict) 
         poc_link = f" — [PoC 링크]({poc_urls[0]})" if poc_urls else ""
         signal_lines.append(
             f"- **PoC 공개** (출처: nomi-sec/trickest, 원문 미게시·링크만): "
-            f"{cve_data.get('poc_count', len(poc_urls))}건{poc_link}")
+            f"{len(poc_urls)}건{poc_link}")
     threat_signals = ("## 🧨 위협 신호\n" + "\n".join(signal_lines) + "\n") if signal_lines else ""
 
     cwe_str = ", ".join(cve_data.get('cwe') or []) or "N/A"
@@ -477,6 +493,7 @@ AI 분석·위험도 분류는 **참고용**이며 정확성을 보증하지 않
 """
     return body.strip()
 
+
 def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: Dict) -> bool:
     comment = f"""## ✅ 공개 탐지 룰 발견
 
@@ -498,4 +515,3 @@ def update_github_issue_with_official_rules(issue_url: str, cve_id: str, rules: 
 
     notifier = SlackNotifier()
     return notifier.update_github_issue(issue_url, comment)
-

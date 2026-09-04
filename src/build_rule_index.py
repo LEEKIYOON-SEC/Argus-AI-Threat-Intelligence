@@ -1,3 +1,4 @@
+import hashlib
 import io
 import json
 import os
@@ -5,7 +6,7 @@ import re
 import sys
 import tarfile
 import zipfile
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set
 
 import requests
 
@@ -31,10 +32,17 @@ LICENSES = {
 }
 
 
+MAX_PER_ENGINE = 3
+
+
 def _add(index: Dict[str, List[Dict]], cve: str, entry: Dict) -> None:
     bucket = index.setdefault(cve.upper(), [])
-    if not any(e["engine"] == entry["engine"] and e["path"] == entry["path"] for e in bucket):
-        bucket.append(entry)
+    same = [e for e in bucket if e.get("engine") == entry.get("engine")]
+    if any(e.get("path") == entry.get("path") for e in same):
+        return
+    if len(same) >= MAX_PER_ENGINE:
+        return
+    bucket.append(entry)
 
 
 def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
@@ -53,10 +61,10 @@ def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
         return None
 
 
-def collect_sigma(index: Dict[str, List[Dict]]) -> int:
+def collect_sigma(index: Dict[str, List[Dict]]) -> Set[str]:
     data = _github_tarball("SigmaHQ", "sigma", "SigmaHQ")
     if data is None:
-        return 0
+        return set()
     lic, note = LICENSES["sigma"]
     n = 0
     try:
@@ -80,14 +88,15 @@ def collect_sigma(index: Dict[str, List[Dict]]) -> int:
                     n += 1
     except tarfile.TarError as e:
         logger.warning(f"  ⚠️ SigmaHQ 압축 해제 실패: {e}")
+        return set()
     logger.info(f"  ✅ SigmaHQ: {n}개 매핑")
-    return n
+    return {"sigma"}
 
 
-def collect_splunk(index: Dict[str, List[Dict]]) -> int:
+def collect_splunk(index: Dict[str, List[Dict]]) -> Set[str]:
     data = _github_tarball("splunk", "security_content", "Splunk ESCU")
     if data is None:
-        return 0
+        return set()
     lic, note = LICENSES["splunk"]
     n = 0
     try:
@@ -111,15 +120,16 @@ def collect_splunk(index: Dict[str, List[Dict]]) -> int:
                     n += 1
     except tarfile.TarError as e:
         logger.warning(f"  ⚠️ Splunk ESCU 압축 해제 실패: {e}")
+        return set()
     logger.info(f"  ✅ Splunk ESCU: {n}개 매핑")
-    return n
+    return {"splunk"}
 
 
 _YARA_FORGE = ("https://github.com/YARAHQ/yara-forge/releases/latest/download/"
                "yara-forge-rules-core.zip")
 
 
-def collect_yara(index: Dict[str, List[Dict]]) -> int:
+def collect_yara(index: Dict[str, List[Dict]]) -> Set[str]:
     lic, note = LICENSES["yara"]
     try:
         resp = requests.get(_YARA_FORGE, timeout=_TIMEOUT,
@@ -127,7 +137,7 @@ def collect_yara(index: Dict[str, List[Dict]]) -> int:
         resp.raise_for_status()
     except requests.exceptions.RequestException as e:
         logger.warning(f"  ⚠️ YARA Forge 다운로드 실패 → 생략: {e}")
-        return 0
+        return set()
     n = 0
     try:
         with zipfile.ZipFile(io.BytesIO(resp.content)) as zf:
@@ -155,12 +165,16 @@ def collect_yara(index: Dict[str, List[Dict]]) -> int:
                         n += 1
     except zipfile.BadZipFile as e:
         logger.warning(f"  ⚠️ YARA Forge 해제 실패: {e}")
+        return set()
     logger.info(f"  ✅ YARA Forge: {n}개 매핑")
-    return n
+    return {"yara"}
 
 
-def collect_nuclei(index: Dict[str, List[Dict]]) -> int:
+def collect_nuclei(index: Dict[str, List[Dict]]) -> Set[str]:
     idx = enrichment_sources.load_nuclei_index()
+    if not enrichment_sources.nuclei_ok():
+        logger.warning("  ⚠️ nuclei-templates 인덱스를 못 받음 → 생략")
+        return set()
     lic, note = LICENSES["nuclei"]
     for cve, meta in idx.items():
         path = meta.get("path", "")
@@ -169,7 +183,7 @@ def collect_nuclei(index: Dict[str, List[Dict]]) -> int:
                           "severity": meta.get("severity", ""),
                           "url": enrichment_sources.nuclei_template_url(path)})
     logger.info(f"  ✅ nuclei-templates: {len(idx)}개 매핑")
-    return len(idx)
+    return {"nuclei"}
 
 
 _NETWORK_SOURCES = [
@@ -186,8 +200,18 @@ _NETWORK_SOURCES = [
 ]
 
 
-def collect_network(index: Dict[str, List[Dict]]) -> int:
-    total = 0
+_SID = re.compile(r'\bsid\s*:\s*(\d+)')
+
+
+def _network_key(label: str, line: str) -> str:
+    m = _SID.search(line)
+    if m:
+        return f"{label}:sid{m.group(1)}"
+    return f"{label}:{hashlib.sha1(line.encode('utf-8', 'ignore')).hexdigest()[:12]}"
+
+
+def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
+    done: Set[str] = set()
     for label, url, member_hint, engine in _NETWORK_SOURCES:
         lic, note = LICENSES[engine]
         try:
@@ -218,14 +242,53 @@ def collect_network(index: Dict[str, List[Dict]]) -> int:
             stripped = line.strip()
             if not stripped or stripped.startswith("#") or "alert" not in stripped:
                 continue
+            key = _network_key(label, stripped)
             for cve in {c.upper() for c in _CVE.findall(stripped)}:
                 _add(index, cve, {"engine": engine, "source": label,
                                   "license": lic, "note": note,
-                                  "path": "", "url": "", "code": stripped})
+                                  "path": key, "url": "", "code": stripped})
                 n += 1
-        total += n
+        done.add(engine)
         logger.info(f"  ✅ {label}: {n}개 매핑")
-    return total
+    return done
+
+
+ALL_ENGINES = frozenset(LICENSES)
+
+
+def load_previous() -> Dict[str, List[Dict]]:
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" in repo:
+        owner, name = repo.split("/", 1)
+        url = f"https://{owner.lower()}.github.io/{name}/data/detection-rules.json"
+        try:
+            resp = requests.get(url, timeout=_TIMEOUT,
+                                headers={"User-Agent": "argus-rule-index"})
+            resp.raise_for_status()
+            prev = (resp.json() or {}).get("rules") or {}
+            logger.info(f"  직전 인덱스 로드(배포본): CVE {len(prev):,}건")
+            return prev
+        except (requests.exceptions.RequestException, ValueError) as e:
+            logger.warning(f"  직전 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+    try:
+        with open(_OUT, encoding="utf-8") as f:
+            prev = (json.load(f) or {}).get("rules") or {}
+        logger.info(f"  직전 인덱스 로드(파일): CVE {len(prev):,}건")
+        return prev
+    except (OSError, ValueError):
+        return {}
+
+
+def carry_missing(index: Dict[str, List[Dict]], prev: Dict[str, List[Dict]],
+                  missing: Set[str]) -> int:
+    carried = 0
+    for cve, entries in prev.items():
+        for entry in entries or []:
+            if not isinstance(entry, dict) or entry.get("engine") not in missing:
+                continue
+            _add(index, cve, entry)
+            carried += 1
+    return carried
 
 
 def main() -> int:
@@ -234,12 +297,26 @@ def main() -> int:
     logger.info("=" * 60)
 
     index: Dict[str, List[Dict]] = {}
+    refreshed: Set[str] = set()
     for fn in (collect_nuclei, collect_sigma, collect_network,
                collect_splunk, collect_yara):
         try:
-            fn(index)
+            refreshed |= fn(index) or set()
         except Exception as e:
             logger.error(f"{fn.__name__} 실패 → 계속 진행: {e}")
+
+    missing = set(ALL_ENGINES) - refreshed
+    if missing == ALL_ENGINES:
+        logger.error("모든 소스가 실패했습니다 — 기존 파일을 덮어쓰지 않고 종료")
+        return 1
+    if missing:
+        logger.warning(f"갱신 못 한 엔진 {sorted(missing)} — 직전 인덱스에서 이월한다 "
+                       f"(못 받은 것을 '룰 없음'으로 만들지 않는다)")
+        carried = carry_missing(index, load_previous(), missing)
+        logger.info(f"  이월 {carried:,}개 매핑")
+        if carried == 0:
+            logger.error("이월할 직전 인덱스도 없습니다 — 덮어쓰지 않고 종료")
+            return 1
 
     if not index:
         logger.error("수집된 룰이 없습니다 — 기존 파일을 덮어쓰지 않고 종료")
@@ -257,6 +334,8 @@ def main() -> int:
                     "출처·author·라이선스 고지를 함께 싣는다",
         "schema": 1,
         "engines": by_engine,
+        "refreshed": sorted(refreshed),
+        "carried": sorted(missing),
         "rules": index,
     }
     os.makedirs(_DATA, exist_ok=True)

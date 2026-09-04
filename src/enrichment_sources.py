@@ -21,6 +21,7 @@ _CACHE_TTL_HOURS = 24
 EXPLOITDB_RAW_BASE = "https://gitlab.com/exploit-database/exploitdb/-/raw/main/"
 _METASPLOIT_URL = "https://raw.githubusercontent.com/rapid7/metasploit-framework/master/db/modules_metadata_base.json"
 _NUCLEI_URL = "https://raw.githubusercontent.com/projectdiscovery/nuclei-templates/main/cves.json"
+_POC_URL = "https://raw.githubusercontent.com/nomi-sec/PoC-in-GitHub/master/README.md"
 _CISA_KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 _VULNCHECK_BACKUP_URL = "https://api.vulncheck.com/v3/backup/vulncheck-kev"
 
@@ -52,11 +53,12 @@ def cache_put(name: str, content: bytes) -> None:
 
 _exploitdb_index: Dict[str, Tuple[str, str]] = {}
 _exploitdb_loaded = False
+_exploitdb_ok = False
 _CVE_RE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 
 
 def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
-    global _exploitdb_loaded
+    global _exploitdb_loaded, _exploitdb_ok
     with _lock:
         if _exploitdb_loaded:
             return _exploitdb_index
@@ -88,11 +90,17 @@ def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
                     continue
                 for cve in _CVE_RE.findall(codes):
                     _exploitdb_index.setdefault(cve.upper(), (file_path, edb_id))
+            _exploitdb_ok = bool(_exploitdb_index)
             logger.info(f"  ✅ Exploit-DB 인덱스 로드 완료 ({len(_exploitdb_index)}개 CVE 매핑)")
         except Exception as e:
             logger.warning(f"  ⚠️ Exploit-DB CSV 파싱 실패: {e}")
 
     return _exploitdb_index
+
+
+def exploitdb_ok() -> bool:
+    load_exploitdb_index()
+    return _exploitdb_ok
 
 
 def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
@@ -102,6 +110,7 @@ def exploitdb_entry(cve_id: str) -> Optional[Tuple[str, str]]:
 
 _msf_index: Dict[str, List[Dict]] = {}
 _msf_loaded = False
+_msf_ok = False
 
 _MSF_RANK_NAMES = {
     0: "manual", 100: "low", 200: "average", 300: "normal",
@@ -110,7 +119,7 @@ _MSF_RANK_NAMES = {
 
 
 def load_metasploit_index() -> Dict[str, List[Dict]]:
-    global _msf_loaded
+    global _msf_loaded, _msf_ok
     with _lock:
         if _msf_loaded:
             return _msf_index
@@ -152,11 +161,17 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
                 }
                 for cve in cves:
                     _msf_index.setdefault(cve, []).append(entry)
+            _msf_ok = bool(_msf_index)
             logger.info(f"  ✅ Metasploit 인덱스 로드 완료 ({len(_msf_index)}개 CVE 매핑)")
         except Exception as e:
             logger.warning(f"  ⚠️ Metasploit 메타데이터 파싱 실패: {e}")
 
     return _msf_index
+
+
+def metasploit_ok() -> bool:
+    load_metasploit_index()
+    return _msf_ok
 
 
 def metasploit_modules(cve_id: str) -> List[Dict]:
@@ -167,10 +182,11 @@ def metasploit_modules(cve_id: str) -> List[Dict]:
 
 _nuclei_index: Dict[str, Dict] = {}
 _nuclei_loaded = False
+_nuclei_ok = False
 
 
 def load_nuclei_index() -> Dict[str, Dict]:
-    global _nuclei_loaded
+    global _nuclei_loaded, _nuclei_ok
     with _lock:
         if _nuclei_loaded:
             return _nuclei_index
@@ -209,9 +225,15 @@ def load_nuclei_index() -> Dict[str, Dict]:
                 "severity": info.get("Severity", ""),
                 "path": obj.get("file_path", ""),
             }
+        _nuclei_ok = bool(_nuclei_index)
         logger.info(f"  ✅ nuclei-templates 인덱스 로드 완료 ({len(_nuclei_index)}개 CVE 매핑)")
 
     return _nuclei_index
+
+
+def nuclei_ok() -> bool:
+    load_nuclei_index()
+    return _nuclei_ok
 
 
 def nuclei_template(cve_id: str) -> Optional[Dict]:
@@ -221,6 +243,60 @@ def nuclei_template(cve_id: str) -> Optional[Dict]:
 
 def nuclei_template_url(path: str) -> str:
     return f"https://github.com/projectdiscovery/nuclei-templates/blob/main/{path}"
+
+
+_poc_index: Dict[str, List[str]] = {}
+_poc_loaded = False
+_poc_ok = False
+_POC_BLOCK = re.compile(r"^### (CVE-\d{4}-\d{4,})", re.M)
+_POC_LINK = re.compile(r"https://github\.com/[^\s\)\]]+")
+
+
+def load_poc_index() -> Dict[str, List[str]]:
+    global _poc_loaded, _poc_ok
+    with _lock:
+        if _poc_loaded:
+            return _poc_index
+        _poc_loaded = True
+
+        raw = cache_get("poc-in-github.md")
+        if raw is None:
+            logger.info("📥 PoC-in-GitHub 인덱스 다운로드 중...")
+            try:
+                rate_limit_manager.check_and_wait("ruleset_download")
+                response = requests.get(_POC_URL, timeout=120)
+                response.raise_for_status()
+                rate_limit_manager.record_call("ruleset_download")
+                raw = response.content
+                cache_put("poc-in-github.md", raw)
+            except Exception as e:
+                logger.warning(f"  ⚠️ PoC-in-GitHub 다운로드 실패: {e}")
+                return _poc_index
+        else:
+            logger.info("📥 PoC-in-GitHub 인덱스 캐시 로드")
+
+        try:
+            parts = _POC_BLOCK.split(raw.decode("utf-8", errors="ignore"))
+            for i in range(1, len(parts) - 1, 2):
+                urls = _POC_LINK.findall(parts[i + 1])
+                if urls:
+                    _poc_index[parts[i].upper()] = urls[:3]
+            _poc_ok = bool(_poc_index)
+            logger.info(f"  ✅ PoC 인덱스 로드 완료 ({len(_poc_index)}개 CVE 매핑)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ PoC-in-GitHub 파싱 실패: {e}")
+
+    return _poc_index
+
+
+def poc_ok() -> bool:
+    load_poc_index()
+    return _poc_ok
+
+
+def poc_urls(cve_id: str) -> List[str]:
+    load_poc_index()
+    return _poc_index.get(cve_id.upper(), [])
 
 
 def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:

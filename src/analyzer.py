@@ -4,14 +4,15 @@ import json
 import time
 from google import genai
 from google.genai import types as genai_types
-from tenacity import retry, stop_after_attempt, wait_exponential
 from typing import Dict, Optional
 from logger import logger
 from config import config
 from rate_limiter import rate_limit_manager, gemini_error_kind, gemini_backoff
 
+
 class AnalyzerError(Exception):
     pass
+
 
 class Analyzer:
     def __init__(self):
@@ -28,10 +29,7 @@ class Analyzer:
         logger.info(f"Analyzer initialized ({config.GEMINI_ANALYSIS_MODEL} "
                     f"→ {config.GEMINI_ANALYSIS_FALLBACK_MODEL} → 정형 폴백)")
 
-    @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=30)
-    )
+
     def analyze_cve(self, cve_data: Dict) -> Dict:
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
@@ -48,6 +46,7 @@ class Analyzer:
         return self._fallback_analysis(cve_data)
 
     _GEMINI_ATTEMPTS = 3
+
 
     def _analyze_with_gemini(self, cve_data: Dict, prompt: str,
                              model: str, limiter_key: str) -> Optional[Dict]:
@@ -79,7 +78,11 @@ class Analyzer:
                         ),
                     ),
                 )
-                rate_limit_manager.record_call(limiter_key)
+                tokens = 0
+                usage = getattr(response, "usage_metadata", None)
+                if usage is not None:
+                    tokens = getattr(usage, "total_token_count", 0) or 0
+                rate_limit_manager.record_call(limiter_key, tokens_used=tokens)
 
                 result = self._extract_json((response.text or "").strip())
                 if result is None or not self._validate_analysis_result(result):
@@ -104,6 +107,7 @@ class Analyzer:
                 return None
         return None
 
+
     def _extract_json(self, text: str) -> Optional[Dict]:
         try:
             return json.loads(text)
@@ -124,25 +128,21 @@ class Analyzer:
                 pass
 
         return None
-    
+
+
     def _build_analysis_prompt(self, cve_data: Dict) -> str:
         enriched_section = ""
-        
-        if cve_data.get('nvd_cpe'):
-            cpe_list = ", ".join(cve_data['nvd_cpe'][:3])
-            enriched_section += f"\nNVD CPE: {cpe_list}"
-        
+
         if cve_data.get('has_poc'):
-            poc_urls = cve_data.get('poc_urls', [])
-            enriched_section += f"\nPoC: 공개됨 ({cve_data.get('poc_count', 0)}건)"
+            poc_urls = cve_data.get('poc_urls') or []
+            enriched_section += f"\nPoC: 공개됨 ({len(poc_urls)}건)"
             if poc_urls:
                 enriched_section += f" - {poc_urls[0]}"
-        
-        advisory = cve_data.get('github_advisory', {})
-        if advisory.get('has_advisory') and advisory.get('packages'):
-            pkgs = [f"{p['ecosystem']}/{p['name']}" for p in advisory['packages'][:3]]
-            enriched_section += f"\nAffected Packages: {', '.join(pkgs)}"
-        
+
+        if cve_data.get('has_metasploit_module'):
+            mods = cve_data.get('metasploit_modules') or []
+            enriched_section += f"\nMetasploit: 모듈 존재{f' - {mods[0]}' if mods else ''}"
+
         if cve_data.get('is_vulncheck_kev'):
             enriched_section += "\nVulnCheck KEV: 실제 악용 확인됨"
         
@@ -163,8 +163,8 @@ You are a Senior Security Analyst. Analyze the following CVE based STRICTLY on t
 ===
 
 [Context]
-CVE-ID: {cve_data['id']}
-Description: {cve_data['description']}
+CVE-ID: {cve_data.get('id', 'N/A')}
+Description: {cve_data.get('description') or 'N/A'}
 CWE: {', '.join(cve_data.get('cwe', ['Unknown']))}
 CVSS Vector: {cve_data.get('cvss_vector', 'N/A')}
 Affected Products: {json.dumps(cve_data.get('affected', []))}
@@ -222,7 +222,8 @@ Return ONLY a valid JSON object:
 
 Do NOT include markdown code fences or any text outside the JSON.
 """
-    
+
+
     def _validate_analysis_result(self, result: Dict) -> bool:
         required_keys = ['root_cause', 'scenario', 'impact', 'mitigation']
 
@@ -236,7 +237,8 @@ Do NOT include markdown code fences or any text outside the JSON.
             return False
 
         return True
-    
+
+
     def _fallback_analysis(self, cve_data: Dict) -> Dict:
         logger.warning(f"{cve_data['id']}: Using fallback analysis (AI failed)")
         

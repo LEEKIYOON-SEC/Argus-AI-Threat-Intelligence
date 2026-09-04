@@ -55,6 +55,7 @@ def _write_state(payload: Dict) -> None:
     except OSError as e:
         logger.warning(f"상태 파일 저장 실패: {e}")
 
+
 def read_watermark() -> Optional[datetime.datetime]:
     wm = _read_state().get("last_processed_until")
     if wm:
@@ -63,6 +64,7 @@ def read_watermark() -> Optional[datetime.datetime]:
         except ValueError:
             logger.warning(f"워터마크 파싱 실패({wm!r}) → 부트스트랩")
     return None
+
 
 def read_failure_state() -> Tuple[Dict[str, int], Dict[str, str]]:
     data = _read_state()
@@ -73,9 +75,11 @@ def read_failure_state() -> Tuple[Dict[str, int], Dict[str, str]]:
         {k: str(v) for k, v in quarantined.items()},
     )
 
+
 def read_rpd_state() -> Dict[str, Dict[str, int]]:
     rpd = _read_state().get("rpd")
     return rpd if isinstance(rpd, dict) else {}
+
 
 def iso_after(ts: str, cutoff: datetime.datetime) -> bool:
     try:
@@ -96,6 +100,7 @@ def active_quarantine(quarantined: Dict[str, str], retry_after_hours: int) -> Se
             active.add(cid)
     return active
 
+
 def write_watermark(dt_utc: datetime.datetime,
                     failures: Optional[Dict[str, int]] = None,
                     quarantined: Optional[Dict[str, str]] = None,
@@ -114,6 +119,7 @@ def write_watermark(dt_utc: datetime.datetime,
             payload.pop("rpd", None)
     _write_state(payload)
     logger.info(f"워터마크 저장: {payload['last_processed_until']}")
+
 
 def read_backfill_offset() -> int:
     v = _read_state().get("translation_scan_offset")

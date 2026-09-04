@@ -1,30 +1,19 @@
 name: Argus Bulk Lane
 
-# 알림은 fast-lane(argus-fast.yml)이 5분마다 이미 보낸다. 여기서 하는 일은 넷이다.
-#   ① 무거운 신호 대조 (nuclei · Metasploit · ExploitDB · EPSS 전량)
-#   ② 알림은 갔는데 리포트가 없는 건에 AI 심층 분석 리포트를 붙인다
-#   ③ 대시보드에 실릴 CVE의 한국어 번역
-#   ④ 공개 탐지 룰 재발견 + 대시보드 export/배포
-
 on:
   schedule:
-     - cron: '18 * * * *'  # 매시 18분
-  workflow_dispatch:  # 수동 실행 가능 (테스트용으로 유지)
+     - cron: '18 * * * *'
+  workflow_dispatch:
     inputs:
       full_export:
-        # 평소 export는 증분이다 — updated_at이 바뀐 행만 다시 그린다. 백필처럼
-        # updated_at을 건드리지 않는 변경이나 export 코드 자체가 바뀐 경우에는
-        # 손대지 않은 행이 옛 모습 그대로 남으므로, 한 번은 전량으로 다시 그려야 한다.
         description: '전량 export (증분 대신 90일 전체를 다시 생성)'
         type: boolean
         default: false
  
 permissions:
-  contents: read      # 데이터 파일을 더는 커밋하지 않는다 (Pages 아티팩트로 배포)
+  contents: read
   issues: write
 
-# 동시 실행 방지 — 백로그 해소 중 실행이 길어져 다음 정시 실행과 겹치면
-# 워터마크 경합·중복 처리가 생길 수 있다. 실행 중이면 다음 실행은 대기(취소 아님).
 concurrency:
   group: argus-pipeline
   cancel-in-progress: false
@@ -32,11 +21,7 @@ concurrency:
 jobs:
   argus-run:
     runs-on: ubuntu-latest
-    # 파이프라인은 bulk_deadline_minutes(38분)에 스스로 마무리한다.
-    # 이 값은 그게 실패했을 때의 최후 안전장치 (셋업+export 여유 포함).
     timeout-minutes: 45
-    # 필수 데이터를 확보하지 못하면 아티팩트를 올리지 않고, 배포 잡도 건너뛴다 —
-    # 반쪽짜리 사이트를 올리느니 직전 배포를 그대로 두는 편이 낫다.
     outputs:
       artifact: ${{ steps.carry.outcome }}
     steps:
@@ -49,7 +34,6 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      # 룰셋/신호 인덱스 디스크 캐시 — fast-lane과 같은 키를 써서 서로의 캐시를 재사용한다
       - name: Cache signal indexes
         uses: actions/cache@v4
         with:
@@ -61,12 +45,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt pyflakes
 
-      # 정의되지 않은 이름을 배포 전에 잡는다 (tests/test_lint.py 주석 참조)
       - name: Static check
         run: python tests/test_lint.py
 
-      # 회귀 테스트 — 전부 네트워크·DB 없이 돈다(수 초). 여기서 지키는 것은
-      # 판정 경계, 워터마크 누락 0, 스냅샷 의미론, 화면 등급이 판정과 어긋나지 않는 것.
       - name: Regression tests
         run: |
           set -e
@@ -87,9 +68,6 @@ jobs:
           VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
         run: python src/main.py
  
-      # if: always() — bulk-lane이 중간에 실패해도 이미 DB에 저장된 것은 배포한다.
-      # (워터마크는 fast-lane이 소유하므로 여기서 잘못 전진할 일이 없다.)
-      # GH_TOKEN/GITHUB_REPOSITORY: 주간 리포트 발행에 사용
       - name: Export dashboard data
         if: always()
         env:
@@ -97,13 +75,9 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          # 스케줄 실행에서는 inputs가 비어 '0'이 된다 (증분 유지)
           ARGUS_FULL_EXPORT: ${{ inputs.full_export && '1' || '0' }}
         run: python src/export_dashboard_data.py
 
-      # 배포는 사이트 전체를 갈아끼운다. 이 잡이 만들지 않은 파일(주 1회 생성되는
-      # 패키지 인덱스 등)은 지금 서비스 중인 사이트에서 받아 채운다.
-      # 필수 파일을 확보하지 못하면 0이 아닌 값을 반환해 아래 배포 단계를 건너뛴다.
       - name: Carry forward published data
         id: carry
         if: always()
@@ -118,17 +92,13 @@ jobs:
         with:
           path: docs
 
-  # 배포는 별도 잡으로 뗀다. Pages 배포는 리포 전체에 하나뿐인 자원이라 주간
-  # 인덱스 잡과 겹칠 수 있어, bulk-lane(argus-pipeline)과 다른 동시성 그룹으로
-  # 직렬화해야 한다. 한 잡에는 동시성 그룹을 하나만 걸 수 있다.
-  # (fast-lane은 Pages를 건드리지 않으므로 이 직렬화에 끼지 않는다.)
   deploy:
     needs: argus-run
     if: always() && needs.argus-run.outputs.artifact == 'success'
     runs-on: ubuntu-latest
     permissions:
-      pages: write        # actions/deploy-pages
-      id-token: write     # deploy-pages의 OIDC 검증
+      pages: write
+      id-token: write
     concurrency:
       group: pages-deploy
       cancel-in-progress: false

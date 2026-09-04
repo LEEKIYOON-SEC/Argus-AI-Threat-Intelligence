@@ -161,16 +161,20 @@ class MemoryStore:
         self._ids: Dict[str, Set[str]] = {k: set(v) for k, v in (initial or {}).items()}
         self._digest: Dict[str, str] = {k: digest_of(v) for k, v in self._ids.items()}
 
+
     def get_snapshot_digest(self, source: str) -> Optional[str]:
         return self._digest.get(source)
 
+
     def get_snapshot_ids(self, source: str) -> Set[str]:
         return set(self._ids.get(source, set()))
+
 
     def save_snapshot(self, source: str, digest: str, ids: Set[str]) -> bool:
         self._ids[source] = set(ids)
         self._digest[source] = digest
         return True
+
 
     def dump(self) -> str:
         return json.dumps({k: len(v) for k, v in self._ids.items()}, ensure_ascii=False)

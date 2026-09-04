@@ -85,6 +85,7 @@ def main() -> int:
     print("\n── 한 소스의 장애가 나머지를 막지 않는다 ──")
     store3 = ss.MemoryStore({"a": {"X"}, "b": {"Y"}})
 
+
     def boom():
         raise RuntimeError("업스트림 폭발")
 

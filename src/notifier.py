@@ -8,12 +8,15 @@ from typing import Dict, List, Optional
 import risk
 from logger import logger
 
+
 class NotifierError(Exception):
     pass
+
 
 class SlackNotifier:
     MAX_RETRIES = 3
     RETRY_DELAYS = [2, 5, 10]
+
 
     def __init__(self):
         self.webhook_url = os.environ.get("SLACK_WEBHOOK_URL")
@@ -25,6 +28,7 @@ class SlackNotifier:
         self._lock = threading.Lock()
 
         logger.info("Slack Notifier 초기화 완료")
+
 
     def _send_slack_with_retry(self, payload: dict, context: str = "Slack") -> bool:
         for attempt in range(self.MAX_RETRIES):
@@ -42,6 +46,7 @@ class SlackNotifier:
                     return False
         return False
 
+
     def collect_alert(self, cve_data: Dict, reason: str, tier: str,
                       report_url: Optional[str] = None) -> None:
         with self._lock:
@@ -57,12 +62,14 @@ class SlackNotifier:
                 "report_url": report_url,
             })
 
+
     def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None,
                    tier: str = risk.T2) -> bool:
         self.collect_alert(cve_data, reason, tier, report_url)
         if tier in risk.ALERTING_TIERS:
             return self._send_immediate(cve_data, reason, tier, report_url)
         return True
+
 
     @staticmethod
     def _fixed_target(cve_id: str) -> str:
@@ -84,6 +91,7 @@ class SlackNotifier:
         more = " …" if len(pkgs) > len(picks) else ""
         return " / ".join(picks[:3]) + more
 
+
     @staticmethod
     def _attack_conditions(cve_data: Dict) -> str:
         m = risk.parse_vector(cve_data.get('cvss_vector'))
@@ -104,6 +112,7 @@ class SlackNotifier:
         if m.get("AC") == "L" or m.get("AT") == "N":
             parts.append("조건 단순")
         return " · ".join(parts)
+
 
     @staticmethod
     def _indicators(cve_data: Dict) -> str:
@@ -129,6 +138,7 @@ class SlackNotifier:
         if cve_data.get('has_poc'):
             bits.append("PoC")
         return " · ".join(bits)
+
 
     def _send_immediate(self, cve_data: Dict, reason: str, tier: str,
                         report_url: Optional[str] = None) -> bool:
@@ -211,6 +221,7 @@ class SlackNotifier:
             logger.error(f"Slack 즉시 알림 실패: {e}")
             return False
 
+
     def send_batch_summary(self, dashboard_url: Optional[str] = None,
                            tracked: int = 0) -> bool:
         if not self._batch_results and not tracked:
@@ -267,6 +278,7 @@ class SlackNotifier:
             logger.error(f"배치 요약 생성 에러: {e}")
             return False
 
+
     def send_pipeline_warning(self, title: str, detail: str) -> bool:
         try:
             return self._send_slack_with_retry({
@@ -278,6 +290,7 @@ class SlackNotifier:
         except Exception as e:
             logger.error(f"파이프라인 경고 알림 실패: {e}")
             return False
+
 
     def send_official_rule_update(self, cve_id: str, title: str, rules_info: Dict, original_report_url: Optional[str] = None) -> bool:
         try:
@@ -341,7 +354,8 @@ class SlackNotifier:
         except Exception as e:
             logger.error(f"공식 룰 알림 실패: {e}")
             return False
-    
+
+
     def update_github_issue(self, issue_url: str, comment: str) -> bool:
         try:
             match = re.search(r'github\.com/([^/]+)/([^/]+)/issues/(\d+)', issue_url)

@@ -1,10 +1,11 @@
 import time
 import threading
 import re
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from logger import logger
+
 
 def is_transient_gemini_error(msg: str) -> bool:
     return bool(re.search(r'\b(500|503)\b', msg)) or any(t in msg for t in (
@@ -38,28 +39,33 @@ class RateLimitInfo:
     window_seconds: int = 3600
     min_interval: float = 0.0
     last_call_at: float = 0.0
-    
+
+
     @property
     def remaining(self) -> int:
         return max(0, self.limit - self.used)
-    
+
+
     @property
     def usage_percent(self) -> float:
         if self.limit == 0:
             return 0
         return (self.used / self.limit) * 100
-    
+
+
     @property
     def is_exhausted(self) -> bool:
         return self.used >= self.limit
-    
+
+
     @property
     def time_until_reset(self) -> float:
         now = datetime.now()
         if now >= self.reset_at:
             return 0
         return (self.reset_at - now).total_seconds()
-    
+
+
 class RateLimitManager:
     def __init__(self):
         self.limits: Dict[str, RateLimitInfo] = {
@@ -98,20 +104,10 @@ class RateLimitManager:
                 window_seconds=60,
                 min_interval=4.0
             ),
-            "nvd": RateLimitInfo(
-                limit=40,
-                window_seconds=30,
-                min_interval=1.0
-            ),
             "vulncheck": RateLimitInfo(
                 limit=40,
                 window_seconds=60,
                 min_interval=1.5
-            ),
-            "github_advisory": RateLimitInfo(
-                limit=900,
-                window_seconds=3600,
-                min_interval=0.5
             ),
             "ruleset_download": RateLimitInfo(
                 limit=20,
@@ -133,10 +129,14 @@ class RateLimitManager:
         self._tpm_limits: Dict[str, int] = {
             "gemini": 16_000,
             "gemini_fb": 16_000,
+            "gemini_analysis": 250_000,
+            "gemini_analysis_fb": 250_000,
         }
         self._tpm_reserve: Dict[str, int] = {
             "gemini": 4_000,
             "gemini_fb": 4_000,
+            "gemini_analysis": 25_000,
+            "gemini_analysis_fb": 25_000,
         }
         self._tpm_used: Dict[str, int] = {api: 0 for api in self._tpm_limits}
         self._tpm_reset_at: Dict[str, datetime] = {
@@ -155,6 +155,7 @@ class RateLimitManager:
 
         logger.info("Rate Limit Manager 초기화 완료 (Thread-Safe · RPM/TPM/RPD 모델별 추적)")
 
+
     def check_and_wait(self, api_name: str, max_wait: Optional[float] = None) -> bool:
         if api_name not in self.limits:
             logger.warning(f"알 수 없는 API: {api_name}, Rate Limit 적용 안 됨")
@@ -163,10 +164,10 @@ class RateLimitManager:
         exhausted_wait = 0.0
         with self._lock:
             rpd_limit = self._rpd_limits.get(api_name)
-            if rpd_limit is not None and self._rpd_rolling_sum(api_name) >= rpd_limit:
+            if rpd_limit and self._rolling_sum(self._rpd_buckets, api_name) >= rpd_limit:
                 if not self._rpd_skip_warned.get(api_name):
-                    logger.warning(f"⏭️ {api_name} 일일 한도(RPD {rpd_limit:,}) 소진 — "
-                                   f"이번 실행의 후속 호출은 SKIP")
+                    logger.warning(f"⏭️ {api_name} 일일 요청 한도(RPD {rpd_limit:,}) 소진 — "
+                                   f"이번 실행의 후속 호출은 SKIP (24h 롤링이라 저절로 풀린다)")
                     self._rpd_skip_warned[api_name] = True
                 return False
 
@@ -258,7 +259,8 @@ class RateLimitManager:
                     self._tpm_reset_at[api_name] = datetime.now() + timedelta(seconds=60)
 
         return True
-    
+
+
     def record_call(self, api_name: str, tokens_used: int = 0):
         if api_name not in self.limits:
             return
@@ -269,16 +271,17 @@ class RateLimitManager:
             self.stats["total_calls"] += 1
             logger.debug(f"{api_name} 호출 기록: {info.used}/{info.limit} ({info.usage_percent:.1f}%)")
 
+            key = self._rpd_bucket_key()
             if api_name in self._rpd_limits:
                 buckets = self._rpd_buckets[api_name]
-                key = self._rpd_bucket_key()
                 buckets[key] = buckets.get(key, 0) + 1
-                self._rpd_used[api_name] = self._rpd_rolling_sum(api_name)
+                self._rpd_used[api_name] = self._rolling_sum(self._rpd_buckets, api_name)
                 rpd_limit = self._rpd_limits[api_name]
-                rpd_pct = (self._rpd_used[api_name] / rpd_limit) * 100
-                logger.debug(f"{api_name} RPD: {self._rpd_used[api_name]:,}/{rpd_limit:,} ({rpd_pct:.1f}%)")
-                if rpd_pct >= 90:
-                    logger.warning(f"⚠️ {api_name} RPD 90% 도달! ({self._rpd_used[api_name]:,}/{rpd_limit:,})")
+                if rpd_limit:
+                    rpd_pct = (self._rpd_used[api_name] / rpd_limit) * 100
+                    logger.debug(f"{api_name} RPD: {self._rpd_used[api_name]:,}/{rpd_limit:,} ({rpd_pct:.1f}%)")
+                    if rpd_pct >= 90:
+                        logger.warning(f"⚠️ {api_name} RPD 90% 도달! ({self._rpd_used[api_name]:,}/{rpd_limit:,})")
 
             if tokens_used > 0 and api_name in self._tpm_limits:
                 now = datetime.now()
@@ -293,64 +296,83 @@ class RateLimitManager:
         return (when or datetime.now(timezone.utc)).astimezone(
             timezone.utc).strftime("%Y-%m-%dT%H")
 
-    def _rpd_rolling_sum(self, api_name: str) -> int:
-        buckets = self._rpd_buckets.get(api_name)
+
+    @staticmethod
+    def _rolling_sum(store: Dict[str, Dict[str, int]], api_name: str) -> int:
+        buckets = store.get(api_name)
         if not buckets:
             return 0
-        cutoff = self._rpd_bucket_key(datetime.now(timezone.utc) - timedelta(hours=23))
+        cutoff = RateLimitManager._rpd_bucket_key(
+            datetime.now(timezone.utc) - timedelta(hours=23))
         for key in [k for k in buckets if k < cutoff]:
             del buckets[key]
         return sum(buckets.values())
 
-    def import_rpd_state(self, state: Dict[str, Dict[str, int]]) -> None:
+
+    def import_rpd_state(self, state: Dict) -> None:
         if not isinstance(state, dict):
             return
+        section = state.get("rpd") if ("rpd" in state or "tpd" in state) else state
         with self._lock:
-            for api, buckets in state.items():
-                if api not in self._rpd_limits or not isinstance(buckets, dict):
+            for api, buckets in (section or {}).items():
+                if api not in self._rpd_buckets or not isinstance(buckets, dict):
                     continue
-                clean = {str(k): int(v) for k, v in buckets.items()
-                         if isinstance(v, (int, float)) and int(v) > 0}
-                self._rpd_buckets[api] = clean
-                self._rpd_used[api] = self._rpd_rolling_sum(api)
-                if self._rpd_used[api]:
-                    logger.info(f"🔁 {api} RPD 이월: 최근 24h {self._rpd_used[api]:,}"
+                self._rpd_buckets[api] = {str(k): int(v) for k, v in buckets.items()
+                                          if isinstance(v, (int, float)) and int(v) > 0}
+                used = self._rolling_sum(self._rpd_buckets, api)
+                self._rpd_used[api] = used
+                if used:
+                    logger.info(f"🔁 {api} RPD 이월: 최근 24h {used:,}"
                                 f"/{self._rpd_limits[api]:,}")
+
 
     def export_rpd_state(self) -> Dict[str, Dict[str, int]]:
         with self._lock:
-            out = {}
-            for api in self._rpd_limits:
-                self._rpd_rolling_sum(api)
+            out: Dict[str, Dict[str, int]] = {}
+            for api in self._rpd_buckets:
+                self._rolling_sum(self._rpd_buckets, api)
                 if self._rpd_buckets[api]:
                     out[api] = dict(self._rpd_buckets[api])
             return out
 
-    def rpd_status(self, api_name: str) -> tuple:
+
+    def rpd_status(self, api_name: str) -> Tuple[int, int]:
         with self._lock:
-            limit = self._rpd_limits.get(api_name)
-            if limit is None:
-                return (0, 0)
-            return (self._rpd_rolling_sum(api_name), limit)
+            return (self._rolling_sum(self._rpd_buckets, api_name),
+                    self._rpd_limits.get(api_name) or 0)
+
+
+    def daily_headroom(self, api_name: str) -> int:
+        with self._lock:
+            limit = self._rpd_limits.get(api_name) or 0
+            return max(0, limit - self._rolling_sum(self._rpd_buckets, api_name))
+
+
+    def minute_token_headroom(self, api_name: str) -> int:
+        with self._lock:
+            limit = self._tpm_limits.get(api_name) or 0
+            return max(0, limit - self._tpm_reserve.get(api_name, 0))
+
 
     def is_rpd_exhausted(self, api_name: str) -> bool:
         with self._lock:
-            limit = self._rpd_limits.get(api_name)
-            if limit is None:
-                return False
-            return self._rpd_rolling_sum(api_name) >= limit
+            limit = self._rpd_limits.get(api_name) or 0
+            return bool(limit) and self._rolling_sum(self._rpd_buckets, api_name) >= limit
+
 
     def mark_rpd_exhausted(self, api_name: str) -> None:
         with self._lock:
-            if api_name in self._rpd_limits:
-                limit = self._rpd_limits[api_name]
-                shortfall = max(0, limit - self._rpd_rolling_sum(api_name))
-                if shortfall:
-                    key = self._rpd_bucket_key()
-                    self._rpd_buckets[api_name][key] = (
-                        self._rpd_buckets[api_name].get(key, 0) + shortfall)
-                self._rpd_used[api_name] = self._rpd_rolling_sum(api_name)
-                logger.warning(f"🚫 {api_name} 일일 한도(RPD) 소진 마킹 — SKIP 전환")
+            limit = self._rpd_limits.get(api_name) or 0
+            if not limit:
+                return
+            shortfall = max(0, limit - self._rolling_sum(self._rpd_buckets, api_name))
+            if shortfall:
+                key = self._rpd_bucket_key()
+                self._rpd_buckets[api_name][key] = (
+                    self._rpd_buckets[api_name].get(key, 0) + shortfall)
+            self._rpd_used[api_name] = self._rolling_sum(self._rpd_buckets, api_name)
+            logger.warning(f"🚫 {api_name} 일일 한도(RPD) 소진 마킹 — SKIP 전환")
+
 
     @staticmethod
     def parse_retry_after(error_message: str) -> Optional[float]:
@@ -380,7 +402,8 @@ class RateLimitManager:
             return float(match.group(1))
 
         return None
-    
+
+
     def print_summary(self):
         logger.info("")
         logger.info("=" * 60)
@@ -393,22 +416,22 @@ class RateLimitManager:
                     f"  {name:18s}: {info.used:4d}/{info.limit:4d} "
                     f"[{usage_bar}] {info.usage_percent:5.1f}%"
                 )
-        for api, limit in self._rpd_limits.items():
-            used = self._rpd_used.get(api, 0)
-            if used > 0:
-                rpd_pct = (used / limit) * 100
-                rpd_bar = self._create_usage_bar(rpd_pct)
-                logger.info(
-                    f"  {api + ' RPD':18s}: {used:,}/{limit:,} "
-                    f"[{rpd_bar}] {rpd_pct:5.1f}%"
-                )
+        for api in self._rpd_buckets:
+            used = self._rolling_sum(self._rpd_buckets, api)
+            if used <= 0:
+                continue
+            limit = self._rpd_limits[api]
+            pct = (used / limit) * 100
+            logger.info(f"  {api + ' RPD':18s}: {used:,}/{limit:,} "
+                        f"[{self._create_usage_bar(pct)}] {pct:5.1f}%")
         logger.info("-" * 60)
         logger.info(f"  총 API 호출: {self.stats['total_calls']}회")
         logger.info(f"  Rate Limit 대기: {self.stats['total_waits']}회")
         logger.info(f"  429 응답 수신: {self.stats['rate_limit_hits']}회")
         logger.info(f"  총 대기 시간: {self.stats['total_wait_time']:.1f}초")
         logger.info("=" * 60)
-    
+
+
     def _create_usage_bar(self, percent: float) -> str:
         bar_length = 10
         filled = int((percent / 100) * bar_length)

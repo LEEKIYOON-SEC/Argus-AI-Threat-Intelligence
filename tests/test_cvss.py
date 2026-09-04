@@ -1,27 +1,4 @@
 #!/usr/bin/env python3
-"""CVSS 버전 처리 — 4.0 만 보고 3.x 를 버리지 않는지.
-
-    python3 tests/test_cvss.py
-
-왜 있나: 예전 코드는 metrics 를 돌며 4.0 을 만나면 바로 break 했다.
-
-    for metric in cna.get('metrics', []):
-        if 'cvssV4_0' in metric:  ...  break
-        elif 'cvssV3_1' in metric: ... break
-
-그런데 4.0 과 3.x 는 산식이 달라 점수가 자주 어긋난다 — 실측(203건) **22%가 두 버전을
-갖고 있고 그중 대부분이 값이 다르다.**
-
-    CVE-2026-82703   4.0=5.1  3.1=6.6
-    CVE-2026-82954   4.0=9.4  3.1=9.9
-    CVE-2026-82914   4.0=6.9  3.1=7.3
-
-화면에는 어느 버전인지 표시도 없었다. NVD 에서 9.9 를 본 사람이 우리 화면의 9.4 를
-보면 무엇이 맞는지 알 수가 없다.
-
-지금은 전 버전을 모아 두고 **가장 높은 점수**를 판정에 쓴다(위험을 낮춰 부르지
-않는다는 원칙 그대로). 화면·리포트·Slack 에는 버전을 함께 적고 다른 버전 점수도 보인다.
-"""
 import os
 import sys
 
@@ -73,7 +50,6 @@ def main() -> int:
     check(vector == "CVSS:3.1/Y", f"3.1 을 골랐으면 3.1 벡터 ({vector})", failures)
 
     print("\n── 껍데기만 있는 블록은 건너뛴다 ──")
-    # 예전 코드가 죽던 모양: 첫 항목이 4.0 인데 baseScore 가 없다 → break 하고 3.1 을 못 봤다
     cna = {"metrics": [{"cvssV4_0": {"vectorString": "CVSS:4.0/AV:N"}},
                        m(cvssV3_1=(9.8, "CVSS:3.1/AV:N"))]}
     got = collect_cvss([cna])

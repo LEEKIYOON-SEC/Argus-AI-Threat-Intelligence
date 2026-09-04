@@ -14,9 +14,6 @@ KST = pytz.timezone('Asia/Seoul')
 STATE_FIELDS = frozenset({
     "title", "title_ko", "description", "desc_ko", "cwe", "affected", "published",
     "cvss_vector",
-    # references 가 빠져 있었다. 수집은 하는데 저장이 안 돼서, 알림 시점에는 'CVE 원문·
-    # 벤더 권고' 버튼이 나오다가 리포트 보강(backfill_reports)이 저장된 state 로 다시
-    # 만들면 참고 자료 절이 통째로 비었고, analyzer 에 넘기는 분석 입력에서도 사라졌다.
     "references", "_nuclei_url", "_exploit_db_url",
     "is_kev", "is_kev_ransomware", "kev_due_date", "is_vulncheck_kev",
     "ssvc", "ssvc_exploitation", "ssvc_automatable", "ssvc_technical_impact",
@@ -37,9 +34,11 @@ class Outcome:
     decision: Optional[risk.Decision] = None
     state: Optional[Dict] = field(default=None, repr=False)
 
+
     @property
     def needs_retry(self) -> bool:
         return self.status == "failed"
+
 
     @property
     def alerted(self) -> bool:
@@ -64,17 +63,18 @@ def build_state(cve_id: str, record: Dict, collector,
         epss_score = collector.epss_cache.get(cve_id, 0.0)
         epss_pct = collector.epss_percentile.get(cve_id, 0.0)
 
-    raw.update({
-        "is_kev": cve_id in collector.kev_set,
-        "kev_due_date": collector.kev_due_date.get(cve_id, ""),
-        "epss": epss_score,
-        "epss_percentile": epss_pct,
-    })
+    if collector.kev_loaded:
+        raw["is_kev"] = cve_id in collector.kev_set
+        raw["kev_due_date"] = collector.kev_due_date.get(cve_id, "")
+    if epss_index is not None or collector.epss_cache:
+        raw["epss"] = epss_score
+        raw["epss_percentile"] = epss_pct
     return raw
 
 
 class RowCache:
     __slots__ = ("_db", "_rows", "_covered")
+
 
     def __init__(self, db, cve_ids=()):
         self._db = db
@@ -86,6 +86,7 @@ class RowCache:
             logger.info(f"기존 행 일괄 조회 {len(self._rows)}/{len(ids)}건 "
                         f"(개별 왕복 {len(self._covered)}회 절약)")
 
+
     def get(self, cve_id: str) -> Optional[Dict]:
         row = self._rows.get(cve_id)
         if row is not None:
@@ -94,22 +95,37 @@ class RowCache:
             return None
         return self._db.get_cve(cve_id)
 
+
     def forget(self, cve_id: str) -> None:
         self._rows.pop(cve_id, None)
         self._covered.discard(cve_id)
 
 
+_CVSS_KEYS = ("cvss", "cvss_vector", "cvss_version", "cvss_scores")
+
+
+def carry_forward(state: Dict, last: Optional[Dict]) -> Dict:
+    if not isinstance(last, dict):
+        return state
+    for key in STATE_FIELDS:
+        if key not in state and key in last:
+            state[key] = last[key]
+    if (float(state.get("cvss") or 0.0) <= 0.0 and not state.get("cvss_scores")
+            and float(last.get("cvss") or 0.0) > 0.0):
+        for key in _CVSS_KEYS:
+            if key in last:
+                state[key] = last[key]
+    return state
+
+
 def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             make_report=None, rows: Optional["RowCache"] = None,
             silent: bool = False) -> Outcome:
-    # silent=True: Slack 도 last_alert_at 도 남기지 않는다. fired_triggers 는 기록하므로
-    # 다음 실행에서 재알림이 나가지 않는다. 소급 채우기 전용.
-    # last_alert_at 을 남기면 get_missing_report_candidates 가 그 행을 리포트 대상으로
-    # 집어 GitHub Issue 를 대량 생성한다 (is_kev DESC 정렬이라 맨 앞에 선다).
     cve_id = state['id']
     try:
         last_row = rows.get(cve_id) if rows is not None else db.get_cve(cve_id)
         last = (last_row or {}).get('last_alert_state')
+        carry_forward(state, last)
         decision = risk.decide(state, last)
 
         if decision.tier == risk.T3:
@@ -121,22 +137,28 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             return Outcome(cve_id, "skipped", decision.tier, decision, state)
 
         announce = decision.alert and not silent
-        report_url = None
+        report_url = (last_row or {}).get('report_url')
         rules_info = None
-        if announce and make_report is not None:
+        if announce and make_report is not None and not report_url:
             report_url, rules_info = make_report(state, decision.reason)
 
+        sent = True
         if announce:
             reason = f"{reason_prefix}{decision.reason}" if reason_prefix else decision.reason
-            notifier.send_alert(state, reason, report_url, tier=decision.tier)
+            sent = notifier.send_alert(state, reason, report_url, tier=decision.tier) is not False
+            if not sent:
+                logger.error(f"{cve_id} Slack 전송 실패 — 발화 이력을 남기지 않는다 "
+                             f"(다음 회차가 다시 알린다)")
 
-        if not _save(db, state, decision, last, alerted=announce,
+        new_triggers = decision.new_triggers if sent else frozenset()
+        if not _save(db, state, decision, last, alerted=announce and sent,
+                     new_triggers=new_triggers,
                      report_url=report_url, rules_info=rules_info):
             return Outcome(cve_id, "failed", decision.tier, decision, state)
 
         if rows is not None:
             rows.forget(cve_id)
-        return Outcome(cve_id, "alerted" if announce else "tracked",
+        return Outcome(cve_id, "alerted" if (announce and sent) else "tracked",
                        decision.tier, decision, state)
 
     except Exception as e:
@@ -146,11 +168,12 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
 
 def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
           alerted: bool, report_url: Optional[str] = None,
-          rules_info: Optional[Dict] = None) -> bool:
+          rules_info: Optional[Dict] = None, new_triggers=None) -> bool:
     now = datetime.datetime.now(KST).isoformat()
     clean = {k: state[k] for k in STATE_FIELDS if k in state}
     clean["tier"] = decision.tier
-    clean["fired_triggers"] = risk.merge_fired(last, decision.new_triggers)
+    clean["fired_triggers"] = risk.merge_fired(
+        last, decision.new_triggers if new_triggers is None else new_triggers)
 
     payload = {
         "id": state['id'],
@@ -162,8 +185,8 @@ def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
     }
     if alerted:
         payload["last_alert_at"] = now
-        if report_url:
-            payload["report_url"] = report_url
+    if report_url:
+        payload["report_url"] = report_url
     if rules_info:
         payload["has_official_rules"] = rules_info.get('has_official', False)
         payload["rules_snapshot"] = rules_info.get('rules')

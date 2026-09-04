@@ -1,10 +1,5 @@
 name: Argus Fast Lane
 
-# 고위험 취약점을 '빨리' 알리는 것만 담당한다.
-# AI 번역·심층 분석·탐지 룰 검색은 여기서 하지 않는다 — 전부 bulk-lane(argus.yml)이 맡는다.
-# 알림이 무거운 작업 뒤에 줄을 서면 신속성은 구조적으로 나오지 않기 때문이다.
-#
-
 on:
   schedule:
     - cron: '*/5 * * * *'
@@ -12,10 +7,8 @@ on:
 
 permissions:
   contents: read
-  issues: write        # 스냅샷 대조로 잡힌 고위험 건의 리포트 발행
+  issues: write
 
-# fast-lane끼리만 직렬화한다. bulk-lane(argus-pipeline)과 그룹을 나누는 게 핵심 —
-# 같은 그룹에 두면 38분짜리 bulk 실행 뒤에 알림이 통째로 밀린다.
 concurrency:
   group: argus-fast
   cancel-in-progress: false
@@ -23,8 +16,6 @@ concurrency:
 jobs:
   fast:
     runs-on: ubuntu-latest
-    # 정상 소요는 1~2분. 파이프라인은 fast_deadline_minutes(5분)에 스스로 마무리하고
-    # 워터마크를 저장하므로, 이 값은 그게 실패했을 때의 최후 안전장치다.
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
@@ -34,8 +25,6 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      # 신호 인덱스(KEV·ExploitDB·Metasploit·nuclei·EPSS) 디스크 캐시.
-      # 캐시가 없어도 동작은 같고 첫 회차만 느려진다.
       - name: Cache signal indexes
         uses: actions/cache@v4
         with:
@@ -47,13 +36,9 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt pyflakes
 
-      # 정의되지 않은 이름을 배포 전에 잡는다. 파이프라인 곳곳이 넓은 except 로
-      # 감싸여 있어, 이런 버그는 실행 중 조용한 실패("… 생략(오류)")로만 보인다.
       - name: Static check
         run: python tests/test_lint.py
 
-      # 회귀 테스트 — 전부 네트워크·DB 없이 돈다(수 초). 여기서 지키는 것은
-      # 판정 경계, 워터마크 누락 0, 스냅샷 의미론, 화면 등급이 판정과 어긋나지 않는 것.
       - name: Regression tests
         run: |
           set -e

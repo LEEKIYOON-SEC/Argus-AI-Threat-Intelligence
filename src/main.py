@@ -26,6 +26,7 @@ from notifier import SlackNotifier
 from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
 from report import create_github_issue, update_github_issue_with_official_rules
 from rule_manager import RuleManager
+from rule_manager import index_ok as rule_manager_index_ok
 
 KST = pytz.timezone('Asia/Seoul')
 
@@ -39,9 +40,6 @@ except Exception:
 
 
 def _looks_english(text: str) -> bool:
-    # 한글이 하나도 없고 라틴 문자가 실질적으로 있으면 미번역으로 본다.
-    # 예전에는 len > 25 를 요구했는데, 실측(628건)으로 25자 이하 제목이 0.2%뿐이라
-    # 큰 영향은 아니었지만 'nodejs node vulnerability'(25자) 같은 건이 영영 안 걸렸다.
     t = (text or '').strip()
     if not t or t in ("N/A", "-"):
         return False
@@ -50,80 +48,108 @@ def _looks_english(text: str) -> bool:
     return len(re.findall(r'[A-Za-z]', t)) >= 8
 
 
+_TOKENS_PER_ITEM = 250
+
+
+def _translation_budget() -> int:
+    batch = max(1, config.PERFORMANCE.get("translation_batch_size", 6))
+    reserve = config.PERFORMANCE.get("translation_daily_reserve", 0.15)
+    minutes = config.PERFORMANCE.get("translation_minutes", 18)
+
+    best = 0
+    for _model, key in _TRANSLATION_STAGES:
+        allowed = int(rate_limit_manager.daily_headroom(key) * (1 - reserve)) * batch
+        tpm = rate_limit_manager.minute_token_headroom(key)
+        if tpm:
+            allowed = min(allowed, (tpm // _TOKENS_PER_ITEM) * minutes)
+        best = max(best, allowed)
+    return max(0, best)
+
+
 def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
-    limit = config.PERFORMANCE.get("translation_backfill_per_run", 0)
-    if limit <= 0:
-        return 0
-    if time.time() > deadline_ts:
+    stop_ts = min(deadline_ts,
+                  time.time() + config.PERFORMANCE.get("translation_minutes", 18) * 60)
+    if time.time() > stop_ts:
         logger.info("번역 생략 (시간 예산 도달)")
         return 0
-    try:
-        pool = config.PERFORMANCE.get("translation_backfill_pool", 200)
-        total = db.count_tracked()
-        offset = pstate.read_backfill_offset()
-        if total and offset >= total:
-            offset = 0
-        candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
-        if not candidates:
-            # 빈 응답은 '끝'일 수도 있고 조회 실패일 수도 있다(get_… 은 예외를 삼키고 []
-            # 를 돌려준다). 실패를 '끝'으로 읽어 0 으로 되감으면 뒤쪽 행은 영영 안 온다.
-            # 창을 그대로 두고 다음 회차가 같은 자리를 다시 보게 한다.
-            logger.info(f"번역: 후보 없음 (스캔 {offset:,}/{total:,}행 — 다음 실행도 "
-                        f"{offset:,}부터. 조회 실패였다면 여기서 다시 본다)")
-            return 0
+    budget = _translation_budget()
+    if budget <= 0:
+        logger.warning("번역 생략 — 번역 모델의 일일 한도(RPD)가 남아 있지 않다")
+        return 0
 
-        items = []
-        scanned = 0
-        for row in candidates:
-            scanned += 1
-            state = row.get('last_alert_state') or {}
-            title_ko = state.get('title_ko') or state.get('title') or ''
-            desc_ko = state.get('desc_ko') or state.get('description') or ''
-            # 제목만 보면 안 된다 — 제목은 한글인데 본문이 영문으로 남은 행이 생긴다
-            # (번역이 부분 성공했거나, 설명이 나중에 채워진 경우). 그런 행은 제목 검사만
-            # 통과해 두 번 다시 후보로 올라오지 않았다.
-            if not (_looks_english(title_ko) or _looks_english(desc_ko)):
-                continue
-            items.append({"id": row['id'],
-                          "title": state.get('title') or title_ko,
-                          "description": state.get('description') or state.get('desc_ko') or ''})
-            if len(items) >= limit:
+    pool = max(1, config.PERFORMANCE.get("translation_backfill_pool", 200))
+    total = db.count_tracked()
+    logger.info(f"🈯 번역 예산: 최대 {budget:,}건 · {(stop_ts - time.time()) / 60:.0f}분 "
+                f"(추적 {total:,}행)")
+
+    done = 0
+    scanned_total = 0
+    max_windows = (total // pool + 2) if total else 25
+    try:
+        while done < budget and time.time() < stop_ts and max_windows > 0:
+            max_windows -= 1
+            offset = pstate.read_backfill_offset()
+            if total and offset >= total:
+                offset = 0
+            candidates = db.get_translation_backfill_candidates(limit=pool, offset=offset)
+            if not candidates:
+                logger.info(f"번역: 후보 없음 (스캔 {offset:,}/{total:,}행 — 다음 실행도 "
+                            f"{offset:,}부터. 조회 실패였다면 여기서 다시 본다)")
                 break
 
-        # 창은 **실제로 소화한 만큼만** 전진한다. 예전에는 한도(24건)에서 멈춰 놓고
-        # offset 을 창 크기(200)만큼 밀었다 — 그래서 한 창에 영문이 24건을 넘으면
-        # 나머지는 offset 이 지나가 버려 한 바퀴(13,000행 ÷ 200 = 65회차) 뒤에나
-        # 다시 왔고, 그때도 똑같이 앞 24건에서 잘렸다. 실측으로 미번역 2,340건 중
-        # **1,447건이 구조적으로 도달 불가**였다. CVE-2016-0193 이 그중 하나다.
-        next_offset = offset + scanned
-        if total and next_offset >= total:
-            next_offset = 0
-        pstate.write_backfill_offset(next_offset)
+            items = []
+            scanned = 0
+            for row in candidates:
+                scanned += 1
+                state = row.get('last_alert_state') or {}
+                title_ko = state.get('title_ko') or state.get('title') or ''
+                desc_ko = state.get('desc_ko') or state.get('description') or ''
+                if not (_looks_english(title_ko) or _looks_english(desc_ko)):
+                    continue
+                items.append({"id": row['id'],
+                              "title": state.get('title') or title_ko,
+                              "description": (state.get('description')
+                                              or state.get('desc_ko') or '')})
+                if len(items) >= budget - done:
+                    break
 
-        if not items:
-            logger.info(f"번역: 대상 없음 (스캔 {offset:,}~{offset + scanned:,}"
-                        f"/{total:,}행 — 다음 실행은 {next_offset:,}부터)")
-            return 0
+            next_offset = offset + scanned
+            wrapped = bool(total and next_offset >= total) or len(candidates) < pool
+            pstate.write_backfill_offset(0 if wrapped else next_offset)
+            scanned_total += scanned
 
-        logger.info(f"🈯 번역: 영문 {len(items)}건 처리 "
-                    f"(스캔 {offset:,}~{offset + scanned:,}/{total:,}행 — "
-                    f"다음 실행은 {next_offset:,}부터)")
-        translations = generate_korean_summaries_batch(items, set(), deadline_ts=deadline_ts)
-        fixed = 0
-        for it in items:
-            tr = translations.get(it['id'])
-            if not tr or _looks_english(tr[0]):
-                continue
-            if db.update_translation(it['id'], tr[0], tr[1]):
-                fixed += 1
-        if fixed:
-            db.request_full_export()
-        logger.info(f"🈯 번역 완료: {fixed}/{len(items)}건 한글화"
-                    f"{' → 다음 export는 전량' if fixed else ''}")
-        return fixed
+            if items:
+                logger.info(f"🈯 영문 {len(items)}건 처리 "
+                            f"(스캔 {offset:,}~{offset + scanned:,}/{total:,}행)")
+                translations = generate_korean_summaries_batch(items, set(),
+                                                              deadline_ts=stop_ts)
+                for it in items:
+                    tr = translations.get(it['id'])
+                    if not tr or _looks_english(tr[0]):
+                        continue
+                    if db.update_translation(it['id'], tr[0], tr[1]):
+                        done += 1
+
+            if _translation_exhausted():
+                logger.warning("번역 중단 — 일일 한도(RPD/TPD) 소진. 남은 대상은 한도가 "
+                               "풀린 뒤 다음 회차가 이어받는다 (창 위치는 저장돼 있다)")
+                break
+            if wrapped:
+                logger.info("번역: 전체를 한 바퀴 돌았다 — 다음 회차는 처음부터")
+                break
     except Exception as e:
-        logger.warning(f"번역 생략(오류): {e}")
-        return 0
+        logger.warning(f"번역 중단(오류): {e}")
+
+    if done:
+        db.request_full_export()
+    logger.info(f"🈯 번역 완료: {done:,}건 한글화 · {scanned_total:,}행 스캔 · "
+                f"{'다음 export는 전량' if done else '변경 없음'}")
+    return done
+
+
+def _translation_exhausted() -> bool:
+    return all(rate_limit_manager.is_rpd_exhausted(key)
+               for _model, key in _TRANSLATION_STAGES)
 
 
 _NO_AFC = types.AutomaticFunctionCallingConfig(disable=True)
@@ -270,10 +296,12 @@ def generate_korean_summaries_batch(items: List[Dict], priority_ids: set,
     lock = threading.Lock()
     state = {"done": 0, "deadline_warned": False, "fell_back": 0}
 
+
     def _individual(it: Dict, allow_retry: bool) -> Tuple[str, str]:
         return generate_korean_summary(
             {"title": it['title'], "description": it['description']},
             retry_on_transient=allow_retry)
+
 
     def _do_chunk(chunk: List[Dict]) -> Dict[str, Tuple[str, str]]:
         out: Dict[str, Tuple[str, str]] = {}
@@ -419,6 +447,10 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
         rule_manager = RuleManager()
+        if not rule_manager_index_ok():
+            logger.warning("탐지 룰 인덱스 미적재 — 재확인을 건너뛴다 "
+                           "(쿨다운을 소모하면 7일간 다시 못 본다)")
+            return
 
         max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
         candidates = db.get_rule_recheck_candidates(limit=max_recheck)
@@ -436,11 +468,11 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             try:
                 rules = rule_manager.search_public_only(cve_id)
 
-                has_official = any([
-                    rules.get('sigma') and rules['sigma'].get('verified'),
-                    any(r.get('verified') for r in rules.get('network', [])),
-                    rules.get('yara') and rules['yara'].get('verified')
-                ])
+                has_official = bool(
+                    any(r.get('verified') for r in rules.get('network') or [])
+                    or any((rules.get(k) or {}).get('verified')
+                           for k in ('sigma', 'yara', 'nuclei', 'splunk'))
+                )
 
                 now_iso = datetime.datetime.now(KST).isoformat()
 
@@ -520,6 +552,8 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
         state.setdefault('epss', row.get('epss_score') or 0.0)
         state.setdefault('is_kev', bool(row.get('is_kev')))
         state.setdefault('references', [])
+        state.setdefault('description', 'N/A')
+        state.setdefault('title', row['id'])
         state.setdefault('title_ko', state.get('title') or row['id'])
         reason = " · ".join(
             risk.TRIGGERS[k].label for k in (state.get('fired_triggers') or [])

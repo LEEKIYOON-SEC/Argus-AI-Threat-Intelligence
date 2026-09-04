@@ -2,8 +2,10 @@ import os
 import sys
 from typing import Dict
 
+
 class ConfigError(Exception):
     pass
+
 
 class ArgusConfig:
     MODEL_PHASE_0 = "gemma-4-31b-it"
@@ -29,7 +31,10 @@ class ArgusConfig:
         "translation_batch_size": 6,
         "translation_concurrency": 4,
         "translation_backfill_pool": 200,
-        "translation_backfill_per_run": 24,
+
+        "translation_minutes": 18,
+        "translation_daily_reserve": 0.15,
+
         "max_rule_recheck": 10,
 
         "max_consecutive_failures": 3,
@@ -43,10 +48,12 @@ class ArgusConfig:
         "SLACK_WEBHOOK_URL",
         "GEMINI_API_KEY"
     ]
-    
+
+
     def __init__(self):
         self._validate_environment()
-    
+
+
     def _validate_environment(self):
         missing = []
         
@@ -63,7 +70,8 @@ class ArgusConfig:
 GitHub Actions Secrets에 다음 변수들을 추가해주세요.
 """
             raise ConfigError(error_msg)
-    
+
+
     def health_check(self) -> Dict[str, bool]:
         health = {"environment": True}
         

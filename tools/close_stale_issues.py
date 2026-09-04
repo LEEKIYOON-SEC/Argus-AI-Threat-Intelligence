@@ -31,6 +31,12 @@ def _request(url: str, token: str, method: str = "GET",
     except urllib.error.HTTPError as e:
         body = e.read().decode(errors="replace")
         return e.code, body, dict(e.headers or {})
+    except (urllib.error.URLError, TimeoutError, OSError, ValueError) as e:
+        return 0, f"{type(e).__name__}: {e}", {}
+
+
+def _retryable(status: int) -> bool:
+    return status == 0 or status in (403, 429) or 500 <= status < 600
 
 
 def _sleep_for_ratelimit(headers: Dict, attempt: int) -> float:
@@ -58,18 +64,20 @@ def iter_open_issues(repo: str, token: str, label: str) -> Iterator[Dict]:
             "state": "open", "labels": label, "per_page": 100,
             "page": page, "sort": "updated", "direction": "asc",
         })
-        for attempt in range(5):
+        for attempt in range(6):
             status, body, headers = _request(f"{_API}/repos/{repo}/issues?{q}", token)
             if status == 200:
                 break
-            if status in (403, 429):
+            if _retryable(status):
                 wait = _sleep_for_ratelimit(headers, attempt)
-                print(f"  레이트리밋 — {wait:.0f}초 대기", file=sys.stderr)
+                print(f"  {page}페이지 조회 실패({status}) — {wait:.0f}초 후 재시도",
+                      file=sys.stderr)
                 time.sleep(wait)
                 continue
-            raise SystemExit(f"이슈 조회 실패 (HTTP {status}): {body}")
+            raise SystemExit(f"이슈 조회 실패 (HTTP {status}): {str(body)[:300]}")
         else:
-            raise SystemExit("이슈 조회 재시도 초과")
+            raise SystemExit(f"{page}페이지 조회 재시도 초과 — 중단합니다 "
+                             f"(닫은 이슈는 그대로 남고, 다시 실행하면 이어서 봅니다)")
 
         if not body:
             return
@@ -82,17 +90,18 @@ def iter_open_issues(repo: str, token: str, label: str) -> Iterator[Dict]:
 
 
 def close_issue(repo: str, token: str, number: int) -> bool:
-    for attempt in range(5):
+    for attempt in range(6):
         status, body, headers = _request(
             f"{_API}/repos/{repo}/issues/{number}", token, method="PATCH",
             payload={"state": "closed", "state_reason": "not_planned"})
         if status == 200:
             return True
-        if status in (403, 429):
+        if _retryable(status):
             time.sleep(_sleep_for_ratelimit(headers, attempt))
             continue
         print(f"  #{number} 종료 실패 (HTTP {status}): {str(body)[:160]}", file=sys.stderr)
         return False
+    print(f"  #{number} 종료 재시도 초과", file=sys.stderr)
     return False
 
 
@@ -134,14 +143,16 @@ def main() -> int:
         except (ValueError, TypeError):
             continue
         if updated >= cutoff:
-            kept_recent += 1
+            kept_recent = 1
             break
         targets.append(issue)
         if args.limit and len(targets) >= args.limit:
             break
 
+    tail = ("여기부터는 전부 최근 갱신분이라 더 보지 않았습니다"
+            if kept_recent else "목록 끝까지 훑었습니다")
     print(f"\n훑은 이슈 {scanned:,} · 종료 대상 {len(targets):,} "
-          f"(보존: 라벨 {kept_label:,} · 최근 {kept_recent:,})", file=sys.stderr)
+          f"(보존 라벨로 제외 {kept_label:,}) — {tail}", file=sys.stderr)
     if not targets:
         print("종료할 이슈가 없습니다.")
         return 0
@@ -163,7 +174,7 @@ def main() -> int:
             closed += 1
         if i % 50 == 0:
             print(f"  진행 {i:,}/{len(targets):,} (종료 {closed:,})", file=sys.stderr)
-        time.sleep(0.6)
+        time.sleep(1.0)
     print(f"\n종료 완료: {closed:,}/{len(targets):,}건", file=sys.stderr)
     return 0 if closed == len(targets) else 1
 

@@ -66,12 +66,6 @@ def affected_from_cpes(cpes: List[str], existing: List[Dict] = None,
 
 
 def _clip(text: str, limit: int) -> str:
-    """단어 중간에서 자르지 않는다.
-
-    CNA 가 title 을 안 주면 설명 첫 문장을 제목으로 쓰는데, 그냥 [:110] 이면
-    'CVE-2016-0193' 처럼 '…or cause a de' 로 끊긴다. 그 문자열이 그대로 화면 제목이 되고
-    번역 입력으로도 들어간다.
-    """
     text = (text or "").strip()
     if len(text) <= limit:
         return text
@@ -83,19 +77,6 @@ _SSVC_FLAT = ("exploitation", "automatable", "technical_impact")
 
 
 def flatten_ssvc(data: Dict) -> Dict:
-    """중첩된 ssvc 를 risk.evaluate 가 읽는 평탄한 키로 옮긴다.
-
-    CISA vulnrichment 의 SSVC 는 ADP 컨테이너에서 `data['ssvc']['exploitation']` 처럼
-    중첩으로 들어온다. 그런데 risk.evaluate 는 `state['ssvc_exploitation']` 평탄한 키만
-    읽는다. 이 한 줄이 없어서 **트리거 3개가 통째로 죽어 있었다** —
-
-        ssvc_active        T0  악용 진행형        실측 439건이 발화했어야 했다
-        ssvc_automatable   T2  자동화 대량공격    실측 1,647건
-        ssvc_total_impact  T2  완전 장악          실측 3,699건
-
-    export 와 database._waf_minimal_copy 는 중첩본을 폴백으로 읽고 있어서 화면에는
-    보였다. 판정만 못 봤다 — 화면에 'SSVC: active' 가 뜨는데 등급은 T3 인 상태였다.
-    """
     ssvc = data.get("ssvc")
     if not isinstance(ssvc, dict):
         return data
@@ -110,14 +91,6 @@ _CVSS_KEYS = (("cvssV4_0", "4.0"), ("cvssV3_1", "3.1"), ("cvssV3_0", "3.0"))
 
 
 def collect_cvss(containers) -> dict:
-    """레코드의 모든 CVSS 를 버전별로 모은다 → {"3.1": (9.8, "CVSS:3.1/..."), …}
-
-    예전에는 metrics 를 돌면서 4.0 을 만나면 바로 break 했다. 그런데 4.0 과 3.x 는
-    산식이 달라 점수가 자주 어긋난다 — 실측(203건) **20.7%가 다르다.**
-    CVE-2026-82703 은 4.0=5.1 인데 3.1=6.6, CVE-2026-82954 는 4.0=9.4 / 3.1=9.9 다.
-    그런데 화면에는 어느 버전인지 표시도 없어서, NVD 에서 9.8 을 본 사람이 우리 화면의
-    다른 숫자를 보면 무슨 일인지 알 수가 없다. 그래서 전부 모아 두고 함께 보여준다.
-    """
     found = {}
     for container in containers:
         if not isinstance(container, dict):
@@ -141,12 +114,6 @@ def collect_cvss(containers) -> dict:
 
 
 def pick_cvss(found: dict):
-    """(점수, 벡터, 버전). **가장 높은 점수**를 쓴다.
-
-    낮춰 부르지 않는다는 원칙을 그대로 따른다 — 판정에 쓰는 값이 4.0 이라는 이유로
-    3.x 보다 낮으면, 같은 취약점을 남들보다 안전하다고 말하는 셈이다.
-    점수가 같으면 최신 버전(4.0)을 쓴다.
-    """
     if not found:
         return 0.0, "N/A", ""
     order = {"4.0": 0, "3.1": 1, "3.0": 2}
@@ -156,6 +123,8 @@ def pick_cvss(found: dict):
 
 class Collector:
     def __init__(self):
+        self.kev_loaded = False
+        self.vulncheck_loaded = False
         self.kev_set: Set[str] = set()
         self.kev_date_added: Dict[str, str] = {}
         self.kev_ransomware: Set[str] = set()
@@ -169,13 +138,15 @@ class Collector:
             "Authorization": f"token {os.environ.get('GH_TOKEN')}",
             "Accept": "application/vnd.github.v3+json"
         }
-    
+
+
     def fetch_kev(self) -> bool:
         data = enrichment_sources.load_cisa_kev()
         if data is None:
             logger.error("KEV 적재 실패 — 이번 실행은 KEV 신호 없이 진행")
             return False
 
+        self.kev_loaded = True
         self.kev_set = set(data)
         self.kev_date_added = {cid: item.get('dateAdded', '') for cid, item in data.items()}
         self.kev_ransomware = {
@@ -183,10 +154,6 @@ class Collector:
             if str(item.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
         }
         self.kev_due_date = {cid: item.get('dueDate', '') for cid, item in data.items()}
-        # CISA 가 정리해 둔 벤더/제품. 옛날 CVE 레코드는 affected 블록이 없어
-        # vendor/product 가 'n/a' 인 경우가 많은데(KEV 무작위 60건 중 42%),
-        # 하필 그게 지금 악용 중인 것들이라 화면에서 제품으로 찾을 수가 없었다.
-        # KEV 쪽 표기는 사람이 정리한 것이라 깨끗하다.
         self.kev_product = {
             cid: (str(item.get('vendorProject') or '').strip(),
                   str(item.get('product') or '').strip())
@@ -196,7 +163,7 @@ class Collector:
                     f"(랜섬웨어 사용 확인 {len(self.kev_ransomware)}건)")
         return True
 
-    
+
     def parse_affected(self, affected_list: List[Dict]) -> List[Dict]:
         results = []
         
@@ -240,7 +207,7 @@ class Collector:
             })
         
         return results
-    
+
 
     def parse_record(self, cve_id: str, json_data: Dict) -> Dict:
         try:
@@ -321,7 +288,8 @@ class Collector:
         except Exception as e:
             logger.error(f"{cve_id} 파싱 실패: {e}")
             return self._error_response(cve_id)
-    
+
+
     def _enrich_from_adp(self, json_data: Dict, data: Dict) -> None:
         try:
             adp_containers = json_data.get('containers', {}).get('adp', []) or []
@@ -340,8 +308,6 @@ class Collector:
                         for key, val in opt.items():
                             data['ssvc'][key.lower().replace(' ', '_')] = val
 
-            # ADP(CISA vulnrichment 등)가 준 점수도 합친다. CNA 가 4.0 만 냈는데
-            # ADP 가 3.1 을 붙이는 경우가 흔하다 — 그걸 버리면 화면이 남들과 어긋난다.
             before = data['cvss']
             extra = collect_cvss([container])
             for label, val in extra.items():
@@ -365,57 +331,60 @@ class Collector:
         data = enrichment_sources.load_vulncheck_kev()
         if data is None:
             return False
+        self.vulncheck_loaded = True
         self.vulncheck_kev_set = set(data)
         logger.info(f"VulnCheck KEV {len(self.vulncheck_kev_set)}건 적재")
         return True
 
-    
-
-
-    
-    
-
-
 
     def enrich_cheap_signals(self, cve_data: Dict) -> Dict:
         cve_id = cve_data['id']
-        cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
-        cve_data['is_kev_ransomware'] = cve_id in self.kev_ransomware
-        edb_entry = enrichment_sources.exploitdb_entry(cve_id)
-        cve_data['has_public_exploit'] = edb_entry is not None
-        if edb_entry and edb_entry[1]:
-            cve_data['_exploit_db_url'] = f"https://www.exploit-db.com/exploits/{edb_entry[1]}"
-        msf_modules = enrichment_sources.metasploit_modules(cve_id)
-        cve_data['has_metasploit_module'] = bool(msf_modules)
-        cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
-        if msf_modules:
-            logger.info(f"  🧨 Metasploit 모듈: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
-        tpl = enrichment_sources.nuclei_template(cve_id)
-        cve_data['has_nuclei_template'] = tpl is not None
-        if tpl:
-            cve_data['nuclei_severity'] = tpl.get('severity', '')
-            cve_data['_nuclei_url'] = enrichment_sources.nuclei_template_url(tpl.get('path', ''))
-            logger.info(f"  🎯 nuclei 템플릿: {cve_id} ({tpl.get('severity', '?')})")
+        if self.vulncheck_loaded:
+            cve_data['is_vulncheck_kev'] = cve_id in self.vulncheck_kev_set
+        if self.kev_loaded:
+            cve_data['is_kev_ransomware'] = cve_id in self.kev_ransomware
+        if enrichment_sources.exploitdb_ok():
+            edb_entry = enrichment_sources.exploitdb_entry(cve_id)
+            cve_data['has_public_exploit'] = edb_entry is not None
+            if edb_entry and edb_entry[1]:
+                cve_data['_exploit_db_url'] = f"https://www.exploit-db.com/exploits/{edb_entry[1]}"
+        if enrichment_sources.metasploit_ok():
+            msf_modules = enrichment_sources.metasploit_modules(cve_id)
+            cve_data['has_metasploit_module'] = bool(msf_modules)
+            cve_data['metasploit_modules'] = [m['fullname'] for m in msf_modules[:3]]
+            if msf_modules:
+                logger.info(f"  🧨 Metasploit 모듈: {cve_id} ({len(msf_modules)}개, 최고 rank={msf_modules[0]['rank_name']})")
+        if enrichment_sources.poc_ok():
+            urls = enrichment_sources.poc_urls(cve_id)
+            cve_data['has_poc'] = bool(urls)
+            if urls:
+                cve_data['poc_urls'] = urls
+        if enrichment_sources.nuclei_ok():
+            tpl = enrichment_sources.nuclei_template(cve_id)
+            cve_data['has_nuclei_template'] = tpl is not None
+            if tpl:
+                cve_data['nuclei_severity'] = tpl.get('severity', '')
+                cve_data['_nuclei_url'] = enrichment_sources.nuclei_template_url(tpl.get('path', ''))
+                logger.info(f"  🎯 nuclei 템플릿: {cve_id} ({tpl.get('severity', '?')})")
         prov = ai_provenance.detect(cve_id, cve_data.get('credits'), self.ai_ledger)
         if prov:
             cve_data.update(prov.as_state())
             logger.info(f"  🤖 AI 발견: {cve_id} ({prov.program}) — {prov.detail[:80]}")
-        else:
+        elif self.ai_ledger is not None:
             cve_data['ai_discovered'] = False
         self.fill_product_from_kev(cve_data)
         return cve_data
 
+
     def fill_product_from_kev(self, cve_data: Dict) -> Dict:
-        # 옛날 CVE 레코드에는 affected 블록이 없어 vendor/product 가 'n/a' 로 남는다.
-        # 무작위 60건 실측으로 KEV 의 42%가 그랬다 — 그런데 그게 지금 악용 중인 것들이라,
-        # 화면에서 제품 이름으로 찾을 수 없다는 뜻이었다(제목에만 적혀 있다).
-        # CISA 가 KEV 에 붙여 둔 vendorProject/product 는 사람이 정리한 값이라 깨끗하다.
-        # 레코드가 제대로 채워져 있으면 손대지 않는다 — 그쪽이 더 상세하다.
         vendor, product = self.kev_product.get(cve_data.get('id'), ('', ''))
-        if not product:
-            return cve_data
         affected = cve_data.get('affected') or []
-        if any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict)):
+        usable = any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict))
+        if not product:
+            if not self.kev_loaded and not usable:
+                cve_data.pop('affected', None)
+            return cve_data
+        if usable:
             return cve_data
         cve_data['affected'] = [{
             "vendor": vendor or "Unknown",
@@ -426,7 +395,7 @@ class Collector:
         }]
         return cve_data
 
-    
+
     def _error_response(self, cve_id: str, state: str = "ERROR") -> Dict:
         return {
             "id": cve_id,

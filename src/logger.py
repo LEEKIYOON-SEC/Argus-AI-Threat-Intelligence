@@ -1,6 +1,7 @@
 import logging
 import sys
 
+
 class ColoredFormatter(logging.Formatter):
     COLORS = {
         'DEBUG': '\033[36m',
@@ -10,7 +11,8 @@ class ColoredFormatter(logging.Formatter):
         'CRITICAL': '\033[35m',
         'RESET': '\033[0m'
     }
-    
+
+
     def format(self, record):
         log_color = self.COLORS.get(record.levelname, self.COLORS['RESET'])
         reset = self.COLORS['RESET']
@@ -21,6 +23,7 @@ class ColoredFormatter(logging.Formatter):
             formatted += f"\n{self.formatException(record.exc_info)}"
         
         return formatted
+
 
 def setup_logger(name="Argus", level=logging.INFO):
     logger = logging.getLogger(name)
