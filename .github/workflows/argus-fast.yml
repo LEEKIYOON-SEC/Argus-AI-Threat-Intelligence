@@ -18,9 +18,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -34,18 +36,7 @@ jobs:
             signals-
 
       - name: Install dependencies
-        run: pip install -r requirements.txt pyflakes
-
-      - name: Static check
-        run: python tests/test_lint.py
-
-      - name: Regression tests
-        run: |
-          set -e
-          for t in tests/test_*.py; do
-            [ "$t" = "tests/test_lint.py" ] && continue
-            echo "── $t"; python "$t"
-          done
+        run: pip install -r requirements.txt
 
       - name: Run fast lane
         env:

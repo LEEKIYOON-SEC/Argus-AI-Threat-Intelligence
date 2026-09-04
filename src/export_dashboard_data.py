@@ -76,7 +76,7 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
     offset = 0
     while True:
         query = client.table("cves") \
-            .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, report_url, updated_at") \
+            .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, updated_at") \
             .gte("updated_at", since or cutoff) \
             .not_.is_("last_alert_state", "null")
         response = query \
@@ -120,7 +120,6 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
             "is_kev": bool(row.get("is_kev")),
             "cwe": cwe_clean,
             "affected": [],
-            "report_url": row.get("report_url"),
             "date": row.get("last_alert_at") or row.get("updated_at") or "",
             "updated": row.get("updated_at") or "",
         }

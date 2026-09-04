@@ -9,6 +9,14 @@ import risk
 from logger import logger
 
 
+def _cve_url(cve_id: str) -> Optional[str]:
+    repo = os.environ.get("GITHUB_REPOSITORY", "")
+    if "/" not in repo:
+        return None
+    owner, name = repo.split("/", 1)
+    return f"https://{owner.lower()}.github.io/{name}/cve.html?cve={cve_id}"
+
+
 class NotifierError(Exception):
     pass
 
@@ -47,8 +55,7 @@ class SlackNotifier:
         return False
 
 
-    def collect_alert(self, cve_data: Dict, reason: str, tier: str,
-                      report_url: Optional[str] = None) -> None:
+    def collect_alert(self, cve_data: Dict, reason: str, tier: str) -> None:
         with self._lock:
             self._batch_results.append({
                 "id": cve_data['id'],
@@ -59,15 +66,14 @@ class SlackNotifier:
                 "is_kev": bool(cve_data.get('is_kev')),
                 "tier": tier,
                 "reason": reason,
-                "report_url": report_url,
+                "url": _cve_url(cve_data['id']),
             })
 
 
-    def send_alert(self, cve_data: Dict, reason: str, report_url: Optional[str] = None,
-                   tier: str = risk.T2) -> bool:
-        self.collect_alert(cve_data, reason, tier, report_url)
+    def send_alert(self, cve_data: Dict, reason: str, tier: str = risk.T2) -> bool:
+        self.collect_alert(cve_data, reason, tier)
         if tier in risk.ALERTING_TIERS:
-            return self._send_immediate(cve_data, reason, tier, report_url)
+            return self._send_immediate(cve_data, reason, tier)
         return True
 
 
@@ -140,8 +146,7 @@ class SlackNotifier:
         return " · ".join(bits)
 
 
-    def _send_immediate(self, cve_data: Dict, reason: str, tier: str,
-                        report_url: Optional[str] = None) -> bool:
+    def _send_immediate(self, cve_data: Dict, reason: str, tier: str) -> bool:
         try:
             cve_id = cve_data['id']
             title = cve_data.get('title_ko') or cve_data.get('title') or 'N/A'
@@ -188,6 +193,7 @@ class SlackNotifier:
             ]
 
             elements = []
+            report_url = _cve_url(cve_data['id'])
             if report_url:
                 elements.append({"type": "button", "style": "danger",
                                  "text": {"type": "plain_text", "text": "상세 리포트"},
@@ -252,7 +258,7 @@ class SlackNotifier:
                                          -(r.get('cvss') or 0)))
                 items = []
                 for r in rows[:8]:
-                    link = f" <{r['report_url']}|상세>" if r.get('report_url') else ""
+                    link = f" <{r['url']}|상세>" if r.get('url') else ""
                     items.append(f"• `{r['id']}` {r.get('reason', '')}"
                                  f" — {str(r.get('title_ko', ''))[:48]}{link}")
                 if len(rows) > 8:
@@ -292,7 +298,7 @@ class SlackNotifier:
             return False
 
 
-    def send_official_rule_update(self, cve_id: str, title: str, rules_info: Dict, original_report_url: Optional[str] = None) -> bool:
+    def send_official_rule_update(self, cve_id: str, title: str, rules_info: Dict, dashboard_url: Optional[str] = None) -> bool:
         try:
             blocks = [
                 {"type": "header", "text": {"type": "plain_text", "text": f"✅ 공식 룰 발견: {cve_id}"}},
@@ -338,11 +344,11 @@ class SlackNotifier:
                 "elements": [{"type": "mrkdwn", "text": f"총 {rule_count}개 엔진의 공식 룰 발견. 위 룰을 복사하여 보안 장비에 등록하세요."}]
             })
 
-            if original_report_url:
+            if dashboard_url:
                 blocks.append({
                     "type": "actions",
                     "elements": [
-                        {"type": "button", "text": {"type": "plain_text", "text": "전체 룰 + 상세 리포트 보기"}, "url": original_report_url, "style": "primary"}
+                        {"type": "button", "text": {"type": "plain_text", "text": "대시보드에서 보기"}, "url": dashboard_url, "style": "primary"}
                     ]
                 })
 

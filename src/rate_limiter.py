@@ -85,11 +85,21 @@ class RateLimitManager:
                 min_interval=2.0
             ),
             "gemini": RateLimitInfo(
+                limit=15,
+                window_seconds=60,
+                min_interval=4.0
+            ),
+            "gemini_fb": RateLimitInfo(
+                limit=15,
+                window_seconds=60,
+                min_interval=4.0
+            ),
+            "gemini_ovf": RateLimitInfo(
                 limit=30,
                 window_seconds=60,
                 min_interval=2.0
             ),
-            "gemini_fb": RateLimitInfo(
+            "gemini_ovf_fb": RateLimitInfo(
                 limit=30,
                 window_seconds=60,
                 min_interval=2.0
@@ -127,14 +137,18 @@ class RateLimitManager:
         }
 
         self._tpm_limits: Dict[str, int] = {
-            "gemini": 16_000,
-            "gemini_fb": 16_000,
+            "gemini": 250_000,
+            "gemini_fb": 250_000,
+            "gemini_ovf": 16_000,
+            "gemini_ovf_fb": 16_000,
             "gemini_analysis": 250_000,
             "gemini_analysis_fb": 250_000,
         }
         self._tpm_reserve: Dict[str, int] = {
-            "gemini": 4_000,
-            "gemini_fb": 4_000,
+            "gemini": 25_000,
+            "gemini_fb": 25_000,
+            "gemini_ovf": 4_000,
+            "gemini_ovf_fb": 4_000,
             "gemini_analysis": 25_000,
             "gemini_analysis_fb": 25_000,
         }
@@ -144,10 +158,12 @@ class RateLimitManager:
         }
 
         self._rpd_limits: Dict[str, int] = {
-            "gemini": 14_400,
-            "gemini_fb": 14_400,
-            "gemini_analysis": 500,
-            "gemini_analysis_fb": 500,
+            "gemini": 250,
+            "gemini_fb": 250,
+            "gemini_ovf": 14_400,
+            "gemini_ovf_fb": 14_400,
+            "gemini_analysis": 250,
+            "gemini_analysis_fb": 250,
         }
         self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
         self._rpd_buckets: Dict[str, Dict[str, int]] = {api: {} for api in self._rpd_limits}

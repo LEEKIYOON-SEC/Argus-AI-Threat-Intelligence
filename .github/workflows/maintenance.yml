@@ -17,6 +17,7 @@ on:
           - backfill-exploited
           - backfill-cvss
           - backfill-signals
+          - drop-report-urls
       backfill_days:
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
@@ -103,6 +104,13 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python src/backfill_signals.py ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Drop legacy report URLs
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'drop-report-urls' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python src/drop_report_urls.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}

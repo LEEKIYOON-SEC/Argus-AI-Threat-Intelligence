@@ -20,7 +20,7 @@ STATE_FIELDS = frozenset({
     "has_poc", "poc_urls", "has_public_exploit",
     "has_metasploit_module", "metasploit_modules",
     "has_nuclei_template", "nuclei_severity",
-    "ai_discovered", "ai_program", "ai_detail", "ai_url",
+    "ai_discovered", "ai_program", "ai_detail", "ai_url", "analysis",
     "cvss", "cvss_version", "cvss_scores", "epss", "epss_percentile", "assigner",
     "tier", "fired_triggers",
 })
@@ -137,23 +137,23 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
             return Outcome(cve_id, "skipped", decision.tier, decision, state)
 
         announce = decision.alert and not silent
-        report_url = (last_row or {}).get('report_url')
         rules_info = None
-        if announce and make_report is not None and not report_url:
-            report_url, rules_info = make_report(state, decision.reason)
+        if announce and make_report is not None and not state.get('analysis'):
+            analysis, rules_info = make_report(state, decision.reason)
+            if analysis:
+                state['analysis'] = analysis
 
         sent = True
         if announce:
             reason = f"{reason_prefix}{decision.reason}" if reason_prefix else decision.reason
-            sent = notifier.send_alert(state, reason, report_url, tier=decision.tier) is not False
+            sent = notifier.send_alert(state, reason, tier=decision.tier) is not False
             if not sent:
                 logger.error(f"{cve_id} Slack 전송 실패 — 발화 이력을 남기지 않는다 "
                              f"(다음 회차가 다시 알린다)")
 
         new_triggers = decision.new_triggers if sent else frozenset()
         if not _save(db, state, decision, last, alerted=announce and sent,
-                     new_triggers=new_triggers,
-                     report_url=report_url, rules_info=rules_info):
+                     new_triggers=new_triggers, rules_info=rules_info):
             return Outcome(cve_id, "failed", decision.tier, decision, state)
 
         if rows is not None:
@@ -167,8 +167,8 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
 
 
 def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
-          alerted: bool, report_url: Optional[str] = None,
-          rules_info: Optional[Dict] = None, new_triggers=None) -> bool:
+          alerted: bool, rules_info: Optional[Dict] = None,
+          new_triggers=None) -> bool:
     now = datetime.datetime.now(KST).isoformat()
     clean = {k: state[k] for k in STATE_FIELDS if k in state}
     clean["tier"] = decision.tier
@@ -185,8 +185,6 @@ def _save(db, state: Dict, decision: risk.Decision, last: Optional[Dict],
     }
     if alerted:
         payload["last_alert_at"] = now
-    if report_url:
-        payload["report_url"] = report_url
     if rules_info:
         payload["has_official_rules"] = rules_info.get('has_official', False)
         payload["rules_snapshot"] = rules_info.get('rules')
