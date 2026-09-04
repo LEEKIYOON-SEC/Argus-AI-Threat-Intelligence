@@ -8,8 +8,10 @@ class ConfigError(Exception):
 
 
 class ArgusConfig:
-    MODEL_PHASE_0 = "gemma-4-31b-it"
-    MODEL_PHASE_0_FALLBACK = "gemma-4-26b-a4b-it"
+    MODEL_PHASE_0 = "gemini-3.5-flash-lite"
+    MODEL_PHASE_0_FALLBACK = "gemini-3.1-flash-lite"
+    MODEL_PHASE_0_OVERFLOW = "gemma-4-31b-it"
+    MODEL_PHASE_0_OVERFLOW_FALLBACK = "gemma-4-26b-a4b-it"
 
     GEMINI_ANALYSIS_MODEL = "gemini-3.5-flash-lite"
     GEMINI_ANALYSIS_FALLBACK_MODEL = "gemini-3.1-flash-lite"

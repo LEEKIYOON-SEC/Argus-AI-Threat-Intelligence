@@ -157,6 +157,8 @@ _NO_AFC = types.AutomaticFunctionCallingConfig(disable=True)
 _TRANSLATION_STAGES = (
     (config.MODEL_PHASE_0, "gemini"),
     (config.MODEL_PHASE_0_FALLBACK, "gemini_fb"),
+    (config.MODEL_PHASE_0_OVERFLOW, "gemini_ovf"),
+    (config.MODEL_PHASE_0_OVERFLOW_FALLBACK, "gemini_ovf_fb"),
 )
 
 _TR_STAGE_ADVANCE = ("skip", "rate", "transient")
