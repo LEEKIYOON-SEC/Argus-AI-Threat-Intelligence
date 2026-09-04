@@ -228,7 +228,7 @@ class ArgusDB:
         return False
     
     _RECHECK_COLS = ("id, cvss_score, epss_score, is_kev, has_official_rules, "
-                     "last_rule_check_at, last_alert_at, report_url")
+                     "last_rule_check_at, last_alert_at")
 
 
     def get_rule_recheck_candidates(self, limit: int = 10) -> List[Dict]:
@@ -516,8 +516,8 @@ class ArgusDB:
                 self.client.table("cves")
                 .select("id, cvss_score, epss_score, is_kev, last_alert_state, updated_at")
                 .not_.is_("last_alert_at", "null")
-                .is_("report_url", "null")
                 .not_.is_("last_alert_state", "null")
+                .is_("last_alert_state->analysis", "null")
                 .order("is_kev", desc=True)
                 .order("last_alert_at", desc=True)
                 .limit(limit)

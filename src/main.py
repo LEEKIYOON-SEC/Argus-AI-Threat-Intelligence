@@ -24,7 +24,7 @@ from database import ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
-from report import create_github_issue, update_github_issue_with_official_rules
+from report import make_analysis
 from rule_manager import RuleManager
 from rule_manager import index_ok as rule_manager_index_ok
 
@@ -488,15 +488,8 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
                         cve_id=cve_id,
                         title=title_ko,
                         rules_info=rules,
-                        original_report_url=record.get('report_url')
+                        dashboard_url=_cve_url(cve_id),
                     )
-
-                    if record.get('report_url'):
-                        update_github_issue_with_official_rules(
-                            record['report_url'],
-                            cve_id,
-                            rules
-                        )
 
                     db.upsert_cve({
                         "id": cve_id,
@@ -531,12 +524,13 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
 
-def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
+def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 0) -> int:
     if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
             and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
         logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
         return 0
 
+    limit = limit or config.PERFORMANCE.get("analysis_per_run", 100)
     rows = db.get_missing_report_candidates(limit=limit)
     if not rows:
         logger.info("리포트 보강: 대상 없음")
@@ -561,13 +555,14 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
             risk.TRIGGERS[k].label for k in (state.get('fired_triggers') or [])
             if k in risk.TRIGGERS) or "고위험 판정"
         try:
-            url, rules_info = create_github_issue(state, reason)
+            analysis, rules_info = make_analysis(state, reason)
         except Exception as e:
-            logger.error(f"{row['id']} 리포트 생성 실패: {e}")
+            logger.error(f"{row['id']} 분석 실패: {e}")
             continue
-        if not url:
+        if not analysis:
             continue
-        payload = {"id": row['id'], "report_url": url,
+        state['analysis'] = analysis
+        payload = {"id": row['id'], "last_alert_state": state,
                    "updated_at": row.get('updated_at')
                    or datetime.datetime.now(KST).isoformat()}
         if rules_info:
@@ -577,6 +572,8 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 20) -> int:
         if db.upsert_cve(payload):
             made += 1
     logger.info(f"📝 리포트 보강 완료: {made}/{len(rows)}건")
+    if made:
+        db.request_full_export()
     return made
 
 
@@ -609,12 +606,17 @@ def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifi
                 continue
             out = pipeline.process(st, db, notifier,
                                    reason_prefix=f"[{diff.source.label}] ",
-                                   make_report=create_github_issue)
+                                   make_report=make_analysis)
             outcomes.append(out)
             if not out.needs_retry:
                 processed.append(cve_id)
         signal_snapshot.commit(db, diff, processed)
     return outcomes
+
+
+def _cve_url(cve_id: str) -> Optional[str]:
+    base = _dashboard_url()
+    return f"{base}cve.html?cve={cve_id}" if base else None
 
 
 def _dashboard_url() -> Optional[str]:

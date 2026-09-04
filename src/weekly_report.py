@@ -68,7 +68,7 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
         if c.get("has_public_exploit"): sig.append("EDB")
         if c.get("has_poc"): sig.append("PoC")
         title = (c.get("title") or "")[:60]
-        link = f"[{c['id']}]({c['report_url']})" if c.get("report_url") else c["id"]
+        link = c["id"]
         return f"| {sev} | {link} | {c.get('cvss', 0)} | {', '.join(sig) or '–'} | {title} |"
 
     notable = sorted(
