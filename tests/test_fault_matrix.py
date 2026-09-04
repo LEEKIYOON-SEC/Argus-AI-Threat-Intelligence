@@ -4,6 +4,12 @@ import os
 import sys
 import tempfile
 
+if not os.environ.get("ARGUS_TEST_NETWORK"):
+    print("생략 — 이 테스트는 KEV·EPSS·VulnCheck 를 실제로 내려받는다. "
+          "5분 레인에서 매번 돌리면 하루 288회 상류를 두드리고 알림이 그만큼 늦는다. "
+          "ARGUS_TEST_NETWORK=1 로 돌린다 (주간 유지보수 잡이 그렇게 돌린다).")
+    sys.exit(0)
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 os.environ["ARGUS_CACHE_DIR"] = tempfile.mkdtemp()

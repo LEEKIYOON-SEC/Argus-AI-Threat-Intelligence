@@ -51,6 +51,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Fault injection tests
+        if: ${{ github.event_name == 'schedule' }}
+        continue-on-error: true
+        env:
+          ARGUS_TEST_NETWORK: '1'
+        run: python tests/test_fault_matrix.py
+
       - name: Build package index
         if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' }}
         env:
