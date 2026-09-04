@@ -158,12 +158,12 @@ class RateLimitManager:
         }
 
         self._rpd_limits: Dict[str, int] = {
-            "gemini": 400,
-            "gemini_fb": 400,
+            "gemini": 250,
+            "gemini_fb": 250,
             "gemini_ovf": 14_400,
             "gemini_ovf_fb": 14_400,
-            "gemini_analysis": 100,
-            "gemini_analysis_fb": 100,
+            "gemini_analysis": 250,
+            "gemini_analysis_fb": 250,
         }
         self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
         self._rpd_buckets: Dict[str, Dict[str, int]] = {api: {} for api in self._rpd_limits}
