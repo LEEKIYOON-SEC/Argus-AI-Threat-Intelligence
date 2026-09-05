@@ -1,20 +1,13 @@
 import requests
 import os
-import re
 import time
 import threading
 from typing import Dict, List, Optional
 
+import package_index
 import risk
+from pages import cve_url as _cve_url
 from logger import logger
-
-
-def _cve_url(cve_id: str) -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/cve.html?cve={cve_id}"
 
 
 class NotifierError(Exception):
@@ -22,8 +15,7 @@ class NotifierError(Exception):
 
 
 class SlackNotifier:
-    MAX_RETRIES = 3
-    RETRY_DELAYS = [2, 5, 10]
+    RETRY_DELAYS = (2, 5, 10)
 
 
     def __init__(self):
@@ -39,20 +31,18 @@ class SlackNotifier:
 
 
     def _send_slack_with_retry(self, payload: dict, context: str = "Slack") -> bool:
-        for attempt in range(self.MAX_RETRIES):
+        attempts = len(self.RETRY_DELAYS) + 1
+        for attempt in range(attempts):
             try:
                 response = requests.post(self.webhook_url, json=payload, timeout=10)
                 response.raise_for_status()
                 return True
             except requests.exceptions.RequestException as e:
-                delay = self.RETRY_DELAYS[attempt] if attempt < len(self.RETRY_DELAYS) else 10
-                logger.warning(f"{context} 전송 실패 (시도 {attempt+1}/{self.MAX_RETRIES}): {e}")
-                if attempt < self.MAX_RETRIES - 1:
-                    time.sleep(delay)
-                else:
+                logger.warning(f"{context} 전송 실패 (시도 {attempt + 1}/{attempts}): {e}")
+                if attempt == attempts - 1:
                     logger.error(f"{context} 전송 최종 실패: {e}")
                     return False
-        return False
+                time.sleep(self.RETRY_DELAYS[attempt])
 
 
     def collect_alert(self, cve_data: Dict, reason: str, tier: str) -> None:
@@ -79,11 +69,7 @@ class SlackNotifier:
 
     @staticmethod
     def _fixed_target(cve_id: str) -> str:
-        try:
-            import report as report_mod
-            pkgs = report_mod._package_index().get(cve_id) or {}
-        except Exception:
-            return ""
+        pkgs = package_index.fixes_for(cve_id)
         picks = []
         for pkg, eco_map in sorted(pkgs.items()):
             for eco, fixes in sorted((eco_map or {}).items()):
@@ -359,35 +345,4 @@ class SlackNotifier:
 
         except Exception as e:
             logger.error(f"공식 룰 알림 실패: {e}")
-            return False
-
-
-    def update_github_issue(self, issue_url: str, comment: str) -> bool:
-        try:
-            match = re.search(r'github\.com/([^/]+)/([^/]+)/issues/(\d+)', issue_url)
-            if not match:
-                logger.error(f"잘못된 Issue URL: {issue_url}")
-                return False
-            
-            owner, repo, issue_number = match.groups()
-            api_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}/comments"
-            
-            headers = {
-                "Authorization": f"token {os.environ.get('GH_TOKEN')}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            
-            payload = {"body": comment}
-            
-            response = requests.post(api_url, headers=headers, json=payload, timeout=10)
-            response.raise_for_status()
-            
-            logger.info(f"GitHub Issue 댓글 추가: {issue_url}")
-            return True
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"GitHub 댓글 추가 실패: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Issue 업데이트 에러: {e}")
             return False

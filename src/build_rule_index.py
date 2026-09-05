@@ -11,13 +11,14 @@ from typing import Dict, List, Optional, Set
 import requests
 
 import enrichment_sources
+import pages
+from fields import CVE_RE
 from logger import logger
 
 _DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                      "docs", "data")
 _OUT = os.path.join(_DATA, "detection-rules.json")
 
-_CVE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 _TIMEOUT = 180
 
 LICENSES = {
@@ -46,10 +47,12 @@ def _add(index: Dict[str, List[Dict]], cve: str, entry: Dict) -> None:
 
 
 def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
-    token = os.environ.get("GH_TOKEN")
-    headers = {"User-Agent": "argus-rule-index"}
-    if token:
-        headers["Authorization"] = f"token {token}"
+    token = os.environ.get("GH_TOKEN", "").strip()
+    if not token:
+        logger.warning(f"  ⚠️ GH_TOKEN 없음 → {label} 생략 "
+                       f"(무토큰은 익명 60회/시 한도라 조용히 막힌다)")
+        return None
+    headers = {"User-Agent": "argus-rule-index", "Authorization": f"token {token}"}
     url = f"https://api.github.com/repos/{owner}/{repo}/tarball"
     try:
         resp = requests.get(url, headers=headers, timeout=_TIMEOUT)
@@ -77,7 +80,7 @@ def collect_sigma(index: Dict[str, List[Dict]]) -> Set[str]:
                 if not f:
                     continue
                 text = f.read().decode("utf-8", errors="ignore")
-                cves = {c.upper() for c in _CVE.findall(text)}
+                cves = {c.upper() for c in CVE_RE.findall(text)}
                 if not cves:
                     continue
                 path = member.name.split("/", 1)[1] if "/" in member.name else member.name
@@ -109,7 +112,7 @@ def collect_splunk(index: Dict[str, List[Dict]]) -> Set[str]:
                 if not f:
                     continue
                 text = f.read().decode("utf-8", errors="ignore")
-                cves = {c.upper() for c in _CVE.findall(text)}
+                cves = {c.upper() for c in CVE_RE.findall(text)}
                 if not cves:
                     continue
                 path = member.name.split("/", 1)[1] if "/" in member.name else member.name
@@ -146,7 +149,7 @@ def collect_yara(index: Dict[str, List[Dict]]) -> Set[str]:
                     continue
                 text = zf.read(name).decode("utf-8", errors="ignore")
                 for chunk in re.split(r'(?=^rule\s+\w+)', text, flags=re.M):
-                    cves = {c.upper() for c in _CVE.findall(chunk)}
+                    cves = {c.upper() for c in CVE_RE.findall(chunk)}
                     if not cves:
                         continue
                     m = re.search(r'^rule\s+(\w+)', chunk, re.M)
@@ -243,7 +246,7 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
             if not stripped or stripped.startswith("#") or "alert" not in stripped:
                 continue
             key = _network_key(label, stripped)
-            for cve in {c.upper() for c in _CVE.findall(stripped)}:
+            for cve in {c.upper() for c in CVE_RE.findall(stripped)}:
                 _add(index, cve, {"engine": engine, "source": label,
                                   "license": lic, "note": note,
                                   "path": key, "url": "", "code": stripped})
@@ -257,19 +260,14 @@ ALL_ENGINES = frozenset(LICENSES)
 
 
 def load_previous() -> Dict[str, List[Dict]]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" in repo:
-        owner, name = repo.split("/", 1)
-        url = f"https://{owner.lower()}.github.io/{name}/data/detection-rules.json"
-        try:
-            resp = requests.get(url, timeout=_TIMEOUT,
-                                headers={"User-Agent": "argus-rule-index"})
-            resp.raise_for_status()
-            prev = (resp.json() or {}).get("rules") or {}
+    try:
+        payload = pages.fetch_published_json("detection-rules.json", timeout=_TIMEOUT)
+        if payload is not None:
+            prev = (payload or {}).get("rules") or {}
             logger.info(f"  직전 인덱스 로드(배포본): CVE {len(prev):,}건")
             return prev
-        except (requests.exceptions.RequestException, ValueError) as e:
-            logger.warning(f"  직전 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+    except Exception as e:
+        logger.warning(f"  직전 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
     try:
         with open(_OUT, encoding="utf-8") as f:
             prev = (json.load(f) or {}).get("rules") or {}

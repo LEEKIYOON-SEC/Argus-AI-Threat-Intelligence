@@ -18,6 +18,10 @@ on:
           - backfill-cvss
           - backfill-signals
           - drop-report-urls
+          - turso-check
+          - nvd-check
+          - seed-turso
+          - seed-verify
       backfill_days:
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
@@ -55,8 +59,9 @@ jobs:
       - name: Build package index
         if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python src/build_package_index.py
 
       - name: Build detection rule index
@@ -69,8 +74,9 @@ jobs:
       - name: Backfill published dates
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-published' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           BACKFILL_DAYS: ${{ inputs.backfill_days }}
         run: python src/backfill_published.py
@@ -78,8 +84,9 @@ jobs:
       - name: Backfill currently exploited (KEV)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-exploited' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -91,8 +98,9 @@ jobs:
       - name: Backfill CVSS versions
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-cvss' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           BACKFILL_CVSS_LIMIT: '1500'
           BACKFILL_CVSS_NVD_BUDGET: '2400'
@@ -101,23 +109,68 @@ jobs:
       - name: Reconcile SSVC signals
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-signals' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python src/backfill_signals.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Drop legacy report URLs
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'drop-report-urls' }}
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
         run: python src/drop_report_urls.py ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Check Turso connection and apply schema
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'turso-check' }}
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python src/turso_check.py
+
+      - name: Check NVD API key
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'nvd-check' }}
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: python src/nvd_check.py
+
+      - name: Seed Turso from source
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'seed-turso' }}
+        env:
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
+          SEED_T1_MIN_YEAR: '2024'
+        run: python src/seed_turso.py ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Verify seed before cutover
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'seed-verify' }}
+        env:
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
+          SEED_T1_MIN_YEAR: '2024'
+        run: python src/seed_verify.py
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
         continue-on-error: true
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: python src/backfill_vendors.py
 
@@ -126,7 +179,7 @@ jobs:
         if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' || inputs.task == 'rule-index' }}
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ARGUS_FRESH_FILES: cve-packages.json,malicious-packages.json,detection-rules.json
+          ARGUS_FRESH_FILES: cve-packages.json,detection-rules.json
         run: python src/fetch_published.py
 
       - name: Upload Pages artifact

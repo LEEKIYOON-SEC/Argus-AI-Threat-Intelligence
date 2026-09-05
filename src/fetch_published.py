@@ -5,17 +5,18 @@ import sys
 import urllib.request
 
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-_DATA_DIR = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
+if _THIS_DIR not in sys.path:
+    sys.path.insert(0, _THIS_DIR)
+
+import pages
+
+_DATA_DIR = pages.DATA_DIR
 
 _REQUIRED = {"cves.json", "stats.json"}
 
 
 def _base_url() -> str:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" in repo:
-        owner, name = repo.split("/", 1)
-        return f"https://{owner.lower()}.github.io/{name}/data"
-    return os.environ.get("ARGUS_PAGES_DATA_URL", "")
+    return pages.data_url() or os.environ.get("ARGUS_PAGES_DATA_URL", "")
 
 
 def fetch(name: str, base: str) -> bool:
@@ -36,7 +37,7 @@ def fetch(name: str, base: str) -> bool:
     if name.endswith(".json"):
         try:
             json.loads(data.decode("utf-8"))
-        except (ValueError, UnicodeDecodeError) as e:
+        except ValueError as e:
             print(f"  {name}: 내려받은 내용이 온전치 않음({e}) — 무시", flush=True)
             return False
     path = os.path.join(_DATA_DIR, name)
@@ -77,5 +78,5 @@ def _fresh() -> set:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or ["cves.json", "stats.json", "cve-products.json",
-                                   "cve-packages.json", "malicious-packages.json",
+                                   "cve-packages.json",
                                    "detection-rules.json"]))

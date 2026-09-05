@@ -6,17 +6,16 @@ from typing import Dict, Tuple
 
 import requests
 
-from database import ArgusDB
+from store import create_store as ArgusDB
+import nvd
 from logger import logger
 
-_NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 _PAGE = 2000
-_GAP_NO_KEY, _GAP_KEY = 8.0, 0.7
 
 
 def _fetch_window(start: datetime.datetime, end: datetime.datetime,
                   api_key: str) -> Tuple[Dict[str, str], bool]:
-    headers = {"apiKey": api_key} if api_key else {}
+    headers = nvd.headers(api_key)
     out: Dict[str, str] = {}
     idx = 0
     while True:
@@ -27,7 +26,7 @@ def _fetch_window(start: datetime.datetime, end: datetime.datetime,
             "startIndex": idx,
         }
         try:
-            r = requests.get(_NVD, params=params, headers=headers, timeout=90)
+            r = requests.get(nvd.ENDPOINT, params=params, headers=headers, timeout=90)
             r.raise_for_status()
             data = r.json()
         except (requests.exceptions.RequestException, ValueError) as e:
@@ -44,12 +43,13 @@ def _fetch_window(start: datetime.datetime, end: datetime.datetime,
         idx += _PAGE
         if idx >= total:
             break
-        time.sleep(_GAP_KEY if api_key else _GAP_NO_KEY)
+        time.sleep(nvd.gap(api_key))
     return out, True
 
 
 def main() -> int:
-    api_key = os.environ.get("NVD_API_KEY", "")
+    api_key = os.environ.get("NVD_API_KEY", "").strip()
+    nvd.verify(api_key)
     days = int(os.environ.get("BACKFILL_DAYS", "400"))
     logger.info("=" * 60)
     logger.info(f"공개일 백필 시작 (최근 {days}일 · NVD 키 {'있음' if api_key else '없음'})")
@@ -79,7 +79,7 @@ def main() -> int:
                     f"(누적 {len(published):,}/{len(targets):,})")
         if len(published) >= len(targets):
             break
-        time.sleep(_GAP_KEY if api_key else _GAP_NO_KEY)
+        time.sleep(nvd.gap(api_key))
 
     if not published:
         if windows == 0 or fetched == 0:

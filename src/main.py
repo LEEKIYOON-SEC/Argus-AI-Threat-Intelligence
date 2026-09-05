@@ -18,9 +18,11 @@ import pipeline
 import risk
 import signal_snapshot
 import state as pstate
+from pages import cve_url as _cve_url
+from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
-from database import ArgusDB
+from store import Store, create_store as ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
@@ -66,7 +68,7 @@ def _translation_budget() -> int:
     return max(0, best)
 
 
-def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
+def translate_tracked(db: Store, deadline_ts: float) -> int:
     stop_ts = min(deadline_ts,
                   time.time() + config.PERFORMANCE.get("translation_minutes", 18) * 60)
     if time.time() > stop_ts:
@@ -121,8 +123,7 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
             if items:
                 logger.info(f"🈯 영문 {len(items)}건 처리 "
                             f"(스캔 {offset:,}~{offset + scanned:,}/{total:,}행)")
-                translations = generate_korean_summaries_batch(items, set(),
-                                                              deadline_ts=stop_ts)
+                translations = generate_korean_summaries_batch(items, deadline_ts=stop_ts)
                 for it in items:
                     tr = translations.get(it['id'])
                     if not tr or _looks_english(tr[0]):
@@ -252,9 +253,9 @@ _gemini_error_kind = gemini_error_kind
 _TR_LOCK = threading.Lock()
 _TR_STATS: Dict[str, int] = {}
 _TR_LABELS = [("en_rpd", "일일한도"), ("en_rate", "분당한도"), ("en_transient", "서버오류"),
-              ("en_parse", "형식오류"), ("en_deadline", "시간초과"), ("en_other", "기타")]
+              ("en_deadline", "시간초과"), ("en_other", "기타")]
 _TR_REASON_KEY = {"skip": "en_rpd", "rate": "en_rate", "transient": "en_transient",
-                  "parse": "en_parse", "other": "en_other", "api": "en_other"}
+                  "other": "en_other"}
 
 
 def _tr_bump(key: str, n: int = 1) -> None:
@@ -280,19 +281,17 @@ def _log_translation_summary() -> None:
                 f"({breakdown}) · RPD {rpd}")
 
 
-def generate_korean_summaries_batch(items: List[Dict], priority_ids: set,
+def generate_korean_summaries_batch(items: List[Dict],
                                     deadline_ts: Optional[float] = None) -> Dict[str, Tuple[str, str]]:
     results: Dict[str, Tuple[str, str]] = {}
     if not items:
         return results
 
-    items = sorted(items, key=lambda it: 0 if it['id'] in priority_ids else 1)
-
     batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     chunks = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
     total_chunks = len(chunks)
     concurrency = max(1, config.PERFORMANCE.get("translation_concurrency", 4))
-    logger.info(f"번역: {len(items)}건 → Gemma 배치 {total_chunks}청크 "
+    logger.info(f"번역: {len(items)}건 → 배치 {total_chunks}청크 "
                 f"(배치 {batch_size}건, 동시 {concurrency}콜)")
     started = time.time()
     lock = threading.Lock()
@@ -444,7 +443,11 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
     return None, "api"
 
 
-def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
+def _recheck_soon() -> str:
+    return (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
+
+
+def check_for_official_rules(db: Store, notifier: SlackNotifier) -> None:
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
@@ -468,15 +471,21 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             cve_id = record['id']
 
             try:
-                rules = rule_manager.search_public_only(cve_id)
+                rules, complete = rule_manager.search_public_only(cve_id)
+                now_iso = datetime.datetime.now(KST).isoformat()
+
+                if not complete:
+                    db.upsert_cve({
+                        "id": cve_id,
+                        "last_rule_check_at": _recheck_soon(),
+                        "updated_at": now_iso
+                    })
+                    continue
 
                 has_official = bool(
-                    any(r.get('verified') for r in rules.get('network') or [])
-                    or any((rules.get(k) or {}).get('verified')
-                           for k in ('sigma', 'yara', 'nuclei', 'splunk'))
+                    rules.get('network')
+                    or any(rules.get(k) for k in ('sigma', 'yara', 'nuclei', 'splunk'))
                 )
-
-                now_iso = datetime.datetime.now(KST).isoformat()
 
                 if has_official:
                     found_count += 1
@@ -508,10 +517,9 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             except Exception as e:
                 logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
                 try:
-                    fake_past = (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
                     db.upsert_cve({
                         "id": cve_id,
-                        "last_rule_check_at": fake_past,
+                        "last_rule_check_at": _recheck_soon(),
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
                 except Exception as e:
@@ -524,7 +532,7 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
 
-def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 0) -> int:
+def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
     if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
             and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
         logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
@@ -577,7 +585,7 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 0) -> int:
     return made
 
 
-def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
+def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                         deadline_ts: float) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []
     cap = config.PERFORMANCE.get("snapshot_cap", 80)
@@ -588,12 +596,18 @@ def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifi
                                             if not s.fast]):
         if not diff.added:
             continue
-        processed: List[str] = []
-        for cve_id in diff.added:
+        if time.time() > deadline_ts:
+            logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
+            break
+        targets = {t: signal_snapshot.cve_of(t) for t in diff.added}
+        records, absent = feed.fetch_records(
+            list(targets.values()), workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        processed: List[str] = [t for t, c in targets.items() if c in absent]
+        for token, cve_id in targets.items():
             if time.time() > deadline_ts:
                 logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
                 break
-            record = feed.fetch_record(cve_id)
+            record = records.get(cve_id)
             if record is None:
                 continue
             try:
@@ -602,29 +616,16 @@ def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifi
                 logger.warning(f"{cve_id} 상태 구성 실패: {e}")
                 continue
             if st is None:
-                processed.append(cve_id)
+                processed.append(token)
                 continue
             out = pipeline.process(st, db, notifier,
                                    reason_prefix=f"[{diff.source.label}] ",
                                    make_report=make_analysis)
             outcomes.append(out)
             if not out.needs_retry:
-                processed.append(cve_id)
+                processed.append(token)
         signal_snapshot.commit(db, diff, processed)
     return outcomes
-
-
-def _cve_url(cve_id: str) -> Optional[str]:
-    base = _dashboard_url()
-    return f"{base}cve.html?cve={cve_id}" if base else None
-
-
-def _dashboard_url() -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/"
 
 
 def _main() -> None:
@@ -632,10 +633,6 @@ def _main() -> None:
     logger.info("=" * 60)
     logger.info("Argus bulk-lane 시작")
     logger.info("=" * 60)
-
-    if not all(config.health_check().values()):
-        logger.error("헬스체크 실패")
-        return
 
     deadline = started + config.PERFORMANCE.get("bulk_deadline_minutes", 38) * 60
     collector = Collector()

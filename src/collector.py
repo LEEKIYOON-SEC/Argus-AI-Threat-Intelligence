@@ -1,9 +1,9 @@
-import os
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
 import ai_provenance
 import enrichment_sources
+from fields import CWE_RE, meaningful
 from logger import logger
 
 
@@ -15,11 +15,6 @@ def parse_cpe(cpe: str) -> Optional[Tuple[str, str, str]]:
     if vendor in ('', '*', '-') or product in ('', '*', '-'):
         return None
     return vendor, product, version
-
-
-def _meaningful(v) -> str:
-    s = str(v or '').strip()
-    return '' if s.lower() in ('', 'unknown', 'n/a', '-', 'n/a (단일 버전)', '정보 없음') else s
 
 
 def _key(s: str) -> str:
@@ -49,7 +44,7 @@ def affected_from_cpes(cpes: List[str], existing: List[Dict] = None,
     if not derived:
         return []
 
-    keepers = [a for a in (existing or []) if isinstance(a, dict) and _meaningful(a.get('product'))]
+    keepers = [a for a in (existing or []) if isinstance(a, dict) and meaningful(a.get('product'))]
     if not keepers:
         return derived
 
@@ -126,18 +121,11 @@ class Collector:
         self.kev_loaded = False
         self.vulncheck_loaded = False
         self.kev_set: Set[str] = set()
-        self.kev_date_added: Dict[str, str] = {}
         self.kev_ransomware: Set[str] = set()
         self.kev_due_date: Dict[str, str] = {}
         self.kev_product: Dict[str, Tuple[str, str]] = {}
         self.ai_ledger: Optional[Dict[str, Dict]] = None
         self.vulncheck_kev_set: Set[str] = set()
-        self.epss_cache: Dict[str, float] = {}
-        self.epss_percentile: Dict[str, float] = {}
-        self.headers = {
-            "Authorization": f"token {os.environ.get('GH_TOKEN')}",
-            "Accept": "application/vnd.github.v3+json"
-        }
 
 
     def fetch_kev(self) -> bool:
@@ -148,7 +136,6 @@ class Collector:
 
         self.kev_loaded = True
         self.kev_set = set(data)
-        self.kev_date_added = {cid: item.get('dateAdded', '') for cid, item in data.items()}
         self.kev_ransomware = {
             cid for cid, item in data.items()
             if str(item.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
@@ -248,11 +235,11 @@ class Collector:
             title = (cna.get('title') or '').strip()
             if not title:
                 aff0 = next((a for a in data['affected']
-                             if a.get('product') and a['product'].lower() not in ('n/a', 'unknown')), None)
+                             if meaningful(a.get('product'))), None)
                 if aff0:
                     vendor = (aff0.get('vendor') or '').strip()
                     product = aff0['product'].strip()
-                    use_vendor = vendor and vendor.lower() not in ('n/a', 'unknown') \
+                    use_vendor = bool(meaningful(vendor)) \
                         and vendor.split()[0].lower() not in product.lower()
                     title = f"{vendor} {product} vulnerability" if use_vendor else f"{product} vulnerability"
                 elif data['description'] != 'N/A':
@@ -266,7 +253,7 @@ class Collector:
             for pt in cna.get('problemTypes', []):
                 for desc in pt.get('descriptions', []):
                     for field in (desc.get('cweId', ''), desc.get('description', '')):
-                        for m in re.findall(r'CWE-\d{1,4}\b', str(field)):
+                        for m in CWE_RE.findall(str(field)):
                             if m not in data['cwe']:
                                 data['cwe'].append(m)
             
@@ -291,11 +278,7 @@ class Collector:
 
 
     def _enrich_from_adp(self, json_data: Dict, data: Dict) -> None:
-        try:
-            adp_containers = json_data.get('containers', {}).get('adp', []) or []
-        except AttributeError:
-            return
-
+        adp_containers = json_data.get('containers', {}).get('adp', []) or []
         for container in adp_containers:
             provider = (container.get('providerMetadata') or {}).get('shortName', '')
             if provider != 'CISA-ADP':
@@ -379,7 +362,7 @@ class Collector:
     def fill_product_from_kev(self, cve_data: Dict) -> Dict:
         vendor, product = self.kev_product.get(cve_data.get('id'), ('', ''))
         affected = cve_data.get('affected') or []
-        usable = any(_meaningful(a.get('product')) for a in affected if isinstance(a, dict))
+        usable = any(meaningful(a.get('product')) for a in affected if isinstance(a, dict))
         if not product:
             if not self.kev_loaded and not usable:
                 cve_data.pop('affected', None)

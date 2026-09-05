@@ -1,47 +1,36 @@
 import datetime
-import os
 import time
 from typing import Dict, List, Optional, Tuple
-
-import pytz
 
 import ai_provenance
 import enrichment_sources
 import feed
+import package_index
 import pipeline
 import risk
 import signal_snapshot
 import state as pstate
+from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
-from database import ArgusDB
+from store import Store, create_store as ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import rate_limit_manager
 
-KST = pytz.timezone('Asia/Seoul')
-
-
 def _deadline() -> float:
     return time.time() + config.PERFORMANCE.get("fast_deadline_minutes", 5) * 60
-
-
-def _dashboard_url() -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/"
 
 
 def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float]]]:
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
     collector.ai_ledger = ai_provenance.load_anthropic_ledger()
+    package_index.get()
     return enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
 
-def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: ArgusDB,
+def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Store,
                       notifier: SlackNotifier, epss_index, deadline: float,
                       rows: Optional[pipeline.RowCache] = None
                       ) -> Tuple[List[pipeline.Outcome], Dict[str, datetime.datetime]]:
@@ -77,7 +66,7 @@ def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Argu
     return outcomes, failed_at
 
 
-def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
+def _sweep_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                    epss_index, deadline: float,
                    rows: Optional[pipeline.RowCache] = None) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []
@@ -85,13 +74,19 @@ def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
     for diff in signal_snapshot.sweep(db, fast_only=True, cap=cap):
         if not diff.added:
             continue
-        processed: List[str] = []
-        for cve_id in diff.added:
+        if time.time() > deadline:
+            logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 회차")
+            break
+        targets = {t: signal_snapshot.cve_of(t) for t in diff.added}
+        records, absent = feed.fetch_records(
+            list(targets.values()), workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        processed: List[str] = [t for t, c in targets.items() if c in absent]
+        for token, cve_id in targets.items():
             if time.time() > deadline:
                 logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — "
                                f"나머지는 다음 회차")
                 break
-            record = feed.fetch_record(cve_id)
+            record = records.get(cve_id)
             if record is None:
                 continue
             try:
@@ -100,13 +95,13 @@ def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
                 logger.warning(f"{cve_id} 상태 구성 실패: {e}")
                 continue
             if st is None:
-                processed.append(cve_id)
+                processed.append(token)
                 continue
             out = pipeline.process(st, db, notifier,
                                    reason_prefix=f"[{diff.source.label}] ", rows=rows)
             outcomes.append(out)
             if not out.needs_retry:
-                processed.append(cve_id)
+                processed.append(token)
         signal_snapshot.commit(db, diff, processed)
     return outcomes
 
@@ -148,10 +143,6 @@ def run() -> None:
     logger.info("Argus fast-lane 시작")
     logger.info("=" * 60)
 
-    if not all(config.health_check().values()):
-        logger.error("헬스체크 실패")
-        return
-
     deadline = _deadline()
     collector = Collector()
     db = ArgusDB()
@@ -161,18 +152,21 @@ def run() -> None:
     epss_index = _load_signals(collector)
 
     watermark = pstate.read_watermark()
-    changes, horizon = feed.changes_since(watermark)
-    cap = config.PERFORMANCE.get("fast_max_changes", 1500)
-    changes, horizon = feed.cap_by_batch(changes, cap, horizon)
+    changes, horizon = feed.changes_since(
+        watermark, deadline=deadline,
+        cap=config.PERFORMANCE.get("fast_max_changes", 1500))
     feed.fill_records(changes, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
 
     rows = pipeline.RowCache(db, [c.cve_id for c in changes])
     outcomes, failed_at = _evaluate_changes(changes, collector, db, notifier,
                                             epss_index, deadline, rows)
 
-    outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline, rows)
-
     _advance_watermark(horizon, failed_at)
+
+    if time.time() > deadline:
+        logger.warning("⏰ 변경분 처리에 예산을 다 썼다 — 소스측 대조는 다음 회차로 넘긴다")
+    else:
+        outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline, rows)
 
     tracked = sum(1 for o in outcomes if o.status == "tracked")
     notifier.send_batch_summary(dashboard_url=_dashboard_url(), tracked=tracked)

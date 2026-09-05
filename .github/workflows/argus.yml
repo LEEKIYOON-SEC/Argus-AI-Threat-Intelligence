@@ -34,13 +34,17 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Resolve cache day
+        id: cacheday
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
       - name: Cache signal indexes
         uses: actions/cache@v4
         with:
           path: .cache/rulesets
-          key: signals-${{ github.run_id }}
+          key: signals-bulk-${{ steps.cacheday.outputs.day }}
           restore-keys: |
-            signals-
+            signals-bulk-
 
       - name: Install dependencies
         run: pip install -r requirements.txt
@@ -50,8 +54,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
           VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
@@ -60,8 +65,9 @@ jobs:
       - name: Export dashboard data
         if: always()
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           ARGUS_FULL_EXPORT: ${{ inputs.full_export && '1' || '0' }}

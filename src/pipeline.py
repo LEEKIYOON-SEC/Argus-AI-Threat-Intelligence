@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple
 
 import pytz
@@ -31,8 +31,6 @@ class Outcome:
     cve_id: str
     status: str
     tier: str = risk.T3
-    decision: Optional[risk.Decision] = None
-    state: Optional[Dict] = field(default=None, repr=False)
 
 
     @property
@@ -56,19 +54,11 @@ def build_state(cve_id: str, record: Dict, collector,
 
     collector.enrich_cheap_signals(raw)
 
-    epss_score, epss_pct = 0.0, 0.0
-    if epss_index is not None and cve_id in epss_index:
-        epss_score, epss_pct = epss_index[cve_id]
-    elif cve_id in collector.epss_cache:
-        epss_score = collector.epss_cache.get(cve_id, 0.0)
-        epss_pct = collector.epss_percentile.get(cve_id, 0.0)
-
     if collector.kev_loaded:
         raw["is_kev"] = cve_id in collector.kev_set
         raw["kev_due_date"] = collector.kev_due_date.get(cve_id, "")
-    if epss_index is not None or collector.epss_cache:
-        raw["epss"] = epss_score
-        raw["epss_percentile"] = epss_pct
+    if epss_index is not None and cve_id in epss_index:
+        raw["epss"], raw["epss_percentile"] = epss_index[cve_id]
     return raw
 
 
@@ -133,8 +123,8 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
                 _save(db, state, decision, last, alerted=False)
                 if rows is not None:
                     rows.forget(cve_id)
-                return Outcome(cve_id, "tracked", decision.tier, decision, state)
-            return Outcome(cve_id, "skipped", decision.tier, decision, state)
+                return Outcome(cve_id, "tracked", decision.tier)
+            return Outcome(cve_id, "skipped", decision.tier)
 
         announce = decision.alert and not silent
         rules_info = None
@@ -154,12 +144,12 @@ def process(state: Dict, db, notifier, *, reason_prefix: str = "",
         new_triggers = decision.new_triggers if sent else frozenset()
         if not _save(db, state, decision, last, alerted=announce and sent,
                      new_triggers=new_triggers, rules_info=rules_info):
-            return Outcome(cve_id, "failed", decision.tier, decision, state)
+            return Outcome(cve_id, "failed", decision.tier)
 
         if rows is not None:
             rows.forget(cve_id)
         return Outcome(cve_id, "alerted" if (announce and sent) else "tracked",
-                       decision.tier, decision, state)
+                       decision.tier)
 
     except Exception as e:
         logger.error(f"{cve_id} 처리 실패: {e}", exc_info=True)

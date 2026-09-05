@@ -1,5 +1,4 @@
 import os
-import re
 import sys
 import json
 import datetime as dt
@@ -9,8 +8,11 @@ _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
-from supabase import create_client
+import pages
 import risk
+from fields import CWE_RE, meaningful
+from store import create_store
+from store.base import StoreError
 from weekly_report import publish_weekly_report
 
 
@@ -43,12 +45,35 @@ def _tier_of(state: dict, entry: dict) -> str:
     return min(stored, derived, key=risk.tier_rank)
 
 
-def _get_client():
-    url = os.environ.get("SUPABASE_URL", "").strip()
-    key = os.environ.get("SUPABASE_KEY", "").strip()
-    if not url or not key:
+_EXPORT_SCHEMA = 2
+_MAX_REFERENCES = 8
+_ANALYSIS_KEYS = ("root_cause", "scenario", "impact")
+
+
+def _analysis_of(state: dict, tier: str) -> dict:
+    if tier not in risk.ALERTING_TIERS:
+        return {}
+    raw = state.get("analysis")
+    if not isinstance(raw, dict):
+        return {}
+    out = {}
+    for key in _ANALYSIS_KEYS:
+        value = raw.get(key)
+        if isinstance(value, str) and value.strip():
+            out[key] = value.strip()
+    steps = [s.strip() for s in (raw.get("mitigation") or [])
+             if isinstance(s, str) and s.strip()]
+    if steps:
+        out["mitigation"] = steps[:6]
+    return out
+
+
+def _get_db():
+    try:
+        return create_store()
+    except Exception as e:
+        print(f"  [!] 저장소 연결 실패: {e}", flush=True)
         return None
-    return create_client(url, key)
 
 
 def _s(state: dict, key: str, default: str = "") -> str:
@@ -61,37 +86,8 @@ def _l(state: dict, key: str) -> list:
     return v if isinstance(v, list) else []
 
 
-def _write_json(path: str, payload) -> None:
-    tmp = f"{path}.tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
-
-
-def export_cves(client, days: int = 90, since: str = None) -> list:
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
-
-    rows = []
-    page_size = 1000
-    offset = 0
-    while True:
-        query = client.table("cves") \
-            .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, updated_at") \
-            .gte("updated_at", since or cutoff) \
-            .not_.is_("last_alert_state", "null")
-        response = query \
-            .order("id") \
-            .range(offset, offset + page_size - 1) \
-            .execute()
-
-        page = response.data or []
-        if not page:
-            break
-        rows.extend(page)
-        if len(page) < page_size:
-            break
-        offset += page_size
-
+def export_cves(db, days: int = 90, since: str = None) -> list:
+    rows = db.export_rows(since, days)
     result = []
 
     for row in rows:
@@ -99,7 +95,7 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 
         cwe_clean = []
         for w in _l(state, "cwe"):
-            for m in re.findall(r"CWE-\d{1,4}\b", str(w)):
+            for m in CWE_RE.findall(str(w)):
                 if m not in cwe_clean:
                     cwe_clean.append(m)
 
@@ -188,6 +184,28 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         entry["ssvc_automatable"] = state.get("ssvc_automatable") or ssvc.get("automatable")
         entry["ssvc_technical_impact"] = state.get("ssvc_technical_impact") or ssvc.get("technical_impact")
         entry["is_kev_ransomware"] = state.get("is_kev_ransomware", False)
+        entry["kev_due_date"] = _s(state, "kev_due_date")[:10]
+        entry["nuclei_severity"] = _s(state, "nuclei_severity")
+
+        for key in ("_exploit_db_url", "_nuclei_url"):
+            url = _s(state, key)
+            if url:
+                entry[key] = url
+
+        refs = []
+        for ref in _l(state, "references"):
+            url = ref if isinstance(ref, str) else _s(ref, "url")
+            url = url.strip()
+            if url.startswith(("http://", "https://")) and url not in refs:
+                refs.append(url)
+            if len(refs) >= _MAX_REFERENCES:
+                break
+        if refs:
+            entry["references"] = refs
+
+        analysis = _analysis_of(state, entry["tier"])
+        if analysis:
+            entry["analysis"] = analysis
 
         entry["published"] = _s(state, "published")[:10]
 
@@ -257,82 +275,48 @@ def decode_product_index(index: dict) -> dict:
     return out
 
 
-def live_ids(client, days: int = 90):
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
-    found, offset, page_size = set(), 0, 1000
-    while True:
-        try:
-            r = client.table("cves").select("id") \
-                .gte("updated_at", cutoff) \
-                .not_.is_("last_alert_state", "null") \
-                .order("id").range(offset, offset + page_size - 1).execute()
-        except Exception as e:
-            print(f"  [!] id 목록 조회 실패({e}) → 이번 회차는 병합에서 제외하지 않는다",
-                  flush=True)
-            return None
-        page = r.data or []
-        found.update(row["id"] for row in page if row.get("id"))
-        if len(page) < page_size:
-            return found
-        offset += page_size
+def live_ids(db, days: int = 90):
+    try:
+        return db.live_ids(days)
+    except StoreError as e:
+        print(f"  [!] id 목록 조회 실패({e}) → 이번 회차는 병합에서 제외하지 않는다",
+              flush=True)
+        return None
 
 
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
-def _take_full_export_flag(client) -> bool:
+def _take_full_export_flag(db) -> bool:
     try:
-        r = client.table("pipeline_state").select("state").eq("id", 1).limit(1).execute()
-        st = ((r.data or [{}])[0] or {}).get("state") or {}
-        if not st.get("force_full_export"):
-            return False
-        st.pop("force_full_export", None)
-        client.table("pipeline_state").upsert({"id": 1, "state": st}).execute()
-        return True
-    except Exception as e:
+        return db.take_full_export_flag()
+    except StoreError as e:
         print(f"  전량 export 표시 확인 실패(무시): {e}", flush=True)
         return False
 
 
 def fetch_live_products() -> dict:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return {}
-    owner, name = repo.split("/", 1)
     try:
-        import urllib.request
-        url = f"https://{owner.lower()}.github.io/{name}/data/cve-products.json"
-        req = urllib.request.Request(url, headers={"User-Agent": "argus-export"})
-        with urllib.request.urlopen(req, timeout=180) as r:
-            return decode_product_index(json.loads(r.read().decode("utf-8")))
+        payload = pages.fetch_published_json("cve-products.json", timeout=180)
+        if payload is None:
+            return {}
+        return decode_product_index(payload)
     except Exception as e:
         print(f"  직전 제품 인덱스를 읽지 못함({e}) → 이번 회차분으로만 만든다", flush=True)
         return {}
 
 
 def _fetch_live_export() -> tuple:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None, None
-    owner, name = repo.split("/", 1)
-    base = f"https://{owner.lower()}.github.io/{name}/data"
     try:
-        import urllib.request
-
-
-        def get(fn):
-            req = urllib.request.Request(f"{base}/{fn}", headers={"User-Agent": "argus-export"})
-            with urllib.request.urlopen(req, timeout=180) as r:
-                return json.loads(r.read().decode("utf-8"))
-
-        rows = get("cves.json")
-        generated_at = get("stats.json").get("generated_at")
+        rows = pages.fetch_published_json("cves.json", timeout=180)
+        stats = pages.fetch_published_json("stats.json", timeout=180)
+        generated_at = (stats or {}).get("generated_at")
         if isinstance(rows, list) and rows and generated_at:
             print(f"  직전 export를 배포본에서 읽음 ({len(rows)}건)", flush=True)
-            return rows, generated_at
+            return rows, generated_at, stats.get("schema")
     except Exception as e:
         print(f"  배포본을 읽지 못함({e}) → 체크아웃 사본 확인", flush=True)
-    return None, None
+    return None, None, None
 
 
 def load_previous_export(data_dir: str) -> tuple:
@@ -340,13 +324,18 @@ def load_previous_export(data_dir: str) -> tuple:
         print("  ARGUS_FULL_EXPORT=1 → 전량 export", flush=True)
         return None, None
     try:
-        rows, generated_at = _fetch_live_export()
+        rows, generated_at, schema = _fetch_live_export()
         if rows is None:
             with open(os.path.join(data_dir, "cves.json"), encoding="utf-8") as f:
                 rows = json.load(f)
             with open(os.path.join(data_dir, "stats.json"), encoding="utf-8") as f:
-                generated_at = json.load(f).get("generated_at")
+                stats = json.load(f)
+            generated_at, schema = stats.get("generated_at"), stats.get("schema")
         if not isinstance(rows, list) or not rows or not generated_at:
+            return None, None
+        if schema != _EXPORT_SCHEMA:
+            print(f"  직전 export 스키마 {schema} ≠ 현재 {_EXPORT_SCHEMA} → 전량 export",
+                  flush=True)
             return None, None
         if not any(r.get("updated") for r in rows[:50]):
             print("  직전 파일에 병합 기준(updated)이 없음 → 전량 export", flush=True)
@@ -392,10 +381,6 @@ def export_stats(cve_data: list) -> dict:
     kernel_count = 0
 
 
-    def _clean(v: str) -> str:
-        v = (v or "").strip()
-        return "" if v.lower() in ("", "unknown", "n/a", "-") else v
-
     for cve in cve_data:
         severity_counts[cve.get("severity", "None")] += 1
 
@@ -421,7 +406,7 @@ def export_stats(cve_data: list) -> dict:
 
         seen_v, seen_p = set(), set()
         for aff in cve.get("affected", []):
-            vendor, product = _clean(aff.get("vendor")), _clean(aff.get("product"))
+            vendor, product = meaningful(aff.get("vendor")), meaningful(aff.get("product"))
             if vendor and vendor not in seen_v:
                 vendor_counts[vendor] += 1
                 seen_v.add(vendor)
@@ -444,6 +429,8 @@ def export_stats(cve_data: list) -> dict:
 
     return {
         "generated_at": now.isoformat(),
+        "schema": _EXPORT_SCHEMA,
+        "triggers": {key: t.label for key, t in risk.TRIGGERS.items()},
         "cve": {
             "total": len(cve_data),
             "recent_24h": recent_24h,
@@ -466,76 +453,49 @@ def _is_alerting_row(row: dict) -> bool:
     return risk.is_alerting(_tier_of(state, entry))
 
 
-def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
+RETENTION_BATCH = 1000
+
+
+def _doomed(rows: list) -> list:
+    return [r["id"] for r in rows if r.get("id") and not _is_alerting_row(r)]
+
+
+def apply_retention_policy(db, days: int = 120, marker_days: int = 30,
                            delete_days: int = 180, watch_days: int = 90,
                            max_rows: int = 20000) -> int:
     now = dt.datetime.now(dt.timezone.utc)
-
+    batch = RETENTION_BATCH
 
     def cutoff(n):
         return (now - dt.timedelta(days=n)).isoformat()
 
-    cleaned = 0
-    stale = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .lt("updated_at", cutoff(days)) \
-        .not_.is_("last_alert_state", "null") \
-        .execute()
-    blank = [r["id"] for r in (stale.data or []) if r.get("id") and not _is_alerting_row(r)]
-    for i in range(0, len(blank), 200):
-        client.table("cves") \
-            .update({"rules_snapshot": None, "last_alert_state": None}) \
-            .in_("id", blank[i:i + 200]).execute()
-        cleaned += len(blank[i:i + 200])
+    stale = db.retention_rows(cutoff(days), batch, tracked=True)
+    cleaned = db.blank_states(_doomed(stale))
 
-    deleted = client.table("cves") \
-        .delete() \
-        .is_("last_alert_state", "null") \
-        .is_("last_alert_at", "null") \
-        .lt("updated_at", cutoff(marker_days)) \
-        .execute()
-    deleted_count = len(deleted.data or [])
+    deleted_count = db.delete_markers(cutoff(marker_days), batch)
     if deleted_count:
         print(f"  구 마커 {deleted_count}건 청소 ({marker_days}일 경과)", flush=True)
 
-    watch_count = 0
-    cand = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .is_("last_alert_at", "null") \
-        .lt("updated_at", cutoff(watch_days)) \
-        .execute()
-    victims = [r["id"] for r in (cand.data or [])
-               if r.get("id") and not _is_alerting_row(r)]
-    kept = len(cand.data or []) - len(victims)
-    for i in range(0, len(victims), 200):
-        client.table("cves").delete().in_("id", victims[i:i + 200]).execute()
-        watch_count += len(victims[i:i + 200])
+    cand = db.retention_rows(cutoff(watch_days), batch, unalerted=True)
+    victims = _doomed(cand)
+    kept = len(cand) - len(victims)
+    watch_count = db.delete_rows(victims)
     if watch_count or kept:
         print(f"  관찰 {watch_count}건 만료 삭제 ({watch_days}일간 신호 없음)"
               f"{f' · 악용 중이라 보존 {kept}건' if kept else ''}", flush=True)
 
-    purged_count = 0
-    old_rows = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .lt("updated_at", cutoff(delete_days)).execute()
-    gone = [r["id"] for r in (old_rows.data or []) if r.get("id") and not _is_alerting_row(r)]
-    for i in range(0, len(gone), 200):
-        client.table("cves").delete().in_("id", gone[i:i + 200]).execute()
-        purged_count += len(gone[i:i + 200])
+    old_rows = db.retention_rows(cutoff(delete_days), batch)
+    purged_count = db.delete_rows(_doomed(old_rows))
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
     capped = 0
-    tracked_now = _count(client, tracked=True)
+    tracked_now = _count(db, tracked=True)
     if tracked_now > max_rows:
         excess = tracked_now - max_rows
-        window = cutoff(watch_days)
-        victims = client.table("cves") \
-            .select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-            .lt("updated_at", window) \
-            .order("updated_at", desc=False).limit(excess * 2).execute()
-        ids = [r["id"] for r in (victims.data or [])
-               if r.get("id") and not _is_alerting_row(r)][:excess]
-        for i in range(0, len(ids), 200):
-            client.table("cves").delete().in_("id", ids[i:i + 200]).execute()
-            capped += len(ids[i:i + 200])
+        over = db.retention_rows(cutoff(watch_days), min(excess * 2, batch),
+                                 oldest_first=True)
+        capped = db.delete_rows(_doomed(over)[:excess])
         if capped < excess:
             print(f"  ⚠️ 추적 {tracked_now:,}행 > 상한 {max_rows:,} 이지만 "
                   f"{capped:,}건만 지울 수 있다 — 나머지는 {watch_days}일 안이거나 "
@@ -544,27 +504,24 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
         elif capped:
             print(f"  상한 초과 {capped:,}건 삭제 (추적 상한 {max_rows:,}행)", flush=True)
 
-    tracked = _count(client, tracked=True)
-    remaining = _count(client)
+    tracked = _count(db, tracked=True)
+    remaining = _count(db)
     print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 상태없음 {remaining - tracked:,} "
           f"· 이번 삭제 {deleted_count + watch_count + purged_count + capped:,}", flush=True)
 
     return cleaned
 
 
-def _count(client, tracked: bool = False) -> int:
+def _count(db, tracked: bool = False) -> int:
     try:
-        q = client.table("cves").select("id", count="exact").limit(1)
-        if tracked:
-            q = q.not_.is_("last_alert_state", "null")
-        return q.execute().count or 0
-    except Exception as e:
+        return db.count_rows(tracked=tracked)
+    except StoreError as e:
         print(f"  [!] 행 수 조회 실패(무시): {e}", flush=True)
         return 0
 
 
 def _generate_sample_data(data_dir: str):
-    print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
+    print("  [!] 저장소에 연결하지 못함 → 빈 샘플 데이터 생성", flush=True)
 
     cve_data = []
     stats = export_stats(cve_data)
@@ -578,30 +535,30 @@ def _generate_sample_data(data_dir: str):
 
 def main():
     print("=== Dashboard Data Export ===", flush=True)
-    client = _get_client()
+    db = _get_db()
 
     data_dir = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
     os.makedirs(data_dir, exist_ok=True)
 
-    if client is None:
+    if db is None:
         _generate_sample_data(data_dir)
         print("=== Export 완료 (샘플 데이터) ===", flush=True)
         return
 
     print("[1/4] CVE 데이터 export...", flush=True)
-    if _take_full_export_flag(client):
+    if _take_full_export_flag(db):
         print("  백필 반영 요청 있음 → 이번은 전량 export", flush=True)
         previous, since = None, None
     else:
         previous, since = load_previous_export(data_dir)
     fresh_ids = set()
     if previous is None:
-        cve_data = export_cves(client)
+        cve_data = export_cves(db)
         print(f"  전량 export: {len(cve_data)}건", flush=True)
     else:
-        fresh = export_cves(client, since=since)
+        fresh = export_cves(db, since=since)
         fresh_ids = {r.get("id") for r in fresh if r.get("id")}
-        cve_data = merge_exports(previous, fresh, keep=live_ids(client))
+        cve_data = merge_exports(previous, fresh, keep=live_ids(db))
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
     carried = fetch_live_products() if previous is not None else {}
@@ -621,7 +578,7 @@ def main():
 
     prod_index = build_product_index(merged_products)
     prod_path = os.path.join(data_dir, "cve-products.json")
-    _write_json(prod_path, prod_index)
+    pages.write_json(prod_path, prod_index)
     total_items = sum(len(v) for v in prod_index["map"].values())
     print(f"  영향 제품 인덱스: {len(prod_index['map']):,}건 · 항목 {total_items:,}개 "
           f"(고유 제품 {len(prod_index['products']):,}) → {prod_path}", flush=True)
@@ -633,13 +590,13 @@ def main():
             e["affected_total"] = len(aff)
 
     cve_path = os.path.join(data_dir, "cves.json")
-    _write_json(cve_path, cve_data)
+    pages.write_json(cve_path, cve_data)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     print("[2/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
-    _write_json(stats_path, stats)
+    pages.write_json(stats_path, stats)
     print(f"  Stats → {stats_path}", flush=True)
 
     print("[3/4] 주간 리포트 확인...", flush=True)
@@ -650,7 +607,7 @@ def main():
 
     print("[4/4] DB 보존 정책 적용...", flush=True)
     try:
-        cleaned = apply_retention_policy(client)
+        cleaned = apply_retention_policy(db)
         print(f"  {cleaned}건 정리 (rules_snapshot/last_alert_state null 처리)", flush=True)
     except Exception as e:
         print(f"  [!] DB 보존 정책 적용 실패: {e}", flush=True)

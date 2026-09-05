@@ -7,7 +7,7 @@ from typing import Dict, List, Optional
 
 import requests
 
-from enrichment_sources import cache_get, cache_put
+from enrichment_sources import cache_get, cache_put, memo_ok
 from logger import logger
 
 _LEDGER_BASE = "https://red.anthropic.com/2026/cvd/data"
@@ -37,6 +37,7 @@ class Provenance:
                 "ai_detail": self.detail[:300], "ai_url": self.url}
 
 
+@memo_ok
 def load_anthropic_ledger(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
     raw = cache_get("anthropic-cvd.json", ttl_hours=ttl_hours)
     if raw is None:

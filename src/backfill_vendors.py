@@ -6,17 +6,16 @@ from typing import Dict, List
 import requests
 
 from collector import affected_from_cpes
-from database import ArgusDB
+from store import create_store as ArgusDB
+import nvd
 from logger import logger
 
-_NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-_GAP_NO_KEY, _GAP_KEY = 8.0, 0.7
 
 
 def _fetch_cpe(cve_id: str, api_key: str, existing: List[Dict] = None) -> List[Dict]:
-    headers = {"apiKey": api_key} if api_key else {}
+    headers = nvd.headers(api_key)
     try:
-        r = requests.get(_NVD, params={"cveId": cve_id}, headers=headers, timeout=60)
+        r = requests.get(nvd.ENDPOINT, params={"cveId": cve_id}, headers=headers, timeout=60)
         r.raise_for_status()
         vulns = (r.json() or {}).get("vulnerabilities") or []
     except (requests.exceptions.RequestException, ValueError) as e:
@@ -33,9 +32,10 @@ def _fetch_cpe(cve_id: str, api_key: str, existing: List[Dict] = None) -> List[D
 
 
 def main() -> int:
-    api_key = os.environ.get("NVD_API_KEY", "")
+    api_key = os.environ.get("NVD_API_KEY", "").strip()
+    nvd.verify(api_key)
     limit = int(os.environ.get("BACKFILL_VENDOR_LIMIT", "500"))
-    gap = _GAP_KEY if api_key else _GAP_NO_KEY
+    gap = nvd.gap(api_key)
 
     logger.info("=" * 60)
     logger.info(f"영향 벤더 백필 시작 (NVD 키 {'있음' if api_key else '없음'} · 건당 {gap}초)")

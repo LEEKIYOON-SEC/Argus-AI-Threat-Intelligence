@@ -12,7 +12,7 @@ if _THIS_DIR not in sys.path:
 
 import risk
 from collector import flatten_ssvc
-from database import ArgusDB
+from store import create_store as ArgusDB
 from logger import logger
 
 

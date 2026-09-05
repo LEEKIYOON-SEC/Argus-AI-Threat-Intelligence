@@ -3,14 +3,13 @@ import os
 import sys
 
 import osv_index
-from database import ArgusDB
+from store import create_store as ArgusDB
 from logger import logger
 
 _DATA = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "docs", "data"
 )
 _OUT = os.path.join(_DATA, "cve-packages.json")
-_MAL_OUT = os.path.join(_DATA, "malicious-packages.json")
 _CVES = os.path.join(_DATA, "cves.json")
 
 
@@ -51,14 +50,6 @@ def main() -> int:
     if osv_index.too_many_failed():
         return 1
     ok = osv_index.write_index(index, _OUT, kernel_aliases=kernel_aliases)
-
-    logger.info("─" * 60)
-    mal = osv_index.build_malicious_index()
-    if mal:
-        osv_index.write_malicious(mal, _MAL_OUT)
-    else:
-        logger.warning("악성 패키지 목록이 비어 있습니다 — 기존 파일 유지")
-
     return 0 if ok else 1
 
 

@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import Dict
 
 
 class ConfigError(Exception):
@@ -46,21 +45,29 @@ class ArgusConfig:
 
     REQUIRED_ENV_VARS = [
         "GH_TOKEN",
-        "SUPABASE_URL",
-        "SUPABASE_KEY",
         "SLACK_WEBHOOK_URL",
         "GEMINI_API_KEY"
     ]
+
+    STORE_ENV_VARS = {
+        "supabase": ["SUPABASE_URL", "SUPABASE_KEY"],
+        "turso": ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"],
+    }
 
 
     def __init__(self):
         self._validate_environment()
 
 
+    def required_env_vars(self):
+        store = (os.environ.get("ARGUS_STORE") or "supabase").strip().lower()
+        return self.REQUIRED_ENV_VARS + self.STORE_ENV_VARS.get(store, [])
+
+
     def _validate_environment(self):
         missing = []
-        
-        for var in self.REQUIRED_ENV_VARS:
+
+        for var in self.required_env_vars():
             value = os.environ.get(var)
             if not value or value.strip() == "":
                 missing.append(var)
@@ -75,16 +82,6 @@ GitHub Actions Secrets에 다음 변수들을 추가해주세요.
             raise ConfigError(error_msg)
 
 
-    def health_check(self) -> Dict[str, bool]:
-        health = {"environment": True}
-        
-        try:
-            self._validate_environment()
-        except ConfigError:
-            health["environment"] = False
-        
-        return health
-    
 try:
     config = ArgusConfig()
 except ConfigError as e:
