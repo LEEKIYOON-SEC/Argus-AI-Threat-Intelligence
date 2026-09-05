@@ -4,7 +4,7 @@ import time
 import copy
 import datetime
 from supabase import create_client, Client
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from fields import meaningful
@@ -465,6 +465,124 @@ class ArgusDB(Store):
         state = self.get_pipeline_state() or {}
         state["force_full_export"] = True
         return self.set_pipeline_state(state)
+
+
+    def take_full_export_flag(self) -> bool:
+        state = self.get_pipeline_state()
+        if not state.get("force_full_export"):
+            return False
+        state.pop("force_full_export", None)
+        return self.set_pipeline_state(state)
+
+    _EXPORT_COLS = ("id, cvss_score, epss_score, is_kev, has_official_rules, "
+                    "last_alert_at, last_alert_state, rules_snapshot, updated_at")
+    _PAGE = 1000
+
+
+    def _paged(self, build, cols: str) -> List[Dict]:
+        rows, offset = [], 0
+        while True:
+            page = self._execute(
+                build().select(cols).order("id")
+                .range(offset, offset + self._PAGE - 1)).data or []
+            rows.extend(page)
+            if len(page) < self._PAGE:
+                return rows
+            offset += self._PAGE
+
+
+    def export_rows(self, since: Optional[str], days: int = 90) -> List[Dict]:
+        cutoff = since or self._days_ago(days)
+        try:
+            return self._paged(
+                lambda: self.client.table("cves")
+                .gte("updated_at", cutoff).not_.is_("last_alert_state", "null"),
+                self._EXPORT_COLS)
+        except Exception as e:
+            raise StoreError(f"export 조회 실패: {e}") from e
+
+
+    def live_ids(self, days: int = 90) -> Set[str]:
+        try:
+            rows = self._paged(
+                lambda: self.client.table("cves")
+                .gte("updated_at", self._days_ago(days))
+                .not_.is_("last_alert_state", "null"), "id")
+        except Exception as e:
+            raise StoreError(f"생존 id 조회 실패: {e}") from e
+        return {r["id"] for r in rows if r.get("id")}
+
+
+    def count_rows(self, tracked: bool = False) -> int:
+        try:
+            q = self.client.table("cves").select("id", count="exact").limit(1)
+            if tracked:
+                q = q.not_.is_("last_alert_state", "null")
+            return self._execute(q).count or 0
+        except Exception as e:
+            raise StoreError(f"행 수 조회 실패: {e}") from e
+
+    _RETENTION_COLS = "id, is_kev, cvss_score, epss_score, last_alert_state"
+
+
+    def retention_rows(self, before: str, limit: int, *, tracked: bool = False,
+                       unalerted: bool = False, oldest_first: bool = False
+                       ) -> List[Dict]:
+        try:
+            q = self.client.table("cves").select(self._RETENTION_COLS) \
+                .lt("updated_at", before)
+            if tracked:
+                q = q.not_.is_("last_alert_state", "null")
+            if unalerted:
+                q = q.is_("last_alert_at", "null")
+            q = q.order("updated_at" if oldest_first else "id").limit(max(1, limit))
+            return self._execute(q).data or []
+        except Exception as e:
+            raise StoreError(f"보존 대상 조회 실패: {e}") from e
+
+
+    def delete_markers(self, before: str, limit: int) -> int:
+        try:
+            victims = self._execute(
+                self.client.table("cves").select("id")
+                .is_("last_alert_state", "null").is_("last_alert_at", "null")
+                .lt("updated_at", before).order("updated_at")
+                .limit(max(1, limit))).data or []
+        except Exception as e:
+            raise StoreError(f"구 마커 조회 실패: {e}") from e
+        return self.delete_rows([r["id"] for r in victims if r.get("id")])
+
+
+    def blank_states(self, ids) -> int:
+        return self._chunked(
+            ids, lambda chunk: self.client.table("cves")
+            .update({"rules_snapshot": None, "last_alert_state": None}).in_("id", chunk),
+            "상태 비우기")
+
+
+    def delete_rows(self, ids) -> int:
+        return self._chunked(
+            ids, lambda chunk: self.client.table("cves").delete().in_("id", chunk),
+            "행 삭제")
+
+
+    def _chunked(self, ids, build, label: str) -> int:
+        todo = [str(i) for i in ids if i]
+        done = 0
+        for i in range(0, len(todo), self._STATE_CHUNK):
+            chunk = todo[i:i + self._STATE_CHUNK]
+            try:
+                self._execute(build(chunk))
+            except Exception as e:
+                raise StoreError(f"{label} 실패({len(chunk)}건): {e}") from e
+            done += len(chunk)
+        return done
+
+
+    @staticmethod
+    def _days_ago(days: int) -> str:
+        return (datetime.datetime.now(datetime.timezone.utc)
+                - datetime.timedelta(days=days)).isoformat()
 
     _STATE_CHUNK = 200
 

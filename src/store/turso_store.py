@@ -364,18 +364,50 @@ class TursoStore(Store):
             (_days_ago(days),))
         return {r[0] for r in rows}
 
-    def apply_retention(self, days: int, marker_days: int, delete_days: int,
-                        watch_days: int, max_rows: int) -> Dict[str, int]:
-        deleted = self._write(
+    def count_rows(self, tracked: bool = False) -> int:
+        sql = "SELECT count(*) FROM cves"
+        if tracked:
+            sql += " WHERE last_alert_state IS NOT NULL"
+        rows = self._query(sql)
+        return rows[0][0] if rows else 0
+
+    _RETENTION_COLS = ("id", "is_kev", "cvss_score", "epss_score", "last_alert_state")
+
+    def retention_rows(self, before: str, limit: int, *, tracked: bool = False,
+                       unalerted: bool = False, oldest_first: bool = False
+                       ) -> List[Dict]:
+        clauses = ["updated_at < ?"]
+        if tracked:
+            clauses.append("last_alert_state IS NOT NULL")
+        if unalerted:
+            clauses.append("last_alert_at IS NULL")
+        rows = self._query(
+            f"SELECT {', '.join(self._RETENTION_COLS)} FROM cves "
+            f"WHERE {' AND '.join(clauses)} "
+            f"ORDER BY {'updated_at' if oldest_first else 'id'} LIMIT ?",
+            (before, max(1, limit)))
+        return [self._row(r, self._RETENTION_COLS) for r in rows]
+
+    def delete_markers(self, before: str, limit: int) -> int:
+        return self._write(
             "DELETE FROM cves WHERE id IN ("
-            "  SELECT id FROM cves WHERE updated_at < ? AND coalesce(tier,'T3') = 'T3'"
+            "  SELECT id FROM cves WHERE last_alert_state IS NULL "
+            "  AND last_alert_at IS NULL AND updated_at < ? "
             "  ORDER BY updated_at LIMIT ?)",
-            (_days_ago(delete_days), max_rows))
-        trimmed = self._write(
-            "DELETE FROM cves WHERE id IN ("
-            "  SELECT id FROM cves WHERE updated_at < ? AND coalesce(tier,'T3') IN ('T2','T3')"
-            "  AND last_alert_at IS NULL ORDER BY updated_at LIMIT ?)",
-            (_days_ago(watch_days), max_rows))
-        if deleted or trimmed:
-            logger.info(f"보존 정책: 만료 {deleted:,}건 · 미발화 관찰 {trimmed:,}건 삭제")
-        return {"deleted": deleted, "trimmed": trimmed}
+            (before, max(1, limit)))
+
+    def _by_ids(self, sql_head: str, ids) -> int:
+        todo = [str(i) for i in ids if i]
+        done = 0
+        for i in range(0, len(todo), _WRITE_CHUNK):
+            chunk = todo[i:i + _WRITE_CHUNK]
+            marks = ",".join("?" * len(chunk))
+            done += self._write(f"{sql_head} WHERE id IN ({marks})", tuple(chunk))
+        return done
+
+    def blank_states(self, ids) -> int:
+        return self._by_ids(
+            "UPDATE cves SET last_alert_state = NULL, rules_snapshot = NULL", ids)
+
+    def delete_rows(self, ids) -> int:
+        return self._by_ids("DELETE FROM cves", ids)

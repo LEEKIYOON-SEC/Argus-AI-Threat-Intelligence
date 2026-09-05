@@ -8,10 +8,11 @@ _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
-from supabase import create_client
 import pages
 import risk
 from fields import CWE_RE, meaningful
+from store import create_store
+from store.base import StoreError
 from weekly_report import publish_weekly_report
 
 
@@ -67,12 +68,12 @@ def _analysis_of(state: dict, tier: str) -> dict:
     return out
 
 
-def _get_client():
-    url = os.environ.get("SUPABASE_URL", "").strip()
-    key = os.environ.get("SUPABASE_KEY", "").strip()
-    if not url or not key:
+def _get_db():
+    try:
+        return create_store()
+    except Exception as e:
+        print(f"  [!] 저장소 연결 실패: {e}", flush=True)
         return None
-    return create_client(url, key)
 
 
 def _s(state: dict, key: str, default: str = "") -> str:
@@ -85,30 +86,8 @@ def _l(state: dict, key: str) -> list:
     return v if isinstance(v, list) else []
 
 
-def export_cves(client, days: int = 90, since: str = None) -> list:
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
-
-    rows = []
-    page_size = 1000
-    offset = 0
-    while True:
-        query = client.table("cves") \
-            .select("id, cvss_score, epss_score, is_kev, has_official_rules, last_alert_at, last_alert_state, rules_snapshot, updated_at") \
-            .gte("updated_at", since or cutoff) \
-            .not_.is_("last_alert_state", "null")
-        response = query \
-            .order("id") \
-            .range(offset, offset + page_size - 1) \
-            .execute()
-
-        page = response.data or []
-        if not page:
-            break
-        rows.extend(page)
-        if len(page) < page_size:
-            break
-        offset += page_size
-
+def export_cves(db, days: int = 90, since: str = None) -> list:
+    rows = db.export_rows(since, days)
     result = []
 
     for row in rows:
@@ -296,39 +275,22 @@ def decode_product_index(index: dict) -> dict:
     return out
 
 
-def live_ids(client, days: int = 90):
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
-    found, offset, page_size = set(), 0, 1000
-    while True:
-        try:
-            r = client.table("cves").select("id") \
-                .gte("updated_at", cutoff) \
-                .not_.is_("last_alert_state", "null") \
-                .order("id").range(offset, offset + page_size - 1).execute()
-        except Exception as e:
-            print(f"  [!] id 목록 조회 실패({e}) → 이번 회차는 병합에서 제외하지 않는다",
-                  flush=True)
-            return None
-        page = r.data or []
-        found.update(row["id"] for row in page if row.get("id"))
-        if len(page) < page_size:
-            return found
-        offset += page_size
+def live_ids(db, days: int = 90):
+    try:
+        return db.live_ids(days)
+    except StoreError as e:
+        print(f"  [!] id 목록 조회 실패({e}) → 이번 회차는 병합에서 제외하지 않는다",
+              flush=True)
+        return None
 
 
 _FULL_EXPORT_MAX_AGE_H = 24
 
 
-def _take_full_export_flag(client) -> bool:
+def _take_full_export_flag(db) -> bool:
     try:
-        r = client.table("pipeline_state").select("state").eq("id", 1).limit(1).execute()
-        st = ((r.data or [{}])[0] or {}).get("state") or {}
-        if not st.get("force_full_export"):
-            return False
-        st.pop("force_full_export", None)
-        client.table("pipeline_state").upsert({"id": 1, "state": st}).execute()
-        return True
-    except Exception as e:
+        return db.take_full_export_flag()
+    except StoreError as e:
         print(f"  전량 export 표시 확인 실패(무시): {e}", flush=True)
         return False
 
@@ -491,76 +453,49 @@ def _is_alerting_row(row: dict) -> bool:
     return risk.is_alerting(_tier_of(state, entry))
 
 
-def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
+RETENTION_BATCH = 1000
+
+
+def _doomed(rows: list) -> list:
+    return [r["id"] for r in rows if r.get("id") and not _is_alerting_row(r)]
+
+
+def apply_retention_policy(db, days: int = 120, marker_days: int = 30,
                            delete_days: int = 180, watch_days: int = 90,
                            max_rows: int = 20000) -> int:
     now = dt.datetime.now(dt.timezone.utc)
-
+    batch = RETENTION_BATCH
 
     def cutoff(n):
         return (now - dt.timedelta(days=n)).isoformat()
 
-    cleaned = 0
-    stale = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .lt("updated_at", cutoff(days)) \
-        .not_.is_("last_alert_state", "null") \
-        .execute()
-    blank = [r["id"] for r in (stale.data or []) if r.get("id") and not _is_alerting_row(r)]
-    for i in range(0, len(blank), 200):
-        client.table("cves") \
-            .update({"rules_snapshot": None, "last_alert_state": None}) \
-            .in_("id", blank[i:i + 200]).execute()
-        cleaned += len(blank[i:i + 200])
+    stale = db.retention_rows(cutoff(days), batch, tracked=True)
+    cleaned = db.blank_states(_doomed(stale))
 
-    deleted = client.table("cves") \
-        .delete() \
-        .is_("last_alert_state", "null") \
-        .is_("last_alert_at", "null") \
-        .lt("updated_at", cutoff(marker_days)) \
-        .execute()
-    deleted_count = len(deleted.data or [])
+    deleted_count = db.delete_markers(cutoff(marker_days), batch)
     if deleted_count:
         print(f"  구 마커 {deleted_count}건 청소 ({marker_days}일 경과)", flush=True)
 
-    watch_count = 0
-    cand = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .is_("last_alert_at", "null") \
-        .lt("updated_at", cutoff(watch_days)) \
-        .execute()
-    victims = [r["id"] for r in (cand.data or [])
-               if r.get("id") and not _is_alerting_row(r)]
-    kept = len(cand.data or []) - len(victims)
-    for i in range(0, len(victims), 200):
-        client.table("cves").delete().in_("id", victims[i:i + 200]).execute()
-        watch_count += len(victims[i:i + 200])
+    cand = db.retention_rows(cutoff(watch_days), batch, unalerted=True)
+    victims = _doomed(cand)
+    kept = len(cand) - len(victims)
+    watch_count = db.delete_rows(victims)
     if watch_count or kept:
         print(f"  관찰 {watch_count}건 만료 삭제 ({watch_days}일간 신호 없음)"
               f"{f' · 악용 중이라 보존 {kept}건' if kept else ''}", flush=True)
 
-    purged_count = 0
-    old_rows = client.table("cves").select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-        .lt("updated_at", cutoff(delete_days)).execute()
-    gone = [r["id"] for r in (old_rows.data or []) if r.get("id") and not _is_alerting_row(r)]
-    for i in range(0, len(gone), 200):
-        client.table("cves").delete().in_("id", gone[i:i + 200]).execute()
-        purged_count += len(gone[i:i + 200])
+    old_rows = db.retention_rows(cutoff(delete_days), batch)
+    purged_count = db.delete_rows(_doomed(old_rows))
     if purged_count:
         print(f"  오래된 행 {purged_count}건 삭제 ({delete_days}일 경과)", flush=True)
 
     capped = 0
-    tracked_now = _count(client, tracked=True)
+    tracked_now = _count(db, tracked=True)
     if tracked_now > max_rows:
         excess = tracked_now - max_rows
-        window = cutoff(watch_days)
-        victims = client.table("cves") \
-            .select("id, is_kev, cvss_score, epss_score, last_alert_state") \
-            .lt("updated_at", window) \
-            .order("updated_at", desc=False).limit(excess * 2).execute()
-        ids = [r["id"] for r in (victims.data or [])
-               if r.get("id") and not _is_alerting_row(r)][:excess]
-        for i in range(0, len(ids), 200):
-            client.table("cves").delete().in_("id", ids[i:i + 200]).execute()
-            capped += len(ids[i:i + 200])
+        over = db.retention_rows(cutoff(watch_days), min(excess * 2, batch),
+                                 oldest_first=True)
+        capped = db.delete_rows(_doomed(over)[:excess])
         if capped < excess:
             print(f"  ⚠️ 추적 {tracked_now:,}행 > 상한 {max_rows:,} 이지만 "
                   f"{capped:,}건만 지울 수 있다 — 나머지는 {watch_days}일 안이거나 "
@@ -569,27 +504,24 @@ def apply_retention_policy(client, days: int = 120, marker_days: int = 30,
         elif capped:
             print(f"  상한 초과 {capped:,}건 삭제 (추적 상한 {max_rows:,}행)", flush=True)
 
-    tracked = _count(client, tracked=True)
-    remaining = _count(client)
+    tracked = _count(db, tracked=True)
+    remaining = _count(db)
     print(f"  현황: 전체 {remaining:,} · 추적 {tracked:,} · 상태없음 {remaining - tracked:,} "
           f"· 이번 삭제 {deleted_count + watch_count + purged_count + capped:,}", flush=True)
 
     return cleaned
 
 
-def _count(client, tracked: bool = False) -> int:
+def _count(db, tracked: bool = False) -> int:
     try:
-        q = client.table("cves").select("id", count="exact").limit(1)
-        if tracked:
-            q = q.not_.is_("last_alert_state", "null")
-        return q.execute().count or 0
-    except Exception as e:
+        return db.count_rows(tracked=tracked)
+    except StoreError as e:
         print(f"  [!] 행 수 조회 실패(무시): {e}", flush=True)
         return 0
 
 
 def _generate_sample_data(data_dir: str):
-    print("  [!] SUPABASE_URL/SUPABASE_KEY 미설정 → 빈 샘플 데이터 생성", flush=True)
+    print("  [!] 저장소에 연결하지 못함 → 빈 샘플 데이터 생성", flush=True)
 
     cve_data = []
     stats = export_stats(cve_data)
@@ -603,30 +535,30 @@ def _generate_sample_data(data_dir: str):
 
 def main():
     print("=== Dashboard Data Export ===", flush=True)
-    client = _get_client()
+    db = _get_db()
 
     data_dir = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
     os.makedirs(data_dir, exist_ok=True)
 
-    if client is None:
+    if db is None:
         _generate_sample_data(data_dir)
         print("=== Export 완료 (샘플 데이터) ===", flush=True)
         return
 
     print("[1/4] CVE 데이터 export...", flush=True)
-    if _take_full_export_flag(client):
+    if _take_full_export_flag(db):
         print("  백필 반영 요청 있음 → 이번은 전량 export", flush=True)
         previous, since = None, None
     else:
         previous, since = load_previous_export(data_dir)
     fresh_ids = set()
     if previous is None:
-        cve_data = export_cves(client)
+        cve_data = export_cves(db)
         print(f"  전량 export: {len(cve_data)}건", flush=True)
     else:
-        fresh = export_cves(client, since=since)
+        fresh = export_cves(db, since=since)
         fresh_ids = {r.get("id") for r in fresh if r.get("id")}
-        cve_data = merge_exports(previous, fresh, keep=live_ids(client))
+        cve_data = merge_exports(previous, fresh, keep=live_ids(db))
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
               f"(직전 {len(previous)}건)", flush=True)
     carried = fetch_live_products() if previous is not None else {}
@@ -675,7 +607,7 @@ def main():
 
     print("[4/4] DB 보존 정책 적용...", flush=True)
     try:
-        cleaned = apply_retention_policy(client)
+        cleaned = apply_retention_policy(db)
         print(f"  {cleaned}건 정리 (rules_snapshot/last_alert_state null 처리)", flush=True)
     except Exception as e:
         print(f"  [!] DB 보존 정책 적용 실패: {e}", flush=True)

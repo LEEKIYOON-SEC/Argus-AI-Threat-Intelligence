@@ -92,3 +92,37 @@ class Store(ABC):
     @abstractmethod
     def save_snapshot(self, source: str, digest: str, ids) -> bool:
         raise NotImplementedError
+
+    @abstractmethod
+    def take_full_export_flag(self) -> bool:
+        raise NotImplementedError
+
+    @abstractmethod
+    def export_rows(self, since: Optional[str], days: int = 90) -> List[Dict]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def live_ids(self, days: int = 90) -> Set[str]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def count_rows(self, tracked: bool = False) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
+    def retention_rows(self, before: str, limit: int, *, tracked: bool = False,
+                       unalerted: bool = False, oldest_first: bool = False
+                       ) -> List[Dict]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_markers(self, before: str, limit: int) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
+    def blank_states(self, ids) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_rows(self, ids) -> int:
+        raise NotImplementedError
