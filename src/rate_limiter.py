@@ -47,6 +47,7 @@ class RateLimitInfo:
     window_seconds: int = 3600
     min_interval: float = 0.0
     last_call_at: float = 0.0
+    next_slot_at: float = 0.0
 
 
     @property
@@ -186,7 +187,6 @@ class RateLimitManager:
             logger.warning(f"알 수 없는 API: {api_name}, Rate Limit 적용 안 됨")
             return True
 
-        exhausted_wait = 0.0
         with self._lock:
             rpd_limit = self._rpd_limits.get(api_name)
             if rpd_limit and self._rolling_sum(self._rpd_buckets, api_name) >= rpd_limit:
@@ -198,91 +198,73 @@ class RateLimitManager:
 
             info = self.limits[api_name]
             now = datetime.now()
-
             if now >= info.reset_at:
-                old_used = info.used
                 info.used = 0
                 info.reset_at = now + timedelta(seconds=info.window_seconds)
-                if old_used > 0:
-                    logger.debug(f"{api_name} Rate Limit 리셋 (이전 사용: {old_used}/{info.limit})")
 
-            if info.min_interval > 0 and info.last_call_at > 0:
-                elapsed = time.time() - info.last_call_at
-                if elapsed < info.min_interval:
-                    wait_time = info.min_interval - elapsed
-                    logger.debug(f"{api_name} 최소 간격 대기: {wait_time:.1f}초")
-                    time.sleep(wait_time)
-                    self.stats["total_wait_time"] += wait_time
+            now_t = time.time()
+            spacing = max(0.0, max(now_t, info.next_slot_at) - now_t)
 
+            window_wait = 0.0
             if info.is_exhausted:
-                wait_time = info.time_until_reset
-                if wait_time <= 0:
-                    wait_time = info.window_seconds
-                if max_wait is not None and wait_time > max_wait:
-                    last_warn = self._skip_warned_at.get(api_name)
-                    if last_warn is None or last_warn < info.reset_at - timedelta(seconds=info.window_seconds):
-                        logger.warning(
-                            f"⏭️ {api_name} 한도 소진 ({info.used}/{info.limit}) — "
-                            f"{wait_time:.0f}초 대기 대신 SKIP (이 윈도우의 후속 SKIP 로그는 생략)"
-                        )
-                        self._skip_warned_at[api_name] = now
-                    else:
-                        logger.debug(f"{api_name} 한도 소진 SKIP")
-                    return False
-                exhausted_wait = wait_time
-                logger.warning(
-                    f"⚠️ {api_name} Rate Limit 도달! "
-                    f"({info.used}/{info.limit}) "
-                    f"{wait_time:.0f}초 대기 중..."
-                )
+                window_wait = info.time_until_reset or info.window_seconds
 
-        if exhausted_wait > 0:
-            time.sleep(exhausted_wait + 1)
-            with self._lock:
-                self.stats["total_waits"] += 1
-                self.stats["total_wait_time"] += exhausted_wait
-                info = self.limits[api_name]
-                info.used = 0
-                info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
-            return True
-
-        with self._lock:
-            info = self.limits[api_name]
             usage = info.usage_percent
+            throttle = 0.0
             if usage >= 90:
-                extra_wait = info.min_interval * 2 if info.min_interval > 0 else 5.0
-                logger.warning(
-                    f"⚠️ {api_name} 사용률 높음: {usage:.1f}% "
-                    f"({info.remaining}개 남음) - {extra_wait:.1f}초 추가 대기"
-                )
-                time.sleep(extra_wait)
-                self.stats["total_wait_time"] += extra_wait
+                throttle = info.min_interval * 2 if info.min_interval > 0 else 5.0
             elif usage >= 80:
-                extra_wait = info.min_interval if info.min_interval > 0 else 2.0
-                logger.debug(f"{api_name} 사용률: {usage:.1f}% - 속도 조절")
-                time.sleep(extra_wait)
-                self.stats["total_wait_time"] += extra_wait
+                throttle = info.min_interval if info.min_interval > 0 else 2.0
 
+            tpm_wait = 0.0
             if api_name in self._tpm_limits:
-                now = datetime.now()
                 if now >= self._tpm_reset_at[api_name]:
                     self._tpm_used[api_name] = 0
                     self._tpm_reset_at[api_name] = now + timedelta(seconds=60)
-                reserve = self._tpm_reserve.get(api_name, 0)
-                tpm_limit = self._tpm_limits[api_name]
-                if self._tpm_used[api_name] + reserve > tpm_limit:
-                    wait_time = (self._tpm_reset_at[api_name] - now).total_seconds()
-                    if wait_time > 0:
-                        logger.warning(
-                            f"⏳ {api_name} TPM 예약 한도 근접 "
-                            f"({self._tpm_used[api_name]}/{tpm_limit}), {wait_time:.0f}초 대기(분 리셋)"
-                        )
-                        time.sleep(wait_time + 0.5)
-                        self.stats["total_waits"] += 1
-                        self.stats["total_wait_time"] += wait_time
-                    self._tpm_used[api_name] = 0
-                    self._tpm_reset_at[api_name] = datetime.now() + timedelta(seconds=60)
+                if (self._tpm_used[api_name] + self._tpm_reserve.get(api_name, 0)
+                        > self._tpm_limits[api_name]):
+                    tpm_wait = max(0.0,
+                                   (self._tpm_reset_at[api_name] - now).total_seconds())
 
+            total = spacing + window_wait + throttle + tpm_wait
+            if max_wait is not None and total > max_wait:
+                last_warn = self._skip_warned_at.get(api_name)
+                if last_warn is None or last_warn < now - timedelta(seconds=info.window_seconds):
+                    logger.warning(f"⏭️ {api_name} 대기 {total:.0f}초가 상한 {max_wait:.0f}초를 "
+                                   f"넘는다 — 대기 대신 SKIP")
+                    self._skip_warned_at[api_name] = now
+                else:
+                    logger.debug(f"{api_name} 대기 상한 초과 SKIP")
+                return False
+
+            if info.min_interval > 0:
+                info.next_slot_at = max(now_t, info.next_slot_at) + info.min_interval
+            info.used += 1
+            info.last_call_at = now_t
+            if window_wait:
+                logger.warning(f"⚠️ {api_name} Rate Limit 도달! "
+                               f"({info.used}/{info.limit}) {window_wait:.0f}초 대기 중...")
+            elif throttle and usage >= 90:
+                logger.warning(f"⚠️ {api_name} 사용률 높음: {usage:.1f}% "
+                               f"({info.remaining}개 남음) — {throttle:.1f}초 추가 대기")
+            if tpm_wait:
+                logger.warning(f"⏳ {api_name} TPM 예약 한도 근접 "
+                               f"({self._tpm_used[api_name]}/{self._tpm_limits[api_name]}), "
+                               f"{tpm_wait:.0f}초 대기(분 리셋)")
+
+        if total > 0:
+            time.sleep(total + (1.0 if window_wait else 0.0))
+            with self._lock:
+                self.stats["total_waits"] += 1
+                self.stats["total_wait_time"] += total
+                if window_wait:
+                    info = self.limits[api_name]
+                    info.used = 0
+                    info.reset_at = datetime.now() + timedelta(seconds=info.window_seconds)
+                if tpm_wait:
+                    self._tpm_used[api_name] = 0
+                    self._tpm_reset_at[api_name] = (datetime.now()
+                                                    + timedelta(seconds=60))
         return True
 
 
@@ -298,8 +280,6 @@ class RateLimitManager:
             return
         with self._lock:
             info = self.limits[api_name]
-            info.used += 1
-            info.last_call_at = time.time()
             self.stats["total_calls"] += 1
             logger.debug(f"{api_name} 호출 기록: {info.used}/{info.limit} ({info.usage_percent:.1f}%)")
 
