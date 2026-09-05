@@ -121,8 +121,7 @@ def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
             if items:
                 logger.info(f"🈯 영문 {len(items)}건 처리 "
                             f"(스캔 {offset:,}~{offset + scanned:,}/{total:,}행)")
-                translations = generate_korean_summaries_batch(items, set(),
-                                                              deadline_ts=stop_ts)
+                translations = generate_korean_summaries_batch(items, deadline_ts=stop_ts)
                 for it in items:
                     tr = translations.get(it['id'])
                     if not tr or _looks_english(tr[0]):
@@ -252,9 +251,9 @@ _gemini_error_kind = gemini_error_kind
 _TR_LOCK = threading.Lock()
 _TR_STATS: Dict[str, int] = {}
 _TR_LABELS = [("en_rpd", "일일한도"), ("en_rate", "분당한도"), ("en_transient", "서버오류"),
-              ("en_parse", "형식오류"), ("en_deadline", "시간초과"), ("en_other", "기타")]
+              ("en_deadline", "시간초과"), ("en_other", "기타")]
 _TR_REASON_KEY = {"skip": "en_rpd", "rate": "en_rate", "transient": "en_transient",
-                  "parse": "en_parse", "other": "en_other", "api": "en_other"}
+                  "other": "en_other"}
 
 
 def _tr_bump(key: str, n: int = 1) -> None:
@@ -280,19 +279,17 @@ def _log_translation_summary() -> None:
                 f"({breakdown}) · RPD {rpd}")
 
 
-def generate_korean_summaries_batch(items: List[Dict], priority_ids: set,
+def generate_korean_summaries_batch(items: List[Dict],
                                     deadline_ts: Optional[float] = None) -> Dict[str, Tuple[str, str]]:
     results: Dict[str, Tuple[str, str]] = {}
     if not items:
         return results
 
-    items = sorted(items, key=lambda it: 0 if it['id'] in priority_ids else 1)
-
     batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
     chunks = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
     total_chunks = len(chunks)
     concurrency = max(1, config.PERFORMANCE.get("translation_concurrency", 4))
-    logger.info(f"번역: {len(items)}건 → Gemma 배치 {total_chunks}청크 "
+    logger.info(f"번역: {len(items)}건 → 배치 {total_chunks}청크 "
                 f"(배치 {batch_size}건, 동시 {concurrency}콜)")
     started = time.time()
     lock = threading.Lock()

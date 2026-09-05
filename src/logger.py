@@ -1,4 +1,5 @@
 import logging
+import os
 import sys
 
 
@@ -25,10 +26,12 @@ class ColoredFormatter(logging.Formatter):
         return formatted
 
 
-def setup_logger(name="Argus", level=logging.INFO):
+def setup_logger(name="Argus"):
+    level = getattr(logging, os.environ.get("LOG_LEVEL", "INFO").strip().upper(),
+                    logging.INFO)
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    
+
     if logger.handlers:
         return logger
     

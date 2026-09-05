@@ -22,8 +22,7 @@ class NotifierError(Exception):
 
 
 class SlackNotifier:
-    MAX_RETRIES = 3
-    RETRY_DELAYS = [2, 5, 10]
+    RETRY_DELAYS = (2, 5, 10)
 
 
     def __init__(self):
@@ -39,20 +38,18 @@ class SlackNotifier:
 
 
     def _send_slack_with_retry(self, payload: dict, context: str = "Slack") -> bool:
-        for attempt in range(self.MAX_RETRIES):
+        attempts = len(self.RETRY_DELAYS) + 1
+        for attempt in range(attempts):
             try:
                 response = requests.post(self.webhook_url, json=payload, timeout=10)
                 response.raise_for_status()
                 return True
             except requests.exceptions.RequestException as e:
-                delay = self.RETRY_DELAYS[attempt] if attempt < len(self.RETRY_DELAYS) else 10
-                logger.warning(f"{context} 전송 실패 (시도 {attempt+1}/{self.MAX_RETRIES}): {e}")
-                if attempt < self.MAX_RETRIES - 1:
-                    time.sleep(delay)
-                else:
+                logger.warning(f"{context} 전송 실패 (시도 {attempt + 1}/{attempts}): {e}")
+                if attempt == attempts - 1:
                     logger.error(f"{context} 전송 최종 실패: {e}")
                     return False
-        return False
+                time.sleep(self.RETRY_DELAYS[attempt])
 
 
     def collect_alert(self, cve_data: Dict, reason: str, tier: str) -> None:

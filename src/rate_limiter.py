@@ -13,15 +13,23 @@ def is_transient_gemini_error(msg: str) -> bool:
     ))
 
 
+_ERR_LABEL = {"rate": "분당한도(429)", "rpd": "일일한도(429)",
+              "transient": "일시장애(5xx·타임아웃)", "other": "기타"}
+
+
 def gemini_error_kind(msg: str) -> str:
     low = msg.lower()
     if "429" in msg or "resource_exhausted" in low or "resource exhausted" in low:
         if any(t in low for t in ("perday", "per day", "per-day", "daily")):
-            return "rpd"
-        return "rate"
-    if is_transient_gemini_error(msg):
-        return "transient"
-    return "other"
+            kind = "rpd"
+        else:
+            kind = "rate"
+    elif is_transient_gemini_error(msg):
+        kind = "transient"
+    else:
+        kind = "other"
+    rate_limit_manager.note_error(kind)
+    return kind
 
 
 def gemini_backoff(kind: str, attempt: int, msg: str, manager=None) -> float:
@@ -135,6 +143,7 @@ class RateLimitManager:
             "total_wait_time": 0.0,
             "rate_limit_hits": 0
         }
+        self._errors: Dict[str, int] = {}
 
         self._tpm_limits: Dict[str, int] = {
             "gemini": 250_000,
@@ -275,6 +284,13 @@ class RateLimitManager:
                     self._tpm_reset_at[api_name] = datetime.now() + timedelta(seconds=60)
 
         return True
+
+
+    def note_error(self, kind: str) -> None:
+        with self._lock:
+            self._errors[kind] = self._errors.get(kind, 0) + 1
+            if kind in ("rate", "rpd"):
+                self.stats["rate_limit_hits"] += 1
 
 
     def record_call(self, api_name: str, tokens_used: int = 0):
@@ -445,6 +461,10 @@ class RateLimitManager:
         logger.info(f"  Rate Limit 대기: {self.stats['total_waits']}회")
         logger.info(f"  429 응답 수신: {self.stats['rate_limit_hits']}회")
         logger.info(f"  총 대기 시간: {self.stats['total_wait_time']:.1f}초")
+        if self._errors:
+            breakdown = " · ".join(f"{_ERR_LABEL.get(k, k)} {v}"
+                                   for k, v in sorted(self._errors.items()))
+            logger.info(f"  API 오류 내역: {breakdown}")
         logger.info("=" * 60)
 
 
