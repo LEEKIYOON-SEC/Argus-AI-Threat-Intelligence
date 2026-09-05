@@ -126,7 +126,7 @@ jobs:
         if: ${{ github.event_name == 'schedule' || inputs.task == 'package-index' || inputs.task == 'rule-index' }}
         env:
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ARGUS_FRESH_FILES: cve-packages.json,malicious-packages.json,detection-rules.json
+          ARGUS_FRESH_FILES: cve-packages.json,detection-rules.json
         run: python src/fetch_published.py
 
       - name: Upload Pages artifact

@@ -27,28 +27,26 @@ class Trigger:
     key: str
     tier: str
     label: str
-    source: str
 
 
 _TRIGGERS: Tuple[Trigger, ...] = (
-    Trigger("kev_ransomware", T0, "CISA KEV 등재 — 랜섬웨어 캠페인에 사용 확인", "CISA KEV"),
-    Trigger("kev", T0, "CISA KEV 등재 — 실제 악용 확인", "CISA KEV"),
-    Trigger("vulncheck_kev", T0, "VulnCheck KEV 등재 — 악용 근거 확보", "VulnCheck KEV"),
-    Trigger("ssvc_active", T0, "CISA SSVC Exploitation=active — 악용 진행형", "CISA vulnrichment"),
-    Trigger("metasploit", T0, "Metasploit 모듈 공개 — 무기화됨", "Metasploit Framework (Rapid7)"),
+    Trigger("kev_ransomware", T0, "CISA KEV 등재 — 랜섬웨어 캠페인에 사용 확인"),
+    Trigger("kev", T0, "CISA KEV 등재 — 실제 악용 확인"),
+    Trigger("vulncheck_kev", T0, "VulnCheck KEV 등재 — 악용 근거 확보"),
+    Trigger("ssvc_active", T0, "CISA SSVC Exploitation=active — 악용 진행형"),
+    Trigger("metasploit", T0, "Metasploit 모듈 공개 — 무기화됨"),
 
-    Trigger("nuclei", T1, "nuclei 템플릿 공개 — 대량 스캔·검증 가능", "nuclei-templates (ProjectDiscovery)"),
-    Trigger("exploitdb", T1, "Exploit-DB 공개 익스플로잇 등재", "Exploit-DB"),
-    Trigger("epss_critical", T1, "EPSS 상위 1% (p99+) — 악용 확률 최상위", "EPSS (FIRST.org)"),
-    Trigger("ai_discovered", T1, "AI가 발견한 취약점 공개 — 상세가 함께 공개됨",
-            "Anthropic CVD / CVE credits"),
+    Trigger("nuclei", T1, "nuclei 템플릿 공개 — 대량 스캔·검증 가능"),
+    Trigger("exploitdb", T1, "Exploit-DB 공개 익스플로잇 등재"),
+    Trigger("epss_critical", T1, "EPSS 상위 1% (p99+) — 악용 확률 최상위"),
+    Trigger("ai_discovered", T1, "AI가 발견한 취약점 공개 — 상세가 함께 공개됨"),
 
-    Trigger("cvss_critical_remote", T2, "CVSS 9.0+ · 사전인증 원격 · 무기화 쉬운 유형", "CVE/NVD"),
-    Trigger("weaponizable_cwe", T2, "사전인증 원격 + 무기화 비율 높은 취약점 유형(CWE)", "CVE/NVD"),
-    Trigger("ssvc_high", T2, "CISA SSVC 자동화 대량 공격 가능 + 완전 장악", "CISA vulnrichment"),
-    Trigger("epss_high", T2, "EPSS 상위 5% (p95+)", "EPSS (FIRST.org)"),
-    Trigger("poc", T2, "PoC 공개 확인", "nomi-sec PoC-in-GitHub"),
-    Trigger("unscored_major_cna", T2, "주요 벤더 신규 CVE · 점수 미부여 — 재평가 대기", "CVE"),
+    Trigger("cvss_critical_remote", T2, "CVSS 9.0+ · 사전인증 원격 · 무기화 쉬운 유형"),
+    Trigger("weaponizable_cwe", T2, "사전인증 원격 + 무기화 비율 높은 취약점 유형(CWE)"),
+    Trigger("ssvc_high", T2, "CISA SSVC 자동화 대량 공격 가능 + 완전 장악"),
+    Trigger("epss_high", T2, "EPSS 상위 5% (p95+)"),
+    Trigger("poc", T2, "PoC 공개 확인"),
+    Trigger("unscored_major_cna", T2, "주요 벤더 신규 CVE · 점수 미부여 — 재평가 대기"),
 )
 
 TRIGGERS: Dict[str, Trigger] = {t.key: t for t in _TRIGGERS}
@@ -134,15 +132,6 @@ class Verdict:
         return self.triggers & ALERTING_TRIGGERS
 
 
-    @property
-    def tracked(self) -> bool:
-        return self.tier != T3
-
-
-    def labels(self) -> Tuple[str, ...]:
-        return tuple(t.label for t in _TRIGGERS if t.key in self.triggers)
-
-
 def evaluate(state: Dict) -> Verdict:
     fired = set()
     vector = state.get("cvss_vector")
@@ -216,12 +205,6 @@ class Decision:
     triggers: FrozenSet[str]
     new_triggers: FrozenSet[str]
     reason: str
-    full_report: bool
-
-
-    @property
-    def tracked(self) -> bool:
-        return self.tier != T3
 
 
 def decide(state: Dict, last: Optional[Dict]) -> Decision:
@@ -236,7 +219,6 @@ def decide(state: Dict, last: Optional[Dict]) -> Decision:
         triggers=verdict.triggers,
         new_triggers=new,
         reason=reason,
-        full_report=is_alerting(verdict.tier),
     )
 
 

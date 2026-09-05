@@ -1,6 +1,5 @@
 import os
 import sys
-from typing import Dict
 
 
 class ConfigError(Exception):
@@ -75,16 +74,6 @@ GitHub Actions Secrets에 다음 변수들을 추가해주세요.
             raise ConfigError(error_msg)
 
 
-    def health_check(self) -> Dict[str, bool]:
-        health = {"environment": True}
-        
-        try:
-            self._validate_environment()
-        except ConfigError:
-            health["environment"] = False
-        
-        return health
-    
 try:
     config = ArgusConfig()
 except ConfigError as e:

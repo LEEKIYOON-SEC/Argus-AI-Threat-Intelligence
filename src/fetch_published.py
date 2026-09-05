@@ -36,7 +36,7 @@ def fetch(name: str, base: str) -> bool:
     if name.endswith(".json"):
         try:
             json.loads(data.decode("utf-8"))
-        except (ValueError, UnicodeDecodeError) as e:
+        except ValueError as e:
             print(f"  {name}: 내려받은 내용이 온전치 않음({e}) — 무시", flush=True)
             return False
     path = os.path.join(_DATA_DIR, name)
@@ -77,5 +77,5 @@ def _fresh() -> set:
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or ["cves.json", "stats.json", "cve-products.json",
-                                   "cve-packages.json", "malicious-packages.json",
+                                   "cve-packages.json",
                                    "detection-rules.json"]))

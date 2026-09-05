@@ -18,7 +18,7 @@ _LOCK = threading.Lock()
 def _parse(payload: bytes) -> Optional[Dict]:
     try:
         return (json.loads(payload.decode("utf-8")) or {}).get("packages") or {}
-    except (ValueError, UnicodeDecodeError) as e:
+    except ValueError as e:
         logger.warning(f"패키지 사전 파싱 실패: {e}")
         return None
 

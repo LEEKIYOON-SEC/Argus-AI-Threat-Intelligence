@@ -1,4 +1,3 @@
-import os
 import re
 from typing import Dict, List, Optional, Set, Tuple
 
@@ -126,18 +125,11 @@ class Collector:
         self.kev_loaded = False
         self.vulncheck_loaded = False
         self.kev_set: Set[str] = set()
-        self.kev_date_added: Dict[str, str] = {}
         self.kev_ransomware: Set[str] = set()
         self.kev_due_date: Dict[str, str] = {}
         self.kev_product: Dict[str, Tuple[str, str]] = {}
         self.ai_ledger: Optional[Dict[str, Dict]] = None
         self.vulncheck_kev_set: Set[str] = set()
-        self.epss_cache: Dict[str, float] = {}
-        self.epss_percentile: Dict[str, float] = {}
-        self.headers = {
-            "Authorization": f"token {os.environ.get('GH_TOKEN')}",
-            "Accept": "application/vnd.github.v3+json"
-        }
 
 
     def fetch_kev(self) -> bool:
@@ -148,7 +140,6 @@ class Collector:
 
         self.kev_loaded = True
         self.kev_set = set(data)
-        self.kev_date_added = {cid: item.get('dateAdded', '') for cid, item in data.items()}
         self.kev_ransomware = {
             cid for cid, item in data.items()
             if str(item.get('knownRansomwareCampaignUse', '')).strip().lower() == 'known'
@@ -291,11 +282,7 @@ class Collector:
 
 
     def _enrich_from_adp(self, json_data: Dict, data: Dict) -> None:
-        try:
-            adp_containers = json_data.get('containers', {}).get('adp', []) or []
-        except AttributeError:
-            return
-
+        adp_containers = json_data.get('containers', {}).get('adp', []) or []
         for container in adp_containers:
             provider = (container.get('providerMetadata') or {}).get('shortName', '')
             if provider != 'CISA-ADP':

@@ -40,7 +40,7 @@ def _read_state() -> Dict:
         with open(_STATE_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
         return data if isinstance(data, dict) else {}
-    except (OSError, ValueError, json.JSONDecodeError):
+    except (OSError, ValueError):
         return {}
 
 

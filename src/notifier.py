@@ -1,6 +1,5 @@
 import requests
 import os
-import re
 import time
 import threading
 from typing import Dict, List, Optional
@@ -356,35 +355,4 @@ class SlackNotifier:
 
         except Exception as e:
             logger.error(f"공식 룰 알림 실패: {e}")
-            return False
-
-
-    def update_github_issue(self, issue_url: str, comment: str) -> bool:
-        try:
-            match = re.search(r'github\.com/([^/]+)/([^/]+)/issues/(\d+)', issue_url)
-            if not match:
-                logger.error(f"잘못된 Issue URL: {issue_url}")
-                return False
-            
-            owner, repo, issue_number = match.groups()
-            api_url = f"https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}/comments"
-            
-            headers = {
-                "Authorization": f"token {os.environ.get('GH_TOKEN')}",
-                "Accept": "application/vnd.github.v3+json"
-            }
-            
-            payload = {"body": comment}
-            
-            response = requests.post(api_url, headers=headers, json=payload, timeout=10)
-            response.raise_for_status()
-            
-            logger.info(f"GitHub Issue 댓글 추가: {issue_url}")
-            return True
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"GitHub 댓글 추가 실패: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Issue 업데이트 에러: {e}")
             return False

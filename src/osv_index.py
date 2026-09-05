@@ -45,7 +45,7 @@ def _iter_vulns(eco: str) -> Iterable[dict]:
             for name in names:
                 try:
                     yield json.loads(z.read(name))
-                except (ValueError, KeyError):
+                except ValueError:
                     continue
     except zipfile.BadZipFile as e:
         logger.warning(f"  OSV {eco} 압축 해제 실패 → 생략: {e}")
@@ -146,47 +146,6 @@ def build_index(cve_ids: Iterable[str], ecosystems: List[str] = None
                 f"(추적 {len(wanted):,}건 중 {len(index) / max(len(wanted), 1) * 100:.0f}%) "
                 f"· 수정 버전 보유 {with_fix:,}개 항목")
     return index, aliases
-
-
-MALICIOUS_ECOSYSTEMS = ["npm", "PyPI"]
-
-
-def build_malicious_index(ecosystems: List[str] = None) -> List[str]:
-    names: Set[str] = set()
-    for eco in (ecosystems or MALICIOUS_ECOSYSTEMS):
-        before = len(names)
-        for rec in _iter_vulns(eco):
-            if not str(rec.get("id", "")).startswith("MAL-"):
-                continue
-            for aff in rec.get("affected") or []:
-                nm = (aff.get("package") or {}).get("name")
-                if nm:
-                    names.add(str(nm).lower())
-        logger.info(f"  {eco}: 악성 패키지 {len(names) - before:,}개")
-    logger.info(f"OSV 악성 패키지 목록: {len(names):,}개")
-    return sorted(names)
-
-
-def write_malicious(names: List[str], path: str) -> bool:
-    try:
-        parent = os.path.dirname(path)
-        if parent:
-            os.makedirs(parent, exist_ok=True)
-        payload = {
-            "_source": "OSV.dev (Open Source Vulnerabilities) — malicious packages",
-            "_license": "CC-BY 4.0",
-            "_url": "https://osv.dev",
-            "_note": "이름 일치는 '확인 필요' 신호이며 감염 확정이 아니다",
-            "names": names,
-        }
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
-        logger.info(f"악성 패키지 목록 저장: {path} "
-                    f"({os.path.getsize(path) / 1024 / 1024:.1f} MB · {len(names):,}개)")
-        return True
-    except OSError as e:
-        logger.error(f"악성 패키지 목록 저장 실패: {e}")
-        return False
 
 
 def write_index(index: Dict, path: str, kernel_aliases: Iterable[str] = ()) -> bool:

@@ -642,10 +642,6 @@ def _main() -> None:
     logger.info("Argus bulk-lane 시작")
     logger.info("=" * 60)
 
-    if not all(config.health_check().values()):
-        logger.error("헬스체크 실패")
-        return
-
     deadline = started + config.PERFORMANCE.get("bulk_deadline_minutes", 38) * 60
     collector = Collector()
     db = ArgusDB()

@@ -3,8 +3,6 @@ import os
 import time
 from typing import Dict, List, Optional, Tuple
 
-import pytz
-
 import ai_provenance
 import enrichment_sources
 import feed
@@ -19,9 +17,6 @@ from database import ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import rate_limit_manager
-
-KST = pytz.timezone('Asia/Seoul')
-
 
 def _deadline() -> float:
     return time.time() + config.PERFORMANCE.get("fast_deadline_minutes", 5) * 60
@@ -149,10 +144,6 @@ def run() -> None:
     logger.info("=" * 60)
     logger.info("Argus fast-lane 시작")
     logger.info("=" * 60)
-
-    if not all(config.health_check().values()):
-        logger.error("헬스체크 실패")
-        return
 
     deadline = _deadline()
     collector = Collector()

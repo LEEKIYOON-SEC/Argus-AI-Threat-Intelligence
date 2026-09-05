@@ -33,8 +33,6 @@ _TIMEOUT = 90
 class Change:
     cve_id: str
     batch_at: datetime.datetime
-    updated_at: Optional[datetime.datetime] = None
-    is_new: bool = False
     record: Optional[dict] = field(default=None, repr=False)
 
 
@@ -103,7 +101,6 @@ def _load_batches(since: datetime.datetime) -> Tuple[List[dict], bool]:
 def _collect(batches: List[dict], since: datetime.datetime,
              until: datetime.datetime) -> Tuple[List[Change], datetime.datetime]:
     latest: Dict[str, Change] = {}
-    born: set = set()
     horizon = since
     for batch in batches:
         batch_at = _parse_ts(batch.get("fetchTime"))
@@ -111,24 +108,15 @@ def _collect(batches: List[dict], since: datetime.datetime,
             continue
         if batch_at > horizon:
             horizon = batch_at
-        for key, is_new in (("new", True), ("updated", False)):
+        for key in ("new", "updated"):
             for item in batch.get(key) or []:
                 cve_id = item.get("cveId")
                 if not cve_id:
                     continue
-                if is_new:
-                    born.add(cve_id)
                 prev = latest.get(cve_id)
                 if prev is not None and prev.batch_at >= batch_at:
                     continue
-                latest[cve_id] = Change(
-                    cve_id=cve_id,
-                    batch_at=batch_at,
-                    updated_at=_parse_ts(item.get("dateUpdated")),
-                )
-    for cve_id in born:
-        if cve_id in latest:
-            latest[cve_id].is_new = True
+                latest[cve_id] = Change(cve_id=cve_id, batch_at=batch_at)
     changes = sorted(latest.values(), key=lambda c: c.batch_at)
     return changes, horizon
 
@@ -153,7 +141,7 @@ def _fetch_day_zip(day: datetime.date, newest_hour: int = 23) -> Dict[str, dict]
                         continue
                     try:
                         record = json.loads(zf.read(name))
-                    except (ValueError, KeyError):
+                    except ValueError:
                         continue
                     cve_id = (record.get("cveMetadata") or {}).get("cveId")
                     if cve_id:
@@ -241,9 +229,7 @@ def cap_by_batch(changes: List[Change], cap: int, horizon: datetime.datetime
             cut_at = change.batch_at
         kept.append(change)
 
-    if not kept:
-        cut_at = changes[0].batch_at
-        kept = [c for c in changes if c.batch_at == cut_at]
+    if len(kept) > cap:
         logger.warning(f"단일 배치가 {len(kept)}건 — 상한 {cap}을 넘지만 쪼개면 유실되므로 "
                        f"통째로 처리한다 (초과분은 시간 데드라인이 받는다)")
 
