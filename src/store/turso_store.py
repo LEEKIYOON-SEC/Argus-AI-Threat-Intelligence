@@ -267,6 +267,23 @@ class TursoStore(Store):
         logger.info(f"공개 룰 재확인 대상 {len(out)}건")
         return out
 
+    _STAT_COLS = ("tier", "rows", "alerted", "fired", "vendor",
+                  "published", "translated", "cvss")
+
+    def seed_stats(self) -> List[Dict]:
+        rows = self._query(
+            "SELECT coalesce(tier, '?'), count(*), "
+            "  sum(last_alert_at IS NOT NULL), "
+            "  sum(coalesce(json_array_length("
+            "        json_extract(last_alert_state, '$.fired_triggers')), 0) > 0), "
+            "  sum(has_vendor), "
+            "  sum(published IS NOT NULL AND published != ''), "
+            "  sum(coalesce(json_extract(last_alert_state, '$.title_ko'), '') != ''), "
+            "  sum(cvss_score > 0) "
+            "FROM cves WHERE last_alert_state IS NOT NULL "
+            "GROUP BY 1 ORDER BY 1")
+        return [dict(zip(self._STAT_COLS, r)) for r in rows]
+
     def get_pipeline_state(self) -> Dict:
         rows = self._query("SELECT key, value FROM pipeline_state")
         state = {}
