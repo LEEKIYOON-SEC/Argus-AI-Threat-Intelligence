@@ -20,6 +20,7 @@ on:
           - drop-report-urls
           - turso-check
           - nvd-check
+          - seed-turso
       backfill_days:
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
@@ -126,6 +127,21 @@ jobs:
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
         run: python src/nvd_check.py
+
+      - name: Seed Turso from source
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'seed-turso' }}
+        env:
+          ARGUS_STORE: turso
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+          VULNCHECK_API_KEY: ${{ secrets.VULNCHECK_API_KEY }}
+          SEED_T1_MIN_YEAR: '2024'
+        run: python src/seed_turso.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
