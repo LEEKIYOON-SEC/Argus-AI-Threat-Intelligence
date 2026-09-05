@@ -18,6 +18,8 @@ import pipeline
 import risk
 import signal_snapshot
 import state as pstate
+from pages import cve_url as _cve_url
+from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
 from database import ArgusDB
@@ -623,19 +625,6 @@ def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifi
                 processed.append(cve_id)
         signal_snapshot.commit(db, diff, processed)
     return outcomes
-
-
-def _cve_url(cve_id: str) -> Optional[str]:
-    base = _dashboard_url()
-    return f"{base}cve.html?cve={cve_id}" if base else None
-
-
-def _dashboard_url() -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/"
 
 
 def _main() -> None:

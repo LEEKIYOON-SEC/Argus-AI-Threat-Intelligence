@@ -10,6 +10,7 @@ if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
 from supabase import create_client
+import pages
 import risk
 from weekly_report import publish_weekly_report
 
@@ -82,13 +83,6 @@ def _s(state: dict, key: str, default: str = "") -> str:
 def _l(state: dict, key: str) -> list:
     v = state.get(key)
     return v if isinstance(v, list) else []
-
-
-def _write_json(path: str, payload) -> None:
-    tmp = f"{path}.tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
 
 
 def export_cves(client, days: int = 90, since: str = None) -> list:
@@ -340,39 +334,21 @@ def _take_full_export_flag(client) -> bool:
 
 
 def fetch_live_products() -> dict:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return {}
-    owner, name = repo.split("/", 1)
     try:
-        import urllib.request
-        url = f"https://{owner.lower()}.github.io/{name}/data/cve-products.json"
-        req = urllib.request.Request(url, headers={"User-Agent": "argus-export"})
-        with urllib.request.urlopen(req, timeout=180) as r:
-            return decode_product_index(json.loads(r.read().decode("utf-8")))
+        payload = pages.fetch_published_json("cve-products.json", timeout=180)
+        if payload is None:
+            return {}
+        return decode_product_index(payload)
     except Exception as e:
         print(f"  직전 제품 인덱스를 읽지 못함({e}) → 이번 회차분으로만 만든다", flush=True)
         return {}
 
 
 def _fetch_live_export() -> tuple:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None, None
-    owner, name = repo.split("/", 1)
-    base = f"https://{owner.lower()}.github.io/{name}/data"
     try:
-        import urllib.request
-
-
-        def get(fn):
-            req = urllib.request.Request(f"{base}/{fn}", headers={"User-Agent": "argus-export"})
-            with urllib.request.urlopen(req, timeout=180) as r:
-                return json.loads(r.read().decode("utf-8"))
-
-        rows = get("cves.json")
-        stats = get("stats.json")
-        generated_at = stats.get("generated_at")
+        rows = pages.fetch_published_json("cves.json", timeout=180)
+        stats = pages.fetch_published_json("stats.json", timeout=180)
+        generated_at = (stats or {}).get("generated_at")
         if isinstance(rows, list) and rows and generated_at:
             print(f"  직전 export를 배포본에서 읽음 ({len(rows)}건)", flush=True)
             return rows, generated_at, stats.get("schema")
@@ -496,6 +472,7 @@ def export_stats(cve_data: list) -> dict:
     return {
         "generated_at": now.isoformat(),
         "schema": _EXPORT_SCHEMA,
+        "triggers": {key: t.label for key, t in risk.TRIGGERS.items()},
         "cve": {
             "total": len(cve_data),
             "recent_24h": recent_24h,
@@ -673,7 +650,7 @@ def main():
 
     prod_index = build_product_index(merged_products)
     prod_path = os.path.join(data_dir, "cve-products.json")
-    _write_json(prod_path, prod_index)
+    pages.write_json(prod_path, prod_index)
     total_items = sum(len(v) for v in prod_index["map"].values())
     print(f"  영향 제품 인덱스: {len(prod_index['map']):,}건 · 항목 {total_items:,}개 "
           f"(고유 제품 {len(prod_index['products']):,}) → {prod_path}", flush=True)
@@ -685,13 +662,13 @@ def main():
             e["affected_total"] = len(aff)
 
     cve_path = os.path.join(data_dir, "cves.json")
-    _write_json(cve_path, cve_data)
+    pages.write_json(cve_path, cve_data)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
 
     print("[2/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data)
     stats_path = os.path.join(data_dir, "stats.json")
-    _write_json(stats_path, stats)
+    pages.write_json(stats_path, stats)
     print(f"  Stats → {stats_path}", flush=True)
 
     print("[3/4] 주간 리포트 확인...", flush=True)

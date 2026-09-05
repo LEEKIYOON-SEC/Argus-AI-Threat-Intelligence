@@ -1,5 +1,4 @@
 import datetime
-import os
 import time
 from typing import Dict, List, Optional, Tuple
 
@@ -11,6 +10,7 @@ import pipeline
 import risk
 import signal_snapshot
 import state as pstate
+from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
 from database import ArgusDB
@@ -20,14 +20,6 @@ from rate_limiter import rate_limit_manager
 
 def _deadline() -> float:
     return time.time() + config.PERFORMANCE.get("fast_deadline_minutes", 5) * 60
-
-
-def _dashboard_url() -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/"
 
 
 def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float]]]:

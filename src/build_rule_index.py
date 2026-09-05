@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Set
 import requests
 
 import enrichment_sources
+import pages
 from logger import logger
 
 _DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -259,19 +260,14 @@ ALL_ENGINES = frozenset(LICENSES)
 
 
 def load_previous() -> Dict[str, List[Dict]]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" in repo:
-        owner, name = repo.split("/", 1)
-        url = f"https://{owner.lower()}.github.io/{name}/data/detection-rules.json"
-        try:
-            resp = requests.get(url, timeout=_TIMEOUT,
-                                headers={"User-Agent": "argus-rule-index"})
-            resp.raise_for_status()
-            prev = (resp.json() or {}).get("rules") or {}
+    try:
+        payload = pages.fetch_published_json("detection-rules.json", timeout=_TIMEOUT)
+        if payload is not None:
+            prev = (payload or {}).get("rules") or {}
             logger.info(f"  직전 인덱스 로드(배포본): CVE {len(prev):,}건")
             return prev
-        except (requests.exceptions.RequestException, ValueError) as e:
-            logger.warning(f"  직전 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+    except Exception as e:
+        logger.warning(f"  직전 인덱스 배포본 로드 실패({e}) → 체크아웃 사본 확인")
     try:
         with open(_OUT, encoding="utf-8") as f:
             prev = (json.load(f) or {}).get("rules") or {}

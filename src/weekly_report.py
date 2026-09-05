@@ -3,6 +3,7 @@ import datetime
 import requests
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
+import pages
 from logger import logger
 
 _API = "https://api.github.com"
@@ -80,8 +81,8 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
         ),
     )[:10]
 
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    dash = f"https://{repo.split('/')[0].lower()}.github.io/{repo.split('/')[1]}/cve.html" if "/" in repo else ""
+    base = pages.base_url()
+    dash = f"{base}cve.html" if base else ""
 
     lines = [
         f"# 📅 Argus 주간 리포트 — {week_label}",

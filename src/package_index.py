@@ -1,10 +1,10 @@
 import json
 import os
 import threading
-import urllib.request
 from typing import Dict, Optional
 
 import enrichment_sources
+import pages
 from logger import logger
 
 _CACHE_NAME = "cve-packages.json"
@@ -31,24 +31,18 @@ def _load() -> Optional[Dict]:
             logger.info(f"패키지 사전 로드(캐시): {len(idx):,}건")
             return idx
 
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" in repo:
-        owner, name = repo.split("/", 1)
-        url = f"https://{owner.lower()}.github.io/{name}/data/{_CACHE_NAME}"
-        try:
-            req = urllib.request.Request(url, headers={"User-Agent": "argus-packages"})
-            with urllib.request.urlopen(req, timeout=_TIMEOUT) as r:
-                payload = r.read()
+    try:
+        payload = pages.fetch_published(_CACHE_NAME, timeout=_TIMEOUT)
+        if payload is not None:
             idx = _parse(payload)
             if idx is not None:
                 enrichment_sources.cache_put(_CACHE_NAME, payload)
                 logger.info(f"패키지 사전 로드(배포본): {len(idx):,}건")
                 return idx
-        except Exception as e:
-            logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
+    except Exception as e:
+        logger.warning(f"패키지 사전 배포본 로드 실패({e}) → 체크아웃 사본 확인")
 
-    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                        "docs", "data", _CACHE_NAME)
+    path = os.path.join(pages.DATA_DIR, _CACHE_NAME)
     try:
         with open(path, "rb") as f:
             payload = f.read()

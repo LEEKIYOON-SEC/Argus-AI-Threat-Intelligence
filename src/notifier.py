@@ -6,15 +6,8 @@ from typing import Dict, List, Optional
 
 import package_index
 import risk
+from pages import cve_url as _cve_url
 from logger import logger
-
-
-def _cve_url(cve_id: str) -> Optional[str]:
-    repo = os.environ.get("GITHUB_REPOSITORY", "")
-    if "/" not in repo:
-        return None
-    owner, name = repo.split("/", 1)
-    return f"https://{owner.lower()}.github.io/{name}/cve.html?cve={cve_id}"
 
 
 class NotifierError(Exception):
