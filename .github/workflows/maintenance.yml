@@ -18,6 +18,7 @@ on:
           - backfill-cvss
           - backfill-signals
           - drop-report-urls
+          - turso-check
       backfill_days:
         description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
         default: '400'
@@ -111,6 +112,13 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: python src/drop_report_urls.py ${{ inputs.dry_run && '--dry-run' || '' }}
+
+      - name: Check Turso connection and apply schema
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'turso-check' }}
+        env:
+          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+        run: python src/turso_check.py
 
       - name: Backfill affected vendors
         if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-vendors') }}
