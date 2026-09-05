@@ -32,7 +32,8 @@ def _fetch_cpe(cve_id: str, api_key: str, existing: List[Dict] = None) -> List[D
 
 
 def main() -> int:
-    api_key = os.environ.get("NVD_API_KEY", "")
+    api_key = os.environ.get("NVD_API_KEY", "").strip()
+    nvd.verify(api_key)
     limit = int(os.environ.get("BACKFILL_VENDOR_LIMIT", "500"))
     gap = nvd.gap(api_key)
 

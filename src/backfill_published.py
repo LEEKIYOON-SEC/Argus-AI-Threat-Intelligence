@@ -48,7 +48,8 @@ def _fetch_window(start: datetime.datetime, end: datetime.datetime,
 
 
 def main() -> int:
-    api_key = os.environ.get("NVD_API_KEY", "")
+    api_key = os.environ.get("NVD_API_KEY", "").strip()
+    nvd.verify(api_key)
     days = int(os.environ.get("BACKFILL_DAYS", "400"))
     logger.info("=" * 60)
     logger.info(f"공개일 백필 시작 (최근 {days}일 · NVD 키 {'있음' if api_key else '없음'})")

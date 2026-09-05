@@ -126,7 +126,8 @@ def _fill_from_nvd(results: List[Tuple[str, Dict, Dict]],
     if not todo:
         return 0, 0, 0
 
-    api_key = os.environ.get("NVD_API_KEY", "")
+    api_key = os.environ.get("NVD_API_KEY", "").strip()
+    nvd.verify(api_key)
     gap = nvd.gap(api_key)
     logger.info(f"cvelistV5 에 점수가 없는 {len(todo):,}건 → NVD 조회 "
                 f"(키 {'있음' if api_key else '없음'} · 건당 {gap}초 · "
