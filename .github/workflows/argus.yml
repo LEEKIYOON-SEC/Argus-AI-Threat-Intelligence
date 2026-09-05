@@ -34,13 +34,17 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
+      - name: Resolve cache day
+        id: cacheday
+        run: echo "day=$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
       - name: Cache signal indexes
         uses: actions/cache@v4
         with:
           path: .cache/rulesets
-          key: signals-${{ github.run_id }}
+          key: signals-bulk-${{ steps.cacheday.outputs.day }}
           restore-keys: |
-            signals-
+            signals-bulk-
 
       - name: Install dependencies
         run: pip install -r requirements.txt

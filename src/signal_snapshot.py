@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional, Set
 
 import ai_provenance
@@ -88,6 +88,7 @@ class Diff:
     added: List[str]
     total_added: int
     bootstrapped: bool = False
+    known: Set[str] = field(default_factory=set)
 
 
 def sweep(store, fast_only: bool = False, cap: int = DEFAULT_CAP,
@@ -144,16 +145,21 @@ def _sweep_one(store, source: Source, cap: int) -> Optional[Diff]:
                        f"— 나머지는 다음 실행이 이어받는다")
     logger.info(f"🚨 [{source.label}] 신규 {len(picked)}건: {picked[:5]}"
                 f"{' …' if len(picked) > 5 else ''}")
-    return Diff(source=source, added=picked, total_added=len(added))
+    return Diff(source=source, added=picked, total_added=len(added), known=known)
 
 
 def commit(store, diff: Diff, processed: List[str]) -> None:
     if not processed:
         return
-    known = store.get_snapshot_ids(diff.source.key)
-    merged = known | set(processed)
-    store.save_snapshot(diff.source.key, digest_of(merged), merged)
-    logger.info(f"[{diff.source.label}] 스냅샷 갱신: {len(known):,} → {len(merged):,}건")
+    if not diff.known:
+        logger.error(f"[{diff.source.label}] 직전 집합이 비어 있다 — 스냅샷을 갱신하지 않는다 "
+                     f"(축소 저장은 다음 회차 알림 폭풍이 된다)")
+        return
+    merged = diff.known | set(processed)
+    if not store.save_snapshot(diff.source.key, digest_of(merged), merged):
+        logger.error(f"[{diff.source.label}] 스냅샷 저장 실패 — 다음 회차가 다시 처리한다")
+        return
+    logger.info(f"[{diff.source.label}] 스냅샷 갱신: {len(diff.known):,} → {len(merged):,}건")
 
 
 class MemoryStore:

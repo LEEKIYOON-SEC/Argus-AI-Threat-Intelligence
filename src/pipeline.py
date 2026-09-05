@@ -56,19 +56,11 @@ def build_state(cve_id: str, record: Dict, collector,
 
     collector.enrich_cheap_signals(raw)
 
-    epss_score, epss_pct = 0.0, 0.0
-    if epss_index is not None and cve_id in epss_index:
-        epss_score, epss_pct = epss_index[cve_id]
-    elif cve_id in collector.epss_cache:
-        epss_score = collector.epss_cache.get(cve_id, 0.0)
-        epss_pct = collector.epss_percentile.get(cve_id, 0.0)
-
     if collector.kev_loaded:
         raw["is_kev"] = cve_id in collector.kev_set
         raw["kev_due_date"] = collector.kev_due_date.get(cve_id, "")
-    if epss_index is not None or collector.epss_cache:
-        raw["epss"] = epss_score
-        raw["epss_percentile"] = epss_pct
+    if epss_index is not None and cve_id in epss_index:
+        raw["epss"], raw["epss_percentile"] = epss_index[cve_id]
     return raw
 
 

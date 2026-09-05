@@ -529,30 +529,22 @@ class ArgusDB:
 
 
     def get_snapshot_digest(self, source: str) -> Optional[str]:
-        try:
-            r = self._execute(
-                self.client.table("signal_snapshots").select("digest")
-                .eq("source", source).limit(1)
-            )
-            rows = r.data or []
-            return rows[0].get("digest") if rows else None
-        except Exception as e:
-            logger.warning(f"스냅샷 지문 조회 실패({source}): {e}")
-            return None
+        r = self._execute(
+            self.client.table("signal_snapshots").select("digest")
+            .eq("source", source).limit(1)
+        )
+        rows = r.data or []
+        return rows[0].get("digest") if rows else None
 
 
     def get_snapshot_ids(self, source: str) -> set:
-        try:
-            r = self._execute(
-                self.client.table("signal_snapshots").select("cve_ids")
-                .eq("source", source).limit(1)
-            )
-            rows = r.data or []
-            ids = rows[0].get("cve_ids") if rows else None
-            return {str(x) for x in ids} if isinstance(ids, list) else set()
-        except Exception as e:
-            logger.warning(f"스냅샷 집합 조회 실패({source}): {e}")
-            return set()
+        r = self._execute(
+            self.client.table("signal_snapshots").select("cve_ids")
+            .eq("source", source).limit(1)
+        )
+        rows = r.data or []
+        ids = rows[0].get("cve_ids") if rows else None
+        return {str(x) for x in ids} if isinstance(ids, list) else set()
 
 
     def save_snapshot(self, source: str, digest: str, ids) -> bool:

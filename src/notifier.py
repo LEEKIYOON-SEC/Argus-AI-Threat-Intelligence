@@ -5,6 +5,7 @@ import time
 import threading
 from typing import Dict, List, Optional
 
+import package_index
 import risk
 from logger import logger
 
@@ -79,11 +80,7 @@ class SlackNotifier:
 
     @staticmethod
     def _fixed_target(cve_id: str) -> str:
-        try:
-            import report as report_mod
-            pkgs = report_mod._package_index().get(cve_id) or {}
-        except Exception:
-            return ""
+        pkgs = package_index.fixes_for(cve_id)
         picks = []
         for pkg, eco_map in sorted(pkgs.items()):
             for eco, fixes in sorted((eco_map or {}).items()):

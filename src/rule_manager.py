@@ -86,13 +86,14 @@ class RuleManager:
         return _index().get(cve_id.upper(), [])
 
 
-    def search_public_only(self, cve_id: str) -> Dict:
+    def search_public_only(self, cve_id: str) -> Tuple[Dict, bool]:
         entries = self.lookup(cve_id)
         rules: Dict = {"sigma": None, "network": [], "yara": None,
                        "nuclei": None, "splunk": None}
         if not entries:
-            return rules
+            return rules, True
 
+        missed = 0
         for entry in entries:
             engine = entry.get("engine", "")
             packed = {
@@ -111,16 +112,25 @@ class RuleManager:
                 code = _fetch_text(entry)
                 if code:
                     rules["network"].append({**packed, "code": code})
+                else:
+                    missed += 1
             elif engine in ("sigma", "yara", "nuclei", "splunk"):
                 if rules.get(engine):
                     continue
                 code = _fetch_text(entry)
                 if code:
                     rules[engine] = {**packed, "code": code}
+                else:
+                    missed += 1
+
+        if missed:
+            logger.warning(f"  {cve_id}: 색인에 있는 룰 {missed}건의 원문을 받지 못했다 "
+                           f"— '룰 없음'으로 기록하지 않는다")
+            return rules, False
 
         found = [k for k in ("sigma", "yara", "nuclei", "splunk") if rules.get(k)]
         if rules["network"]:
             found.append(f"network({len(rules['network'])})")
         if found:
             logger.info(f"  ✅ 공개 룰: {cve_id} — {', '.join(found)}")
-        return rules
+        return rules, True

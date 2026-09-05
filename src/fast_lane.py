@@ -8,6 +8,7 @@ import pytz
 import ai_provenance
 import enrichment_sources
 import feed
+import package_index
 import pipeline
 import risk
 import signal_snapshot
@@ -38,6 +39,7 @@ def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
     collector.ai_ledger = ai_provenance.load_anthropic_ledger()
+    package_index.get()
     return enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
 
@@ -170,9 +172,12 @@ def run() -> None:
     outcomes, failed_at = _evaluate_changes(changes, collector, db, notifier,
                                             epss_index, deadline, rows)
 
-    outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline, rows)
-
     _advance_watermark(horizon, failed_at)
+
+    if time.time() > deadline:
+        logger.warning("⏰ 변경분 처리에 예산을 다 썼다 — 소스측 대조는 다음 회차로 넘긴다")
+    else:
+        outcomes += _sweep_signals(collector, db, notifier, epss_index, deadline, rows)
 
     tracked = sum(1 for o in outcomes if o.status == "tracked")
     notifier.send_batch_summary(dashboard_url=_dashboard_url(), tracked=tracked)

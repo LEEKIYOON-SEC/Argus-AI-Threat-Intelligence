@@ -444,6 +444,10 @@ def _translate_chunk_with(chunk: List[Dict], prompt: str, model: str, limiter_ke
     return None, "api"
 
 
+def _recheck_soon() -> str:
+    return (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
+
+
 def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
@@ -468,15 +472,21 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             cve_id = record['id']
 
             try:
-                rules = rule_manager.search_public_only(cve_id)
+                rules, complete = rule_manager.search_public_only(cve_id)
+                now_iso = datetime.datetime.now(KST).isoformat()
+
+                if not complete:
+                    db.upsert_cve({
+                        "id": cve_id,
+                        "last_rule_check_at": _recheck_soon(),
+                        "updated_at": now_iso
+                    })
+                    continue
 
                 has_official = bool(
-                    any(r.get('verified') for r in rules.get('network') or [])
-                    or any((rules.get(k) or {}).get('verified')
-                           for k in ('sigma', 'yara', 'nuclei', 'splunk'))
+                    rules.get('network')
+                    or any(rules.get(k) for k in ('sigma', 'yara', 'nuclei', 'splunk'))
                 )
-
-                now_iso = datetime.datetime.now(KST).isoformat()
 
                 if has_official:
                     found_count += 1
@@ -508,10 +518,9 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
             except Exception as e:
                 logger.error(f"{cve_id} 공식 룰 체크 실패: {e}")
                 try:
-                    fake_past = (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
                     db.upsert_cve({
                         "id": cve_id,
-                        "last_rule_check_at": fake_past,
+                        "last_rule_check_at": _recheck_soon(),
                         "updated_at": datetime.datetime.now(KST).isoformat()
                     })
                 except Exception as e:
