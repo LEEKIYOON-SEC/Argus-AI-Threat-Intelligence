@@ -47,7 +47,7 @@ _TRIGGERS: Tuple[Trigger, ...] = (
     Trigger("weaponizable_cwe", T2, "사전인증 원격 + 무기화 비율 높은 취약점 유형(CWE)", "CVE/NVD"),
     Trigger("ssvc_high", T2, "CISA SSVC 자동화 대량 공격 가능 + 완전 장악", "CISA vulnrichment"),
     Trigger("epss_high", T2, "EPSS 상위 5% (p95+)", "EPSS (FIRST.org)"),
-    Trigger("poc", T2, "PoC 공개 확인", "nomi-sec / trickest"),
+    Trigger("poc", T2, "PoC 공개 확인", "nomi-sec PoC-in-GitHub"),
     Trigger("unscored_major_cna", T2, "주요 벤더 신규 CVE · 점수 미부여 — 재평가 대기", "CVE"),
 )
 

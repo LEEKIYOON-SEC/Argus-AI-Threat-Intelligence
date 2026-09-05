@@ -424,7 +424,7 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 | EPSS (FIRST.org) | 무료 | 출처 표기 |
 | nuclei-templates | MIT | 표기 |
 | Splunk security_content | Apache-2.0 | 표기 |
-| YARA Forge | GPL-3.0 도구 + **룰별 메타데이터** | 룰별 author·license 보존 |
+| YARA Forge | **룰별 상이** (패키징 도구 자체는 GPL-3.0) | 룰별 author·source_url·license_url 보존 |
 | Metasploit | BSD-3-Clause | 표기 |
 | SigmaHQ sigma | DRL 1.1 | 룰별 author 보존 |
 | Emerging Threats Open · Snort Community | MIT (레거시 SID 1–3464 는 GPLv2) | 표기 |
@@ -435,6 +435,45 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 | VulnCheck KEV | 무료 | **"This product uses VulnCheck KEV" 필수** |
 | Anthropic CVD 레저 | 명시 없음 | 사실만 인용, 데이터셋 재배포 금지 |
 | ~~Elastic detection-rules~~ | Elastic License 2.0 | **거부** — source-available, 서비스 제한 |
+
+탐지 룰 5종의 라이선스 문자열은 `build_rule_index.LICENSES` 가 실제로 화면까지
+실어 나른다. **위 표와 그 사전은 같은 값을 말해야 한다** — 한쪽만 고치면 화면에
+찍히는 고지와 여기 적힌 계약이 갈라진다.
+
+### 9-1. 화면에 반드시 상시 표기되는 것
+
+`docs/cve.html` 하단 `<footer class="site-footer">` 가 **유일한 완전 목록**이다.
+모달 각주는 그 하단을 가리키기만 한다 — 목록을 두 곳에 두면 갈라지고,
+예전처럼 **모달을 한 번도 안 연 방문자가 아무 출처도 못 보는** 상태가 된다.
+룰 개별 라이선스·author 는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
+
+고지에 **없어야 하는 것**: `GitHub Advisory`. 코드 어디서도 가져오지 않는다 —
+GHSA 는 OSV 덤프 안에 간접 포함될 뿐이다. `trickest` 도 같다 — PoC 출처는
+`nomi-sec/PoC-in-GitHub` 하나다.
+
+### 9-2. 실제로 접속하는 호스트 (무료 범위 확인용)
+
+| 호스트 | 무엇 | 비용 |
+|:---|:---|:---|
+| `raw.githubusercontent.com` | cvelistV5 · Metasploit · nuclei · PoC-in-GitHub · 룰 원문 | 무료 |
+| `api.github.com` | SigmaHQ·Splunk tarball, 주간 리포트 | **인증 시 5,000회/시 · 무토큰 60회/시** |
+| `services.nvd.nist.gov` | CVSS·CPE 백필 | 무료 (**키 없으면 8.0초/요청**, 키 0.7초) |
+| `www.cisa.gov` | KEV 피드 | 무료 |
+| `epss.empiricalsecurity.com` | EPSS 전량 CSV.gz (FIRST.org 배포 호스트) | 무료 |
+| `api.vulncheck.com` | VulnCheck KEV `/v3/backup/` | 커뮤니티 무료 |
+| `storage.googleapis.com` | OSV 생태계 덤프 (OSV.dev 실제 전송 경로) | 무료 |
+| `gitlab.com` | Exploit-DB 미러 CSV | 무료 |
+| `rules.emergingthreats.net` · `www.snort.org` | 네트워크 룰 | 무료 |
+| `github.com/YARAHQ/yara-forge/releases` | YARA 룰 묶음 | 무료 |
+| `red.anthropic.com` | AI 발견 취약점 원장 | 무료 |
+| Google AI Studio (SDK) | Gemini·Gemma 번역·분석 | **무료 티어 RPM/TPM/RPD 한도 내** |
+| Supabase (SDK) | 저장 | 무료 500MB (→ Turso 5GB 로 이전 예정) |
+| Slack Incoming Webhook | 알림 | 무료 |
+| `*.github.io` | 배포본 자체 조회 (패키지 사전 등) | 무료 |
+
+유료로 넘어가는 소스는 **없다**. 감시할 것은 두 가지 —
+`build_rule_index._github_tarball` 이 토큰 없이도 동작해 익명 60회/시에 조용히
+걸릴 수 있고, `osv_index` 가 주간 ZIP 을 캐시 없이 받는다.
 
 **Grype를 안 쓰는 이유**: 코드는 Apache-2.0이지만 grype-db는 패키지↔버전 *매칭* 데이터라
 악용 신호가 아니다 — 1차 목표에 기여하지 않는다. 게다가 Anchore가 집계 데이터를

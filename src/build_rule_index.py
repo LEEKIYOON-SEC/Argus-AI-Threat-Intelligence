@@ -46,10 +46,12 @@ def _add(index: Dict[str, List[Dict]], cve: str, entry: Dict) -> None:
 
 
 def _github_tarball(owner: str, repo: str, label: str) -> Optional[bytes]:
-    token = os.environ.get("GH_TOKEN")
-    headers = {"User-Agent": "argus-rule-index"}
-    if token:
-        headers["Authorization"] = f"token {token}"
+    token = os.environ.get("GH_TOKEN", "").strip()
+    if not token:
+        logger.warning(f"  ⚠️ GH_TOKEN 없음 → {label} 생략 "
+                       f"(무토큰은 익명 60회/시 한도라 조용히 막힌다)")
+        return None
+    headers = {"User-Agent": "argus-rule-index", "Authorization": f"token {token}"}
     url = f"https://api.github.com/repos/{owner}/{repo}/tarball"
     try:
         resp = requests.get(url, headers=headers, timeout=_TIMEOUT)
