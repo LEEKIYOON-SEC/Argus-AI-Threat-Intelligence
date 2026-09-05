@@ -7,13 +7,17 @@ class ConfigError(Exception):
 
 
 class ArgusConfig:
-    MODEL_PHASE_0 = "gemini-3.5-flash-lite"
-    MODEL_PHASE_0_FALLBACK = "gemini-3.1-flash-lite"
-    MODEL_PHASE_0_OVERFLOW = "gemma-4-31b-it"
-    MODEL_PHASE_0_OVERFLOW_FALLBACK = "gemma-4-26b-a4b-it"
+    TRANSLATION_MODELS = (
+        ("gemma-4-31b-it", "gemma_31b"),
+        ("gemma-4-26b-a4b-it", "gemma_26b"),
+        ("gemini-3.1-flash-lite", "gemini_31"),
+        ("gemini-3.5-flash-lite", "gemini_35"),
+    )
 
-    GEMINI_ANALYSIS_MODEL = "gemini-3.5-flash-lite"
-    GEMINI_ANALYSIS_FALLBACK_MODEL = "gemini-3.1-flash-lite"
+    ANALYSIS_MODELS = (
+        ("gemini-3.5-flash-lite", "analysis_35"),
+        ("gemini-3.1-flash-lite", "analysis_31"),
+    )
 
     ANALYSIS_PARAMS = {
         "temperature": 0.3,

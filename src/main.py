@@ -155,12 +155,7 @@ def _translation_exhausted() -> bool:
 
 _NO_AFC = types.AutomaticFunctionCallingConfig(disable=True)
 
-_TRANSLATION_STAGES = (
-    (config.MODEL_PHASE_0, "gemini"),
-    (config.MODEL_PHASE_0_FALLBACK, "gemini_fb"),
-    (config.MODEL_PHASE_0_OVERFLOW, "gemini_ovf"),
-    (config.MODEL_PHASE_0_OVERFLOW_FALLBACK, "gemini_ovf_fb"),
-)
+_TRANSLATION_STAGES = config.TRANSLATION_MODELS
 
 _TR_STAGE_ADVANCE = ("skip", "rate", "transient")
 
@@ -533,8 +528,8 @@ def check_for_official_rules(db: Store, notifier: SlackNotifier) -> None:
 
 
 def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
-    if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
-            and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
+    if all(rate_limit_manager.is_rpd_exhausted(key)
+           for _model, key in config.ANALYSIS_MODELS):
         logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
         return 0
 

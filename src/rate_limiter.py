@@ -93,32 +93,32 @@ class RateLimitManager:
                 window_seconds=3600,
                 min_interval=2.0
             ),
-            "gemini": RateLimitInfo(
+            "gemini_35": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
             ),
-            "gemini_fb": RateLimitInfo(
+            "gemini_31": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
             ),
-            "gemini_ovf": RateLimitInfo(
+            "gemma_31b": RateLimitInfo(
                 limit=30,
                 window_seconds=60,
                 min_interval=2.0
             ),
-            "gemini_ovf_fb": RateLimitInfo(
+            "gemma_26b": RateLimitInfo(
                 limit=30,
                 window_seconds=60,
                 min_interval=2.0
             ),
-            "gemini_analysis": RateLimitInfo(
+            "analysis_35": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
             ),
-            "gemini_analysis_fb": RateLimitInfo(
+            "analysis_31": RateLimitInfo(
                 limit=15,
                 window_seconds=60,
                 min_interval=4.0
@@ -147,20 +147,20 @@ class RateLimitManager:
         self._errors: Dict[str, int] = {}
 
         self._tpm_limits: Dict[str, int] = {
-            "gemini": 250_000,
-            "gemini_fb": 250_000,
-            "gemini_ovf": 16_000,
-            "gemini_ovf_fb": 16_000,
-            "gemini_analysis": 250_000,
-            "gemini_analysis_fb": 250_000,
+            "gemini_35": 250_000,
+            "gemini_31": 250_000,
+            "gemma_31b": 16_000,
+            "gemma_26b": 16_000,
+            "analysis_35": 250_000,
+            "analysis_31": 250_000,
         }
         self._tpm_reserve: Dict[str, int] = {
-            "gemini": 25_000,
-            "gemini_fb": 25_000,
-            "gemini_ovf": 4_000,
-            "gemini_ovf_fb": 4_000,
-            "gemini_analysis": 25_000,
-            "gemini_analysis_fb": 25_000,
+            "gemini_35": 25_000,
+            "gemini_31": 25_000,
+            "gemma_31b": 4_000,
+            "gemma_26b": 4_000,
+            "analysis_35": 25_000,
+            "analysis_31": 25_000,
         }
         self._tpm_used: Dict[str, int] = {api: 0 for api in self._tpm_limits}
         self._tpm_reset_at: Dict[str, datetime] = {
@@ -168,12 +168,12 @@ class RateLimitManager:
         }
 
         self._rpd_limits: Dict[str, int] = {
-            "gemini": 250,
-            "gemini_fb": 250,
-            "gemini_ovf": 14_400,
-            "gemini_ovf_fb": 14_400,
-            "gemini_analysis": 250,
-            "gemini_analysis_fb": 250,
+            "gemini_35": 250,
+            "gemini_31": 250,
+            "gemma_31b": 14_400,
+            "gemma_26b": 14_400,
+            "analysis_35": 250,
+            "analysis_31": 250,
         }
         self._rpd_used: Dict[str, int] = {api: 0 for api in self._rpd_limits}
         self._rpd_buckets: Dict[str, Dict[str, int]] = {api: {} for api in self._rpd_limits}
