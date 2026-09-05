@@ -43,6 +43,29 @@ def _tier_of(state: dict, entry: dict) -> str:
     return min(stored, derived, key=risk.tier_rank)
 
 
+_EXPORT_SCHEMA = 2
+_MAX_REFERENCES = 8
+_ANALYSIS_KEYS = ("root_cause", "scenario", "impact")
+
+
+def _analysis_of(state: dict, tier: str) -> dict:
+    if tier not in risk.ALERTING_TIERS:
+        return {}
+    raw = state.get("analysis")
+    if not isinstance(raw, dict):
+        return {}
+    out = {}
+    for key in _ANALYSIS_KEYS:
+        value = raw.get(key)
+        if isinstance(value, str) and value.strip():
+            out[key] = value.strip()
+    steps = [s.strip() for s in (raw.get("mitigation") or [])
+             if isinstance(s, str) and s.strip()]
+    if steps:
+        out["mitigation"] = steps[:6]
+    return out
+
+
 def _get_client():
     url = os.environ.get("SUPABASE_URL", "").strip()
     key = os.environ.get("SUPABASE_KEY", "").strip()
@@ -188,6 +211,28 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
         entry["ssvc_automatable"] = state.get("ssvc_automatable") or ssvc.get("automatable")
         entry["ssvc_technical_impact"] = state.get("ssvc_technical_impact") or ssvc.get("technical_impact")
         entry["is_kev_ransomware"] = state.get("is_kev_ransomware", False)
+        entry["kev_due_date"] = _s(state, "kev_due_date")[:10]
+        entry["nuclei_severity"] = _s(state, "nuclei_severity")
+
+        for key in ("_exploit_db_url", "_nuclei_url"):
+            url = _s(state, key)
+            if url:
+                entry[key] = url
+
+        refs = []
+        for ref in _l(state, "references"):
+            url = ref if isinstance(ref, str) else _s(ref, "url")
+            url = url.strip()
+            if url.startswith(("http://", "https://")) and url not in refs:
+                refs.append(url)
+            if len(refs) >= _MAX_REFERENCES:
+                break
+        if refs:
+            entry["references"] = refs
+
+        analysis = _analysis_of(state, entry["tier"])
+        if analysis:
+            entry["analysis"] = analysis
 
         entry["published"] = _s(state, "published")[:10]
 
@@ -326,13 +371,14 @@ def _fetch_live_export() -> tuple:
                 return json.loads(r.read().decode("utf-8"))
 
         rows = get("cves.json")
-        generated_at = get("stats.json").get("generated_at")
+        stats = get("stats.json")
+        generated_at = stats.get("generated_at")
         if isinstance(rows, list) and rows and generated_at:
             print(f"  직전 export를 배포본에서 읽음 ({len(rows)}건)", flush=True)
-            return rows, generated_at
+            return rows, generated_at, stats.get("schema")
     except Exception as e:
         print(f"  배포본을 읽지 못함({e}) → 체크아웃 사본 확인", flush=True)
-    return None, None
+    return None, None, None
 
 
 def load_previous_export(data_dir: str) -> tuple:
@@ -340,13 +386,18 @@ def load_previous_export(data_dir: str) -> tuple:
         print("  ARGUS_FULL_EXPORT=1 → 전량 export", flush=True)
         return None, None
     try:
-        rows, generated_at = _fetch_live_export()
+        rows, generated_at, schema = _fetch_live_export()
         if rows is None:
             with open(os.path.join(data_dir, "cves.json"), encoding="utf-8") as f:
                 rows = json.load(f)
             with open(os.path.join(data_dir, "stats.json"), encoding="utf-8") as f:
-                generated_at = json.load(f).get("generated_at")
+                stats = json.load(f)
+            generated_at, schema = stats.get("generated_at"), stats.get("schema")
         if not isinstance(rows, list) or not rows or not generated_at:
+            return None, None
+        if schema != _EXPORT_SCHEMA:
+            print(f"  직전 export 스키마 {schema} ≠ 현재 {_EXPORT_SCHEMA} → 전량 export",
+                  flush=True)
             return None, None
         if not any(r.get("updated") for r in rows[:50]):
             print("  직전 파일에 병합 기준(updated)이 없음 → 전량 export", flush=True)
@@ -444,6 +495,7 @@ def export_stats(cve_data: list) -> dict:
 
     return {
         "generated_at": now.isoformat(),
+        "schema": _EXPORT_SCHEMA,
         "cve": {
             "total": len(cve_data),
             "recent_24h": recent_24h,
