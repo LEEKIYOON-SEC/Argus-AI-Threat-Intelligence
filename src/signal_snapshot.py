@@ -20,9 +20,23 @@ class Source:
     load: Callable[[], Optional[Set[str]]]
 
 
+_RANSOM_SUFFIX = "#ransomware"
+
+
+def cve_of(token: str) -> str:
+    return token.split("#", 1)[0]
+
+
 def _kev_ids() -> Optional[Set[str]]:
     data = enrichment_sources.load_cisa_kev()
-    return None if data is None else set(data)
+    if data is None:
+        return None
+    out: Set[str] = set()
+    for cve_id, item in data.items():
+        out.add(cve_id)
+        if str(item.get("knownRansomwareCampaignUse", "")).strip().lower() == "known":
+            out.add(cve_id + _RANSOM_SUFFIX)
+    return out
 
 
 def _vulncheck_ids() -> Optional[Set[str]]:
@@ -59,7 +73,7 @@ def _anthropic_cvd_ids() -> Optional[Set[str]]:
 
 SOURCES: Dict[str, Source] = {
     s.key: s for s in (
-        Source("cisa_kev", "CISA KEV", True, _kev_ids),
+        Source("cisa_kev_v2", "CISA KEV", True, _kev_ids),
         Source("vulncheck_kev", "VulnCheck KEV", True, _vulncheck_ids),
         Source("nuclei", "nuclei 템플릿", False, _nuclei_ids),
         Source("metasploit", "Metasploit 모듈", False, _metasploit_ids),

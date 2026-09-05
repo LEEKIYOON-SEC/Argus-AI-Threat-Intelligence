@@ -599,10 +599,11 @@ def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier
         if time.time() > deadline_ts:
             logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
             break
+        targets = {t: signal_snapshot.cve_of(t) for t in diff.added}
         records, absent = feed.fetch_records(
-            diff.added, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
-        processed: List[str] = list(absent)
-        for cve_id in diff.added:
+            list(targets.values()), workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        processed: List[str] = [t for t, c in targets.items() if c in absent]
+        for token, cve_id in targets.items():
             if time.time() > deadline_ts:
                 logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
                 break
@@ -615,14 +616,14 @@ def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier
                 logger.warning(f"{cve_id} 상태 구성 실패: {e}")
                 continue
             if st is None:
-                processed.append(cve_id)
+                processed.append(token)
                 continue
             out = pipeline.process(st, db, notifier,
                                    reason_prefix=f"[{diff.source.label}] ",
                                    make_report=make_analysis)
             outcomes.append(out)
             if not out.needs_retry:
-                processed.append(cve_id)
+                processed.append(token)
         signal_snapshot.commit(db, diff, processed)
     return outcomes
 
