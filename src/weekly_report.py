@@ -4,6 +4,7 @@ import requests
 from collections import Counter
 from typing import Dict, List, Optional, Tuple
 import pages
+from fields import meaningful
 from logger import logger
 
 _API = "https://api.github.com"
@@ -55,8 +56,8 @@ def build_weekly_body(week_cves: List[Dict], week_label: str,
     for c in week_cves:
         seen = set()
         for a in (c.get("affected") or []):
-            p = (a.get("product") or "").strip()
-            if p and p.lower() not in ("unknown", "n/a", "-") and p not in seen:
+            p = meaningful(a.get("product"))
+            if p and p not in seen:
                 seen.add(p)
                 prod[p] += 1
 

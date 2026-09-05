@@ -266,10 +266,6 @@ def _fetch(cve_id: str, timeout: int = 20) -> Tuple[Optional[dict], bool]:
         return None, False
 
 
-def fetch_record(cve_id: str, timeout: int = 20) -> Optional[dict]:
-    return _fetch(cve_id, timeout)[0]
-
-
 def fetch_records(cve_ids: List[str], workers: int = 8
                   ) -> Tuple[Dict[str, dict], Set[str]]:
     ids = list(dict.fromkeys(cve_ids))

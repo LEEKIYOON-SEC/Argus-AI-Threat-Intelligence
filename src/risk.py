@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from typing import Dict, FrozenSet, Optional, Tuple
+
+from fields import CWE_RE
 
 T0 = "T0"
 T1 = "T1"
@@ -187,7 +188,7 @@ def _has_weaponizable_cwe(state: Dict) -> bool:
     if not isinstance(cwes, (list, tuple)):
         return False
     for raw in cwes:
-        for m in re.findall(r"CWE-\d{1,4}\b", str(raw)):
+        for m in CWE_RE.findall(str(raw)):
             if m in WEAPONIZABLE_CWE:
                 return True
     return False

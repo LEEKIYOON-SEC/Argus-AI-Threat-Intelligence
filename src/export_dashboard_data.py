@@ -1,5 +1,4 @@
 import os
-import re
 import sys
 import json
 import datetime as dt
@@ -12,6 +11,7 @@ if _THIS_DIR not in sys.path:
 from supabase import create_client
 import pages
 import risk
+from fields import CWE_RE, meaningful
 from weekly_report import publish_weekly_report
 
 
@@ -116,7 +116,7 @@ def export_cves(client, days: int = 90, since: str = None) -> list:
 
         cwe_clean = []
         for w in _l(state, "cwe"):
-            for m in re.findall(r"CWE-\d{1,4}\b", str(w)):
+            for m in CWE_RE.findall(str(w)):
                 if m not in cwe_clean:
                     cwe_clean.append(m)
 
@@ -419,10 +419,6 @@ def export_stats(cve_data: list) -> dict:
     kernel_count = 0
 
 
-    def _clean(v: str) -> str:
-        v = (v or "").strip()
-        return "" if v.lower() in ("", "unknown", "n/a", "-") else v
-
     for cve in cve_data:
         severity_counts[cve.get("severity", "None")] += 1
 
@@ -448,7 +444,7 @@ def export_stats(cve_data: list) -> dict:
 
         seen_v, seen_p = set(), set()
         for aff in cve.get("affected", []):
-            vendor, product = _clean(aff.get("vendor")), _clean(aff.get("product"))
+            vendor, product = meaningful(aff.get("vendor")), meaningful(aff.get("product"))
             if vendor and vendor not in seen_v:
                 vendor_counts[vendor] += 1
                 seen_v.add(vendor)

@@ -7,6 +7,7 @@ from supabase import create_client, Client
 from typing import Dict, List, Optional, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
+from fields import meaningful
 from logger import logger
 
 _PAGE_MAX = 1000
@@ -429,10 +430,8 @@ class ArgusDB:
 
     def get_rows_missing_vendor(self) -> List[Dict]:
         def has_vendor(state: Dict) -> bool:
-            return any(
-                str(a.get("vendor") or "").strip().lower() not in ("", "unknown", "n/a", "-")
-                for a in (state.get("affected") or []) if isinstance(a, dict)
-            )
+            return any(meaningful(a.get("vendor"))
+                       for a in (state.get("affected") or []) if isinstance(a, dict))
         return [r for r in self.tracked_states()
                 if not has_vendor(r.get("last_alert_state") or {})]
 

@@ -10,6 +10,7 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
+from fields import CVE_RE
 from logger import logger
 from rate_limiter import rate_limit_manager
 
@@ -74,7 +75,6 @@ def cache_put(name: str, content: bytes) -> None:
 _exploitdb_index: Dict[str, Tuple[str, str]] = {}
 _exploitdb_loaded = False
 _exploitdb_ok = False
-_CVE_RE = re.compile(r'CVE-\d{4}-\d{4,}', re.IGNORECASE)
 
 
 def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
@@ -109,7 +109,7 @@ def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
                 edb_id = row.get("id", "") or ""
                 if not file_path:
                     continue
-                for cve in _CVE_RE.findall(codes):
+                for cve in CVE_RE.findall(codes):
                     _exploitdb_index.setdefault(cve.upper(), (file_path, edb_id))
             _exploitdb_ok = bool(_exploitdb_index)
             logger.info(f"  ✅ Exploit-DB 인덱스 로드 완료 ({len(_exploitdb_index)}개 CVE 매핑)")
@@ -170,7 +170,7 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
                 cves = set()
                 for ref in refs:
                     if isinstance(ref, str):
-                        for m in _CVE_RE.findall(ref.replace(",", "-")):
+                        for m in CVE_RE.findall(ref.replace(",", "-")):
                             cves.add(m.upper())
                 if not cves:
                     continue
@@ -271,7 +271,7 @@ def nuclei_template_url(path: str) -> str:
 _poc_index: Dict[str, List[str]] = {}
 _poc_loaded = False
 _poc_ok = False
-_POC_BLOCK = re.compile(r"^### (CVE-\d{4}-\d{4,})", re.M)
+_POC_BLOCK = re.compile(rf"^### ({CVE_RE.pattern})", re.M)
 _POC_LINK = re.compile(r"https://github\.com/[^\s\)\]]+")
 
 

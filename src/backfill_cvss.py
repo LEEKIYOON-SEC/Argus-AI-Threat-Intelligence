@@ -17,13 +17,12 @@ import feed
 import risk
 from collector import collect_cvss, pick_cvss
 from database import ArgusDB
+import nvd
 from logger import logger
 
 _VER = re.compile(r"CVSS:(\d\.\d)")
 _LOG_SAMPLE = 30
 
-_NVD = "https://services.nvd.nist.gov/rest/json/cves/2.0"
-_GAP_KEY, _GAP_NO_KEY = 0.7, 8.0
 _NVD_KEYS = (("cvssMetricV40", "4.0"), ("cvssMetricV31", "3.1"), ("cvssMetricV30", "3.0"))
 _NVD_FAIL_STOP = 5
 
@@ -44,8 +43,8 @@ def containers_of(record: Dict) -> List[Dict]:
 
 def nvd_cvss(cve_id: str, api_key: str = "", timeout: int = 60) -> Dict:
     try:
-        resp = requests.get(_NVD, params={"cveId": cve_id},
-                            headers={"apiKey": api_key} if api_key else {}, timeout=timeout)
+        resp = requests.get(nvd.ENDPOINT, params={"cveId": cve_id},
+                            headers=nvd.headers(api_key), timeout=timeout)
         resp.raise_for_status()
         vulns = (resp.json() or {}).get("vulnerabilities") or []
     except (requests.exceptions.RequestException, ValueError) as e:
@@ -128,7 +127,7 @@ def _fill_from_nvd(results: List[Tuple[str, Dict, Dict]],
         return 0, 0, 0
 
     api_key = os.environ.get("NVD_API_KEY", "")
-    gap = _GAP_KEY if api_key else _GAP_NO_KEY
+    gap = nvd.gap(api_key)
     logger.info(f"cvelistV5 에 점수가 없는 {len(todo):,}건 → NVD 조회 "
                 f"(키 {'있음' if api_key else '없음'} · 건당 {gap}초 · "
                 f"예상 {len(todo) * gap / 60:.0f}분 · 예산 {budget / 60:.0f}분)")
