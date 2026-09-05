@@ -6,13 +6,28 @@ class ConfigError(Exception):
     pass
 
 
+_TRANSLATION_CHAIN = (
+    ("gemma-4-31b-it", "gemma_31b"),
+    ("gemma-4-26b-a4b-it", "gemma_26b"),
+    ("gemini-3.1-flash-lite", "gemini_31"),
+    ("gemini-3.5-flash-lite", "gemini_35"),
+)
+
+
+def _translation_chain():
+    only = (os.environ.get("ARGUS_TRANSLATION_MODELS") or "").strip().lower()
+    if not only:
+        return _TRANSLATION_CHAIN
+    picked = tuple(p for p in _TRANSLATION_CHAIN if p[1].startswith(only))
+    if not picked:
+        raise ConfigError(f"ARGUS_TRANSLATION_MODELS={only!r} 에 맞는 모델이 없다. "
+                          f"쓸 수 있는 값: "
+                          f"{', '.join(sorted({k.split('_')[0] for _m, k in _TRANSLATION_CHAIN}))}")
+    return picked
+
+
 class ArgusConfig:
-    TRANSLATION_MODELS = (
-        ("gemma-4-31b-it", "gemma_31b"),
-        ("gemma-4-26b-a4b-it", "gemma_26b"),
-        ("gemini-3.1-flash-lite", "gemini_31"),
-        ("gemini-3.5-flash-lite", "gemini_35"),
-    )
+    TRANSLATION_MODELS = _TRANSLATION_CHAIN
 
     ANALYSIS_MODELS = (
         ("gemini-3.5-flash-lite", "analysis_35"),
@@ -37,7 +52,7 @@ class ArgusConfig:
         "translation_concurrency": 4,
         "translation_backfill_pool": 200,
 
-        "translation_minutes": 18,
+        "translation_minutes": int(os.environ.get("ARGUS_TRANSLATION_MINUTES", "18")),
         "translation_daily_reserve": 0.15,
 
         "analysis_per_run": 100,
@@ -61,6 +76,7 @@ class ArgusConfig:
 
     def __init__(self):
         self._validate_environment()
+        self.TRANSLATION_MODELS = _translation_chain()
 
 
     def required_env_vars(self):

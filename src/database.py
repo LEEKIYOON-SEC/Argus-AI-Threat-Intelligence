@@ -7,6 +7,7 @@ from supabase import create_client, Client
 from typing import Dict, List, Optional, Set, Tuple
 from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
+import risk
 from fields import meaningful
 from logger import logger
 from store.base import Store, StoreError
@@ -624,16 +625,33 @@ class ArgusDB(Store):
             r = self._execute(
                 self.client.table("cves")
                 .select("id, cvss_score, epss_score, is_kev, last_alert_state, updated_at")
-                .not_.is_("last_alert_at", "null")
                 .not_.is_("last_alert_state", "null")
                 .is_("last_alert_state->analysis", "null")
+                .in_("last_alert_state->>tier", [risk.T0, risk.T1])
+                .order("last_alert_state->>tier")
                 .order("is_kev", desc=True)
-                .order("last_alert_at", desc=True)
+                .order("cvss_score", desc=True)
                 .limit(limit)
             )
             return r.data or []
         except Exception as e:
             raise StoreError(f"리포트 보강 후보 조회 실패: {e}") from e
+
+
+    def count_missing_reports(self) -> Dict[str, int]:
+        out = {}
+        for tier in (risk.T0, risk.T1):
+            try:
+                r = self._execute(
+                    self.client.table("cves").select("id", count="exact").limit(1)
+                    .not_.is_("last_alert_state", "null")
+                    .is_("last_alert_state->analysis", "null")
+                    .eq("last_alert_state->>tier", tier))
+            except Exception as e:
+                raise StoreError(f"분석 잔량 조회 실패({tier}): {e}") from e
+            if r.count:
+                out[tier] = r.count
+        return out
 
 
     def get_snapshot_digest(self, source: str) -> Optional[str]:

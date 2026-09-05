@@ -539,7 +539,9 @@ def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
         logger.info("리포트 보강: 대상 없음")
         return 0
 
-    logger.info(f"📝 리포트 보강 대상 {len(rows)}건")
+    left = db.count_missing_reports()
+    backlog = " · ".join(f"{t} {n:,}" for t, n in sorted(left.items())) or "0"
+    logger.info(f"📝 리포트 보강 대상 {len(rows)}건 (분석 없는 고위험 {backlog}건 남음)")
     made = 0
     for row in rows:
         if time.time() > deadline_ts:
