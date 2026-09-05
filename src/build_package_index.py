@@ -3,7 +3,7 @@ import os
 import sys
 
 import osv_index
-from database import ArgusDB
+from store import create_store as ArgusDB
 from logger import logger
 
 _DATA = os.path.join(

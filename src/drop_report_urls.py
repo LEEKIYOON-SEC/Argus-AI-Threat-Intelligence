@@ -1,6 +1,6 @@
 import sys
 
-from database import ArgusDB
+from store import create_store as ArgusDB
 from logger import logger
 
 _PAGE = 500

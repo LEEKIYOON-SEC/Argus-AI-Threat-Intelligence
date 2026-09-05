@@ -6,7 +6,7 @@ from typing import Dict, List
 import requests
 
 from collector import affected_from_cpes
-from database import ArgusDB
+from store import create_store as ArgusDB
 import nvd
 from logger import logger
 

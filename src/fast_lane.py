@@ -13,7 +13,7 @@ import state as pstate
 from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
-from database import ArgusDB
+from store import Store, create_store as ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import rate_limit_manager
@@ -30,7 +30,7 @@ def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float
     return enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
 
-def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: ArgusDB,
+def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Store,
                       notifier: SlackNotifier, epss_index, deadline: float,
                       rows: Optional[pipeline.RowCache] = None
                       ) -> Tuple[List[pipeline.Outcome], Dict[str, datetime.datetime]]:
@@ -66,7 +66,7 @@ def _evaluate_changes(changes: List[feed.Change], collector: Collector, db: Argu
     return outcomes, failed_at
 
 
-def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
+def _sweep_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                    epss_index, deadline: float,
                    rows: Optional[pipeline.RowCache] = None) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []

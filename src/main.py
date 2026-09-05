@@ -22,7 +22,7 @@ from pages import cve_url as _cve_url
 from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
-from database import ArgusDB
+from store import Store, create_store as ArgusDB
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import (gemini_backoff, gemini_error_kind, rate_limit_manager)
@@ -68,7 +68,7 @@ def _translation_budget() -> int:
     return max(0, best)
 
 
-def translate_tracked(db: ArgusDB, deadline_ts: float) -> int:
+def translate_tracked(db: Store, deadline_ts: float) -> int:
     stop_ts = min(deadline_ts,
                   time.time() + config.PERFORMANCE.get("translation_minutes", 18) * 60)
     if time.time() > stop_ts:
@@ -447,7 +447,7 @@ def _recheck_soon() -> str:
     return (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
 
 
-def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
+def check_for_official_rules(db: Store, notifier: SlackNotifier) -> None:
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
@@ -532,7 +532,7 @@ def check_for_official_rules(db: ArgusDB, notifier: SlackNotifier) -> None:
         logger.error(f"공식 룰 체크 프로세스 실패: {e}")
 
 
-def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 0) -> int:
+def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
     if (rate_limit_manager.is_rpd_exhausted("gemini_analysis")
             and rate_limit_manager.is_rpd_exhausted("gemini_analysis_fb")):
         logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
@@ -585,7 +585,7 @@ def backfill_reports(db: ArgusDB, deadline_ts: float, limit: int = 0) -> int:
     return made
 
 
-def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
+def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                         deadline_ts: float) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []
     cap = config.PERFORMANCE.get("snapshot_cap", 80)

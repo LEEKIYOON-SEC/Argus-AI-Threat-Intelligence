@@ -16,7 +16,7 @@ import requests
 import feed
 import risk
 from collector import collect_cvss, pick_cvss
-from database import ArgusDB
+from store import create_store as ArgusDB
 import nvd
 from logger import logger
 

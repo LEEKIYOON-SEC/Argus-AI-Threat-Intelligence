@@ -6,7 +6,7 @@ from typing import Dict, Tuple
 
 import requests
 
-from database import ArgusDB
+from store import create_store as ArgusDB
 import nvd
 from logger import logger
 

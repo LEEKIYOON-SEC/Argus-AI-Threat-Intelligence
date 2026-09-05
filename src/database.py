@@ -9,6 +9,7 @@ from tenacity import (retry, stop_after_attempt, wait_exponential,
                       retry_if_exception, RetryError)
 from fields import meaningful
 from logger import logger
+from store.base import Store, StoreError
 
 _PAGE_MAX = 1000
 
@@ -47,23 +48,19 @@ def _neutralize(s):
     return s
 
 
-class DatabaseError(Exception):
-    pass
-
-
-class ArgusDB:
+class ArgusDB(Store):
     def __init__(self):
         url = os.environ.get("SUPABASE_URL")
         key = os.environ.get("SUPABASE_KEY")
 
         if not url or not key:
-            raise DatabaseError("SUPABASE_URL 또는 SUPABASE_KEY가 설정되지 않음")
+            raise StoreError("SUPABASE_URL 또는 SUPABASE_KEY가 설정되지 않음")
 
         try:
             self.client: Client = create_client(url, key)
             logger.info("Supabase 연결 성공")
         except Exception as e:
-            raise DatabaseError(f"Supabase 연결 실패: {e}")
+            raise StoreError(f"Supabase 연결 실패: {e}") from e
 
 
     @retry(
@@ -161,8 +158,7 @@ class ArgusDB:
                 return None
 
         except Exception as e:
-            logger.error(f"CVE 조회 실패 ({cve_id}): {e}")
-            return None
+            raise StoreError(f"CVE 조회 실패 ({cve_id}): {e}") from e
 
 
     def get_cves(self, cve_ids) -> Tuple[Dict[str, Dict], set]:
@@ -327,8 +323,7 @@ class ArgusDB:
             return eligible
 
         except Exception as e:
-            logger.error(f"룰 재확인 후보 조회 실패: {e}")
-            return []
+            raise StoreError(f"룰 재확인 후보 조회 실패: {e}") from e
 
 
     def get_translation_backfill_candidates(self, limit: int = 60,
@@ -343,8 +338,7 @@ class ArgusDB:
             )
             return response.data or []
         except Exception as e:
-            logger.error(f"번역 백필 후보 조회 실패: {e}")
-            return []
+            raise StoreError(f"번역 백필 후보 조회 실패: {e}") from e
 
 
     def count_tracked(self) -> int:
@@ -355,8 +349,7 @@ class ArgusDB:
             )
             return r.count or 0
         except Exception as e:
-            logger.warning(f"추적 행 수 조회 실패: {e}")
-            return 0
+            raise StoreError(f"추적 행 수 조회 실패: {e}") from e
 
 
     def update_translation(self, cve_id: str, title_ko: str, desc_ko: str) -> bool:
@@ -444,17 +437,16 @@ class ArgusDB:
                 if needs(r.get("last_alert_state") or {})]
 
 
-    def get_pipeline_state(self) -> Optional[Dict]:
+    def get_pipeline_state(self) -> Dict:
         try:
             response = self._execute(
                 self.client.table("pipeline_state").select("state").eq("id", 1).limit(1)
             )
             rows = response.data or []
             state = rows[0].get("state") if rows else None
-            return state if isinstance(state, dict) else None
+            return state if isinstance(state, dict) else {}
         except Exception as e:
-            logger.warning(f"파이프라인 상태 조회 실패: {e}")
-            return None
+            raise StoreError(f"파이프라인 상태 조회 실패: {e}") from e
 
 
     def set_pipeline_state(self, state: Dict) -> bool:
@@ -523,8 +515,7 @@ class ArgusDB:
             )
             return r.data or []
         except Exception as e:
-            logger.error(f"리포트 보강 후보 조회 실패: {e}")
-            return []
+            raise StoreError(f"리포트 보강 후보 조회 실패: {e}") from e
 
 
     def get_snapshot_digest(self, source: str) -> Optional[str]:

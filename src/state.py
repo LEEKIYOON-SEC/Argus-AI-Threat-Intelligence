@@ -18,11 +18,9 @@ def _db():
     global _DB_HANDLE
     if _DB_HANDLE is not None:
         return _DB_HANDLE or None
-    if not os.environ.get("SUPABASE_URL") or not os.environ.get("SUPABASE_KEY"):
-        return None
     try:
-        from database import ArgusDB
-        _DB_HANDLE = ArgusDB()
+        from store import create_store
+        _DB_HANDLE = create_store()
     except Exception as e:
         logger.warning(f"상태 DB 연결 실패 → 파일 경로로 진행: {e}")
         _DB_HANDLE = False
@@ -36,6 +34,7 @@ def _read_state() -> Dict:
         if state:
             return state
         logger.info("DB에 파이프라인 상태 없음 → 파일에서 이어받기 시도")
+
     try:
         with open(_STATE_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
