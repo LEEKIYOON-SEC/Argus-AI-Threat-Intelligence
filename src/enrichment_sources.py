@@ -1,4 +1,5 @@
 import csv
+import functools
 import io
 import json
 import os
@@ -26,6 +27,25 @@ _CISA_KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_
 _VULNCHECK_BACKUP_URL = "https://api.vulncheck.com/v3/backup/vulncheck-kev"
 
 _lock = threading.Lock()
+
+_MAX_LIMIT_WAIT = 30
+
+
+def memo_ok(fn):
+    box: Dict[str, object] = {}
+    lock = threading.Lock()
+
+    @functools.wraps(fn)
+    def wrapper(*args, **kwargs):
+        with lock:
+            if "v" in box:
+                return box["v"]
+            out = fn(*args, **kwargs)
+            if out is not None:
+                box["v"] = out
+            return out
+
+    return wrapper
 
 
 def cache_get(name: str, ttl_hours: int = _CACHE_TTL_HOURS) -> Optional[bytes]:
@@ -68,7 +88,8 @@ def load_exploitdb_index() -> Dict[str, Tuple[str, str]]:
         if raw is None:
             logger.info("📥 Exploit-DB CSV 인덱스 다운로드 중...")
             try:
-                rate_limit_manager.check_and_wait("ruleset_download")
+                if not rate_limit_manager.check_and_wait("ruleset_download", max_wait=_MAX_LIMIT_WAIT):
+                    raise RuntimeError("ruleset_download 한도 대기가 너무 길어 이번 회차는 건너뛴다")
                 response = requests.get(EXPLOITDB_RAW_BASE + "files_exploits.csv", timeout=60)
                 response.raise_for_status()
                 rate_limit_manager.record_call("ruleset_download")
@@ -129,7 +150,8 @@ def load_metasploit_index() -> Dict[str, List[Dict]]:
         if raw is None:
             logger.info("📥 Metasploit 메타데이터 다운로드 중...")
             try:
-                rate_limit_manager.check_and_wait("ruleset_download")
+                if not rate_limit_manager.check_and_wait("ruleset_download", max_wait=_MAX_LIMIT_WAIT):
+                    raise RuntimeError("ruleset_download 한도 대기가 너무 길어 이번 회차는 건너뛴다")
                 response = requests.get(_METASPLOIT_URL, timeout=60)
                 response.raise_for_status()
                 rate_limit_manager.record_call("ruleset_download")
@@ -196,7 +218,8 @@ def load_nuclei_index() -> Dict[str, Dict]:
         if raw is None:
             logger.info("📥 nuclei-templates 인덱스 다운로드 중...")
             try:
-                rate_limit_manager.check_and_wait("ruleset_download")
+                if not rate_limit_manager.check_and_wait("ruleset_download", max_wait=_MAX_LIMIT_WAIT):
+                    raise RuntimeError("ruleset_download 한도 대기가 너무 길어 이번 회차는 건너뛴다")
                 response = requests.get(_NUCLEI_URL, timeout=60)
                 response.raise_for_status()
                 rate_limit_manager.record_call("ruleset_download")
@@ -263,7 +286,8 @@ def load_poc_index() -> Dict[str, List[str]]:
         if raw is None:
             logger.info("📥 PoC-in-GitHub 인덱스 다운로드 중...")
             try:
-                rate_limit_manager.check_and_wait("ruleset_download")
+                if not rate_limit_manager.check_and_wait("ruleset_download", max_wait=_MAX_LIMIT_WAIT):
+                    raise RuntimeError("ruleset_download 한도 대기가 너무 길어 이번 회차는 건너뛴다")
                 response = requests.get(_POC_URL, timeout=120)
                 response.raise_for_status()
                 rate_limit_manager.record_call("ruleset_download")
@@ -299,11 +323,13 @@ def poc_urls(cve_id: str) -> List[str]:
     return _poc_index.get(cve_id.upper(), [])
 
 
+@memo_ok
 def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
     raw = cache_get("cisa-kev.json", ttl_hours=ttl_hours)
     if raw is None:
         try:
-            rate_limit_manager.check_and_wait("kev")
+            if not rate_limit_manager.check_and_wait("kev", max_wait=_MAX_LIMIT_WAIT):
+                raise RuntimeError("kev 한도 대기가 너무 길어 이번 회차는 건너뛴다")
             response = requests.get(_CISA_KEV_URL, timeout=30)
             response.raise_for_status()
             rate_limit_manager.record_call("kev")
@@ -328,7 +354,9 @@ def load_cisa_kev(ttl_hours: int = 1) -> Optional[Dict[str, Dict]]:
 
 def _vulncheck_download_url(api_key: str) -> Optional[str]:
     try:
-        rate_limit_manager.check_and_wait("vulncheck")
+        if not rate_limit_manager.check_and_wait("vulncheck", max_wait=_MAX_LIMIT_WAIT):
+            logger.warning("VulnCheck 한도 대기가 너무 길어 이번 회차는 건너뛴다")
+            return None
         resp = requests.get(
             _VULNCHECK_BACKUP_URL,
             headers={"Authorization": f"Bearer {api_key}", "Accept": "application/json"},
@@ -384,6 +412,7 @@ def _vulncheck_records(payload: bytes) -> list:
     return doc if isinstance(doc, list) else (doc.get("data") or [])
 
 
+@memo_ok
 def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
     api_key = (os.environ.get("VULNCHECK_API_KEY") or "").strip()
     if not api_key:
@@ -425,13 +454,15 @@ def load_vulncheck_kev(ttl_hours: int = 6) -> Optional[Dict[str, Dict]]:
 _EPSS_CURRENT_URL = "https://epss.empiricalsecurity.com/epss_scores-current.csv.gz"
 
 
+@memo_ok
 def load_epss_full(ttl_hours: int = 6) -> Optional[Dict[str, Tuple[float, float]]]:
     import gzip
 
     raw = cache_get("epss-full.csv.gz", ttl_hours=ttl_hours)
     if raw is None:
         try:
-            rate_limit_manager.check_and_wait("epss")
+            if not rate_limit_manager.check_and_wait("epss", max_wait=_MAX_LIMIT_WAIT):
+                raise RuntimeError("epss 한도 대기가 너무 길어 이번 회차는 건너뛴다")
             response = requests.get(_EPSS_CURRENT_URL, timeout=120, allow_redirects=True)
             response.raise_for_status()
             rate_limit_manager.record_call("epss")

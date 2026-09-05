@@ -594,12 +594,17 @@ def sweep_heavy_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifi
                                             if not s.fast]):
         if not diff.added:
             continue
-        processed: List[str] = []
+        if time.time() > deadline_ts:
+            logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
+            break
+        records, absent = feed.fetch_records(
+            diff.added, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        processed: List[str] = list(absent)
         for cve_id in diff.added:
             if time.time() > deadline_ts:
                 logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 실행")
                 break
-            record = feed.fetch_record(cve_id)
+            record = records.get(cve_id)
             if record is None:
                 continue
             try:

@@ -3,10 +3,11 @@ from __future__ import annotations
 import datetime
 import io
 import json
+import time
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
 import pytz
 import requests
@@ -154,17 +155,21 @@ def _fetch_day_zip(day: datetime.date, newest_hour: int = 23) -> Dict[str, dict]
 
 
 def prefill_records(changes: List[Change], since: datetime.datetime,
-                    now: datetime.datetime) -> int:
+                    until: datetime.datetime,
+                    deadline: Optional[float] = None) -> int:
     if not changes:
         return 0
-    span_h = (now - since).total_seconds() / 3600.0
+    span_h = (until - since).total_seconds() / 3600.0
     if span_h < BULK_PREFILL_HOURS and len(changes) < PREFILL_MIN_CHANGES:
         return 0
 
     pool: Dict[str, dict] = {}
     day = since.date()
-    while day <= now.date():
-        newest = now.hour if day == now.date() else 23
+    while day <= until.date():
+        if deadline is not None and time.time() > deadline:
+            logger.warning("⏰ ZIP 선충전 도중 시간 예산 도달 — 나머지는 개별 요청으로")
+            break
+        newest = until.hour if day == until.date() else 23
         pool.update(_fetch_day_zip(day, newest_hour=newest))
         day += datetime.timedelta(days=1)
 
@@ -181,7 +186,9 @@ def prefill_records(changes: List[Change], since: datetime.datetime,
 
 def changes_since(since: Optional[datetime.datetime],
                   now: Optional[datetime.datetime] = None,
-                  prefill: bool = True) -> Tuple[List[Change], datetime.datetime]:
+                  prefill: bool = True,
+                  deadline: Optional[float] = None,
+                  cap: Optional[int] = None) -> Tuple[List[Change], datetime.datetime]:
     now = _utc(now or datetime.datetime.now(pytz.UTC))
     if since is None:
         since = now - datetime.timedelta(hours=BOOTSTRAP_HOURS)
@@ -210,8 +217,10 @@ def changes_since(since: Optional[datetime.datetime],
 
     changes, horizon = _collect(batches, since, until)
     logger.info(f"변경 CVE {len(changes)}건 ({since:%m-%d %H:%M} → {horizon:%m-%d %H:%M} UTC)")
+    if cap is not None:
+        changes, horizon = cap_by_batch(changes, cap, horizon)
     if prefill:
-        prefill_records(changes, since, now)
+        prefill_records(changes, since, until, deadline=deadline)
     return changes, horizon
 
 
@@ -238,10 +247,10 @@ def cap_by_batch(changes: List[Change], cap: int, horizon: datetime.datetime
     return kept, cut_at
 
 
-def fetch_record(cve_id: str, timeout: int = 20) -> Optional[dict]:
+def _fetch(cve_id: str, timeout: int = 20) -> Tuple[Optional[dict], bool]:
     parts = cve_id.split("-")
     if len(parts) < 3:
-        return None
+        return None, True
     year, num = parts[1], parts[2]
     group = "0xxx" if len(num) < 4 else num[:-3] + "xxx"
     url = f"{_RAW_BASE}/cves/{year}/{group}/{cve_id}.json"
@@ -249,22 +258,43 @@ def fetch_record(cve_id: str, timeout: int = 20) -> Optional[dict]:
         resp = requests.get(url, timeout=timeout, headers=_UA)
         if resp.status_code == 404:
             logger.warning(f"{cve_id}: 레코드 없음 (404)")
-            return None
+            return None, True
         resp.raise_for_status()
-        return resp.json()
+        return resp.json(), False
     except (requests.exceptions.RequestException, ValueError) as e:
         logger.debug(f"{cve_id} 레코드 수신 실패: {e}")
-        return None
+        return None, False
+
+
+def fetch_record(cve_id: str, timeout: int = 20) -> Optional[dict]:
+    return _fetch(cve_id, timeout)[0]
+
+
+def fetch_records(cve_ids: List[str], workers: int = 8
+                  ) -> Tuple[Dict[str, dict], Set[str]]:
+    ids = list(dict.fromkeys(cve_ids))
+    if not ids:
+        return {}, set()
+    records: Dict[str, dict] = {}
+    absent: Set[str] = set()
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        for cve_id, (record, gone) in zip(ids, ex.map(_fetch, ids)):
+            if record is not None:
+                records[cve_id] = record
+            elif gone:
+                absent.add(cve_id)
+    failed = len(ids) - len(records) - len(absent)
+    logger.info(f"레코드 일괄 수신 {len(records)}/{len(ids)}건"
+                + (f" · 없음 {len(absent)}건" if absent else "")
+                + (f" · 실패 {failed}건은 다음 실행 재시도" if failed else ""))
+    return records, absent
 
 
 def fill_records(changes: List[Change], workers: int = 8) -> List[Change]:
     pending = [c for c in changes if c.record is None]
     if not pending:
         return changes
-    with ThreadPoolExecutor(max_workers=workers) as ex:
-        for change, record in zip(pending, ex.map(lambda c: fetch_record(c.cve_id), pending)):
-            change.record = record
-    missing = sum(1 for c in pending if c.record is None)
-    logger.info(f"레코드 개별 수신 {len(pending) - missing}/{len(pending)}건"
-                + (f" · 실패 {missing}건은 다음 실행 재시도" if missing else ""))
+    records, _absent = fetch_records([c.cve_id for c in pending], workers=workers)
+    for change in pending:
+        change.record = records.get(change.cve_id)
     return changes

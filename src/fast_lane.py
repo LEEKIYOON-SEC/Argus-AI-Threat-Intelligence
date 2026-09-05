@@ -82,13 +82,18 @@ def _sweep_signals(collector: Collector, db: ArgusDB, notifier: SlackNotifier,
     for diff in signal_snapshot.sweep(db, fast_only=True, cap=cap):
         if not diff.added:
             continue
-        processed: List[str] = []
+        if time.time() > deadline:
+            logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — 나머지는 다음 회차")
+            break
+        records, absent = feed.fetch_records(
+            diff.added, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        processed: List[str] = list(absent)
         for cve_id in diff.added:
             if time.time() > deadline:
                 logger.warning(f"⏰ [{diff.source.label}] 시간 예산 도달 — "
                                f"나머지는 다음 회차")
                 break
-            record = feed.fetch_record(cve_id)
+            record = records.get(cve_id)
             if record is None:
                 continue
             try:
@@ -154,9 +159,9 @@ def run() -> None:
     epss_index = _load_signals(collector)
 
     watermark = pstate.read_watermark()
-    changes, horizon = feed.changes_since(watermark)
-    cap = config.PERFORMANCE.get("fast_max_changes", 1500)
-    changes, horizon = feed.cap_by_batch(changes, cap, horizon)
+    changes, horizon = feed.changes_since(
+        watermark, deadline=deadline,
+        cap=config.PERFORMANCE.get("fast_max_changes", 1500))
     feed.fill_records(changes, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
 
     rows = pipeline.RowCache(db, [c.cve_id for c in changes])
