@@ -30,8 +30,8 @@ class ArgusConfig:
     TRANSLATION_MODELS = _TRANSLATION_CHAIN
 
     ANALYSIS_MODELS = (
-        ("gemini-3.5-flash-lite", "analysis_35"),
-        ("gemini-3.1-flash-lite", "analysis_31"),
+        ("gemini-3.5-flash-lite", "gemini_35"),
+        ("gemini-3.1-flash-lite", "gemini_31"),
     )
 
     ANALYSIS_PARAMS = {
