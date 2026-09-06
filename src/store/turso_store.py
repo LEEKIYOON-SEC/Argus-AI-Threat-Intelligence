@@ -237,10 +237,20 @@ class TursoStore(Store):
         cols = ("id", "cvss_score", "epss_score", "is_kev", "last_alert_state", "updated_at")
         rows = self._query(
             f"SELECT {', '.join(cols)} FROM cves "
-            "WHERE last_alert_at IS NOT NULL AND last_alert_state IS NOT NULL "
-            "AND has_analysis = 0 "
-            "ORDER BY is_kev DESC, last_alert_at DESC LIMIT ?", (limit,))
+            "WHERE last_alert_state IS NOT NULL AND has_analysis = 0 "
+            "AND tier IN ('T0', 'T1') "
+            "ORDER BY CASE tier WHEN 'T0' THEN 0 ELSE 1 END, "
+            "  json_extract(last_alert_state, '$.is_kev_ransomware') DESC, "
+            "  is_kev DESC, coalesce(published, '') DESC, cvss_score DESC "
+            "LIMIT ?", (limit,))
         return [self._row(r, cols) for r in rows]
+
+    def count_missing_reports(self) -> Dict[str, int]:
+        rows = self._query(
+            "SELECT tier, count(*) FROM cves "
+            "WHERE last_alert_state IS NOT NULL AND has_analysis = 0 "
+            "AND tier IN ('T0', 'T1') GROUP BY tier")
+        return {t: n for t, n in rows}
 
     _RECHECK_COLS = ("id", "cvss_score", "epss_score", "is_kev",
                      "has_official_rules", "last_rule_check_at", "last_alert_at")

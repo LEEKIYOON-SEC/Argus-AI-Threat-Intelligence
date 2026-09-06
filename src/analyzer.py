@@ -26,18 +26,15 @@ class Analyzer:
             )
         except Exception:
             self.gemini_client = genai.Client(api_key=gemini_key)
-        logger.info(f"Analyzer initialized ({config.GEMINI_ANALYSIS_MODEL} "
-                    f"→ {config.GEMINI_ANALYSIS_FALLBACK_MODEL} → 정형 폴백)")
+        chain = " → ".join(m for m, _key in config.ANALYSIS_MODELS)
+        logger.info(f"Analyzer initialized ({chain} → 정형 폴백)")
 
 
     def analyze_cve(self, cve_data: Dict) -> Dict:
         logger.info(f"Analyzing {cve_data['id']} with AI...")
         prompt = self._build_analysis_prompt(cve_data)
 
-        for model, limiter_key in (
-            (config.GEMINI_ANALYSIS_MODEL, "gemini_analysis"),
-            (config.GEMINI_ANALYSIS_FALLBACK_MODEL, "gemini_analysis_fb"),
-        ):
+        for model, limiter_key in config.ANALYSIS_MODELS:
             result = self._analyze_with_gemini(cve_data, prompt, model, limiter_key)
             if result is not None:
                 return result

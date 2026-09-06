@@ -66,6 +66,10 @@ class Store(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def count_missing_reports(self) -> Dict[str, int]:
+        raise NotImplementedError
+
+    @abstractmethod
     def get_rule_recheck_candidates(self, limit: int = 10) -> List[Dict]:
         raise NotImplementedError
 
