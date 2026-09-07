@@ -12,22 +12,16 @@ on:
         options:
           - package-index
           - rule-index
-          - backfill-published
           - backfill-vendors
           - backfill-exploited
           - backfill-cvss
-          - backfill-signals
-          - drop-report-urls
           - turso-check
           - nvd-check
           - seed-turso
           - seed-verify
           - backfill-translations
-      backfill_days:
-        description: '공개일 백필 소급 기간(일) — 2024년 이전까지 채우려면 7000'
-        default: '400'
       dry_run:
-        description: 'backfill-cvss·signals: 계산만 하고 저장하지 않기'
+        description: 'backfill-cvss: 계산만 하고 저장하지 않기'
         type: boolean
         default: false
 
@@ -72,16 +66,6 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python src/build_rule_index.py
 
-      - name: Backfill published dates
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-published' }}
-        env:
-          ARGUS_STORE: turso
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-          BACKFILL_DAYS: ${{ inputs.backfill_days }}
-        run: python src/backfill_published.py
-
       - name: Backfill currently exploited (KEV)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-exploited' }}
         env:
@@ -106,22 +90,6 @@ jobs:
           BACKFILL_CVSS_LIMIT: '1500'
           BACKFILL_CVSS_NVD_BUDGET: '2400'
         run: python src/backfill_cvss.py ${{ inputs.dry_run && '--dry-run' || '' }}
-
-      - name: Reconcile SSVC signals
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'backfill-signals' }}
-        env:
-          ARGUS_STORE: turso
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-        run: python src/backfill_signals.py ${{ inputs.dry_run && '--dry-run' || '' }}
-
-      - name: Drop legacy report URLs
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'drop-report-urls' }}
-        env:
-          ARGUS_STORE: turso
-          TURSO_DATABASE_URL: ${{ secrets.TURSO_DATABASE_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
-        run: python src/drop_report_urls.py ${{ inputs.dry_run && '--dry-run' || '' }}
 
       - name: Check Turso connection and apply schema
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.task == 'turso-check' }}

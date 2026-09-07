@@ -165,19 +165,6 @@ class TursoStore(Store):
             logger.info(f"  {label} 저장 {min(i + len(chunk), len(updates)):,}/{len(updates):,}")
         return done
 
-    def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
-        pending = []
-        for row in rows:
-            cve_id = row.get("id")
-            day = published.get(cve_id)
-            state = row.get("last_alert_state")
-            if not day or not state or state.get("published"):
-                continue
-            state = dict(state)
-            state["published"] = day
-            pending.append({"id": cve_id, "last_alert_state": state})
-        return self.bulk_save_states(pending, "공개일")
-
     def count_tracked(self) -> int:
         rows = self._query("SELECT count(*) FROM cves WHERE last_alert_state IS NOT NULL")
         return rows[0][0] if rows else 0
@@ -190,13 +177,6 @@ class TursoStore(Store):
     def tracked_states(self) -> List[Dict]:
         rows = self._query("SELECT id, last_alert_state FROM cves "
                            "WHERE last_alert_state IS NOT NULL ORDER BY id")
-        return [self._row(r, ("id", "last_alert_state")) for r in rows]
-
-    def get_rows_missing_published(self) -> List[Dict]:
-        rows = self._query(
-            "SELECT id, last_alert_state FROM cves "
-            "WHERE last_alert_state IS NOT NULL "
-            "AND (published IS NULL OR published = '') ORDER BY id")
         return [self._row(r, ("id", "last_alert_state")) for r in rows]
 
     def get_rows_missing_vendor(self) -> List[Dict]:

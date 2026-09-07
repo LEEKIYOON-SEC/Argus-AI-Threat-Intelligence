@@ -3,7 +3,7 @@ import os
 import sys
 
 import osv_index
-from store import create_store as ArgusDB
+from store import create_store
 from logger import logger
 
 _DATA = os.path.join(
@@ -25,7 +25,7 @@ def _tracked_cve_ids() -> list:
         pass
 
     try:
-        ids = ArgusDB().get_tracked_ids()
+        ids = create_store().get_tracked_ids()
         logger.info(f"대상 CVE {len(ids):,}건 (DB)")
         return ids
     except Exception as e:

@@ -76,7 +76,7 @@ NVD 에도 없음       0건
 `CVE-2016-0736` → cvelistV5 `cna.metrics: null` · NVD `3.0 = 7.5`.
 
 NVD 는 미국 정부 저작물이라 **퍼블릭 도메인·무료**이고, 이미 `backfill_vendors`·
-`backfill_published` 가 쓰고 있어 새 의존성이 아니다. 키가 있으면 건당 0.7초,
+`backfill_cvss` 가 쓰고 있어 새 의존성이 아니다. 키가 있으면 건당 0.7초,
 없으면 8초 — 574건이면 7분 vs 76분이라 시간 예산(기본 2,400초)을 두고 넘으면
 다음 실행이 이어서 본다. 연속 5회 실패하면 레이트리밋으로 보고 중단한다.
 
@@ -175,8 +175,7 @@ gemini_analysis_fb (3.1 FL)  RPM  15 · TPM 250,000 · RPD    500
 **신호는 판정이 읽는 모양으로 저장돼야 한다** — 전수 검토에서 나온 가장 큰 고장.
 
 `collector` 는 CISA vulnrichment 의 SSVC 를 `state['ssvc']['exploitation']` 중첩으로
-넣었는데 `risk.evaluate` 는 `state['ssvc_exploitation']` 평탄한 키만 읽었다. export 와
-`_waf_minimal_copy` 는 중첩본을 폴백으로 읽고 있어 **화면에는 'SSVC: active' 가 뜨는데
+넣었는데 `risk.evaluate` 는 `state['ssvc_exploitation']` 평탄한 키만 읽었다. export 는 중첩본을 폴백으로 읽고 있어 **화면에는 'SSVC: active' 가 뜨는데
 판정만 못 봤다.** 트리거 3개가 통째로 죽어 있었다.
 
 ```
@@ -198,9 +197,9 @@ gemini_analysis_fb (3.1 FL)  RPM  15 · TPM 250,000 · RPD    500
 더 걸어도 217건/일 로 거의 안 줄어 굳이 걸지 않는다.
 
 `ssvc_active` 는 T0 알림이라 그냥 켜면 저장된 432건이 "처음 보는 신호"가 되어 순차로
-Slack 을 쏜다. `src/backfill_signals.py` 가 발화 이력에 미리 채워 그걸 막는다
-(기본값은 이번 수정이 새로 켜는 `ssvc_active` 만 — 다른 트리거까지 덮으면 나가야 할
-알림을 영영 막는다).
+Slack 을 쏜다. 새 트리거를 켤 때는 `pipeline.process(..., silent=True)` 로 발화 이력을
+먼저 채워 그걸 막는다 — `seed_turso.py` 와 `backfill_exploited.py` 가 쓰는 방식이다.
+새로 켜는 트리거만 덮는다. 다른 트리거까지 덮으면 나가야 할 알림을 영영 막는다.
 
 | 규칙 | 근거 |
 |:---|:---|
@@ -275,13 +274,18 @@ p90.0 = 0.041  36,640건
 
 ---
 
-## 5. 저장 (`database.py`)
+## 5. 저장 (`src/store/`)
 
-- Supabase 앞단 Cloudflare WAF는 CVE 본문의 공격 페이로드성 문자열(`../../etc/shadow`,
-  `<script>`, SQLi 토큰)을 차단한다. **콘텐츠 결정적이라 재시도가 무의미하다** — 표시용
-  텍스트에 ZWSP를 넣은 사본으로 저장한다(화면 동일). 탐지 룰 원문에는 넣지 않는다
-  (붙여넣기가 깨진다).
-- PostgREST는 한 응답에 최대 1,000행. `in_()` 청크는 200개(URL 길이 한도).
+- 저장소는 인터페이스(`store/base.py`) 뒤에 있고 구현은 Turso(libSQL) 하나다
+  (`store/turso_store.py`). `ARGUS_STORE` 로 고른다.
+- **조회 실패를 '없음'으로 둔갑시키지 않는다.** 실패는 `StoreError` 로 올리고 빈 결과만
+  빈 값으로 돌려준다. 예전 Supabase 구현이 예외를 삼켜 `set()`·`None`·`0` 을 돌려줬고,
+  그 때문에 스냅샷이 통째로 덮이거나(알림 폭풍) 재부트스트랩됐다(알림 삼킴).
+- 삭제·비우기 쿼리에는 **명시적 `LIMIT` 이 있어야 한다.** PostgREST 시절에는 1,000행 캡이
+  사실상 배치 상한 노릇을 했는데 SQLite 에는 그 캡이 없어 전체 집합이 한 번에 대상이 된다.
+- 보존 정책의 삭제 여부 판정은 SQL 이 아니라 파이썬(`_is_alerting_row`)이 한다. 저장된
+  tier 와 다시 계산한 tier 중 **더 위험한 쪽**을 쓰기 때문이다. `tier` 컬럼만 보는 조건으로
+  바꾸면 저장은 T2 인데 재평가하면 T0 인 행 — 실제 악용 중인 CVE — 이 지워진다.
 
 ---
 
@@ -303,7 +307,6 @@ p90.0 = 0.041  36,640건
 | 이번 회차가 CVSS 를 하나도 못 찾았으면 **이전 점수를 지킨다** | 2016년 이전 CVE 는 cvelistV5 에 metrics 가 없어 `parse_record` 가 0.0 을 낸다. `backfill-cvss` 가 NVD 로 채운 값이 다음 fast-lane 에서 지워져 도구 자체가 무력해졌다. 레코드가 실제로 더 낮은 점수를 주면 그건 따른다 |
 | **Slack 전송이 실패하면 발화 이력도 `last_alert_at` 도 남기지 않는다** | 반환값을 버리고 있었다 — 전송이 실패해도 재알림 억제가 걸려 그 CVE 는 두 번 다시 알리지 않았다. 웹훅이 바뀌거나 Slack 이 몇 분 죽으면 그 창의 알림이 전부 사라진다 |
 | 만든 리포트 URL 은 **알림 성공 여부와 무관하게** 기록하고, 이미 있으면 다시 만들지 않는다 | 위 수정만 하면 실패할 때마다 GitHub Issue 가 새로 생긴다(실측 3회차에 3개) |
-| **WAF 축소 저장은 필드를 버리지 않고 본문만 줄인다** (`_waf_minimal_copy`) | 고정 화이트리스트라 STATE_FIELDS 19개를 통째로 버렸다 — `cvss_vector`·`cvss_scores`·`affected`·`references`·`ssvc`·`ai_*`·`poc_urls`·`metasploit_modules`. 다음 회차 `carry_forward` 가 이 축소본을 '이전에 알던 것'으로 읽으므로 손실이 영구적이다. 실측 트리거 3개 소실. 그래도 막히면 4단계에서 **레코드로 다시 읽어올 수 있는 본문만** 버리고 번역·신호는 남긴다 |
 | **탐지 룰 인덱스를 못 받은 회차는 `has_official_rules`·`rules_snapshot` 을 쓰지 않는다** (`rule_manager.index_ok()`) | 로더가 실패해도 `{}` 를 돌려주므로 '룰 없음'으로 DB 에 기록돼 이전에 확인해 둔 룰이 지워졌다. 룰 재확인도 이때는 건너뛴다 — 돌려봐야 7일 쿨다운만 태운다 |
 | **룰 인덱스 생성이 부분 실패하면 실패한 엔진만 직전 배포본에서 이월한다** (`build_rule_index.carry_missing`) | SigmaHQ 하나만 403 이어도 sigma 가 빠진 인덱스가 배포되고, 그걸 읽은 파이프라인이 해당 CVE 를 '룰 없음'으로 기록했다. 전부 실패하거나 이월할 직전본도 없으면 덮어쓰지 않고 종료 |
 | **지표를 못 받았으면 화면에 `unknown` 이라 쓴다 — 0% 나 No 가 아니다** | 리포트가 `EPSS 0.00%` · `KEV No` 로 적어 위험을 낮춰 불렀다. 실제로 관측된 0 은 그대로 0 이다 |
@@ -524,44 +527,22 @@ VulnCheck 커뮤니티 티어는 `/v3/backup/`이다. `/v3/index/`는 상위 티
 | Secret | 발급처 | 필수 |
 |:---|:---|:--:|
 | `GEMINI_API_KEY` | aistudio.google.com | ✅ |
-| `SUPABASE_URL` · `SUPABASE_KEY` | supabase.com | ✅ |
+| `TURSO_DATABASE_URL` · `TURSO_AUTH_TOKEN` | turso.tech (libSQL, 무료 티어) | ✅ |
 | `SLACK_WEBHOOK_URL` | Slack Incoming Webhook | ✅ |
 | `GH_TOKEN` | GitHub PAT (issues:write) | ✅ |
 | `NVD_API_KEY` | nvd.nist.gov | 선택 |
 | `VULNCHECK_API_KEY` | vulncheck.com | 선택 (있으면 T0 커버리지↑) |
 
-**DB 스키마** — Supabase SQL Editor에서 1회
+**DB 스키마** — 손으로 만들 것이 없다. `src/turso_schema.py` 의 `apply()` 가 연결할
+때마다 `CREATE TABLE IF NOT EXISTS` 로 테이블 3개(`cves`·`pipeline_state`·
+`signal_snapshots`)와 인덱스 8개를 세운다. `turso-check` 작업으로 연결과 스키마를
+한 번에 확인할 수 있다.
 
-```sql
-create table if not exists cves (
-  id                 text primary key,
-  cvss_score         double precision,
-  epss_score         double precision,
-  is_kev             boolean,
-  last_alert_state   jsonb,
-  rules_snapshot     jsonb,
-  report_url         text,
-  has_official_rules boolean,
-  last_rule_check_at timestamptz,
-  last_alert_at      timestamptz,
-  updated_at         timestamptz
-);
-
-create table if not exists pipeline_state (
-  id         int primary key,
-  state      jsonb       not null default '{}'::jsonb,
-  updated_at timestamptz not null default now()
-);
-insert into pipeline_state (id, state) values (1, '{}'::jsonb)
-  on conflict (id) do nothing;
-
-create table if not exists signal_snapshots (
-  source     text primary key,
-  digest     text        not null,
-  cve_ids    jsonb       not null default '[]'::jsonb,
-  updated_at timestamptz not null default now()
-);
-```
+`cves` 의 `tier`·`published`·`has_analysis` 는 `last_alert_state` JSON 에서 뽑는
+**생성 컬럼**이다. SQLite 는 JSON 경로에 인덱스를 못 걸어서, 인덱스가 필요한 경로는
+컬럼으로 승격해야 전체 스캔을 면한다. Turso 는 **스캔한 행 수로 과금**하므로 인덱스가
+속도 문제가 아니라 비용 문제다. 생성 컬럼에는 서브쿼리를 쓸 수 없어(`json_each` 포함)
+`has_vendor` 만 파이썬이 계산해 넣는다.
 
 `signal_snapshots`가 없어도 파이프라인은 죽지 않지만 **소스측 에스컬레이션 대조가
 동작하지 않는다.**

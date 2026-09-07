@@ -16,7 +16,7 @@ import requests
 import feed
 import risk
 from collector import collect_cvss, pick_cvss
-from store import create_store as ArgusDB
+from store import create_store
 import nvd
 from logger import logger
 
@@ -169,7 +169,7 @@ def _fill_from_nvd(results: List[Tuple[str, Dict, Dict]],
 
 def run(limit: int, dry_run: bool, workers: int = 24, nvd_budget: float = 2400.0) -> int:
     started = time.time()
-    db = ArgusDB()
+    db = create_store()
 
     rows = db.get_rows_needing_cvss()
     if not rows:

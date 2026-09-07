@@ -25,10 +25,6 @@ class Store(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def bulk_set_published(self, rows: List[Dict], published: Dict[str, str]) -> int:
-        raise NotImplementedError
-
-    @abstractmethod
     def count_tracked(self) -> int:
         raise NotImplementedError
 
@@ -38,10 +34,6 @@ class Store(ABC):
 
     @abstractmethod
     def tracked_states(self) -> List[Dict]:
-        raise NotImplementedError
-
-    @abstractmethod
-    def get_rows_missing_published(self) -> List[Dict]:
         raise NotImplementedError
 
     @abstractmethod
