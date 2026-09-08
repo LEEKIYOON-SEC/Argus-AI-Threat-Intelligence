@@ -69,7 +69,6 @@ class ArgusConfig:
     ]
 
     STORE_ENV_VARS = {
-        "supabase": ["SUPABASE_URL", "SUPABASE_KEY"],
         "turso": ["TURSO_DATABASE_URL", "TURSO_AUTH_TOKEN"],
     }
 
@@ -80,7 +79,7 @@ class ArgusConfig:
 
 
     def required_env_vars(self):
-        store = (os.environ.get("ARGUS_STORE") or "supabase").strip().lower()
+        store = (os.environ.get("ARGUS_STORE") or "turso").strip().lower()
         return self.REQUIRED_ENV_VARS + self.STORE_ENV_VARS.get(store, [])
 
 

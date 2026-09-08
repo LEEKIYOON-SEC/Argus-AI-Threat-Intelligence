@@ -13,7 +13,7 @@ import state as pstate
 from pages import dashboard_url as _dashboard_url
 from collector import Collector
 from config import config
-from store import Store, create_store as ArgusDB
+from store import Store, create_store
 from logger import logger
 from notifier import SlackNotifier
 from rate_limiter import rate_limit_manager
@@ -145,7 +145,7 @@ def run() -> None:
 
     deadline = _deadline()
     collector = Collector()
-    db = ArgusDB()
+    db = create_store()
     notifier = SlackNotifier()
     rate_limit_manager.import_rpd_state(pstate.read_rpd_state())
 

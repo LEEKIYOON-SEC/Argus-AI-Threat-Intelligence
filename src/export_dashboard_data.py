@@ -157,7 +157,6 @@ def export_cves(db, days: int = 90, since: str = None) -> list:
         entry["has_poc"] = state_poc
         entry["poc_urls"] = _l(state, "poc_urls")[:3]
 
-        entry["degraded"] = bool(state.get("waf_degraded"))
         entry["cvss_vector"] = _s(state, "cvss_vector")
         entry["cvss_version"] = _s(state, "cvss_version")
         scores = state.get("cvss_scores")

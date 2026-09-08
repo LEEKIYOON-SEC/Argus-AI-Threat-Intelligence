@@ -6,7 +6,7 @@ from typing import Dict, List
 import requests
 
 from collector import affected_from_cpes
-from store import create_store as ArgusDB
+from store import create_store
 import nvd
 from logger import logger
 
@@ -41,7 +41,7 @@ def main() -> int:
     logger.info(f"영향 벤더 백필 시작 (NVD 키 {'있음' if api_key else '없음'} · 건당 {gap}초)")
     logger.info("=" * 60)
 
-    db = ArgusDB()
+    db = create_store()
     rows = db.get_rows_missing_vendor()
     if not rows:
         logger.info("벤더가 빠진 행이 없습니다 — 종료")
