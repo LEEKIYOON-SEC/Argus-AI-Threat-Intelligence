@@ -31,21 +31,35 @@ def _flat_ssvc(state: dict) -> dict:
     return out
 
 
-def _tier_of(state: dict, entry: dict) -> str:
-    derived = risk.evaluate({
+def _verdict_of(state: dict, entry: dict):
+    return risk.evaluate({
         **state,
         **_flat_ssvc(state),
         "is_kev": entry.get("is_kev", False),
         "cvss": entry.get("cvss", 0) or 0,
         "epss": entry.get("epss", 0) or 0,
-    }).tier
+    })
+
+
+def _tier_of(state: dict, entry: dict, verdict=None) -> str:
+    derived = (verdict or _verdict_of(state, entry)).tier
     stored = _s(state, "tier")
     if stored not in (risk.T0, risk.T1, risk.T2, risk.T3):
         return derived
     return min(stored, derived, key=risk.tier_rank)
 
 
-_EXPORT_SCHEMA = 2
+_TRIGGER_ORDER = {key: i for i, key in enumerate(risk.TRIGGERS)}
+
+
+def _triggers_of(state: dict, verdict) -> list:
+    fired = [t for t in _l(state, "fired_triggers") if isinstance(t, str)]
+    if fired:
+        return fired
+    return sorted(verdict.triggers, key=lambda k: _TRIGGER_ORDER.get(k, 99))
+
+
+_EXPORT_SCHEMA = 3
 _MAX_REFERENCES = 8
 _ANALYSIS_KEYS = ("root_cause", "scenario", "impact")
 
@@ -175,8 +189,9 @@ def export_cves(db, days: int = 90, since: str = None) -> list:
         entry["ai_url"] = _s(state, "ai_url")
         entry["is_vulncheck_kev"] = state.get("is_vulncheck_kev", False)
 
-        entry["tier"] = _tier_of(state, entry)
-        entry["triggers"] = [t for t in _l(state, "fired_triggers") if isinstance(t, str)]
+        verdict = _verdict_of(state, entry)
+        entry["tier"] = _tier_of(state, entry, verdict)
+        entry["triggers"] = _triggers_of(state, verdict)
         entry["epss_percentile"] = state.get("epss_percentile") or 0
 
         ssvc = state.get("ssvc") or {}
