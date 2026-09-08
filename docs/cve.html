@@ -73,45 +73,84 @@
     </section>
 
     <section class="filter-bar">
-      <div class="filter-row">
+      <div class="filter-row primary">
         <div class="search-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" class="search-input" id="search-input" placeholder="CVE ID · 키워드 검색…">
+          <input type="text" class="search-input" id="search-input"
+                 placeholder="CVE ID · 키워드 · cvss:&gt;=9 has:kev vendor:apache">
+          <button type="button" class="syntax-help" id="syntax-help" aria-label="검색 문법 도움말">?</button>
         </div>
-        <select class="filter-select" id="vendor-filter" title="벤더로 좁히기"><option value="">전체 벤더</option></select>
-        <select class="filter-select" id="product-filter" title="제품으로 좁히기"><option value="">전체 제품</option></select>
-        <select class="filter-select" id="month-filter" title="월별 조회"><option value="">전체 기간</option></select>
-        <select class="filter-select" id="day-filter" title="일별 조회 (월 선택 시 해당 월의 날짜만)"><option value="">전체 일자</option></select>
+        <label class="num-filter" title="이 값 이상만 (빈칸이면 전체)">CVSS ≥
+          <input type="number" id="cvss-min" min="0" max="10" step="0.1" placeholder="—">
+        </label>
+        <label class="num-filter" title="EPSS 백분위 이상만 (90 = 악용 확률 상위 10%)">EPSS ≥
+          <input type="number" id="epss-min" min="0" max="100" step="1" placeholder="—"><span class="unit">%</span>
+        </label>
+        <button type="button" class="filter-toggle" id="filter-toggle" aria-expanded="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+          필터<span class="count" id="filter-count" hidden>0</span>
+        </button>
+        <div class="export-group">
+          <button class="export-btn" onclick="exportHighRiskByMonth()" title="선택 월의 고위험(Critical/High)을 CSV로">고위험</button>
+          <button class="export-btn" onclick="exportData('csv')" title="필터된 목록 CSV">CSV</button>
+          <button class="export-btn" onclick="exportData('json')" title="필터된 목록 JSON">JSON</button>
+          <button class="export-btn" onclick="exportData('stix')" title="필터된 목록 STIX 2.1">STIX</button>
+        </div>
       </div>
 
-      <div class="filter-row">
-        <div class="seg" id="severity-seg">
-          <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
-          <button class="seg-btn active sev-c-high" data-severity="High"><span class="dot" style="background:var(--sev-high)"></span>High</button>
-          <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
-          <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
-        </div>
-        <div class="seg">
-          <button class="seg-btn signal" data-signal="kev">🚨 악용 중</button>
-          <button class="seg-btn signal" data-signal="weaponized">🧨 무기화</button>
-          <button class="seg-btn signal" data-signal="poc">🔬 PoC</button>
-          <button class="seg-btn signal" data-signal="rules">🛡️ 공개 룰</button>
-          <button class="seg-btn signal" data-signal="auto" title="CISA SSVC Automatable=yes — 점수가 낮아도 대량 자동 공격 대상">🤖 자동화 가능</button>
-          <button class="seg-btn signal" data-signal="ai" title="AI가 찾아 책임공개된 취약점 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 이미 패치된 경우가 많지만 상세가 함께 공개됩니다.">🧠 AI 발견</button>
-          <button class="seg-btn signal" data-signal="patched" title="OSV가 수정 버전을 알려주는 건 — 올릴 목표가 있는 것부터 처리할 때">🩹 패치 있음</button>
-        </div>
-        <select class="filter-select" id="kernel-filter" title="Linux 커널 CVE는 전부 Linux/Linux로만 표기돼 제품 구분이 없습니다. 커널은 CVE마다 고치는 게 아니라 패키지를 한 번 올리는 단위라, 나머지를 훑을 땐 제외하고 보는 편이 낫습니다.">
-          <option value="">커널 포함</option>
-          <option value="hide">커널 제외</option>
-          <option value="only">커널만</option>
-        </select>
+      <div class="active-chips" id="active-chips" hidden></div>
 
-        <div class="filter-spacer"></div>
-        <div class="export-group">
-          <button class="export-btn export-highrisk" onclick="exportHighRiskByMonth()" title="선택 월의 고위험(Critical/High)을 CSV로">고위험 CVE ↓</button>
-          <button class="export-btn" onclick="exportData('csv')" title="필터된 목록 CSV">CSV ↓</button>
-          <button class="export-btn" onclick="exportData('json')" title="필터된 목록 JSON">JSON ↓</button>
-          <button class="export-btn" onclick="exportData('stix')" title="필터된 목록 STIX 2.1">STIX ↓</button>
+      <div class="syntax-card" id="syntax-card" hidden>
+        <b>검색 문법</b> — 단어만 쓰면 CVE ID·제목·설명·벤더에서 찾습니다. 조건은 겹쳐 쓸 수 있습니다.
+        <div class="syntax-grid">
+          <code>cvss:&gt;=9</code><span>CVSS 9.0 이상 — <code>&gt;</code> <code>&lt;</code> <code>&lt;=</code> <code>=</code> 도 가능</span>
+          <code>epss:&gt;=90</code><span>EPSS 백분위 90 이상 = 악용 확률 상위 10%</span>
+          <code>tier:T0</code><span>T0 관측된 악용 · T1 무기화 임박 · T2 관찰</span>
+          <code>vendor:apache</code><span>벤더 이름에 포함</span>
+          <code>product:log4j</code><span>제품 이름에 포함</span>
+          <code>cwe:502</code><span>취약점 유형(CWE) 번호</span>
+          <code>has:kev</code><span>kev · msf · nuclei · edb · poc · rules · ai · auto · ransom · patched</span>
+        </div>
+        <span class="syntax-eg">예: <code>cvss:&gt;=9 has:kev vendor:microsoft</code> — 마이크로소프트 제품 중 악용이 확인된 CVSS 9 이상</span>
+      </div>
+
+      <div class="filter-more" id="filter-more" hidden>
+        <div class="filter-group">
+          <span class="filter-legend">심각도</span>
+          <div class="seg" id="severity-seg">
+            <button class="seg-btn active sev-c-critical" data-severity="Critical"><span class="dot" style="background:var(--sev-critical)"></span>Critical</button>
+            <button class="seg-btn active sev-c-high" data-severity="High"><span class="dot" style="background:var(--sev-high)"></span>High</button>
+            <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
+            <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-legend">위협 신호</span>
+          <div class="seg">
+            <button class="seg-btn signal" data-signal="kev">🚨 악용 중</button>
+            <button class="seg-btn signal" data-signal="weaponized">🧨 무기화</button>
+            <button class="seg-btn signal" data-signal="poc">🔬 PoC</button>
+            <button class="seg-btn signal" data-signal="rules">🛡️ 공개 룰</button>
+            <button class="seg-btn signal" data-signal="auto" title="CISA SSVC Automatable=yes — 점수가 낮아도 대량 자동 공격 대상">🤖 자동화 가능</button>
+            <button class="seg-btn signal" data-signal="ai" title="AI가 찾아 책임공개된 취약점 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 이미 패치된 경우가 많지만 상세가 함께 공개됩니다.">🧠 AI 발견</button>
+            <button class="seg-btn signal" data-signal="patched" title="OSV가 수정 버전을 알려주는 건 — 올릴 목표가 있는 것부터 처리할 때">🩹 패치 있음</button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-legend">범위</span>
+          <div class="filter-row">
+            <select class="filter-select" id="vendor-filter" title="벤더로 좁히기"><option value="">전체 벤더</option></select>
+            <select class="filter-select" id="product-filter" title="제품으로 좁히기"><option value="">전체 제품</option></select>
+            <select class="filter-select" id="month-filter" title="월별 조회"><option value="">전체 기간</option></select>
+            <select class="filter-select" id="day-filter" title="일별 조회 (월 선택 시 해당 월의 날짜만)"><option value="">전체 일자</option></select>
+            <select class="filter-select" id="kernel-filter" title="Linux 커널 CVE는 전부 Linux/Linux로만 표기돼 제품 구분이 없습니다. 커널은 CVE마다 고치는 게 아니라 패키지를 한 번 올리는 단위라, 나머지를 훑을 땐 제외하고 보는 편이 낫습니다.">
+              <option value="">커널 포함</option>
+              <option value="hide">커널 제외</option>
+              <option value="only">커널만</option>
+            </select>
+          </div>
         </div>
       </div>
     </section>
@@ -162,7 +201,12 @@
   </div>
 
   <footer class="site-footer">
-    <h2>데이터 출처 및 라이선스</h2>
+    <details class="source-note">
+      <summary>
+        <span class="src-title">데이터 출처 및 라이선스</span>
+        <span class="src-sum">CVE Program · NVD · CISA KEV · EPSS · VulnCheck · Metasploit · Exploit-DB · nuclei · OSV 외 — 전부 무료·재배포 허용 소스</span>
+        <span class="src-caret">펼치기</span>
+      </summary>
 
     <div class="footer-grid">
       <section>
@@ -202,7 +246,7 @@
         <h3>가공·전달</h3>
         <ul>
           <li>한국어 번역·심층 분석: Google AI Studio (Gemini · Gemma) 무료 티어</li>
-          <li>저장: Supabase · 배포: GitHub Pages · 알림: Slack Incoming Webhook</li>
+          <li>저장: <a href="https://turso.tech/" target="_blank" rel="noopener noreferrer">Turso</a> (libSQL, MIT) · 배포: GitHub Pages · 알림: Slack Incoming Webhook</li>
         </ul>
       </section>
     </div>
@@ -212,6 +256,7 @@
       AI 번역·심층 분석과 위험도 분류는 참고용이며 정확성을 보증하지 않습니다.
       대응 판단은 반드시 원 권고문을 확인한 뒤 내리세요.
     </p>
+    </details>
   </footer>
 
   <script src="js/chart.js"></script>
