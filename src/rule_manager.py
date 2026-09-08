@@ -99,7 +99,6 @@ class RuleManager:
                 "url": entry.get("url", ""),
                 "author": entry.get("author", ""),
                 "license_url": entry.get("license_url", ""),
-                "verified": True,
             }
             if engine in ("snort2", "snort3", "suricata5", "suricata7"):
                 if len(rules["network"]) >= 3:

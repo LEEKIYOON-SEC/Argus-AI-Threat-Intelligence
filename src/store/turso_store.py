@@ -174,11 +174,6 @@ class TursoStore(Store):
             "SELECT id FROM cves WHERE last_alert_state IS NOT NULL ORDER BY id")
         return [r[0] for r in rows]
 
-    def tracked_states(self) -> List[Dict]:
-        rows = self._query("SELECT id, last_alert_state FROM cves "
-                           "WHERE last_alert_state IS NOT NULL ORDER BY id")
-        return [self._row(r, ("id", "last_alert_state")) for r in rows]
-
     def get_rows_missing_vendor(self) -> List[Dict]:
         rows = self._query(
             "SELECT id, last_alert_state FROM cves "
@@ -289,6 +284,10 @@ class TursoStore(Store):
             now = _now()
             with self._lock:
                 for key, value in state.items():
+                    if value is None:
+                        self._conn.execute(
+                            "DELETE FROM pipeline_state WHERE key = ?", (key,))
+                        continue
                     self._conn.execute(
                         "INSERT INTO pipeline_state (key, value, updated_at) "
                         "VALUES (?, ?, ?) ON CONFLICT(key) DO UPDATE SET "

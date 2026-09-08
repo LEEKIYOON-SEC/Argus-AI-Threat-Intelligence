@@ -33,10 +33,6 @@ class Store(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def tracked_states(self) -> List[Dict]:
-        raise NotImplementedError
-
-    @abstractmethod
     def get_rows_missing_vendor(self) -> List[Dict]:
         raise NotImplementedError
 
