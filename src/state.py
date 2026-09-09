@@ -107,15 +107,9 @@ def write_watermark(dt_utc: datetime.datetime,
     payload = _read_state()
     payload["last_processed_until"] = dt_utc.astimezone(pytz.UTC).isoformat()
     for key, value in (("failures", failures), ("quarantined", quarantined)):
-        if value:
-            payload[key] = value
-        else:
-            payload.pop(key, None)
+        payload[key] = value or None
     if rpd is not None:
-        if rpd:
-            payload["rpd"] = rpd
-        else:
-            payload.pop("rpd", None)
+        payload["rpd"] = rpd or None
     _write_state(payload)
     logger.info(f"워터마크 저장: {payload['last_processed_until']}")
 
@@ -133,8 +127,5 @@ def write_backfill_offset(offset: int) -> None:
 
 def write_rpd_state(rpd: Dict[str, Dict[str, int]]) -> None:
     data = _read_state()
-    if rpd:
-        data["rpd"] = rpd
-    else:
-        data.pop("rpd", None)
+    data["rpd"] = rpd or None
     _write_state(data)

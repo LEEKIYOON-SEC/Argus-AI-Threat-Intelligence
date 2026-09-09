@@ -340,8 +340,7 @@ class Collector:
         if enrichment_sources.poc_ok():
             urls = enrichment_sources.poc_urls(cve_id)
             cve_data['has_poc'] = bool(urls)
-            if urls:
-                cve_data['poc_urls'] = urls
+            cve_data['poc_urls'] = urls
         if enrichment_sources.nuclei_ok():
             tpl = enrichment_sources.nuclei_template(cve_id)
             cve_data['has_nuclei_template'] = tpl is not None

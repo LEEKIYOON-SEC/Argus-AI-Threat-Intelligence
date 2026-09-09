@@ -14,6 +14,16 @@ class NotifierError(Exception):
     pass
 
 
+def _rule_block(label: str, rule: Dict) -> str:
+    head = f"*🟢 {label}* ({rule.get('source', '')})"
+    code = str(rule.get('code') or '').strip()
+    if not code:
+        url = rule.get('url') or ''
+        return f"{head}\n<{url}|원문 보기>" if url else head
+    preview = code[:800] + "\n..." if len(code) > 800 else code
+    return f"{head}\n```{preview}```"
+
+
 class SlackNotifier:
     RETRY_DELAYS = (2, 5, 10)
 
@@ -294,35 +304,23 @@ class SlackNotifier:
 
             rule_count = 0
 
-            if rules_info.get('sigma') and rules_info['sigma'].get('code'):
+            for key, label in (("sigma", "Sigma"), ("yara", "YARA"),
+                               ("splunk", "Splunk ESCU"), ("nuclei", "nuclei")):
+                rule = rules_info.get(key)
+                if not rule:
+                    continue
                 rule_count += 1
-                sigma_code = rules_info['sigma']['code'].strip()
-                preview = sigma_code[:800] + "\n..." if len(sigma_code) > 800 else sigma_code
-                blocks.append({
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*🟢 Sigma* ({rules_info['sigma']['source']})\n```{preview}```"}
-                })
+                blocks.append({"type": "section", "text": {
+                    "type": "mrkdwn", "text": _rule_block(label, rule)}})
 
-            if rules_info.get('network'):
-                for net_rule in rules_info['network']:
-                    if net_rule.get('code'):
-                        rule_count += 1
-                        engine = net_rule.get('engine', 'unknown').upper()
-                        rule_code = net_rule['code'].strip()
-                        preview = rule_code[:800] + "\n..." if len(rule_code) > 800 else rule_code
-                        blocks.append({
-                            "type": "section",
-                            "text": {"type": "mrkdwn", "text": f"*🟢 {engine}* ({net_rule['source']})\n```{preview}```"}
-                        })
-
-            if rules_info.get('yara') and rules_info['yara'].get('code'):
+            for net_rule in (rules_info.get('network') or []):
+                if not net_rule.get('code'):
+                    continue
                 rule_count += 1
-                yara_code = rules_info['yara']['code'].strip()
-                preview = yara_code[:800] + "\n..." if len(yara_code) > 800 else yara_code
-                blocks.append({
-                    "type": "section",
-                    "text": {"type": "mrkdwn", "text": f"*🟢 Yara* ({rules_info['yara']['source']})\n```{preview}```"}
-                })
+                blocks.append({"type": "section", "text": {
+                    "type": "mrkdwn",
+                    "text": _rule_block(str(net_rule.get('engine') or '').upper(),
+                                        net_rule)}})
 
             blocks.append({"type": "divider"})
             blocks.append({

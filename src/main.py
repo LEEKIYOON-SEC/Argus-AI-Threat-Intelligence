@@ -14,6 +14,7 @@ from google.genai import types
 import ai_provenance
 import enrichment_sources
 import feed
+import package_index
 import pipeline
 import risk
 import signal_snapshot
@@ -442,7 +443,8 @@ def _recheck_soon() -> str:
     return (datetime.datetime.now(KST) - datetime.timedelta(days=6)).isoformat()
 
 
-def check_for_official_rules(db: Store, notifier: SlackNotifier) -> None:
+def check_for_official_rules(db: Store, notifier: SlackNotifier,
+                             deadline_ts: Optional[float] = None) -> None:
     try:
         logger.info("=== 공식 룰 재발견 체크 시작 ===")
 
@@ -463,6 +465,10 @@ def check_for_official_rules(db: Store, notifier: SlackNotifier) -> None:
         found_count = 0
 
         for record in candidates:
+            if deadline_ts is not None and time.time() > deadline_ts:
+                logger.warning("⏰ 시간 예산 도달 — 공식 룰 재확인 중단 "
+                               "(쿨다운을 안 쓴 대상은 다음 실행이 그대로 이어받는다)")
+                break
             cve_id = record['id']
 
             try:
@@ -640,6 +646,7 @@ def _main() -> None:
     collector.fetch_kev()
     collector.fetch_vulncheck_kev()
     collector.ai_ledger = ai_provenance.load_anthropic_ledger()
+    package_index.get()
 
     outcomes = sweep_heavy_signals(collector, db, notifier, deadline)
     if outcomes:
@@ -649,13 +656,13 @@ def _main() -> None:
 
     translate_tracked(db, deadline)
 
-    if time.time() < deadline:
-        check_for_official_rules(db, notifier)
-
     pstate.write_rpd_state(rate_limit_manager.export_rpd_state())
 
     tracked = sum(1 for o in outcomes if o.status == "tracked")
     notifier.send_batch_summary(dashboard_url=_dashboard_url(), tracked=tracked)
+
+    if time.time() < deadline:
+        check_for_official_rules(db, notifier, deadline)
 
     logger.info("=" * 60)
     logger.info(f"bulk-lane 완료 · {time.time() - started:.1f}초")

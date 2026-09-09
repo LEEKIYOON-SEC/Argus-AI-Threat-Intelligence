@@ -161,8 +161,10 @@ def write_index(index: Dict, path: str, kernel_aliases: Iterable[str] = ()) -> b
             "kernel_aliases": sorted(kernel_aliases),
             "packages": index,
         }
-        with open(path, "w", encoding="utf-8") as f:
+        tmp = f"{path}.tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+        os.replace(tmp, path)
         size = os.path.getsize(path) / 1024
         logger.info(f"역인덱스 저장: {path} ({size:,.0f} KB)")
         return True
