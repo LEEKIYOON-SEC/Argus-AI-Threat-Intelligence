@@ -19,7 +19,7 @@ from notifier import SlackNotifier
 from rate_limiter import rate_limit_manager
 
 def _deadline() -> float:
-    return time.time() + config.PERFORMANCE.get("fast_deadline_minutes", 5) * 60
+    return time.time() + config.PERFORMANCE["fast_deadline_minutes"] * 60
 
 
 def _load_signals(collector: Collector) -> Optional[Dict[str, Tuple[float, float]]]:
@@ -70,7 +70,7 @@ def _sweep_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                    epss_index, deadline: float,
                    rows: Optional[pipeline.RowCache] = None) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []
-    cap = config.PERFORMANCE.get("snapshot_cap", 80)
+    cap = config.PERFORMANCE["snapshot_cap"]
     for diff in signal_snapshot.sweep(db, fast_only=True, cap=cap):
         if not diff.added:
             continue
@@ -79,7 +79,7 @@ def _sweep_signals(collector: Collector, db: Store, notifier: SlackNotifier,
             break
         targets = {t: signal_snapshot.cve_of(t) for t in diff.added}
         records, absent = feed.fetch_records(
-            list(targets.values()), workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+            list(targets.values()), workers=config.PERFORMANCE["max_workers"] * 2)
         processed: List[str] = [t for t, c in targets.items() if c in absent]
         for token, cve_id in targets.items():
             if time.time() > deadline:
@@ -109,8 +109,8 @@ def _sweep_signals(collector: Collector, db: Store, notifier: SlackNotifier,
 def _advance_watermark(horizon: datetime.datetime,
                        failed_at: Dict[str, datetime.datetime]) -> None:
     fails, quarantined = pstate.read_failure_state()
-    max_fail = config.PERFORMANCE.get("max_consecutive_failures", 3)
-    retry_h = config.PERFORMANCE.get("quarantine_retry_hours", 24)
+    max_fail = config.PERFORMANCE["max_consecutive_failures"]
+    retry_h = config.PERFORMANCE["quarantine_retry_hours"]
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
     held = pstate.active_quarantine(quarantined, retry_h)
@@ -154,8 +154,8 @@ def run() -> None:
     watermark = pstate.read_watermark()
     changes, horizon = feed.changes_since(
         watermark, deadline=deadline,
-        cap=config.PERFORMANCE.get("fast_max_changes", 1500))
-    feed.fill_records(changes, workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+        cap=config.PERFORMANCE["fast_max_changes"])
+    feed.fill_records(changes, workers=config.PERFORMANCE["max_workers"] * 2)
 
     rows = pipeline.RowCache(db, [c.cve_id for c in changes])
     outcomes, failed_at = _evaluate_changes(changes, collector, db, notifier,

@@ -9,9 +9,6 @@ import enrichment_sources
 import risk
 from logger import logger
 
-DEFAULT_CAP = 80
-
-
 @dataclass(frozen=True)
 class Source:
     key: str
@@ -101,7 +98,7 @@ class Diff:
     known: Set[str] = field(default_factory=set)
 
 
-def sweep(store, fast_only: bool = False, cap: int = DEFAULT_CAP,
+def sweep(store, cap: int, fast_only: bool = False,
           only: Optional[List[str]] = None) -> List[Diff]:
     results: List[Diff] = []
     for key, source in SOURCES.items():

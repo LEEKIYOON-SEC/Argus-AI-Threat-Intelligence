@@ -55,9 +55,9 @@ _TOKENS_PER_ITEM = 250
 
 
 def _translation_budget() -> int:
-    batch = max(1, config.PERFORMANCE.get("translation_batch_size", 6))
-    reserve = config.PERFORMANCE.get("translation_daily_reserve", 0.15)
-    minutes = config.PERFORMANCE.get("translation_minutes", 18)
+    batch = max(1, config.PERFORMANCE["translation_batch_size"])
+    reserve = config.PERFORMANCE["translation_daily_reserve"]
+    minutes = config.PERFORMANCE["translation_minutes"]
 
     best = 0
     for _model, key in _TRANSLATION_STAGES:
@@ -71,7 +71,7 @@ def _translation_budget() -> int:
 
 def translate_tracked(db: Store, deadline_ts: float) -> int:
     stop_ts = min(deadline_ts,
-                  time.time() + config.PERFORMANCE.get("translation_minutes", 18) * 60)
+                  time.time() + config.PERFORMANCE["translation_minutes"] * 60)
     if time.time() > stop_ts:
         logger.info("번역 생략 (시간 예산 도달)")
         return 0
@@ -80,7 +80,7 @@ def translate_tracked(db: Store, deadline_ts: float) -> int:
         logger.warning("번역 생략 — 번역 모델의 일일 한도(RPD)가 남아 있지 않다")
         return 0
 
-    pool = max(1, config.PERFORMANCE.get("translation_backfill_pool", 200))
+    pool = max(1, config.PERFORMANCE["translation_backfill_pool"])
     total = db.count_tracked()
     logger.info(f"🈯 번역 예산: 최대 {budget:,}건 · {(stop_ts - time.time()) / 60:.0f}분 "
                 f"(추적 {total:,}행)")
@@ -283,10 +283,10 @@ def generate_korean_summaries_batch(items: List[Dict],
     if not items:
         return results
 
-    batch_size = config.PERFORMANCE.get("translation_batch_size", 6)
+    batch_size = config.PERFORMANCE["translation_batch_size"]
     chunks = [items[i:i + batch_size] for i in range(0, len(items), batch_size)]
     total_chunks = len(chunks)
-    concurrency = max(1, config.PERFORMANCE.get("translation_concurrency", 4))
+    concurrency = max(1, config.PERFORMANCE["translation_concurrency"])
     logger.info(f"번역: {len(items)}건 → 배치 {total_chunks}청크 "
                 f"(배치 {batch_size}건, 동시 {concurrency}콜)")
     started = time.time()
@@ -454,7 +454,7 @@ def check_for_official_rules(db: Store, notifier: SlackNotifier,
                            "(쿨다운을 소모하면 7일간 다시 못 본다)")
             return
 
-        max_recheck = config.PERFORMANCE.get("max_rule_recheck", 10)
+        max_recheck = config.PERFORMANCE["max_rule_recheck"]
         candidates = db.get_rule_recheck_candidates(limit=max_recheck)
 
         if not candidates:
@@ -539,7 +539,7 @@ def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
         logger.warning("분석 2단 모두 소진 → 리포트 보강 생략 (다음 실행 재시도)")
         return 0
 
-    limit = limit or config.PERFORMANCE.get("analysis_per_run", 100)
+    limit = limit or config.PERFORMANCE["analysis_per_run"]
     rows = db.get_missing_report_candidates(limit=limit)
     if not rows:
         logger.info("리포트 보강: 대상 없음")
@@ -591,7 +591,7 @@ def backfill_reports(db: Store, deadline_ts: float, limit: int = 0) -> int:
 def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier,
                         deadline_ts: float) -> List[pipeline.Outcome]:
     outcomes: List[pipeline.Outcome] = []
-    cap = config.PERFORMANCE.get("snapshot_cap", 80)
+    cap = config.PERFORMANCE["snapshot_cap"]
     epss_index = enrichment_sources.load_epss_above(risk.EPSS_P_HIGH)
 
     for diff in signal_snapshot.sweep(db, cap=cap,
@@ -604,7 +604,7 @@ def sweep_heavy_signals(collector: Collector, db: Store, notifier: SlackNotifier
             break
         targets = {t: signal_snapshot.cve_of(t) for t in diff.added}
         records, absent = feed.fetch_records(
-            list(targets.values()), workers=config.PERFORMANCE.get("max_workers", 4) * 2)
+            list(targets.values()), workers=config.PERFORMANCE["max_workers"] * 2)
         processed: List[str] = [t for t, c in targets.items() if c in absent]
         for token, cve_id in targets.items():
             if time.time() > deadline_ts:
@@ -637,7 +637,7 @@ def _main() -> None:
     logger.info("Argus bulk-lane 시작")
     logger.info("=" * 60)
 
-    deadline = started + config.PERFORMANCE.get("bulk_deadline_minutes", 38) * 60
+    deadline = started + config.PERFORMANCE["bulk_deadline_minutes"] * 60
     collector = Collector()
     db = create_store()
     notifier = SlackNotifier()
