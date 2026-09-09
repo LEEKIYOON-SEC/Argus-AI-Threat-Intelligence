@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import pytz
 
 import risk
+from fields import meaningful
 from logger import logger
 
 KST = pytz.timezone('Asia/Seoul')
@@ -94,6 +95,43 @@ class RowCache:
 _CVSS_KEYS = ("cvss", "cvss_vector", "cvss_version", "cvss_scores")
 
 
+def _knows_affected(rows: List[Dict]) -> bool:
+    return any(meaningful(a.get("product")) or meaningful(a.get("vendor"))
+               for a in rows)
+
+
+def _carry_affected(state: Dict, last: Dict) -> None:
+    prev = [a for a in (last.get("affected") or []) if isinstance(a, dict)]
+    if not _knows_affected(prev):
+        return
+    rows = [a for a in (state.get("affected") or []) if isinstance(a, dict)]
+    if not _knows_affected(rows):
+        state["affected"] = prev
+        return
+
+    by_product: Dict[str, str] = {}
+    vendors = set()
+    for a in prev:
+        vendor = meaningful(a.get("vendor"))
+        if not vendor:
+            continue
+        vendors.add(vendor)
+        product = meaningful(a.get("product")).lower()
+        if product:
+            by_product.setdefault(product, vendor)
+    if not vendors:
+        return
+
+    sole = next(iter(vendors)) if len(vendors) == 1 else ""
+    for a in rows:
+        if meaningful(a.get("vendor")):
+            continue
+        vendor = by_product.get(meaningful(a.get("product")).lower()) or sole
+        if vendor:
+            a["vendor"] = vendor
+    state["affected"] = rows
+
+
 def carry_forward(state: Dict, last: Optional[Dict]) -> Dict:
     if not isinstance(last, dict):
         return state
@@ -105,6 +143,7 @@ def carry_forward(state: Dict, last: Optional[Dict]) -> Dict:
         for key in _CVSS_KEYS:
             if key in last:
                 state[key] = last[key]
+    _carry_affected(state, last)
     return state
 
 

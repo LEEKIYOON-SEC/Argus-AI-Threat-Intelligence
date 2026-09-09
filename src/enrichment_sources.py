@@ -231,25 +231,28 @@ def load_nuclei_index() -> Dict[str, Dict]:
         else:
             logger.info("📥 nuclei-templates 인덱스 캐시 로드")
 
-        for line in raw.decode("utf-8", errors="ignore").splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line)
-            except ValueError:
-                continue
-            cve_id = str(obj.get("ID") or "").upper()
-            if not cve_id.startswith("CVE-"):
-                continue
-            info = obj.get("Info") or {}
-            _nuclei_index[cve_id] = {
-                "name": info.get("Name", ""),
-                "severity": info.get("Severity", ""),
-                "path": obj.get("file_path", ""),
-            }
-        _nuclei_ok = bool(_nuclei_index)
-        logger.info(f"  ✅ nuclei-templates 인덱스 로드 완료 ({len(_nuclei_index)}개 CVE 매핑)")
+        try:
+            for line in raw.decode("utf-8", errors="ignore").splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except ValueError:
+                    continue
+                cve_id = str(obj.get("ID") or "").upper()
+                if not cve_id.startswith("CVE-"):
+                    continue
+                info = obj.get("Info") or {}
+                _nuclei_index[cve_id] = {
+                    "name": info.get("Name", ""),
+                    "severity": info.get("Severity", ""),
+                    "path": obj.get("file_path", ""),
+                }
+            _nuclei_ok = bool(_nuclei_index)
+            logger.info(f"  ✅ nuclei-templates 인덱스 로드 완료 ({len(_nuclei_index)}개 CVE 매핑)")
+        except Exception as e:
+            logger.warning(f"  ⚠️ nuclei-templates 파싱 실패: {e}")
 
     return _nuclei_index
 

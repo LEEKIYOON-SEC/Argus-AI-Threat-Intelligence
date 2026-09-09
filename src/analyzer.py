@@ -27,7 +27,7 @@ class Analyzer:
         except Exception:
             self.gemini_client = genai.Client(api_key=gemini_key)
         chain = " → ".join(m for m, _key in config.ANALYSIS_MODELS)
-        logger.info(f"Analyzer initialized ({chain} → 정형 폴백)")
+        logger.info(f"Analyzer initialized ({chain})")
 
 
     def analyze_cve(self, cve_data: Dict) -> Dict:
@@ -40,7 +40,9 @@ class Analyzer:
                 return result
             logger.warning(f"{cve_data['id']}: {model} 분석 불가 → 다음 단계")
 
-        return self._fallback_analysis(cve_data)
+        logger.warning(f"{cve_data['id']}: 분석 2단 모두 실패 — 저장하지 않는다 "
+                       f"(다음 회차가 다시 대상으로 잡는다)")
+        return {}
 
     _GEMINI_ATTEMPTS = 3
 
@@ -234,18 +236,3 @@ Do NOT include markdown code fences or any text outside the JSON.
             return False
 
         return True
-
-
-    def _fallback_analysis(self, cve_data: Dict) -> Dict:
-        logger.warning(f"{cve_data['id']}: Using fallback analysis (AI failed)")
-        
-        return {
-            "root_cause": f"자동 분석 실패 - {cve_data.get('description', 'No description')[:100]}",
-            "scenario": "AI 분석을 수행할 수 없습니다. 제조사의 권고사항을 참조하세요.",
-            "impact": "정보 부족으로 영향도를 평가할 수 없습니다.",
-            "mitigation": [
-                "제조사 보안 권고문 확인",
-                "영향받는 버전 확인 후 패치 적용",
-                "취약 구간 네트워크 접근 제한"
-            ]
-        }
