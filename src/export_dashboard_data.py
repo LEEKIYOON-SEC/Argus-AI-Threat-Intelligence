@@ -616,7 +616,6 @@ def main():
         aff = e.get("affected") or []
         if len(aff) > TABLE_AFFECTED:
             e["affected"] = aff[:TABLE_AFFECTED]
-            e["affected_total"] = len(aff)
 
     cve_path = os.path.join(data_dir, "cves.json")
     pages.write_json(cve_path, cve_data)
