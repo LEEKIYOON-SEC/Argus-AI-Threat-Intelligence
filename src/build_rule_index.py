@@ -215,6 +215,7 @@ def _network_key(label: str, line: str) -> str:
 
 def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
     done: Set[str] = set()
+    failed: Set[str] = set()
     for label, url, member_hint, engine in _NETWORK_SOURCES:
         lic, note = LICENSES[engine]
         try:
@@ -222,6 +223,7 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
                                 headers={"User-Agent": "argus-rule-index"})
             if resp.status_code != 200:
                 logger.warning(f"  ⚠️ {label} HTTP {resp.status_code} → 생략")
+                failed.add(engine)
                 continue
             if member_hint:
                 content = None
@@ -233,11 +235,14 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
                                 content = f.read().decode("utf-8", errors="ignore")
                             break
                 if content is None:
+                    logger.warning(f"  ⚠️ {label} 압축 안에 {member_hint} 없음 → 생략")
+                    failed.add(engine)
                     continue
             else:
                 content = resp.text
         except Exception as e:
             logger.warning(f"  ⚠️ {label} 실패 → 생략: {e}")
+            failed.add(engine)
             continue
 
         n = 0
@@ -253,7 +258,10 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
                 n += 1
         done.add(engine)
         logger.info(f"  ✅ {label}: {n}개 매핑")
-    return done
+    if failed & done:
+        logger.warning(f"  ⚠️ {sorted(failed & done)} 는 소스 일부만 받았다 — "
+                       f"직전 인덱스에서 이월한다")
+    return done - failed
 
 
 ALL_ENGINES = frozenset(LICENSES)
