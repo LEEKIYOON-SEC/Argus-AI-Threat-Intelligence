@@ -11,6 +11,7 @@ if _THIS_DIR not in sys.path:
 import pages
 import risk
 from fields import CWE_RE, meaningful
+from rule_manager import LINK_ONLY_ENGINES, author_of
 from store import create_store
 from store.base import StoreError
 from weekly_report import publish_weekly_report
@@ -59,7 +60,7 @@ def _triggers_of(state: dict, verdict) -> list:
     return sorted(verdict.triggers, key=lambda k: _TRIGGER_ORDER.get(k, 99))
 
 
-_EXPORT_SCHEMA = 3
+_EXPORT_SCHEMA = 4
 _MAX_REFERENCES = 8
 _ANALYSIS_KEYS = ("root_cause", "scenario", "impact")
 
@@ -79,6 +80,19 @@ def _analysis_of(state: dict, tier: str) -> dict:
              if isinstance(s, str) and s.strip()]
     if steps:
         out["mitigation"] = steps[:6]
+    return out
+
+
+def _credited(rule, drop_code: bool = False):
+    if isinstance(rule, list):
+        return [_credited(r, drop_code) for r in rule]
+    if not isinstance(rule, dict):
+        return rule
+    out = {k: v for k, v in rule.items() if not (drop_code and k == "code")}
+    if not out.get("author") and rule.get("code"):
+        found = author_of(rule["code"])
+        if found:
+            out["author"] = found
     return out
 
 
@@ -164,7 +178,8 @@ def export_cves(db, days: int = 90, since: str = None) -> list:
         entry["has_official_rules"] = bool(row.get("has_official_rules"))
         if rule_engines:
             entry["rules"] = {
-                k: rules[k] for k in _SINGLE_RULE_KEYS + ("network",) if rules.get(k)
+                k: _credited(rules[k], drop_code=k in LINK_ONLY_ENGINES)
+                for k in _SINGLE_RULE_KEYS + ("network",) if rules.get(k)
             }
 
         state_poc = state.get("has_poc", False)

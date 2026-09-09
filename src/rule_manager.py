@@ -1,3 +1,4 @@
+import re
 import json
 import os
 import threading
@@ -51,6 +52,19 @@ def _load() -> Tuple[Dict[str, List[Dict]], bool]:
         return {}, False
 
 
+LINK_ONLY_ENGINES = ("nuclei",)
+
+_AUTHOR_RE = re.compile(r"^[ \t]{0,4}author[ \t]*:[ \t]*(\S.*?)[ \t]*$", re.M)
+
+
+def author_of(code: str) -> str:
+    m = _AUTHOR_RE.search(code or "")
+    if not m:
+        return ""
+    name = m.group(1).strip().strip("'\"")
+    return "" if name in ("|", ">", "") else name[:120]
+
+
 def _fetch_text(entry: Dict) -> Optional[str]:
     if entry.get("code"):
         return entry["code"]
@@ -100,7 +114,11 @@ class RuleManager:
                 "author": entry.get("author", ""),
                 "license_url": entry.get("license_url", ""),
             }
-            if engine in ("snort2", "snort3", "suricata5", "suricata7"):
+            if engine in LINK_ONLY_ENGINES:
+                if rules.get(engine):
+                    continue
+                rules[engine] = packed
+            elif engine in ("snort2", "snort3", "suricata5", "suricata7"):
                 if len(rules["network"]) >= 3:
                     continue
                 code = _fetch_text(entry)
@@ -108,12 +126,13 @@ class RuleManager:
                     rules["network"].append({**packed, "code": code})
                 else:
                     missed += 1
-            elif engine in ("sigma", "yara", "nuclei", "splunk"):
+            elif engine in ("sigma", "yara", "splunk"):
                 if rules.get(engine):
                     continue
                 code = _fetch_text(entry)
                 if code:
-                    rules[engine] = {**packed, "code": code}
+                    rules[engine] = {**packed, "code": code,
+                                     "author": packed["author"] or author_of(code)}
                 else:
                     missed += 1
 
