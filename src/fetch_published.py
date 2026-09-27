@@ -11,8 +11,10 @@ if _THIS_DIR not in sys.path:
 import pages
 
 _DATA_DIR = pages.DATA_DIR
+_REPO_DATA = os.path.join(os.path.dirname(_THIS_DIR), "data")
 
 _REQUIRED = {"cves.json", "stats.json"}
+_SEEDED = {"lifecycle.json", "lifecycle_aliases.json"}
 
 
 def _base_url() -> str:
@@ -50,10 +52,31 @@ def fetch(name: str, base: str) -> bool:
     return True
 
 
+def seed(name: str) -> bool:
+    src = os.path.join(_REPO_DATA, name)
+    try:
+        with open(src, "rb") as f:
+            data = f.read()
+        json.loads(data.decode("utf-8"))
+    except (OSError, ValueError) as e:
+        print(f"  {name}: 저장소 data/ 사본을 쓸 수 없음({e}) → 배포본 확인", flush=True)
+        return False
+    path = os.path.join(_DATA_DIR, name)
+    os.makedirs(_DATA_DIR, exist_ok=True)
+    tmp = f"{path}.tmp"
+    with open(tmp, "wb") as f:
+        f.write(data)
+    os.replace(tmp, path)
+    print(f"  {name}: 저장소 data/ 사본 사용 ({len(data) / 1e6:.2f} MB)", flush=True)
+    return True
+
+
 def main(names) -> int:
     base = _base_url()
     missing = []
     for name in names:
+        if name in _SEEDED and seed(name):
+            continue
         path = os.path.join(_DATA_DIR, name)
         if os.path.exists(path) and os.path.getsize(path) > 0:
             if name in _fresh():
@@ -79,4 +102,5 @@ def _fresh() -> set:
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or ["cves.json", "stats.json", "cve-products.json",
                                    "cve-packages.json",
-                                   "detection-rules.json"]))
+                                   "detection-rules.json",
+                                   "lifecycle.json", "lifecycle_aliases.json"]))

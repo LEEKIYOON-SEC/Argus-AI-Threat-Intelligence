@@ -17,6 +17,10 @@
         </span>
         <span>Argus<small>CVE Threat Intelligence</small></span>
       </a>
+      <nav class="view-tabs" role="tablist" aria-label="화면 전환">
+        <button type="button" class="view-tab active" role="tab" aria-selected="true" data-view="cve">CVE Threat</button>
+        <button type="button" class="view-tab" role="tab" aria-selected="false" data-view="lifecycle">Product Lifecycle</button>
+      </nav>
       <div class="header-spacer"></div>
       <div class="header-meta">
         <span class="live-dot">자동 수집 중</span>
@@ -26,6 +30,7 @@
   </header>
 
   <main class="container">
+   <div id="view-cve">
     <section class="kpi-grid">
       <div class="kpi is-new"
            title="악용 신호가 관측됐거나 고위험이 될 가능성이 있는 건만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다.">
@@ -72,6 +77,13 @@
       </div>
     </section>
 
+    <section class="lc-strip" id="lc-strip" hidden
+             title="영향 제품의 지원 수명주기(endoflife.date). 위협도와는 별개의 정보이며, 숫자는 CVE 개수가 아니라 CVE에 연결된 제품 릴리스(사이클) 개수입니다.">
+      <div class="lc-strip-title">⏳ Product Lifecycle<span>CVE에 연결된 제품 릴리스 수 · CVE 수 아님</span></div>
+      <div class="lc-strip-stats" id="lc-strip-stats"></div>
+      <button type="button" class="lc-strip-link" data-view="lifecycle">수명주기 보기 →</button>
+    </section>
+
     <section class="filter-bar">
       <div class="filter-row primary">
         <div class="search-wrap">
@@ -110,6 +122,8 @@
           <code>product:log4j</code><span>제품 이름에 포함</span>
           <code>cwe:502</code><span>취약점 유형(CWE) 번호</span>
           <code>has:kev</code><span>kev · msf · nuclei · edb · poc · rules · ai · auto · ransom · patched</span>
+          <code>lifecycle:eol</code><span>영향 제품 릴리스의 지원 상태 — eol · extended · security · active · unknown (위협도와 별개, endoflife.date 기준)</span>
+          <code>eol:&lt;90d</code><span>영향 릴리스 중 EOL까지 90일 미만 남은 것이 있는 CVE — <code>&lt;30d</code> <code>&lt;180d</code> <code>&lt;=</code> 도 가능</span>
         </div>
         <span class="syntax-eg">예: <code>cvss:&gt;=9 has:kev vendor:microsoft</code> — 마이크로소프트 제품 중 악용이 확인된 CVSS 9 이상</span>
       </div>
@@ -168,6 +182,7 @@
               <th class="sortable" data-sort="cvss">CVSS</th>
               <th class="sortable" data-sort="epss">EPSS</th>
               <th>위협 신호</th>
+              <th title="영향 제품 릴리스의 지원 수명주기(endoflife.date). 위협도와 별개 — × 뒤 숫자는 릴리스(사이클) 수">Lifecycle</th>
               <th>영향 벤더</th>
               <th class="sortable" data-sort="date">탐지일</th>
             </tr>
@@ -182,6 +197,73 @@
       <span class="page-info" id="page-info">-</span>
       <button id="next-btn" onclick="changePage(1)">다음 &raquo;</button>
     </div>
+   </div>
+
+   <div id="view-lifecycle" hidden>
+    <section class="lc-hero">
+      <h1>Product Lifecycle</h1>
+      <p>제품 릴리스(사이클)의 지원 종료 일정입니다. <b>CVE 위험도와는 별개의 정보</b>이며 CVSS·EPSS와 합산하지 않습니다.
+        날짜와 단계는 <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> 값을 그대로 옮기고, 값이 없으면 '-'로 둡니다 — 추정하지 않습니다.
+        상태는 오늘 날짜로 다시 계산합니다.</p>
+      <p class="lc-meta" id="lc-meta"></p>
+    </section>
+
+    <section class="kpi-grid lc-kpis" id="lc-kpis" aria-label="상태별 릴리스 수"></section>
+    <section class="lc-soon" id="lc-soon" aria-label="EOL 임박 릴리스 수"></section>
+
+    <section class="filter-bar">
+      <div class="filter-row primary">
+        <div class="search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" class="search-input" id="lc-search"
+                 placeholder="벤더 · 제품 · 사이클 · 날짜 · 상태 · 출처 · eol:&lt;90d">
+        </div>
+        <div class="seg" id="lc-status-seg" role="group" aria-label="상태">
+          <button type="button" class="seg-btn active" data-status="">전체</button>
+          <button type="button" class="seg-btn" data-status="ACTIVE"><span class="lc-dot lc-ACTIVE"></span>ACTIVE</button>
+          <button type="button" class="seg-btn" data-status="SECURITY_SUPPORT"><span class="lc-dot lc-SECURITY_SUPPORT"></span>SECURITY</button>
+          <button type="button" class="seg-btn" data-status="EXTENDED_SUPPORT"><span class="lc-dot lc-EXTENDED_SUPPORT"></span>EXTENDED</button>
+          <button type="button" class="seg-btn" data-status="EOL"><span class="lc-dot lc-EOL"></span>EOL</button>
+          <button type="button" class="seg-btn" data-status="UNKNOWN"><span class="lc-dot lc-UNKNOWN"></span>UNKNOWN</button>
+        </div>
+        <select class="filter-select" id="lc-window" title="EOL까지 남은 기간">
+          <option value="">EOL 일정 전체</option>
+          <option value="30">EOL까지 30일 미만</option>
+          <option value="90">EOL까지 90일 미만</option>
+          <option value="180">EOL까지 180일 미만</option>
+        </select>
+        <label class="lc-check" title="대시보드의 CVE 영향 제품과 연결된 릴리스만">
+          <input type="checkbox" id="lc-linked"> CVE 연결만
+        </label>
+      </div>
+    </section>
+
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="lc-catalog">
+          <thead>
+            <tr>
+              <th class="sortable" data-lcsort="vendor">벤더</th>
+              <th class="sortable" data-lcsort="product">제품</th>
+              <th>사이클</th>
+              <th class="sortable" data-lcsort="release">출시</th>
+              <th title="upstream 의 첫 지원 단계(예: Active Support)가 끝나는 날">지원 종료</th>
+              <th title="upstream 이 'security' 로 명시한 단계가 끝나는 날. 명시가 없으면 '-'">보안지원 종료</th>
+              <th title="upstream 이 제공하는 확장 지원(유료 포함)이 끝나는 날">확장지원 종료</th>
+              <th class="sortable" data-lcsort="eol">EOL</th>
+              <th class="sortable" data-lcsort="status">상태</th>
+              <th>최신 버전</th>
+              <th class="sortable" data-lcsort="cves" title="대시보드의 CVE 중 이 릴리스에 연결된 수">CVE</th>
+              <th>출처</th>
+            </tr>
+          </thead>
+          <tbody id="lc-table-body"></tbody>
+        </table>
+      </div>
+    </div>
+    <p class="lc-count" id="lc-count"></p>
+    <div class="lc-unavailable" id="lc-unavailable" hidden></div>
+   </div>
   </main>
 
   <div class="modal-overlay" id="modal-overlay">
@@ -204,62 +286,65 @@
     <details class="source-note">
       <summary>
         <span class="src-title">데이터 출처 및 라이선스</span>
-        <span class="src-sum">CVE Program · NVD · CISA KEV · EPSS · VulnCheck · Metasploit · Exploit-DB · nuclei · OSV 외 — 전부 무료·재배포 허용 소스</span>
+        <span class="src-sum">CVE Program · NVD · OSV · CISA KEV · EPSS · VulnCheck · Metasploit · Exploit-DB · 탐지 룰 · endoflife.date — 소스마다 이용·재배포·출처 표기 조건이 다릅니다 (아래 표)</span>
         <span class="src-caret">펼치기</span>
       </summary>
 
-    <div class="footer-grid">
-      <section>
-        <h3>취약점 기본 정보</h3>
-        <ul>
-          <li><a href="https://www.cve.org/" target="_blank" rel="noopener noreferrer">CVE Program</a> — cvelistV5 (CC0 1.0)</li>
-          <li><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer">NVD</a> (NIST) — U.S. Government Work</li>
-          <li><a href="https://osv.dev" target="_blank" rel="noopener noreferrer">OSV.dev</a> — 패치 버전 (CC-BY 4.0)</li>
-        </ul>
-      </section>
+    <div class="src-notices">
+      <h3>필수 고지</h3>
+      <ul>
+        <li>This product uses the NVD API but is not endorsed or certified by the NVD.</li>
+        <li>This product uses <a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a>.</li>
+        <li>CVE™ 레코드 — Copyright © 1999-2026, The MITRE Corporation. <a href="https://www.cve.org/Legal/TermsOfUse" target="_blank" rel="noopener noreferrer">CVE Program Terms of Use</a>에 따라 이용합니다:
+          “MITRE hereby grants you a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy.”</li>
+        <li>제품 수명주기 — <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> · Copyright 2020 endoflife.date contributors · <a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
+      </ul>
+    </div>
 
-      <section>
-        <h3>악용·위험 신호</h3>
-        <ul>
-          <li><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer">CISA KEV</a> · CISA SSVC/vulnrichment — 미국 공공저작물 (CC0 1.0)</li>
-          <li><a href="https://www.first.org/epss/" target="_blank" rel="noopener noreferrer">EPSS</a> (FIRST.org)</li>
-          <li>This product uses <a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a></li>
-          <li><a href="https://github.com/rapid7/metasploit-framework" target="_blank" rel="noopener noreferrer">Metasploit Framework</a> (Rapid7, BSD-3-Clause)</li>
-          <li><a href="https://www.exploit-db.com/" target="_blank" rel="noopener noreferrer">Exploit-DB</a> · <a href="https://github.com/nomi-sec/PoC-in-GitHub" target="_blank" rel="noopener noreferrer">PoC-in-GitHub</a> (nomi-sec) — 원문 미게시, 링크만</li>
-          <li><a href="https://red.anthropic.com/" target="_blank" rel="noopener noreferrer">Anthropic CVD</a> — AI 발견 취약점 공개 원장</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3>공개 탐지 룰</h3>
-        <ul>
-          <li><a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener noreferrer">SigmaHQ</a> — Detection Rule License 1.1 (원 룰의 author 표기 보존)</li>
-          <li><a href="https://github.com/projectdiscovery/nuclei-templates" target="_blank" rel="noopener noreferrer">nuclei-templates</a> (ProjectDiscovery, MIT) — 능동 점검용이라 <b>본문은 싣지 않고 링크만</b> 제공합니다</li>
-          <li><a href="https://github.com/splunk/security_content" target="_blank" rel="noopener noreferrer">Splunk ESCU</a> — Apache-2.0 (NOTICE 보존)</li>
-          <li><a href="https://github.com/YARAHQ/yara-forge" target="_blank" rel="noopener noreferrer">YARA Forge</a> — 룰별 라이선스 상이 (각 룰 메타의 author·source_url·license_url 보존)</li>
-          <li><a href="https://rules.emergingthreats.net/" target="_blank" rel="noopener noreferrer">Emerging Threats Open</a> — MIT</li>
-          <li><a href="https://www.snort.org/downloads/#rule-downloads" target="_blank" rel="noopener noreferrer">Snort Community Rules</a> — MIT (레거시 SID 1–3464 는 GPLv2)</li>
-        </ul>
-      </section>
-
-      <section>
-        <h3>가공·전달</h3>
-        <ul>
-          <li>한국어 번역·심층 분석: Google AI Studio (Gemini · Gemma) 무료 티어</li>
-          <li>저장: <a href="https://turso.tech/" target="_blank" rel="noopener noreferrer">Turso</a> (libSQL, MIT) · 배포: GitHub Pages · 알림: Slack Incoming Webhook</li>
-        </ul>
-      </section>
+    <div class="src-table-wrap">
+      <table class="src-table">
+        <thead>
+          <tr><th>출처</th><th>Argus 에서의 용도</th><th>재배포</th><th>출처 표기</th><th>라이선스·약관</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr class="src-group"><th colspan="6">취약점 기본 정보</th></tr>
+          <tr><td><a href="https://www.cve.org/" target="_blank" rel="noopener noreferrer">CVE Program</a> (cvelistV5)</td><td>제목·설명·영향 제품·CVSS·CWE·참고 링크 수집, 한국어 번역·가공해 게시</td><td>허용 — 이용약관 조건</td><td>필요 — MITRE 저작권 표기와 이용약관 문구 재현 (위 필수 고지)</td><td><a href="https://www.cve.org/Legal/TermsOfUse" target="_blank" rel="noopener noreferrer">CVE Program Terms of Use</a></td><td></td></tr>
+          <tr><td><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer">NVD</a> (NIST)</td><td>CVSS·CPE(영향 제품) 보충 조회</td><td>허용 — 미국 정부 저작물, API 약관 준수</td><td>필요 — 위 NVD 고지 문구</td><td><a href="https://nvd.nist.gov/developers/terms-of-use" target="_blank" rel="noopener noreferrer">NVD API Terms of Use</a></td><td>CPE 에서 뽑은 제품명은 Argus 가 가공한 값이며 NVD 가 보증하지 않습니다</td></tr>
+          <tr><td><a href="https://osv.dev" target="_blank" rel="noopener noreferrer">OSV.dev</a></td><td>패키지명·수정 버전 (패치 버전 · has:patched)</td><td>소스 DB 라이선스 조건에 따름</td><td>필요 (CC-BY 계열 소스)</td><td>소스 DB별 상이 — GitHub Advisory Database CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 · Rocky Linux BSD · AlmaLinux MIT 등 (<a href="https://google.github.io/osv.dev/data/" target="_blank" rel="noopener noreferrer">목록</a>)</td><td>패키지명·버전 문자열만 게시</td></tr>
+          <tr class="src-group"><th colspan="6">악용·위험 신호</th></tr>
+          <tr><td><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer">CISA KEV</a></td><td>악용 여부·랜섬웨어 사용·조치 기한·제품명 보충</td><td>허용</td><td>의무 없음</td><td>CC0 1.0</td><td>CISA 로고·DHS 문장 사용 불가, CISA·DHS 의 보증으로 해석하지 않음</td></tr>
+          <tr><td><a href="https://github.com/cisagov/vulnrichment" target="_blank" rel="noopener noreferrer">CISA vulnrichment</a> (SSVC)</td><td>SSVC 판정 (악용·자동화·기술적 영향)</td><td>허용</td><td>의무 없음</td><td>CC0 1.0</td><td>미국 공공저작물</td></tr>
+          <tr><td><a href="https://www.first.org/epss/" target="_blank" rel="noopener noreferrer">EPSS</a> (FIRST.org)</td><td>악용 확률·백분위</td><td>무료 공개 데이터 (재배포 조건 명시 없음)</td><td>요청됨 — 제품·출판물에 쓸 때</td><td>별도 라이선스 표기 없음</td><td></td></tr>
+          <tr><td><a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a></td><td>악용 근거 보충 — 등재 여부만 표시</td><td>데이터셋은 재배포하지 않음</td><td>필수 — “This product uses VulnCheck KEV”</td><td>VulnCheck 커뮤니티 이용 조건</td><td></td></tr>
+          <tr><td><a href="https://github.com/rapid7/metasploit-framework" target="_blank" rel="noopener noreferrer">Metasploit Framework</a> (Rapid7)</td><td>모듈 존재 여부·모듈 이름</td><td>허용 (BSD 조건)</td><td>필요 — 저작권 고지 보존</td><td>BSD-3-Clause</td><td></td></tr>
+          <tr><td><a href="https://www.exploit-db.com/" target="_blank" rel="noopener noreferrer">Exploit-DB</a></td><td>공개 익스플로잇 존재 여부</td><td>원문 재배포 안 함</td><td>원문 링크</td><td>익스플로잇별 작성자 저작</td><td>원문 미게시 · 링크만</td></tr>
+          <tr><td><a href="https://github.com/nomi-sec/PoC-in-GitHub" target="_blank" rel="noopener noreferrer">PoC-in-GitHub</a> (nomi-sec)</td><td>PoC 저장소 링크</td><td>허용 (목록)</td><td>의무 없음</td><td>CC0 1.0</td><td>PoC 원문은 싣지 않고 링크만</td></tr>
+          <tr><td><a href="https://red.anthropic.com/" target="_blank" rel="noopener noreferrer">Anthropic CVD</a></td><td>AI 발견 취약점 식별 (ANT ID)</td><td>데이터셋 재배포 안 함</td><td>출처 링크</td><td>명시 없음</td><td>공개 원장의 사실만 인용</td></tr>
+          <tr class="src-group"><th colspan="6">공개 탐지 룰</th></tr>
+          <tr><td><a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener noreferrer">SigmaHQ</a></td><td>Sigma 룰 본문 게시</td><td>허용 (DRL 조건)</td><td>필수 — 원 룰의 author 표기 보존</td><td>Detection Rule License 1.1</td><td></td></tr>
+          <tr><td><a href="https://github.com/projectdiscovery/nuclei-templates" target="_blank" rel="noopener noreferrer">nuclei-templates</a> (ProjectDiscovery)</td><td>템플릿 존재 여부·링크</td><td>본문 재게시 안 함</td><td>필요 (MIT 고지)</td><td>MIT</td><td>대상에 요청을 보내는 능동 점검용이라 <b>본문은 싣지 않고 링크만</b> 제공</td></tr>
+          <tr><td><a href="https://github.com/splunk/security_content" target="_blank" rel="noopener noreferrer">Splunk ESCU</a></td><td>탐지 룰 본문 게시</td><td>허용 (Apache-2.0 조건)</td><td>필요 — NOTICE 보존</td><td>Apache-2.0</td><td></td></tr>
+          <tr><td><a href="https://github.com/YARAHQ/yara-forge" target="_blank" rel="noopener noreferrer">YARA Forge</a></td><td>YARA 룰 본문 게시</td><td>룰별 라이선스에 따름</td><td>필요 — 각 룰 메타의 author·source_url·license_url 보존</td><td>룰별 상이</td><td></td></tr>
+          <tr><td><a href="https://rules.emergingthreats.net/" target="_blank" rel="noopener noreferrer">Emerging Threats Open</a> · <a href="https://www.snort.org/downloads/#rule-downloads" target="_blank" rel="noopener noreferrer">Snort Community Rules</a></td><td>네트워크 룰 본문 게시</td><td>허용 (각 라이선스 조건)</td><td>필요</td><td>MIT (Snort 레거시 SID 1–3464 는 GPLv2)</td><td></td></tr>
+          <tr class="src-group"><th colspan="6">제품 수명주기</th></tr>
+          <tr><td><a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (API v1)</td><td>제품 릴리스의 출시·지원 종료·보안 지원·확장 지원·EOL·최신 버전 정규화 게시, 원출처 정책 링크</td><td>허용 (MIT 조건)</td><td>필요 — 저작권·허가 고지 보존 (Copyright 2020 endoflife.date contributors)</td><td><a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a></td><td>제품 설명(Wikipedia CC BY-SA 유래)·로고는 싣지 않음 · 날짜·단계명은 원문 그대로, 없는 값은 '-'</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <p class="footer-note">
+      가공·전달: 한국어 번역·심층 분석은 Google AI Studio (Gemini · Gemma) 무료 티어 · 저장 <a href="https://turso.tech/" target="_blank" rel="noopener noreferrer">Turso</a> (libSQL, MIT) · 배포 GitHub Pages · 알림 Slack Incoming Webhook.<br>
       각 탐지 룰의 개별 라이선스와 원 저자 표기는 룰 본문 위에 함께 표시됩니다. 대상에 실제 요청을 보내는 능동 점검 템플릿(nuclei)과 익스플로잇 원문(Exploit-DB·PoC)은 링크만 싣습니다.
       AI 번역·심층 분석과 위험도 분류는 참고용이며 정확성을 보증하지 않습니다.
+      제품 수명주기(EOL)는 위험도가 아니라 upstream 지원 여부이며, CVSS·EPSS 와 합산하지 않습니다.
       대응 판단은 반드시 원 권고문을 확인한 뒤 내리세요.
     </p>
     </details>
   </footer>
 
   <script src="js/chart.js"></script>
+  <script src="js/lifecycle.js"></script>
   <script src="js/cve-dashboard.js"></script>
+  <script src="js/lifecycle-view.js"></script>
 </body>
 </html>

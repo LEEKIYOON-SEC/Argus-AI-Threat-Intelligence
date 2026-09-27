@@ -1,0 +1,34 @@
+{
+  "_doc": [
+    "endoflife.date 에서 받아올 제품 목록. src/update_lifecycle.py 가 이 목록만 조회한다 (API 전체를 돌지 않는다).",
+    "slug 는 https://endoflife.date/api/v1/products 의 name 이다. upstream 에 없는 제품은 데이터를 만들지 않고 unavailable 로 남긴다 → 화면에서 UNKNOWN.",
+    "vendor 는 화면 표시용 이름이다. endoflife.date 에는 vendor 필드가 없다.",
+    "match_cpe 는 upstream 에 없는 제품을 'endoflife.date 미제공'으로 알아보기 위한 CPE 다. 수명주기 값을 만들지 않는다.",
+    "phase_status 는 비워 둔다. 'eoas 이후 ~ eol 이전' 단계의 upstream 라벨(labels.eol)이 security/extended 를 명시하지 않아 UNKNOWN 이 되는 제품을, 벤더 정책 문서로 확인한 뒤에만 채운다. 형식: {\"eol\": \"SECURITY_SUPPORT\", \"basis\": \"<정책 문서 URL>\"}"
+  ],
+  "products": [
+    {"slug": "linux", "vendor": "Linux"},
+    {"slug": "ubuntu", "vendor": "Canonical"},
+    {"slug": "debian", "vendor": "Debian"},
+    {"slug": "rocky-linux", "vendor": "Rocky Linux"},
+    {"slug": "almalinux", "vendor": "AlmaLinux"},
+    {"slug": "rhel", "vendor": "Red Hat"},
+    {"slug": "windows", "vendor": "Microsoft"},
+    {"slug": "windows-server", "vendor": "Microsoft"},
+    {"slug": "apache-http-server", "vendor": "Apache Software Foundation"},
+    {"slug": "nginx", "vendor": "F5"},
+    {"slug": "openssh", "vendor": "OpenBSD", "name": "OpenSSH",
+     "match_cpe": ["cpe:2.3:a:openbsd:openssh"]},
+    {"slug": "openssl", "vendor": "OpenSSL"},
+    {"slug": "postgresql", "vendor": "PostgreSQL"},
+    {"slug": "mysql", "vendor": "Oracle"},
+    {"slug": "mariadb", "vendor": "MariaDB"},
+    {"slug": "redis", "vendor": "Redis"},
+    {"slug": "nodejs", "vendor": "OpenJS Foundation"},
+    {"slug": "python", "vendor": "Python Software Foundation"},
+    {"slug": "oracle-jdk", "vendor": "Oracle"},
+    {"slug": "php", "vendor": "PHP Group"},
+    {"slug": "kubernetes", "vendor": "CNCF"},
+    {"slug": "docker-engine", "vendor": "Docker"}
+  ]
+}
