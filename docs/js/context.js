@@ -158,7 +158,7 @@
     return engines;
   }
 
-  // lifecycle: { entries, unresolved, untracked } (lifecycle.js reduceMatch 결과) · products · today
+  // lifecycle: { entries, unresolved, untracked, partial } (lifecycle.js reduceMatch 결과) · products · today
   function lifecycleFacts(lc, products, today, affectedCount) {
     const counts = { ACTIVE: 0, SECURITY_SUPPORT: 0, EXTENDED_SUPPORT: 0, EOL: 0, UNKNOWN: 0 };
     const reasons = [];
@@ -172,7 +172,8 @@
     const releases = (lc.entries || []).length;
     if (!affectedCount) reasons.push('no_affected');
     if (lc.untracked) reasons.push('untracked');
-    if ((lc.unresolved || []).length) reasons.push('unresolved');
+    // partial: 사이클이 이어진 제품의 다른 항목이 사이클 미상 — 그 항목이 EOL 사이클일 수 있다.
+    if ((lc.unresolved || []).length || (lc.partial || []).length) reasons.push('unresolved');
     if ((lc.entries || []).some(e => LC.statusOf(e.rel, (products || {})[e.slug], today) === 'UNKNOWN')) {
       reasons.push('status_unknown');
     }
@@ -345,7 +346,7 @@
         packages: Object.keys(pkgMap || {}), detail: 'OSV 에 영향 패키지는 있으나 수정 버전(fixed 이벤트)이 기록되지 않음' }));
     } else {
       rows.push(row('OSV', 'unknown', 'OSV 기록 없음', { kind: 'record', basis: 'CVE ID·별칭',
-        detail: REASON.no_osv_record }));
+        detail: 'OSV 가 다루지 않는 제품이거나 아직 수집 전 — 패치가 없다는 뜻이 아니라 모름' }));
     }
     if (cve.is_kev && cve.kev_due_date) {
       rows.push(row('CISA KEV', 'info', `조치기한 ${cve.kev_due_date}`, { kind: 'listing', url: URL.kev, basis: 'CVE ID',
@@ -397,6 +398,7 @@
       remediation: group('PATCH_AVAILABLE', remediationRows(cve, d.packages), { fixed: fixedVersions(d.packages) }),
       lifecycle: group('EOL_AFFECTED', lifecycleRows(d.lifecycle, d.products, d.today), {
         counts: base.lifecycle.counts, unresolved: (d.lifecycle && d.lifecycle.unresolved) || [],
+        partial: (d.lifecycle && d.lifecycle.partial) || [],
         untracked: d.lifecycle ? d.lifecycle.untracked : affected.length }),
       discovery: cve.ai_discovered
         ? { program: cve.ai_program || '', detail: cve.ai_detail || '', url: cve.ai_url || '' } : null,
@@ -429,31 +431,41 @@
     return out;
   }
 
-  // items: [{ id, states, correlations, releases: ['slug|cycle', ...], exploited }]
+  // items: [{ id, states, correlations, releases: ['slug|cycle', ...], productOnly }]
+  // correlation_scope: 첫 사실이 yes 이고 둘째 사실을 알 수 있는(unknown 이 아닌) CVE 수 — 상관 건수의 분모.
   function aggregate(items) {
     const signalsOut = emptyCounts();
     const corr = Object.fromEntries(CORRELATIONS.map(c => [c.code, 0]));
+    const scope = Object.fromEntries(CORRELATIONS.map(c => [c.code, 0]));
     const releases = {};
+    const products = {};
     const lifecycle = { mapped: 0, cycle_level: 0, product_only: 0 };
+    const tally = (bucket, key, st) => {
+      const r = bucket[key] || (bucket[key] = { cves: 0, kev: 0, exploited: 0, exploit: 0, detection: 0, patch: 0, critical: 0 });
+      r.cves++;
+      if (st.CISA_KEV === 'yes') r.kev++;
+      if (st.EXPLOITATION_CONFIRMED === 'yes') r.exploited++;
+      if (st.PUBLIC_EXPLOIT === 'yes') r.exploit++;
+      if (st.PUBLIC_DETECTION === 'yes') r.detection++;
+      if (st.PATCH_AVAILABLE === 'yes') r.patch++;
+      if (st.CRITICAL_CVSS === 'yes') r.critical++;
+    };
     for (const it of items) {
       for (const [code, st] of Object.entries(it.states)) signalsOut[code][st]++;
       for (const c of it.correlations) corr[c]++;
+      for (const c of CORRELATIONS) {
+        const [first, second] = c.parts;
+        if (it.states[first] === 'yes' && it.states[second.replace('!', '')] !== 'unknown') scope[c.code]++;
+      }
       if (it.releases && it.releases.length) lifecycle.cycle_level++;
       else if (it.productOnly) lifecycle.product_only++;
-      for (const key of it.releases || []) {
-        const r = releases[key] || (releases[key] = { cves: 0, kev: 0, exploited: 0, exploit: 0, detection: 0,
-                                                      patch: 0, critical: 0 });
-        r.cves++;
-        if (it.states.CISA_KEV === 'yes') r.kev++;
-        if (it.states.EXPLOITATION_CONFIRMED === 'yes') r.exploited++;
-        if (it.states.PUBLIC_EXPLOIT === 'yes') r.exploit++;
-        if (it.states.PUBLIC_DETECTION === 'yes') r.detection++;
-        if (it.states.PATCH_AVAILABLE === 'yes') r.patch++;
-        if (it.states.CRITICAL_CVSS === 'yes') r.critical++;
-      }
+      // 릴리스별은 연결마다, 제품별은 CVE 하나를 한 번만 센다.
+      for (const key of it.releases || []) tally(releases, key, it.states);
+      for (const slug of new Set((it.releases || []).map(k => k.split('|')[0]))) tally(products, slug, it.states);
     }
     lifecycle.mapped = lifecycle.cycle_level + lifecycle.product_only;
-    return { total: items.length, signals: signalsOut, correlations: corr, releases, lifecycle };
+    return { total: items.length, signals: signalsOut, correlations: corr, correlation_scope: scope,
+             releases, products, lifecycle };
   }
 
   /* ---------- 데이터 품질 점검 ---------- */

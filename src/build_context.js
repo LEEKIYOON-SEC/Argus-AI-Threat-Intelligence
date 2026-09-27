@@ -132,9 +132,15 @@ function main(argv) {
 
   const started = Date.now();
   const result = build(inputs, now);
+  // docs/ 전체가 배포되므로 쓰다 실패한 임시 파일이 남으면 그대로 공개된다 — 지우고 실패로 끝낸다.
   const tmp = `${args.out}.tmp`;
-  fs.writeFileSync(tmp, JSON.stringify(result));
-  fs.renameSync(tmp, args.out);
+  try {
+    fs.writeFileSync(tmp, JSON.stringify(result));
+    fs.renameSync(tmp, args.out);
+  } catch (e) {
+    try { fs.unlinkSync(tmp); } catch (_) { /* 이미 없음 */ }
+    throw e;
+  }
 
   const st = result.stats;
   console.log(`  CVE ${st.total.toLocaleString()}건 · 수명주기 연결 ${st.lifecycle.mapped.toLocaleString()}건`

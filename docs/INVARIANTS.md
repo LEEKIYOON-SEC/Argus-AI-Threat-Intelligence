@@ -327,19 +327,20 @@ p90.0 = 0.041  36,640건
 | id 목록 조회 실패(`None`)는 **'전부 사라짐'이 아니다** | 그렇게 읽으면 대시보드가 통째로 비워진다 |
 | 행수 상한은 **추적 행** 기준이고, 대시보드 구간(90일) 안은 안 지운다 | 전체 행 기준이면 상태 비워진 옛 행이 상한을 먼저 채우고, 오래된 순 삭제가 살아 있는 26일짜리 KEV 로 넘어간다 |
 | `rules`는 실제로 룰이 있는 행에만 싣는다 (`rules_snapshot`은 빈 껍데기라도 truthy) | 실측 2,217건 중 2,081건(93.9%)이 빈 껍데기였다 |
-| **KPI 타일은 세는 기준을 필터 칩과 맞춘다** (`cveHasSignal`) | 타일이 티어 기준, 칩이 신호 기준이라 같은 말인데 숫자가 달랐다 |
-| **KPI 타일은 클릭 대상이 아니다** — 필터는 검색줄 아래 한 곳에만 둔다 | 조작 지점이 두 군데로 갈리면 어디서 무엇이 걸렸는지 알 수 없다 |
+| **숫자는 세는 기준을 필터와 맞춘다** (`cveHasSignal` · `context.js`) | 타일이 티어 기준, 칩이 신호 기준이라 같은 말인데 숫자가 달랐다 |
+| **필터 상태는 검색줄 한 곳에만 있다.** 조건 칩·대시보드 숫자·수명주기 관측 숫자는 누르면 검색어를 넣고 빼거나(칩), 다른 필터를 풀고 CVE Intelligence 로 이동해 검색어를 넣는다(`goToQuery`) | 조작 지점이 두 군데로 갈리면 어디서 무엇이 걸렸는지 알 수 없다. 누른 숫자와 열린 목록 건수가 달라진다 |
 
-**KPI 5개**: 추적 중 CVE · 🚨 악용 중 · 🧨 무기화 · 🔬 PoC 공개 · 🧠 AI 발견.
-읽기만 하는 요약이다 — 필터는 검색줄 아래 칩에만 있다.
+**대시보드 KPI 4개**: 추적 중 CVE · CVSS 9.0 이상 · CISA KEV · EOL 릴리스 영향 CVE. 숫자마다
+범위(모름이 몇 건인지)를 함께 적는다. 예전 KPI(악용 중 · 무기화 · PoC · AI 발견)는 같은 기준
+(`cveHasSignal`)으로 '출처별 신호' 칸에 남겼다 — 통계를 지우지 않았다.
 예전에는 '무기화 임박'(T1 개수)과 '무기화됨'(도구 공개 개수)이 나란히 놓여 무엇이 다른지
-알 수 없었다 — 앞은 티어, 뒤는 신호라 기준 자체가 달랐다. 그래서 세는 기준만 칩과
-맞췄고, 조작은 붙이지 않았다.
+알 수 없었다 — 앞은 티어, 뒤는 신호라 기준 자체가 달랐다.
 
-**티어를 화면에서 뺀 이유**: 등급 드롭다운은 신호 칩(악용 중·무기화·PoC…)과 거의 완전히
+**티어를 목록에서 뺀 이유**: 등급 드롭다운은 신호 칩(악용 중·무기화·PoC…)과 거의 완전히
 겹쳤고, 목록의 티어 배지도 위협 신호 칸과 같은 사실을 두 번 말했다. '알림이 나갔는가' 칩도
 뺐다 — 대시보드에서 이미 확인되고, Slack 한 건이 누락됐을 때 그 사실이 화면에서도 가려지는
-쪽이 오히려 문제다. 티어는 판정·정렬·알림에는 그대로 쓰되 화면에는 내보내지 않는다.
+쪽이 오히려 문제다. 티어는 판정·정렬(목록 기본 정렬)·알림에 그대로 쓰고, 화면에는 상세 머리글에만
+'Argus 알림 등급'으로 적는다 — 출처 사실이 아니라 `risk.py` 파생이며 점수가 아님을 밝힌다.
 
 **영향 제품 실측 (2026-09-01, 664건)**
 
@@ -538,18 +539,35 @@ VulnCheck 커뮤니티 티어는 `/v3/backup/`이다. `/v3/index/`는 상위 티
 
 ```
 TZ=UTC python -m unittest discover -s tests -p 'test_*.py'   # 수명주기 수집·정규화·상태·검증
-TZ=UTC node --test tests/*.test.js                          # lifecycle.js 매칭·검색 + 대시보드 회귀
+TZ=UTC node --test tests/*.test.js                          # 아래 세 파일
 ```
 
+| 파일 | 확인하는 것 |
+|:---|:---|
+| `tests/lifecycle.test.js` | `lifecycle.js` — 상태 계산(Python 과 같은 표) · 버전 → 사이클 · CPE/PURL/이름/규칙 매칭 · 검색어 값 |
+| `tests/context.test.js` | `context.js` — 신호 10종의 yes/no/unknown 경계 · 상관의 `!` · 근거 행렬 · 집계 · 품질 점검 · CI 사전 계산이 브라우저 계산과 같은지(지문 · 직렬화 왕복) |
+| `tests/dashboard.test.js` | 화면 스크립트 전체를 가짜 DOM 에서 실행 — 변경 전 회귀 · 새 검색어 · 대시보드 숫자 = 누른 뒤 목록 건수 · 사전 계산으로 먼저 그리기 · 목록/상세/수명주기 화면 · 내보내기 스키마 |
+
 `update-lifecycle.yml` 이 갱신 전에 같은 명령을 돌리고, 실패하면 데이터를 쓰지 않는다.
-네트워크를 쓰지 않는다 — endoflife.date 응답은 `tests/fixtures/endoflife_v1/` 에 실제 v1 응답을
-줄여 둔 사본을 쓰고, 상태 계산은 Python·JS 가 같은 표(`lifecycle_status_cases.json`)를 확인한다.
+네트워크도 `docs/data/` 도 쓰지 않는다 — 전부 `tests/fixtures/` 와 저장소의 `data/lifecycle_aliases.json` 이다.
+endoflife.date 응답은 `tests/fixtures/endoflife_v1/` 에 실제 v1 응답을 줄여 둔 사본을 쓰고, 상태 계산은
+Python·JS 가 같은 표(`lifecycle_status_cases.json`)를 확인한다.
 
 `tests/fixtures/dashboard_baseline.json` 은 수명주기 기능을 넣기 **전** 커밋(`0f68020`)의
-`cve-dashboard.js` 로 만든 회귀 기준이다. 검색·필터·정렬·페이지·통계·상세 모달·CSV/JSON/STIX 결과가
-이것과 같아야 한다(새 Lifecycle 칸·섹션만 빼고 비교). 기존 동작을 **일부러** 바꿨을 때만
-`node tests/tools/make_dashboard_baseline.js <rev>` 로 다시 만든다. 날짜의 로캘 표기는 ICU 판마다
-달라서(실측: Node 22.22.2 `AM 3:00` · 22.23.3 `오전 3:00`) 하네스가 표기 결과 대신 호출 인자를 남긴다.
+`cve-dashboard.js` 로 만든 회귀 기준이다. 목록·상세는 화면을 새로 짰으므로 HTML 이 아니라 **의미로** 비교한다 —
+검색·필터·정렬·페이지 결과(행 ID 와 순서) · 통계 · 필터 목록 · CSV/JSON/STIX 내용 · 상세가 연 CVE(ID·제목).
+예외는 `FIXED_BUGS`(`has:nuclei` · `has:edb` · `has:ransom` · `has:foo`) 하나뿐이다 — 옛 코드는 모르는 `has:` 값을
+**전부 통과**시켰다(`has:foo` 가 전체 목록). 고친 동작은 같은 파일의 별도 테스트가 확인한다.
+기존 동작을 **일부러** 바꿨을 때만 `node tests/tools/make_dashboard_baseline.js <rev>` 로 다시 만든다.
+날짜의 로캘 표기는 ICU 판마다 달라서(실측: Node 22.22.2 `AM 3:00` · 22.23.3 `오전 3:00`) 하네스가 표기 결과 대신
+호출 인자를 남긴다.
+
+실제 배포 데이터로 사전 계산을 돌려 보려면(내려받은 `docs/data/*.json` 이 있을 때):
+
+```
+node src/build_context.js                      # → docs/data/cve-context.json
+node src/build_context.js --today 2026-09-27   # 기준일 고정 (--data-dir · --out · --cache-dir 도 있다)
+```
 
 ---
 
@@ -604,7 +622,8 @@ lifecycle_products.json (추적 제품 22종)
   → endoflife.date API v1 (/products 로 목록 확인 → 목록에 있는 제품만 /products/{slug})
   → 정규화 · 검증 → data/lifecycle.json (내용이 바뀐 날만 커밋)
   → 배포 때 fetch_published.seed 가 docs/data/ 로 복사
-  → 브라우저가 로드 때 한 번 CVE 영향 제품과 연결 (CVE 별 메모)
+  → 배포 때 src/build_context.js 가 CVE 영향 제품과 미리 연결 → docs/data/cve-context.json (§13)
+  → 브라우저는 입력 지문이 맞으면 그 연결을 쓰고, 아니면 같은 lifecycle.js 로 직접 연결 (CVE 별 메모)
 ```
 
 **브라우저는 endoflife.date 를 부르지 않는다.** API v1 을 쓰는 이유: CPE·PURL 식별자, 단계 이름
@@ -624,8 +643,9 @@ lifecycle_products.json (추적 제품 22종)
 | 모든 제품·릴리스에 `source_provider`·`source_url`·`fetched_at` 을 싣는다. 값이 그대로면 `fetched_at` 도 유지한다 | 출처·시점 없는 날짜는 검증할 수 없다. 매일 시각만 바뀌면 매일 커밋된다 |
 | 제품 하나 조회 실패 → 그 제품만 **직전 값을 이월**. 목록 조회 실패 · 20% 초과 실패 · 검증 실패 → **파일을 쓰지 않고 종료(1)** | 부분 결과가 완성본을 덮어 제품이 통째로 사라진다 |
 | upstream 목록에 없는 제품은 **데이터를 만들지 않고** `unavailable` 로 남긴다 (현재 openssh) | 없는 제품의 수명주기를 지어내게 된다 |
-| 화면의 수명주기 숫자는 **릴리스(사이클) 수**다. 'CVE 수가 아님'을 화면에 적는다 | '추적 중 CVE'와 단위가 다른 숫자를 같은 눈으로 읽게 된다 |
-| CVE 스키마·CSV/JSON/STIX 내보내기에 수명주기 값을 싣지 않는다 | 기존 소비자의 스키마가 바뀐다. 연결은 브라우저 메모리에서만 한다 |
+| 숫자마다 단위를 적는다. Product Lifecycle 의 상태·임박 숫자는 **릴리스(사이클) 수**('CVE 수가 아님'을 화면에 적는다), '관찰된 위협'은 **그 릴리스에 연결된 CVE 수**(여러 릴리스에 걸린 CVE 는 각각 센다), 제품 머리글은 **서로 다른 CVE 수**, 대시보드 'EOL 릴리스 영향 CVE'는 **CVE 수**다 | '추적 중 CVE'와 단위가 다른 숫자를 같은 눈으로 읽게 된다 |
+| 릴리스별 숫자를 누르면 `release:<제품>/<사이클>` 검색으로 열리고, **열린 목록 건수가 누른 숫자와 같다** | 숫자와 목록이 다르면 둘 중 무엇을 믿을지 알 수 없다. 테스트가 연결된 릴리스 전부를 대조한다 |
+| CVE 스키마·CSV/JSON/STIX 내보내기에 수명주기 값을 싣지 않는다. 미리 계산한 연결은 **별도 파일** `cve-context.json` 에만 둔다 | 기존 소비자의 스키마가 바뀐다 |
 
 **연결 순서** (`data/lifecycle_aliases.json` — 앞 단계에서 걸리면 멈춘다)
 
@@ -645,9 +665,11 @@ Python 전용(`(?P<name>…)`·인라인 플래그 `(?i)`)은 검증을 통과�
 고친 뒤 `node --test tests/lifecycle.test.js` 가 실제 별칭 파일로 돈다.
 
 **검색**: `lifecycle:eol|active|security|extended|unknown` — 영향 릴리스 중 **하나라도** 그 상태면 걸린다.
-`unknown` 은 알려진 상태가 **하나도 없는** CVE(추적 밖 제품 포함). `eol:<30d|<90d|<180d` — EOL 이
-**오늘 이후**이고 그 일수 미만 남은 릴리스가 있으면 걸린다(이미 EOL 인 것·날짜 없는 것은 제외).
-기존 문법과 AND 로 묶인다. 잘못된 값(`lifecycle:bogus`·`eol:abc`)은 아무것도 통과시키지 않는다.
+`security` 는 `security-support`·`security_support`, `extended` 는 `extended-support`·`extended_support` 로도 쓴다.
+`unknown` 은 알려진 상태가 **하나도 없는** CVE(추적 밖 제품 포함) — §13 의 `unknown:eol`(EOL 여부를 **단정할 수 없는**
+CVE)과 다르다. `eol:<30d|<90d|<180d` — EOL 이 **오늘 이후**이고 그 일수 미만 남은 릴리스가 있으면 걸린다(이미 EOL 인
+것·날짜 없는 것은 제외). `release:<제품>/<사이클>`(예: `release:nginx/1.24`) — 그 릴리스에 **사이클까지** 연결된 CVE.
+기존 문법과 AND 로 묶인다. 잘못된 값(`lifecycle:bogus`·`eol:abc`·`release:windows`)은 아무것도 통과시키지 않는다.
 
 **실측 (2026-09-27)**
 
@@ -655,7 +677,8 @@ Python 전용(`(?P<name>…)`·인라인 플래그 `(?i)`)은 검증을 통과�
 제품 21종 · 릴리스 444개      openssh 는 endoflife.date 에 없음 → unavailable
 상태   ACTIVE 64 · SECURITY 21 · EXTENDED 20 · EOL 336 · UNKNOWN 3 (debian 12 · kubernetes 1.34 · rhel 8)
 CVE 10,958건   사이클까지 연결 588 · 제품만 연결(UNKNOWN) 291 · 추적 제품 아님 10,079
-연결 계산      로드 때 1회 약 0.2초 (10,958건)
+연결 계산      로드 때 1회 약 0.2초 (10,958건) · CI 사전 계산은 품질 점검까지 약 0.36초
+연결된 릴리스  248개 (Product Lifecycle '관찰된 위협'이 0 이 아닌 릴리스)
 ```
 
 **연결하지 않는 것 (의도)**: 'Windows 11 22H3'처럼 upstream 에 없는 이름, 서비스팩 표기가 없는
@@ -664,5 +687,182 @@ CVE 10,958건   사이클까지 연결 588 · 제품만 연결(UNKNOWN) 291 · �
 하한이 열린 범위('x 이전')는 그보다 오래된 사이클 전부를 잇는다. PURL 단계는 현재 연결 0건이다.
 
 **운영**: `update-lifecycle.yml` — 매일 02:47 UTC + 수동 실행, `argus-pipeline` 동시성 그룹 공유.
-테스트 → 갱신 → 내용이 바뀐 날만 커밋·push → 배포본 이월 → Pages 배포(수동 실행은 바뀐 게 없어도
-배포). 브랜치 보호로 봇 push 가 막히면 커밋 단계에서 멈추고, 사이트는 마지막으로 커밋된 사본을 계속 쓴다.
+테스트 → 갱신 → 내용이 바뀐 날만 커밋·push → 배포본 이월 → CVE 맥락 사전 계산(§13, 실패해도 계속) →
+Pages 배포(수동 실행은 바뀐 게 없어도 배포). 브랜치 보호로 봇 push 가 막히면 커밋 단계에서 멈추고, 사이트는
+마지막으로 커밋된 사본을 계속 쓴다.
+
+---
+
+## 13. CVE 맥락 — 신호 · 상관 · 근거 (`docs/js/context.js`, `src/build_context.js`)
+
+출처별로 흩어진 사실을 **CVE 하나를 중심으로** 묶는다. CVE 화면 하나에서 "실제 악용 근거가 있나 · 공개
+exploit 이 있나 · 자동화되나 · 랜섬웨어에 쓰였나 · 영향 릴리스가 EOL 인가 · 수정 버전이 있나 · 탐지 룰이 있나 ·
+각각 어느 출처가 말하나"에 답하는 것이 목적이다. **점수를 만들지 않는다** — 사실을 나란히 놓을 뿐 합산·가중하지 않는다.
+
+```
+원본     cves.json · stats.json · cve-products.json · cve-packages.json · lifecycle.json · lifecycle_aliases.json
+  → 정규화  lifecycle.js   영향 제품 항목 → endoflife.date 제품·사이클 (항목마다 연결 방법 via · 키 · 근거)
+  → 파생    context.js     신호 10종 yes/no/unknown · 상관 10종 · 출처별 근거 행 · 집계 · 품질 점검
+  → 화면    dashboard-view.js · cve-dashboard.js(목록·검색·URL) · cve-detail.js · lifecycle-view.js
+```
+
+`context.js` 는 브라우저와 CI(Node)가 **같은 파일**을 쓴다(UMD). 판정 규칙을 두 번 구현하지 않는다.
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| **점수를 합산하지 않는다.** CVSS · EPSS · KEV · EOL 을 한 숫자로 만들지 않고 목록 기본 정렬도 기존(티어 → CVSS) 그대로다 | 서로 다른 질문(심각도 · 예측 · 관측 · 지원 상태)의 답이 한 숫자에 섞여, 왜 높은지 설명할 수 없다 |
+| 판정은 **yes · no · unknown** 셋 중 하나. 출처가 '아니다'라고 **말한 것만** no, 근거가 없으면 unknown | 모르는 것이 '없음'으로 보여 위험이 낮게 읽힌다(§6 `unknown` 규칙과 같은 선) |
+| 상관은 **두 사실이 모두 yes** 일 때만 만든다. `!` 는 명시적 no 만(unknown 은 해당 없음) | 모름이 섞인 조합이 '둘 다 해당'으로 세진다 |
+| 신호·상관의 정의는 `SIGNALS` · `CORRELATIONS` 표 **한 곳**에 두고 검색어 · 대시보드 · 상세 · CI 가 그 표를 읽는다 | 같은 이름의 숫자가 화면마다 달라진다 |
+| **대시보드 숫자 = 누른 뒤 열리는 목록 건수.** 카드마다 검색어를 갖고 `goToQuery` 로 연다 | 요약과 목록이 달라 어느 쪽도 믿을 수 없다. 테스트와 실데이터 대조(아래 실측)로 확인한다 |
+| **파생 값은 원본 행에 섞지 않는다.** cves.json 스키마 · CSV/JSON/STIX 는 그대로, 사전 계산은 별도 파일 | 기존 소비자의 스키마가 바뀐다. 출처 사실과 Argus 파생이 구분되지 않는다 |
+| **AI 분석(`analysis`)은 읽지 않는다.** 상세의 맨 끝 별도 칸에 'AI 생성 · 참고용'으로만 둔다 | 모델이 쓴 문장이 사실·판정처럼 읽힌다 |
+| 'Argus 알림 등급'(티어)은 상세 머리글에만, `risk.py` 파생임을 밝혀 적는다 | 파생 등급이 출처가 준 값처럼 읽힌다 |
+| EOL 은 심각도가 아니고, EPSS 는 악용이 아니고, PoC 공개는 공격이 아니다 — 정의와 화면 문구에 그대로 적는다 | '예측'·'공개'·'지원 종료'가 '악용 중'으로 읽힌다 |
+| 1 미만 확률은 **100% 로 반올림해 보이지 않는다** (`epssPct`) | 실측 EPSS 0.99999 가 `toFixed` 로 100.00% 가 되어 예측이 확실처럼 읽혔다(목록 103건 · 상세 48건, 실제 1 인 CVE 는 0건). 내보내기는 원래 값 그대로 |
+
+**신호 10종** (`SIGNALS`)
+
+| 코드 | 검색 키 | yes | no | unknown |
+|:---|:---|:---|:---|:---|
+| `EXPLOITATION_CONFIRMED` | `kev` · `exploited` | CISA KEV · VulnCheck KEV · SSVC Exploitation=active 중 하나 | 셋 다 아님 | — |
+| `CISA_KEV` | `cisa-kev` | CISA KEV 등재 | 미등재 | — |
+| `PUBLIC_EXPLOIT` | `exploit` | Exploit-DB · Metasploit · PoC-in-GitHub 중 하나 (nuclei · SSVC poc 는 넣지 않는다) | 셋 다 없음 | — |
+| `AUTOMATABLE` | `auto` | SSVC Automatable=yes | SSVC Automatable=no | SSVC 판정 없음 |
+| `RANSOMWARE` | `ransom` | KEV knownRansomwareCampaignUse=Known | **없다** — 출처가 '아니다'를 주지 않는다 | KEV 의 Unknown · KEV 미등재 |
+| `EOL_AFFECTED` | `eol` | 영향 릴리스 중 하나라도 오늘 기준 EOL | **모든** 영향 항목이 사이클까지 연결되고 상태가 알려졌는데 EOL 없음 | 그 밖 전부(사유 표기) |
+| `PATCH_AVAILABLE` | `patch` · `patched` | OSV 에 수정 버전 1개 이상 | OSV 기록은 있는데 수정 버전 없음 | OSV 기록 없음 |
+| `PUBLIC_DETECTION` | `detection` · `rules` | Sigma · Snort · Suricata · Splunk · YARA 룰, 공식 룰, nuclei 점검 템플릿 중 하나 | 없음 | — |
+| `HIGH_EPSS` | `high-epss` | 백분위 ≥ 0.95 (백분위가 없으면 확률 ≥ 9.3% — `risk.py` 와 같은 기준) | 그 미만 | 미채점(확률·백분위 모두 0) |
+| `CRITICAL_CVSS` | `critical` | CVSS ≥ 9.0 | 9.0 미만 | 점수 없음(0) |
+
+nuclei 는 대상에 요청을 보내는 **점검 템플릿**이라 공개 exploit 이 아니라 탐지 쪽에 두고, 상세에서 '공격 탐지 룰이
+아님'을 따로 적는다. EXPLOITATION_CONFIRMED 는 VulnCheck KEV 를 포함하므로 CISA KEV 보다 넓다(아래 실측).
+
+EOL 의 no 는 **항목 단위**로 확인한다. `reduceMatch` 는 사이클이 하나라도 이어진 제품을 '사이클 특정 불가' 목록에서 빼지만
+(표시가 겹치지 않게), 뺀 항목은 `partial` 에 남기고 그것이 있으면 no 가 아니라 unknown 이다 — 버전을 못 읽은 그 항목이
+EOL 사이클일 수 있다. 실데이터 CVE-2019-10098 이 이 경우다(Apache HTTP Server 항목 중 하나의 버전이 '정보 없음').
+
+**모름의 사유** (`REASON` — 상세의 '한눈에'와 수명주기 칸에 그대로 적는다): `cvss_unscored` · `epss_unscored` ·
+`ssvc_missing` · `kev_unknown` · `not_in_kev` · `no_osv_record` · `no_affected` · `untracked`(추적 밖 제품 포함) ·
+`unresolved`(제품은 찾았지만 사이클을 특정 못 함) · `status_unknown`(upstream 이 단계를 명시하지 않음) · `lifecycle_unloaded`.
+
+**상관 10종** (`CORRELATIONS` — 대시보드 카드 = `corr:<코드>` = 아래 검색어)
+
+| 코드 | 조건 | 카드 검색어 |
+|:---|:---|:---|
+| `KEV_EOL` | CISA KEV × EOL 릴리스 | `has:cisa-kev lifecycle:eol` |
+| `KEV_PUBLIC_EXPLOIT` | CISA KEV × 공개 exploit | `has:cisa-kev has:exploit` |
+| `KEV_AUTOMATABLE` | CISA KEV × SSVC 자동화 가능 | `has:cisa-kev has:auto` |
+| `KEV_RANSOMWARE` | CISA KEV × 랜섬웨어 Known | `has:cisa-kev has:ransom` |
+| `HIGH_EPSS_KEV` | EPSS 상위 5% × CISA KEV | `has:high-epss has:cisa-kev` |
+| `CRITICAL_PUBLIC_EXPLOIT` | CVSS 9+ × 공개 exploit | `cvss:>=9 has:exploit` |
+| `CRITICAL_EOL` | CVSS 9+ × EOL 릴리스 | `cvss:>=9 lifecycle:eol` |
+| `PATCH_EXPLOITED` | 수정 버전 × 악용 근거 | `has:patch has:kev` |
+| `EXPLOIT_NO_FIX` | 공개 exploit × OSV 수정 기록 **없음(명시)** | `has:exploit no:patch` |
+| `EOL_NO_FIX` | EOL 릴리스 × OSV 수정 기록 **없음(명시)** | `lifecycle:eol no:patch` |
+
+카드의 분모(`correlation_scope`)는 '첫 사실이 yes 이고 둘째 사실을 알 수 있는 CVE 수'다. 둘째 사실이 no 를 주지
+않는 신호(랜섬웨어)면 비율이 늘 100% 가 되므로 비율 대신 '출처가 있음으로 표기한 것만'이라 적는다.
+
+**검색 문법 전체** — 공백으로 끊어 토큰마다 AND, 필드 이름·값은 대소문자 무시.
+
+| 문법 | 뜻 |
+|:---|:---|
+| 낱말 | ID · 제목 · 설명 · 영향 벤더/제품/버전 · OSV 패키지명 부분 일치 |
+| `cvss:>=9` · `cvss:<4` · `cvss:=9.8` | CVSS 기본 점수 (`>=` `<=` `>` `<` `=`) |
+| `epss:>=10` | 악용 확률 **퍼센트** 단위(`10` = 10%). 상위 5% 는 `has:high-epss` |
+| `tier:t0`~`t3` · `vendor:` · `product:` · `cwe:79` | 기존 그대로 |
+| `has:<키>` | 아래 세 부류. **모르는 값은 아무것도 통과시키지 않는다**(옛 코드는 전부 통과시켰다) |
+| `no:<신호 키>` · `unknown:<신호 키>` | 신호 표의 키만 받는다 — 출처가 '아니다'라고 한 것 / 알 수 없는 것 |
+| `corr:<코드>` | 상관 코드(`corr:kev_eol` · `corr:kev-eol`) |
+| `lifecycle:` · `eol:<30d` · `release:<제품>/<사이클>` | §12 |
+
+`has:` 값의 세 부류:
+
+- **예전 값(뜻 그대로)**: `kev`(= 악용 근거) · `msf`(Metasploit · Exploit-DB · nuclei — 옛 '무기화' 칩 기준) · `poc` · `rules`
+  (룰 엔진 · 공식 룰 — nuclei 템플릿 제외) · `auto` · `ai`(AI 발견) · `patched`
+- **출처 하나**: `cisa-kev` · `vulncheck-kev` · `ssvc-active` · `metasploit` · `edb` · `nuclei` · `ransom`
+- **파생 신호**: 신호 표의 나머지 키(`exploit` · `eol` · `patch` · `detection` · `high-epss` · `critical` · `exploited`)
+
+그래서 `has:msf` 는 `has:exploit`(EDB · MSF · PoC)와도 `has:metasploit`(MSF 만)와도 다르고, `has:rules` 는 `has:detection`
+보다 nuclei 템플릿만 있는 CVE 만큼 좁다 — 예전 저장 링크·습관이 깨지지 않게 둔 것이다.
+**`lifecycle:unknown` 과 `unknown:eol` 은 다르다**: 앞은 알려진 상태가 **하나도 없는** CVE, 뒤는 EOL 인지 **단정할 수
+없는** CVE다. ACTIVE 릴리스 하나 + 추적 밖 제품 하나인 CVE 는 `lifecycle:active` 이면서 `unknown:eol` 이다.
+
+**화면 구조와 URL**
+
+| 화면 | 담는 것 |
+|:---|:---|
+| Dashboard | KPI 4개(§6) · 상관 카드 10 · 근거 커버리지(신호별 있음·없음·모름 막대, 칸마다 검색어) · 추세·심각도·제품 · 출처별 신호 · 데이터 품질 |
+| CVE Intelligence | 검색줄(필드·값 자동완성) · 조건 칩 · 표 6칸(CVE · 점수 · 위협 근거 · 영향 제품 · 탐지·조치 · 날짜) — 폭 900px 이하는 카드 |
+| CVE 상세 | 한눈에(7 질문) → 위협 근거(출처별 hit·miss·unknown·info) → 제품 → 수명주기 → 조치 → 탐지 → 기술 정보 → 출처 → AI 분석 |
+| Product Lifecycle | 제품 카드 · 릴리스 표 · 릴리스별 관찰된 위협(CVE · KEV · 공개 exploit · 탐지 → `release:` 목록) |
+
+URL 은 `?view=cves|lifecycle`(대시보드는 생략) · `?q=`(CVE Intelligence 에서만) · `?cve=`(상세). `?q` 나 `?cve` 만 있어도
+CVE Intelligence 로 연다. 대시보드·수명주기에서 숫자를 누르면 다른 필터를 풀고 그 검색어로 목록을 연다(§6 `goToQuery`).
+
+**색** — 빨강은 **악용 근거에만** 쓴다(`--g-exploit`). 공개 exploit 은 보라(`--g-weapon`), 자동화는 녹색(`--g-auto`), 수명주기는
+§12 의 청록 램프, 근거 커버리지는 있음(파랑) · 없음(회색) · 모름(**빗금** — 색이 아니라 무늬). 새로 만든 요약 요소(상관 카드 ·
+조건 칩 · KPI 레일)에서 심각도는 무채색으로 두고, 심각도 배지·CVSS 숫자의 기존 관례 색만 남겼다. 위협 3색은 dataviz 검증기
+(범주형, 모든 쌍)로 확인했다 — 다크 CVD ΔE 6.5 · 라이트 6.9 로 6–8 구간이라 **칩마다 문자 라벨이 필수**다(색만으로 구분하지 않는다).
+
+**사전 계산 (`docs/data/cve-context.json`)** — 배포 워크플로 3곳(`argus.yml` · `maintenance.yml` · `update-lifecycle.yml`)이
+배포본 이월 직후 `node src/build_context.js` 로 만든다.
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| 담는 것은 **비싼 조인(CVE별 수명주기 매핑) · 기준일 집계 · 품질 점검 · 입력 지문**뿐. CVE 별 신호는 싣지 않는다 | cves.json 필드에서 바로 나오는 값을 또 실으면 파일만 커지고 두 값이 어긋날 여지가 생긴다 |
+| CI 결과는 **입력 지문이 지금 받은 파일과 같을 때만** 쓴다. 다르면 브라우저가 같은 모듈로 직접 계산한다 | 시간당 export 와 매일 수명주기 갱신이 서로 다른 때 배포되므로, 다른 판의 매핑이 섞이면 틀린 EOL 이 붙는다 |
+| CVE 별 매핑도 한 건씩 되돌려 검증한다(`decodeMatch`) — 항목 수가 다르거나 사이클이 현재 데이터에 없으면 그 CVE 만 직접 계산 | 지문이 우연히 같아도 한 건의 오류가 화면에 나간다 |
+| 사전 계산이 실패해도 **배포는 계속**한다(`continue-on-error`, 실패하면 파일을 쓰지 않음). 이월 목록(`fetch_published`)에 넣지 않는다 | 선택 기능 하나 때문에 시간당 배포가 멈춘다. 이월하면 쓸모없는 옛 판이 남는다 |
+| 집계 기준일(`as_of`)은 CI 실행일(UTC)이다. 브라우저는 전체 데이터가 오면 **오늘(로컬)** 기준으로 다시 세고, 화면 머리에 어느 쪽 숫자인지 적는다 | EOL 은 날짜가 지나면 바뀌므로 어제 CI 숫자를 오늘 숫자로 읽게 된다 |
+
+```
+입력 지문   cves       stats.generated_at | stats.cve.total   ← stats.json 만으로 판단(export 가 total = cves 행 수)
+            products   cve-products.generated_at
+            packages   CVE 수 | (CVE, 패키지) 쌍 수           ← cve-packages.json 에는 생성 시각이 없다
+            lifecycle  generated_at | 릴리스 수
+            aliases    FNV-1a(JSON)
+먼저 그리기  stats.json(5KB) + cve-context.json(gzip 약 17KB) → 대시보드
+            → cves.json(gzip 약 7MB) 도착 → 목록 · 오늘 기준 재계산
+```
+
+**데이터 품질 점검** (`qualityChecks` — 대시보드 '데이터 품질', CI 결과에도 담긴다). 경고(warn)는 데이터끼리 어긋난 것,
+정보(info)는 원래 비어 있어 unknown 으로 표시하는 것이다: CVE ID 형식 · 중복 CVE · stats 총계 불일치 · CVSS/EPSS/SSVC 없음(info) ·
+KEV 미등재인데 랜섬웨어/조치기한 · KEV 인데 조치기한 없음 · EDB/PoC/MSF 표시인데 링크·모듈 없음 · PoC·참고 링크 중복 ·
+수명주기 날짜/사이클/상태 형식 · 릴리스 중복 · endoflife.date 미제공 제품(info) · KEV 카탈로그 대조(파이프라인 캐시가 있을 때만,
+없으면 '건너뜀').
+
+**출처·시점의 한계 — 없는 값은 만들지 않는다**
+
+- 신호별 **관측 시각을 저장하지 않는다.** 상세의 '출처' 칸은 파일 생성 시각(cves.json · cve-products · lifecycle 수집 시각)만 보여 주고, 그 사실을 적는다.
+- KEV 의 `dateAdded` · `requiredAction` 은 수집하지 않는다(조치기한 `dueDate` 만). OSV 인덱스에는 생성 시각이 없다.
+- 영향 제품 키 `vendor:product` 는 Argus 가 정규화한 이름이지 **CPE 원문이 아니다** — 화면에 그렇게 적는다.
+
+**실측 (2026-09-27, CVE 10,958건)**
+
+```
+신호            있음    없음    모름
+악용 근거       5,348   5,610      0     CISA KEV 1,726 + VulnCheck 만 3,622 (SSVC active 만 0)
+CISA KEV        1,726   9,232      0     KEV 1,726건 전부 SSVC 판정 있음
+공개 exploit    5,571   5,387      0
+자동화 가능     3,774   3,568  3,616
+랜섬웨어          361       0 10,597
+EOL 릴리스        511      30 10,417     사이클까지 연결 588 · 제품만 291 · 추적 밖 10,079
+수정 버전       2,299     158  8,501     OSV 기록 2,457건
+공개 탐지       3,250   7,708      0     has:rules 3,190 — nuclei 템플릿만 있는 60건 차이
+EPSS 상위 5%    5,120   3,543  2,295
+CVSS 9+         4,206   6,673     79
+
+상관  KEV×EOL 171 · KEV×공개 exploit 1,070 · KEV×자동화 704 · KEV×랜섬웨어 361 · EPSS 상위 5%×KEV 1,313
+      CVSS 9+×공개 exploit 2,321 · CVSS 9+×EOL 102 · 수정 버전×악용 근거 1,063
+      공개 exploit×수정 기록 없음 62 · EOL×수정 기록 없음 2
+사전 계산   약 590KB(gzip 약 17KB) · 약 0.36초 · 브라우저 집계와 완전히 같음
+대조        숫자 = 목록 건수 1,042건 전부 일치 (상관 10×2 · 신호 10×3 · 연결 릴리스 248×4)
+품질        경고 0 · 정보 4 (CVSS 없음 79 · EPSS 미채점 2,295 · SSVC 없음 3,616 · 미제공 제품 1)
+            KEV 카탈로그 대조는 파이프라인 캐시가 있는 실행에서만 — 로컬 실측은 건너뜀
+```
+
+위 '대조'는 실제 배포 데이터를 하네스(`tests/helpers/dashboard_vm.js`)에 올려 대시보드 집계와 검색 결과 건수를 하나씩
+비교한 것이다(저장소 테스트는 fixture 로 같은 대조를 한다 — `docs/data/` 를 쓰지 않으므로).

@@ -505,7 +505,8 @@
   }
 
   // 항목별 결과 → CVE 요약. 같은 릴리스는 한 번만(처음 연결한 방법 유지), 사이클이 하나라도
-  // 이어진 제품은 '사이클 특정 불가' 목록에서 뺀다.
+  // 이어진 제품은 '사이클 특정 불가' 목록에서 뺀다 — 다만 빠진 항목은 partial 에 남긴다.
+  // 같은 제품의 다른 항목이 어느 사이클인지 모르므로 'EOL 아님'을 단정하는 근거가 되지 않는다.
   function reduceMatch(match) {
     const entries = new Map();
     const unresolved = new Map();
@@ -523,8 +524,14 @@
     };
     for (const r of (match && match.items) || []) take(r);
     for (const r of (match && match.packages) || []) take(r);
-    for (const e of entries.values()) unresolved.delete(e.slug);
-    return { entries: [...entries.values()], unresolved: [...unresolved.values()], untracked };
+    const partial = [];
+    for (const e of entries.values()) {
+      if (unresolved.has(e.slug)) {
+        partial.push(unresolved.get(e.slug));
+        unresolved.delete(e.slug);
+      }
+    }
+    return { entries: [...entries.values()], unresolved: [...unresolved.values()], untracked, partial };
   }
 
   /* ---------- 사전 계산(CI) ↔ 브라우저 직렬화 ---------- */

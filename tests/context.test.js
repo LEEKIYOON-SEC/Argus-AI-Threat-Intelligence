@@ -91,6 +91,10 @@ test('EOL 영향 — 하나라도 EOL 이면 yes, 모든 제품이 확인돼야 
   const mixed = run([active, acme]);
   assert.equal(mixed.states.EOL_AFFECTED, 'unknown', '추적 밖 제품이 섞이면 no 라고 말할 수 없다');
   assert.deepEqual(mixed.lifecycle.reasons, ['untracked']);
+  // 같은 제품의 다른 항목이 버전을 못 읽으면(실데이터 CVE-2019-10098 형태) 그 항목이 EOL 사이클일 수 있다.
+  const partial = run([active, { vendor: 'F5', product: 'NGINX Open Source', versions: '정보 없음' }]);
+  assert.equal(partial.states.EOL_AFFECTED, 'unknown', '사이클 미상 항목이 남아 있으면 no 라고 말할 수 없다');
+  assert.deepEqual(partial.lifecycle.reasons, ['unresolved']);
   assert.deepEqual(run([]).lifecycle.reasons, ['no_affected']);
   const noData = CTX.signals(row(), { lifecycle: null, today: TODAY, affectedCount: 1 });
   assert.equal(noData.states.EOL_AFFECTED, 'unknown');
@@ -248,7 +252,8 @@ test('CI 사전 계산 — 브라우저 계산과 같은 결과, 지문, 직렬�
     products, packages, lifecycle: LCDATA, aliases: ALIASES })), '다른 판의 파일이면 지문이 다르다');
   const m = LC.createMatcher(LCDATA, ALIASES);
   const affectedOf = productDecoder(products);
-  const norm = r => JSON.stringify({ e: r.entries.map(e => [e.slug, e.rel.cycle, e.via, e.key]), u: r.unresolved, n: r.untracked });
+  const norm = r => JSON.stringify({ e: r.entries.map(e => [e.slug, e.rel.cycle, e.via, e.key]), u: r.unresolved, n: r.untracked,
+                                     p: r.partial });
   for (const cve of cves) {
     const aff = affectedOf(cve);
     const dec = LC.decodeMatch(out.lifecycle[cve.id] || null, aff.length, m.releaseIndex);

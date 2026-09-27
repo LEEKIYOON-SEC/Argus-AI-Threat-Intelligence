@@ -58,7 +58,7 @@ function loadDashboard(sources) {
     document, console, URL, Date: HermeticDate, Math, JSON, Map, Set, WeakMap, Promise, RegExp, Number, String, Array, Object,
     setTimeout: fn => { fn(); return 0; }, clearTimeout() {},
     location: { href: 'https://example.test/cve.html', origin: 'https://example.test', pathname: '/cve.html', search: '' },
-    history: { replaceState() {} },
+    history: { last: null, replaceState(state, title, url) { this.last = String(url); } },
     alert() {}, scrollTo() {}, addEventListener() {},
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
     navigator: {},
