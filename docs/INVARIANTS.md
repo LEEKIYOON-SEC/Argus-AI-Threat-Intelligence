@@ -424,7 +424,7 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 
 | 소스 | 라이선스 | 의무 |
 |:---|:---|:---|
-| CVE (cvelistV5) | CC0 1.0 | 없음 |
+| CVE (cvelistV5) | **CVE Program Terms of Use** — 저장소에 LICENSE 파일이 없고 README 가 약관을 가리킨다 (CC0 아님) | MITRE 저작권 표기(`Copyright © 1999-<올해>, The MITRE Corporation.`)와 약관의 CVE Usage 라이선스 문구를 **원문 그대로** 재현. 'CVE' 는 ™(등록상표는 로고) |
 | CISA KEV · SSVC/vulnrichment | 공공/CC0 1.0 | 없음 |
 | EPSS (FIRST.org) | 무료 | 출처 표기 |
 | nuclei-templates | MIT | 표기 |
@@ -435,10 +435,11 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 | Emerging Threats Open · Snort Community | MIT (레거시 SID 1–3464 는 GPLv2) | 표기 |
 | nomi-sec/PoC-in-GitHub | **CC0 1.0** (LICENSE 확인) | 없음 — 다만 **URL 만 인용하고 PoC 원문은 게시하지 않는다** |
 | Exploit-DB | 링크만 사용 | 원문 미게시 |
-| NVD (NIST) | U.S. Government Work | 표기 |
-| OSV.dev | CC-BY 4.0 | 표기 |
+| NVD (NIST) | U.S. Government Work · NVD API Terms of Use | **"This product uses the NVD API but is not endorsed or certified by the NVD." 필수** (API 약관 Attribution 문구 그대로) |
+| OSV.dev | **소스 DB별 상이** — GHSA CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 · Rocky Linux BSD · AlmaLinux MIT 등 | 소스별 조건. 패키지명·버전 문자열만 게시 |
 | VulnCheck KEV | 무료 | **"This product uses VulnCheck KEV" 필수** |
 | Anthropic CVD 레저 | 명시 없음 | 사실만 인용, 데이터셋 재배포 금지 |
+| endoflife.date (API v1) | MIT (`Copyright 2020 endoflife.date contributors`) | 저작권·허가 고지 보존 — `data/lifecycle.json` 의 `license.notice`+`license.text` 가 upstream LICENSE 원문 그대로. **제품 설명(Wikipedia CC BY-SA 3.0 유래)·아이콘(CC-BY-SA-4.0)은 싣지 않는다** |
 | ~~Elastic detection-rules~~ | Elastic License 2.0 | **거부** — source-available, 서비스 제한 |
 
 탐지 룰 5종의 라이선스 문자열은 `build_rule_index.LICENSES` 가 실제로 화면까지
@@ -451,6 +452,12 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 모달 각주는 그 하단을 가리키기만 한다 — 목록을 두 곳에 두면 갈라지고,
 예전처럼 **모달을 한 번도 안 연 방문자가 아무 출처도 못 보는** 상태가 된다.
 룰 개별 라이선스·author 는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
+수명주기도 같은 방식이다 — 상세 모달의 Product Lifecycle 섹션이 값 옆에 endoflife.date 출처·원출처 정책 링크·수집 시각을
+찍지만, 소스별 조건의 완전한 표는 하단 하나뿐이다.
+
+하단은 **소스별 표**(출처 · 용도 · 재배포 · 출처 표기 · 라이선스 · 비고)와 **필수 고지**(NVD 문구 · VulnCheck 문구 ·
+MITRE 저작권 표기와 CVE Usage 라이선스 문구 · endoflife.date MIT)로 나뉜다. '전부 무료·재배포 허용' 같은
+한 줄 요약은 쓰지 않는다 — 소스마다 조건이 다르고, 틀린 요약이 실제로 있었다(CVE 를 CC0 로 적었다).
 
 고지에 **없어야 하는 것**: `GitHub Advisory`. 코드 어디서도 가져오지 않는다 —
 GHSA 는 OSV 덤프 안에 간접 포함될 뿐이다. `trickest` 도 같다 — PoC 출처는
@@ -471,6 +478,7 @@ GHSA 는 OSV 덤프 안에 간접 포함될 뿐이다. `trickest` 도 같다 —
 | `rules.emergingthreats.net` · `www.snort.org` | 네트워크 룰 | 무료 |
 | `github.com/YARAHQ/yara-forge/releases` | YARA 룰 묶음 | 무료 |
 | `red.anthropic.com` | AI 발견 취약점 원장 | 무료 |
+| `endoflife.date` | 제품 수명주기 API v1 — 하루 1회, `/api/v1/products` 1번 + 그 목록에 있는 추적 제품만 `/api/v1/products/{slug}` (현재 21번 · openssh 는 목록에 없어 요청 안 함) | 무료 · 키 없음 |
 | Google AI Studio (SDK) | Gemini·Gemma 번역·분석 | **무료 티어 RPM/TPM/RPD 한도 내** |
 | Supabase (SDK) | 저장 | 무료 500MB (→ Turso 5GB 로 이전 예정) |
 | Slack Incoming Webhook | 알림 | 무료 |
@@ -516,9 +524,32 @@ VulnCheck 커뮤니티 티어는 `/v3/backup/`이다. `/v3/index/`는 상위 티
   (`cves.json` 하나가 18MB). 지금은 Actions 가 만들어 Pages 아티팩트로 배포하고
   파이프라인 상태는 Supabase `pipeline_state` 에 있다. `.gitignore` 가 막고 있으므로
   예외를 뚫지 않는다.
+- **예외: 제품 수명주기 `data/lifecycle.json` 은 저장소 루트 `data/` 에 커밋한다** (`docs/data/`
+  가 아니다). `update-lifecycle.yml` 이 하루 한 번 받아 **내용이 바뀐 날만** 커밋한다(`generated_at`
+  만 다르면 쓰지 않는다 · 약 280KB · 날짜는 거의 안 바뀐다). upstream 이 죽어도 저장소에 마지막
+  정상본이 남는다. 배포 때 `fetch_published.seed` 가 JSON 을 검증하고 `docs/data/` 로 복사한다
+  (`lifecycle_aliases.json` 도 같다). 저장소 사본이 없거나 깨졌으면 배포본을 이월한다.
+  `docs/data/` 로 옮기지 않는다.
 - **`docs/` 는 곧 배포되는 사이트다.** 여기 두는 파일은 전부 공개된다 — 참조되지
   않는 파일을 남기면 그대로 공중에 실린다(실측: 삭제된 README 의 스크린샷 4종
   2.2MB 가 계속 서빙되고 있었다).
+
+### 테스트
+
+```
+TZ=UTC python -m unittest discover -s tests -p 'test_*.py'   # 수명주기 수집·정규화·상태·검증
+TZ=UTC node --test tests/*.test.js                          # lifecycle.js 매칭·검색 + 대시보드 회귀
+```
+
+`update-lifecycle.yml` 이 갱신 전에 같은 명령을 돌리고, 실패하면 데이터를 쓰지 않는다.
+네트워크를 쓰지 않는다 — endoflife.date 응답은 `tests/fixtures/endoflife_v1/` 에 실제 v1 응답을
+줄여 둔 사본을 쓰고, 상태 계산은 Python·JS 가 같은 표(`lifecycle_status_cases.json`)를 확인한다.
+
+`tests/fixtures/dashboard_baseline.json` 은 수명주기 기능을 넣기 **전** 커밋(`0f68020`)의
+`cve-dashboard.js` 로 만든 회귀 기준이다. 검색·필터·정렬·페이지·통계·상세 모달·CSV/JSON/STIX 결과가
+이것과 같아야 한다(새 Lifecycle 칸·섹션만 빼고 비교). 기존 동작을 **일부러** 바꿨을 때만
+`node tests/tools/make_dashboard_baseline.js <rev>` 로 다시 만든다. 날짜의 로캘 표기는 ICU 판마다
+달라서(실측: Node 22.22.2 `AM 3:00` · 22.23.3 `오전 3:00`) 하네스가 표기 결과 대신 호출 인자를 남긴다.
 
 ---
 
@@ -559,3 +590,79 @@ Argus Maintenance 에서 `package-index`·`rule-index`를 한 번씩 수동 실�
 돌리면 이어서 처리한다 — 다 채우면 대상이 0 이 되어 더 돌릴 일이 없다.
 NVD 조회가 붙어 있으므로 **`NVD_API_KEY` 를 먼저 넣는 게 좋다**(무료, NIST 발급).
 키가 없으면 건당 8초라 574건에 76분이 걸려 한 회차에 다 못 끝낸다.
+
+---
+
+## 12. 제품 수명주기 (`src/update_lifecycle.py`, `docs/js/lifecycle.js`)
+
+EOL 은 **위험도가 아니라 upstream 지원 여부**다. CVSS·EPSS·티어와 합산하지 않고 알림·정렬에도
+쓰지 않는다. 배지도 위협 신호(채운 배지)와 구분되는 청록 단색 외곽선이다 — 색 단계는 dataviz
+검증기로 라이트·다크 모두 통과시킨 서열 램프다.
+
+```
+lifecycle_products.json (추적 제품 22종)
+  → endoflife.date API v1 (/products 로 목록 확인 → 목록에 있는 제품만 /products/{slug})
+  → 정규화 · 검증 → data/lifecycle.json (내용이 바뀐 날만 커밋)
+  → 배포 때 fetch_published.seed 가 docs/data/ 로 복사
+  → 브라우저가 로드 때 한 번 CVE 영향 제품과 연결 (CVE 별 메모)
+```
+
+**브라우저는 endoflife.date 를 부르지 않는다.** API v1 을 쓰는 이유: CPE·PURL 식별자, 단계 이름
+(labels), 원출처 정책 링크가 v1 에만 있고 v0 은 폐기 예정이다. `schema_version` 메이저가 1 이
+아니면 읽지 않는다.
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| **upstream 에 없는 값은 null 로 둔다.** 날짜를 만들거나 다른 필드에서 끌어오지 않는다 | 없는 EOL 날짜가 생기고, 그 날짜로 '지원 중'·'EOL'이 단정된다 |
+| **null 은 '지원 중'이 아니다.** EOL 여부를 알 수 없으면 UNKNOWN | 모르는 제품이 ACTIVE 로 보여 교체 검토에서 빠진다 |
+| 상태는 **날짜가 있으면 날짜(당일 포함), 없으면 upstream 플래그**로 정한다. 수집 때 한 번, 브라우저가 오늘 기준으로 한 번 더 계산한다. Python·JS 는 같은 알고리즘이고 공유 표(`tests/fixtures/lifecycle_status_cases.json`)로 확인한다 | 수집일 기준 상태가 굳어 하루만 지나도 틀린다. 두 구현이 갈라지면 파일과 화면의 상태가 다르다 |
+| 'Active 단계 이후 ~ EOL 이전'은 **upstream 단계 이름(`labels.eol`)이 security·extended 를 명시할 때만** SECURITY·EXTENDED. Maintenance Support·Debian LTS 처럼 명시가 없으면 UNKNOWN | 벤더 정책을 날짜로 추정하게 된다. 벤더 문서로 확인한 경우에만 `lifecycle_products.json` 의 `phase_status` 에 근거 URL 과 함께 채운다 |
+| EOL 이후 확장 지원은 **제품에 확장 단계(`labels.eoes`)가 있고 그 릴리스가 대상(`isEoes` 가 bool)일 때만** EXTENDED | 확장 지원 대상이 아닌 릴리스(`isEoes=null`)가 EXTENDED 로 보인다 |
+| 지원 종료·보안 지원 종료·확장 지원 종료·EOL 을 섞지 않는다. `security_support_end` 는 **보안 지원 단계가 명시된 제품에서만** 채운다 | 단계가 하나뿐인 제품의 EOL 이 '보안 지원 종료'로 이중 표기된다 |
+| 연결이 불확실하면 **연결하지 않는다** — 이름이 비슷하다는 이유로 잇지 않는다. 버전 문자열을 한 조각이라도 못 읽으면 그 제품은 사이클 없이 UNKNOWN | 틀린 EOL 이 붙는 것이 모르는 것보다 나쁘다. 열린 범위를 '전부'로 읽으면 무관한 사이클이 붙는다 |
+| 배포판 패키지(deb·rpm·apk 등) PURL 로는 잇지 않는다 — 언어 생태계 패키지만 | 백포트 때문에 배포판 패키지 버전이 upstream 사이클과 다르다 |
+| 모든 제품·릴리스에 `source_provider`·`source_url`·`fetched_at` 을 싣는다. 값이 그대로면 `fetched_at` 도 유지한다 | 출처·시점 없는 날짜는 검증할 수 없다. 매일 시각만 바뀌면 매일 커밋된다 |
+| 제품 하나 조회 실패 → 그 제품만 **직전 값을 이월**. 목록 조회 실패 · 20% 초과 실패 · 검증 실패 → **파일을 쓰지 않고 종료(1)** | 부분 결과가 완성본을 덮어 제품이 통째로 사라진다 |
+| upstream 목록에 없는 제품은 **데이터를 만들지 않고** `unavailable` 로 남긴다 (현재 openssh) | 없는 제품의 수명주기를 지어내게 된다 |
+| 화면의 수명주기 숫자는 **릴리스(사이클) 수**다. 'CVE 수가 아님'을 화면에 적는다 | '추적 중 CVE'와 단위가 다른 숫자를 같은 눈으로 읽게 된다 |
+| CVE 스키마·CSV/JSON/STIX 내보내기에 수명주기 값을 싣지 않는다 | 기존 소비자의 스키마가 바뀐다. 연결은 브라우저 메모리에서만 한다 |
+
+**연결 순서** (`data/lifecycle_aliases.json` — 앞 단계에서 걸리면 멈춘다)
+
+1. `overrides` — `vendor:product:version` 다음 `vendor:product` 수동 지정. 값 `null` 은 **연결 금지**(예: `f5:nginx_plus`)
+2. CPE — endoflife.date `identifiers.cpe` 의 vendor:product
+3. PURL — 언어 생태계 패키지만, OSV 수정 버전 기준
+4. vendor+product — 제품 이름·라벨·별칭 일치 **그리고** 벤더 확인(CPE 벤더 ∪ `product_vendors`)
+5. `patterns` — 제품명 정규식(`^…$` 필수). Windows 기능 업데이트는 `family` 로 에디션 사이클(-e·-w·-iot-lts…)까지
+
+사이클은 영향 버전 문자열(`x 이전`·`x 이하`·`x (단일 버전)`)에서 읽고, **upstream 에 없는 사이클이면 잇지 않는다**.
+키 정규화는 소문자 → `[a-z0-9.+]` 밖은 `_` → 앞뒤 `_`·`.` 제거.
+
+**별칭을 고칠 때**: 틀린 연결은 `overrides` 에 `null` 로 막고, 빠진 연결은 키를 더한다. 정규식은
+갱신기(Python `re`)가 검증하고 브라우저(JS)가 실행하므로 **양쪽에서 같은 뜻인 문법만** 쓴다.
+Python 전용(`(?P<name>…)`·인라인 플래그 `(?i)`)은 검증을 통과하고 브라우저에서 그 규칙만 조용히
+빠지며(연결 누락), JS 전용(`(?<name>…)`·가변 길이 lookbehind)은 갱신기가 오류로 멈춘다(데이터 갱신 중단).
+고친 뒤 `node --test tests/lifecycle.test.js` 가 실제 별칭 파일로 돈다.
+
+**검색**: `lifecycle:eol|active|security|extended|unknown` — 영향 릴리스 중 **하나라도** 그 상태면 걸린다.
+`unknown` 은 알려진 상태가 **하나도 없는** CVE(추적 밖 제품 포함). `eol:<30d|<90d|<180d` — EOL 이
+**오늘 이후**이고 그 일수 미만 남은 릴리스가 있으면 걸린다(이미 EOL 인 것·날짜 없는 것은 제외).
+기존 문법과 AND 로 묶인다. 잘못된 값(`lifecycle:bogus`·`eol:abc`)은 아무것도 통과시키지 않는다.
+
+**실측 (2026-09-27)**
+
+```
+제품 21종 · 릴리스 444개      openssh 는 endoflife.date 에 없음 → unavailable
+상태   ACTIVE 64 · SECURITY 21 · EXTENDED 20 · EOL 336 · UNKNOWN 3 (debian 12 · kubernetes 1.34 · rhel 8)
+CVE 10,958건   사이클까지 연결 588 · 제품만 연결(UNKNOWN) 291 · 추적 제품 아님 10,079
+연결 계산      로드 때 1회 약 0.2초 (10,958건)
+```
+
+**연결하지 않는 것 (의도)**: 'Windows 11 22H3'처럼 upstream 에 없는 이름, 서비스팩 표기가 없는
+'Windows 7'·'Windows Server 2008'(RTM/SP 를 가를 수 없음), RHEL EUS·AUS·E4S 등 부가 구독 스트림,
+리눅스 커널 CNA 의 git 커밋 범위. **알려진 한계**: NVD 로 채운 행은 CPE 의 첫 버전만 남아 있고,
+하한이 열린 범위('x 이전')는 그보다 오래된 사이클 전부를 잇는다. PURL 단계는 현재 연결 0건이다.
+
+**운영**: `update-lifecycle.yml` — 매일 02:47 UTC + 수동 실행, `argus-pipeline` 동시성 그룹 공유.
+테스트 → 갱신 → 내용이 바뀐 날만 커밋·push → 배포본 이월 → Pages 배포(수동 실행은 바뀐 게 없어도
+배포). 브랜치 보호로 봇 push 가 막히면 커밋 단계에서 멈추고, 사이트는 마지막으로 커밋된 사본을 계속 쓴다.

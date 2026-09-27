@@ -1,0 +1,39 @@
+{
+ "_doc": "상태 계산 공유 표 — tests/test_lifecycle.py(compute_status)와 tests/lifecycle.test.js(statusOf)가 같은 기대값을 확인한다.",
+ "today": "2026-09-27",
+ "labels": {
+  "single": {"eoas": null, "eol": "Security Support", "eoes": null},
+  "active_security": {"eoas": "Active Support", "eol": "Security Support", "eoes": null},
+  "active_security_esu": {"eoas": "Active Support", "eol": "Security Support", "eoes": "Extended Security Updates"},
+  "maintenance": {"eoas": "Active Support", "eol": "Maintenance Support", "eoes": null},
+  "debian": {"eoas": "Debian Security Support", "eol": "Debian LTS", "eoes": "ELTS"},
+  "premier_extended": {"eoas": "Premier Support", "eol": "Extended Support", "eoes": null},
+  "single_premium": {"eoas": null, "eol": "Supported", "eoes": "Premium support"}
+ },
+ "cases": [
+  {"name": "단일 단계 · EOL 아님(날짜 없음)", "labels": "single", "release": {"eol_date": null, "eol_reached": false}, "expect": "ACTIVE"},
+  {"name": "단일 단계 · EOL 미래", "labels": "single", "release": {"eol_date": "2027-01-01", "eol_reached": false}, "expect": "ACTIVE"},
+  {"name": "단일 단계 · EOL 과거", "labels": "single", "release": {"eol_date": "2024-05-29", "eol_reached": true}, "expect": "EOL"},
+  {"name": "EOL 날짜 당일은 EOL", "labels": "single", "release": {"eol_date": "2026-09-27", "eol_reached": false}, "expect": "EOL"},
+  {"name": "EOL 전날까지는 지원", "labels": "single", "release": {"eol_date": "2026-09-28", "eol_reached": false}, "expect": "ACTIVE"},
+  {"name": "EOL 날짜 미상 · upstream 이 EOL 로 표시", "labels": "single", "release": {"eol_date": null, "eol_reached": true}, "expect": "EOL"},
+  {"name": "EOL 정보 없음 → UNKNOWN (지원 중으로 간주하지 않음)", "labels": "single", "release": {"eol_date": null, "eol_reached": null}, "expect": "UNKNOWN"},
+  {"name": "날짜와 플래그가 어긋나면 날짜를 따른다", "labels": "single", "release": {"eol_date": "2027-03-01", "eol_reached": true}, "expect": "ACTIVE"},
+  {"name": "Active 단계 진행 중", "labels": "active_security", "release": {"support_end": "2027-10-01", "support_ended": false, "eol_date": "2030-10-31", "eol_reached": false}, "expect": "ACTIVE"},
+  {"name": "Active 끝 · Security Support 단계", "labels": "active_security", "release": {"support_end": "2025-04-02", "support_ended": true, "eol_date": "2028-10-31", "eol_reached": false}, "expect": "SECURITY_SUPPORT"},
+  {"name": "Active 종료일 미상(끝남) · EOL 미정", "labels": "active_security", "release": {"support_end": null, "support_ended": true, "eol_date": null, "eol_reached": false}, "expect": "SECURITY_SUPPORT"},
+  {"name": "Active 종료일 미정(진행 중)", "labels": "active_security", "release": {"support_end": null, "support_ended": false, "eol_date": null, "eol_reached": false}, "expect": "ACTIVE"},
+  {"name": "Active 단계 정보가 빠짐 → UNKNOWN", "labels": "active_security", "release": {"support_end": null, "support_ended": null, "eol_date": "2030-01-01", "eol_reached": false}, "expect": "UNKNOWN"},
+  {"name": "Maintenance Support 단계 → 명시가 없어 UNKNOWN", "labels": "maintenance", "release": {"support_end": "2026-08-27", "support_ended": true, "eol_date": "2026-10-27", "eol_reached": false}, "expect": "UNKNOWN"},
+  {"name": "Maintenance Support + 검토된 수동 매핑", "labels": "maintenance", "phase_status": {"eol": "SECURITY_SUPPORT", "basis": "https://example.org/policy"}, "release": {"support_end": "2026-08-27", "support_ended": true, "eol_date": "2026-10-27", "eol_reached": false}, "expect": "SECURITY_SUPPORT"},
+  {"name": "Debian LTS 단계 → UNKNOWN", "labels": "debian", "release": {"support_end": "2026-07-11", "support_ended": true, "eol_date": "2028-06-30", "eol_reached": false, "extended_support_end": "2033-06-30", "extended_support_ended": false}, "expect": "UNKNOWN"},
+  {"name": "Debian ELTS 단계 → EXTENDED", "labels": "debian", "release": {"support_end": "2024-08-14", "support_ended": true, "eol_date": "2026-08-31", "eol_reached": true, "extended_support_end": "2031-06-30", "extended_support_ended": false}, "expect": "EXTENDED_SUPPORT"},
+  {"name": "Premier 끝 · 'Extended Support' 단계", "labels": "premier_extended", "release": {"support_end": "2025-04-30", "support_ended": true, "eol_date": "2026-10-30", "eol_reached": false}, "expect": "EXTENDED_SUPPORT"},
+  {"name": "Extended Support 까지 끝남", "labels": "premier_extended", "release": {"support_end": "2025-04-30", "support_ended": true, "eol_date": "2026-04-30", "eol_reached": true}, "expect": "EOL"},
+  {"name": "EOL 이후 ESU 진행 중", "labels": "active_security_esu", "release": {"support_end": "2018-10-09", "support_ended": true, "eol_date": "2023-10-10", "eol_reached": true, "extended_support_end": "2026-10-13", "extended_support_ended": false}, "expect": "EXTENDED_SUPPORT"},
+  {"name": "ESU 도 끝남", "labels": "active_security_esu", "release": {"support_end": "2015-01-13", "support_ended": true, "eol_date": "2020-01-14", "eol_reached": true, "extended_support_end": "2023-01-10", "extended_support_ended": true}, "expect": "EOL"},
+  {"name": "확장 지원 대상이 아님(isEoes=null)", "labels": "active_security_esu", "release": {"support_end": "2015-01-13", "support_ended": true, "eol_date": "2020-01-14", "eol_reached": true, "extended_support_end": null, "extended_support_ended": null}, "expect": "EOL"},
+  {"name": "확장 지원 진행 중 · 종료일 미정", "labels": "single_premium", "release": {"eol_date": "2023-09-11", "eol_reached": true, "extended_support_end": null, "extended_support_ended": false}, "expect": "EXTENDED_SUPPORT"},
+  {"name": "제품에 확장 지원 단계가 없으면 플래그를 보지 않는다", "labels": "single", "release": {"eol_date": "2023-09-11", "eol_reached": true, "extended_support_end": "2030-01-01", "extended_support_ended": false}, "expect": "EOL"}
+ ]
+}

@@ -1,0 +1,91 @@
+name: Argus Lifecycle Refresh
+
+on:
+  schedule:
+    - cron: '47 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: argus-pipeline
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    outputs:
+      artifact: ${{ steps.carry.outcome }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          TZ: UTC
+        run: |
+          python -m unittest discover -s tests -p 'test_*.py'
+          node --test tests/*.test.js
+
+      - name: Refresh lifecycle data
+        id: refresh
+        run: python src/update_lifecycle.py
+
+      - name: Commit changed lifecycle data
+        if: steps.refresh.outputs.changed == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/lifecycle.json
+          git commit -m "제품 수명주기 데이터 갱신 (endoflife.date)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Carry forward published data
+        id: carry
+        if: steps.refresh.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python src/fetch_published.py
+
+      - name: Upload Pages artifact
+        if: steps.carry.outcome == 'success'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.artifact == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
