@@ -8,7 +8,8 @@
   };
   const QUERY = {
     active: 'ACTIVE', security: 'SECURITY_SUPPORT', security_support: 'SECURITY_SUPPORT',
-    extended: 'EXTENDED_SUPPORT', extended_support: 'EXTENDED_SUPPORT',
+    'security-support': 'SECURITY_SUPPORT',
+    extended: 'EXTENDED_SUPPORT', extended_support: 'EXTENDED_SUPPORT', 'extended-support': 'EXTENDED_SUPPORT',
     eol: 'EOL', unknown: 'UNKNOWN',
   };
   const DISPLAY_ORDER = ['EOL', 'EXTENDED_SUPPORT', 'SECURITY_SUPPORT', 'ACTIVE', 'UNKNOWN'];
@@ -479,32 +480,106 @@
       return memo.get(k);
     }
 
-    function forCve(affected, pkgMap) {
-      const entries = new Map();
-      const unresolved = new Map();
-      let untracked = 0;
-      const take = r => {
-        if (!r || r.denied) { untracked++; return; }
-        if (r.cycles.length) {
-          for (const rel of r.cycles) {
-            const k = `${rel.product_slug}|${rel.cycle}`;
-            if (!entries.has(k)) entries.set(k, { slug: r.slug, rel, via: r.via, key: r.key, basis: r.basis || null });
-          }
-        } else if (!unresolved.has(r.slug)) {
-          unresolved.set(r.slug, { slug: r.slug, via: r.via, key: r.key, reason: r.reason });
-        }
+    // 영향 제품 항목마다의 결과(어느 항목이 어느 제품·사이클로, 어떤 방법으로 이어졌나)를 그대로 남긴다.
+    function matchCve(affected, pkgMap) {
+      return {
+        items: (affected || []).map(a => memoItem(a.vendor, a.product, a.versions)),
+        packages: matchPackages(pkgMap),
       };
-      for (const a of affected || []) take(memoItem(a.vendor, a.product, a.versions));
-      for (const r of matchPackages(pkgMap)) take(r);
-      for (const e of entries.values()) unresolved.delete(e.slug);
-      return { entries: [...entries.values()], unresolved: [...unresolved.values()], untracked };
+    }
+
+    function forCve(affected, pkgMap) {
+      return reduceMatch(matchCve(affected, pkgMap));
+    }
+
+    const releaseIndex = new Map();
+    for (const rels of Object.values(releasesBy)) {
+      for (const r of rels) releaseIndex.set(`${r.product_slug}|${r.cycle}`, r);
     }
 
     return {
-      products, releasesBy, unavailable,
-      matchItem, matchPackages, forCve,
+      products, releasesBy, unavailable, releaseIndex,
+      matchItem, matchPackages, matchCve, forCve,
       meta: slug => products[slug] || null,
     };
+  }
+
+  // 항목별 결과 → CVE 요약. 같은 릴리스는 한 번만(처음 연결한 방법 유지), 사이클이 하나라도
+  // 이어진 제품은 '사이클 특정 불가' 목록에서 뺀다 — 다만 빠진 항목은 partial 에 남긴다.
+  // 같은 제품의 다른 항목이 어느 사이클인지 모르므로 'EOL 아님'을 단정하는 근거가 되지 않는다.
+  function reduceMatch(match) {
+    const entries = new Map();
+    const unresolved = new Map();
+    let untracked = 0;
+    const take = r => {
+      if (!r || r.denied) { untracked++; return; }
+      if (r.cycles.length) {
+        for (const rel of r.cycles) {
+          const k = `${rel.product_slug}|${rel.cycle}`;
+          if (!entries.has(k)) entries.set(k, { slug: r.slug, rel, via: r.via, key: r.key, basis: r.basis || null });
+        }
+      } else if (!unresolved.has(r.slug)) {
+        unresolved.set(r.slug, { slug: r.slug, via: r.via, key: r.key, reason: r.reason });
+      }
+    };
+    for (const r of (match && match.items) || []) take(r);
+    for (const r of (match && match.packages) || []) take(r);
+    const partial = [];
+    for (const e of entries.values()) {
+      if (unresolved.has(e.slug)) {
+        partial.push(unresolved.get(e.slug));
+        unresolved.delete(e.slug);
+      }
+    }
+    return { entries: [...entries.values()], unresolved: [...unresolved.values()], untracked, partial };
+  }
+
+  /* ---------- 사전 계산(CI) ↔ 브라우저 직렬화 ---------- */
+
+  // 결과 하나를 짧은 배열로: 연결 없음 0 · 연결 금지 [1, key] · 그 밖 [slug, via, key, [사이클...], 사유, 근거]
+  function encodeResult(r) {
+    if (!r) return 0;
+    if (r.denied) return [1, r.key];
+    return [r.slug, r.via, r.key, r.cycles.map(c => c.cycle), r.reason || 0, r.basis || 0];
+  }
+
+  // 사이클이 현재 lifecycle.json 에 없으면 undefined — 호출부가 브라우저 계산으로 되돌아간다.
+  function decodeResult(x, releaseIndex) {
+    if (!x) return null;
+    if (x[0] === 1) return { denied: true, via: 'override', key: x[1] };
+    const cycles = [];
+    for (const c of x[3] || []) {
+      const rel = releaseIndex.get(`${x[0]}|${c}`);
+      if (!rel) return undefined;
+      cycles.push(rel);
+    }
+    return { slug: x[0], via: x[1], key: x[2], cycles, reason: x[4] || null, basis: x[5] || null };
+  }
+
+  function encodeMatch(match) {
+    const items = ((match && match.items) || []).map(encodeResult);
+    const pkgs = ((match && match.packages) || []).map(encodeResult);
+    if (!pkgs.length && items.every(x => x === 0)) return null;
+    return pkgs.length ? { i: items, p: pkgs } : { i: items };
+  }
+
+  function decodeMatch(compact, affectedCount, releaseIndex) {
+    if (!compact) return { items: new Array(affectedCount).fill(null), packages: [] };
+    const raw = compact.i || [];
+    if (raw.length !== affectedCount) return null;
+    const items = [];
+    for (const x of raw) {
+      const r = decodeResult(x, releaseIndex);
+      if (r === undefined) return null;
+      items.push(r);
+    }
+    const packages = [];
+    for (const x of compact.p || []) {
+      const r = decodeResult(x, releaseIndex);
+      if (!r) return null;
+      packages.push(r);
+    }
+    return { items, packages };
   }
 
   /* ---------- CVE 요약 · 검색 ---------- */
@@ -551,7 +626,8 @@
     normPart, parseCpe, purlKey, packageKey,
     reached, phaseStatus, statusOf, phaseLabel, timeline, daysUntil, localToday,
     parseVersion, splitEntries, parseConstraints, cyclesFor, cycleInRange,
-    createMatcher, summarize, queryStatus, parseDays, eolWithin, matchesStatus, matchesEol,
+    createMatcher, reduceMatch, encodeMatch, decodeMatch,
+    summarize, queryStatus, parseDays, eolWithin, matchesStatus, matchesEol,
   };
   root.ArgusLifecycle = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

@@ -81,6 +81,18 @@ jobs:
           ARGUS_FRESH_FILES: cves.json,stats.json,cve-products.json
         run: python src/fetch_published.py
 
+      - name: Set up Node
+        if: always() && steps.carry.outcome == 'success'
+        continue-on-error: true
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build CVE context
+        if: always() && steps.carry.outcome == 'success'
+        continue-on-error: true
+        run: node src/build_context.js
+
       - name: Upload Pages artifact
         if: always() && steps.carry.outcome == 'success'
         uses: actions/upload-pages-artifact@v3

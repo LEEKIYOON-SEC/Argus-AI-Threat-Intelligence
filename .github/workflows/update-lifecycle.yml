@@ -66,6 +66,11 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: python src/fetch_published.py
 
+      - name: Build CVE context
+        if: steps.carry.outcome == 'success'
+        continue-on-error: true
+        run: node src/build_context.js
+
       - name: Upload Pages artifact
         if: steps.carry.outcome == 'success'
         uses: actions/upload-pages-artifact@v3

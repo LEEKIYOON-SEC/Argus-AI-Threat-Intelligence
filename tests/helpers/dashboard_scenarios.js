@@ -1,7 +1,7 @@
 'use strict';
 // 수명주기 기능 이전 대시보드(docs/js/cve-dashboard.js)의 동작을 고정하는 시나리오.
 // tests/tools/make_dashboard_baseline.js 가 이 목록을 옛 코드로 돌려 기준값을 만들고,
-// tests/dashboard_regression.test.js 가 같은 목록을 지금 코드로 돌려 비교한다.
+// tests/dashboard.test.js 가 같은 목록을 지금 코드로 돌려 비교한다.
 const { filterIds, RESET } = require('./dashboard_vm');
 
 const SEARCHES = [

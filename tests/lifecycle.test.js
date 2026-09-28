@@ -242,6 +242,8 @@ test('CVE 하나에 여러 제품·사이클 — 중복 제거, 미해결 제품
   assert.deepEqual(r.entries.map(e => `${e.slug} ${e.rel.cycle}`), ['windows-server 2019', 'windows 10-22h2']);
   assert.deepEqual(r.unresolved.map(u => `${u.slug}:${u.reason}`), ['openssh:unavailable'],
     '같은 CVE 에서 사이클이 잡힌 제품(windows)의 미해결 항목은 따로 세지 않는다');
+  assert.deepEqual(r.partial.map(u => `${u.slug}:${u.reason}`), ['windows:version_unparsed'],
+    '다만 버린 항목은 partial 에 남긴다 — EOL 아님을 단정하는 근거가 되지 않게');
   assert.equal(r.untracked, 1);
   const s = LC.summarize(r, SAMPLE.products, TODAY);
   assert.deepEqual(s.counts, { ACTIVE: 0, SECURITY_SUPPORT: 1, EXTENDED_SUPPORT: 1, EOL: 0, UNKNOWN: 1 });

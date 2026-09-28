@@ -18,7 +18,8 @@
         <span>Argus<small>CVE Threat Intelligence</small></span>
       </a>
       <nav class="view-tabs" role="tablist" aria-label="화면 전환">
-        <button type="button" class="view-tab active" role="tab" aria-selected="true" data-view="cve">CVE Threat</button>
+        <button type="button" class="view-tab active" role="tab" aria-selected="true" data-view="dashboard">Dashboard</button>
+        <button type="button" class="view-tab" role="tab" aria-selected="false" data-view="cves">CVE Intelligence</button>
         <button type="button" class="view-tab" role="tab" aria-selected="false" data-view="lifecycle">Product Lifecycle</button>
       </nav>
       <div class="header-spacer"></div>
@@ -30,67 +31,82 @@
   </header>
 
   <main class="container">
-   <div id="view-cve">
-    <section class="kpi-grid">
-      <div class="kpi is-new"
-           title="악용 신호가 관측됐거나 고위험이 될 가능성이 있는 건만 여기 올라옵니다. 점수만 높고 근거가 없는 건은 저장하지 않습니다 — 실측으로 하루 128~162건이 그런 경우였습니다.">
-        <div class="kpi-label">추적 중 CVE</div>
-        <div class="kpi-value" id="stat-total">-</div>
-        <div class="kpi-sub" id="stat-24h-sub">최근 24시간 - 건 신규</div>
+   <div id="view-dashboard" class="view">
+    <section class="view-head">
+      <div>
+        <h1>Threat Landscape</h1>
+        <p class="view-sub">추적 중인 CVE 에서 <b>서로 다른 출처의 사실이 겹치는 곳</b>을 봅니다. 여러 신호를 합산한 위험 점수는 만들지 않습니다.</p>
       </div>
-      <div class="kpi is-kev"
-           title="CISA KEV · VulnCheck KEV · SSVC Exploitation=active — 악용이 보고된 건입니다. 즉시 알림이 나갑니다.">
-        <div class="kpi-label">🚨 악용 중</div>
-        <div class="kpi-value c-kev" id="stat-kev">-</div>
-        <div class="kpi-sub">지금 공격받고 있음</div>
+      <p class="view-meta" id="dash-meta"></p>
+    </section>
+
+    <section class="kpi-grid kpi-4" id="dash-kpis" aria-label="핵심 지표">
+      <div class="kpi"><div class="kpi-label">추적 중 CVE</div><div class="kpi-value" id="stat-total">-</div><div class="kpi-sub" id="stat-24h-sub">최근 24시간 - 건 신규</div></div>
+    </section>
+
+    <section class="panel corr-panel">
+      <div class="panel-head">
+        <h3>신호 간 연결</h3>
+        <span class="panel-note">두 사실이 <b>모두 확인된</b> CVE 수 — 한쪽이 모름(unknown)이면 세지 않습니다. 누르면 같은 조건으로 CVE Intelligence 가 열립니다.</span>
       </div>
-      <div class="kpi is-weapon"
-           title="Metasploit 모듈 · Exploit-DB · nuclei 템플릿 — 공격 도구가 이미 공개돼 누구나 쓸 수 있는 건입니다.">
-        <div class="kpi-label">🧨 무기화</div>
-        <div class="kpi-value c-weapon" id="stat-weapon">-</div>
-        <div class="kpi-sub">Metasploit · EDB · nuclei</div>
-      </div>
-      <div class="kpi is-poc"
-           title="PoC가 공개된 건. 완성된 익스플로잇은 아니지만 무기화까지의 거리가 짧습니다.">
-        <div class="kpi-label">🔬 PoC 공개</div>
-        <div class="kpi-value c-poc" id="stat-poc">-</div>
-        <div class="kpi-sub">무기화 직전 단계</div>
-      </div>
-      <div class="kpi is-ai"
-           title="AI가 찾아 책임공개된 건 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 대개 패치돼 있지만 상세가 함께 공개됩니다.">
-        <div class="kpi-label">🧠 AI 발견</div>
-        <div class="kpi-value c-ai" id="stat-ai">-</div>
-        <div class="kpi-sub">공개와 동시에 N-day</div>
-      </div>
+      <div class="corr-grid" id="dash-corr"></div>
     </section>
 
     <section class="panels">
       <div class="panel">
-        <h3>📈 일별 공개 추이 <span style="font-weight:500;color:var(--text-faint);text-transform:none;letter-spacing:0;">CVE 공개일 기준 · 최근 30일<span id="trend-coverage"></span></span></h3>
+        <h3>일별 공개 추이 <span class="h-note">CVE 공개일 기준 · 최근 30일<span id="trend-coverage"></span></span></h3>
         <div class="chart-container"><canvas id="trend-chart"></canvas></div>
       </div>
       <div class="panel">
-        <h3>심각도 분포</h3>
+        <h3>심각도 분포 <span class="h-note">CVSS 기본 점수</span></h3>
         <div id="severity-dist"></div>
-        <h3 class="mt">영향 제품 TOP</h3>
+        <h3 class="mt">영향 제품 TOP <span class="h-note">누르면 목록</span></h3>
         <div id="product-dist"></div>
       </div>
     </section>
 
-    <section class="lc-strip" id="lc-strip" hidden
-             title="영향 제품의 지원 수명주기(endoflife.date). 위협도와는 별개의 정보이며, 숫자는 CVE 개수가 아니라 CVE에 연결된 제품 릴리스(사이클) 개수입니다.">
-      <div class="lc-strip-title">⏳ Product Lifecycle<span>CVE에 연결된 제품 릴리스 수 · CVE 수 아님</span></div>
-      <div class="lc-strip-stats" id="lc-strip-stats"></div>
-      <button type="button" class="lc-strip-link" data-view="lifecycle">수명주기 보기 →</button>
+    <section class="panels panels-even">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>근거 커버리지</h3>
+          <span class="panel-note">신호마다 있음 · 없음 · 모름. <b>모름은 없음이 아닙니다</b> — 출처가 판단하지 않았거나 Argus 가 연결하지 못한 것입니다.</span>
+        </div>
+        <div id="dash-coverage"></div>
+        <h3 class="mt">출처별 신호 <span class="h-note">기존 필터와 같은 기준</span></h3>
+        <div class="legacy-signals" id="dash-legacy">
+          <div class="ls-item"><span>악용 중 <small>KEV · VulnCheck · SSVC active</small></span><b id="stat-kev">-</b></div>
+          <div class="ls-item"><span>무기화 <small>Metasploit · Exploit-DB · nuclei</small></span><b id="stat-weapon">-</b></div>
+          <div class="ls-item"><span>PoC 공개 <small>PoC-in-GitHub</small></span><b id="stat-poc">-</b></div>
+          <div class="ls-item"><span>AI 발견 <small>책임공개 원장 · 크레딧</small></span><b id="stat-ai">-</b></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <h3>데이터 범위 · 품질</h3>
+          <span class="panel-note">파일별 생성 시각과 결정적 점검 결과 — 경고는 데이터끼리 어긋난 것, 정보는 원래 비어 있는 값입니다</span>
+        </div>
+        <div id="dash-quality"></div>
+      </div>
+    </section>
+   </div>
+
+   <div id="view-cves" class="view" hidden>
+    <section class="view-head compact">
+      <div>
+        <h1>CVE Intelligence</h1>
+        <p class="view-sub">목록은 탐색용입니다. 행을 누르면 악용 근거 · 공개 exploit · 영향 제품과 수명주기 · 수정 버전 · 탐지를 출처와 함께 한 화면에서 봅니다.</p>
+      </div>
     </section>
 
     <section class="filter-bar">
       <div class="filter-row primary">
         <div class="search-wrap">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="text" class="search-input" id="search-input"
-                 placeholder="CVE ID · 키워드 · cvss:&gt;=9 has:kev vendor:apache">
+          <input type="text" class="search-input" id="search-input" autocomplete="off" spellcheck="false"
+                 role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="search-suggest"
+                 placeholder="CVE ID · 키워드 · has:cisa-kev lifecycle:eol · cvss:&gt;=9">
           <button type="button" class="syntax-help" id="syntax-help" aria-label="검색 문법 도움말">?</button>
+          <ul class="search-suggest" id="search-suggest" role="listbox" aria-label="검색어 제안" hidden></ul>
         </div>
         <label class="num-filter" title="이 값 이상만 (빈칸이면 전체)">CVSS ≥
           <input type="number" id="cvss-min" min="0" max="10" step="0.1" placeholder="—">
@@ -110,22 +126,26 @@
         </div>
       </div>
 
+      <div class="quick-chips" id="quick-chips" role="group" aria-label="조건 — 누르면 검색어에 들어갑니다"></div>
       <div class="active-chips" id="active-chips" hidden></div>
 
       <div class="syntax-card" id="syntax-card" hidden>
-        <b>검색 문법</b> — 단어만 쓰면 CVE ID·제목·설명·벤더에서 찾습니다. 조건은 겹쳐 쓸 수 있습니다.
+        <b>검색 문법</b> — 단어만 쓰면 CVE ID · 제목 · 설명 · 영향 제품 · 패키지명에서 찾습니다. 조건은 공백으로 이어 쓰면 모두 만족(AND)하는 것만 남습니다.
         <div class="syntax-grid">
           <code>cvss:&gt;=9</code><span>CVSS 9.0 이상 — <code>&gt;</code> <code>&lt;</code> <code>&lt;=</code> <code>=</code> 도 가능</span>
-          <code>epss:&gt;=10</code><span>악용 확률 10% 이상 (EPSS 점수 0.1 이상)</span>
-          <code>tier:T0</code><span>T0 관측된 악용 · T1 무기화 임박 · T2 관찰</span>
-          <code>vendor:apache</code><span>벤더 이름에 포함</span>
-          <code>product:log4j</code><span>제품 이름에 포함</span>
-          <code>cwe:502</code><span>취약점 유형(CWE) 번호</span>
-          <code>has:kev</code><span>kev · msf · nuclei · edb · poc · rules · ai · auto · ransom · patched</span>
-          <code>lifecycle:eol</code><span>영향 제품 릴리스의 지원 상태 — eol · extended · security · active · unknown (위협도와 별개, endoflife.date 기준)</span>
-          <code>eol:&lt;90d</code><span>영향 릴리스 중 EOL까지 90일 미만 남은 것이 있는 CVE — <code>&lt;30d</code> <code>&lt;180d</code> <code>&lt;=</code> 도 가능</span>
+          <code>epss:&gt;=10</code><span>악용 확률 10% 이상 (단위는 %, EPSS 0.1 = 10)</span>
+          <code>vendor:microsoft</code><span>벤더 이름에 포함 · <code>product:exchange</code> 제품 이름에 포함 · <code>cwe:502</code> 취약점 유형</span>
+          <code>has:cisa-kev</code><span>있음(yes) — <code>kev</code> 악용 근거(CISA KEV · VulnCheck · SSVC active) · <code>cisa-kev</code> · <code>vulncheck-kev</code> · <code>ssvc-active</code> · <code>exploit</code> 공개 exploit(EDB · MSF · PoC) · <code>metasploit</code> · <code>edb</code> · <code>poc</code> · <code>nuclei</code> · <code>auto</code> · <code>ransom</code> · <code>patch</code> 수정 버전 · <code>detection</code> 공개 탐지 · <code>high-epss</code> · <code>critical</code> · <code>eol</code> · <code>ai</code></span>
+          <code>no:patch</code><span>출처가 명시적으로 '없음' — 예: OSV 에 영향 패키지는 있는데 수정 버전 기록이 없음</span>
+          <code>unknown:patch</code><span>모름 — 예: OSV 기록 자체가 없음. <code>no:</code> · <code>unknown:</code> 는 kev · cisa-kev · exploit · auto · ransom · eol · patch · detection · high-epss · critical 에 쓴다</span>
+          <code>corr:kev_eol</code><span>신호 간 연결 — kev_eol · kev_public_exploit · kev_automatable · kev_ransomware · high_epss_kev · critical_public_exploit · critical_eol · patch_exploited · exploit_no_fix · eol_no_fix</span>
+          <code>lifecycle:eol</code><span>영향 릴리스의 지원 상태 — eol · extended · security · active · unknown (security-support 표기도 가능, 위협도와 별개)</span>
+          <code>eol:&lt;90d</code><span>영향 릴리스 중 EOL까지 90일 미만 남은 것이 있는 CVE — <code>&lt;30d</code> <code>&lt;180d</code> 도 가능</span>
+          <code>release:windows/10-22h2</code><span>특정 제품 릴리스(사이클)에 연결된 CVE</span>
+          <code>tier:T0</code><span>Argus 알림 등급(기존 판정) — T0 관측된 악용 · T1 무기화 임박 · T2 관찰</span>
+          <code>has:msf</code><span>(기존) 무기화 묶음 — Metasploit · Exploit-DB · nuclei. <code>has:rules</code> (기존) 룰 색인 기준 · <code>has:patched</code> = <code>has:patch</code></span>
         </div>
-        <span class="syntax-eg">예: <code>cvss:&gt;=9 has:kev vendor:microsoft</code> — 마이크로소프트 제품 중 악용이 확인된 CVSS 9 이상</span>
+        <span class="syntax-eg">예: <code>has:cisa-kev lifecycle:eol</code> — CISA KEV 이면서 영향 릴리스가 EOL · <code>has:exploit no:patch</code> — 공개 exploit 이 있는데 수정 버전 기록이 없는 것</span>
       </div>
 
       <div class="filter-more" id="filter-more" hidden>
@@ -140,16 +160,8 @@
         </div>
 
         <div class="filter-group">
-          <span class="filter-legend">위협 신호</span>
-          <div class="seg">
-            <button class="seg-btn signal" data-signal="kev">🚨 악용 중</button>
-            <button class="seg-btn signal" data-signal="weaponized">🧨 무기화</button>
-            <button class="seg-btn signal" data-signal="poc">🔬 PoC</button>
-            <button class="seg-btn signal" data-signal="rules">🛡️ 공개 룰</button>
-            <button class="seg-btn signal" data-signal="auto" title="CISA SSVC Automatable=yes — 점수가 낮아도 대량 자동 공격 대상">🤖 자동화 가능</button>
-            <button class="seg-btn signal" data-signal="ai" title="AI가 찾아 책임공개된 취약점 (Anthropic CVD의 ANT ID, Google Big Sleep, ZeroPath 등). 공개 시점에 이미 패치된 경우가 많지만 상세가 함께 공개됩니다.">🧠 AI 발견</button>
-            <button class="seg-btn signal" data-signal="patched" title="OSV가 수정 버전을 알려주는 건 — 올릴 목표가 있는 것부터 처리할 때">🩹 패치 있음</button>
-          </div>
+          <span class="filter-legend">출처별</span>
+          <div class="quick-chips" id="source-chips" role="group" aria-label="출처별 조건 — 누르면 검색어에 들어갑니다"></div>
         </div>
 
         <div class="filter-group">
@@ -171,20 +183,17 @@
 
     <div class="loading" id="loading">불러오는 중…</div>
 
-    <div class="table-wrap">
+    <div class="table-wrap cve-list">
       <div class="table-scroll">
-        <table>
+        <table class="cve-table">
           <thead>
             <tr>
-              <th class="cell-sev sortable" data-sort="cvss">심각도</th>
-              <th class="sortable" data-sort="id">CVE ID</th>
-              <th>취약점</th>
-              <th class="sortable" data-sort="cvss">CVSS</th>
-              <th class="sortable" data-sort="epss">EPSS</th>
-              <th>위협 신호</th>
-              <th title="영향 제품 릴리스의 지원 수명주기(endoflife.date). 위협도와 별개 — × 뒤 숫자는 릴리스(사이클) 수">Lifecycle</th>
-              <th>영향 벤더</th>
-              <th class="sortable" data-sort="date">탐지일</th>
+              <th><button type="button" class="th-sort" data-sort="id">CVE · 요약</button></th>
+              <th><button type="button" class="th-sort" data-sort="cvss">CVSS</button><span class="th-sep">·</span><button type="button" class="th-sort" data-sort="epss">EPSS</button></th>
+              <th title="악용 근거 · 공개 exploit · 자동화 가능 — 출처가 확인한 것만 표시합니다">위협 근거</th>
+              <th title="영향 제품과, 그 제품 릴리스의 지원 상태(endoflife.date). 수명주기는 CVE 가 아니라 제품 릴리스의 상태입니다">영향 제품 · 수명주기</th>
+              <th title="공개 탐지 룰·점검 템플릿과 OSV 수정 버전">탐지 · 조치</th>
+              <th><button type="button" class="th-sort" data-sort="date">탐지일</button></th>
             </tr>
           </thead>
           <tbody id="cve-table-body"></tbody>
@@ -199,13 +208,14 @@
     </div>
    </div>
 
-   <div id="view-lifecycle" hidden>
-    <section class="lc-hero">
-      <h1>Product Lifecycle</h1>
-      <p>제품 릴리스(사이클)의 지원 종료 일정입니다. <b>CVE 위험도와는 별개의 정보</b>이며 CVSS·EPSS와 합산하지 않습니다.
-        날짜와 단계는 <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> 값을 그대로 옮기고, 값이 없으면 '-'로 둡니다 — 추정하지 않습니다.
-        상태는 오늘 날짜로 다시 계산합니다.</p>
-      <p class="lc-meta" id="lc-meta"></p>
+   <div id="view-lifecycle" class="view" hidden>
+    <section class="view-head">
+      <div>
+        <h1>Product Lifecycle</h1>
+        <p class="view-sub">제품 릴리스(사이클)의 지원 일정과, 그 릴리스에서 <b>관찰된 CVE 위협</b>을 함께 봅니다. 지원 상태는 CVE 위험도가 아니며 CVSS · EPSS 와 합산하지 않습니다.
+          날짜와 단계는 <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> 값을 그대로 옮기고, 값이 없으면 '-' 로 둡니다 — 추정하지 않습니다.</p>
+      </div>
+      <p class="view-meta" id="lc-meta"></p>
     </section>
 
     <section class="kpi-grid lc-kpis" id="lc-kpis" aria-label="상태별 릴리스 수"></section>
@@ -232,44 +242,29 @@
           <option value="90">EOL까지 90일 미만</option>
           <option value="180">EOL까지 180일 미만</option>
         </select>
+        <select class="filter-select" id="lc-sort" title="제품 정렬">
+          <option value="product">제품 이름순</option>
+          <option value="eol">EOL 가까운 순</option>
+          <option value="cves" selected>연결 CVE 많은 순</option>
+          <option value="kev">CISA KEV 많은 순</option>
+          <option value="exploit">공개 exploit 많은 순</option>
+        </select>
         <label class="lc-check" title="대시보드의 CVE 영향 제품과 연결된 릴리스만">
           <input type="checkbox" id="lc-linked"> CVE 연결만
         </label>
       </div>
     </section>
 
-    <div class="table-wrap">
-      <div class="table-scroll">
-        <table class="lc-catalog">
-          <thead>
-            <tr>
-              <th class="sortable" data-lcsort="vendor">벤더</th>
-              <th class="sortable" data-lcsort="product">제품</th>
-              <th>사이클</th>
-              <th class="sortable" data-lcsort="release">출시</th>
-              <th title="upstream 의 첫 지원 단계(예: Active Support)가 끝나는 날">지원 종료</th>
-              <th title="upstream 이 'security' 로 명시한 단계가 끝나는 날. 명시가 없으면 '-'">보안지원 종료</th>
-              <th title="upstream 이 제공하는 확장 지원(유료 포함)이 끝나는 날">확장지원 종료</th>
-              <th class="sortable" data-lcsort="eol">EOL</th>
-              <th class="sortable" data-lcsort="status">상태</th>
-              <th>최신 버전</th>
-              <th class="sortable" data-lcsort="cves" title="대시보드의 CVE 중 이 릴리스에 연결된 수">CVE</th>
-              <th>출처</th>
-            </tr>
-          </thead>
-          <tbody id="lc-table-body"></tbody>
-        </table>
-      </div>
-    </div>
+    <div class="lc-products" id="lc-products"></div>
     <p class="lc-count" id="lc-count"></p>
     <div class="lc-unavailable" id="lc-unavailable" hidden></div>
    </div>
   </main>
 
   <div class="modal-overlay" id="modal-overlay">
-    <div class="modal">
+    <div class="modal detail-sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="modal-hero" id="modal-hero">
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <button class="modal-close" onclick="closeModal()" aria-label="닫기">&times;</button>
         <div class="modal-hero-top">
           <span class="m-id" id="modal-id">CVE</span>
           <span id="modal-sev-badge"></span>
@@ -278,6 +273,7 @@
         <h2 id="modal-title">-</h2>
         <div class="modal-scores" id="modal-scores"></div>
       </div>
+      <nav class="detail-nav" id="detail-nav" aria-label="상세 섹션"></nav>
       <div class="modal-body" id="modal-body"></div>
     </div>
   </div>
@@ -344,7 +340,10 @@
 
   <script src="js/chart.js"></script>
   <script src="js/lifecycle.js"></script>
+  <script src="js/context.js"></script>
   <script src="js/cve-dashboard.js"></script>
+  <script src="js/cve-detail.js"></script>
+  <script src="js/dashboard-view.js"></script>
   <script src="js/lifecycle-view.js"></script>
 </body>
 </html>
