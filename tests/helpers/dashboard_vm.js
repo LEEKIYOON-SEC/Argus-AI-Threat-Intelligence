@@ -52,14 +52,20 @@ function loadDashboard(sources) {
     querySelectorAll() { return []; },
     addEventListener() {},
     body: fakeElement('body'),
+    documentElement: fakeElement('html'),
     execCommand() { return true; },
+  };
+  const store = new Map();
+  const localStorage = {
+    getItem: k => (store.has(k) ? store.get(k) : null), setItem: (k, v) => { store.set(k, String(v)); },
+    removeItem: k => { store.delete(k); },
   };
   const ctx = {
     document, console, URL, Date: HermeticDate, Math, JSON, Map, Set, WeakMap, Promise, RegExp, Number, String, Array, Object,
     setTimeout: fn => { fn(); return 0; }, clearTimeout() {},
     location: { href: 'https://example.test/cve.html', origin: 'https://example.test', pathname: '/cve.html', search: '' },
     history: { last: null, replaceState(state, title, url) { this.last = String(url); } },
-    alert() {}, scrollTo() {}, addEventListener() {},
+    alert() {}, scrollTo() {}, addEventListener() {}, localStorage, innerWidth: 1280, innerHeight: 800,
     getComputedStyle: () => ({ getPropertyValue: () => '' }),
     navigator: {},
     crypto: {
