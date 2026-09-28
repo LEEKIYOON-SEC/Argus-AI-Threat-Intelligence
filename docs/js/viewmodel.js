@@ -15,7 +15,21 @@
    */
 
   const SEVERITIES = ['Critical', 'High', 'Medium', 'Low', 'None'];
-  const band = s => (CTX ? CTX.sevBand(s) : (s >= 9 ? 'Critical' : s >= 7 ? 'High' : s >= 4 ? 'Medium' : s > 0 ? 'Low' : 'None'));
+
+  // 조사 — 마지막 글자에 받침이 있으면 앞의 것(은 · 이 · 을 · 과), 없으면 뒤의 것. 영문은 읽는 소리로(EOL은 · KEV는),
+  // 숫자도 읽는 소리로(0 영 · 1 일 · 3 삼 · 6 육 · 7 칠 · 8 팔은 받침이 있다).
+  function josa(word, withFinal, withoutFinal) {
+    const s = String(word || '').trim();
+    const ch = s.charCodeAt(s.length - 1);
+    const last = s.slice(-1);
+    const final = ch >= 0xac00 && ch <= 0xd7a3 ? (ch - 0xac00) % 28 > 0
+      : /[0-9]/.test(last) ? '013678'.includes(last)
+      : /[lmn]/i.test(last) || /ng$/i.test(s);
+    return s + (final ? withFinal : withoutFinal);
+  }
+
+  const band =s => (CTX ? CTX.sevBand(s) : (s >= 9 ? 'Critical' : s >= 7 ? 'High' : s >= 4 ? 'Medium' : s > 0 ? 'Low' : 'None'));
+  const fmt = n => (Number(n) || 0).toLocaleString();
 
   // 확률을 % 로. 0.99999 를 반올림하면 100% 가 되어 확실한 것처럼 읽힌다 — 1 미만은 100 으로 올리지 않는다.
   function epssPct(p, digits) {
@@ -33,10 +47,44 @@
     return {
       cvss: cvss > 0 ? { value: cvss, text: cvss.toFixed(1), version: cve.cvss_version || '', band: cve.severity || band(cvss), alt,
                          mixed: new Set(alt.map(a => a.band)).size > 1 } : null,
-      epss: epss > 0 || pctl > 0 ? { value: epss, text: `${epssPct(epss, 1)}%`, text2: `${epssPct(epss, 2)}%`,
+      // 0.1% 미만을 소수 한 자리로 적으면 0.0% 가 되어 0 으로 읽힌다 — 둘째 자리까지, 그보다 작으면 '<0.01%'.
+      epss: epss > 0 || pctl > 0 ? { value: epss, text: epss > 0 && epss < 0.0001 ? '<0.01%' : `${epssPct(epss, epss < 0.001 ? 2 : 1)}%`,
+                                     text2: `${epssPct(epss, 2)}%`,
                                      percentile: pctl || null,
                                      top: pctl ? `상위 ${Math.max(0.1, (1 - pctl) * 100).toFixed(1)}%` : '' } : null,
     };
+  }
+
+  /* ---------- 영향 버전 한 줄 표기 ---------- */
+
+  // 수집 단계(collector.parse_affected)가 만드는 형식: 'A 부터 B 이전' · 'B 이전' · 'A 부터 B 이하' · 'A (단일 버전)' ·
+  // '모든 버전', 여러 개는 ', ' 로 잇고 없으면 '정보 없음'. 목록 한 줄에는 첫 구간만 적고 나머지는 '외 N'.
+  const VERSION_JUNK = ['', 'unknown', 'n/a', '-', 'n/a (단일 버전)', '정보 없음'];
+  const isJunk = v => VERSION_JUNK.includes(String(v || '').trim().toLowerCase());
+  const shortHash = v => (/^[0-9a-f]{12,40}$/i.test(v) ? `커밋 ${v.slice(0, 7)}` : v);
+  const NO_LOWER = /^(0|\*|unspecified|n\/a)$/i;
+
+  function shortRange(p) {
+    let m = /^(.+) \(단일 버전\)$/.exec(p);
+    if (m) return shortHash(m[1].trim());
+    m = /^(.+?) 부터 (.+) (이전|이하)$/.exec(p);
+    if (m) {
+      const lo = m[1].trim(), hi = m[2].trim();
+      return !lo || NO_LOWER.test(lo) || lo === hi ? `${shortHash(hi)} ${m[3]}` : `${shortHash(lo)} 부터 ${shortHash(hi)} ${m[3]}`;
+    }
+    m = /^(.+) (이전|이하)$/.exec(p);
+    return m ? `${shortHash(m[1].trim())} ${m[2]}` : shortHash(p);
+  }
+
+  function shortVersions(v) {
+    const s = String(v || '').trim();
+    if (isJunk(s)) return '';
+    const parts = s.split(', ').map(x => x.trim()).filter(x => x && !isJunk(x));
+    if (!parts.length) return '';
+    const singles = parts.every(x => / \(단일 버전\)$/.test(x));
+    const shownCount = singles ? Math.min(4, parts.length) : 1;
+    const shown = parts.slice(0, shownCount).map(shortRange).join(', ');
+    return parts.length > shownCount ? `${shown} 외 ${parts.length - shownCount}` : shown;
   }
 
   /* ---------- 목록 한 행 ---------- */
@@ -44,6 +92,7 @@
   const ENGINE_FAMILY = { snort2: 'Snort', snort3: 'Snort', suricata5: 'Suricata', suricata7: 'Suricata',
                           sigma: 'Sigma', splunk: 'Splunk', yara: 'YARA', nuclei: 'nuclei' };
   const clean = v => { const s = String(v || '').trim(); return ['', 'unknown', 'n/a', '-'].includes(s.toLowerCase()) ? '' : s; };
+  const EXPLOIT_SHORT = { 'CISA KEV': 'KEV', 'VulnCheck KEV': 'VulnCheck', 'SSVC active': 'SSVC' };
 
   // env: { ctx (cveContext), lc (cveLifecycle 요약 · 없으면 null), lcProducts, today, affected, shown, packages }
   function listRow(cve, env) {
@@ -54,17 +103,21 @@
     if (s.EXPLOITATION_CONFIRMED === 'yes') {
       const src = [cve.is_kev && 'CISA KEV', cve.is_vulncheck_kev && 'VulnCheck KEV',
                    cve.ssvc_exploitation === 'active' && 'SSVC active'].filter(Boolean);
-      threat.push({ kind: 'exploit', label: src[0] + (cve.is_kev_ransomware ? ' · 랜섬웨어' : ''),
-                    extra: src.length > 1 ? `+${src.length - 1}` : '',
-                    title: `악용 근거 — ${src.join(' · ')}${cve.is_kev_ransomware ? ' · CISA KEV 랜섬웨어 캠페인 사용 Known' : ''}` });
+      threat.push({ kind: 'exploit', label: EXPLOIT_SHORT[src[0]] || src[0], extra: src.length > 1 ? `+${src.length - 1}` : '',
+                    title: `악용 근거: ${src.join(' · ')}` });
+    }
+    if (s.RANSOMWARE === 'yes') {
+      threat.push({ kind: 'exploit', label: '랜섬웨어', extra: '', title: 'CISA KEV에 랜섬웨어 캠페인 사용으로 적혀 있음' });
     }
     if (s.PUBLIC_EXPLOIT === 'yes') {
       const src = [cve.has_metasploit_module && 'MSF', cve.has_public_exploit && 'EDB', cve.has_poc && 'PoC'].filter(Boolean);
-      threat.push({ kind: 'weapon', label: '공개 exploit', extra: src.join('·'),
-                    title: `공개 exploit — ${src.join(' · ')} (공개돼 있다는 사실이며 실제 공격 발생이 아님)` });
+      const names = [cve.has_metasploit_module && 'Metasploit 모듈', cve.has_public_exploit && 'Exploit-DB 항목',
+                     cve.has_poc && 'PoC 저장소'].filter(Boolean);
+      threat.push({ kind: 'weapon', label: src.join('·') || '공개 익스플로잇', extra: '',
+                    title: `공개 익스플로잇: ${names.join(' · ')}. 공개돼 있다는 뜻이며 실제 공격이 있었다는 뜻은 아닙니다` });
     }
     if (s.AUTOMATABLE === 'yes') {
-      threat.push({ kind: 'auto', label: '자동화', extra: '', title: 'CISA SSVC Automatable=yes — 정찰부터 익스플로잇까지 자동화 가능' });
+      threat.push({ kind: 'auto', label: '자동화', extra: '', title: 'CISA SSVC 판정: 자동화 가능 (정찰부터 공격까지 자동화할 수 있음)' });
     }
     const aff = e.affected || [];
     const shown = e.shown || aff[0] || {};
@@ -78,8 +131,8 @@
         const relName = first ? `${((e.lcProducts || {})[first.slug] || {}).label || first.slug} ${first.rel.cycle}` : '';
         const others = e.lc.entries.length + e.lc.unresolved.length - (first ? 1 : 0);
         lifecycle = { status: top, short: LC.SHORT[top], cycle: first ? first.rel.cycle : '', product: relName, others,
-                      title: `${relName ? relName + ' — ' : ''}영향 제품 릴리스의 지원 상태: ${present.map(st => `${LC.SHORT[st]} ×${e.lc.counts[st]}`).join(' · ')}${
-                        top === 'UNKNOWN' && e.lc.unresolved.length ? ' · 제품은 찾았지만 사이클을 특정하지 못함' : ''}. CVE 가 아니라 제품 릴리스의 상태 (× 뒤는 릴리스 수)` };
+                      title: `${relName ? relName + ': ' : ''}영향 버전의 지원 상태 ${present.map(st => `${LC.SHORT[st]} ${e.lc.counts[st]}개`).join(' · ')}${
+                        top === 'UNKNOWN' && e.lc.unresolved.length ? ' (제품은 찾았지만 릴리스를 정하지 못함)' : ''}. CVE가 아니라 제품 버전의 상태입니다` };
       }
     }
     const engines = CTX ? CTX.detectionEngines(cve) : (cve.rule_engines || []);
@@ -87,14 +140,15 @@
       id: cve.id, severity: cve.severity || 'None', tier: cve.tier || '', title: cve.title || 'N/A',
       ai: cve.ai_discovered ? { program: cve.ai_program || '' } : null,
       cvss: sc.cvss, epss: sc.epss, threat,
-      product: { name: product ? (vendor ? `${vendor} / ${product}` : product) : (vendor || '-'),
-                 more: aff.length > 1 ? aff.length - 1 : 0, versions: clean(shown.versions), packages: e.packages || [] },
+      product: { name: product ? (vendor && !product.toLowerCase().startsWith(vendor.toLowerCase()) ? `${vendor} ${product}` : product) : (vendor || ''),
+                 more: aff.length > 1 ? aff.length - 1 : 0, versions: clean(shown.versions), short: shortVersions(shown.versions),
+                 packages: e.packages || [] },
       lifecycle,
       detection: s.PUBLIC_DETECTION === 'yes'
         ? { state: 'yes', text: [...new Set(engines.map(x => ENGINE_FAMILY[x] || x))].join(' · ') || '공식 룰', engines }
-        : CTX ? { state: 'no', text: '룰 없음', engines: [] } : { state: 'unknown', text: '모름', engines: [] },
-      fix: s.PATCH_AVAILABLE === 'yes' ? { state: 'yes', text: '버전 있음' }
-        : s.PATCH_AVAILABLE === 'no' ? { state: 'no', text: '기록 없음' } : { state: 'unknown', text: '모름' },
+        : CTX ? { state: 'no', text: '없음', engines: [] } : { state: 'unknown', text: '미확인', engines: [] },
+      fix: s.PATCH_AVAILABLE === 'yes' ? { state: 'yes', text: '있음' }
+        : s.PATCH_AVAILABLE === 'no' ? { state: 'no', text: '기록 없음' } : { state: 'unknown', text: '미확인' },
       conflicts: (e.ctx && e.ctx.conflicts) || [],
       date: cve.date || '',
     };
@@ -102,27 +156,36 @@
 
   /* ---------- 대시보드 ---------- */
 
-  // src.stats: context.aggregate 결과 · stats: stats.json
-  function kpis(agg, stats) {
+  // agg: context.aggregate 결과 · stats: stats.json · extra: 최근 며칠의 변화(화면이 검색어로 센 값, 모르면 null)
+  //   { published7, kevAdded7, recentCritical, recentKev, ai7 }
+  // 칸마다 숫자 아래 한 줄: 변화(delta)를 셀 수 있으면 그것을, 아니면 line. 무기화 · 공개 PoC 는 날짜별 기록이 없어
+  // 변화를 셀 수 없다(추적 목록에는 지금 값만 있다) — 출처별 건수를 적는다.
+  function kpis(agg, stats, extra) {
     const s = (stats && stats.cve) || {};
     const src = (agg && agg.sources) || null;
     const v = k => (src ? src[k] : null);
+    const x = extra || {};
+    const delta = (n, what) => (n === null || n === undefined ? null : { n, text: what });
+    const exploited = agg ? agg.signals.EXPLOITATION_CONFIRMED.yes : null;
     return [
       { id: 'stat-total', key: 'total', label: '추적 중 CVE', value: s.total || (agg && agg.total) || 0, query: '',
-        sub: '최근 90일 · 악용·고위험 신호가 있는 것만 저장', title: '악용 신호가 관측됐거나 고위험이 될 가능성이 있는 건만 올라온다. 누르면 전체 목록' },
+        delta: delta(x.published7, '최근 7일 공개'), line: '최근 90일 안에 갱신된 CVE',
+        title: 'Argus가 최근 90일 안에 평가하거나 상태를 갱신한 CVE입니다. CVE 공개일 기준이 아닙니다' },
       { id: 'stat-24h', key: 'recent', label: '24시간 알림·갱신', value: s.recent_24h || 0, query: 'recent:24h',
-        sub: '새로 올라오거나 상태가 바뀐 CVE — 신규 공개만이 아님',
-        title: 'export 시각 기준 24시간 안에 Argus 가 알림을 보냈거나 상태를 바꾼 CVE (cves.json date)' },
+        delta: null, line: x.recentCritical != null ? `Critical ${fmt(x.recentCritical)} · KEV ${fmt(x.recentKev)}` : '새 공개와 상태 변경 포함',
+        title: '데이터 기준 시각 전 24시간 동안 Argus가 알림을 보냈거나 상태가 바뀐 CVE입니다. 새로 공개된 CVE만 세지 않습니다' },
       { id: 'stat-kev', key: 'kev', label: 'CISA KEV', value: v('cisa_kev'), query: 'has:cisa-kev', group: 'exploit',
-        sub: agg ? `악용 근거 전체(VulnCheck · SSVC 포함)는 ${agg.signals.EXPLOITATION_CONFIRMED.yes.toLocaleString()}건` : '',
-        title: 'CISA Known Exploited Vulnerabilities 카탈로그 등재 — 실제 악용 확인' },
+        delta: delta(x.kevAdded7, '최근 7일 등재'), line: exploited != null ? `악용 근거 전체 ${fmt(exploited)}건` : '',
+        title: `CISA KEV 카탈로그에 등재된 CVE입니다${exploited != null ? `. VulnCheck KEV와 SSVC active까지 합친 악용 근거는 ${fmt(exploited)}건입니다` : ''}` },
       { id: 'stat-weapon', key: 'weaponized', label: '무기화', value: v('weaponized'), query: 'has:weaponized', group: 'weapon',
-        sub: src ? `Metasploit ${src.metasploit.toLocaleString()} · Exploit-DB ${src.exploit_db.toLocaleString()}` : '',
-        title: '무기화된 exploit 코드 — Metasploit 모듈 또는 Exploit-DB 항목. PoC 저장소 · nuclei 점검 템플릿은 넣지 않는다' },
+        delta: null, line: src ? `MSF ${fmt(src.metasploit)} · EDB ${fmt(src.exploit_db)}` : '',
+        title: `Metasploit(MSF) 모듈이나 Exploit-DB(EDB) 항목이 있는 CVE입니다${src ? `. Metasploit ${fmt(src.metasploit)}건 · Exploit-DB ${fmt(src.exploit_db)}건` : ''}. PoC 저장소와 nuclei 점검 템플릿은 세지 않습니다` },
       { id: 'stat-poc', key: 'poc', label: '공개 PoC', value: v('poc'), query: 'has:poc', group: 'weapon',
-        sub: 'PoC-in-GitHub 공개 저장소 — 실제 공격 발생이 아님', title: '공개 PoC 저장소 링크가 있는 CVE' },
+        delta: null, line: 'GitHub 공개 저장소 기준',
+        title: 'PoC-in-GitHub에 공개 저장소가 있는 CVE입니다. 실제 공격이 있었다는 뜻은 아닙니다' },
       { id: 'stat-ai', key: 'ai', label: 'AI 발견', value: v('ai_discovered'), query: 'has:ai', group: 'src',
-        sub: 'AI 가 찾아 책임공개된 취약점 (발견 출처 정보)', title: 'Anthropic CVD 원장 · CVE 크레딧 기준 — AI 분석과 다르다' },
+        delta: delta(x.ai7, '최근 7일 공개'), line: 'AI가 찾아낸 취약점',
+        title: 'Anthropic CVD 원장과 CVE 크레딧에서 AI가 발견자로 적힌 CVE입니다. Argus의 AI 분석과는 관계없습니다' },
     ];
   }
 
@@ -134,20 +197,27 @@
       const first = CTX.SIGNAL[c.parts[0]];
       const secondCode = c.parts[1].replace('!', '');
       const second = CTX.SIGNAL[secondCode];
+      const firstYes = agg.signals[c.parts[0]].yes;
       const canBeNo = agg.signals[secondCode].no > 0;
+      const share = scope && canBeNo ? n / scope : null;
       return {
         code: c.code, label: c.label, short: c.short, query: c.query, n, parts: c.parts.map(p => ({
           code: p.replace('!', ''), negated: p[0] === '!' })),
-        scope: scope == null ? null : scope,
-        share: scope && canBeNo ? n / scope : null,
+        scope: scope == null ? null : scope, share, firstShort: first.short, firstYes,
+        // 비율의 분모 — 둘째 신호를 알 수 있는(미확인이 아닌) CVE 수. 첫 신호 전체와 같으면 그렇게 적는다.
+        // 한 줄에 들어가게 짧게 적고, 건수까지 적은 설명은 scopeTitle 에 둔다.
         scopeText: scope == null ? ''
-          : canBeNo ? `${first.short} ${agg.signals[c.parts[0]].yes.toLocaleString()}건 중 ${second.short} 확인 ${scope.toLocaleString()}건 기준`
-          : `${first.short} ${agg.signals[c.parts[0]].yes.toLocaleString()}건 중 출처가 '있음'으로 표기한 것만 — 나머지는 모름`,
+          : !canBeNo ? '나머지는 미확인'
+          : scope === firstYes ? `${first.short} 중`
+          : `판정된 ${fmt(scope)}건 중`,
+        scopeTitle: scope == null ? ''
+          : !canBeNo ? `${josa(second.short, '은', '는')} 출처가 '있음'만 기록합니다. ${first.short} ${fmt(firstYes)}건 가운데 나머지는 없음이 아니라 미확인입니다`
+          : `${first.short} ${fmt(firstYes)}건 가운데 ${second.short} 여부를 알 수 있는 ${fmt(scope)}건 기준`,
       };
     }).sort((a, b) => b.n - a.n);
   }
 
-  // 동시 발생 행렬 — 칸 = 두 신호가 함께 yes 인 CVE 수. 축(axes)마다 그 신호의 yes 수(total) — 화면은 줄 · 칸 머리에 적는다.
+  // 전체 조합 표 — 칸 = 두 신호가 함께 yes 인 CVE 수. 축(axes)마다 그 신호의 yes 수(total) — 화면은 줄 · 칸 머리에 적는다.
   function matrix(agg) {
     if (!CTX || !agg) return null;
     const axes = CTX.MATRIX.map(code => ({ code, short: CTX.SIGNAL[code].short, total: agg.signals[code].yes,
@@ -168,7 +238,8 @@
     const days = (agg && agg.daily) || [];
     const series = ['Critical', 'High', 'Medium', 'Low', 'None'];
     const totals = days.map(d => series.reduce((a, s) => a + (d[s] || 0), 0));
-    return { days, series, totals, max: Math.max(1, ...totals), sum: totals.reduce((a, b) => a + b, 0) };
+    return { days, series, totals, max: Math.max(1, ...totals), sum: totals.reduce((a, b) => a + b, 0),
+             last7: totals.slice(-7).reduce((a, b) => a + b, 0) };
   }
 
   function recent(list, refIso) {
@@ -187,7 +258,7 @@
     });
   }
 
-  /* ---------- Data Sources — 출처 엔티티별 범위 · 시각 (조건 · 라이선스는 하단 표 한 곳) ---------- */
+  /* ---------- 데이터 출처 — 출처 엔티티별 범위 · 시각 (조건 · 라이선스는 하단 표 한 곳) ---------- */
 
   // coverage: 이 출처가 '있음'이라고 한 CVE 수 (aggregate.sources / signals 에서)
   function sources(EN, agg, files) {
@@ -196,20 +267,20 @@
     const sig = (agg && agg.signals) || {};
     const f = files || {};
     const cov = {
-      'cve-record': agg ? { n: agg.total, text: `추적 CVE 전부 · CVSS 있음 ${(src.cvss_scored || 0).toLocaleString()}` } : null,
-      'cisa-adp': agg ? { n: src.ssvc_assessed, text: `SSVC 판정 ${(src.ssvc_assessed || 0).toLocaleString()} · 모름 ${(sig.AUTOMATABLE ? sig.AUTOMATABLE.unknown : 0).toLocaleString()}` } : null,
-      'first-epss': agg ? { n: src.epss_scored, text: `채점 ${(src.epss_scored || 0).toLocaleString()} · 미채점 ${(agg.total - (src.epss_scored || 0)).toLocaleString()}` } : null,
-      'cisa-kev': agg ? { n: src.cisa_kev, text: `등재 ${(src.cisa_kev || 0).toLocaleString()} · 랜섬웨어 Known ${(sig.RANSOMWARE ? sig.RANSOMWARE.yes : 0).toLocaleString()}` } : null,
-      'vulncheck-kev': agg ? { n: src.vulncheck_kev, text: `등재 ${(src.vulncheck_kev || 0).toLocaleString()}` } : null,
-      'exploit-db': agg ? { n: src.exploit_db, text: `항목 있음 ${(src.exploit_db || 0).toLocaleString()}` } : null,
-      metasploit: agg ? { n: src.metasploit, text: `모듈 있음 ${(src.metasploit || 0).toLocaleString()}` } : null,
-      'poc-in-github': agg ? { n: src.poc, text: `저장소 있음 ${(src.poc || 0).toLocaleString()}` } : null,
-      nuclei: agg ? { n: src.nuclei, text: `템플릿 있음 ${(src.nuclei || 0).toLocaleString()}` } : null,
-      'rule-index': agg ? { n: src.rules, text: `룰 있음 ${(src.rules || 0).toLocaleString()} (nuclei 제외)` } : null,
+      'cve-record': agg ? { n: agg.total, text: `추적 CVE 전체 · CVSS 있음 ${fmt(src.cvss_scored)}` } : null,
+      'cisa-adp': agg ? { n: src.ssvc_assessed, text: `SSVC 판정 ${fmt(src.ssvc_assessed)} · 미확인 ${fmt(sig.AUTOMATABLE ? sig.AUTOMATABLE.unknown : 0)}` } : null,
+      'first-epss': agg ? { n: src.epss_scored, text: `채점 ${fmt(src.epss_scored)} · 미채점 ${fmt(agg.total - (src.epss_scored || 0))}` } : null,
+      'cisa-kev': agg ? { n: src.cisa_kev, text: `등재 ${fmt(src.cisa_kev)} · 랜섬웨어 사용 ${fmt(sig.RANSOMWARE ? sig.RANSOMWARE.yes : 0)}` } : null,
+      'vulncheck-kev': agg ? { n: src.vulncheck_kev, text: `등재 ${fmt(src.vulncheck_kev)}` } : null,
+      'exploit-db': agg ? { n: src.exploit_db, text: `항목 있음 ${fmt(src.exploit_db)}` } : null,
+      metasploit: agg ? { n: src.metasploit, text: `모듈 있음 ${fmt(src.metasploit)}` } : null,
+      'poc-in-github': agg ? { n: src.poc, text: `저장소 있음 ${fmt(src.poc)}` } : null,
+      nuclei: agg ? { n: src.nuclei, text: `템플릿 있음 ${fmt(src.nuclei)}` } : null,
+      'rule-index': agg ? { n: src.rules, text: `룰 있음 ${fmt(src.rules)} (nuclei 제외)` } : null,
       osv: agg && sig.PATCH_AVAILABLE ? { n: sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no,
-                                          text: `기록 ${(sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no).toLocaleString()} · 수정 버전 ${sig.PATCH_AVAILABLE.yes.toLocaleString()}` } : null,
-      endoflife: agg && agg.lifecycle ? { n: agg.lifecycle.mapped, text: `CVE 연결 ${agg.lifecycle.mapped.toLocaleString()} (사이클까지 ${agg.lifecycle.cycle_level.toLocaleString()})` } : null,
-      'ai-discovery': agg ? { n: src.ai_discovered, text: `AI 발견 ${(src.ai_discovered || 0).toLocaleString()}` } : null,
+                                          text: `기록 ${fmt(sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no)} · 수정 버전 ${fmt(sig.PATCH_AVAILABLE.yes)}` } : null,
+      endoflife: agg && agg.lifecycle ? { n: agg.lifecycle.mapped, text: `CVE 연결 ${fmt(agg.lifecycle.mapped)} (릴리스까지 ${fmt(agg.lifecycle.cycle_level)})` } : null,
+      'ai-discovery': agg ? { n: src.ai_discovered, text: `AI 발견 ${fmt(src.ai_discovered)}` } : null,
     };
     const fileTime = name => ({ 'cves.json': f.cves, 'cve-products.json': f.products, 'cve-facts.json': f.facts,
                                 'cve-evidence.json': f.evidence, 'cve-packages.json': f.packages, 'lifecycle.json': f.lifecycle,
@@ -228,5 +299,6 @@
                                     n: (agg.conflicts || {})[c.code] || 0, query: `conflict:${c.key}` }));
   }
 
-  return { SEVERITIES, epssPct, scores, listRow, kpis, correlations, matrix, overview, recent, sources, conflicts, ENGINE_FAMILY };
+  return { SEVERITIES, josa, epssPct, scores, shortVersions, listRow, kpis, correlations, matrix, overview, recent, sources, conflicts,
+           ENGINE_FAMILY };
 });

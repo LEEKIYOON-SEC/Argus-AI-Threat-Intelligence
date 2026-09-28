@@ -52,73 +52,73 @@
   const SIGNALS = [
     { code: 'EXPLOITATION_CONFIRMED', group: 'exploitation', short: '악용 근거', key: 'kev',
       question: '실제 악용 근거가 있는가',
-      def: 'CISA KEV · VulnCheck KEV 등재, 또는 CISA SSVC Exploitation=active — 세 출처 모두 실제 악용 보고를 등재 기준으로 삼는다' },
+      def: 'CISA KEV 또는 VulnCheck KEV에 등재됐거나 CISA SSVC 판정이 Exploitation: active인 경우. 세 출처 모두 실제 악용 보고를 기준으로 등재합니다' },
     { code: 'CISA_KEV', group: 'exploitation', short: 'CISA KEV', key: 'cisa-kev',
-      question: 'CISA KEV 에 등재됐는가', def: 'CISA Known Exploited Vulnerabilities 카탈로그 등재 여부' },
-    { code: 'PUBLIC_EXPLOIT', group: 'weaponization', short: '공개 exploit', key: 'exploit',
-      question: '공개 exploit 이 있는가',
-      def: 'Exploit-DB 항목 · Metasploit 모듈 · 공개 PoC 저장소 중 하나 이상 — 공개돼 있다는 사실이며 실제 공격 발생을 뜻하지 않는다' },
+      question: 'CISA KEV에 등재됐는가', def: 'CISA Known Exploited Vulnerabilities 카탈로그 등재 여부' },
+    { code: 'PUBLIC_EXPLOIT', group: 'weaponization', short: '공개 익스플로잇', key: 'exploit',
+      question: '공개된 익스플로잇이 있는가',
+      def: 'Exploit-DB 항목, Metasploit 모듈, 공개 PoC 저장소 중 하나 이상. 공개돼 있다는 뜻이며 실제 공격이 있었다는 뜻은 아닙니다' },
     { code: 'AUTOMATABLE', group: 'automation', short: '자동화 가능', key: 'auto',
-      question: '자동화된 대량 공격이 가능한가', def: 'CISA SSVC Automatable=yes (no 는 명시적 판정, 판정이 없으면 unknown)' },
+      question: '자동화된 대량 공격이 가능한가', def: 'CISA SSVC 판정이 Automatable: yes인 경우. no는 출처가 명시한 판정이고, 판정이 없으면 미확인입니다' },
     { code: 'RANSOMWARE', group: 'ransomware', short: '랜섬웨어', key: 'ransom',
       question: '랜섬웨어 캠페인에 쓰였는가',
-      def: 'CISA KEV knownRansomwareCampaignUse=Known. KEV 의 Unknown · 미등재는 "아님"이 아니라 unknown' },
-    { code: 'EOL_AFFECTED', group: 'lifecycle', short: 'EOL 릴리스', key: 'eol',
-      question: '영향받는 제품 릴리스가 EOL 인가',
-      def: '영향 제품 릴리스 중 하나 이상이 오늘 기준 EOL(endoflife.date). 취약점 심각도가 아니라 지원 상태다' },
+      def: 'CISA KEV에 랜섬웨어 캠페인 사용(Known)으로 적힌 경우. KEV의 Unknown이나 미등재는 \'없음\'이 아니라 미확인입니다' },
+    { code: 'EOL_AFFECTED', group: 'lifecycle', short: 'EOL 포함', key: 'eol',
+      question: '영향받는 버전 중 지원이 끝난(EOL) 것이 있는가',
+      def: '영향받는 제품 버전 가운데 하나 이상이 오늘 기준으로 지원 종료(EOL, endoflife.date 기준)인 경우. 취약점의 심각도가 아니라 제품의 지원 상태입니다' },
     { code: 'PATCH_AVAILABLE', group: 'remediation', short: '수정 버전', key: 'patch',
       question: '수정 버전이 있는가',
-      def: 'OSV 가 이 CVE 의 수정 버전을 하나 이상 기록. OSV 기록은 있는데 수정 버전이 없으면 no, OSV 기록이 없으면 unknown. 심각도가 아니다' },
-    { code: 'PUBLIC_DETECTION', group: 'detection', short: '공개 탐지', key: 'detection',
-      question: '공개 탐지 룰·점검 템플릿이 있는가',
-      def: 'Sigma · Snort · Suricata · Splunk · YARA 룰 또는 nuclei 점검 템플릿 — Argus 가 색인하는 공개 소스 기준' },
+      def: 'OSV에 이 CVE의 수정 버전이 하나 이상 있는 경우. OSV 기록은 있는데 수정 버전이 없으면 없음, OSV 기록이 없으면 미확인입니다' },
+    { code: 'PUBLIC_DETECTION', group: 'detection', short: '탐지 룰', key: 'detection',
+      question: '공개된 탐지 룰이나 점검 템플릿이 있는가',
+      def: 'Sigma · Snort · Suricata · Splunk · YARA 룰 또는 nuclei 점검 템플릿. Argus가 색인하는 공개 저장소 기준입니다' },
     { code: 'HIGH_EPSS', group: 'scores', short: 'EPSS 상위 5%', key: 'high-epss',
       question: '악용 확률 예측이 높은가',
-      def: 'EPSS 백분위 95 이상(백분위가 없으면 확률 9.3% 이상, src/risk.py 와 같은 기준). 예측이며 악용 확인이 아니다' },
+      def: 'EPSS 백분위 95 이상(백분위가 없으면 확률 9.3% 이상, 알림 판정과 같은 기준). 예측값이며 악용이 확인됐다는 뜻은 아닙니다' },
     { code: 'CRITICAL_CVSS', group: 'scores', short: 'CVSS 9+', key: 'critical',
-      question: '기본 심각도가 Critical 인가', def: 'CVSS 기본 점수 9.0 이상. 점수가 없으면 unknown' },
+      question: '기본 심각도가 Critical인가', def: 'CVSS 기본 점수 9.0 이상. 점수가 없으면 미확인입니다' },
   ];
   const SIGNAL = Object.fromEntries(SIGNALS.map(s => [s.code, s]));
   const SIGNAL_BY_KEY = Object.fromEntries(SIGNALS.map(s => [s.key, s.code]));
   Object.assign(SIGNAL_BY_KEY, { patched: 'PATCH_AVAILABLE', rules: 'PUBLIC_DETECTION', exploited: 'EXPLOITATION_CONFIRMED',
                                  automatable: 'AUTOMATABLE' });
 
-  // 상관 — 두 사실이 모두 yes 일 때만 만든다. '!' 는 명시적 no (unknown 은 해당 없음).
+  // 신호 조합 — 두 신호가 모두 yes 일 때만 만든다. '!' 는 명시적 no (unknown 은 해당 없음).
   const CORRELATIONS = [
     { code: 'KEV_EOL', parts: ['CISA_KEV', 'EOL_AFFECTED'], short: 'KEV × EOL',
-      label: 'CISA KEV 이면서 영향 릴리스가 EOL', query: 'has:cisa-kev lifecycle:eol' },
-    { code: 'KEV_PUBLIC_EXPLOIT', parts: ['CISA_KEV', 'PUBLIC_EXPLOIT'], short: 'KEV × 공개 exploit',
-      label: 'CISA KEV 이면서 공개 exploit 존재', query: 'has:cisa-kev has:exploit' },
+      label: 'CISA KEV에 있고 영향 버전 중 EOL이 있음', query: 'has:cisa-kev lifecycle:eol' },
+    { code: 'KEV_PUBLIC_EXPLOIT', parts: ['CISA_KEV', 'PUBLIC_EXPLOIT'], short: 'KEV × 공개 익스플로잇',
+      label: 'CISA KEV에 있고 공개 익스플로잇도 있음', query: 'has:cisa-kev has:exploit' },
     { code: 'KEV_AUTOMATABLE', parts: ['CISA_KEV', 'AUTOMATABLE'], short: 'KEV × 자동화',
-      label: 'CISA KEV 이면서 SSVC 자동화 가능', query: 'has:cisa-kev has:auto' },
+      label: 'CISA KEV에 있고 SSVC 판정상 자동화 가능', query: 'has:cisa-kev has:auto' },
     { code: 'KEV_RANSOMWARE', parts: ['CISA_KEV', 'RANSOMWARE'], short: 'KEV × 랜섬웨어',
-      label: 'CISA KEV 에서 랜섬웨어 캠페인 사용 Known', query: 'has:cisa-kev has:ransom' },
+      label: 'CISA KEV에 랜섬웨어 캠페인 사용으로 적힘', query: 'has:cisa-kev has:ransom' },
     { code: 'HIGH_EPSS_KEV', parts: ['HIGH_EPSS', 'CISA_KEV'], short: 'EPSS 상위 5% × KEV',
-      label: '악용 확률 예측이 높고 CISA KEV 등재', query: 'has:high-epss has:cisa-kev' },
-    { code: 'CRITICAL_PUBLIC_EXPLOIT', parts: ['CRITICAL_CVSS', 'PUBLIC_EXPLOIT'], short: 'CVSS 9+ × 공개 exploit',
-      label: 'CVSS 9.0 이상이면서 공개 exploit 존재', query: 'cvss:>=9 has:exploit' },
+      label: 'EPSS 상위 5%이면서 CISA KEV에 있음', query: 'has:high-epss has:cisa-kev' },
+    { code: 'CRITICAL_PUBLIC_EXPLOIT', parts: ['CRITICAL_CVSS', 'PUBLIC_EXPLOIT'], short: 'CVSS 9+ × 공개 익스플로잇',
+      label: 'CVSS 9.0 이상이고 공개 익스플로잇도 있음', query: 'cvss:>=9 has:exploit' },
     { code: 'CRITICAL_EOL', parts: ['CRITICAL_CVSS', 'EOL_AFFECTED'], short: 'CVSS 9+ × EOL',
-      label: 'CVSS 9.0 이상이면서 영향 릴리스가 EOL', query: 'cvss:>=9 lifecycle:eol' },
+      label: 'CVSS 9.0 이상이고 영향 버전 중 EOL이 있음', query: 'cvss:>=9 lifecycle:eol' },
     { code: 'PATCH_EXPLOITED', parts: ['PATCH_AVAILABLE', 'EXPLOITATION_CONFIRMED'], short: '수정 버전 × 악용 근거',
-      label: '수정 버전이 있는데 악용 근거도 있음 — 올릴 목표가 있는 악용 건', query: 'has:patch has:kev' },
-    { code: 'EXPLOIT_NO_FIX', parts: ['PUBLIC_EXPLOIT', '!PATCH_AVAILABLE'], short: '공개 exploit × 수정 기록 없음',
-      label: '공개 exploit 이 있는데 OSV 에 수정 버전 기록이 없음', query: 'has:exploit no:patch' },
+      label: '악용 근거가 있고 수정 버전도 나와 있음 (바로 업데이트할 대상)', query: 'has:patch has:kev' },
+    { code: 'EXPLOIT_NO_FIX', parts: ['PUBLIC_EXPLOIT', '!PATCH_AVAILABLE'], short: '공개 익스플로잇 × 수정 기록 없음',
+      label: '공개 익스플로잇이 있는데 OSV에 수정 버전 기록이 없음', query: 'has:exploit no:patch' },
     { code: 'EOL_NO_FIX', parts: ['EOL_AFFECTED', '!PATCH_AVAILABLE'], short: 'EOL × 수정 기록 없음',
-      label: '영향 릴리스가 EOL 이고 OSV 에 수정 버전 기록이 없음', query: 'lifecycle:eol no:patch' },
+      label: '영향 버전 중 EOL이 있고 OSV에 수정 버전 기록이 없음', query: 'lifecycle:eol no:patch' },
   ];
   const CORRELATION = Object.fromEntries(CORRELATIONS.map(c => [c.code, c]));
 
   const REASON = {
     cvss_unscored: 'CVSS 점수 없음',
-    epss_unscored: 'EPSS 미채점 (신규 CVE 는 채점 전일 수 있음)',
+    epss_unscored: 'EPSS 미채점 (새 CVE는 아직 채점 전일 수 있음)',
     ssvc_missing: 'CISA SSVC 판정 없음',
-    kev_unknown: 'KEV 원문이 랜섬웨어 사용을 Unknown 으로 표기',
-    not_in_kev: 'KEV 미등재 — 랜섬웨어 사용을 판단할 근거 없음',
-    no_osv_record: 'OSV 기록 없음 (OSV 가 다루지 않는 제품이거나 아직 수집 전)',
+    kev_unknown: 'KEV에 랜섬웨어 사용이 Unknown으로 적혀 있음',
+    not_in_kev: 'KEV에 없어 랜섬웨어 사용 여부를 알 수 없음',
+    no_osv_record: 'OSV 기록 없음 (OSV가 다루지 않는 제품이거나 아직 수집 전)',
     no_affected: '영향 제품 정보 없음',
-    untracked: '수명주기 추적 대상이 아닌 제품 포함 (endoflife.date 매핑 없음)',
-    unresolved: '제품은 찾았지만 영향 버전을 사이클로 특정하지 못함',
-    status_unknown: 'upstream 단계가 보안·확장 지원을 명시하지 않아 상태 미상',
+    untracked: '수명주기를 추적하지 않는 제품이 있음 (endoflife.date에 연결 안 됨)',
+    unresolved: '제품은 찾았지만 영향 버전이 어느 릴리스인지 정하지 못함',
+    status_unknown: '제조사 일정에 보안·확장 지원 단계가 없어 상태를 정하지 못함',
     lifecycle_unloaded: '수명주기 데이터를 불러오지 못함',
   };
 
@@ -225,20 +225,20 @@
     };
   }
 
-  /* ---------- 출처 간 불일치 (§20) — 어느 쪽도 지우지 않고 표시한다 ---------- */
+  /* ---------- 출처 간 차이 (§20) — 어느 쪽도 지우지 않고 표시한다 ---------- */
 
   const sevBand = s => (s >= 9 ? 'Critical' : s >= 7 ? 'High' : s >= 4 ? 'Medium' : s > 0 ? 'Low' : 'None');
 
   const CONFLICTS = [
     { code: 'EXPLOITATION_SSVC', key: 'exploitation', subject: '악용 근거',
-      label: 'KEV 등재인데 CISA SSVC 는 Exploitation 이 active 가 아님',
-      rule: '한 출처라도 악용을 보고하면 "악용 근거 있음"으로 본다. SSVC 판정 시점은 수집되지 않아 어느 쪽이 최신인지 알 수 없다' },
-    { code: 'EXPLOIT_SSVC', key: 'exploit', subject: '공개 exploit',
-      label: 'CISA SSVC 는 Exploitation=none(공개 PoC 없음)인데 Exploit-DB · Metasploit · PoC 목록에 있음',
-      rule: '공개 목록에 있으면 "공개 exploit 있음"으로 본다. SSVC 판정 뒤에 공개됐을 수 있다' },
+      label: 'KEV에는 있는데 CISA SSVC 판정은 Exploitation: active가 아님',
+      rule: '한 출처라도 악용을 보고하면 악용 근거가 있는 것으로 봅니다. SSVC 판정 시점은 수집하지 않아 어느 쪽이 최신인지는 알 수 없습니다' },
+    { code: 'EXPLOIT_SSVC', key: 'exploit', subject: '공개 익스플로잇',
+      label: 'CISA SSVC 판정은 Exploitation: none(공개 PoC 없음)인데 Exploit-DB · Metasploit · PoC 목록에 있음',
+      rule: '공개 목록에 있으면 공개 익스플로잇이 있는 것으로 봅니다. SSVC 판정 뒤에 공개됐을 수 있습니다' },
     { code: 'CVSS_VERSIONS', key: 'cvss', subject: 'CVSS',
-      label: 'CVSS 버전(4.0 · 3.x)마다 심각도 구간이 다름',
-      rule: '대표값은 가장 높은 점수(동점이면 4.0 → 3.1 → 3.0) — 수집 파이프라인 규칙. 다른 버전 점수도 함께 보인다' },
+      label: 'CVSS 버전(4.0 · 3.x)마다 심각도 등급이 다름',
+      rule: '대표값은 가장 높은 점수입니다(같으면 4.0 → 3.1 → 3.0 순). 다른 버전 점수도 함께 보여 줍니다' },
   ];
   const CONFLICT = Object.fromEntries(CONFLICTS.map(c => [c.code, c]));
 
@@ -294,7 +294,7 @@
     return [
       cve.is_kev
         ? row('CISA KEV', 'hit', '등재', { kind: 'listing', url: URL.kev, basis: 'CVE ID',
-                                           detail: cve.kev_due_date ? `연방기관 조치기한 ${cve.kev_due_date}` : '' })
+                                           detail: cve.kev_due_date ? `미국 연방기관 조치 기한 ${cve.kev_due_date}` : '' })
         : row('CISA KEV', 'miss', '미등재', { kind: 'listing', url: URL.kev, basis: 'CVE ID' }),
       cve.is_vulncheck_kev
         ? row('VulnCheck KEV', 'hit', '등재', { kind: 'listing', url: URL.vulncheck, basis: 'CVE ID' })
@@ -310,8 +310,8 @@
   function weaponizationRows(cve) {
     const rows = [];
     rows.push(cve.has_public_exploit
-      ? row('Exploit-DB', 'hit', '공개 exploit 항목', { kind: 'artifact', url: cve._exploit_db_url || URL.exploitdb,
-                                                          basis: 'CVE ID', detail: '원문은 싣지 않고 링크만' })
+      ? row('Exploit-DB', 'hit', '항목 있음', { kind: 'artifact', url: cve._exploit_db_url || URL.exploitdb,
+                                                 basis: 'CVE ID', detail: '원문은 싣지 않고 링크만 둡니다' })
       : row('Exploit-DB', 'miss', '항목 없음', { kind: 'artifact', basis: 'CVE ID' }));
     const mods = (cve.metasploit_modules || []).filter(Boolean);
     rows.push(cve.has_metasploit_module
@@ -321,11 +321,11 @@
     const pocs = [...new Set((cve.poc_urls || []).filter(Boolean))];
     rows.push(cve.has_poc
       ? row('PoC-in-GitHub', 'hit', pocs.length ? `공개 저장소 ${pocs.length}개` : '공개 PoC 있음',
-            { kind: 'artifact', url: URL.poc, basis: 'CVE ID', links: pocs, detail: 'PoC 공개는 실제 공격 발생을 뜻하지 않는다' })
+            { kind: 'artifact', url: URL.poc, basis: 'CVE ID', links: pocs, detail: 'PoC가 공개됐다는 뜻이며 실제 공격이 있었다는 뜻은 아닙니다' })
       : row('PoC-in-GitHub', 'miss', '없음', { kind: 'artifact', basis: 'CVE ID' }));
     if (cve.ssvc_exploitation === 'poc') {
       rows.push(row('CISA SSVC', 'info', 'Exploitation: poc', { kind: 'assessment', url: URL.cveRecord(cve.id),
-        basis: 'CVE ID', detail: 'CISA 판정 — 공개 PoC 또는 잘 알려진 공격 방법이 있음(개별 exploit 링크는 아님)' }));
+        basis: 'CVE ID', detail: 'CISA 판정: 공개 PoC나 잘 알려진 공격 방법이 있음 (개별 익스플로잇 링크는 아님)' }));
     }
     return rows;
   }
@@ -334,23 +334,23 @@
     const a = cve.ssvc_automatable || null;
     const rows = [a === 'yes'
       ? row('CISA SSVC', 'hit', 'Automatable: yes', { kind: 'assessment', url: URL.cveRecord(cve.id), basis: 'CVE ID',
-                                                       detail: '정찰부터 익스플로잇까지 자동화 가능 — 대량 스캔·공격 대상' })
+                                                       detail: '정찰부터 공격까지 자동화할 수 있어 대량 스캔 대상이 되기 쉽습니다' })
       : a
         ? row('CISA SSVC', 'miss', `Automatable: ${a}`, { kind: 'assessment', url: URL.cveRecord(cve.id), basis: 'CVE ID' })
         : row('CISA SSVC', 'unknown', '판정 없음', { kind: 'assessment', basis: 'CVE ID' })];
     if (cve.ssvc_technical_impact) {
       rows.push(row('CISA SSVC', 'info', `Technical Impact: ${cve.ssvc_technical_impact}`, {
         kind: 'assessment', url: URL.cveRecord(cve.id), basis: 'CVE ID',
-        detail: cve.ssvc_technical_impact === 'total' ? '성공 시 대상 시스템을 완전히 장악' : '영향이 일부에 그침' }));
+        detail: cve.ssvc_technical_impact === 'total' ? '공격에 성공하면 시스템 전체를 제어할 수 있음' : '영향이 일부에 그침' }));
     }
     return rows;
   }
 
   function ransomwareRows(cve) {
     if (cve.is_kev_ransomware) {
-      return [row('CISA KEV', 'hit', 'knownRansomwareCampaignUse: Known', { kind: 'listing', url: URL.kev, basis: 'CVE ID' })];
+      return [row('CISA KEV', 'hit', '랜섬웨어 캠페인 사용: Known', { kind: 'listing', url: URL.kev, basis: 'CVE ID' })];
     }
-    return [row('CISA KEV', 'unknown', cve.is_kev ? 'knownRansomwareCampaignUse: Unknown' : 'KEV 미등재',
+    return [row('CISA KEV', 'unknown', cve.is_kev ? '랜섬웨어 캠페인 사용: Unknown' : 'KEV 미등재',
                 { kind: 'listing', url: URL.kev, basis: 'CVE ID' })];
   }
 
@@ -373,13 +373,13 @@
                  { kind: info.kind, engine, url, basis: 'CVE ID', source_name: first.source || info.source,
                    license: first.license || '', author: first.author || '', count: found.length || 1,
                    detail: info.kind === 'check'
-                     ? '대상에 요청을 보내 취약 여부를 확인하는 템플릿 — 공격 탐지 룰이 아니며 공격에도 쓰일 수 있다'
+                     ? '대상에 요청을 보내 취약 여부를 확인하는 템플릿입니다. 공격 탐지 룰이 아니며 공격에도 쓰일 수 있습니다'
                      : '' });
     });
     if (!rows.length) {
       rows.push(row('공개 룰 색인', cve.has_official_rules ? 'hit' : 'miss',
                     cve.has_official_rules ? '공식 룰 있음' : '색인된 공개 룰 없음',
-                    { kind: 'detect', basis: 'CVE ID', detail: 'Sigma · ET/Snort · Suricata · Splunk · YARA · nuclei 기준' }));
+                    { kind: 'detect', basis: 'CVE ID', detail: 'Sigma · ET/Snort · Suricata · Splunk · YARA · nuclei에서 찾음' }));
     }
     return rows;
   }
@@ -404,14 +404,14 @@
         fixed, packages: Object.keys(pkgMap || {}) }));
     } else if (state === 'no') {
       rows.push(row('OSV', 'miss', '수정 버전 기록 없음', { kind: 'record', url: URL.osv(cve.id), basis: 'CVE ID·별칭',
-        packages: Object.keys(pkgMap || {}), detail: 'OSV 에 영향 패키지는 있으나 수정 버전(fixed 이벤트)이 기록되지 않음' }));
+        packages: Object.keys(pkgMap || {}), detail: 'OSV에 영향 패키지는 있지만 수정 버전이 기록되지 않았습니다' }));
     } else {
       rows.push(row('OSV', 'unknown', 'OSV 기록 없음', { kind: 'record', basis: 'CVE ID·별칭',
-        detail: 'OSV 가 다루지 않는 제품이거나 아직 수집 전 — 패치가 없다는 뜻이 아니라 모름' }));
+        detail: 'OSV가 다루지 않는 제품이거나 아직 수집 전입니다. 패치가 없다는 뜻은 아닙니다' }));
     }
     if (cve.is_kev && cve.kev_due_date) {
-      rows.push(row('CISA KEV', 'info', `조치기한 ${cve.kev_due_date}`, { kind: 'listing', url: URL.kev, basis: 'CVE ID',
-        detail: 'CISA 가 미국 연방기관에 정한 패치·완화 기한' }));
+      rows.push(row('CISA KEV', 'info', `조치 기한 ${cve.kev_due_date}`, { kind: 'listing', url: URL.kev, basis: 'CVE ID',
+        detail: 'CISA가 미국 연방기관에 정한 패치·완화 기한' }));
     }
     return rows;
   }
@@ -613,16 +613,16 @@
     const seen = new Set(), dup = new Set();
     for (const i of ids) { if (seen.has(i)) dup.add(i); seen.add(i); }
     add('cve_duplicate', '중복 CVE', [...dup]);
-    add('cvss_missing', 'CVSS 점수 없음 (unknown 으로 표시)', cves.filter(c => !(Number(c.cvss) > 0)).map(c => c.id),
-        '0 점이 아니라 점수 없음으로 다룬다', 'info');
-    add('epss_missing', 'EPSS 미채점 (unknown 으로 표시)',
+    add('cvss_missing', 'CVSS 점수 없음 (미확인으로 표시)', cves.filter(c => !(Number(c.cvss) > 0)).map(c => c.id),
+        '0점이 아니라 점수 없음으로 다룹니다', 'info');
+    add('epss_missing', 'EPSS 미채점 (미확인으로 표시)',
         cves.filter(c => !(Number(c.epss) > 0) && !(Number(c.epss_percentile) > 0)).map(c => c.id),
-        '0% 가 아니라 채점 전으로 다룬다', 'info');
-    add('ssvc_missing', 'CISA SSVC 판정 없음 (unknown 으로 표시)',
+        '0%가 아니라 채점 전으로 다룹니다', 'info');
+    add('ssvc_missing', 'CISA SSVC 판정 없음 (미확인으로 표시)',
         cves.filter(c => !c.ssvc_exploitation && !c.ssvc_automatable).map(c => c.id), '', 'info');
     add('kev_ransom_without_kev', 'KEV 미등재인데 랜섬웨어 표시', cves.filter(c => c.is_kev_ransomware && !c.is_kev).map(c => c.id));
-    add('kev_due_without_kev', 'KEV 미등재인데 조치기한 있음', cves.filter(c => c.kev_due_date && !c.is_kev).map(c => c.id));
-    add('kev_without_due', 'KEV 등재인데 조치기한 없음', cves.filter(c => c.is_kev && !c.kev_due_date).map(c => c.id));
+    add('kev_due_without_kev', 'KEV 미등재인데 조치 기한 있음', cves.filter(c => c.kev_due_date && !c.is_kev).map(c => c.id));
+    add('kev_without_due', 'KEV 등재인데 조치 기한 없음', cves.filter(c => c.is_kev && !c.kev_due_date).map(c => c.id));
     add('edb_flag_without_url', 'Exploit-DB 표시가 있는데 링크 없음',
         cves.filter(c => c.has_public_exploit && !c._exploit_db_url).map(c => c.id));
     add('poc_flag_without_url', 'PoC 표시가 있는데 링크 없음', cves.filter(c => c.has_poc && !(c.poc_urls || []).length).map(c => c.id));
@@ -638,7 +638,7 @@
     }).map(c => c.id));
     // 값의 범위 · 형식 (§26)
     const num = v => (v === null || v === undefined || v === '' ? null : Number(v));
-    add('cvss_out_of_range', 'CVSS 가 0–10 밖', cves.filter(c => {
+    add('cvss_out_of_range', 'CVSS가 0–10 밖', cves.filter(c => {
       const vals = [num(c.cvss), ...Object.values(c.cvss_alt || {}).map(num)].filter(v => v !== null);
       return vals.some(v => !(v >= 0 && v <= 10));
     }).map(c => c.id));
@@ -652,7 +652,7 @@
         .filter(u => u !== undefined && u !== null && u !== '');
       for (const v of Object.values(c.rules || {})) for (const r of Array.isArray(v) ? v : [v]) if (r && r.url) urls.push(r.url);
       return urls.some(badUrl);
-    }).map(c => c.id), '공백 등 인코딩되지 않은 문자 — 브라우저는 대개 열지만 형식상 오류 (실측: YARA 룰 메타의 source_url)');
+    }).map(c => c.id), '공백처럼 인코딩되지 않은 문자가 있음. 브라우저는 대개 열지만 형식상 오류 (실측: YARA 룰 메타의 source_url)');
     // 출처 매핑 — 증거 행이 가리키는 출처 엔티티가 있어야 한다
     add('rule_engine_unmapped', '출처가 연결되지 않은 룰 엔진', [...new Set(cves.flatMap(c => (c.rule_engines || [])
       .filter(e => !ENGINE_SID[e]).map(e => `${c.id}:${e}`)))]);
@@ -661,15 +661,15 @@
       const has = (k, id) => !!(ev[k] || {})[id];
       if ((ev.sources || {})['cisa-kev']) {
         add('kev_flag_without_evidence', 'KEV 등재인데 원 출처 파일에 항목 없음', cves.filter(c => c.is_kev && !has('kev', c.id)).map(c => c.id),
-            '색인 시점이 다를 수 있다 — 다음 회차에 맞춰진다');
+            '색인 시점이 달라 생길 수 있고 다음 회차에 맞춰집니다');
       }
       if ((ev.sources || {})['exploit-db']) {
         add('edb_flag_without_evidence', 'Exploit-DB 표시인데 원 출처 파일에 항목 없음',
-            cves.filter(c => c.has_public_exploit && !has('edb', c.id)).map(c => c.id), '색인 시점이 다를 수 있다');
+            cves.filter(c => c.has_public_exploit && !has('edb', c.id)).map(c => c.id), '색인 시점이 달라 생길 수 있습니다');
       }
       if ((ev.sources || {}).metasploit) {
         add('msf_flag_without_evidence', 'Metasploit 표시인데 원 출처 파일에 모듈 없음',
-            cves.filter(c => c.has_metasploit_module && !has('msf', c.id)).map(c => c.id), '색인 시점이 다를 수 있다');
+            cves.filter(c => c.has_metasploit_module && !has('msf', c.id)).map(c => c.id), '색인 시점이 달라 생길 수 있습니다');
       }
     }
     const lc = d.lifecycle;
@@ -691,14 +691,14 @@
         keys.add(k);
       }
       add('lifecycle_duplicate_release', '수명주기 릴리스 중복', [...dupRel]);
-      add('lifecycle_unavailable', 'endoflife.date 에 없는 추적 제품 (UNKNOWN 처리)',
-          (lc.unavailable || []).map(u => u.slug), '데이터를 만들지 않는다 — 오류가 아니라 범위 표시', 'info');
+      add('lifecycle_unavailable', 'endoflife.date에 없는 추적 제품 (UNKNOWN으로 표시)',
+          (lc.unavailable || []).map(u => u.slug), '데이터를 만들지 않습니다. 오류가 아니라 범위를 알려 주는 항목입니다', 'info');
     }
     if (d.kevCatalog) {
       const tracked = new Map(cves.map(c => [c.id, c]));
       add('kev_catalog_not_flagged', 'KEV 카탈로그에 있는데 추적 데이터는 KEV 아님',
           [...d.kevCatalog].filter(id => tracked.has(id) && !tracked.get(id).is_kev));
-      add('kev_flag_not_in_catalog', '추적 데이터는 KEV 인데 카탈로그에 없음',
+      add('kev_flag_not_in_catalog', '추적 데이터는 KEV인데 카탈로그에 없음',
           cves.filter(c => c.is_kev && !d.kevCatalog.has(c.id)).map(c => c.id));
     }
     return checks;

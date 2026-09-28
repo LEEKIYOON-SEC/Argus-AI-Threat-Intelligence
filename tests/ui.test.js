@@ -29,7 +29,13 @@ test('cve.html — 화면마다 view-* 와 사이드바 항목이 있고, 스크
     assert.match(HTML, new RegExp(`id="${id}"`), id);
   }
   const ths = HTML.slice(HTML.indexOf('<table class="cve-table">'), HTML.indexOf('</thead>', HTML.indexOf('<table class="cve-table">')));
-  assert.equal((ths.match(/<th[ >]/g) || []).length, 7, '목록 7칸 — CVE · 요약 · CVSS · EPSS · 위협 신호 · 제품·수명주기 · 탐지·조치');
+  assert.equal((ths.match(/<th[ >]/g) || []).length, 6, '목록 6칸 — CVE·알림 · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 지원 상태 · 탐지·수정');
+  // 화면마다 설명 카드는 '설명' 버튼으로 연다 — 버튼이 가리키는 카드가 있어야 한다
+  const helps = [...HTML.matchAll(/class="help-btn"[^>]*aria-controls="([^"]+)"[^>]*>([^<]+)</g)];
+  assert.deepEqual(helps.map(m => m[2]), ['설명', '설명', '설명', '설명']);
+  for (const [, id] of helps) assert.match(HTML, new RegExp(`class="help-card" id="${id}" hidden`), id);
+  // 접어 둔 대시보드 칸 — 버튼마다 여는 패널이 있다
+  for (const [, id] of HTML.matchAll(/class="fold-btn"[^>]*aria-controls="([^"]+)"/g)) assert.match(HTML, new RegExp(`id="${id}" hidden`), id);
 });
 
 test('라이선스 · 이용 조건은 하단 표 한 곳에만 (INVARIANTS §9-1)', () => {
@@ -74,7 +80,7 @@ test('뷰 모델 스크립트가 없어도 목록 · 검색 · 상세 머리글�
   assert.deepEqual([...ids].sort(), ['CVE-2026-0001', 'CVE-2026-0004', 'CVE-2026-0010']);
   const html = d.el('cve-table-body').innerHTML;
   assert.deepEqual(rowIds(html), ids);
-  assert.match(html, /<i>탐지<\/i>모름/, '판단 모듈이 없으면 없음이 아니라 모름');
+  assert.match(html, /class="c-none"[^>]*>미확인</, '판단 모듈이 없으면 없음이 아니라 미확인');
   d.run("showDetail('CVE-2026-0001')");
   assert.equal(d.el('modal-id').textContent, 'CVE-2026-0001');
   assert.match(d.el('modal-body').innerHTML, /id="d-product"[\s\S]*id="d-tech"/);
