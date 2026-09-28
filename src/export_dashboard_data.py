@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import urllib.error
 import datetime as dt
 from collections import defaultdict
 
@@ -114,7 +115,38 @@ def _l(state: dict, key: str) -> list:
     return v if isinstance(v, list) else []
 
 
-def export_cves(db, days: int = 90, since: str = None) -> list:
+FACTS_FILE = "cve-facts.json"
+_FACTS_SCHEMA = 1
+_FACT_DESC_MAX = 4000
+_NO_TEXT = ("해당 없음", "N/A", "정보 없음", "Error", "")
+
+
+def facts_of(state: dict, title_origin: str, desc_origin: str) -> dict:
+    out = {"o": [title_origin, desc_origin]}
+    title = _s(state, "title").strip()
+    if title not in _NO_TEXT:
+        out["t"] = title
+    desc = _s(state, "description").strip()
+    if desc not in _NO_TEXT:
+        out["d"] = desc if len(desc) <= _FACT_DESC_MAX else desc[:_FACT_DESC_MAX].rstrip() + "…"
+    assigner = _s(state, "assigner").strip()
+    if assigner:
+        out["a"] = assigner
+    sourced, seen = [], set()
+    for aff in _l(state, "affected"):
+        if not isinstance(aff, dict) or not _s(aff, "source").strip():
+            continue
+        vendor, product = _s(aff, "vendor", "Unknown"), _s(aff, "product", "Unknown")
+        key = (vendor.strip().lower(), product.strip().lower())
+        if key not in seen:
+            seen.add(key)
+            sourced.append([vendor, product, _s(aff, "source").strip()])
+    if sourced:
+        out["p"] = sourced
+    return out
+
+
+def export_cves(db, days: int = 90, since: str = None, facts: dict = None) -> list:
     rows = db.export_rows(since, days)
     result = []
 
@@ -128,12 +160,19 @@ def export_cves(db, days: int = 90, since: str = None) -> list:
                     cwe_clean.append(m)
 
         title = _s(state, "title_ko") or _s(state, "title", "N/A")
+        title_origin = "ai" if _s(state, "title_ko").strip() not in ("", _s(state, "title").strip()) else "source"
         if title.strip() in ("해당 없음", "N/A", "정보 없음", ""):
             aff0 = next((a for a in _l(state, "affected")
                          if isinstance(a, dict) and a.get("product")
                          and str(a["product"]).lower() not in ("n/a", "unknown")), None)
             if aff0:
                 title = f"{aff0['product']} 취약점"
+                title_origin = "argus"
+
+        desc_ko = _s(state, "desc_ko").strip()
+        desc_origin = "ai" if desc_ko and not _s(state, "description").strip().startswith(desc_ko) else "source"
+        if facts is not None and row.get("id"):
+            facts[row["id"]] = facts_of(state, title_origin, desc_origin)
 
         entry = {
             "id": row.get("id", ""),
@@ -333,6 +372,49 @@ def fetch_live_products() -> dict:
     except Exception as e:
         print(f"  직전 제품 인덱스를 읽지 못함({e}) → 이번 회차분으로만 만든다", flush=True)
         return {}
+
+
+def fetch_live_facts() -> tuple:
+    try:
+        payload = pages.fetch_published_json(FACTS_FILE, timeout=180)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            return None, "missing"
+        print(f"  직전 원문 사실 파일을 읽지 못함({e})", flush=True)
+        return None, "error"
+    except Exception as e:
+        print(f"  직전 원문 사실 파일을 읽지 못함({e})", flush=True)
+        return None, "error"
+    if payload is None:
+        return None, "error"
+    if not isinstance(payload, dict) or payload.get("schema") != _FACTS_SCHEMA \
+            or not isinstance(payload.get("facts"), dict):
+        return None, "missing"
+    return payload["facts"], "ok"
+
+
+def write_compact_json(path: str, payload) -> None:
+    tmp = f"{path}.tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, separators=(",", ":"))
+        os.replace(tmp, path)
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+
+
+def merge_facts(cve_data: list, fresh: dict, carried: dict, fresh_ids: set) -> dict:
+    out = {}
+    for e in cve_data:
+        cid = e.get("id")
+        if not cid:
+            continue
+        f = fresh.get(cid) if cid in fresh_ids else (carried.get(cid) or fresh.get(cid))
+        if f:
+            out[cid] = f
+    return out
 
 
 def _fetch_live_export() -> tuple:
@@ -562,11 +644,11 @@ def _generate_sample_data(data_dir: str):
         print(f"  {filename} → {path}", flush=True)
 
 
-def main():
+def main(data_dir: str = None):
     print("=== Dashboard Data Export ===", flush=True)
     db = _get_db()
 
-    data_dir = os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
+    data_dir = data_dir or os.path.join(os.path.dirname(_THIS_DIR), "docs", "data")
     os.makedirs(data_dir, exist_ok=True)
 
     if db is None:
@@ -580,12 +662,20 @@ def main():
         previous, since = None, None
     else:
         previous, since = load_previous_export(data_dir)
+    carried_facts, facts_status = {}, "ok"
+    if previous is not None:
+        carried_facts, facts_status = fetch_live_facts()
+        if facts_status == "missing":
+            print(f"  배포본에 {FACTS_FILE} 가 없음 → 이번은 전량 export 로 채운다", flush=True)
+            previous, since = None, None
+        carried_facts = carried_facts or {}
+    fresh_facts = {}
     fresh_ids = set()
     if previous is None:
-        cve_data = export_cves(db)
+        cve_data = export_cves(db, facts=fresh_facts)
         print(f"  전량 export: {len(cve_data)}건", flush=True)
     else:
-        fresh = export_cves(db, since=since)
+        fresh = export_cves(db, since=since, facts=fresh_facts)
         fresh_ids = {r.get("id") for r in fresh if r.get("id")}
         cve_data = merge_exports(previous, fresh, keep=live_ids(db))
         print(f"  증분 export: 변경 {len(fresh)}건 → 병합 후 {len(cve_data)}건 "
@@ -620,6 +710,19 @@ def main():
     cve_path = os.path.join(data_dir, "cves.json")
     pages.write_json(cve_path, cve_data)
     print(f"  CVE: {len(cve_data)}건 → {cve_path}", flush=True)
+
+    if previous is None or facts_status == "ok":
+        facts = merge_facts(cve_data, fresh_facts, carried_facts,
+                            fresh_ids if previous is not None else set(fresh_facts))
+        facts_path = os.path.join(data_dir, FACTS_FILE)
+        write_compact_json(facts_path, {
+            "schema": _FACTS_SCHEMA,
+            "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "facts": facts,
+        })
+        print(f"  원문 사실(제목·설명 원문 · CNA · 제품 출처): {len(facts):,}건 → {facts_path}", flush=True)
+    else:
+        print(f"  {FACTS_FILE} 는 이번 회차에 쓰지 않는다 → 배포 단계가 배포본을 이월", flush=True)
 
     print("[2/4] 통계 집계...", flush=True)
     stats = export_stats(cve_data)

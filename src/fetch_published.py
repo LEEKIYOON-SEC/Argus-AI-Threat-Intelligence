@@ -103,4 +103,5 @@ if __name__ == "__main__":
     sys.exit(main(sys.argv[1:] or ["cves.json", "stats.json", "cve-products.json",
                                    "cve-packages.json",
                                    "detection-rules.json",
-                                   "lifecycle.json", "lifecycle_aliases.json"]))
+                                   "lifecycle.json", "lifecycle_aliases.json",
+                                   "cve-facts.json", "cve-evidence.json"]))

@@ -80,7 +80,8 @@
   ];
   const SIGNAL = Object.fromEntries(SIGNALS.map(s => [s.code, s]));
   const SIGNAL_BY_KEY = Object.fromEntries(SIGNALS.map(s => [s.key, s.code]));
-  Object.assign(SIGNAL_BY_KEY, { patched: 'PATCH_AVAILABLE', rules: 'PUBLIC_DETECTION', exploited: 'EXPLOITATION_CONFIRMED' });
+  Object.assign(SIGNAL_BY_KEY, { patched: 'PATCH_AVAILABLE', rules: 'PUBLIC_DETECTION', exploited: 'EXPLOITATION_CONFIRMED',
+                                 automatable: 'AUTOMATABLE' });
 
   // 상관 — 두 사실이 모두 yes 일 때만 만든다. '!' 는 명시적 no (unknown 은 해당 없음).
   const CORRELATIONS = [
@@ -207,6 +208,57 @@
     return { states: s, lifecycle: lcf };
   }
 
+  // 출처 하나 단위의 사실 — KPI·출처 화면이 센다. 신호(위)는 이것들을 증거 유형으로 묶은 것이다.
+  // weaponized: 무기화된 exploit 코드 = Metasploit 모듈 ∪ Exploit-DB. PoC 저장소와 nuclei(점검 템플릿)는 넣지 않는다.
+  const SOURCE_FLAGS = ['cisa_kev', 'vulncheck_kev', 'ssvc_active', 'ssvc_assessed', 'metasploit', 'exploit_db',
+                        'weaponized', 'poc', 'nuclei', 'rules', 'ai_discovered', 'epss_scored', 'cvss_scored'];
+
+  function sourceFlags(cve) {
+    const msf = !!cve.has_metasploit_module, edb = !!cve.has_public_exploit;
+    const f = scoreFacts(cve);
+    return {
+      cisa_kev: !!cve.is_kev, vulncheck_kev: !!cve.is_vulncheck_kev, ssvc_active: cve.ssvc_exploitation === 'active',
+      ssvc_assessed: !!(cve.ssvc_exploitation || cve.ssvc_automatable), metasploit: msf, exploit_db: edb,
+      weaponized: msf || edb, poc: !!cve.has_poc, nuclei: !!cve.has_nuclei_template,
+      rules: (cve.rule_engines || []).length > 0 || !!cve.has_official_rules, ai_discovered: !!cve.ai_discovered,
+      epss_scored: f.epss !== null, cvss_scored: f.cvss !== null,
+    };
+  }
+
+  /* ---------- 출처 간 불일치 (§20) — 어느 쪽도 지우지 않고 표시한다 ---------- */
+
+  const sevBand = s => (s >= 9 ? 'Critical' : s >= 7 ? 'High' : s >= 4 ? 'Medium' : s > 0 ? 'Low' : 'None');
+
+  const CONFLICTS = [
+    { code: 'EXPLOITATION_SSVC', key: 'exploitation', subject: '악용 근거',
+      label: 'KEV 등재인데 CISA SSVC 는 Exploitation 이 active 가 아님',
+      rule: '한 출처라도 악용을 보고하면 "악용 근거 있음"으로 본다. SSVC 판정 시점은 수집되지 않아 어느 쪽이 최신인지 알 수 없다' },
+    { code: 'EXPLOIT_SSVC', key: 'exploit', subject: '공개 exploit',
+      label: 'CISA SSVC 는 Exploitation=none(공개 PoC 없음)인데 Exploit-DB · Metasploit · PoC 목록에 있음',
+      rule: '공개 목록에 있으면 "공개 exploit 있음"으로 본다. SSVC 판정 뒤에 공개됐을 수 있다' },
+    { code: 'CVSS_VERSIONS', key: 'cvss', subject: 'CVSS',
+      label: 'CVSS 버전(4.0 · 3.x)마다 심각도 구간이 다름',
+      rule: '대표값은 가장 높은 점수(동점이면 4.0 → 3.1 → 3.0) — 수집 파이프라인 규칙. 다른 버전 점수도 함께 보인다' },
+  ];
+  const CONFLICT = Object.fromEntries(CONFLICTS.map(c => [c.code, c]));
+
+  function conflictsOf(cve) {
+    const out = [];
+    const ssvc = cve.ssvc_exploitation || null;
+    if ((cve.is_kev || cve.is_vulncheck_kev) && ssvc && ssvc !== 'active') out.push('EXPLOITATION_SSVC');
+    if (ssvc === 'none' && (cve.has_public_exploit || cve.has_metasploit_module || cve.has_poc)) out.push('EXPLOIT_SSVC');
+    const alt = cve.cvss_alt || {};
+    if (new Set(Object.values(alt).filter(v => Number(v) > 0).map(sevBand)).size > 1) out.push('CVSS_VERSIONS');
+    return out;
+  }
+
+  function conflictQuery(conflicts, value) {
+    const v = String(value || '').toLowerCase();
+    if (v === 'any') return conflicts.length > 0;
+    const c = CONFLICTS.find(x => x.key === v || x.code.toLowerCase() === v.replace(/-/g, '_'));
+    return !!c && conflicts.includes(c.code);
+  }
+
   function correlationsOf(states) {
     return CORRELATIONS.filter(c => c.parts.every(p =>
       p[0] === '!' ? states[p.slice(1)] === 'no' : states[p] === 'yes')).map(c => c.code);
@@ -225,7 +277,16 @@
 
   /* ---------- 상세용 근거 행렬 (출처마다 hit · miss · unknown · info) ---------- */
 
-  const row = (source, status, value, extra) => Object.assign({ source, status, value }, extra || {});
+  // sid: 출처 엔티티 id (entities.js SOURCES) — 표시 이름이 바뀌어도 출처와의 관계는 유지된다.
+  const SID = { 'CISA KEV': 'cisa-kev', 'VulnCheck KEV': 'vulncheck-kev', 'CISA SSVC': 'cisa-adp', 'Exploit-DB': 'exploit-db',
+                Metasploit: 'metasploit', 'PoC-in-GitHub': 'poc-in-github', OSV: 'osv', '공개 룰 색인': 'rule-index' };
+  const ENGINE_SID = { sigma: 'sigma', splunk: 'splunk', yara: 'yara', snort2: 'et-open', snort3: 'et-open',
+                       suricata5: 'et-open', suricata7: 'et-open', nuclei: 'nuclei' };
+  const row = (source, status, value, extra) => {
+    const r = Object.assign({ source, status, value }, extra || {});
+    r.sid = r.sid || SID[source] || (r.engine && ENGINE_SID[r.engine]) || null;
+    return r;
+  };
 
   function exploitationRows(cve) {
     const id = cve.id;
@@ -361,7 +422,7 @@
       const meta = (products || {})[e.slug] || {};
       const status = LC.statusOf(e.rel, meta, today);
       rows.push(row(meta.label || e.slug, status === 'EOL' ? 'hit' : status === 'UNKNOWN' ? 'unknown' : 'miss', status, {
-        kind: 'mapping', slug: e.slug, cycle: e.rel.cycle, rel: e.rel, vendor: meta.vendor || '',
+        sid: 'endoflife', kind: 'mapping', slug: e.slug, cycle: e.rel.cycle, rel: e.rel, vendor: meta.vendor || '',
         eol_date: e.rel.eol_date || null, via: e.via, key: e.key, basis: e.basis || null,
         url: meta.source_url || URL.endoflife, original_url: meta.original_source_url || '',
         fetched_at: e.rel.fetched_at || meta.fetched_at || null,
@@ -431,9 +492,38 @@
     return out;
   }
 
-  // items: [{ id, states, correlations, releases: ['slug|cycle', ...], productOnly }]
+  // 동시 발생 행렬의 축 — 신호 둘이 함께 yes 인 CVE 수. 점수가 아니라 건수다.
+  const MATRIX = ['CISA_KEV', 'PUBLIC_EXPLOIT', 'AUTOMATABLE', 'RANSOMWARE', 'EOL_AFFECTED', 'CRITICAL_CVSS',
+                  'HIGH_EPSS', 'PATCH_AVAILABLE', 'PUBLIC_DETECTION'];
+
+  // 신호 yes 를 고르는 검색어 — 대시보드 숫자를 누르면 이 검색어로 목록이 열린다(상관 카드와 같은 표기).
+  function yesQuery(code) {
+    if (code === 'CRITICAL_CVSS') return 'cvss:>=9';
+    if (code === 'EOL_AFFECTED') return 'lifecycle:eol';
+    return `has:${SIGNAL[code].key}`;
+  }
+
+  // export 의 daily_trend 와 같은 창 — 기준 시각(UTC)의 날짜까지 n 일.
+  function trendDays(endIso, n) {
+    const end = new Date(endIso);
+    if (isNaN(end)) return [];
+    const base = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
+    return Array.from({ length: n || 30 }, (_, i) => new Date(base - ((n || 30) - 1 - i) * 864e5).toISOString().slice(0, 10));
+  }
+
+  const SEVERITIES = ['Critical', 'High', 'Medium', 'Low', 'None'];
+
+  // items: [{ id, states, correlations, releases: ['slug|cycle', ...], productOnly, flags, conflicts, published, severity }]
   // correlation_scope: 첫 사실이 yes 이고 둘째 사실을 알 수 있는(unknown 이 아닌) CVE 수 — 상관 건수의 분모.
-  function aggregate(items) {
+  // opts.days: 일별 심각도 막대의 날짜 목록 (trendDays)
+  function aggregate(items, opts) {
+    const o = opts || {};
+    const sourcesOut = Object.fromEntries(SOURCE_FLAGS.map(k => [k, 0]));
+    const conflictsOut = Object.fromEntries(CONFLICTS.map(c => [c.code, 0]));
+    const cooccur = {};
+    for (let i = 0; i < MATRIX.length; i++) for (let j = i + 1; j < MATRIX.length; j++) cooccur[`${MATRIX[i]}|${MATRIX[j]}`] = 0;
+    const dayIndex = new Map((o.days || []).map((d, i) => [d, i]));
+    const daily = (o.days || []).map(date => Object.assign({ date }, Object.fromEntries(SEVERITIES.map(s => [s, 0]))));
     const signalsOut = emptyCounts();
     const corr = Object.fromEntries(CORRELATIONS.map(c => [c.code, 0]));
     const scope = Object.fromEntries(CORRELATIONS.map(c => [c.code, 0]));
@@ -462,10 +552,47 @@
       // 릴리스별은 연결마다, 제품별은 CVE 하나를 한 번만 센다.
       for (const key of it.releases || []) tally(releases, key, it.states);
       for (const slug of new Set((it.releases || []).map(k => k.split('|')[0]))) tally(products, slug, it.states);
+      if (it.flags) for (const k of SOURCE_FLAGS) if (it.flags[k]) sourcesOut[k]++;
+      for (const c of it.conflicts || []) conflictsOut[c]++;
+      const yes = MATRIX.filter(c => it.states[c] === 'yes');
+      for (let i = 0; i < yes.length; i++) for (let j = i + 1; j < yes.length; j++) cooccur[`${yes[i]}|${yes[j]}`]++;
+      const di = dayIndex.get(String(it.published || '').slice(0, 10));
+      if (di !== undefined) daily[di][SEVERITIES.includes(it.severity) ? it.severity : 'None']++;
     }
     lifecycle.mapped = lifecycle.cycle_level + lifecycle.product_only;
     return { total: items.length, signals: signalsOut, correlations: corr, correlation_scope: scope,
-             releases, products, lifecycle };
+             releases, products, lifecycle, sources: sourcesOut, conflicts: conflictsOut, cooccur, daily };
+  }
+
+  // 최근 공개 — CVE 공개일(published, 날짜 단위) 순, 같은 날이면 Argus 시각(date) 순.
+  // date(알림 시각, 없으면 행 갱신 시각)만으로 세우면 재평가된 옛 CVE 가 맨 위로 온다(실측 CVE-2019-8720).
+  // date 는 시간대가 섞여 있어(+09:00 등) 문자열이 아니라 시각으로 비교한다.
+  const RECENT_SIGNALS = ['CISA_KEV', 'EXPLOITATION_CONFIRMED', 'PUBLIC_EXPLOIT', 'AUTOMATABLE', 'RANSOMWARE',
+                          'EOL_AFFECTED'];
+  function recentOf(cves, contextOf, n) {
+    const at = c => { const t = Date.parse(c.date || ''); return isNaN(t) ? -Infinity : t; };
+    const pub = c => String(c.published || '');
+    return cves.filter(c => /^\d{4}-\d{2}-\d{2}$/.test(pub(c)))
+      .sort((a, b) => (pub(a) < pub(b) ? 1 : pub(a) > pub(b) ? -1 : 0) || at(b) - at(a)
+                      || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .slice(0, n || 8)
+      .map(c => {
+        const x = contextOf(c) || { states: {}, correlations: [] };
+        return { id: c.id, title: c.title || '', severity: c.severity || 'None', cvss: Number(c.cvss) || 0,
+                 published: pub(c), date: c.date, correlations: x.correlations.slice(),
+                 signals: RECENT_SIGNALS.filter(k => x.states[k] === 'yes') };
+      });
+  }
+
+  // 집계 한 건 — 브라우저와 CI 가 같은 모양으로 만든다.
+  function aggregateItem(cve, ctx, lc) {
+    return {
+      id: cve.id, states: ctx.states, correlations: ctx.correlations,
+      releases: lc ? lc.entries.map(e => `${e.slug}|${e.rel.cycle}`) : [],
+      productOnly: !!lc && !lc.entries.length && lc.unresolved.length > 0,
+      flags: sourceFlags(cve), conflicts: conflictsOf(cve),
+      published: cve.published || '', severity: cve.severity || 'None',
+    };
   }
 
   /* ---------- 데이터 품질 점검 ---------- */
@@ -509,6 +636,42 @@
       const u = (c.references || []).filter(Boolean);
       return new Set(u).size !== u.length;
     }).map(c => c.id));
+    // 값의 범위 · 형식 (§26)
+    const num = v => (v === null || v === undefined || v === '' ? null : Number(v));
+    add('cvss_out_of_range', 'CVSS 가 0–10 밖', cves.filter(c => {
+      const vals = [num(c.cvss), ...Object.values(c.cvss_alt || {}).map(num)].filter(v => v !== null);
+      return vals.some(v => !(v >= 0 && v <= 10));
+    }).map(c => c.id));
+    add('epss_out_of_range', 'EPSS 확률·백분위가 0–1 밖', cves.filter(c =>
+      [num(c.epss), num(c.epss_percentile)].some(v => v !== null && !(v >= 0 && v <= 1))).map(c => c.id));
+    add('cwe_invalid', 'CWE 형식 오류 (CWE-숫자 아님)', cves.filter(c =>
+      (c.cwe || []).some(w => !/^CWE-\d{1,4}$/.test(String(w)))).map(c => c.id));
+    const badUrl = u => !/^https?:\/\/[^\s/$.?#][^\s]*$/i.test(String(u || ''));
+    add('url_invalid', '링크 형식 오류 (공백 포함 · http/https 아님)', cves.filter(c => {
+      const urls = [...(c.references || []), ...(c.poc_urls || []), c._exploit_db_url, c._nuclei_url, c.ai_url]
+        .filter(u => u !== undefined && u !== null && u !== '');
+      for (const v of Object.values(c.rules || {})) for (const r of Array.isArray(v) ? v : [v]) if (r && r.url) urls.push(r.url);
+      return urls.some(badUrl);
+    }).map(c => c.id), '공백 등 인코딩되지 않은 문자 — 브라우저는 대개 열지만 형식상 오류 (실측: YARA 룰 메타의 source_url)');
+    // 출처 매핑 — 증거 행이 가리키는 출처 엔티티가 있어야 한다
+    add('rule_engine_unmapped', '출처가 연결되지 않은 룰 엔진', [...new Set(cves.flatMap(c => (c.rule_engines || [])
+      .filter(e => !ENGINE_SID[e]).map(e => `${c.id}:${e}`)))]);
+    const ev = d.evidence;
+    if (ev && ev.schema === 1) {
+      const has = (k, id) => !!(ev[k] || {})[id];
+      if ((ev.sources || {})['cisa-kev']) {
+        add('kev_flag_without_evidence', 'KEV 등재인데 원 출처 파일에 항목 없음', cves.filter(c => c.is_kev && !has('kev', c.id)).map(c => c.id),
+            '색인 시점이 다를 수 있다 — 다음 회차에 맞춰진다');
+      }
+      if ((ev.sources || {})['exploit-db']) {
+        add('edb_flag_without_evidence', 'Exploit-DB 표시인데 원 출처 파일에 항목 없음',
+            cves.filter(c => c.has_public_exploit && !has('edb', c.id)).map(c => c.id), '색인 시점이 다를 수 있다');
+      }
+      if ((ev.sources || {}).metasploit) {
+        add('msf_flag_without_evidence', 'Metasploit 표시인데 원 출처 파일에 모듈 없음',
+            cves.filter(c => c.has_metasploit_module && !has('msf', c.id)).map(c => c.id), '색인 시점이 다를 수 있다');
+      }
+    }
     const lc = d.lifecycle;
     if (lc && Array.isArray(lc.releases)) {
       const dateFields = ['release_date', 'support_end', 'security_support_end', 'extended_support_end', 'eol_date',
@@ -574,10 +737,12 @@
 
   return {
     EPSS_P_HIGH, EPSS_SCORE_HIGH, CVSS_CRITICAL, URL, ENGINES, ENGINE_ORDER, engineInfo,
-    SIGNALS, SIGNAL, SIGNAL_BY_KEY, CORRELATIONS, CORRELATION, REASON,
+    SIGNALS, SIGNAL, SIGNAL_BY_KEY, CORRELATIONS, CORRELATION, REASON, SID, ENGINE_SID,
     scoreFacts, epssHigh, patchState, hasFix, fixedVersions, detectionEngines, lifecycleFacts,
     signals, correlationsOf, reasonsOf, derive,
+    SOURCE_FLAGS, sourceFlags, CONFLICTS, CONFLICT, conflictsOf, conflictQuery, sevBand,
     stateQuery, correlationQuery, parseRelease,
-    aggregate, qualityChecks, hashString, fingerprint, sameFingerprint,
+    MATRIX, yesQuery, trendDays, SEVERITIES, aggregate, aggregateItem, RECENT_SIGNALS, recentOf,
+    qualityChecks, hashString, fingerprint, sameFingerprint,
   };
 });
