@@ -1,12 +1,12 @@
-/* 제품 수명주기 — CVE 상세의 수명주기 섹션과 Product Lifecycle 화면(제품 중심).
+/* 제품 수명주기 — CVE 상세의 수명주기 상세와 '제품 수명주기' 화면(제품 중심).
    수명주기는 CVE 가 아니라 제품 릴리스의 상태다. 날짜·단계명은 endoflife.date 값 그대로, 없으면 '-'. */
 
 const LC_STATUS_TEXT = {
-  ACTIVE: 'ACTIVE — upstream 의 1차 지원 단계',
-  SECURITY_SUPPORT: 'SECURITY — upstream 이 security 로 명시한 단계',
-  EXTENDED_SUPPORT: 'EXTENDED — EOL 이후 upstream 이 밝힌 확장 지원(유료 포함) 단계',
-  EOL: 'EOL — upstream 기준 지원 종료',
-  UNKNOWN: 'UNKNOWN — 데이터가 없거나, upstream 단계명이 정규화 상태로 명확히 대응되지 않음',
+  ACTIVE: 'ACTIVE: 제조사의 기본 지원 기간',
+  SECURITY_SUPPORT: 'SECURITY: 제조사가 보안 지원으로 밝힌 기간',
+  EXTENDED_SUPPORT: 'EXTENDED: EOL 뒤에 제조사가 제공하는 확장 지원(유료 포함)',
+  EOL: 'EOL: 제조사 지원 종료',
+  UNKNOWN: 'UNKNOWN: 데이터가 없거나, 제조사 단계 이름으로 상태를 정할 수 없음',
 };
 const LC_STAT_ORDER = ['ACTIVE', 'SECURITY_SUPPORT', 'EXTENDED_SUPPORT', 'EOL', 'UNKNOWN'];
 const LC_WINDOWS = [30, 90, 180];
@@ -103,17 +103,17 @@ function lcRow(rel, axis, extra) {
   const labels = meta.labels || {};
   const status = lcStatus(rel);
   const phase = LC.phaseLabel(rel, meta, lcToday);
-  const title = `${LC_STATUS_TEXT[status]}${phase ? ` · upstream 단계: ${phase}` : ''}`;
+  const title = `${LC_STATUS_TEXT[status]}${phase ? ` · 제조사 단계: ${phase}` : ''}`;
   const sub = [rel.cycle_label && rel.cycle_label !== rel.cycle ? escapeHtml(rel.cycle_label) : '',
                `최신 ${rel.latest_version ? escapeHtml(rel.latest_version) : '-'}`].filter(Boolean).join(' · ');
   return `<tr${extra ? ' class="lc-extra" hidden' : ''}>
     <td data-label="사이클"><b>${escapeHtml(rel.cycle)}</b><span class="lc-cycle-label">${sub}</span></td>
     <td data-label="상태">${lcBadge(status, null, title)}</td>
     <td data-label="출시">${lcDateCell(rel.release_date)}</td>
-    <td data-label="지원 종료">${labels.eoas ? lcDateCell(rel.support_end, rel.support_ended, '날짜 미정 — upstream: 아직 끝나지 않음', '날짜 미상 — upstream: 끝남') : lcNa('upstream 에 별도 단계 없음')}</td>
+    <td data-label="지원 종료">${labels.eoas ? lcDateCell(rel.support_end, rel.support_ended, '날짜 미정 (제조사: 아직 끝나지 않음)', '날짜 미확인 (제조사: 끝남)') : lcNa('제조사 일정에 이 단계가 없음')}</td>
     <td data-label="보안지원 종료">${lcDateCell(rel.security_support_end)}</td>
-    <td data-label="확장지원 종료">${labels.eoes ? lcDateCell(rel.extended_support_end, rel.extended_support_ended, '날짜 미정 — upstream: 진행 중', '날짜 미상 — upstream: 끝남') : lcNa('upstream 에 확장 지원 단계 없음')}</td>
-    <td data-label="EOL">${lcDateCell(rel.eol_date, rel.eol_reached, '날짜 미정 — upstream: 아직 EOL 아님', '날짜 미상 — upstream: EOL')}</td>
+    <td data-label="확장지원 종료">${labels.eoes ? lcDateCell(rel.extended_support_end, rel.extended_support_ended, '날짜 미정 (제조사: 진행 중)', '날짜 미확인 (제조사: 끝남)') : lcNa('제조사 일정에 확장 지원이 없음')}</td>
+    <td data-label="EOL">${lcDateCell(rel.eol_date, rel.eol_reached, '날짜 미정 (제조사: 아직 EOL 아님)', '날짜 미확인 (제조사: EOL)')}</td>
     <td class="lc-tl-cell" data-label="타임라인">${lcTimeline(rel, axis)}</td>
   </tr>`;
 }
@@ -139,20 +139,20 @@ function lcGroup(slug, entries) {
     if (e.key) byVia.get(e.via).add(e.key);
   }
   const vias = [...byVia].map(([via, keys]) =>
-    `<span title="${escapeHtml([...keys].join('\n'))}">${escapeHtml(LC.VIA[via] || via)} · ${via === 'override' ? '명시 매핑' : '자동 매칭'}${keys.size ? ` (키 ${keys.size}개)` : ''}</span>`);
+    `<span title="${escapeHtml([...keys].join('\n'))}">${escapeHtml(LC.VIA[via] || via)} · ${via === 'override' ? '수동 지정' : '자동 연결'}${keys.size ? ` (키 ${keys.size}개)` : ''}</span>`);
   const fixedOnly = entries.some(e => e.basis === 'fixed');
   const rows = rels.map((rel, i) => lcRow(rel, axis, i >= LC_ROWS_SHOWN)).join('');
   const more = rels.length > LC_ROWS_SHOWN
-    ? `<button type="button" class="lc-toggle" onclick="lcToggleRows(this)" data-more="${rels.length - LC_ROWS_SHOWN}">나머지 ${rels.length - LC_ROWS_SHOWN}개 사이클 보기</button>` : '';
+    ? `<button type="button" class="lc-toggle" onclick="lcToggleRows(this)" data-more="${rels.length - LC_ROWS_SHOWN}">릴리스 ${rels.length - LC_ROWS_SHOWN}개 더 보기</button>` : '';
   return `<div class="lc-group">
     <div class="lc-group-head">
       <b class="lc-product">${escapeHtml(meta.label || slug)}</b>
       ${meta.vendor ? `<span class="lc-vendor">${escapeHtml(meta.vendor)}</span>` : ''}
       <span class="lc-sum">${summary}</span>
     </div>
-    <div class="lc-group-meta">연결 방법(키는 마우스를 올리면 보임): ${vias.join(' · ')}${fixedOnly ? ' · OSV 수정 버전 기준 — 수정이 없는 사이클은 목록에 없을 수 있음' : ''}</div>
+    <div class="lc-group-meta">연결 기준: ${vias.join(' · ')}${fixedOnly ? ' · OSV 수정 버전으로 연결 (수정이 없는 릴리스는 빠질 수 있음)' : ''}</div>
     <div class="lc-table-wrap"><table class="lc-table">
-      <thead><tr><th>사이클 · 최신</th><th>상태</th><th>출시</th><th>지원 종료</th><th>보안지원 종료</th><th>확장지원 종료</th><th>EOL</th>
+      <thead><tr><th>릴리스 · 최신</th><th>상태</th><th>출시</th><th>지원 종료</th><th>보안지원 종료</th><th>확장지원 종료</th><th>EOL</th>
         <th class="lc-tl-head">${axis ? `<span>${axis.from}</span><span>${axis.to}</span>` : '타임라인'}</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
@@ -168,7 +168,7 @@ function lcToggleRows(btn) {
   const rows = group.querySelectorAll('tr.lc-extra');
   const open = [...rows].some(r => r.hidden);
   rows.forEach(r => { r.hidden = !open; });
-  btn.textContent = open ? '접기' : `나머지 ${btn.dataset.more}개 사이클 보기`;
+  btn.textContent = open ? '접기' : `릴리스 ${btn.dataset.more}개 더 보기`;
 }
 
 function lcUnresolvedName(slug) {
@@ -178,12 +178,11 @@ function lcUnresolvedName(slug) {
   return (u && u.name) || slug;
 }
 
-// d: cve-detail.js 의 detailContext 결과 (ctx.reasons 로 '모름'의 사유를 적는다)
+// d: cve-detail.js 의 detailContext 결과 (ctx.reasons 로 '미확인'의 사유를 적는다). 상세에서는 접힌 칸 안에 들어가므로 제목은 없다.
 function renderLifecycleSection(cve, d) {
   if (!LC) return '';
-  const head = '<h3>수명주기 <span>영향 제품 릴리스의 지원 상태 — CVE 가 아니라 릴리스의 상태이며 위험도와 별개</span></h3>';
   if (!lifecycleData) {
-    return `${head}<p class="lc-empty">수명주기 데이터(data/lifecycle.json)를 불러오지 못했습니다 — 영향 제품 전부 UNKNOWN 으로 둡니다.</p>`;
+    return '<p class="lc-empty">수명주기 데이터(data/lifecycle.json)를 불러오지 못해 영향 제품을 모두 UNKNOWN으로 둡니다.</p>';
   }
   const r = cveLifecycle(cve);
   const groups = new Map();
@@ -193,25 +192,25 @@ function renderLifecycleSection(cve, d) {
   }
   const blocks = [...groups].map(([slug, entries]) => lcGroup(slug, entries)).join('');
   const unresolved = r.unresolved.map(u => `<div class="lc-unresolved">${lcBadge('UNKNOWN')}<b>${
-    escapeHtml(lcUnresolvedName(u.slug))}</b> — 사유: ${escapeHtml(LC.REASONS[u.reason] || u.reason || '판단 불가')}${
+    escapeHtml(lcUnresolvedName(u.slug))}</b> 사유: ${escapeHtml(LC.REASONS[u.reason] || u.reason || '판단 불가')}${
     lcMeta(u.slug) ? ` · ${lcLink(lcMeta(u.slug).source_url, 'endoflife.date')}` : ''}</div>`).join('');
   // 사이클이 이어진 제품이라도 버전을 못 읽은 항목이 더 있으면 따로 적는다 — 위 표 밖의 릴리스일 수 있다.
   const partial = (r.partial || []).map(u => `<div class="lc-unresolved lc-partial">${lcBadge('UNKNOWN')}<b>${
-    escapeHtml(lcUnresolvedName(u.slug))}</b>의 다른 영향 항목 — 사유: ${escapeHtml(LC.REASONS[u.reason] || u.reason || '판단 불가')}
-    · 위 사이클 밖의 릴리스일 수 있어 EOL 여부를 단정하지 않습니다</div>`).join('');
+    escapeHtml(lcUnresolvedName(u.slug))}</b>의 다른 영향 항목 사유: ${escapeHtml(LC.REASONS[u.reason] || u.reason || '판단 불가')}.
+    위 표에 없는 릴리스일 수 있어 EOL 여부는 정하지 않았습니다</div>`).join('');
   const untracked = r.untracked
-    ? `<div class="lc-untracked">${lcBadge('UNKNOWN')} 그 밖의 영향 제품 항목 ${r.untracked}개 — 사유: 수명주기 추적 대상 제품이 아님 (endoflife.date 매핑 없음)</div>` : '';
+    ? `<div class="lc-untracked">${lcBadge('UNKNOWN')} 그 밖의 영향 제품 ${r.untracked}개 사유: 수명주기를 추적하지 않는 제품 (endoflife.date에 연결 안 됨)</div>` : '';
   const reasons = d && d.ctx && d.ctx.states.EOL_AFFECTED === 'unknown' && (d.ctx.reasons.EOL_AFFECTED || []).length
-    ? `<div class="lc-why"><b>EOL 영향: 모름</b> — ${d.ctx.reasons.EOL_AFFECTED.map(c => escapeHtml(CTX.REASON[c] || c)).join(' · ')}</div>` : '';
+    ? `<div class="lc-why"><b>EOL 여부: 미확인</b> ${d.ctx.reasons.EOL_AFFECTED.map(c => escapeHtml(CTX.REASON[c] || c)).join(' · ')}</div>` : '';
   const body = blocks || unresolved || untracked
     ? `${reasons}${blocks}${partial}${unresolved}${untracked}`
-    : '<p class="lc-empty">영향 제품 정보가 없어 수명주기를 표시할 수 없습니다 — UNKNOWN (사유: 영향 제품 정보 없음).</p>';
-  return `${head}${blocks ? lcLegend() : ''}${body}
-    <div class="lc-foot">날짜·단계명은 endoflife.date 값을 그대로 옮기고 없는 값은 '-' 로 둡니다(추정하지 않음). 상태는 오늘(${escapeHtml(lcToday)}) 기준으로 다시 계산합니다.
-      사이클은 영향 버전 문자열에서 읽을 수 있을 때만 연결합니다. 명시 매핑은 data/lifecycle_aliases.json 의 수동 지정, 자동 매칭은 CPE · 제품명 규칙입니다. 출처: endoflife.date (MIT · Copyright 2020 endoflife.date contributors)</div>`;
+    : '<p class="lc-empty">영향 제품 정보가 없어 수명주기를 표시할 수 없습니다 (UNKNOWN).</p>';
+  return `${blocks ? lcLegend() : ''}${body}
+    <div class="lc-foot">날짜와 단계 이름은 endoflife.date 값을 그대로 옮기고, 없는 값은 '-'로 둡니다. 상태는 오늘(${escapeHtml(lcToday)}) 기준으로 계산합니다.
+      릴리스는 영향 버전 문자열에서 읽을 수 있을 때만 연결합니다. 수동 지정은 data/lifecycle_aliases.json, 자동 연결은 CPE · 제품명 규칙입니다. 출처: endoflife.date (MIT · Copyright 2020 endoflife.date contributors)</div>`;
 }
 
-/* ---------- Product Lifecycle 화면 — 제품 중심 + 릴리스별 관찰된 위협 ---------- */
+/* ---------- 제품 수명주기 화면 — 제품 중심 + 릴리스별 연결된 CVE ---------- */
 
 function lcThreatStats() {
   if (dataReady && CTX && typeof liveAggregate === 'function') {
@@ -297,17 +296,17 @@ function lcVisible() {
 function lcObservations(rel, th) {
   const t = th.releases[lcKey(rel)];
   if (!t) {
-    return `<span class="lc-na" title="대시보드의 CVE 영향 제품 중 이 릴리스로 연결된 것이 없습니다">연결된 CVE 없음</span>`;
+    return `<span class="lc-na" title="추적 중인 CVE의 영향 제품 가운데 이 릴리스로 연결된 것이 없습니다">연결된 CVE 없음</span>`;
   }
   const q = `release:${rel.product_slug}/${rel.cycle}`.toLowerCase();
   const items = [
     ['cves', t.cves, 'CVE', q, '이 릴리스에 연결된 CVE'],
     ['kev', t.kev, 'KEV', `${q} has:cisa-kev`, 'CISA KEV 등재'],
-    ['exploit', t.exploit, 'exploit', `${q} has:exploit`, '공개 exploit (EDB · MSF · PoC)'],
-    ['detection', t.detection, '탐지', `${q} has:detection`, '공개 탐지 룰·점검 템플릿'],
+    ['exploit', t.exploit, '익스플로잇', `${q} has:exploit`, '공개 익스플로잇 (EDB · MSF · PoC)'],
+    ['detection', t.detection, '탐지 룰', `${q} has:detection`, '공개 탐지 룰 · 점검 템플릿'],
   ];
   return items.map(([k, n, label, query, title]) => n
-    ? `<button type="button" class="obs obs-${k}" data-query="${escapeHtml(query)}" title="${escapeHtml(title)} ${n}건 — 누르면 목록: ${escapeHtml(query)}">${label} <b>${n}</b></button>`
+    ? `<button type="button" class="obs obs-${k}" data-query="${escapeHtml(query)}" title="${escapeHtml(title)} ${n}건. 누르면 목록 (${escapeHtml(query)})">${label} <b>${n}</b></button>`
     : `<span class="obs obs-zero" title="${escapeHtml(title)} 0건">${label} 0</span>`).join('');
 }
 
@@ -320,13 +319,13 @@ function lcCatalogRow(rel, th, extra) {
                `최신 ${rel.latest_version ? escapeHtml(rel.latest_version) : '-'}`].filter(Boolean).join(' · ');
   return `<tr class="lc-cat-row${extra ? ' lc-extra' : ''}"${extra ? ' hidden' : ''}>
     <td data-label="사이클"><b>${escapeHtml(rel.cycle)}</b><span class="lc-cycle-label">${sub}</span></td>
-    <td data-label="상태">${lcBadge(status, null, `${LC_STATUS_TEXT[status]}${phase ? ` · upstream 단계: ${phase}` : ''}`)}</td>
+    <td data-label="상태">${lcBadge(status, null, `${LC_STATUS_TEXT[status]}${phase ? ` · 제조사 단계: ${phase}` : ''}`)}</td>
     <td data-label="출시">${lcDateCell(rel.release_date)}</td>
-    <td data-label="지원 종료">${labels.eoas ? lcDateCell(rel.support_end, rel.support_ended, '날짜 미정 — upstream: 아직 끝나지 않음', '날짜 미상 — upstream: 끝남') : lcNa('upstream 에 별도 단계 없음')}</td>
+    <td data-label="지원 종료">${labels.eoas ? lcDateCell(rel.support_end, rel.support_ended, '날짜 미정 (제조사: 아직 끝나지 않음)', '날짜 미확인 (제조사: 끝남)') : lcNa('제조사 일정에 이 단계가 없음')}</td>
     <td data-label="보안지원 종료">${lcDateCell(rel.security_support_end)}</td>
-    <td data-label="확장지원 종료">${labels.eoes ? lcDateCell(rel.extended_support_end, rel.extended_support_ended, '날짜 미정 — upstream: 진행 중', '날짜 미상 — upstream: 끝남') : lcNa('upstream 에 확장 지원 단계 없음')}</td>
-    <td data-label="EOL">${lcDateCell(rel.eol_date, rel.eol_reached, '날짜 미정 — upstream: 아직 EOL 아님', '날짜 미상 — upstream: EOL')}</td>
-    <td class="lc-obs" data-label="관찰된 위협">${lcObservations(rel, th)}</td>
+    <td data-label="확장지원 종료">${labels.eoes ? lcDateCell(rel.extended_support_end, rel.extended_support_ended, '날짜 미정 (제조사: 진행 중)', '날짜 미확인 (제조사: 끝남)') : lcNa('제조사 일정에 확장 지원이 없음')}</td>
+    <td data-label="EOL">${lcDateCell(rel.eol_date, rel.eol_reached, '날짜 미정 (제조사: 아직 EOL 아님)', '날짜 미확인 (제조사: EOL)')}</td>
+    <td class="lc-obs" data-label="연결된 CVE">${lcObservations(rel, th)}</td>
   </tr>`;
 }
 
@@ -336,12 +335,12 @@ function lcProductCard(group, th, showAll) {
   const counts = lcCounts(rels);
   const summary = LC.DISPLAY_ORDER.filter(s => counts[s]).map(s => lcBadge(s, counts[s])).join('');
   const totals = stats && stats.cves
-    ? `<span class="lc-prod-obs" title="이 제품의 릴리스에 연결된 서로 다른 CVE 수 — 한 CVE 는 한 번만 셉니다">
-        CVE <b>${stats.cves}</b> · KEV <b>${stats.kev}</b> · 공개 exploit <b>${stats.exploit}</b> · 탐지 <b>${stats.detection}</b></span>`
+    ? `<span class="lc-prod-obs" title="이 제품의 릴리스에 연결된 CVE 수 (한 CVE는 한 번만 셉니다)">
+        CVE <b>${stats.cves}</b> · KEV <b>${stats.kev}</b> · 공개 익스플로잇 <b>${stats.exploit}</b> · 탐지 룰 <b>${stats.detection}</b></span>`
     : '<span class="lc-prod-obs lc-na">연결된 CVE 없음</span>';
   const rows = rels.map((rel, i) => lcCatalogRow(rel, th, !showAll && i >= LC_ROWS_SHOWN)).join('');
   const more = !showAll && rels.length > LC_ROWS_SHOWN
-    ? `<button type="button" class="lc-toggle" onclick="lcToggleRows(this)" data-more="${rels.length - LC_ROWS_SHOWN}">나머지 ${rels.length - LC_ROWS_SHOWN}개 사이클 보기</button>` : '';
+    ? `<button type="button" class="lc-toggle" onclick="lcToggleRows(this)" data-more="${rels.length - LC_ROWS_SHOWN}">릴리스 ${rels.length - LC_ROWS_SHOWN}개 더 보기</button>` : '';
   return `<article class="lc-prod" data-slug="${escapeHtml(slug)}">
     <header class="lc-prod-head">
       <div class="lc-prod-name"><b>${escapeHtml(meta.label || slug)}</b>${meta.vendor ? `<span class="lc-vendor">${escapeHtml(meta.vendor)}</span>` : ''}</div>
@@ -349,10 +348,10 @@ function lcProductCard(group, th, showAll) {
       ${totals}
     </header>
     <div class="table-scroll"><table class="lc-catalog">
-      <thead><tr><th>사이클 · 최신</th><th>상태</th><th>출시</th><th title="upstream 의 첫 지원 단계(예: Active Support)가 끝나는 날">지원 종료</th>
-        <th title="upstream 이 'security' 로 명시한 단계가 끝나는 날. 명시가 없으면 '-'">보안지원 종료</th>
-        <th title="upstream 이 제공하는 확장 지원(유료 포함)이 끝나는 날">확장지원 종료</th><th>EOL</th>
-        <th title="대시보드 CVE 중 이 릴리스에 연결된 것 — 누르면 목록">관찰된 위협</th></tr></thead>
+      <thead><tr><th>릴리스 · 최신</th><th>상태</th><th>출시</th><th title="제조사의 첫 지원 단계(예: Active Support)가 끝나는 날">지원 종료</th>
+        <th title="제조사가 보안 지원으로 밝힌 기간이 끝나는 날. 따로 밝히지 않았으면 '-'">보안지원 종료</th>
+        <th title="제조사가 제공하는 확장 지원(유료 포함)이 끝나는 날">확장지원 종료</th><th>EOL</th>
+        <th title="추적 중인 CVE 가운데 이 릴리스에 연결된 것. 누르면 목록이 열립니다">연결된 CVE</th></tr></thead>
       <tbody>${rows}</tbody>
     </table></div>
     ${more}
@@ -376,9 +375,9 @@ function renderLifecycleView() {
 
   const meta = document.getElementById('lc-meta');
   if (meta) {
-    meta.textContent = `데이터: endoflife.date API v1 · 생성 ${lcFetched(lifecycleData.generated_at)} · 제품 ${
-      Object.keys(lifecycleData.products).length}개 · 릴리스 ${lifecycleData.releases.length}개 · 상태 기준일 ${lcToday} · 상태·임박 숫자는 릴리스(사이클) 수이며 CVE 수가 아닙니다${
-      th.live === false ? ' · 위협 관측은 CI 사전 계산 값' : ''}`;
+    meta.textContent = `endoflife.date API v1 · 생성 ${lcFetched(lifecycleData.generated_at)} · 제품 ${
+      Object.keys(lifecycleData.products).length}개 · 릴리스 ${lifecycleData.releases.length}개 · 상태 기준일 ${lcToday}. 상태별 숫자와 EOL 임박 숫자는 릴리스 수이며 CVE 수가 아닙니다${
+      th.live === false ? '. 연결된 CVE 수는 CI 사전 계산 값입니다' : ''}`;
   }
   const kpis = document.getElementById('lc-kpis');
   if (kpis) {
@@ -391,7 +390,7 @@ function renderLifecycleView() {
   if (soon) {
     soon.innerHTML = LC_WINDOWS.map(n => {
       const c = scope.filter(rel => LC.eolWithin(rel, '<', n, lcToday)).length;
-      return `<div class="lc-soon-tile" title="EOL 날짜가 오늘 이후 ${n}일 미만 남은 릴리스 — 검색 문법 eol:<${n}d"><span>EOL까지 ${n}일 미만</span><b>${c.toLocaleString()}</b><small>${scopeText} 기준</small></div>`;
+      return `<div class="lc-soon-tile" title="EOL이 오늘부터 ${n}일 안에 오는 릴리스 (검색어 eol:<${n}d)"><span>EOL까지 ${n}일 미만</span><b>${c.toLocaleString()}</b><small>${scopeText} 기준</small></div>`;
     }).join('');
   }
 
@@ -407,7 +406,7 @@ function renderLifecycleView() {
   if (un) {
     un.hidden = !unavailable.length;
     un.innerHTML = unavailable.length
-      ? `<b>수명주기 데이터가 없는 추적 대상</b> — ${unavailable.map(u => `${escapeHtml(u.name || u.slug)}${u.vendor ? ` (${escapeHtml(u.vendor)})` : ''}`).join(', ')}: endoflife.date 가 다루지 않는 제품이라 데이터를 만들지 않고 UNKNOWN 으로 둡니다.`
+      ? `<b>수명주기 데이터가 없는 제품</b>: ${unavailable.map(u => `${escapeHtml(u.name || u.slug)}${u.vendor ? ` (${escapeHtml(u.vendor)})` : ''}`).join(', ')}. endoflife.date에서 다루지 않아 UNKNOWN으로 둡니다.`
       : '';
   }
   document.querySelectorAll('#lc-status-seg .seg-btn').forEach(b => b.classList.toggle('active', b.dataset.status === LC_VIEW.status));

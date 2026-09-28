@@ -37,6 +37,8 @@ const FIXED_BUGS = ['has:nuclei', 'has:edb', 'has:ransom', 'has:foo'];
 // 의도한 변경 — 대시보드 KPI 정의(INVARIANTS §6): CISA KEV 는 is_kev 만, 무기화 = Metasploit ∪ Exploit-DB(nuclei 제외),
 // 24시간 칸 설명은 '신규'가 아니라 '알림·갱신'. 새 값은 아래 'KPI' 테스트가 확인한다. 예전 묶음(KPI_TILES)은 그대로 비교한다.
 const CHANGED_KPI = ['stat-kev', 'stat-weapon', 'stat-24h-sub'];
+// 영향 제품 순위의 툴팁 문구만 바꿨다(말투 정리). 칸 구성 · 숫자 · 누르면 거는 필터는 그대로 비교한다.
+const noTitles = html => String(html).replace(/ title="[^"]*"/g, '');
 function semantic(out) {
   const o = JSON.parse(JSON.stringify(out));
   o.ui.rows = rowIds(o.ui.rows);
@@ -44,6 +46,7 @@ function semantic(out) {
   for (const k of Object.keys(o.detail)) o.detail[k] = { id: o.detail[k].id, title: o.detail[k].title };
   for (const q of FIXED_BUGS) delete o.searches[q];
   for (const k of CHANGED_KPI) delete o.stats[k];
+  o.stats.products = noTitles(o.stats.products);
   return o;
 }
 
@@ -138,11 +141,16 @@ test('KPI — 6칸, 정의가 바뀐 칸(CISA KEV · 무기화 · 24시간)과 �
   assert.deepEqual(search(d, 'has:cisa-kev'), [cve(1), cve(10)], 'CISA KEV 만 — VulnCheck · SSVC active 는 악용 근거(has:kev)에만');
   assert.deepEqual(search(d, 'has:weaponized'), [cve(1), cve(2), cve(11)], 'Metasploit ∪ Exploit-DB — nuclei 점검 템플릿(CVE-7)은 넣지 않는다');
   assert.deepEqual(search(d, 'recent:24h'), [cve(12), cve(13), cve(14), cve(15), cve(16)], 'export 시각 기준 24시간 안의 Argus 시각');
-  assert.match(kpis, /악용 근거 전체\(VulnCheck · SSVC 포함\)는 3건/, 'CVE-1 · 4(VulnCheck + SSVC active) · 10');
-  assert.match(kpis, /Metasploit 1 · Exploit-DB 2/);
+  // 숫자 아래 줄 — 변화를 셀 수 없으면(KEV 등재일 파일 전) 출처별 건수를 적는다
+  assert.match(kpis, /id="stat-kev">2<\/span>\s*<span class="kpi-sub">악용 근거 전체 3건</, 'CVE-1 · 4(VulnCheck + SSVC active) · 10');
+  assert.match(kpis, /<span class="kpi-sub">MSF 1 · EDB 2</);
+  assert.match(kpis, /title="Metasploit\(MSF\) 모듈이나 Exploit-DB\(EDB\) 항목이 있는 CVE입니다\. Metasploit 1건 · Exploit-DB 2건/, '약칭은 설명에 풀어 쓴다');
+  assert.match(kpis, /id="stat-24h">5<\/span>\s*<span class="kpi-sub">Critical 0 · KEV 0</, '24시간 알림·갱신 중 Critical · CISA KEV');
+  assert.match(kpis, /id="stat-total">16<\/span>\s*<span class="kpi-sub">최근 7일 공개 없음</);
+  assert.doesNotMatch(kpis, /—/, '칸 안의 설명에 줄표를 쓰지 않는다');
   // renderStats 가 쓰는 칸(예전 id)도 같은 값
   assert.deepEqual(['stat-total', 'stat-24h', 'stat-kev', 'stat-weapon', 'stat-poc', 'stat-ai'].map(id => d.el(id).textContent), ['16', '5', '2', '3', '2', '1']);
-  assert.equal(d.el('stat-24h-sub').textContent, '알림을 보냈거나 상태가 바뀐 CVE — 신규 공개만이 아님');
+  assert.equal(d.el('stat-24h-sub').textContent, '새 공개와 상태 변경 포함');
   // 예전 KPI 네 칸의 신호 묶음은 기존 검색어(has:kev · has:msf)의 뜻으로 남는다
   assert.deepEqual(JSON.parse(JSON.stringify(d.run('KPI_TILES.map(sig => allCves.filter(c => cveHasSignal(c, sig)).length)'))), BASELINE.stats.kpi);
 });
@@ -151,17 +159,20 @@ test('대시보드 — 추이 · 상관 · 최근 CVE · 동시 발생 행렬 ·
   const d = dashboard();
   d.run('renderDashboard();');
   assert.match(d.el('dash-meta').innerHTML, /수명주기 기준일 <b>2026-09-27<\/b>/);
-  // 추이 — 최근 30일(2026-08-29 ~ 09-27) CVE 공개일별. 공개일 09-19 인 13건만 창 안에 있다.
+  assert.match(d.el('dash-asof').textContent, /기준 · 추적 중 CVE 16건$/);
+  // 추이 — 최근 30일(2026-08-29 ~ 09-27) CVE 공개일별. 공개일 09-19 인 13건만 창 안에 있다. 선 하나 + 날짜마다 마우스 칸.
   const ov = d.el('dash-overview').innerHTML;
   assert.equal((ov.match(/class="ov-col/g) || []).length, 30);
-  assert.match(ov, /<b>13<\/b>건 · 30일 공개/);
-  assert.match(ov, /하루 최대 <b>13<\/b>\(09\.19\)/);
+  assert.equal((ov.match(/class="ov-line"/g) || []).length, 1, '한 계열 선');
+  assert.match(ov, /합계 <b>13<\/b>건 · 하루 최대 <b>13<\/b>건\(09\.19\) · 최근 7일 <b>0<\/b>건/);
   assert.match(ov, /<td>2026-09-19<\/td><td><b>13<\/b><\/td><td>3<\/td>/, '표로 보기 — 날짜 · 합계 · 심각도별');
   // 상관 — 10개, 건수순, 누르면 같은 조건
   const corr = d.el('dash-corr').innerHTML;
   assert.equal((corr.match(/class="corr-card/g) || []).length, 10);
   assert.match(corr, /data-query="has:cisa-kev lifecycle:eol"[\s\S]*?corr-n">1</);
-  assert.match(corr, /출처가 '있음'으로 표기한 것만/, '랜섬웨어처럼 "없음"이 없는 신호는 비율을 쓰지 않는다');
+  assert.match(corr, /data-query="has:cisa-kev has:ransom"[\s\S]*?corr-scope">나머지는 미확인</, '랜섬웨어처럼 "없음"이 없는 신호는 비율을 쓰지 않는다');
+  assert.match(corr, /data-query="has:cisa-kev has:exploit"[\s\S]*?corr-scope">CISA KEV 중 50%</, '분모가 첫 신호 전체면 그 이름으로');
+  assert.match(corr, /data-query="has:cisa-kev lifecycle:eol"[\s\S]*?corr-scope">판정된 1건 중 100%</, 'EOL 여부를 아는 CVE 만 분모');
   const nums = [...corr.matchAll(/corr-n">([\d,]+)</g)].map(m => Number(m[1]));
   assert.deepEqual(nums, [...nums].sort((a, b) => b - a), '건수 많은 순');
   // 최근 CVE — 공개일 순, 같은 날이면 Argus 시각 순
@@ -178,7 +189,7 @@ test('대시보드 — 추이 · 상관 · 최근 CVE · 동시 발생 행렬 ·
   const axes = [...mx.matchAll(/class="mx-row" data-query="([^"]+)"[\s\S]*?<small>([\d,]+)<\/small>/g)];
   assert.equal(new Set(axes.map(m => m[1])).size, 9, '신호 9개 모두 줄 또는 칸 머리에 전체 건수');
   for (const [, q, n] of axes) assert.equal(search(d, unesc(q)).length, Number(n.replace(/,/g, '')), `전체 ${q}`);
-  const chips = [...d.el('dash-rel-chips').innerHTML.matchAll(/data-query="([^"]+)"[^>]*><code>[^<]+<\/code><b>([\d,]+)</g)];
+  const chips = [...d.el('dash-rel-chips').innerHTML.matchAll(/data-query="([^"]+)"[^>]*><span class="rel-name">[^<]+<\/span><code>[^<]+<\/code><b>([\d,]+)</g)];
   assert.ok(chips.length > 0 && chips.length <= 6);
   for (const [, q, n] of chips) assert.equal(search(d, unesc(q)).length, Number(n), q);
 });
@@ -239,29 +250,49 @@ test('사전 계산 매핑 — 지문이 맞으면 쓰고, 결과는 직접 매�
   assert.equal(pre.run('contextValid'), false, '영향 제품 파일이 바뀌면 사전 계산 매핑을 버린다');
 });
 
-test('목록 — 의미별로 묶은 칸, 출처가 확인한 것만 칩, 모름은 모름으로', () => {
+test('목록 — 6칸, 출처가 확인한 것만 칩, 없음 · 미확인은 빈칸', () => {
   const d = dashboard();
   filterIds(d, '');
   const html = d.el('cve-table-body').innerHTML;
   const row = id => html.split('<tr ').find(r => r.includes(`showDetail('${id}')`));
   assert.equal(rowIds(html).length, 16);
-  assert.match(row(cve(1)), /ev-chip ev-exploit[^>]*>.*CISA KEV · 랜섬웨어/);
-  assert.match(row(cve(2)), /ev-chip ev-weapon[^>]*>.*공개 exploit.*EDB/);
+  assert.equal((row(cve(1)).match(/<td /g) || []).length, 6, 'CVE · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 지원 상태 · 탐지·수정');
+  assert.match(row(cve(1)), /ev-chip ev-exploit[^>]*><i><\/i>KEV<\/span>/, '악용 근거는 출처 이름으로 짧게');
+  assert.match(row(cve(1)), /ev-chip ev-exploit[^>]*><i><\/i>랜섬웨어<\/span>/, '랜섬웨어는 따로 한 칩');
+  assert.match(row(cve(1)), /ev-chip ev-weapon[^>]*><i><\/i>MSF<\/span>/);
+  assert.match(row(cve(2)), /ev-chip ev-weapon[^>]*><i><\/i>EDB<\/span>/);
   assert.doesNotMatch(row(cve(2)), /ev-exploit/, 'nuclei · EDB 만으로 악용 근거가 되지 않는다');
   assert.match(row(cve(6)), /ev-chip ev-auto/);
-  assert.match(row(cve(12)), /class="c-none"/);
-  assert.match(row(cve(5)), /점수 없음/, 'CVSS 0 은 모름');
-  assert.match(row(cve(16)), /미채점/, 'EPSS 0 은 모름');
+  assert.match(row(cve(12)), /<span class="c-none" aria-label="확인된 위협 신호 없음"><\/span>/, '신호가 없으면 빈칸');
+  assert.match(row(cve(5)), /점수 없음/, 'CVSS 0 은 미확인');
+  assert.match(row(cve(16)), /미채점/, 'EPSS 0 은 미확인');
+  assert.match(row(cve(5)), /class="sc-sub"[^>]*>0\.04%</, '0.1% 미만은 0.0% 로 적지 않는다');
   assert.deepEqual(['epssPct(0.99999, 1)', 'epssPct(0.99999, 2)', 'epssPct(1, 1)', 'epssPct(0.1234, 2)'].map(x => d.run(x)),
                    ['99.9', '99.99', '100.0', '12.34'], '1 미만 확률을 100% 로 반올림하지 않는다');
-  assert.match(row(cve(8)), /d-row d-yes[^>]*><i>수정<\/i>버전 있음/);
-  assert.match(row(cve(3)), /d-row d-no[^>]*><i>수정<\/i>기록 없음/);
-  assert.match(row(cve(12)), /d-row d-unknown[^>]*><i>수정<\/i>모름/);
-  assert.match(row(cve(14)), /lc-badge lc-ACTIVE[^>]*>ACTIVE<em>/, '수명주기는 릴리스 상태 + 사이클 이름');
-  assert.match(row(cve(5)), /class="lc-none"/);
+  assert.match(row(cve(8)), /class="df df-fix"[^>]*>수정</, 'OSV 수정 버전');
+  assert.doesNotMatch(row(cve(3)), /df-fix/, '수정 기록 없음은 빈칸 (상세에 기록 없음으로)');
+  assert.match(row(cve(1)), /class="df df-det"[^>]*>탐지</);
+  assert.match(row(cve(14)), /lc-badge lc-ACTIVE[^>]*>ACTIVE<em>/, '지원 상태 + 릴리스 이름');
+  assert.match(row(cve(5)), /<td class="c-lc" data-label="지원 상태"><\/td>/, '지원 상태를 모르면 빈칸');
+  assert.match(row(cve(3)), /class="c-prod"[^>]*>PHP Group PHP<span class="c-ver"> · 8\.1\.\* 부터 8\.1\.29 이전 외 1<\/span>/, '영향 버전 한 줄 표기');
+  assert.match(row(cve(6)), /Oracle Java SE<span class="c-ver"> · 8u112<\/span>/, '단일 버전');
   assert.doesNotMatch(html, /badge-kev|badge-msf/, '예전 위협 배지 스타일을 쓰지 않는다');
   filterIds(d, "activeFilters.search = 'nomatch';");
-  assert.match(d.el('cve-table-body').innerHTML, /colspan="7" class="empty-state"/, '7칸');
+  assert.match(d.el('cve-table-body').innerHTML, /colspan="6" class="empty-state"/, '6칸');
+});
+
+test('영향 버전 한 줄 표기 — 수집 단계 형식을 줄이고, 하한이 없으면 상한만', () => {
+  const d = dashboard();
+  const short = v => d.run(`ArgusViewModel.shortVersions(${JSON.stringify(v)})`);
+  assert.equal(short('0 부터 1.2.3 이전'), '1.2.3 이전', '하한 0 은 적지 않는다');
+  assert.equal(short('unspecified 부터 12.2 이전'), '12.2 이전');
+  assert.equal(short('1.0 부터 1.4 이하'), '1.0 부터 1.4 이하');
+  assert.equal(short('1.0 부터 1.4 이전, 2.0 부터 2.3 이전, 3.0 부터 3.1 이전'), '1.0 부터 1.4 이전 외 2');
+  assert.equal(short('16 (단일 버전), 15 (단일 버전), 14 (단일 버전), 13 (단일 버전), 12 (단일 버전)'), '16, 15, 14, 13 외 1', '단일 버전은 넷까지');
+  assert.equal(short('1da177e4c3f41524e886b7f1b8a0c1fc7321cac2 (단일 버전)'), '커밋 1da177e', '커밋 해시는 짧게');
+  assert.equal(short('모든 버전'), '모든 버전');
+  assert.equal(short('정보 없음'), '', '없으면 비운다');
+  assert.equal(short('n/a (단일 버전)'), '');
 });
 
 test('조건 칩 · 검색어 이동 · URL — 필터 상태는 검색줄 한 곳에만', () => {
@@ -295,47 +326,72 @@ test('자동완성 — 필드와 값을 제안한다', () => {
   assert.ok(vals('vendor').includes('microsoft'));
 });
 
-const detailSec = (body, id) => body.slice(body.indexOf(`id="${id}"`), body.indexOf('</section>', body.indexOf(`id="${id}"`)));
+// 상세 본문의 칸 — 위에서부터 이 순서. 칸 하나는 다음 칸이 시작하는 곳까지.
+const DETAIL_SECS = ['d-threat', 'd-remedy', 'd-product', 'd-lifecycle', 'd-evidence', 'd-tech', 'd-ai'];
+function detailSec(body, id) {
+  const start = body.indexOf(`id="${id}"`);
+  const ends = DETAIL_SECS.map(x => body.indexOf(`id="${x}"`)).filter(i => i > start);
+  return body.slice(start, ends.length ? Math.min(...ends) : body.length);
+}
+// 가짜 브라우저 기록 — pushState 를 받고, 주소를 실제처럼 바꾼다(뒤로 가기 시험용).
+function trackHistory(d) {
+  d.run(`history.pushed = [];
+    history.pushState = function (state, title, url) { this.pushed.push(String(url)); this.last = String(url); location.href = String(url); };
+    history.replaceState = function (state, title, url) { this.last = String(url); location.href = String(url); };`);
+}
+const edit = (d, changes) => d.run(`(() => { const ch = ${JSON.stringify(changes)};
+  for (const [n, o] of Object.entries(ch)) Object.assign(allCves.find(c => c.id === 'CVE-2026-' + String(n).padStart(4, '0')), o); })()`);
 
-test('상세 — 위협 맥락(탐지 포함) → 제품 · 버전 → 수명주기 → 조치 → 근거 · 출처 → 기술 정보 → AI (분리)', () => {
+test('상세 — 머리글 수치 → 확인된 위협 신호 → 조치 · 영향 제품 → 접어 둔 수명주기 · 근거 · 기술 정보 · AI', () => {
   const d = dashboard();
   d.run(`allCves.find(c => c.id === 'CVE-2026-0001').analysis = { root_cause: 'AI-ROOT-CAUSE-TEXT', mitigation: ['AI-STEP'] };`);
   d.run("showDetail('CVE-2026-0001')");
   const body = d.el('modal-body').innerHTML;
-  const order = ['d-threat', 'd-product', 'd-lifecycle', 'd-remedy', 'd-evidence', 'd-tech', 'd-ai']
-    .map(id => body.indexOf(`id="${id}"`));
+  const order = DETAIL_SECS.map(id => body.indexOf(`id="${id}"`));
   assert.ok(order.every(i => i >= 0), `섹션 모두 있음 ${order}`);
-  assert.deepEqual(order, [...order].sort((a, b) => a - b), '사실 → 파생 → AI 순서');
-  assert.equal((d.el('detail-nav').innerHTML.match(/data-target=/g) || []).length, 7);
+  assert.deepEqual(order, [...order].sort((a, b) => a - b), '확인된 사실 → 조치 · 제품 → 접어 둔 항목 → AI');
+  for (const id of ['d-lifecycle', 'd-evidence', 'd-tech', 'd-ai']) {
+    assert.match(body, new RegExp(`<details class="d-sec d-fold[^"]*" id="${id}">`), `${id} 는 접어 둔다`);
+  }
+  assert.doesNotMatch(body, /<details[^>]* open/, '처음에는 모두 접혀 있다');
   const sec = id => detailSec(body, id);
-  assert.match(sec('d-threat'), /ans ans-yes ans-exploitation/);
-  assert.match(sec('d-threat'), /ans ans-unknown ans-remediation/, 'OSV 기록 없음 → 모름');
-  assert.match(sec('d-threat'), /ans ans-yes ans-ransomware/);
-  assert.match(sec('d-threat'), /ans ans-yes ans-detection/, '탐지는 위협 맥락 안에');
-  assert.match(sec('d-threat'), /class="ctx-chip" data-query="has:cisa-kev has:ransom"/, '신호 간 연결 → 같은 조건 목록');
-  assert.match(sec('d-threat'), /ev-row ev-hit[\s\S]*?CISA KEV[\s\S]*?조치기한 2026-10-10/);
+  assert.match(sec('d-threat'), /yes-row ans-exploitation[\s\S]*?CISA KEV 등재/);
+  assert.match(sec('d-threat'), /yes-row ans-weaponization[\s\S]*?Metasploit 모듈 1개/);
+  assert.match(sec('d-threat'), /yes-row ans-ransomware/);
+  assert.match(sec('d-threat'), /yes-row ans-detection[\s\S]*?Sigma/, '탐지 룰도 위협 신호 안에');
+  assert.doesNotMatch(sec('d-threat'), /yes-row ans-remediation/, 'OSV 기록이 없으면 확인된 줄에 없다');
+  assert.match(sec('d-threat'), /없음 0 · 미확인 3/, '없음 · 미확인은 한 줄로 접는다');
+  assert.match(sec('d-threat'), /st-chip st-unknown[^>]*>수정 버전 <b>미확인<\/b>/, 'OSV 기록 없음 → 미확인');
+  assert.match(sec('d-threat'), /class="ctx-chip" data-query="has:cisa-kev has:ransom"/, '신호 조합 → 같은 조건 목록');
+  assert.match(sec('d-threat'), /ev-row ev-hit[\s\S]*?CISA KEV[\s\S]*?조치 기한 2026-10-10/);
   assert.match(sec('d-threat'), /ev-row ev-miss[\s\S]*?VulnCheck KEV/);
   assert.match(sec('d-threat'), /ev-row ev-unknown[\s\S]*?CISA SSVC[\s\S]*?판정 없음/);
-  assert.match(sec('d-threat'), /id="d-detect"[\s\S]*?Sigma/);
-  assert.match(sec('d-product'), /Windows 11 version 22H3[\s\S]*?연결 없음/, '22H3 은 연결하지 않는다');
-  assert.match(sec('d-product'), /제품명 규칙 · 자동 매칭/);
+  assert.match(sec('d-threat'), /id="d-ev-detection"[\s\S]*?Sigma/);
+  assert.match(sec('d-product'), /Windows 11 version 22H3[\s\S]*?연결 안 됨/, '22H3 은 연결하지 않는다');
+  assert.match(sec('d-product'), /제품명 규칙 · 자동 연결/);
   assert.match(sec('d-product'), /microsoft:windows_server_2019/, '정규화 키(CPE 형식) — CPE 원문이 아님을 밝힌다');
+  assert.match(sec('d-product'), /<summary>제품 1개 더 보기<\/summary>/, '셋이 넘으면 접는다');
   assert.match(sec('d-lifecycle'), /Microsoft Windows Server[\s\S]*<b>2019<\/b>/);
-  assert.match(sec('d-lifecycle'), /사유: 수명주기 추적 대상 제품이 아님/);
-  assert.match(sec('d-remedy'), /CISA KEV 필요 조치[\s\S]*?조치기한 <b>2026-10-10<\/b>/);
+  assert.match(sec('d-lifecycle'), /사유: 수명주기를 추적하지 않는 제품/);
+  assert.match(sec('d-remedy'), /CISA KEV 필요 조치 · 기한 2026-10-10 \(13일 남음\)/);
   assert.match(sec('d-evidence'), /EXPLOITATION_CONFIRMED=yes/);
   assert.match(sec('d-evidence'), /RANSOMWARE=yes/);
   assert.match(sec('d-evidence'), /KEV_RANSOMWARE/);
   assert.match(sec('d-evidence'), /endoflife\.date/);
-  assert.match(sec('d-evidence'), /신호별 관측 시각은 저장되지 않습니다/);
+  assert.match(sec('d-evidence'), /신호별 관측 시각은 저장하지 않습니다/);
   assert.match(sec('d-tech'), /원문 파일\(cve-facts\.json\)을 받는 중/, '원문을 아직 못 받았으면 받는 중이라고 적는다');
-  assert.match(sec('d-ai'), /AI 생성 · 추정/);
+  assert.match(sec('d-ai'), /AI 작성 · 참고용/);
   assert.match(sec('d-ai'), /AI-ROOT-CAUSE-TEXT/);
   const beforeAi = body.slice(0, body.indexOf('id="d-ai"'));
-  assert.doesNotMatch(beforeAi, /AI-ROOT-CAUSE-TEXT|AI-STEP/, 'AI 분석은 사실·파생 섹션에 섞이지 않는다');
-  assert.match(d.el('modal-sev-badge').innerHTML, /Argus 관측된 악용/, '알림 등급은 Argus 파생으로 표기');
-  assert.match(d.el('modal-summary').innerHTML, /origin-tag[^>]*>제목 한국어 생성 — 원문 아님 · 요약 원문</,
-               '원문 파일 전에는 글자로만 판단 — 한국어 제목은 원문이 아니라고, 영문 요약은 원문으로');
+  assert.doesNotMatch(beforeAi, /AI-ROOT-CAUSE-TEXT|AI-STEP/, 'AI 분석은 사실 · 판정 칸에 섞이지 않는다');
+  assert.match(d.el('modal-sev-badge').innerHTML, /Argus · 관측된 악용/, '알림 등급은 Argus 판정으로 표기');
+  assert.match(d.el('modal-summary').innerHTML, /origin-tag[^>]*>제목 번역 · 요약 원문</,
+               '원문 파일 전에는 글자로만 판단 — 한국어 제목은 번역, 영문 요약은 원문');
+  const facts = d.el('modal-scores').innerHTML;
+  assert.match(facts, /CVSS 3\.1<\/span><span class="vl">9\.8 <span class="band band-Critical">Critical/);
+  assert.match(facts, /CISA KEV 등재<\/span><span class="vl"><span class="vl-unknown">불러오는 중<\/span>/, '등재일 파일을 받기 전');
+  assert.match(facts, /조치 기한 2026-10-10 \(13일 남음\)/);
+  assert.equal(d.el('detail-origin').textContent, '대시보드', '돌아가기 = 들어오기 전 화면');
 });
 
 test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으면 출처와 함께 보인다', () => {
@@ -353,7 +409,7 @@ test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으�
   d.run('detailFiles.facts = __files.facts; detailFiles.evidence = __files.evidence;');
   d.run("showDetail('CVE-2026-0001')");
   const body = d.el('modal-body').innerHTML;
-  assert.match(d.el('modal-scores').innerHTML, /CISA KEV 등재일<\/span><span class="vl vl-sm">2026-09-01/);
+  assert.match(d.el('modal-scores').innerHTML, /CISA KEV 등재<\/span><span class="vl">2026-09-01/);
   assert.match(detailSec(body, 'd-threat'), /KEV 등재일 <b>2026-09-01<\/b>/);
   assert.match(detailSec(body, 'd-threat'), /필요 조치 \(CISA 원문\): Apply mitigations per vendor instructions\./);
   assert.match(detailSec(body, 'd-threat'), /exploit\/windows\/http\/example_rce<\/code> · 등급 excellent · check 지원 · 취약점 공개일 2026-08-30/);
@@ -362,20 +418,20 @@ test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으�
   assert.match(detailSec(body, 'd-evidence'), /cve-evidence\.json 생성 시각/);
   assert.match(detailSec(body, 'd-tech'), /lang="en">Windows RCE original title<\/span><span class="origin-tag is-source"/);
   assert.match(detailSec(body, 'd-tech'), /CNA \(발급 기관\)<\/span><span class="detail-value">microsoft/);
-  assert.match(d.el('modal-summary').innerHTML, />제목·요약 AI 번역·요약</);
+  assert.match(d.el('modal-summary').innerHTML, />AI 번역·요약</);
   d.run("showDetail('CVE-2026-0002')");
   const b2 = d.el('modal-body').innerHTML;
   assert.match(detailSec(b2, 'd-threat'), /EDB-51234 ↗<\/a> · 공개 2026-09-10 · 검증됨 · remote\/windows/);
   assert.match(detailSec(b2, 'd-evidence'), /2026-09-10<small>Exploit-DB 공개일 \(가장 이른 항목\)<\/small>/);
-  assert.match(detailSec(b2, 'd-tech'), /이 CVE 는 원문 파일에 아직 없습니다/, '파일은 받았지만 이 CVE 는 없음');
+  assert.match(detailSec(b2, 'd-tech'), /이 CVE는 원문 파일에 아직 없습니다/, '파일은 받았지만 이 CVE 는 없음');
   d.run("showDetail('CVE-2026-0003')");
-  assert.match(d.el('modal-summary').innerHTML, />제목 원문 · 요약 AI 번역·요약</);
+  assert.match(d.el('modal-summary').innerHTML, />제목 원문 · 요약 AI 번역</);
   d.run('detailFiles.facts = null;');
   d.run("showDetail('CVE-2026-0001')");
   assert.match(detailSec(d.el('modal-body').innerHTML, 'd-tech'), /원문 파일\(cve-facts\.json\)을 받지 못했습니다/);
 });
 
-test('출처 간 불일치 — 어느 쪽도 지우지 않고 목록 · 상세 · 검색어가 같은 판단', () => {
+test('출처 간 차이 — 어느 쪽도 지우지 않고 목록 · 상세 · 검색어가 같은 판단', () => {
   const d = dashboard();
   d.run(`Object.assign(allCves.find(c => c.id === 'CVE-2026-0010'), { ssvc_exploitation: 'none', cvss_alt: { '4.0': 6.9, '3.1': 9.9 } });`);
   assert.deepEqual(search(d, 'conflict:exploitation'), [cve(10)]);
@@ -383,30 +439,36 @@ test('출처 간 불일치 — 어느 쪽도 지우지 않고 목록 · 상세 �
   assert.deepEqual(search(d, 'conflict:any'), [cve(10)]);
   assert.deepEqual(search(d, 'has:conflict'), [cve(10)]);
   filterIds(d, "activeFilters.search = 'conflict:any';");
-  assert.match(d.el('cve-table-body').innerHTML, /class="sc-flag"/, '목록 CVSS 칸에 구간 불일치 표시');
+  assert.match(d.el('cve-table-body').innerHTML, /class="sc-flag"/, '목록 CVSS 칸에 등급 차이 표시');
   d.run("showDetail('CVE-2026-0010')");
   const threat = detailSec(d.el('modal-body').innerHTML, 'd-threat');
-  assert.match(threat, /출처 간 불일치 — 악용 근거[\s\S]*?CISA KEV 등재[\s\S]*?CISA SSVC Exploitation: none/);
-  assert.match(threat, /출처 간 불일치 — CVSS[\s\S]*?CVSS 4\.0 6\.9 \(Medium\)[\s\S]*?CVSS 3\.1 9\.9 \(Critical\)/);
+  assert.match(threat, /class="d-flag"><b>출처 간 차이<\/b> KEV에는 있는데 CISA SSVC 판정은 Exploitation: active가 아님/, '악용 근거 차이는 접지 않고 보인다');
+  assert.match(threat, /출처 간 차이: 악용 근거[\s\S]*?CISA KEV 등재[\s\S]*?CISA SSVC Exploitation: none/);
+  assert.match(threat, /출처 간 차이: CVSS[\s\S]*?CVSS 4\.0 6\.9 \(Medium\)[\s\S]*?CVSS 3\.1 9\.9 \(Critical\)/);
   assert.match(threat, /data-query="conflict:exploitation"/);
-  assert.match(d.el('modal-scores').innerHTML, /v4\.0 6\.9 \(Medium\) ⚠ 구간 다름/);
+  assert.match(d.el('modal-scores').innerHTML, /class="warn"[^>]*>v4\.0은 6\.9 Medium</, '버전별 등급 차이는 머리글 수치에');
 });
 
-test('화면 전환 — 상세는 URL 의 cve, 닫으면 들어오기 전 화면으로', () => {
+test('화면 전환 — 좁은 화면: 상세는 한 화면, URL 의 cve, 닫으면 들어오기 전 화면으로', () => {
   const d = dashboard();
+  d.run('innerWidth = 900;');
   d.run("switchView('cves')");
   filterIds(d, "activeFilters.search = 'has:poc';");
   d.run("showDetail('CVE-2026-0003')");
   assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.run('splitOpen'), false, '1200px 미만은 나란히 보기를 쓰지 않는다');
   assert.match(d.run('history.last'), /cve=CVE-2026-0003/);
   assert.match(decodeURIComponent(d.run('history.last')), /view=cves&q=has:poc/, '목록 맥락은 URL 에 남긴다');
+  assert.doesNotMatch(d.run('history.last'), /full=1/, 'full 은 넓은 화면에서만');
   assert.equal(d.el('side-detail').disabled, false);
   assert.equal(d.el('side-detail-id').textContent, 'CVE-2026-0003');
+  assert.equal(d.el('detail-origin').textContent, 'CVE 목록');
   d.run('closeModal()');
   assert.equal(d.run('currentView'), 'cves');
   assert.doesNotMatch(d.run('history.last'), /cve=/);
   d.run("switchView('dashboard'); openCve('CVE-2026-0002')");
   assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.el('detail-pos').textContent, '', '대시보드에서 하나만 열면 이전 · 다음 없음');
   d.run('closeModal()');
   assert.equal(d.run('currentView'), 'dashboard', '대시보드에서 열었으면 대시보드로');
   assert.doesNotMatch(d.run('history.last'), /view=|cve=/);
@@ -416,8 +478,154 @@ test('화면 전환 — 상세는 URL 의 cve, 닫으면 들어오기 전 화면
   assert.equal(d.run('activeFilters.search'), 'has:kev');
   d.run('closeModal()');
   assert.equal(d.run('currentView'), 'cves');
+  d.run("location.href = 'https://example.test/cve.html?cve=CVE-2026-0003'; applyUrlState(); openFromUrl();");
+  assert.equal(d.el('detail-pos').textContent, '', '공유 링크로 연 상세는 이전 · 다음 없음');
+  assert.equal(d.el('detail-bottom').hidden, true, '넘길 CVE 가 없으면 아래 막대도 감춘다');
   d.run("location.href = 'https://example.test/cve.html?cve=CVE-1999-0001'; applyUrlState(); openFromUrl();");
   assert.match(d.el('modal-body').innerHTML, /추적 목록\(최근 90일/, '추적 밖 CVE 는 없다고 알린다');
+});
+
+test('나란히 보기 — 넓은 화면의 목록에서 상세를 오른쪽에 열고, 행을 바꿔도 기록을 늘리지 않는다', () => {
+  const d = dashboard();
+  trackHistory(d);
+  d.run("goToQuery('has:poc')");
+  const base = d.run('history.pushed.length');
+  assert.deepEqual(d.run('filteredCves.map(c => c.id)'), [cve(14), cve(3)], '알림 등급 순');
+  d.run("showDetail('CVE-2026-0003')");
+  assert.equal(d.run('currentView'), 'cves', '목록은 그대로');
+  assert.equal(d.run('splitOpen'), true);
+  assert.equal(d.run('history.pushed.length'), base + 1, '처음 열 때만 기록');
+  assert.match(decodeURIComponent(d.run('location.href')), /view=cves&q=has:poc&cve=CVE-2026-0003$/);
+  assert.equal(d.el('detail-pos').textContent, '2 / 2');
+  assert.equal(d.run('document.documentElement.dataset.nav'), 'rail', '1680px 미만에서는 메뉴를 아이콘으로 접는다');
+  d.run('stepDetail(-1)');
+  assert.equal(d.run('detailId'), cve(14));
+  d.run("showDetail('CVE-2026-0003')");
+  assert.equal(d.run('history.pushed.length'), base + 1, '이전 · 다음 · 다른 행은 기록을 늘리지 않는다');
+  d.run('openFull()');
+  assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.run('splitOpen'), false);
+  assert.match(d.run('location.href'), /full=1/, '새로 고쳐도 한 화면으로');
+  assert.equal(d.el('detail-pos').textContent, '2 / 2', '한 화면에서도 목록 순서로 이전 · 다음');
+  d.run("location.href = 'https://example.test/cve.html?view=cves&q=has%3Apoc&cve=CVE-2026-0003'; onPopState({ state: null });");
+  assert.equal(d.run('splitOpen'), true, '뒤로 가기로 나란히 보기에 돌아온다');
+  d.run('detailPushed = false; closeModal()');
+  assert.equal(d.run('splitOpen'), false);
+  assert.equal(d.run('currentView'), 'cves');
+  assert.doesNotMatch(d.run('location.href'), /cve=/);
+  assert.equal(d.run('document.documentElement.dataset.nav'), undefined, '닫으면 메뉴를 다시 편다');
+  d.run("localStorage.setItem('argus-nav', 'open'); showDetail('CVE-2026-0003')");
+  assert.equal(d.run('document.documentElement.dataset.nav'), undefined, '사용자가 고른 메뉴 상태가 먼저');
+});
+
+test('방문 기록 — 대시보드 숫자 · 제품 순위 · 화면 이동은 기록을 남기고, 뒤로 가기는 주소대로 화면을 되돌린다', () => {
+  const d = dashboard();
+  trackHistory(d);
+  d.run("goToQuery('has:cisa-kev')");
+  assert.equal(d.run('currentView'), 'cves');
+  assert.equal(d.run('history.pushed.length'), 1);
+  assert.match(decodeURIComponent(d.run('history.pushed[0]')), /view=cves&q=has:cisa-kev/);
+  d.run("switchView('dashboard', { push: true })");
+  assert.equal(d.run('history.pushed.length'), 2);
+  d.run("filterByProduct('Java SE')");
+  assert.equal(d.run('history.pushed.length'), 3, '영향 제품 순위도 기록을 남긴다');
+  assert.equal(d.run('activeFilters.product'), 'java se');
+  d.run("location.href = 'https://example.test/cve.html'; onPopState({ state: { scroll: 0 } });");
+  assert.equal(d.run('currentView'), 'dashboard');
+  d.run("location.href = 'https://example.test/cve.html?view=cves&q=has%3Apoc'; onPopState({ state: { scroll: 120 } });");
+  assert.equal(d.run('currentView'), 'cves');
+  assert.equal(d.run('activeFilters.search'), 'has:poc');
+  d.run("location.href = 'https://example.test/cve.html?view=cves&q=has%3Apoc&cve=CVE-2026-0003&full=1'; onPopState({ state: null });");
+  assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.run('splitOpen'), false);
+  assert.equal(d.el('modal-id').textContent, 'CVE-2026-0003');
+});
+
+test('검색 미리보기 — 목록 밖에서는 화면을 옮기지 않고 결과를 보여 주며, Enter 를 눌러야 목록으로 간다', () => {
+  const d = dashboard();
+  trackHistory(d);
+  d.run("renderSearchPreview('windows')");
+  assert.equal(d.run('currentView'), 'dashboard', '입력만으로 화면을 옮기지 않는다');
+  const ids = JSON.parse(JSON.stringify(d.run('previewState.ids')));
+  assert.deepEqual([...ids].sort(), search(d, 'windows'), '미리보기 건수 = 그 검색어로 연 목록');
+  const box = d.el('search-preview').innerHTML;
+  assert.match(box, new RegExp(`CVE ${ids.length}건`));
+  assert.match(box, new RegExp(`목록에서 ${ids.length}건 보기`));
+  assert.equal((box.match(/class="sp-item"/g) || []).length, Math.min(5, ids.length));
+  assert.equal(d.run('history.pushed.length'), 0, '미리보기는 기록을 남기지 않는다');
+  d.run('openPreviewItem(0)');
+  assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.el('detail-pos').textContent, `검색 "windows" · 1 / ${ids.length}`, '이전 · 다음은 검색 결과 순서');
+  d.run("switchView('dashboard')");
+  d.el('search-input').value = 'has:poc';
+  d.run('submitSearch()');
+  assert.equal(d.run('currentView'), 'cves');
+  assert.equal(d.run('activeFilters.search'), 'has:poc');
+  assert.match(decodeURIComponent(d.run('history.pushed[history.pushed.length - 1]')), /view=cves&q=has:poc/, 'Enter 는 기록을 남긴다');
+  d.run("switchView('dashboard')");
+  d.el('search-input').value = 'cve-2026-0003';
+  d.run('submitSearch()');
+  assert.equal(d.run('currentView'), 'detail', 'CVE ID 를 정확히 넣으면 그 상세');
+  assert.equal(d.el('modal-id').textContent, 'CVE-2026-0003');
+  d.run("switchView('cves'); renderSearchPreview('windows')");
+  assert.equal(d.el('search-preview').hidden, true, '목록 화면에서는 입력하는 대로 목록이 거른다');
+});
+
+test('새 검색어 — sev · published · kev · due (기준일 = 데이터를 만든 시각의 UTC 날짜, Nd 는 기준일 포함 N일)', () => {
+  const d = dashboard();
+  edit(d, { 2: { published: '2026-09-21', kev_due_date: '2026-09-28' }, 3: { published: '2026-09-20' }, 4: { published: '2026-09-27' },
+            5: { published: '2026-09-28' }, 10: { kev_due_date: '2026-09-29' }, 1: { kev_due_date: '2026-09-30' } });
+  assert.equal(d.run('refDay()'), '2026-09-27');
+  assert.deepEqual(search(d, 'sev:critical'), [cve(1), cve(7), cve(10)]);
+  assert.deepEqual(search(d, 'sev:none'), [cve(5)], 'CVSS 점수 없음');
+  assert.deepEqual(search(d, 'published:7d'), [cve(2), cve(4)], '09-21 ~ 09-27, 기준일 뒤 날짜는 넣지 않는다');
+  assert.deepEqual(search(d, 'published:1d'), [cve(4)], '기준일 당일');
+  assert.deepEqual(search(d, 'published:7'), [], '단위가 없으면 아무것도 통과시키지 않는다');
+  assert.deepEqual(search(d, 'due:3d'), [cve(10)], 'CISA KEV 인 것만, 기준일부터 3일 안(09-27 ~ 09-29)');
+  assert.deepEqual(search(d, 'kev:7d'), [], '등재일 파일(cve-evidence.json) 전에는 셀 수 없다');
+  d.run(`detailFiles.evidence = { schema: 1, kev: { 'CVE-2026-0001': ['2026-09-21', '2026-10-10'], 'CVE-2026-0010': ['2026-09-20', '2026-09-29'] } };`);
+  assert.deepEqual(search(d, 'kev:7d'), [cve(1)], 'CISA KEV 등재일 기준');
+  assert.deepEqual(search(d, 'kev:30d'), [cve(1), cve(10)]);
+});
+
+test('대시보드 최근 동향 — 카드 숫자 = 그 검색어로 연 목록 건수, KPI 아래 변화도 같은 검색어로 센다', () => {
+  const d = dashboard();
+  edit(d, { 2: { published: '2026-09-21' }, 4: { published: '2026-09-27' }, 5: { published: '2026-09-25' },
+            15: { severity: 'Critical', cvss: 9.1 }, 10: { kev_due_date: '2026-09-27' } });
+  d.run('renderDashboard()');
+  assert.match(d.el('dash-today').innerHTML, /KEV 신규 등재[\s\S]*?등재일 정보를 받는 중/, '등재일 파일 전');
+  assert.match(d.el('dash-kpis').innerHTML, /id="stat-kev">2<\/span>\s*<span class="kpi-sub">악용 근거 전체 3건</, '변화를 셀 수 없으면 출처 건수');
+  d.run(`detailFiles.evidence = { schema: 1, kev: { 'CVE-2026-0001': ['2026-09-22', '2026-10-10'], 'CVE-2026-0010': ['2026-09-26', '2026-09-27'] } };
+    renderDashboard();`);
+  const today = d.el('dash-today').innerHTML;
+  const cards = [...today.matchAll(/data-card="(\w+)"[\s\S]*?class="t-n" data-query="([^"]+)"[^>]*>(\d+)</g)]
+    .map(m => ({ key: m[1], q: unesc(m[2]), n: Number(m[3]) }));
+  assert.deepEqual(cards.map(c => c.key), ['kev', 'crit', 'exp']);
+  for (const c of cards) assert.equal(search(d, c.q).length, c.n, `${c.key}: ${c.q}`);
+  assert.deepEqual(cards.map(c => c.n), [2, 1, 1]);
+  const card = key => today.slice(today.indexOf(`data-card="${key}"`), today.indexOf('</article>', today.indexOf(`data-card="${key}"`)));
+  assert.deepEqual([...card('kev').matchAll(/data-cve="([^"]+)"/g)].map(m => m[1]), [cve(10), cve(1)], '등재일 최신순');
+  assert.match(card('kev'), /data-query="due:3d"[^>]*>조치 기한 3일 안 1건</);
+  assert.match(card('kev'), /등재 09-26 ·<\/span><span class="t-key"><em class="t-due">기한 오늘<\/em>/, '조치 기한은 줄여도 남는 칸에');
+  assert.match(card('kev'), />2건 모두 보기 →</);
+  assert.match(card('crit'), /알림·갱신 5건 중/);
+  assert.match(card('exp'), /최근 7일 공개 3건 중/);
+  assert.match(card('exp'), /data-cve="CVE-2026-0002"/);
+  d.run("openCveFrom('CVE-2026-0001', todayLists.kev)");
+  assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.el('detail-pos').textContent, 'KEV 신규 등재 · 2 / 2', '이전 · 다음은 그 카드의 순서');
+  assert.equal(d.el('detail-origin').textContent, '대시보드');
+  const kpis = d.el('dash-kpis').innerHTML;
+  assert.match(kpis, /id="stat-total">16<\/span>\s*<span class="kpi-sub"><b class="kpi-up">\+3<\/b> 최근 7일 공개/);
+  assert.equal(search(d, 'published:7d').length, 3);
+  assert.match(kpis, /id="stat-kev">2<\/span>\s*<span class="kpi-sub"><b class="kpi-up">\+2<\/b> 최근 7일 등재/);
+  assert.equal(search(d, 'kev:7d').length, 2);
+  assert.match(kpis, /id="stat-24h">5<\/span>\s*<span class="kpi-sub">Critical 1 · KEV 0</);
+  assert.match(kpis, /id="stat-ai">1<\/span>\s*<span class="kpi-sub"><b class="kpi-up">\+1<\/b> 최근 7일 공개/);
+  assert.equal(search(d, 'published:7d has:ai').length, 1);
+  d.run('detailFiles.evidence = null; renderDashboard();');
+  assert.match(d.el('dash-today').innerHTML, /받지 못해 셀 수 없습니다[\s\S]*?data-query="has:cisa-kev"[^>]*>CISA KEV 전체 보기/,
+               '등재일 파일을 못 받으면 0 대신 셀 수 없다고');
 });
 
 test('테마 — 시스템 → 라이트 → 다크 → 시스템, 고른 값은 저장', () => {
@@ -427,7 +635,7 @@ test('테마 — 시스템 → 라이트 → 다크 → 시스템, 고른 값은
   d.run('cycleTheme()');
   assert.equal(theme(), 'light');
   assert.equal(d.run("localStorage.getItem('argus-theme')"), 'light');
-  assert.match(d.el('theme-toggle').title, /테마: 라이트 — 누르면 다크/);
+  assert.equal(d.el('theme-toggle').title, '테마: 라이트 (누르면 다크)');
   d.run('cycleTheme()');
   assert.equal(theme(), 'dark');
   d.run('cycleTheme()');
@@ -435,17 +643,20 @@ test('테마 — 시스템 → 라이트 → 다크 → 시스템, 고른 값은
   assert.equal(d.run("localStorage.getItem('argus-theme')"), null);
 });
 
-test('상세 — 모름의 사유 (점수 없음 · 추적 밖 제품 · endoflife.date 미제공)', () => {
+test('상세 — 미확인의 사유 (점수 없음 · 추적 밖 제품 · endoflife.date 미제공 · 수정 기록 없음)', () => {
   const d = dashboard();
   d.run("showDetail('CVE-2026-0005')");
-  assert.match(d.el('modal-scores').innerHTML, /점수 없음 — 0점이 아님/);
+  assert.match(d.el('modal-scores').innerHTML, /점수 없음<\/span><\/span><span class="sub">0점이 아니라 미확인/);
   const b5 = d.el('modal-body').innerHTML;
-  assert.match(b5, /ans ans-unknown ans-lifecycle[\s\S]*?수명주기 추적 대상이 아닌 제품 포함/);
+  assert.match(b5, /class="none-card"[\s\S]*?확인된 위협 신호 없음[\s\S]*?7개 항목 중 없음 3 · 미확인 4/);
+  assert.match(b5, /st-chip st-unknown" title="수명주기를 추적하지 않는 제품이 있음[^"]*">EOL <b>미확인<\/b>/, '미확인은 사유를 붙인다');
   assert.doesNotMatch(d.el('modal-signals').innerHTML, /c-none|lc-none/, '머리글에는 확인된 것만');
   d.run("showDetail('CVE-2026-0012')");
-  assert.match(d.el('modal-body').innerHTML, /lc-unresolved[\s\S]*OpenSSH[\s\S]*사유: endoflife\.date 에 없는 제품/);
+  assert.match(d.el('modal-body').innerHTML, /lc-unresolved[\s\S]*OpenSSH[\s\S]*사유: endoflife\.date에 없는 제품/);
   d.run("showDetail('CVE-2026-0003')");
-  assert.match(d.el('modal-body').innerHTML, /ans ans-no ans-remediation[\s\S]*?OSV 에 수정 버전 기록 없음/);
+  const b3 = d.el('modal-body').innerHTML;
+  assert.match(b3, /st-chip st-no">수정 버전 <b>기록 없음<\/b>/);
+  assert.match(detailSec(b3, 'd-remedy'), /OSV에 영향 패키지는 있지만 수정 버전 기록이 없습니다/);
 });
 
 test('Product Lifecycle — 제품 중심, 릴리스별 관찰된 위협, 필터·정렬', () => {

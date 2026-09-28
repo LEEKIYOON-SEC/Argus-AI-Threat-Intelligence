@@ -14,11 +14,11 @@
   };
   const DISPLAY_ORDER = ['EOL', 'EXTENDED_SUPPORT', 'SECURITY_SUPPORT', 'ACTIVE', 'UNKNOWN'];
   const REASONS = {
-    unavailable: 'endoflife.date 에 없는 제품',
+    unavailable: 'endoflife.date에 없는 제품',
     no_data: '수명주기 데이터를 받지 못한 제품',
-    version_unparsed: '영향 버전을 사이클로 특정할 수 없음',
-    out_of_range: '영향 버전이 추적 중인 사이클 범위 밖',
-    cycle_not_found: '제품명이 가리키는 사이클이 upstream 에 없음',
+    version_unparsed: '영향 버전이 어느 릴리스인지 정할 수 없음',
+    out_of_range: '영향 버전이 추적 중인 릴리스 범위 밖',
+    cycle_not_found: '제품명이 가리키는 릴리스가 제조사 일정에 없음',
   };
   const VIA = {
     override: '수동 지정', cpe: 'CPE', purl: 'PURL', vendor_product: '벤더+제품명', pattern: '제품명 규칙',

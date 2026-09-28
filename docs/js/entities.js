@@ -34,7 +34,7 @@
     'vulncheck-kev': { provides: ['exploitation'], name: 'VulnCheck KEV', provider: 'VulnCheck', url: CTX.URL.vulncheck, kind: 'source',
                        role: '악용 근거 (등재 여부)', cadence: '원본 6시간 캐시', files: ['cves.json'] },
     'exploit-db': { provides: ['exploit'], name: 'Exploit-DB', provider: '', url: CTX.URL.exploitdb, kind: 'source',
-                    role: '공개 익스플로잇 (원문 미게시 · 링크만)', cadence: '원본 하루 캐시', files: ['cves.json', 'cve-evidence.json'] },
+                    role: '공개 익스플로잇 (원문은 싣지 않고 링크만)', cadence: '원본 하루 캐시', files: ['cves.json', 'cve-evidence.json'] },
     metasploit: { provides: ['exploit'], name: 'Metasploit Framework', provider: 'Rapid7', url: CTX.URL.metasploit, kind: 'source',
                   role: '공격 모듈', cadence: '원본 하루 캐시', files: ['cves.json', 'cve-evidence.json'] },
     'poc-in-github': { provides: ['exploit'], name: 'PoC-in-GitHub', provider: 'nomi-sec', url: CTX.URL.poc, kind: 'source',
@@ -50,36 +50,36 @@
     yara: { provides: ['detection'], name: 'YARA Forge', provider: 'YARA Forge', url: 'https://github.com/YARAHQ/yara-forge', kind: 'source',
             role: '파일 탐지 룰', cadence: '주간 룰 색인', files: ['cves.json'] },
     'rule-index': { provides: ['detection'], name: 'Argus 탐지 룰 색인', provider: 'Argus', url: '', kind: 'derived',
-                    role: '공개 룰 소스를 CVE ID 로 색인한 결과', cadence: '주간 (maintenance)', files: ['cves.json'] },
+                    role: '공개 룰 저장소를 CVE ID로 색인한 결과', cadence: '주간 (maintenance)', files: ['cves.json'] },
     osv: { provides: ['remediation'], name: 'OSV.dev', provider: 'OSV', url: 'https://osv.dev', kind: 'source',
            role: '패키지별 수정 버전', cadence: '주간 (maintenance)', files: ['cve-packages.json'] },
     endoflife: { provides: ['lifecycle'], name: 'endoflife.date', provider: 'endoflife.date', url: CTX.URL.endoflife, kind: 'source',
                  role: '제품 릴리스 지원 단계 · EOL', cadence: '매일', files: ['lifecycle.json'] },
     'ai-discovery': { provides: ['discovery'], name: 'AI 발견 출처 (Anthropic CVD 원장 · CVE 크레딧)', provider: 'Anthropic 등', url: 'https://red.anthropic.com/',
-                      kind: 'source', role: 'AI 가 찾아 책임공개된 취약점 식별', cadence: '레코드 처리 때', files: ['cves.json'] },
+                      kind: 'source', role: 'AI가 찾아 공개한 취약점 식별', cadence: '레코드 처리 때', files: ['cves.json'] },
     gemma: { provides: ['text'], name: 'Gemma (Google AI Studio)', provider: 'Google', url: '', kind: 'ai',
              role: '제목 한국어 번역 · 설명 2줄 요약', cadence: '레코드 처리 때', files: ['cves.json'] },
     gemini: { provides: ['analysis'], name: 'Gemini (Google AI Studio)', provider: 'Google', url: '', kind: 'ai',
               role: 'AI 심층 분석 (근본 원인 · 시나리오 · 영향 · 대응)', cadence: '알림 티어만', files: ['cves.json'] },
     argus: { provides: ['derived'], name: 'Argus', provider: 'Argus', url: '', kind: 'derived',
-             role: '파생 판정 — 알림 등급 · 심각도 구간 · 신호 · 상관 · 불일치 표시', cadence: '화면을 열 때 · 배포 때', files: ['cve-context.json'] },
+             role: 'Argus 계산 결과: 알림 등급 · 심각도 등급 · 신호 · 신호 조합 · 출처 간 차이', cadence: '화면을 열 때 · 배포 때', files: ['cve-context.json'] },
   };
   const SOURCE_ORDER = Object.keys(SOURCES);
-  const PROVIDES_LABEL = { exploitation: '악용 근거', exploit: '공개 exploit', automation: '자동화', ransomware: '랜섬웨어',
+  const PROVIDES_LABEL = { exploitation: '악용 근거', exploit: '공개 익스플로잇', automation: '자동화', ransomware: '랜섬웨어',
                            detection: '탐지', remediation: '조치', lifecycle: '수명주기', severity: '심각도(CVSS)',
                            probability: '악용 확률(EPSS)', product: '영향 제품', text: '제목 · 설명', discovery: 'AI 발견',
-                           analysis: 'AI 분석', derived: '파생 판정' };
+                           analysis: 'AI 분석', derived: 'Argus 계산' };
 
   /* ---------- Evidence Type (§6) — 출처와 섞지 않는다 ---------- */
 
   const EVIDENCE_TYPES = {
     exploitation: { label: '악용 근거', signal: 'EXPLOITATION_CONFIRMED', note: '실제 악용이 보고됐다는 근거' },
-    exploit: { label: '공개 exploit', signal: 'PUBLIC_EXPLOIT', note: '공개 exploit · PoC — 실제 공격 발생을 뜻하지 않는다' },
-    automation: { label: '자동화', signal: 'AUTOMATABLE', note: 'CISA SSVC 자동화 판정 — 악용 확인이 아니다' },
-    ransomware: { label: '랜섬웨어', signal: 'RANSOMWARE', note: 'CISA KEV 의 랜섬웨어 캠페인 사용 표기' },
-    detection: { label: '탐지', signal: 'PUBLIC_DETECTION', note: '방어측 공개 룰 · 점검 템플릿' },
+    exploit: { label: '공개 익스플로잇', signal: 'PUBLIC_EXPLOIT', note: '공개 익스플로잇 · PoC. 실제 공격이 있었다는 뜻은 아닙니다' },
+    automation: { label: '자동화', signal: 'AUTOMATABLE', note: 'CISA SSVC 자동화 판정. 악용이 확인됐다는 뜻은 아닙니다' },
+    ransomware: { label: '랜섬웨어', signal: 'RANSOMWARE', note: 'CISA KEV의 랜섬웨어 캠페인 사용 표기' },
+    detection: { label: '탐지 룰', signal: 'PUBLIC_DETECTION', note: '공개된 탐지 룰 · 점검 템플릿' },
     remediation: { label: '조치', signal: 'PATCH_AVAILABLE', note: '수정 버전 · 필요 조치' },
-    lifecycle: { label: '수명주기', signal: 'EOL_AFFECTED', note: '영향 제품 릴리스의 지원 상태 — 심각도가 아니다' },
+    lifecycle: { label: '수명주기', signal: 'EOL_AFFECTED', note: '영향 버전의 지원 상태. 심각도가 아닙니다' },
   };
   const GROUP_TYPE = { exploitation: 'exploitation', weaponization: 'exploit', automation: 'automation',
                        ransomware: 'ransomware', detection: 'detection', remediation: 'remediation', lifecycle: 'lifecycle' };
@@ -150,7 +150,7 @@
     const facts = d.facts;
     const ev = d.evidence || null;
     const files = d.files || {};
-    const observed = { at: files.cves || null, label: 'Argus 확인 (cves.json 생성 시각)' };
+    const observed = { at: files.cves || null, label: 'cves.json 생성 시각' };
 
     /* Evidence — derive 의 출처별 행을 증거 엔티티로. 판정 상태는 그대로(hit → present …) */
     const evidence = [];
@@ -171,7 +171,7 @@
       }
     }
     // 원 출처 날짜 — 파이프라인이 받아 둔 원 파일에서 CI 가 붙인 값만 (cve-evidence.json)
-    const evObserved = { at: files.evidence || null, label: 'Argus 확인 (cve-evidence.json 생성 시각)' };
+    const evObserved = { at: files.evidence || null, label: 'cve-evidence.json 생성 시각' };
     for (const e of evidence) {
       if (!ev) continue;
       if (e.source === 'cisa-kev' && e.type === 'exploitation' && e.status === 'present' && ev.kev) {
@@ -215,8 +215,8 @@
         value: cve.description || '', origin: koOrigin(facts && facts.descOrigin, cve.description), source: null },
     ];
     for (const t of texts) t.source = t.origin === 'ai' ? 'gemma' : t.origin === 'argus' ? 'argus' : t.origin === 'source' ? 'cve-record' : null;
-    const ORIGIN_TEXT = { ai: 'AI 생성 (Gemma 번역 · 요약)', argus: 'Argus 생성 문구', source: '원문 (CVE 레코드)',
-                          generated: '한국어 생성 텍스트 — AI 번역 또는 Argus 문구 (원문 아님)' };
+    const ORIGIN_TEXT = { ai: 'AI 작성 (Gemma 번역 · 요약)', argus: 'Argus가 만든 문구', source: '원문 (CVE 레코드)',
+                          generated: '한국어로 만든 글 (AI 번역 또는 Argus 문구, 원문 아님)' };
     for (const t of texts) t.originLabel = ORIGIN_TEXT[t.origin] || '';
     if (facts && facts.title) texts.push({ id: 'text:title:original', kind: 'title', lang: 'en', value: facts.title, origin: 'source', source: 'cve-record' });
     if (facts && facts.description) texts.push({ id: 'text:description:original', kind: 'description', lang: 'en', value: facts.description, origin: 'source', source: 'cve-record' });
@@ -244,14 +244,14 @@
       const src = facts && (facts.productSources || []).find(p => sameProduct(p, a));
       return { id: `prod:${i}`, kind: 'affected', vendor: a.vendor || '', product: a.product || '', versions: a.versions || '',
                key: normKey(a.vendor, a.product), source: src ? src.source : null,
-               sourceNote: src ? `${src.source} 표기로 채운 제품` : (facts ? 'CVE 레코드 (옛 레코드는 NVD CPE 로 보충했을 수 있음)' : ''),
+               sourceNote: src ? `${src.source} 표기로 채운 제품` : (facts ? 'CVE 레코드 (옛 레코드는 NVD CPE로 보충했을 수 있음)' : ''),
                ranges: rg.ranges, unaffectedFrom: rg.unaffectedFrom, rangesParsed: rg.parsed, lifecycle: lifecycleOf(matchItems[i]) };
     });
     // OSV 패키지(PURL)로 이어진 릴리스 — 영향 제품 항목이 아니라 패키지에서 나온 연결이라 따로 둔다.
     ((d.match && d.match.packages) || []).forEach((r, i) => {
       if (!r) return;
       products.push({ id: `pkg:${i}`, kind: 'package', vendor: '', product: r.key || '', versions: '', key: r.key || '',
-                      source: 'osv', sourceNote: 'OSV 패키지(PURL) — 수정 버전 기준으로 사이클을 이음', ranges: [],
+                      source: 'osv', sourceNote: 'OSV 패키지(PURL)의 수정 버전으로 릴리스를 연결', ranges: [],
                       unaffectedFrom: [], rangesParsed: false, lifecycle: lifecycleOf(r) });
     });
 
