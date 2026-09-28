@@ -147,7 +147,7 @@
     }).sort((a, b) => b.n - a.n);
   }
 
-  // 동시 발생 행렬 — 칸 = 두 신호가 함께 yes 인 CVE 수. 대각선은 그 신호의 yes 수.
+  // 동시 발생 행렬 — 칸 = 두 신호가 함께 yes 인 CVE 수. 축(axes)마다 그 신호의 yes 수(total) — 화면은 줄 · 칸 머리에 적는다.
   function matrix(agg) {
     if (!CTX || !agg) return null;
     const axes = CTX.MATRIX.map(code => ({ code, short: CTX.SIGNAL[code].short, total: agg.signals[code].yes,
