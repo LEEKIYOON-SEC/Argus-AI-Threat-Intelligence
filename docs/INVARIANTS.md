@@ -328,11 +328,35 @@ p90.0 = 0.041  36,640건
 | 행수 상한은 **추적 행** 기준이고, 대시보드 구간(90일) 안은 안 지운다 | 전체 행 기준이면 상태 비워진 옛 행이 상한을 먼저 채우고, 오래된 순 삭제가 살아 있는 26일짜리 KEV 로 넘어간다 |
 | `rules`는 실제로 룰이 있는 행에만 싣는다 (`rules_snapshot`은 빈 껍데기라도 truthy) | 실측 2,217건 중 2,081건(93.9%)이 빈 껍데기였다 |
 | **숫자는 세는 기준을 필터와 맞춘다** (`cveHasSignal` · `context.js`) | 타일이 티어 기준, 칩이 신호 기준이라 같은 말인데 숫자가 달랐다 |
+| **KPI 숫자는 그 칸의 검색어로 연 목록 건수로 센다** (`kpiCount` — 전체 데이터 전에는 같은 판의 `cve-context.json` · `stats.json`) | 칸 정의와 목록 정의를 따로 두면 언젠가 갈라진다. 실데이터로 KPI 6 · 상관 10 · 행렬 칸 36 · 행렬 줄/칸 전체 9 · 관련 검색어 6 — 67개 숫자를 브라우저에서 눌러 목록 건수와 대조했다(전부 일치) |
 | **필터 상태는 검색줄 한 곳에만 있다.** 조건 칩·대시보드 숫자·수명주기 관측 숫자는 누르면 검색어를 넣고 빼거나(칩), 다른 필터를 풀고 CVE Intelligence 로 이동해 검색어를 넣는다(`goToQuery`) | 조작 지점이 두 군데로 갈리면 어디서 무엇이 걸렸는지 알 수 없다. 누른 숫자와 열린 목록 건수가 달라진다 |
 
-**대시보드 KPI 4개**: 추적 중 CVE · CVSS 9.0 이상 · CISA KEV · EOL 릴리스 영향 CVE. 숫자마다
-범위(모름이 몇 건인지)를 함께 적는다. 예전 KPI(악용 중 · 무기화 · PoC · AI 발견)는 같은 기준
-(`cveHasSignal`)으로 '출처별 신호' 칸에 남겼다 — 통계를 지우지 않았다.
+**대시보드 KPI 6개** — 칸마다 검색어가 있고, 숫자는 그 검색어로 연 목록 건수다.
+
+| 칸 | 검색어 | 세는 것 |
+|:---|:---|:---|
+| 추적 중 CVE | (전체) | `stats.cve.total` — 최근 90일 · 악용·고위험 신호가 있는 것만 저장 |
+| 24시간 알림·갱신 | `recent:24h` | export 시각 기준 24시간 안에 Argus 시각(`date` = 알림 시각, 없으면 행 갱신 시각)이 든 CVE — export 의 `recent_24h` 와 같은 규칙 |
+| CISA KEV | `has:cisa-kev` | CISA KEV 카탈로그 등재(`is_kev`)만. 칸 설명에 '악용 근거 전체(VulnCheck · SSVC 포함) N건'을 함께 적는다 |
+| 무기화 | `has:weaponized` | 무기화된 exploit 코드 = Metasploit 모듈 ∪ Exploit-DB 항목. 칸 설명에 출처별 건수 |
+| 공개 PoC | `has:poc` | PoC-in-GitHub 공개 저장소 — 공개돼 있다는 사실이며 공격 발생이 아니다 |
+| AI 발견 | `has:ai` | AI 가 찾아 책임공개된 취약점 — 발견 출처 정보이며 AI 분석이 아니다 |
+
+**KPI 변경 (2026-09-28) — 무엇 · 왜 · 영향 · 이전**
+
+- **무엇**: 4칸(추적 중 · CVSS 9.0 이상 · CISA KEV · EOL 릴리스 영향)과 아래 '출처별 신호' 칸(악용 중 · 무기화 · PoC · AI 발견)을
+  6칸 하나로 합쳤다. 'CVSS 9.0 이상' · 'EOL 릴리스 영향'은 동시 발생 행렬의 줄(`cvss:>=9` · `lifecycle:eol` 전체 건수) · 상관 목록 ·
+  조건 칩으로 옮겼고, '악용 중'은 CISA KEV 칸 설명과 조건 칩 '악용 근거'(`has:kev`)로 옮겼다 — 통계를 지우지 않았다.
+- **왜 · 무기화**: 예전 칸은 Metasploit ∪ Exploit-DB ∪ **nuclei** 였다. nuclei 는 취약 여부를 확인하는 점검 템플릿이라 무기화된
+  exploit 코드가 아니다(§13 에서 탐지 쪽에 둔다) → 뺐다. 예전 묶음은 검색 `has:msf` 로 그대로 남는다.
+- **왜 · 24시간**: 예전 설명 '최근 24시간 N건 **신규**'는 사실과 달랐다 — `recent_24h` 는 Argus 시각 기준이라 재평가된 옛 CVE 도
+  든다. 이름을 '알림·갱신'으로 바꾸고, 누르면 같은 규칙의 `recent:24h` 목록이 열린다.
+- **영향**: 숫자가 바뀐 칸은 무기화(nuclei 만 있던 CVE 만큼 줄어든다)뿐이다. '악용 중'(= `has:kev`)과 'CISA KEV'가 다른 숫자라는 점은
+  칸 설명에 적는다(실측 5,351 · 1,728).
+- **이전**: 저장된 링크와 검색어(`has:kev` · `has:msf`)는 뜻이 바뀌지 않는다. 회귀 기준(`dashboard_baseline.json`)은 다시 만들지 않고
+  이 세 칸(`stat-kev` · `stat-weapon` · `stat-24h-sub`)만 의도한 변경(`CHANGED_KPI`)으로 빼서 새 값을 따로 확인한다. 예전 네 칸의
+  숫자(`KPI_TILES` = `cveHasSignal`)도 그대로 대조한다.
+
 예전에는 '무기화 임박'(T1 개수)과 '무기화됨'(도구 공개 개수)이 나란히 놓여 무엇이 다른지
 알 수 없었다 — 앞은 티어, 뒤는 신호라 기준 자체가 달랐다.
 
@@ -538,15 +562,19 @@ VulnCheck 커뮤니티 티어는 `/v3/backup/`이다. `/v3/index/`는 상위 티
 ### 테스트
 
 ```
-TZ=UTC python -m unittest discover -s tests -p 'test_*.py'   # 수명주기 수집·정규화·상태·검증
-TZ=UTC node --test tests/*.test.js                          # 아래 세 파일
+TZ=UTC python -m unittest discover -s tests -p 'test_*.py'   # 수명주기 수집·정규화 · export 의 cve-facts.json
+TZ=UTC node --test tests/*.test.js                          # 아래 여섯 파일
 ```
 
 | 파일 | 확인하는 것 |
 |:---|:---|
 | `tests/lifecycle.test.js` | `lifecycle.js` — 상태 계산(Python 과 같은 표) · 버전 → 사이클 · CPE/PURL/이름/규칙 매칭 · 검색어 값 |
 | `tests/context.test.js` | `context.js` — 신호 10종의 yes/no/unknown 경계 · 상관의 `!` · 근거 행렬 · 집계 · 품질 점검 · CI 사전 계산이 브라우저 계산과 같은지(지문 · 직렬화 왕복) |
-| `tests/dashboard.test.js` | 화면 스크립트 전체를 가짜 DOM 에서 실행 — 변경 전 회귀 · 새 검색어 · 대시보드 숫자 = 누른 뒤 목록 건수 · 사전 계산으로 먼저 그리기 · 목록/상세/수명주기 화면 · 내보내기 스키마 |
+| `tests/evidence.test.js` | `build_context.js` 의 원 출처 날짜 — CSV 파싱 · 파이프라인과 같은 CVE 매칭 · 캐시 없음/일부 · 출처 불일치 · 출처별 집계 · 동시 발생 · 일별 심각도 · 최근 공개가 직접 센 값과 같은지 |
+| `tests/entities.test.js` | `entities.js` · `viewmodel.js` — 있음이면 근거가 이어지고(근거 id 가 엔티티에 있음) 있음이 아니면 근거가 없으며 모름은 사유가 있다 · 증거마다 출처 엔티티 · 유형 · 연결 방법 · 원 출처 날짜는 `cve-evidence.json` 에서만 · 제목/설명의 출처 · AI 글이 사실 엔티티에 없음 · 버전 범위 · KPI/행렬/상관 = 집계 |
+| `tests/dashboard.test.js` | 화면 스크립트 전체를 가짜 DOM 에서 실행 — 변경 전 회귀 · KPI 6칸(숫자 = 검색어 목록 건수) · 새 검색어 · 대시보드 숫자(상관 · 행렬 · 줄/칸 전체 · 관련 검색어) = 목록 건수 · 사전 계산으로 먼저 그리기 · 목록/상세(원문 · 원 출처 날짜 · 불일치)/수명주기/출처 화면 · 화면 전환 URL · 테마 · 내보내기 스키마 |
+| `tests/ui.test.js` | `cve.html` 뼈대 — 화면 5개와 사이드바 · 스크립트 의존 순서 · 목록 7칸 · 라이선스 표가 한 곳뿐(§9-1) · 라이트 토큰 두 블록(OS 설정 · 테마 버튼)이 같음 · 뷰 모델 없이도 목록 · 검색 · 상세 머리글 동작 |
+| `tests/test_export_facts.py` | export 의 `cve-facts.json` — 원문 제목 · 설명 · CNA · 제품 출처 · 번역 출처(`o`) 판정 · 증분 병합 · 배포본 없음(전량 export) · 조회 오류(쓰지 않고 배포본 이월) |
 
 `update-lifecycle.yml` 이 갱신 전에 같은 명령을 돌리고, 실패하면 데이터를 쓰지 않는다.
 네트워크도 `docs/data/` 도 쓰지 않는다 — 전부 `tests/fixtures/` 와 저장소의 `data/lifecycle_aliases.json` 이다.
@@ -556,8 +584,10 @@ Python·JS 가 같은 표(`lifecycle_status_cases.json`)를 확인한다.
 `tests/fixtures/dashboard_baseline.json` 은 수명주기 기능을 넣기 **전** 커밋(`0f68020`)의
 `cve-dashboard.js` 로 만든 회귀 기준이다. 목록·상세는 화면을 새로 짰으므로 HTML 이 아니라 **의미로** 비교한다 —
 검색·필터·정렬·페이지 결과(행 ID 와 순서) · 통계 · 필터 목록 · CSV/JSON/STIX 내용 · 상세가 연 CVE(ID·제목).
-예외는 `FIXED_BUGS`(`has:nuclei` · `has:edb` · `has:ransom` · `has:foo`) 하나뿐이다 — 옛 코드는 모르는 `has:` 값을
-**전부 통과**시켰다(`has:foo` 가 전체 목록). 고친 동작은 같은 파일의 별도 테스트가 확인한다.
+예외는 둘이다. `FIXED_BUGS`(`has:nuclei` · `has:edb` · `has:ransom` · `has:foo`) — 옛 코드는 모르는 `has:` 값을
+**전부 통과**시켰다(`has:foo` 가 전체 목록). `CHANGED_KPI`(`stat-kev` · `stat-weapon` · `stat-24h-sub`) — §6 의 KPI 변경.
+고친 동작 · 바꾼 값은 같은 파일의 별도 테스트가 확인한다. fixture `dashboard_stats.json` 의 `recent_24h` 는 2 → 5 로 고쳤다 —
+fixture 의 날짜로 export 규칙을 적용하면 5건인데 손으로 적은 2 가 남아 있었다(KPI 숫자 = 목록 건수를 확인하려면 둘이 같아야 한다).
 기존 동작을 **일부러** 바꿨을 때만 `node tests/tools/make_dashboard_baseline.js <rev>` 로 다시 만든다.
 날짜의 로캘 표기는 ICU 판마다 달라서(실측: Node 22.22.2 `AM 3:00` · 22.23.3 `오전 3:00`) 하네스가 표기 결과 대신
 호출 인자를 남긴다.
@@ -643,7 +673,7 @@ lifecycle_products.json (추적 제품 22종)
 | 모든 제품·릴리스에 `source_provider`·`source_url`·`fetched_at` 을 싣는다. 값이 그대로면 `fetched_at` 도 유지한다 | 출처·시점 없는 날짜는 검증할 수 없다. 매일 시각만 바뀌면 매일 커밋된다 |
 | 제품 하나 조회 실패 → 그 제품만 **직전 값을 이월**. 목록 조회 실패 · 20% 초과 실패 · 검증 실패 → **파일을 쓰지 않고 종료(1)** | 부분 결과가 완성본을 덮어 제품이 통째로 사라진다 |
 | upstream 목록에 없는 제품은 **데이터를 만들지 않고** `unavailable` 로 남긴다 (현재 openssh) | 없는 제품의 수명주기를 지어내게 된다 |
-| 숫자마다 단위를 적는다. Product Lifecycle 의 상태·임박 숫자는 **릴리스(사이클) 수**('CVE 수가 아님'을 화면에 적는다), '관찰된 위협'은 **그 릴리스에 연결된 CVE 수**(여러 릴리스에 걸린 CVE 는 각각 센다), 제품 머리글은 **서로 다른 CVE 수**, 대시보드 'EOL 릴리스 영향 CVE'는 **CVE 수**다 | '추적 중 CVE'와 단위가 다른 숫자를 같은 눈으로 읽게 된다 |
+| 숫자마다 단위를 적는다. Product Lifecycle 의 상태·임박 숫자는 **릴리스(사이클) 수**('CVE 수가 아님'을 화면에 적는다), '관찰된 위협'은 **그 릴리스에 연결된 CVE 수**(여러 릴리스에 걸린 CVE 는 각각 센다), 제품 머리글은 **서로 다른 CVE 수**, 대시보드 행렬의 'EOL 릴리스' 줄은 **CVE 수**다 | '추적 중 CVE'와 단위가 다른 숫자를 같은 눈으로 읽게 된다 |
 | 릴리스별 숫자를 누르면 `release:<제품>/<사이클>` 검색으로 열리고, **열린 목록 건수가 누른 숫자와 같다** | 숫자와 목록이 다르면 둘 중 무엇을 믿을지 알 수 없다. 테스트가 연결된 릴리스 전부를 대조한다 |
 | CVE 스키마·CSV/JSON/STIX 내보내기에 수명주기 값을 싣지 않는다. 미리 계산한 연결은 **별도 파일** `cve-context.json` 에만 둔다 | 기존 소비자의 스키마가 바뀐다 |
 
@@ -663,6 +693,9 @@ lifecycle_products.json (추적 제품 22종)
 Python 전용(`(?P<name>…)`·인라인 플래그 `(?i)`)은 검증을 통과하고 브라우저에서 그 규칙만 조용히
 빠지며(연결 누락), JS 전용(`(?<name>…)`·가변 길이 lookbehind)은 갱신기가 오류로 멈춘다(데이터 갱신 중단).
 고친 뒤 `node --test tests/lifecycle.test.js` 가 실제 별칭 파일로 돈다.
+
+**Product Lifecycle 화면의 벤더 · 제품 고르기**는 endoflife.date 제품 목록에서 고르고(제품은 고른 벤더의 것만), 상태별 숫자 ·
+EOL 임박 숫자도 그 범위로 센다('Microsoft · 추적 중인 전체 릴리스'처럼 범위를 숫자 밑에 적는다).
 
 **검색**: `lifecycle:eol|active|security|extended|unknown` — 영향 릴리스 중 **하나라도** 그 상태면 걸린다.
 `security` 는 `security-support`·`security_support`, `extended` 는 `extended-support`·`extended_support` 로도 쓴다.
@@ -701,12 +734,16 @@ exploit 이 있나 · 자동화되나 · 랜섬웨어에 쓰였나 · 영향 릴
 
 ```
 원본     cves.json · stats.json · cve-products.json · cve-packages.json · lifecycle.json · lifecycle_aliases.json
+         + cve-facts.json(export — 원문 제목·설명 · CNA · 제품 출처) + cve-evidence.json(CI — KEV 등재일·필요 조치 · EDB · MSF)
   → 정규화  lifecycle.js   영향 제품 항목 → endoflife.date 제품·사이클 (항목마다 연결 방법 via · 키 · 근거)
-  → 파생    context.js     신호 10종 yes/no/unknown · 상관 10종 · 출처별 근거 행 · 집계 · 품질 점검
-  → 화면    dashboard-view.js · cve-dashboard.js(목록·검색·URL) · cve-detail.js · lifecycle-view.js
+  → 파생    context.js     신호 10종 yes/no/unknown · 상관 10종 · 출처 간 불일치 · 출처별 근거 행 · 집계 · 품질 점검
+  → 엔티티  entities.js    CVE → 제품 → 사이클 · CVE → 증거 → 출처 · 신호 ← 근거 (판정은 context.js 그대로, 여기는 잇기만)
+  → 뷰 모델 viewmodel.js   화면에 그릴 값(목록 행 · KPI · 상관 · 행렬 · 최근 · 출처 목록) — HTML 은 만들지 않는다
+  → 화면    cve-dashboard.js(라우팅 · 목록 · 검색 · URL · 테마) · dashboard-view.js · cve-detail.js · lifecycle-view.js · sources-view.js
 ```
 
-`context.js` 는 브라우저와 CI(Node)가 **같은 파일**을 쓴다(UMD). 판정 규칙을 두 번 구현하지 않는다.
+`lifecycle.js` · `context.js` · `entities.js` · `viewmodel.js` 는 브라우저와 CI(Node)가 **같은 파일**을 쓴다(UMD).
+판정 규칙을 두 번 구현하지 않는다. 원본 필드 이름(`is_kev` · `has_metasploit_module` …)은 이 네 파일만 안다.
 
 | 규칙 | 깨지면 |
 |:---|:---|
@@ -720,6 +757,9 @@ exploit 이 있나 · 자동화되나 · 랜섬웨어에 쓰였나 · 영향 릴
 | 'Argus 알림 등급'(티어)은 상세 머리글에만, `risk.py` 파생임을 밝혀 적는다 | 파생 등급이 출처가 준 값처럼 읽힌다 |
 | EOL 은 심각도가 아니고, EPSS 는 악용이 아니고, PoC 공개는 공격이 아니다 — 정의와 화면 문구에 그대로 적는다 | '예측'·'공개'·'지원 종료'가 '악용 중'으로 읽힌다 |
 | 1 미만 확률은 **100% 로 반올림해 보이지 않는다** (`epssPct`) | 실측 EPSS 0.99999 가 `toFixed` 로 100.00% 가 되어 예측이 확실처럼 읽혔다(목록 103건 · 상세 48건, 실제 1 인 CVE 는 0건). 내보내기는 원래 값 그대로 |
+| **출처가 서로 다른 말을 하면 어느 쪽도 지우지 않고 '출처 간 불일치'로 보인다** (`CONFLICTS`) — 판단 규칙을 함께 적는다 | 한쪽만 남기면 다른 출처를 본 사람이 화면을 틀렸다고 읽는다. 조용히 고르면 왜 그 값인지 설명할 수 없다 |
+| **화면의 제목 · 요약이 원문인지 AI 가 만든 것인지 표시한다** (`cve-facts.json` 의 `o` — 없으면 한국어 여부로만 '원문 아님') | 제목 · 2줄 요약은 Gemma 번역 · 요약이다. 표시가 없으면 AI 문장이 출처 사실로 읽힌다. 원문은 상세 '기술 정보'에 따로 둔다 |
+| **AI 는 사실 칸을 만들지 않는다** — CVSS · EPSS · KEV · CVE ID · 영향 버전 · EOL · 수정 버전 · 출처 · 근거는 전부 출처 파일에서만 | AI 분석 글 속 버전(예: 'x.y 이상으로 업데이트')이 조치 칸의 사실처럼 읽힌다. 상세 AI 칸 머리에 'AI 생성 · 추정'과 이 규칙을 적는다 |
 
 **신호 10종** (`SIGNALS`)
 
@@ -765,6 +805,35 @@ EOL 사이클일 수 있다. 실데이터 CVE-2019-10098 이 이 경우다(Apach
 카드의 분모(`correlation_scope`)는 '첫 사실이 yes 이고 둘째 사실을 알 수 있는 CVE 수'다. 둘째 사실이 no 를 주지
 않는 신호(랜섬웨어)면 비율이 늘 100% 가 되므로 비율 대신 '출처가 있음으로 표기한 것만'이라 적는다.
 
+**엔티티 · 관계** (`entities.js` `buildEntities`) — CVE 하나를 중심으로 이어 둔다.
+
+```
+CVE ─affects─────────▶ Product ─has_lifecycle_context─▶ Cycle   (연결 방법 via · 키 · 상태 · 사유)
+CVE ─supported_by────▶ Evidence ─provided_by─▶ Source
+CVE ─remediated_by───▶ Remediation   (OSV 수정 버전 · 레코드의 영향 없음 시작 버전 · KEV 필요 조치)
+CVE ─scored_by───────▶ Score         (CVSS 버전별 · EPSS)          CVE ─described_by─▶ Text (화면 글 · 원문)
+Signal(context.js 판정) ─derived_from─▶ Evidence · Score · Cycle    Correlation ─composed_of─▶ Signal
+```
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| **증거 유형과 출처를 섞지 않는다.** 증거(악용 근거 · 공개 exploit · 자동화 · 랜섬웨어 · 탐지 · 조치 · 수명주기)마다 출처 엔티티(`SOURCES`)를 따로 단다 | '출처 = 판정'으로 읽혀 SSVC 판정과 KEV 등재가 같은 무게로 보인다 |
+| 증거마다 **유형 · 출처 · 상태(있음/없음/모름/참고) · 값 · 연결 방법 · 원 출처 날짜 · Argus 확인 시각 · 링크**를 둔다(상세 '근거 · 출처' 표) | 어떤 사실을 어디서 무엇으로 이었는지 확인할 수 없다 |
+| **원 출처 날짜는 출처가 준 것만.** KEV 등재일 · Exploit-DB 공개일(가장 이른 항목)은 `cve-evidence.json` 에서, 없으면 '-'. Metasploit `DisclosureDate` 는 **취약점** 공개일이라 모듈 공개일 칸에 넣지 않는다 | 모듈 공개일로 읽으면 무기화 시점을 몇 년 앞당겨 부른다 |
+| 'Argus 확인'은 그 값을 담은 **파일의 생성 시각**이다(cves.json · cve-evidence.json · endoflife.date 수집) — 신호별 첫 관측 시각이 아니다 | 파일 시각을 '처음 본 시각'으로 읽게 된다 |
+| 신호가 있음이면 근거(`supportedBy`)가 엔티티 안의 증거 · 점수 · 사이클 id 를 가리키고, 있음이 아니면 근거를 달지 않는다. 모름은 사유(`REASON`)가 있다 | 근거 없는 '있음'이나 사유 없는 '모름'이 화면에 나간다 |
+| 영향 버전은 경계가 **버전 모양일 때만** 범위(`a ≤ v < b`)로 다시 쓴다. 'unspecified' · 'n/a' · 커널 git 커밋 해시(숫자로 시작하는 것 포함)는 레코드 문구 그대로 | 해시나 설명문을 버전으로 읽어 엉뚱한 범위가 생긴다(실측 Log4Shell 의 '2.0-beta9 부터 log4j-core* 이전') |
+| '영향 없음 시작 버전'('… 이전'의 상한)은 **수정 버전이라 부르지 않는다** — 레코드가 '이 버전부터 영향 없음'이라 적은 값이다 | CNA 가 '수정'이라 적지 않은 값을 패치 버전으로 단정하게 된다 |
+| 참고 링크의 '패치 · 권고 · exploit · 이슈' 구분은 **URL 모양으로만** 나눈 Argus 규칙이다 — 원 레코드의 태그가 아니라고 화면에 적는다 | 추정 분류가 출처 태그로 읽힌다 |
+
+**출처 간 불일치 3종** (`CONFLICTS` — 검색 `conflict:<키>` · `conflict:any` · `has:conflict`, 목록 CVSS 칸의 ⚠, 상세 '위협 맥락'의 불일치 상자)
+
+| 코드 | 키 | 조건 | 판단 규칙 (화면에 함께 적는다) |
+|:---|:---|:---|:---|
+| `EXPLOITATION_SSVC` | `exploitation` | CISA KEV · VulnCheck KEV 등재인데 SSVC Exploitation 이 active 가 아님 | 한 출처라도 악용을 보고하면 악용 근거 있음. SSVC 판정 시점은 수집되지 않아 어느 쪽이 최신인지 모른다 |
+| `EXPLOIT_SSVC` | `exploit` | SSVC Exploitation=none 인데 Exploit-DB · Metasploit · PoC 목록에 있음 | 공개 목록에 있으면 공개 exploit 있음. SSVC 판정 뒤에 공개됐을 수 있다 |
+| `CVSS_VERSIONS` | `cvss` | CVSS 버전(4.0 · 3.x)마다 심각도 구간이 다름(0점 제외) | 대표값은 가장 높은 점수(동점이면 4.0 → 3.1 → 3.0) — 수집 파이프라인 규칙. 다른 버전 점수도 함께 보인다 |
+
 **검색 문법 전체** — 공백으로 끊어 토큰마다 AND, 필드 이름·값은 대소문자 무시.
 
 | 문법 | 뜻 |
@@ -777,35 +846,52 @@ EOL 사이클일 수 있다. 실데이터 CVE-2019-10098 이 이 경우다(Apach
 | `no:<신호 키>` · `unknown:<신호 키>` | 신호 표의 키만 받는다 — 출처가 '아니다'라고 한 것 / 알 수 없는 것 |
 | `corr:<코드>` | 상관 코드(`corr:kev_eol` · `corr:kev-eol`) |
 | `lifecycle:` · `eol:<30d` · `release:<제품>/<사이클>` | §12 |
+| `conflict:exploitation` · `conflict:exploit` · `conflict:cvss` · `conflict:any` | 출처 간 불일치(위 표) |
+| `recent:24h` · `recent:7d` | Argus 시각(`date`)이 export 시각(`stats.generated_at`) 기준 그 안인 것 — KPI '24시간 알림·갱신'과 같은 규칙 |
 
 `has:` 값의 세 부류:
 
 - **예전 값(뜻 그대로)**: `kev`(= 악용 근거) · `msf`(Metasploit · Exploit-DB · nuclei — 옛 '무기화' 칩 기준) · `poc` · `rules`
   (룰 엔진 · 공식 룰 — nuclei 템플릿 제외) · `auto` · `ai`(AI 발견) · `patched`
-- **출처 하나**: `cisa-kev` · `vulncheck-kev` · `ssvc-active` · `metasploit` · `edb` · `nuclei` · `ransom`
-- **파생 신호**: 신호 표의 나머지 키(`exploit` · `eol` · `patch` · `detection` · `high-epss` · `critical` · `exploited`)
+- **출처 하나**: `cisa-kev` · `vulncheck-kev` · `ssvc-active` · `metasploit` · `edb` · `nuclei` · `ransom` ·
+  `weaponized`(Metasploit ∪ Exploit-DB — KPI '무기화') · `conflict`(출처 간 불일치가 하나라도 있음)
+- **파생 신호**: 신호 표의 나머지 키(`exploit` · `eol` · `patch` · `detection` · `high-epss` · `critical` · `exploited` · `automatable`)
 
 그래서 `has:msf` 는 `has:exploit`(EDB · MSF · PoC)와도 `has:metasploit`(MSF 만)와도 다르고, `has:rules` 는 `has:detection`
 보다 nuclei 템플릿만 있는 CVE 만큼 좁다 — 예전 저장 링크·습관이 깨지지 않게 둔 것이다.
 **`lifecycle:unknown` 과 `unknown:eol` 은 다르다**: 앞은 알려진 상태가 **하나도 없는** CVE, 뒤는 EOL 인지 **단정할 수
 없는** CVE다. ACTIVE 릴리스 하나 + 추적 밖 제품 하나인 CVE 는 `lifecycle:active` 이면서 `unknown:eol` 이다.
 
-**화면 구조와 URL**
+**화면 구조와 URL** — 왼쪽 사이드바(좁은 화면 1280px 미만은 서랍) · 위쪽 전역 검색(`/` 로 바로 입력, 다른 화면에서 입력하면 목록으로) · 테마 버튼
 
 | 화면 | 담는 것 |
 |:---|:---|
-| Dashboard | KPI 4개(§6) · 상관 카드 10 · 근거 커버리지(신호별 있음·없음·모름 막대, 칸마다 검색어) · 추세·심각도·제품 · 출처별 신호 · 데이터 품질 |
-| CVE Intelligence | 검색줄(필드·값 자동완성) · 조건 칩 · 표 6칸(CVE · 점수 · 위협 근거 · 영향 제품 · 탐지·조치 · 날짜) — 폭 900px 이하는 카드 |
-| CVE 상세 | 한눈에(7 질문) → 위협 근거(출처별 hit·miss·unknown·info) → 제품 → 수명주기 → 조치 → 탐지 → 기술 정보 → 출처 → AI 분석 |
-| Product Lifecycle | 제품 카드 · 릴리스 표 · 릴리스별 관찰된 위협(CVE · KEV · 공개 exploit · 탐지 → `release:` 목록) |
+| Dashboard | KPI 6칸(§6) · Threat Overview(최근 30일 CVE 공개일별 건수 — 막대에 심각도 내역, '표로 보기') · Top Threat Correlations(상관 10 — 건수순 막대) · Recent CVEs(공개일 순) · 신호 동시 발생 행렬(9×9 반쪽, 칸 = 두 신호 모두 있음 건수, 줄/칸 머리 = 그 신호 전체) · 많이 겹치는 조합(검색어 칩) · 심각도 분포 · 영향 제품 TOP |
+| CVE Intelligence | 검색줄(필드·값 자동완성) · 조건 칩 · 표 7칸(CVE·날짜 · Summary(AI 번역) · CVSS · EPSS · Threat Signals · Product·Lifecycle · Detection·Remediation) — 1000px 이하는 카드. 행은 키보드(Enter · Space)로도 연다 |
+| CVE Detail | 머리글(ID · 심각도 · Argus 등급 · 제목 · 요약과 그 출처 표시 · CVSS 버전별 · EPSS · 공개일 · KEV 등재일/조치기한 · 확인된 신호) → 위협 맥락(질문 7 · 신호 간 연결 · 출처 간 불일치 · 출처별 근거 행렬 · 탐지와 룰 본문) → 제품 · 버전 → 수명주기 → 조치 → 근거 · 출처 → 기술 정보(원문 · CNA · CWE · 벡터 · 참고 링크) → AI 분석 |
+| Product Lifecycle | 벤더 · 제품 고르기 · 상태별 릴리스 수 · EOL 임박 · 제품 카드 · 릴리스 표 · 릴리스별 관찰된 위협(`release:` 목록) |
+| Data Sources | 출처 엔티티 21개(제공하는 증거 · 역할 · 추적 CVE 중 '있음' 범위 · 갱신 주기 · 파일과 생성 시각 · KEV 카탈로그 판) · 근거 커버리지(신호별 있음·없음·모름) · 출처 간 불일치 3종 · 데이터 범위 · 품질. **이용 · 재배포 · 표기 조건은 되풀이하지 않고 하단 표로 보낸다**(§9-1) |
 
-URL 은 `?view=cves|lifecycle`(대시보드는 생략) · `?q=`(CVE Intelligence 에서만) · `?cve=`(상세). `?q` 나 `?cve` 만 있어도
-CVE Intelligence 로 연다. 대시보드·수명주기에서 숫자를 누르면 다른 필터를 풀고 그 검색어로 목록을 연다(§6 `goToQuery`).
+URL 은 `?view=cves|lifecycle|sources`(대시보드는 생략) · `?q=`(목록 맥락일 때만) · `?cve=`(상세). 상세는 `cve` 가 있으면 열리고
+`view` · `q` 는 **들어오기 전 화면**을 남긴다(`?view=cves&q=has:kev&cve=…`) — 닫으면(← 목록 · Esc · 뒤로 가기) 그 화면으로 돌아간다.
+목록 · 대시보드 · 사이드바에서 연 화면은 브라우저 기록에 남아(`pushState`) 뒤로 가기가 동작하고, URL · 뒤로 가기로 연 것은 기록을
+새로 만들지 않는다. '링크 복사'는 `?cve=<ID>` 만 담는다. 추적 목록(90일)에 없는 CVE 는 없다고 알리고 CVE 레코드 링크를 준다.
+대시보드 · 수명주기 · 출처에서 숫자를 누르면 다른 필터를 풀고 그 검색어로 목록을 연다(§6 `goToQuery`).
+
+**테마** — 기본은 OS 설정을 따르고(다크가 기본값), 버튼은 시스템 → 라이트 → 다크 순으로 바꾼다. 고른 값은 `localStorage`
+(`argus-theme`)에 두고 그리기 전에 적용한다(깜빡임 방지). 저장이 막힌 브라우저에서도 그 화면에는 적용된다.
+라이트 토큰은 두 곳(`@media (prefers-color-scheme: light)` 의 `:root:not([data-theme="dark"])` · `:root[data-theme="light"]`)에
+똑같이 두고 `tests/ui.test.js` 가 같은지 확인한다.
 
 **색** — 빨강은 **악용 근거에만** 쓴다(`--g-exploit`). 공개 exploit 은 보라(`--g-weapon`), 자동화는 녹색(`--g-auto`), 수명주기는
-§12 의 청록 램프, 근거 커버리지는 있음(파랑) · 없음(회색) · 모름(**빗금** — 색이 아니라 무늬). 새로 만든 요약 요소(상관 카드 ·
-조건 칩 · KPI 레일)에서 심각도는 무채색으로 두고, 심각도 배지·CVSS 숫자의 기존 관례 색만 남겼다. 위협 3색은 dataviz 검증기
-(범주형, 모든 쌍)로 확인했다 — 다크 CVD ΔE 6.5 · 라이트 6.9 로 6–8 구간이라 **칩마다 문자 라벨이 필수**다(색만으로 구분하지 않는다).
+§12 의 청록 램프, 근거 커버리지는 있음(파랑) · 없음(회색) · 모름(**빗금** — 색이 아니라 무늬). 새로 만든 요약 요소(상관 목록 ·
+조건 칩 · KPI 레일)에서 심각도는 무채색으로 두고, 심각도 배지 · 목록의 심각도 레일에만 기존 관례 색을 남겼다. 위협 3색은 dataviz
+검증기(범주형, 모든 쌍)로 확인했다 — 다크 CVD ΔE 6.5 · 라이트 6.9 로 6–8 구간이라 **칩마다 문자 라벨이 필수**다(색만으로 구분하지 않는다).
+차트는 한 계열 막대(범주형 1번 파랑 `--viz-1` — 다크 대비 4.98:1 · 라이트 4.42:1)와 행렬의 순차 램프(`--seq-1…5`, 파랑 한 색조 · 명도 단조 ·
+인접 ΔL ≥ 0.06, 다크는 기준을 뒤집어 많을수록 밝게)다. 행렬 칸에는 **늘 실제 건수를 적고** 글자색을 칸마다 정해 대비 4.5:1 이상을 지킨다
+(가장 옅은 칸은 표면과 대비가 낮아도 된다 — 순차 램프의 '0 에 가까움'). 심각도 5색은 검증기에서 인접 Critical↔High 가 일반 시각 ΔE 13.7 로
+떨어져 누적 막대에 쓰지 않았다 — 추이 막대는 한 계열이고, 심각도 내역은 도움말과 '표로 보기'로 준다. 라이트에서 심각도 배지의 글자는
+본문색으로 둔다(노랑 #ffd43b 글자는 흰 바탕 1.43:1). 흐린 글자(`--text-faint`)는 다크 #7d8899 · 라이트 #636e80 — 표면 3종 모두 4.45:1 이상.
 
 **사전 계산 (`docs/data/cve-context.json`)** — 배포 워크플로 3곳(`argus.yml` · `maintenance.yml` · `update-lifecycle.yml`)이
 배포본 이월 직후 `node src/build_context.js` 로 만든다.
@@ -817,6 +903,26 @@ CVE Intelligence 로 연다. 대시보드·수명주기에서 숫자를 누르�
 | CVE 별 매핑도 한 건씩 되돌려 검증한다(`decodeMatch`) — 항목 수가 다르거나 사이클이 현재 데이터에 없으면 그 CVE 만 직접 계산 | 지문이 우연히 같아도 한 건의 오류가 화면에 나간다 |
 | 사전 계산이 실패해도 **배포는 계속**한다(`continue-on-error`, 실패하면 파일을 쓰지 않음). 이월 목록(`fetch_published`)에 넣지 않는다 | 선택 기능 하나 때문에 시간당 배포가 멈춘다. 이월하면 쓸모없는 옛 판이 남는다 |
 | 집계 기준일(`as_of`)은 CI 실행일(UTC)이다. 브라우저는 전체 데이터가 오면 **오늘(로컬)** 기준으로 다시 세고, 화면 머리에 어느 쪽 숫자인지 적는다 | EOL 은 날짜가 지나면 바뀌므로 어제 CI 숫자를 오늘 숫자로 읽게 된다 |
+
+**원 출처 날짜 (`docs/data/cve-evidence.json`)** — 같은 `build_context.js` 가 파이프라인이 받아 둔 원 출처 캐시(`.cache/rulesets` 의
+`cisa-kev.json` · `exploitdb-files.csv` · `metasploit-modules.json`)에서 **추적 중인 CVE 만** 뽑는다. 수집 로직 · DB 스키마는 바꾸지 않았다.
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| KEV `dateAdded` · `dueDate` · `requiredAction` · `notes` · 항목명, Exploit-DB 항목(ID · 공개일 · 추가일 · 검증 · 유형 · 플랫폼, CVE 당 5개), Metasploit 모듈(이름 · 등급 · 취약점 공개일 · check 지원, 5개)만 싣는다. 원문 exploit 은 싣지 않는다 | 원문 재배포 조건(§9)을 어긴다 |
+| CVE 를 찾는 규칙은 파이프라인(`src/fields.py` `CVE_RE`)과 같다 | 목록의 '있음' 표시와 증거 행이 어긋난다. 실측 KEV 1,728/1,728 · EDB 2,878/2,878 · MSF 3,190/3,190 일치 |
+| 캐시가 있는 **시간별 배포(`argus.yml`)에서만** 새로 쓰고, 다른 배포(maintenance · update-lifecycle)는 **이월본을 그대로 둔다**(`fetch_published` 기본 목록에 있다). 캐시가 일부만 있으면 있는 출처만 담고 `sources` 에 적는다 | 캐시가 없는 배포가 빈 파일로 덮어 원 출처 날짜가 사라진다 |
+| `cve-context.json` 과 달리 이월한다 — CVE ID 로만 찾는 사실이라 cves.json 판과 묶이지 않는다. 목록 플래그와 어긋나면 품질 점검이 '색인 시점이 다를 수 있음'으로 센다 | — |
+
+**원문 (`docs/data/cve-facts.json`)** — export(`export_dashboard_data.py`)가 cves.json 과 같은 회차에 쓴다: CVE 마다 원문 제목 · 설명(4,000자까지) ·
+발급 기관(CNA) · 제품 항목을 채운 출처(현재 'CISA KEV' 폴백만) · 화면 글의 출처 `o = [제목, 설명]`(`ai` Gemma 번역·요약 · `argus` Argus 문구 · `source` 원문).
+상세를 처음 열 때 받는다(목록 · 대시보드는 쓰지 않는다).
+
+| 규칙 | 깨지면 |
+|:---|:---|
+| cves.json 과 **같은 증분 병합**(`merge_facts` — 이번에 뽑은 행은 새 값, 나머지는 배포본, DB 에서 사라진 id 는 뺀다) | 증분 회차마다 원문이 사라지거나 지운 CVE 가 남는다 |
+| 배포본이 **없으면**(404 · 판 불일치) 그 회차를 전량 export 로 돌려 채운다. 배포본 **조회가 실패하면** 파일을 쓰지 않고 배포 단계가 배포본을 이월한다(`ARGUS_FRESH_FILES` 에 넣어 이번 회차에 쓴 파일만 이월에서 뺀다) | 일시 오류 한 번에 원문 파일이 이번 증분만 남은 반쪽으로 덮인다 |
+| 원문 파일이 없거나 이 CVE 가 없으면 상세는 '받는 중 · 받지 못함 · 아직 없음'을 구분해 적고, 화면 글의 출처는 한국어 여부로만 '원문 아님'이라 적는다 | 모르는 것을 원문이라 부르게 된다 |
 
 ```
 입력 지문   cves       stats.generated_at | stats.cve.total   ← stats.json 만으로 판단(export 가 total = cves 행 수)
@@ -832,12 +938,17 @@ CVE Intelligence 로 연다. 대시보드·수명주기에서 숫자를 누르�
 정보(info)는 원래 비어 있어 unknown 으로 표시하는 것이다: CVE ID 형식 · 중복 CVE · stats 총계 불일치 · CVSS/EPSS/SSVC 없음(info) ·
 KEV 미등재인데 랜섬웨어/조치기한 · KEV 인데 조치기한 없음 · EDB/PoC/MSF 표시인데 링크·모듈 없음 · PoC·참고 링크 중복 ·
 수명주기 날짜/사이클/상태 형식 · 릴리스 중복 · endoflife.date 미제공 제품(info) · KEV 카탈로그 대조(파이프라인 캐시가 있을 때만,
-없으면 '건너뜀').
+없으면 '건너뜀') · CVSS 0–10 · EPSS 0–1 범위 · CWE 형식(`CWE-숫자`) · 링크 형식(공백 · http/https 아님) · 출처가 연결되지 않은 룰 엔진 ·
+KEV/EDB/MSF 표시인데 원 출처 파일(`cve-evidence.json`)에 항목 없음. 화면(Data Sources)은 브라우저 점검에 CI 만 할 수 있는 점검(카탈로그 대조)을
+같은 판일 때 덧붙여 '(CI)'로 표시한다.
 
 **출처·시점의 한계 — 없는 값은 만들지 않는다**
 
-- 신호별 **관측 시각을 저장하지 않는다.** 상세의 '출처' 칸은 파일 생성 시각(cves.json · cve-products · lifecycle 수집 시각)만 보여 주고, 그 사실을 적는다.
-- KEV 의 `dateAdded` · `requiredAction` 은 수집하지 않는다(조치기한 `dueDate` 만). OSV 인덱스에는 생성 시각이 없다.
+- 신호별 **관측 시각을 저장하지 않는다.** 상세의 '근거 · 출처' 표는 그 값을 담은 파일의 생성 시각(cves.json · cve-evidence.json ·
+  endoflife.date 수집 시각)만 보여 주고, 그 사실을 적는다.
+- KEV `dateAdded` · `requiredAction` 과 Exploit-DB 공개일은 **CI 가 원 출처 캐시에서 붙인 것**(`cve-evidence.json`)만 쓴다 — 파이프라인 DB 에는
+  여전히 없다. 캐시가 없던 회차 뒤에는 이월본의 값이다. OSV 인덱스(`cve-packages.json`)에는 생성 시각이 없다.
+- CVSS 가 CVE 레코드 값인지 NVD 보충인지는 저장되지 않는다 — '근거 · 출처' 표에 'CVE 레코드 · NVD 보충'으로 함께 적는다.
 - 영향 제품 키 `vendor:product` 는 Argus 가 정규화한 이름이지 **CPE 원문이 아니다** — 화면에 그렇게 적는다.
 
 **실측 (2026-09-27, CVE 10,958건)**
@@ -866,3 +977,21 @@ CVSS 9+         4,206   6,673     79
 
 위 '대조'는 실제 배포 데이터를 하네스(`tests/helpers/dashboard_vm.js`)에 올려 대시보드 집계와 검색 결과 건수를 하나씩
 비교한 것이다(저장소 테스트는 fixture 로 같은 대조를 한다 — `docs/data/` 를 쓰지 않으므로).
+
+**실측 (2026-09-28, CVE 10,976건 — 엔티티 · 새 화면)**
+
+```
+KPI           추적 중 10,976 · 24시간 알림·갱신 105(= export recent_24h) · CISA KEV 1,728 · 무기화 4,133
+              (Metasploit 3,190 ∪ Exploit-DB 2,878) · 공개 PoC 2,741 · AI 발견 99 · 악용 근거 전체(has:kev) 5,351
+              CI 사전 계산으로 먼저 그린 값 = 전체 데이터로 다시 센 값 (6칸 모두)
+대조          대시보드 숫자 67개 = 누른 뒤 목록 건수 (KPI 6 · 상관 10 · 행렬 칸 36 · 줄/칸 전체 9 · 관련 검색어 6) — 브라우저
+불일치        EXPLOITATION_SSVC 1,922 · EXPLOIT_SSVC 1,038 · CVSS_VERSIONS 288 (0점 제외)
+원 출처 날짜  KEV 1,728/1,728 · Exploit-DB 2,878/2,878 · Metasploit 3,190/3,190 이 목록 플래그와 일치
+              원 출처 날짜가 붙은 증거가 있는 CVE 4,156
+엔티티        10,976건 불변식 위반 0 (근거 없는 있음 · 사유 없는 모름 · 목록 판정과 다름 · 끊긴 근거 · 출처 없는 증거)
+영향 버전     범위 46,628개 중 9,050개는 경계가 버전 모양이 아니라 원문 그대로(unspecified · n/a · 커널 git 해시 등)
+              영향 없음 시작 버전 10,397개 (숫자로 시작하지 않는 값 0)
+품질          경고 1 (링크 형식 2건 — YARA 룰 메타의 source_url 공백) · 정보 4 · KEV 카탈로그 대조 통과(캐시가 있는 실행)
+화면          360 · 390 · 768 · 1024 · 1280 · 1366 · 1440 · 1920px × 화면 5개에서 페이지 가로 넘침 없음 · 목록은 1000px 초과에서
+              7칸 표(표 안 가로 스크롤도 없음), 이하에서 카드
+```

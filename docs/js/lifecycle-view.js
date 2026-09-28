@@ -11,7 +11,7 @@ const LC_STATUS_TEXT = {
 const LC_STAT_ORDER = ['ACTIVE', 'SECURITY_SUPPORT', 'EXTENDED_SUPPORT', 'EOL', 'UNKNOWN'];
 const LC_WINDOWS = [30, 90, 180];
 const LC_ROWS_SHOWN = 6;
-const LC_VIEW = { status: '', window: '', linked: false, search: '', sort: 'cves' };
+const LC_VIEW = { status: '', window: '', linked: false, search: '', sort: 'cves', vendor: '', product: '' };
 let lcOrder = null;
 
 const lcMeta = slug => (lifecycleData && lifecycleData.products[slug]) || null;
@@ -273,6 +273,9 @@ const LC_SORTERS = {
 function lcVisible() {
   const th = lcThreatStats();
   let rels = (lifecycleData.releases || []).slice();
+  // 범위를 좁히는 조건(벤더 · 제품 · CVE 연결) — 상태별 숫자도 이 범위로 센다.
+  if (LC_VIEW.vendor) rels = rels.filter(r => String((lcMeta(r.product_slug) || {}).vendor || '') === LC_VIEW.vendor);
+  if (LC_VIEW.product) rels = rels.filter(r => r.product_slug === LC_VIEW.product);
   if (LC_VIEW.linked) rels = rels.filter(r => (th.releases[lcKey(r)] || {}).cves);
   const scope = rels;
   if (LC_VIEW.status) rels = rels.filter(rel => lcStatus(rel) === LC_VIEW.status);
@@ -367,7 +370,8 @@ function renderLifecycleView() {
   }
   const { groups, scope, th, count } = lcVisible();
   const counts = lcCounts(scope);
-  const scopeText = LC_VIEW.linked ? 'CVE에 연결된 릴리스' : '추적 중인 전체 릴리스';
+  const narrowed = [LC_VIEW.product ? (lcMeta(LC_VIEW.product) || {}).label || LC_VIEW.product : LC_VIEW.vendor].filter(Boolean).join('');
+  const scopeText = `${narrowed ? `${narrowed} · ` : ''}${LC_VIEW.linked ? 'CVE에 연결된 릴리스' : '추적 중인 전체 릴리스'}`;
   const filtered = !!(LC_VIEW.status || LC_VIEW.window || LC_VIEW.search.trim());
 
   const meta = document.getElementById('lc-meta');
@@ -411,9 +415,35 @@ function renderLifecycleView() {
 
 let lcBound = false;
 
+// 벤더 · 제품 고르기 — endoflife.date 제품 목록에서. 제품은 고른 벤더의 것만 보인다.
+function lcFillFilters() {
+  const vSel = document.getElementById('lc-vendor');
+  const pSel = document.getElementById('lc-product');
+  if (!lifecycleData || !vSel || !pSel) return;
+  const products = Object.entries(lifecycleData.products || {});
+  const vendors = [...new Set(products.map(([, m]) => String(m.vendor || '')).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  vSel.innerHTML = `<option value="">전체 벤더 (${vendors.length})</option>${vendors.map(v => `<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('')}`;
+  vSel.value = LC_VIEW.vendor;
+  lcFillProducts();
+}
+
+function lcFillProducts() {
+  const pSel = document.getElementById('lc-product');
+  if (!lifecycleData || !pSel) return;
+  const list = Object.entries(lifecycleData.products || {})
+    .filter(([, m]) => !LC_VIEW.vendor || String(m.vendor || '') === LC_VIEW.vendor)
+    .map(([slug, m]) => [slug, m.label || slug]).sort((a, b) => a[1].localeCompare(b[1]));
+  if (LC_VIEW.product && !list.some(([slug]) => slug === LC_VIEW.product)) LC_VIEW.product = '';
+  pSel.innerHTML = `<option value="">전체 제품 (${list.length})</option>${list.map(([slug, label]) => `<option value="${escapeHtml(slug)}">${escapeHtml(label)}</option>`).join('')}`;
+  pSel.value = LC_VIEW.product;
+}
+
 function initLifecycleView() {
+  lcFillFilters();
   if (!lcBound) {
     lcBound = true;
+    document.getElementById('lc-vendor')?.addEventListener('change', e => { LC_VIEW.vendor = e.target.value; lcFillProducts(); renderLifecycleView(); });
+    document.getElementById('lc-product')?.addEventListener('change', e => { LC_VIEW.product = e.target.value; renderLifecycleView(); });
     const search = document.getElementById('lc-search');
     let t;
     search?.addEventListener('input', () => {
