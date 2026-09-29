@@ -282,6 +282,44 @@
                 Metasploit: 'metasploit', 'PoC-in-GitHub': 'poc-in-github', OSV: 'osv', '공개 룰 색인': 'rule-index' };
   const ENGINE_SID = { sigma: 'sigma', splunk: 'splunk', yara: 'yara', snort2: 'et-open', snort3: 'et-open',
                        suricata5: 'et-open', suricata7: 'et-open', nuclei: 'nuclei' };
+
+  /* ---------- 탐지 룰 라이선스 ----------
+   * export(src/rule_license.py)가 룰마다 license · link_only 를, YARA 는 license_url · holder(저작권 문구)까지 적는다. 화면은 그 값을 쓰되,
+   * 출처가 정해진 룰은 아래 표로 표기한다 — 옛 색인이 남긴 표기(ET Open 'MIT', YARA '룰별 상이')를 바로잡기 위해서다.
+   * body: 룰 본문을 실어도 되는가. nuclei 는 점검 템플릿이라 늘 링크만, YARA 는 원 저장소에 LICENSE 가 있을 때만. */
+  const RULE_LICENSE = {
+    sigma: { license: 'DRL 1.1', url: 'https://github.com/SigmaHQ/Detection-Rule-License' },
+    splunk: { license: 'Apache-2.0', url: 'https://github.com/splunk/security_content/blob/develop/LICENSE' },
+    nuclei: { license: 'MIT', url: 'https://github.com/projectdiscovery/nuclei-templates/blob/main/LICENSE.md' },
+    'et-open': { license: 'BSD', url: 'https://rules.emergingthreats.net/open/suricata-7.0/LICENSE', holder: '© 2003-2026 Emerging Threats' },
+    'snort-community': { license: 'GPLv2', url: 'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html',
+                         holder: '© 2001-2026 Sourcefire, Inc. 및 각 작성자' },
+  };
+  const LEGACY_LICENSE = new Set(['룰별 상이']);
+  const httpUrl = u => (/^https?:\/\//i.test(String(u || '')) ? String(u) : '');
+
+  // 룰이 온 곳 — 네트워크 룰은 엔진이 같아도 ET Open(BSD)과 Snort Community(GPLv2)의 라이선스가 다르다.
+  function ruleSource(rule) {
+    const r = rule || {};
+    if (NETWORK.has(r.engine)) return /community/i.test(r.source || '') ? 'snort-community' : 'et-open';
+    return ENGINE_SID[r.engine] || null;
+  }
+
+  function ruleTerms(rule) {
+    const r = rule || {};
+    const sid = ruleSource(r);
+    const stored = String(r.license || '').trim();
+    if (r.engine === 'yara') {
+      // 저작권 문구(holder)는 export 가 원 저장소 LICENSE 에서 옮겨 적은 것 — BSD · MIT 저장소만 있다.
+      const licenseUrl = httpUrl(r.license_url);
+      return { sid, license: LEGACY_LICENSE.has(stored) ? '' : stored, licenseUrl, holder: String(r.holder || '').trim(),
+               body: !r.link_only && !!licenseUrl, ruleUrl: httpUrl(r.url) };
+    }
+    const base = RULE_LICENSE[sid] || {};
+    return { sid, license: base.license || stored, licenseUrl: base.url || httpUrl(r.license_url), holder: base.holder || '',
+             body: !r.link_only && r.engine !== 'nuclei', ruleUrl: httpUrl(r.url) };
+  }
+
   const row = (source, status, value, extra) => {
     const r = Object.assign({ source, status, value }, extra || {});
     r.sid = r.sid || SID[source] || (r.engine && ENGINE_SID[r.engine]) || null;
@@ -364,18 +402,29 @@
     const engines = detectionEngines(cve);
     const ordered = engines.slice().sort((a, b) =>
       (ENGINE_ORDER.indexOf(a) + 1 || 99) - (ENGINE_ORDER.indexOf(b) + 1 || 99));
-    const rows = ordered.map(engine => {
+    const rows = [];
+    for (const engine of ordered) {
       const info = engineInfo(engine);
-      const found = ruleInfo(cve, engine);
-      const first = found[0] || {};
-      const url = engine === 'nuclei' ? (cve._nuclei_url || first.url || '') : (first.url || '');
-      return row(info.label, 'hit', info.kind === 'check' ? '점검 템플릿' : found.length > 1 ? `룰 ${found.length}개` : '룰',
-                 { kind: info.kind, engine, url, basis: 'CVE ID', source_name: first.source || info.source,
-                   license: first.license || '', author: first.author || '', count: found.length || 1,
-                   detail: info.kind === 'check'
-                     ? '대상에 요청을 보내 취약 여부를 확인하는 템플릿입니다. 공격 탐지 룰이 아니며 공격에도 쓰일 수 있습니다'
-                     : '' });
-    });
+      // 같은 엔진이라도 룰이 온 곳이 다르면(ET Open · Snort Community) 라이선스가 달라 행을 나눈다.
+      const bySource = new Map();
+      for (const r of ruleInfo(cve, engine)) {
+        const sid = ruleSource(Object.assign({ engine }, r));
+        if (!bySource.has(sid)) bySource.set(sid, []);
+        bySource.get(sid).push(r);
+      }
+      if (!bySource.size) bySource.set(ENGINE_SID[engine] || null, []);
+      for (const [sid, found] of bySource) {
+        const first = found[0] || {};
+        const terms = ruleTerms(Object.assign({ engine }, first));
+        const url = engine === 'nuclei' ? (cve._nuclei_url || first.url || '') : (first.url || '');
+        rows.push(row(info.label, 'hit', info.kind === 'check' ? '점검 템플릿' : found.length > 1 ? `룰 ${found.length}개` : '룰',
+                      { kind: info.kind, engine, url, basis: 'CVE ID', sid: sid || undefined, source_name: first.source || info.source,
+                        license: terms.license, author: first.author || '', count: found.length || 1,
+                        detail: info.kind === 'check'
+                          ? '대상에 요청을 보내 취약 여부를 확인하는 템플릿입니다. 공격 탐지 룰이 아니며 공격에도 쓰일 수 있습니다'
+                          : '' }));
+      }
+    }
     if (!rows.length) {
       rows.push(row('공개 룰 색인', cve.has_official_rules ? 'hit' : 'miss',
                     cve.has_official_rules ? '공식 룰 있음' : '색인된 공개 룰 없음',
@@ -736,7 +785,7 @@
   }
 
   return {
-    EPSS_P_HIGH, EPSS_SCORE_HIGH, CVSS_CRITICAL, URL, ENGINES, ENGINE_ORDER, engineInfo,
+    EPSS_P_HIGH, EPSS_SCORE_HIGH, CVSS_CRITICAL, URL, ENGINES, ENGINE_ORDER, engineInfo, RULE_LICENSE, ruleSource, ruleTerms,
     SIGNALS, SIGNAL, SIGNAL_BY_KEY, CORRELATIONS, CORRELATION, REASON, SID, ENGINE_SID,
     scoreFacts, epssHigh, patchState, hasFix, fixedVersions, detectionEngines, lifecycleFacts,
     signals, correlationsOf, reasonsOf, derive,

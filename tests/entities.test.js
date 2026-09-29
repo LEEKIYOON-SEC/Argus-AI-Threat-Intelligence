@@ -142,13 +142,41 @@ test('뷰 모델 — KPI · 행렬 · 상관은 집계와 같은 값, 목록 행
   assert.deepEqual(rec[0].signalLabels, ['CISA KEV'], 'CISA KEV 가 있으면 악용 근거를 겹쳐 적지 않는다');
 });
 
-test('뷰 모델 — 출처 목록은 모든 출처 엔티티를, 조건 · 라이선스 없이 역할 · 범위 · 파일로', () => {
-  const rows = VM.sources(EN, null, { cves: '2026-09-27T03:00:00Z' });
-  assert.deepEqual(rows.map(r => r.id), EN.SOURCE_ORDER);
-  for (const r of rows) {
-    assert.ok(r.types.length > 0, `${r.id}: 제공하는 증거 유형`);
-    assert.ok(r.files.length > 0, `${r.id}: 파일`);
-    assert.doesNotMatch(JSON.stringify(r), /CC0|CC-BY|MIT|Apache|BSD|GPL/, `${r.id}: 이용 조건은 하단 표에만`);
+test('뷰 모델 — 출처 표는 외부 출처만 묶음별로 한 번씩, 주는 정보 · 건수 · 갱신 · 이용 조건과 함께', () => {
+  const groups = VM.sources(EN, null, {});
+  const ids = groups.flatMap(g => g.rows.map(r => r.id));
+  const external = EN.SOURCE_ORDER.filter(id => EN.SOURCES[id].kind === 'source');
+  assert.deepEqual(ids.slice().sort(), external.slice().sort(), '외부 출처는 빠짐없이, 내부 엔티티(Argus · 룰 색인 · AI 번역)는 싣지 않는다');
+  assert.equal(new Set(ids).size, ids.length, '출처마다 한 번');
+  for (const r of groups.flatMap(g => g.rows)) {
+    assert.ok(r.role && r.cadence, `${r.id}: 주는 정보 · 갱신 주기`);
+    assert.ok(r.terms.length > 0 && r.terms.every(t => t.label), `${r.id}: 이용 조건`);
+    for (const t of r.terms) if (t.url) assert.match(t.url, /^https:\/\//, `${r.id}: ${t.label}`);
+    assert.equal(r.count, null, `${r.id}: 집계 전에는 모름(null)이지 0이 아니다`);
   }
-  assert.equal(rows.find(r => r.id === 'cisa-kev').files.find(f => f.name === 'cves.json').at, '2026-09-27T03:00:00Z');
+  assert.ok(!EN.SOURCES.gemini && !EN.SOURCES.nvd, 'AI 분석 도구 행과 CVE 레코드에 합친 NVD 행은 없다');
+  const agg = { total: 16, sources: { cisa_kev: 2, epss_scored: 15 }, signals: { PATCH_AVAILABLE: { yes: 3, no: 1, unknown: 12 } } };
+  const rowOf = id => VM.sources(EN, agg, { sigma: 1 }).flatMap(g => g.rows).find(r => r.id === id);
+  assert.equal(rowOf('cve-record').count, 16);
+  assert.equal(rowOf('cisa-kev').count, 2);
+  assert.equal(rowOf('osv').count, 4, 'OSV 는 기록이 있는 CVE(수정 버전 있음 + 없음)');
+  assert.equal(rowOf('sigma').count, 1, '룰 저장소별 건수는 화면이 센 값');
+  assert.equal(rowOf('metasploit').count, null, '집계에 없는 값은 모름');
+  assert.deepEqual(rowOf('et-open').terms.map(t => t.label), ['BSD']);
+  assert.deepEqual(rowOf('snort-community').terms.map(t => t.label), ['GPLv2']);
+  // 이용 조건 설명 — 이름과 링크만으로 알 수 없는 조건만 명사로 짧게 (표준 라이선스는 이름 · 링크로 충분)
+  const notes = VM.sources(EN, null, {}).flatMap(g => g.rows).flatMap(r => r.terms.filter(t => t.note).map(t => [r.id, t.note]));
+  assert.deepEqual(notes, [['cve-record', '저작권 표기 · 약관 문구 필요'], ['cve-record', 'NVD 고지 문구 필요'],
+                           ['osv', 'GitHub Advisory Database CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 등'],
+                           ['vulncheck-kev', '출처 표기 필수'], ['first-epss', '출처 표기 요청']]);
+  assert.equal(rowOf('vulncheck-kev').terms[0].label, 'VulnCheck 이용 조건');
+  // 예약 주기 = yml 예약 · 캐시 수명 (argus-fast */5 · KEV 캐시 1시간 · 6시간 · 24시간 · 주간 정비 · 매일 수명주기)
+  const cadence = Object.fromEntries(VM.sources(EN, null, {}).flatMap(g => g.rows).map(r => [r.id, r.cadence]));
+  assert.deepEqual(cadence, {
+    'cve-record': '5분마다 (변경분)', osv: '매주', 'ai-discovery': '6시간마다',
+    'cisa-kev': '매시', 'vulncheck-kev': '6시간마다', 'cisa-adp': '5분마다 (CVE 레코드와 함께)', 'first-epss': '6시간마다',
+    'exploit-db': '매일', metasploit: '매일', 'poc-in-github': '매일',
+    sigma: '매주', 'et-open': '매주', 'snort-community': '매주', splunk: '매주', yara: '매주', nuclei: '매일',
+    endoflife: '매일',
+  });
 });

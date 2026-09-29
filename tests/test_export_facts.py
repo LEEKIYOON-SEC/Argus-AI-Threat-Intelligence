@@ -137,9 +137,10 @@ class MainTests(unittest.TestCase):
                           row("CVE-2026-0102", state(title="Old one", title_ko="예전 것"), updated=old)])
         self.previous = [ex.export_cves(self.db)[1]]
 
-    def _main(self, facts_result, previous=True):
+    def _main(self, facts_result, previous=True, epss=None):
         prev = (self.previous, (NOW - dt.timedelta(hours=1)).isoformat()) if previous else (None, None)
         patches = [
+            mock.patch.object(ex.enrichment_sources, "load_epss_full", return_value=epss),
             mock.patch.object(ex, "_get_db", return_value=self.db),
             mock.patch.object(ex, "load_previous_export", return_value=prev),
             mock.patch.object(ex, "fetch_live_facts", return_value=facts_result),
@@ -178,6 +179,44 @@ class MainTests(unittest.TestCase):
     def test_full_export_writes_all(self):
         out = self._main(({}, "ok"), previous=False)
         self.assertEqual(set(out["facts"]), {"CVE-2026-0101", "CVE-2026-0102"})
+
+    def _cves(self):
+        with open(os.path.join(self.tmp, "cves.json"), encoding="utf-8") as f:
+            return {r["id"]: r for r in json.load(f)}
+
+    def test_epss_is_refreshed_for_every_row_on_export(self):
+        epss = {"CVE-2026-0101": (0.51234, 0.97), "CVE-2026-0102": (0.00123, 0.31)}
+        with mock.patch.object(ex, "_EPSS_MIN_ROWS", 1):
+            self._main(({}, "ok"), epss=epss)
+        rows = self._cves()
+        self.assertEqual((rows["CVE-2026-0101"]["epss"], rows["CVE-2026-0101"]["epss_percentile"]), (0.51234, 0.97))
+        self.assertEqual((rows["CVE-2026-0102"]["epss"], rows["CVE-2026-0102"]["epss_percentile"]), (0.00123, 0.31),
+                         "이월된 행도 전량 파일 값으로 맞춘다")
+
+    def test_epss_keeps_db_values_without_the_file(self):
+        self._main(({}, "ok"), epss=None)
+        self.assertEqual({r["epss"] for r in self._cves().values()}, {0.2}, "파일을 못 받으면 DB 값 그대로")
+
+
+class EpssRefreshTests(unittest.TestCase):
+    """내보낼 때 전량 EPSS 로 점수를 다시 채운다 — DB 의 점수는 다시 처리할 때만 바뀌어 낡는다"""
+
+    def test_overwrites_present_and_keeps_absent(self):
+        rows = [{"id": "CVE-A", "epss": 0.1, "epss_percentile": 0.5},
+                {"id": "CVE-B", "epss": 0, "epss_percentile": 0},
+                {"id": "CVE-C", "epss": 0.3, "epss_percentile": 0.9}]
+        epss = {"CVE-A": (0.2, 0.6), "CVE-B": (0.00042, 0.12)}
+        with mock.patch.object(ex, "_EPSS_MIN_ROWS", 1):
+            self.assertEqual(ex.refresh_epss(rows, epss), 2)
+            self.assertEqual(ex.refresh_epss(rows, epss), 0, "두 번째 적용은 바꾸는 것이 없다")
+        self.assertEqual([(r["epss"], r["epss_percentile"]) for r in rows], [(0.2, 0.6), (0.00042, 0.12), (0.3, 0.9)],
+                         "파일에 없는 CVE 는 0 으로 만들지 않는다")
+
+    def test_small_or_missing_file_changes_nothing(self):
+        rows = [{"id": "CVE-A", "epss": 0.1, "epss_percentile": 0.5}]
+        self.assertEqual(ex.refresh_epss(rows, None), 0)
+        self.assertEqual(ex.refresh_epss(rows, {"CVE-A": (0.9, 0.99)}), 0, "잘린 파일로 보고 쓰지 않는다")
+        self.assertEqual(rows[0]["epss"], 0.1)
 
 
 if __name__ == "__main__":

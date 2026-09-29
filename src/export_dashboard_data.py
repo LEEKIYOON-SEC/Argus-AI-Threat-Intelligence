@@ -9,8 +9,10 @@ _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _THIS_DIR not in sys.path:
     sys.path.insert(0, _THIS_DIR)
 
+import enrichment_sources
 import pages
 import risk
+import rule_license
 from fields import CWE_RE, meaningful
 from rule_manager import LINK_ONLY_ENGINES, author_of
 from store import create_store
@@ -94,7 +96,47 @@ def _credited(rule, drop_code: bool = False):
         found = author_of(rule["code"])
         if found:
             out["author"] = found
-    return out
+    # 라이선스 표기를 지금 표로 맞추고, 본문을 실을 수 없는 룰(라이선스를 확인하지 못한 YARA 등)은 본문을 뺀다.
+    return rule_license.apply(out)
+
+
+# EPSS 는 매일 모든 CVE 의 점수를 새로 발표한다. DB 의 점수는 그 CVE 를 다시 처리할 때, 그리고 상위 5% 일 때만
+# 바뀌어(`pipeline.build_state` 의 epss_index 는 p95 이상만) 나머지는 옛 값이나 0(미채점)이 그대로 남는다 —
+# 2026-09 실측: 추적 10,976건 전부 EPSS 파일에 있는데 2,313건이 0, 점수가 있는 8,663건 중 30% 가 최신 발표와 달랐다.
+# 그래서 내보낼 때 전량 파일로 모든 행의 점수 · 백분위를 다시 채운다. 알림 판정에 쓰는 DB 값은 건드리지 않는다.
+_EPSS_MIN_ROWS = 100_000   # 실제 파일은 38만 행 — 이보다 적으면 잘린 파일로 보고 쓰지 않는다
+
+
+def refresh_epss(entries: list, epss) -> int:
+    """전량 EPSS 로 점수 · 백분위를 다시 채운다. 파일에 없는 CVE 는 기존 값을 둔다(없다고 0 으로 만들지 않는다).
+    파일이 없거나 너무 작으면 아무것도 바꾸지 않는다. 바뀐 행 수를 돌려준다."""
+    if not epss or len(epss) < _EPSS_MIN_ROWS:
+        return 0
+    changed = 0
+    for e in entries:
+        hit = epss.get(str(e.get("id") or "").upper())
+        if hit is None:
+            continue
+        score, pct = hit
+        if e.get("epss") != score or e.get("epss_percentile") != pct:
+            e["epss"], e["epss_percentile"] = score, pct
+            changed += 1
+    return changed
+
+
+def normalize_rules(entries: list) -> int:
+    """이월된 행까지 모든 행의 룰 표기를 맞춘다 — 증분 export 는 바뀐 행만 DB 에서 다시 읽기 때문이다.
+    여러 번 적용해도 결과가 같다. 바뀐 행 수를 돌려준다."""
+    changed = 0
+    for e in entries:
+        rules = e.get("rules")
+        if not isinstance(rules, dict) or not rules:
+            continue
+        fixed = {k: _credited(v, drop_code=k in LINK_ONLY_ENGINES) for k, v in rules.items() if v}
+        if fixed != rules:
+            e["rules"] = fixed
+            changed += 1
+    return changed
 
 
 def _get_db():
@@ -706,6 +748,14 @@ def main(data_dir: str = None):
         aff = e.get("affected") or []
         if len(aff) > TABLE_AFFECTED:
             e["affected"] = aff[:TABLE_AFFECTED]
+    relabeled = normalize_rules(cve_data)
+    if relabeled:
+        print(f"  룰 라이선스 표기를 맞춤: {relabeled:,}건", flush=True)
+    epss = enrichment_sources.load_epss_full()
+    if not epss or len(epss) < _EPSS_MIN_ROWS:
+        print(f"  EPSS 전량 파일을 쓰지 못함({len(epss or {}):,}행) → 점수는 DB 값 그대로", flush=True)
+    else:
+        print(f"  EPSS 점수를 전량 파일({len(epss):,}행)로 맞춤: {refresh_epss(cve_data, epss):,}건 바뀜", flush=True)
 
     cve_path = os.path.join(data_dir, "cves.json")
     pages.write_json(cve_path, cve_data)

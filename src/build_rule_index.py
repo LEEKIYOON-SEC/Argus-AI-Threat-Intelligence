@@ -12,6 +12,7 @@ import requests
 
 import enrichment_sources
 import pages
+import rule_license
 from fields import CVE_RE
 from logger import logger
 
@@ -21,16 +22,8 @@ _OUT = os.path.join(_DATA, "detection-rules.json")
 
 _TIMEOUT = 180
 
-LICENSES = {
-    "sigma": ("DRL 1.1", "SigmaHQ — 재게시 시 원 룰의 author 표기 보존"),
-    "nuclei": ("MIT", "nuclei-templates (ProjectDiscovery, Inc.)"),
-    "splunk": ("Apache-2.0", "Splunk security_content (ESCU) — NOTICE 보존"),
-    "yara": ("룰별 상이", "YARA Forge — 룰 메타의 author·source_url·license_url 보존"),
-    "snort2": ("MIT / GPLv2(레거시 SID 1–3464)", "Emerging Threats Open / Snort Community"),
-    "snort3": ("MIT / GPLv2(레거시 SID 1–3464)", "Emerging Threats Open / Snort Community"),
-    "suricata5": ("MIT", "Emerging Threats Open"),
-    "suricata7": ("MIT", "Emerging Threats Open"),
-}
+# 라이선스 표기는 rule_license 한 곳에서 정한다 — 항목마다 license(· YARA 는 license_url · link_only)를 적는다.
+ALL_ENGINES = frozenset(("sigma", "nuclei", "splunk", "yara", "snort2", "snort3", "suricata5", "suricata7"))
 
 
 MAX_PER_ENGINE = 3
@@ -68,7 +61,6 @@ def collect_sigma(index: Dict[str, List[Dict]]) -> Set[str]:
     data = _github_tarball("SigmaHQ", "sigma", "SigmaHQ")
     if data is None:
         return set()
-    lic, note = LICENSES["sigma"]
     n = 0
     try:
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
@@ -85,9 +77,9 @@ def collect_sigma(index: Dict[str, List[Dict]]) -> Set[str]:
                     continue
                 path = member.name.split("/", 1)[1] if "/" in member.name else member.name
                 for cve in cves:
-                    _add(index, cve, {"engine": "sigma", "source": "SigmaHQ",
-                                      "license": lic, "note": note, "path": path,
-                                      "url": f"https://github.com/SigmaHQ/sigma/blob/master/{path}"})
+                    _add(index, cve, rule_license.apply({
+                        "engine": "sigma", "source": "SigmaHQ", "path": path,
+                        "url": f"https://github.com/SigmaHQ/sigma/blob/master/{path}"}))
                     n += 1
     except tarfile.TarError as e:
         logger.warning(f"  ⚠️ SigmaHQ 압축 해제 실패: {e}")
@@ -100,7 +92,6 @@ def collect_splunk(index: Dict[str, List[Dict]]) -> Set[str]:
     data = _github_tarball("splunk", "security_content", "Splunk ESCU")
     if data is None:
         return set()
-    lic, note = LICENSES["splunk"]
     n = 0
     try:
         with tarfile.open(fileobj=io.BytesIO(data), mode="r:gz") as tar:
@@ -117,9 +108,9 @@ def collect_splunk(index: Dict[str, List[Dict]]) -> Set[str]:
                     continue
                 path = member.name.split("/", 1)[1] if "/" in member.name else member.name
                 for cve in cves:
-                    _add(index, cve, {"engine": "splunk", "source": "Splunk ESCU",
-                                      "license": lic, "note": note, "path": path,
-                                      "url": f"https://github.com/splunk/security_content/blob/develop/{path}"})
+                    _add(index, cve, rule_license.apply({
+                        "engine": "splunk", "source": "Splunk ESCU", "path": path,
+                        "url": f"https://github.com/splunk/security_content/blob/develop/{path}"}))
                     n += 1
     except tarfile.TarError as e:
         logger.warning(f"  ⚠️ Splunk ESCU 압축 해제 실패: {e}")
@@ -133,7 +124,6 @@ _YARA_FORGE = ("https://github.com/YARAHQ/yara-forge/releases/latest/download/"
 
 
 def collect_yara(index: Dict[str, List[Dict]]) -> Set[str]:
-    lic, note = LICENSES["yara"]
     try:
         resp = requests.get(_YARA_FORGE, timeout=_TIMEOUT,
                             headers={"User-Agent": "argus-rule-index"})
@@ -158,13 +148,13 @@ def collect_yara(index: Dict[str, List[Dict]]) -> Set[str]:
                     author = re.search(r'author\s*=\s*"([^"]+)"', chunk)
                     rule_lic = re.search(r'license_url\s*=\s*"([^"]+)"', chunk)
                     for cve in cves:
-                        _add(index, cve, {
-                            "engine": "yara", "source": "YARA Forge",
-                            "license": lic, "note": note, "path": rule_name,
+                        # 원 저장소 라이선스를 확인하지 못한 룰은 link_only — 본문을 받지도 싣지도 않는다.
+                        _add(index, cve, rule_license.apply({
+                            "engine": "yara", "source": "YARA Forge", "path": rule_name,
                             "url": src.group(1) if src else _YARA_FORGE,
                             "author": author.group(1) if author else "",
                             "license_url": rule_lic.group(1) if rule_lic else "",
-                        })
+                        }))
                         n += 1
     except zipfile.BadZipFile as e:
         logger.warning(f"  ⚠️ YARA Forge 해제 실패: {e}")
@@ -178,13 +168,12 @@ def collect_nuclei(index: Dict[str, List[Dict]]) -> Set[str]:
     if not enrichment_sources.nuclei_ok():
         logger.warning("  ⚠️ nuclei-templates 인덱스를 못 받음 → 생략")
         return set()
-    lic, note = LICENSES["nuclei"]
     for cve, meta in idx.items():
         path = meta.get("path", "")
-        _add(index, cve, {"engine": "nuclei", "source": "nuclei-templates",
-                          "license": lic, "note": note, "path": path,
-                          "severity": meta.get("severity", ""),
-                          "url": enrichment_sources.nuclei_template_url(path)})
+        _add(index, cve, rule_license.apply({
+            "engine": "nuclei", "source": "nuclei-templates", "path": path,
+            "severity": meta.get("severity", ""),
+            "url": enrichment_sources.nuclei_template_url(path)}))
     logger.info(f"  ✅ nuclei-templates: {len(idx)}개 매핑")
     return {"nuclei"}
 
@@ -217,7 +206,7 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
     done: Set[str] = set()
     failed: Set[str] = set()
     for label, url, member_hint, engine in _NETWORK_SOURCES:
-        lic, note = LICENSES[engine]
+        et_open = rule_license.source_of({"engine": engine, "source": label}) == "et-open"
         try:
             resp = requests.get(url, timeout=_TIMEOUT,
                                 headers={"User-Agent": "argus-rule-index"})
@@ -245,26 +234,30 @@ def collect_network(index: Dict[str, List[Dict]]) -> Set[str]:
             failed.add(engine)
             continue
 
-        n = 0
+        n = skipped = 0
         for line in content.splitlines():
             stripped = line.strip()
             if not stripped or stripped.startswith("#") or "alert" not in stripped:
                 continue
+            # ET Open 배포본은 SID 범위마다 라이선스가 다르다 — BSD 범위 밖(GPLv2 · ET Pro)은 싣지 않는다.
+            if et_open:
+                m = _SID.search(stripped)
+                if not rule_license.et_open_sid_ok(int(m.group(1)) if m else None):
+                    skipped += 1
+                    continue
             key = _network_key(label, stripped)
             for cve in {c.upper() for c in CVE_RE.findall(stripped)}:
-                _add(index, cve, {"engine": engine, "source": label,
-                                  "license": lic, "note": note,
-                                  "path": key, "url": "", "code": stripped})
+                _add(index, cve, rule_license.apply({"engine": engine, "source": label,
+                                                     "path": key, "url": "", "code": stripped}))
                 n += 1
+        if skipped:
+            logger.info(f"  {label}: BSD 범위 밖 SID 룰 {skipped}개는 싣지 않음")
         done.add(engine)
         logger.info(f"  ✅ {label}: {n}개 매핑")
     if failed & done:
         logger.warning(f"  ⚠️ {sorted(failed & done)} 는 소스 일부만 받았다 — "
                        f"직전 인덱스에서 이월한다")
     return done - failed
-
-
-ALL_ENGINES = frozenset(LICENSES)
 
 
 def load_previous() -> Dict[str, List[Dict]]:
@@ -336,8 +329,8 @@ def main() -> int:
     payload = {
         "_source": "SigmaHQ · Emerging Threats Open · Snort Community · "
                    "nuclei-templates · Splunk ESCU · YARA Forge",
-        "_license": "각 소스별 라이선스는 항목의 license 필드 참조 — 재게시 시 "
-                    "출처·author·라이선스 고지를 함께 싣는다",
+        "_license": "항목마다 license 필드 참조(src/rule_license.py) — 재게시 시 출처 · author · "
+                    "라이선스 고지를 함께 싣고, link_only 항목은 본문을 싣지 않는다",
         "schema": 1,
         "engines": by_engine,
         "refreshed": sorted(refreshed),

@@ -74,6 +74,43 @@ test('공개 탐지 — 룰 엔진 · 공식 룰 · nuclei 템플릿', () => {
   assert.equal(states(row()).PUBLIC_DETECTION, 'no');
 });
 
+test('탐지 룰 라이선스 — 출처로 표기하고 옛 표기를 바로잡으며, 라이선스가 없는 YARA 는 링크만', () => {
+  // 옛 색인은 ET Open 을 MIT 로, Snort Community 를 'MIT / GPLv2' 로 적었다 — 출처(source)로 바로잡는다.
+  const et = CTX.ruleTerms({ engine: 'snort2', source: 'Snort 2.9 ET Open', license: 'MIT / GPLv2(레거시 SID 1–3464)', code: 'alert a' });
+  assert.deepEqual([et.sid, et.license, et.body], ['et-open', 'BSD', true]);
+  assert.equal(et.licenseUrl, 'https://rules.emergingthreats.net/open/suricata-7.0/LICENSE');
+  assert.match(et.holder, /Emerging Threats/);
+  assert.equal(CTX.ruleTerms({ engine: 'suricata7', source: 'Suricata 7 ET Open', license: 'MIT' }).license, 'BSD');
+  const community = CTX.ruleTerms({ engine: 'snort3', source: 'Snort 3 Community', license: 'MIT / GPLv2(레거시 SID 1–3464)' });
+  assert.deepEqual([community.sid, community.license], ['snort-community', 'GPLv2']);
+  assert.equal(community.licenseUrl, 'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html');
+  assert.equal(CTX.ruleTerms({ engine: 'sigma' }).licenseUrl, 'https://github.com/SigmaHQ/Detection-Rule-License');
+  assert.equal(CTX.ruleTerms({ engine: 'splunk' }).license, 'Apache-2.0');
+  assert.equal(CTX.ruleTerms({ engine: 'nuclei', code: 'x' }).body, false, '점검 템플릿은 늘 링크만');
+  // YARA — export 가 적은 저장소 라이선스를 쓰고, 옛 '룰별 상이'는 이름 없이 원 저장소 LICENSE 링크만
+  const yara = CTX.ruleTerms({ engine: 'yara', license: 'DRL 1.1', license_url: 'https://github.com/Neo23x0/signature-base/blob/x/LICENSE', code: 'rule a {}' });
+  assert.deepEqual([yara.license, yara.body], ['DRL 1.1', true]);
+  const legacy = CTX.ruleTerms({ engine: 'yara', license: '룰별 상이', license_url: 'https://github.com/elceef/yara-rulz/blob/x/LICENSE', code: 'rule a {}' });
+  assert.deepEqual([legacy.license, legacy.licenseUrl !== '', legacy.body], ['', true, true]);
+  const none = CTX.ruleTerms({ engine: 'yara', license: '룰별 상이', license_url: 'N/A', code: 'rule a {}' });
+  assert.deepEqual([none.license, none.licenseUrl, none.body], ['', '', false], 'LICENSE 가 없는 저장소의 룰은 본문을 싣지 않는다');
+  assert.equal(CTX.ruleTerms({ engine: 'yara', link_only: true, license_url: 'https://github.com/a/b/blob/x/LICENSE', code: 'x' }).body, false);
+  // BSD · MIT 저장소의 저작권 문구는 export 가 적은 그대로(옛 데이터에는 없다)
+  const bsd = CTX.ruleTerms({ engine: 'yara', license: 'BSD-2-Clause', holder: 'Copyright 2022 by Volexity, Inc.',
+                              license_url: 'https://github.com/volexity/threat-intel/blob/x/LICENSE.txt', code: 'rule v {}' });
+  assert.deepEqual([bsd.license, bsd.holder, bsd.body], ['BSD-2-Clause', 'Copyright 2022 by Volexity, Inc.', true]);
+  assert.equal(legacy.holder, '');
+});
+
+test('탐지 근거 행 — 같은 엔진이라도 룰이 온 곳이 다르면 행을 나누고, 라이선스는 출처 기준', () => {
+  const cve = row({ id: 'CVE-2019-0708', rule_engines: ['snort2'], rules: { network: [
+    { engine: 'snort2', source: 'Snort 2.9 ET Open', license: 'MIT', code: 'alert a' },
+    { engine: 'snort2', source: 'Snort 2.9 Community', license: 'MIT / GPLv2(레거시 SID 1–3464)', code: 'alert b' },
+    { engine: 'snort2', source: 'Snort 2.9 ET Open', license: 'MIT', code: 'alert c' }] } });
+  const rows = CTX.derive(cve, { today: TODAY }).detection.rows;
+  assert.deepEqual(rows.map(r => [r.sid, r.license, r.count]), [['et-open', 'BSD', 2], ['snort-community', 'GPLv2', 1]]);
+});
+
 test('EOL 영향 — 하나라도 EOL 이면 yes, 모든 제품이 확인돼야 no, 나머지는 unknown(사유 포함)', () => {
   const m = LC.createMatcher(LCDATA, ALIASES);
   const eol = { vendor: 'Microsoft', product: 'Windows 7 Service Pack 1', versions: '6.1.0 이전' };

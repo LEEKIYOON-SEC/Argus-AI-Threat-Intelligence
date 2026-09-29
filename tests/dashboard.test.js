@@ -194,22 +194,52 @@ test('대시보드 — 추이 · 상관 · 최근 CVE · 동시 발생 행렬 ·
   for (const [, q, n] of chips) assert.equal(search(d, unesc(q)).length, Number(n), q);
 });
 
-test('Data Sources — 출처 목록 · 근거 커버리지 · 불일치 · 품질, 라이선스 조건은 하단 표 한 곳에만', () => {
+test('Data Sources — 외부 출처 한 표에 건수 · 갱신 · 이용 조건(라이선스 전문 링크), 이용 조건은 이 표 한 곳에만', () => {
   const d = dashboard();
   d.run('renderSources();');
   const reg = d.el('src-registry').innerHTML;
-  for (const id of d.run('ArgusEntities.SOURCE_ORDER')) assert.match(reg, new RegExp(`id="src-${id}"`), id);
-  assert.doesNotMatch(reg, /CC0|CC-BY|MIT|Apache|BSD|GPL|DRL|Terms of Use/, 'INVARIANTS §9-1 — 이용 조건은 하단 표에만');
-  assert.match(reg, /id="src-cisa-kev"[\s\S]*?<b>2<\/b>/, 'CISA KEV 가 있음이라고 한 추적 CVE 2건');
-  const cov = d.el('dash-coverage').innerHTML;
-  assert.equal((cov.match(/class="cov-row"/g) || []).length, 10);
-  assert.match(cov, /data-query="unknown:high-epss"/);
-  assert.match(cov, /data-query="no:patch"/);
-  for (const [, q] of cov.matchAll(/data-query="([^"]+)"[^>]*title="[^"]* ([\d,]+)건/g)) assert.ok(q);
-  const cf = d.el('src-conflicts').innerHTML;
-  assert.equal((cf.match(/class="cf-item"/g) || []).length, 3);
-  assert.match(cf, /data-query="conflict:exploitation"/);
-  assert.match(d.el('dash-quality').innerHTML, /EPSS 미채점/);
+  const ids = d.run('ArgusEntities.SOURCE_GROUPS').flatMap(g => g.ids);
+  for (const id of ids) assert.equal((reg.match(new RegExp(`id="src-${id}"`, 'g')) || []).length, 1, id);
+  assert.equal((reg.match(/<tr id="src-/g) || []).length, ids.length);
+  for (const hidden of ['gemma', 'gemini', 'argus', 'rule-index', 'nvd']) assert.doesNotMatch(reg, new RegExp(`id="src-${hidden}"`), hidden);
+  assert.doesNotMatch(reg, /Gemma|Gemini|Google AI Studio|무료 티어/, 'AI 도구 · 요금제는 출처 표에 싣지 않는다');
+  assert.doesNotMatch(reg, /\.json|캐시/, '파일 이름 · 캐시 설명은 싣지 않는다');
+  assert.match(reg, /id="src-cisa-kev"[\s\S]*?<b>2<\/b>/, 'CISA KEV 에 기록이 있는 추적 CVE 2건');
+  assert.match(reg, /id="src-sigma"[\s\S]*?<b>1<\/b>/, 'Sigma 룰이 있는 CVE 1건 — 전체 목록에서 룰이 온 곳으로 센다');
+  assert.match(reg, /id="src-et-open"[\s\S]*?href="https:\/\/rules\.emergingthreats\.net\/open\/suricata-7\.0\/LICENSE"[^>]*>BSD/);
+  assert.match(reg, /id="src-snort-community"[\s\S]*?href="https:\/\/www\.gnu\.org\/licenses\/old-licenses\/gpl-2\.0\.html"[^>]*>GPLv2/);
+  assert.match(reg, /id="src-sigma"[\s\S]*?href="https:\/\/github\.com\/SigmaHQ\/Detection-Rule-License"[^>]*>DRL 1\.1/);
+  assert.match(reg, /id="src-splunk"[\s\S]*?href="https:\/\/github\.com\/splunk\/security_content\/blob\/develop\/LICENSE"[^>]*>Apache-2\.0/);
+  assert.match(reg, /id="src-cve-record"[\s\S]*?Legal\/TermsOfUse"[^>]*>CVE 이용약관[\s\S]*?terms-of-use"[^>]*>NVD 이용약관/, 'NVD 는 CVE 레코드 행에 합친다');
+  assert.match(d.el('src-meta').textContent, /기준 · 추적 중 CVE 16건/);
+  // 예약 주기 — yml 예약 · 캐시 수명 그대로. CVE 레코드는 5분 수집(변경분), SSVC 는 CVE 레코드 안에 함께 온다
+  assert.match(reg, /<th[^>]*>예약 주기<\/th>/);
+  assert.doesNotMatch(reg, /<th>갱신<\/th>/);
+  assert.match(reg, /id="src-cve-record"[\s\S]*?data-label="예약 주기">5분마다 \(변경분\)</);
+  assert.match(reg, /id="src-cisa-adp"[\s\S]*?data-label="예약 주기">5분마다 \(CVE 레코드와 함께\)</);
+  assert.match(reg, /id="src-cisa-kev"[\s\S]*?data-label="예약 주기">매시</);
+});
+
+test('탐지 룰 본문 — 라이선스 전문 · 룰 원문 링크를 붙이고, 라이선스가 없는 YARA 는 본문 없이 링크만', () => {
+  const d = dashboard();
+  const html = d.run(`renderRulesSection({ id: 'CVE-X', rules: {
+    sigma: { code: 'title: s', source: 'SigmaHQ', license: 'DRL 1.1', author: 'A', url: 'https://github.com/SigmaHQ/sigma/blob/master/r.yml' },
+    network: [{ engine: 'suricata7', source: 'Suricata 7 ET Open', license: 'MIT', code: 'alert x' }],
+    yara: { engine: 'yara', source: 'YARA Forge', license: '룰별 상이', license_url: 'N/A', author: 'B',
+            url: 'https://github.com/fboldewin/YARA-rules/blob/x/r.yar', code: 'rule leak {}' } } })`);
+  assert.match(html, /라이선스 <a href="https:\/\/github\.com\/SigmaHQ\/Detection-Rule-License"[^>]*>DRL 1\.1/);
+  assert.match(html, /작성자 A · <a href="https:\/\/github\.com\/SigmaHQ\/sigma\/blob\/master\/r\.yml"[^>]*>룰 원문/);
+  assert.match(html, /라이선스 <a href="https:\/\/rules\.emergingthreats\.net\/open\/suricata-7\.0\/LICENSE"[^>]*>BSD[^<]*<\/a> · © 2003-2026 Emerging Threats/);
+  assert.doesNotMatch(html, /License: |MIT/, '옛 표기(ET Open MIT)를 그대로 싣지 않는다');
+  assert.doesNotMatch(html, /rule leak/, '라이선스가 없는 저장소의 YARA 본문은 싣지 않는다');
+  assert.match(html, /원 저장소에 라이선스 파일이 없어 본문은 싣지 않습니다/);
+  assert.match(html, /href="https:\/\/github\.com\/fboldewin\/YARA-rules\/blob\/x\/r\.yar"[^>]*>원문 보기/);
+  // BSD · MIT 저장소의 YARA 룰은 저작권 문구를 룰 위에 함께 적는다 (문구는 export 가 원 저장소 LICENSE 에서 옮김)
+  const bsd = d.run(`renderRulesSection({ id: 'CVE-Y', rules: { yara: { engine: 'yara', source: 'YARA Forge', license: 'BSD-2-Clause',
+    holder: 'Copyright 2022 by Volexity, Inc.', license_url: 'https://github.com/volexity/threat-intel/blob/x/LICENSE.txt',
+    author: 'threatintel@volexity.com', url: 'https://github.com/volexity/threat-intel/blob/x/y.yar', code: 'rule v {}' } } })`);
+  assert.match(bsd, /라이선스 <a href="https:\/\/github\.com\/volexity\/threat-intel\/blob\/x\/LICENSE\.txt"[^>]*>BSD-2-Clause[^<]*<\/a> · Copyright 2022 by Volexity, Inc\. · 작성자 threatintel@volexity\.com/);
+  assert.match(bsd, /rule v \{\}/);
 });
 
 test('대시보드 — 전체 데이터 전에 CI 사전 계산으로 먼저 그리고, 숫자는 같다', () => {
