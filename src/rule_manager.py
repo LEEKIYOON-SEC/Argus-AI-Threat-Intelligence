@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 import requests
 
 import pages
+import rule_license
 from logger import logger
 
 _INDEX_LOCK = threading.Lock()
@@ -52,7 +53,7 @@ def _load() -> Tuple[Dict[str, List[Dict]], bool]:
         return {}, False
 
 
-LINK_ONLY_ENGINES = ("nuclei",)
+LINK_ONLY_ENGINES = rule_license.LINK_ONLY_ENGINES
 
 _AUTHOR_RE = re.compile(r"^[ \t]{0,4}author[ \t]*:[ \t]*(\S.*?)[ \t]*$", re.M)
 
@@ -105,20 +106,19 @@ class RuleManager:
         missed = 0
         for entry in entries:
             engine = entry.get("engine", "")
-            packed = {
+            # 라이선스 표기는 색인 시점이 아니라 지금 표로 다시 정한다(옛 색인의 표기도 바로잡힌다).
+            packed = rule_license.apply({
                 "source": entry.get("source", ""),
                 "engine": engine,
-                "license": entry.get("license", ""),
-                "note": entry.get("note", ""),
                 "url": entry.get("url", ""),
                 "author": entry.get("author", ""),
                 "license_url": entry.get("license_url", ""),
-            }
-            if engine in LINK_ONLY_ENGINES:
-                if rules.get(engine):
-                    continue
-                rules[engine] = packed
-            elif engine in ("snort2", "snort3", "suricata5", "suricata7"):
+            })
+            if packed.get("link_only"):
+                # 본문을 싣지 않는 룰(점검 템플릿 · 라이선스를 확인하지 못한 YARA) — 원문을 받지 않는다.
+                if not rules.get(engine):
+                    rules[engine] = packed
+            elif engine in rule_license.NETWORK_ENGINES:
                 if len(rules["network"]) >= 3:
                     continue
                 code = _fetch_text(entry)
@@ -127,7 +127,8 @@ class RuleManager:
                 else:
                     missed += 1
             elif engine in ("sigma", "yara", "splunk"):
-                if rules.get(engine):
+                # 본문을 실을 수 있는 룰이 링크만 둔 룰보다 앞선다.
+                if rules.get(engine) and not rules[engine].get("link_only"):
                     continue
                 code = _fetch_text(entry)
                 if code:

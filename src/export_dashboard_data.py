@@ -11,6 +11,7 @@ if _THIS_DIR not in sys.path:
 
 import pages
 import risk
+import rule_license
 from fields import CWE_RE, meaningful
 from rule_manager import LINK_ONLY_ENGINES, author_of
 from store import create_store
@@ -94,7 +95,23 @@ def _credited(rule, drop_code: bool = False):
         found = author_of(rule["code"])
         if found:
             out["author"] = found
-    return out
+    # 라이선스 표기를 지금 표로 맞추고, 본문을 실을 수 없는 룰(라이선스를 확인하지 못한 YARA 등)은 본문을 뺀다.
+    return rule_license.apply(out)
+
+
+def normalize_rules(entries: list) -> int:
+    """이월된 행까지 모든 행의 룰 표기를 맞춘다 — 증분 export 는 바뀐 행만 DB 에서 다시 읽기 때문이다.
+    여러 번 적용해도 결과가 같다. 바뀐 행 수를 돌려준다."""
+    changed = 0
+    for e in entries:
+        rules = e.get("rules")
+        if not isinstance(rules, dict) or not rules:
+            continue
+        fixed = {k: _credited(v, drop_code=k in LINK_ONLY_ENGINES) for k, v in rules.items() if v}
+        if fixed != rules:
+            e["rules"] = fixed
+            changed += 1
+    return changed
 
 
 def _get_db():
@@ -706,6 +723,9 @@ def main(data_dir: str = None):
         aff = e.get("affected") or []
         if len(aff) > TABLE_AFFECTED:
             e["affected"] = aff[:TABLE_AFFECTED]
+    relabeled = normalize_rules(cve_data)
+    if relabeled:
+        print(f"  룰 라이선스 표기를 맞춤: {relabeled:,}건", flush=True)
 
     cve_path = os.path.join(data_dir, "cves.json")
     pages.write_json(cve_path, cve_data)

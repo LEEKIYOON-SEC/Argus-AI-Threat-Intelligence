@@ -18,57 +18,99 @@
    * 원 출처가 주지 않은 값(공개일 · 권고 ID 등)은 만들지 않고 null 로 둔다.
    */
 
-  /* ---------- Source — 출처 엔티티 (라이선스 조건은 화면 하단 표 한 곳에만 둔다, INVARIANTS §9-1) ---------- */
+  /* ---------- Source — 출처 엔티티 ----------
+   * kind 'source' 는 외부 데이터 출처다. 데이터 출처 화면의 표(SOURCE_GROUPS 순서)에 이름 · 주는 정보 · 갱신 주기 ·
+   * 이용 조건(terms)을 싣는다 — 출처별 이용 조건은 이 표 한 곳에만 둔다(INVARIANTS §9-1).
+   * 'derived' · 'ai' 는 증거 · 글의 출처를 잇기 위한 내부 엔티티이며 표에 싣지 않는다.
+   * cadence 는 Argus 가 원본을 다시 받는 주기다(원본 쪽 갱신 주기가 아니다). */
+
+  const URL_LICENSE = {
+    cc0Kev: 'https://github.com/cisagov/kev-data/blob/develop/LICENSE',
+    cc0Vulnrichment: 'https://github.com/cisagov/vulnrichment/blob/develop/LICENSE',
+    drl: 'https://github.com/SigmaHQ/Detection-Rule-License',
+    apache: 'https://github.com/splunk/security_content/blob/develop/LICENSE',
+    nucleiMit: 'https://github.com/projectdiscovery/nuclei-templates/blob/main/LICENSE.md',
+    etOpen: 'https://rules.emergingthreats.net/open/suricata-7.0/LICENSE',
+    gpl2: 'https://www.gnu.org/licenses/old-licenses/gpl-2.0.html',
+    msf: 'https://github.com/rapid7/metasploit-framework/blob/master/LICENSE',
+    poc: 'https://github.com/nomi-sec/PoC-in-GitHub/blob/master/LICENSE',
+    endoflife: 'https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE',
+  };
 
   const SOURCES = {
-    'cve-record': { provides: ['severity', 'product', 'remediation', 'text'], name: 'CVE 레코드 (CNA)', provider: 'CVE Program', url: 'https://www.cve.org/', kind: 'source',
-                    role: '제목 · 설명 · 영향 제품 · CVSS · CWE · 참고 링크', cadence: '5분 간격 변경분 수집', files: ['cves.json', 'cve-products.json', 'cve-facts.json'] },
-    'cisa-adp': { provides: ['exploitation', 'automation', 'severity'], name: 'CISA SSVC (vulnrichment)', provider: 'CISA', url: 'https://github.com/cisagov/vulnrichment', kind: 'source',
-                  role: 'SSVC 판정 (Exploitation · Automatable · Technical Impact) · 보충 CVSS', cadence: 'CVE 레코드와 함께', files: ['cves.json'] },
-    nvd: { provides: ['severity', 'product'], name: 'NVD', provider: 'NIST', url: 'https://nvd.nist.gov/', kind: 'source',
-           role: 'CVSS · CPE(영향 제품) 보충', cadence: '보충 조회(백필)', files: ['cves.json'] },
-    'first-epss': { provides: ['probability'], name: 'EPSS', provider: 'FIRST.org', url: 'https://www.first.org/epss/', kind: 'source',
-                    role: '향후 30일 악용 확률 예측', cadence: '원본 6시간 캐시', files: ['cves.json'] },
+    'cve-record': { provides: ['severity', 'product', 'remediation', 'text'], name: 'CVE 레코드', provider: 'CVE Program · 빠진 CVSS · 영향 제품은 NVD에서 보충',
+                    url: 'https://www.cve.org/', kind: 'source', role: '제목 · 설명 · 영향 제품 · CVSS · CWE · 참고 링크', cadence: '매시',
+                    terms: [{ label: 'CVE 이용약관', url: 'https://www.cve.org/Legal/TermsOfUse', note: 'MITRE 저작권 표기와 약관 문구를 함께 싣습니다 (아래 약관 원문)' },
+                            { label: 'NVD 이용약관', url: 'https://nvd.nist.gov/developers/terms-of-use', note: 'NVD가 보증하지 않는다는 고지를 하단에 싣습니다' }] },
+    osv: { provides: ['remediation'], name: 'OSV.dev', provider: '', url: 'https://osv.dev', kind: 'source',
+           role: '패키지별 수정 버전', cadence: '매주',
+           terms: [{ label: '원 DB마다 다름', url: 'https://google.github.io/osv.dev/data/',
+                     note: 'GitHub Advisory Database(CC-BY 4.0) · Ubuntu(CC-BY-SA 4.0) 등. 패키지 이름과 수정 버전만 싣습니다' }] },
+    'ai-discovery': { provides: ['discovery'], name: 'AI 발견 기록', provider: 'Anthropic CVD 공개 원장 · CVE 레코드의 발견자 표기', url: 'https://red.anthropic.com/',
+                      kind: 'source', role: 'AI가 찾아 공개한 취약점인지와 발견한 곳', cadence: '6시간마다',
+                      terms: [{ label: '라이선스 표기 없음', url: '', note: 'CVE ID와 발견한 곳만 옮기고 원문 링크를 둡니다' }] },
     'cisa-kev': { provides: ['exploitation', 'ransomware', 'remediation', 'product'], name: 'CISA KEV', provider: 'CISA', url: CTX.URL.kev, kind: 'source',
-                  role: '악용 확인 · 랜섬웨어 사용 · 조치 기한 · 필요 조치', cadence: '원본 1시간 캐시', files: ['cves.json', 'cve-evidence.json'] },
+                  role: '악용 확인 · 랜섬웨어 사용 · 조치 기한 · 필요 조치', cadence: '매시',
+                  terms: [{ label: 'CC0 1.0', url: URL_LICENSE.cc0Kev, note: 'CISA 로고와 DHS 문장은 쓰지 않으며, CISA · DHS가 보증한다는 뜻이 아닙니다' }] },
     'vulncheck-kev': { provides: ['exploitation'], name: 'VulnCheck KEV', provider: 'VulnCheck', url: CTX.URL.vulncheck, kind: 'source',
-                       role: '악용 근거 (등재 여부)', cadence: '원본 6시간 캐시', files: ['cves.json'] },
+                       role: '악용 근거 (등재 여부)', cadence: '6시간마다',
+                       terms: [{ label: 'VulnCheck 표기 조건', url: 'https://docs.vulncheck.com/community/vulncheck-kev/attribution',
+                                 note: "출처를 눈에 띄게 밝혀야 합니다. 화면에는 'VulnCheck KEV'로 적고 하단에 고지합니다" }] },
+    'cisa-adp': { provides: ['exploitation', 'automation', 'severity'], name: 'CISA SSVC (vulnrichment)', provider: 'CISA', url: 'https://github.com/cisagov/vulnrichment', kind: 'source',
+                  role: 'SSVC 판정 (Exploitation · Automatable · Technical Impact) · 보충 CVSS', cadence: '매시',
+                  terms: [{ label: 'CC0 1.0', url: URL_LICENSE.cc0Vulnrichment, note: '조건 없음' }] },
+    'first-epss': { provides: ['probability'], name: 'EPSS', provider: 'FIRST.org', url: 'https://www.first.org/epss/', kind: 'source',
+                    role: '30일 안에 악용될 확률 예측', cadence: '6시간마다',
+                    terms: [{ label: '라이선스 표기 없음', url: 'https://www.first.org/epss/faq', note: '제품에 쓰면 출처를 밝혀 달라고 요청합니다. 하단에 적습니다' }] },
     'exploit-db': { provides: ['exploit'], name: 'Exploit-DB', provider: '', url: CTX.URL.exploitdb, kind: 'source',
-                    role: '공개 익스플로잇 (원문은 싣지 않고 링크만)', cadence: '원본 하루 캐시', files: ['cves.json', 'cve-evidence.json'] },
+                    role: '공개 익스플로잇 항목', cadence: '매일',
+                    terms: [{ label: '익스플로잇마다 작성자 저작', url: '', note: '원문은 싣지 않고 링크만 둡니다' }] },
     metasploit: { provides: ['exploit'], name: 'Metasploit Framework', provider: 'Rapid7', url: CTX.URL.metasploit, kind: 'source',
-                  role: '공격 모듈', cadence: '원본 하루 캐시', files: ['cves.json', 'cve-evidence.json'] },
+                  role: '공격 모듈 이름 · 등급', cadence: '매일',
+                  terms: [{ label: 'BSD-3-Clause', url: URL_LICENSE.msf, note: '모듈 이름만 싣습니다' }] },
     'poc-in-github': { provides: ['exploit'], name: 'PoC-in-GitHub', provider: 'nomi-sec', url: CTX.URL.poc, kind: 'source',
-                       role: '공개 PoC 저장소 링크', cadence: '원본 하루 캐시', files: ['cves.json'] },
-    nuclei: { provides: ['detection'], name: 'nuclei-templates', provider: 'ProjectDiscovery', url: 'https://github.com/projectdiscovery/nuclei-templates',
-              kind: 'source', role: '취약 여부 점검 템플릿 (링크만)', cadence: '원본 하루 캐시', files: ['cves.json'] },
-    sigma: { provides: ['detection'], name: 'SigmaHQ', provider: 'SigmaHQ', url: 'https://github.com/SigmaHQ/sigma', kind: 'source',
-             role: '로그 탐지 룰', cadence: '주간 룰 색인', files: ['cves.json'] },
-    'et-open': { provides: ['detection'], name: 'ET Open · Snort Community', provider: 'Emerging Threats · Snort', url: 'https://rules.emergingthreats.net/',
-                 kind: 'source', role: '네트워크 탐지 룰 (Snort · Suricata)', cadence: '주간 룰 색인', files: ['cves.json'] },
-    splunk: { provides: ['detection'], name: 'Splunk ESCU', provider: 'Splunk', url: 'https://github.com/splunk/security_content', kind: 'source',
-              role: '탐지 룰', cadence: '주간 룰 색인', files: ['cves.json'] },
-    yara: { provides: ['detection'], name: 'YARA Forge', provider: 'YARA Forge', url: 'https://github.com/YARAHQ/yara-forge', kind: 'source',
-            role: '파일 탐지 룰', cadence: '주간 룰 색인', files: ['cves.json'] },
+                       role: '공개 PoC 저장소 링크', cadence: '매일',
+                       terms: [{ label: 'CC0 1.0', url: URL_LICENSE.poc, note: 'PoC 원문은 싣지 않고 링크만 둡니다' }] },
+    sigma: { provides: ['detection'], name: 'SigmaHQ', provider: '', url: 'https://github.com/SigmaHQ/sigma', kind: 'source',
+             role: '로그 탐지 룰', cadence: '매주',
+             terms: [{ label: 'DRL 1.1', url: URL_LICENSE.drl, note: '룰마다 작성자 · 룰 링크 · 라이선스를 함께 싣습니다' }] },
+    'et-open': { provides: ['detection'], name: 'Emerging Threats Open', provider: '', url: 'https://rules.emergingthreats.net/', kind: 'source',
+                 role: 'Snort · Suricata 네트워크 탐지 룰', cadence: '매주',
+                 terms: [{ label: 'BSD', url: URL_LICENSE.etOpen, note: '© 2003-2026 Emerging Threats. 라이선스 전문은 아래 약관 원문에 있습니다' }] },
+    'snort-community': { provides: ['detection'], name: 'Snort Community Rules', provider: 'Snort', url: 'https://www.snort.org/downloads', kind: 'source',
+                         role: 'Snort 네트워크 탐지 룰', cadence: '매주',
+                         terms: [{ label: 'GPLv2', url: URL_LICENSE.gpl2, note: '© 2001-2026 Sourcefire, Inc. 및 각 작성자' }] },
+    splunk: { provides: ['detection'], name: 'Splunk ESCU', provider: 'Splunk security_content', url: 'https://github.com/splunk/security_content', kind: 'source',
+              role: '탐지 룰', cadence: '매주',
+              terms: [{ label: 'Apache-2.0', url: URL_LICENSE.apache, note: '룰 링크와 라이선스를 함께 싣습니다' }] },
+    yara: { provides: ['detection'], name: 'YARA Forge', provider: '', url: 'https://github.com/YARAHQ/yara-forge', kind: 'source',
+            role: '파일 탐지 룰', cadence: '매주',
+            terms: [{ label: '룰마다 다름', url: '', note: '원 저장소의 라이선스(DRL 1.1 · BSD-2-Clause · MIT · GPL-3.0 등)를 룰마다 적습니다. 라이선스가 없는 저장소의 룰은 링크만 둡니다' }] },
+    nuclei: { provides: ['detection'], name: 'nuclei-templates', provider: 'ProjectDiscovery', url: 'https://github.com/projectdiscovery/nuclei-templates', kind: 'source',
+              role: '취약 여부 점검 템플릿', cadence: '매일',
+              terms: [{ label: 'MIT', url: URL_LICENSE.nucleiMit, note: '대상에 요청을 보내는 템플릿이라 링크만 둡니다' }] },
+    endoflife: { provides: ['lifecycle'], name: 'endoflife.date', provider: '', url: CTX.URL.endoflife, kind: 'source',
+                 role: '제품 릴리스의 지원 단계 · EOL', cadence: '매일',
+                 terms: [{ label: 'MIT', url: URL_LICENSE.endoflife, note: '저작권 고지를 하단에 싣습니다. 제품 설명과 로고는 싣지 않습니다' }] },
+    // 내부 엔티티 — 표에 싣지 않는다
     'rule-index': { provides: ['detection'], name: 'Argus 탐지 룰 색인', provider: 'Argus', url: '', kind: 'derived',
-                    role: '공개 룰 저장소를 CVE ID로 색인한 결과', cadence: '주간 (maintenance)', files: ['cves.json'] },
-    osv: { provides: ['remediation'], name: 'OSV.dev', provider: 'OSV', url: 'https://osv.dev', kind: 'source',
-           role: '패키지별 수정 버전', cadence: '주간 (maintenance)', files: ['cve-packages.json'] },
-    endoflife: { provides: ['lifecycle'], name: 'endoflife.date', provider: 'endoflife.date', url: CTX.URL.endoflife, kind: 'source',
-                 role: '제품 릴리스 지원 단계 · EOL', cadence: '매일', files: ['lifecycle.json'] },
-    'ai-discovery': { provides: ['discovery'], name: 'AI 발견 출처 (Anthropic CVD 원장 · CVE 크레딧)', provider: 'Anthropic 등', url: 'https://red.anthropic.com/',
-                      kind: 'source', role: 'AI가 찾아 공개한 취약점 식별', cadence: '레코드 처리 때', files: ['cves.json'] },
-    gemma: { provides: ['text'], name: 'Gemma (Google AI Studio)', provider: 'Google', url: '', kind: 'ai',
-             role: '제목 한국어 번역 · 설명 2줄 요약', cadence: '레코드 처리 때', files: ['cves.json'] },
-    gemini: { provides: ['analysis'], name: 'Gemini (Google AI Studio)', provider: 'Google', url: '', kind: 'ai',
-              role: 'AI 심층 분석 (근본 원인 · 시나리오 · 영향 · 대응)', cadence: '알림 티어만', files: ['cves.json'] },
+                    role: '공개 룰 저장소를 CVE ID로 색인한 결과' },
+    gemma: { provides: ['text'], name: 'AI 번역', provider: '', url: '', kind: 'ai', role: '제목 한국어 번역 · 설명 요약' },
     argus: { provides: ['derived'], name: 'Argus', provider: 'Argus', url: '', kind: 'derived',
-             role: 'Argus 계산 결과: 알림 등급 · 심각도 등급 · 신호 · 신호 조합 · 출처 간 차이', cadence: '화면을 열 때 · 배포 때', files: ['cve-context.json'] },
+             role: 'Argus 계산 결과: 알림 등급 · 심각도 등급 · 신호 · 신호 조합 · 출처 간 차이' },
   };
   const SOURCE_ORDER = Object.keys(SOURCES);
+  // 데이터 출처 표의 묶음과 순서 — 외부 출처(kind 'source')만, 빠짐없이 한 번씩.
+  const SOURCE_GROUPS = [
+    { label: '취약점 정보', ids: ['cve-record', 'osv', 'ai-discovery'] },
+    { label: '악용 · 위험 신호', ids: ['cisa-kev', 'vulncheck-kev', 'cisa-adp', 'first-epss', 'exploit-db', 'metasploit', 'poc-in-github'] },
+    { label: '공개 탐지 룰', ids: ['sigma', 'et-open', 'snort-community', 'splunk', 'yara', 'nuclei'] },
+    { label: '제품 수명주기', ids: ['endoflife'] },
+  ];
   const PROVIDES_LABEL = { exploitation: '악용 근거', exploit: '공개 익스플로잇', automation: '자동화', ransomware: '랜섬웨어',
                            detection: '탐지', remediation: '조치', lifecycle: '수명주기', severity: '심각도(CVSS)',
                            probability: '악용 확률(EPSS)', product: '영향 제품', text: '제목 · 설명', discovery: 'AI 발견',
-                           analysis: 'AI 분석', derived: 'Argus 계산' };
+                           derived: 'Argus 계산' };
 
   /* ---------- Evidence Type (§6) — 출처와 섞지 않는다 ---------- */
 
@@ -339,7 +381,7 @@
   }
 
   return {
-    SOURCES, SOURCE_ORDER, PROVIDES_LABEL, EVIDENCE_TYPES, MSF_RANK,
+    SOURCES, SOURCE_ORDER, SOURCE_GROUPS, PROVIDES_LABEL, EVIDENCE_TYPES, MSF_RANK,
     evidenceFor, factsFor, rangesOf, normKey, buildEntities,
   };
 });

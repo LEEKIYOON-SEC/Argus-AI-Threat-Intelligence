@@ -307,8 +307,9 @@ p90.0 = 0.041  36,640건
 | 이번 회차가 CVSS 를 하나도 못 찾았으면 **이전 점수를 지킨다** | 2016년 이전 CVE 는 cvelistV5 에 metrics 가 없어 `parse_record` 가 0.0 을 낸다. `backfill-cvss` 가 NVD 로 채운 값이 다음 fast-lane 에서 지워져 도구 자체가 무력해졌다. 레코드가 실제로 더 낮은 점수를 주면 그건 따른다 |
 | **Slack 전송이 실패하면 발화 이력도 `last_alert_at` 도 남기지 않는다** | 반환값을 버리고 있었다 — 전송이 실패해도 재알림 억제가 걸려 그 CVE 는 두 번 다시 알리지 않았다. 웹훅이 바뀌거나 Slack 이 몇 분 죽으면 그 창의 알림이 전부 사라진다 |
 | 만든 리포트 URL 은 **알림 성공 여부와 무관하게** 기록하고, 이미 있으면 다시 만들지 않는다 | 위 수정만 하면 실패할 때마다 GitHub Issue 가 새로 생긴다(실측 3회차에 3개) |
-| **대상에 요청을 보내는 룰은 본문을 싣지 않는다** (`rule_manager.LINK_ONLY_ENGINES`) | Sigma·YARA·Splunk·Snort·Suricata 는 로그·트래픽·파일에서 공격을 찾는 방어측 시그니처지만 nuclei 템플릿은 대상에 페이로드를 직접 보내는 능동 탐침이다. 실측 481건 중 145건이 즉시 실행 가능한 요청 경로를 담고 있었다. Exploit-DB 를 '원문 미게시·링크만'으로 정한 것과 같은 선이다. 저장 단계와 export 단계 양쪽에서 막는다 — 이미 저장된 본문이 남아 있어도 화면에는 안 나간다 |
-| **재게시하는 룰에는 원 저자를 함께 싣는다** | SigmaHQ DRL 1.1 이 명시적으로 요구하고 MIT·Apache-2.0 도 저작권 고지 보존을 요구한다. 각주에 "원 룰의 author 표기 보존"이라 적어놓고 실제로는 5개 엔진 중 YARA 하나만 지키고 있었다. 색인에 author 가 없으면 룰 본문에서 뽑는다 |
+| **대상에 요청을 보내는 룰은 본문을 싣지 않는다** (`rule_license.LINK_ONLY_ENGINES`) | Sigma·YARA·Splunk·Snort·Suricata 는 로그·트래픽·파일에서 공격을 찾는 방어측 시그니처지만 nuclei 템플릿은 대상에 페이로드를 직접 보내는 능동 탐침이다. 실측 481건 중 145건이 즉시 실행 가능한 요청 경로를 담고 있었다. Exploit-DB 를 '원문 미게시·링크만'으로 정한 것과 같은 선이다. 저장 단계와 export 단계 양쪽에서 막는다 — 이미 저장된 본문이 남아 있어도 화면에는 안 나간다 |
+| **라이선스를 확인하지 못한 룰도 본문을 싣지 않는다** (`rule_license.terms` 의 `link_only`) | YARA Forge 에는 LICENSE 파일이 없는 저장소의 룰도 들어 있다(`license_url` 'N/A'). 라이선스가 없으면 재배포 허락이 없는 것이다. 색인 · 스냅샷은 원문을 받지 않고, export 는 이월된 행의 본문까지 뺀다 — 배포본 `cves.json` 은 누구나 받을 수 있어 화면에서만 숨기면 안 된다. 화면은 링크와 이유만 적는다 |
+| **재게시하는 룰에는 원 저자 · 라이선스를 함께 싣는다** | SigmaHQ DRL 1.1 은 author · 룰 링크 · 라이선스 이름과 링크를, BSD · MIT · Apache-2.0 · GPL 은 저작권 · 라이선스 고지 보존을 요구한다. 룰 본문 위에 라이선스(전문 링크) · 저작권자(ET Open · Snort Community) · 작성자 · 룰 원문 링크를 적는다. 색인에 author 가 없으면 룰 본문에서 뽑는다 |
 | **탐지 룰 인덱스를 못 받은 회차는 `has_official_rules`·`rules_snapshot` 을 쓰지 않는다** (`rule_manager.index_ok()`) | 로더가 실패해도 `{}` 를 돌려주므로 '룰 없음'으로 DB 에 기록돼 이전에 확인해 둔 룰이 지워졌다. 룰 재확인도 이때는 건너뛴다 — 돌려봐야 7일 쿨다운만 태운다 |
 | **룰 인덱스 생성이 부분 실패하면 실패한 엔진만 직전 배포본에서 이월한다** (`build_rule_index.carry_missing`) | SigmaHQ 하나만 403 이어도 sigma 가 빠진 인덱스가 배포되고, 그걸 읽은 파이프라인이 해당 CVE 를 '룰 없음'으로 기록했다. 전부 실패하거나 이월할 직전본도 없으면 덮어쓰지 않고 종료 |
 | **지표를 못 받았으면 화면에 `unknown` 이라 쓴다 — 0% 나 No 가 아니다** | 리포트가 `EPSS 0.00%` · `KEV No` 로 적어 위험을 낮춰 불렀다. 실제로 관측된 0 은 그대로 0 이다 |
@@ -512,46 +513,69 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 
 ## 9. 라이선스 (실제 LICENSE 파일 확인)
 
+원문은 2026-09-29 에 다시 확인했다(각 저장소 LICENSE · 배포 파일 머리말 · 약관 페이지).
+
 | 소스 | 라이선스 | 의무 |
 |:---|:---|:---|
-| CVE (cvelistV5) | **CVE Program Terms of Use** — 저장소에 LICENSE 파일이 없고 README 가 약관을 가리킨다 (CC0 아님) | MITRE 저작권 표기(`Copyright © 1999-<올해>, The MITRE Corporation.`)와 약관의 CVE Usage 라이선스 문구를 **원문 그대로** 재현. 'CVE' 는 ™(등록상표는 로고) |
-| CISA KEV · SSVC/vulnrichment | 공공/CC0 1.0 | 없음 |
-| EPSS (FIRST.org) | 무료 | 출처 표기 |
-| nuclei-templates | MIT | 표기 |
-| Splunk security_content | Apache-2.0 | 표기 |
-| YARA Forge | **룰별 상이** (패키징 도구 자체는 GPL-3.0) | 룰별 author·source_url·license_url 보존 |
-| Metasploit | BSD-3-Clause | 표기 |
-| SigmaHQ sigma | DRL 1.1 | 룰별 author 보존 |
-| Emerging Threats Open · Snort Community | MIT (레거시 SID 1–3464 는 GPLv2) | 표기 |
+| CVE (cvelistV5) | **CVE Program Terms of Use** — 저장소에 LICENSE 파일이 없고 README 가 약관을 가리킨다 (CC0 아님) | MITRE 저작권 표기(`Copyright © 1999-<올해>, The MITRE Corporation.`)와 약관의 CVE Usage 라이선스 문구를 **원문 그대로** 재현. 'CVE' 는 ™ — cve.org 약관 원문(`CVEProject/cve-website` 의 `TermsOfUse.vue`, 배포된 번들도 같음)이 `(CVE™)`다. SPDX 사본(`CVE-TOU`)은 `(CVE®)`로 적혀 있어 다르다 — 인용은 링크한 cve.org 원문을 따른다. 등록상표(®)는 로고 |
+| CISA KEV · SSVC/vulnrichment | CC0 1.0 (kev-data · vulnrichment LICENSE) | 없음. KEV 는 CISA 로고 · DHS 문장 사용 금지, CISA · DHS 보증으로 읽히게 쓰지 않는다 |
+| EPSS (FIRST.org) | 라이선스 표기 없음 · 무료 | 제품 · 출판물에 쓰면 출처 표기 **요청**(EPSS FAQ) |
+| nuclei-templates | MIT (© 2025 ProjectDiscovery) | 표기. 본문은 싣지 않는다(§6) |
+| Splunk security_content | Apache-2.0 (develop 브랜치에 NOTICE 파일 없음) | 라이선스 링크 · 룰 링크 |
+| YARA Forge | **룰마다 원 저장소 라이선스** (YARA Forge 는 `license_url` 만 준다) | `src/rule_license.YARA_REPOS` 에 적은 저장소만 본문 게재: signature-base · SEKOIA Community = DRL 1.1, ditekshen · volexity = BSD-2-Clause, elceef = MIT, craiu = GPL-3.0. **LICENSE 파일이 없는 저장소**(fboldewin · StrangerealIntel · sbousseaden · SIFalcon — `license_url` 'N/A', 2026-09 실측 5건)와 표에 없는 저장소의 룰은 **본문 없이 링크만** |
+| Metasploit | BSD-3-Clause (© 2006-2026 Rapid7) | 표기. 모듈 이름만 싣는다 |
+| SigmaHQ sigma | DRL 1.1 | 룰마다 author · 룰 링크 · 라이선스 이름과 링크 |
+| Emerging Threats Open | **BSD** — 배포 LICENSE 기준 SID 2000000–2799999 (`Copyright (c) 2003-2026, Emerging Threats`). 같은 파일의 SID 1–3464 · 100000000–100000908 은 GPLv2, 2800000–2900000 은 ET Pro | 저작권 표기 · 조건 · 면책 문구 보존 — 전문을 데이터 출처 화면 '약관 원문'에 싣는다. **색인은 BSD 범위 SID 만 싣는다**(`rule_license.et_open_sid_ok`). 2026-09 실측: snort-2.9.0 · suricata-5.0 · suricata-7.0 의 활성 룰은 모두 BSD 범위 |
+| Snort Community Rules | **GPLv2** (`community.rules` 머리말 · 묶음의 LICENSE. © 2001-2026 Sourcefire, Inc. 및 각 작성자. VRT 라이선스 §2.3 은 Community Rules 가 대상이 아니라고 적는다) | 저작권 표기 · GPLv2 링크 |
 | nomi-sec/PoC-in-GitHub | **CC0 1.0** (LICENSE 확인) | 없음 — 다만 **URL 만 인용하고 PoC 원문은 게시하지 않는다** |
 | Exploit-DB | 링크만 사용 | 원문 미게시 |
 | NVD (NIST) | U.S. Government Work · NVD API Terms of Use | **"This product uses the NVD API but is not endorsed or certified by the NVD." 필수** (API 약관 Attribution 문구 그대로) |
 | OSV.dev | **소스 DB별 상이** — GHSA CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 · Rocky Linux BSD · AlmaLinux MIT 등 | 소스별 조건. 패키지명·버전 문자열만 게시 |
-| VulnCheck KEV | 무료 | **"This product uses VulnCheck KEV" 필수** |
+| VulnCheck KEV | 무료 · 커뮤니티 이용 조건 | **눈에 띄는 출처 표기 필수** — 데이터를 'VulnCheck KEV'로 표시하고(상세 근거 행), 하단에 "This product uses VulnCheck KEV." |
 | Anthropic CVD 레저 | 명시 없음 | 사실만 인용, 데이터셋 재배포 금지 |
 | endoflife.date (API v1) | MIT (`Copyright 2020 endoflife.date contributors`) | 저작권·허가 고지 보존 — `data/lifecycle.json` 의 `license.notice`+`license.text` 가 upstream LICENSE 원문 그대로. **제품 설명(Wikipedia CC BY-SA 3.0 유래)·아이콘(CC-BY-SA-4.0)은 싣지 않는다** |
 | ~~Elastic detection-rules~~ | Elastic License 2.0 | **거부** — source-available, 서비스 제한 |
 
-탐지 룰 5종의 라이선스 문자열은 `build_rule_index.LICENSES` 가 실제로 화면까지
-실어 나른다. **위 표와 그 사전은 같은 값을 말해야 한다** — 한쪽만 고치면 화면에
-찍히는 고지와 여기 적힌 계약이 갈라진다.
+탐지 룰의 라이선스 표기는 `src/rule_license.py` 한 곳에서 정한다 — 색인(`build_rule_index`) ·
+스냅샷(`rule_manager`) · export(`_credited` · `normalize_rules`)가 모두 이것을 쓴다. 화면은
+`docs/js/context.js` 의 `RULE_LICENSE` · `ruleTerms` 로 출처가 정해진 룰을 같은 표기로 적는다 —
+**위 표 · `rule_license.py` · `RULE_LICENSE` 는 같은 값을 말해야 한다**(`tests/test_rule_license.py` ·
+`tests/context.test.js` 가 같은 기대값으로 본다). 한쪽만 고치면 화면의 고지와 계약이 갈라진다.
+실제로 갈라진 적이 있다: 옛 사전은 ET Open 을 MIT, Snort Community 를 'MIT / GPLv2(레거시)'로,
+YARA 를 '룰별 상이'로만 적었다.
+
+export 는 증분이라 바뀐 행만 DB 에서 다시 읽는다. 그래서 `normalize_rules` 가 이월된 행까지
+모든 행의 룰 표기를 매번 맞춘다(여러 번 적용해도 결과가 같다) — 옛 표기와 싣지 말아야 할 본문이
+배포본(`docs/data/cves.json`, 누구나 받을 수 있다)에 남지 않는다.
 
 ### 9-1. 화면에 반드시 상시 표기되는 것
 
-`docs/cve.html` 하단 `<footer class="site-footer">` 가 **유일한 완전 목록**이다.
-모달 각주는 그 하단을 가리키기만 한다 — 목록을 두 곳에 두면 갈라지고,
-예전처럼 **모달을 한 번도 안 연 방문자가 아무 출처도 못 보는** 상태가 된다.
-룰 개별 라이선스·author 는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
-수명주기도 같은 방식이다 — 상세 모달의 Product Lifecycle 섹션이 값 옆에 endoflife.date 출처·원출처 정책 링크·수집 시각을
-찍지만, 소스별 조건의 완전한 표는 하단 하나뿐이다.
+**하단(`<footer class="site-footer">`)에는 늘 보여야 하는 고지만 둔다** — 접지 않는다.
 
-하단은 **소스별 표**(출처 · 용도 · 재배포 · 출처 표기 · 라이선스 · 비고)와 **필수 고지**(NVD 문구 · VulnCheck 문구 ·
-MITRE 저작권 표기와 CVE Usage 라이선스 문구 · endoflife.date MIT)로 나뉜다. '전부 무료·재배포 허용' 같은
-한 줄 요약은 쓰지 않는다 — 소스마다 조건이 다르고, 틀린 요약이 실제로 있었다(CVE 를 CC0 로 적었다).
+- NVD 문구 · "This product uses VulnCheck KEV."
+- MITRE 저작권 표기 · endoflife.date 저작권(MIT) · EPSS 출처(FIRST.org)
+- 면책 한 줄(출처 데이터를 모아 보여 준다 · 대응 전에 제조사 권고문 확인)과 '데이터 출처' 화면 링크
 
-고지에 **없어야 하는 것**: `GitHub Advisory`. 코드 어디서도 가져오지 않는다 —
-GHSA 는 OSV 덤프 안에 간접 포함될 뿐이다. `trickest` 도 같다 — PoC 출처는
-`nomi-sec/PoC-in-GitHub` 하나다.
+**출처별 이용 · 재배포 · 표기 조건은 데이터 출처 화면의 표 한 곳에만 둔다** (`EN.SOURCES[id].terms`,
+`EN.SOURCE_GROUPS` 순서). 표 아래 '약관 원문'에 CVE Usage 라이선스 문구(원문 그대로, `CVE™`)와
+ET Open BSD 전문을 싣는다. 모달 각주와 하단은 이 화면을 가리키기만 한다 — 조건을 두 곳에 두면
+갈라진다(예전에는 탭과 하단에 같은 출처를 두 번 적었다).
+룰 개별 라이선스 · 저작권자 · author · 룰 원문 링크는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
+
+하단에 **없어야 하는 것**: 조건 표 · 접는 칸(NVD 문구는 '눈에 띄게' 표기해야 한다), AI 도구 · 요금제
+(번역 · 분석은 사실을 주는 출처가 아니다. Google 약관은 파이프라인 계정에 적용되고 화면 표기 의무가 없다),
+저장 · 배포 · 알림 구성(Turso · GitHub Pages · Slack — 운영 정보다). '전부 무료·재배포 허용' 같은
+한 줄 요약도 쓰지 않는다 — 소스마다 조건이 다르고, 틀린 요약이 실제로 있었다(CVE 를 CC0 로 적었다).
+
+출처 표에 **없어야 하는 것**: `GitHub Advisory` 행. 코드 어디서도 따로 가져오지 않는다 —
+GHSA 는 OSV 덤프 안에 간접 포함될 뿐이라 OSV 행의 조건에만 적는다. `trickest` 도 같다 — PoC 출처는
+`nomi-sec/PoC-in-GitHub` 하나다. 내부 엔티티(Argus 계산 · 룰 색인 · AI 번역)도 표에 싣지 않는다.
+
+**운영자가 지킬 것 — Google AI Studio 무료 등급**: 무료 등급(Unpaid Services)의 입력 · 출력은 Google 이
+제품 개선에 쓰고 사람이 검토할 수 있다. 약관이 "기밀 · 민감 · 개인 정보를 넣지 말라"고 적는다.
+지금 보내는 것은 공개 CVE 데이터뿐이다(`analyzer._build_analysis_prompt`: CVE ID · 설명 · CWE · CVSS 벡터 ·
+영향 제품 · 참고 링크 3개 · PoC/Metasploit/VulnCheck 여부, 번역도 공개 제목 · 설명). **사내 자산 목록 ·
+내부 취약점 스캔 결과 같은 비공개 데이터를 프롬프트에 넣는 기능을 붙이면 무료 등급을 쓰면 안 된다.**
 
 ### 9-2. 실제로 접속하는 호스트 (무료 범위 확인용)
 
@@ -634,12 +658,13 @@ TZ=UTC node --test tests/*.test.js                          # 아래 여섯 파�
 | 파일 | 확인하는 것 |
 |:---|:---|
 | `tests/lifecycle.test.js` | `lifecycle.js` — 상태 계산(Python 과 같은 표) · 버전 → 사이클 · CPE/PURL/이름/규칙 매칭 · 검색어 값 |
-| `tests/context.test.js` | `context.js` — 신호 10종의 yes/no/unknown 경계 · 상관의 `!` · 근거 행렬 · 집계 · 품질 점검 · CI 사전 계산이 브라우저 계산과 같은지(지문 · 직렬화 왕복) |
+| `tests/context.test.js` | `context.js` — 신호 10종의 yes/no/unknown 경계 · 상관의 `!` · 근거 행렬 · 탐지 룰 라이선스 표기(출처 기준 · 옛 표기 바로잡기 · 라이선스 없는 YARA 는 링크만) · 같은 엔진의 룰도 온 곳이 다르면 근거 행을 나눔 · 집계 · 품질 점검 · CI 사전 계산이 브라우저 계산과 같은지(지문 · 직렬화 왕복) |
 | `tests/evidence.test.js` | `build_context.js` 의 원 출처 날짜 — CSV 파싱 · 파이프라인과 같은 CVE 매칭 · 캐시 없음/일부 · 출처 불일치 · 출처별 집계 · 동시 발생 · 일별 심각도 · 최근 공개가 직접 센 값과 같은지 |
-| `tests/entities.test.js` | `entities.js` · `viewmodel.js` — 있음이면 근거가 이어지고(근거 id 가 엔티티에 있음) 있음이 아니면 근거가 없으며 모름은 사유가 있다 · 증거마다 출처 엔티티 · 유형 · 연결 방법 · 원 출처 날짜는 `cve-evidence.json` 에서만 · 제목/설명의 출처 · AI 글이 사실 엔티티에 없음 · 버전 범위 · KPI/행렬/상관 = 집계 |
-| `tests/dashboard.test.js` | 화면 스크립트 전체를 가짜 DOM 에서 실행 — 변경 전 회귀 · KPI 6칸(숫자 = 검색어 목록 건수, 숫자 아래 변화) · 새 검색어(날짜 · 심각도 포함) · 최근 동향 카드 3장 · 대시보드 숫자(상관 · 행렬 · 줄/칸 전체 · 관련 검색어) = 목록 건수 · 사전 계산으로 먼저 그리기 · 목록(6칸 · 영향 버전 한 줄 표기)/상세(원문 · 원 출처 날짜 · 출처 간 차이 · 미확인 사유)/수명주기/출처 화면 · 화면 전환 URL · 나란히 보기 · 방문 기록 · 검색 미리보기 · 테마 · 내보내기 스키마 |
-| `tests/ui.test.js` | `cve.html` 뼈대 — 화면 5개와 사이드바 · 스크립트 의존 순서 · 목록 6칸 · 설명 버튼과 카드 · 접어 둔 칸의 패널 · 라이선스 표가 한 곳뿐(§9-1) · 라이트 토큰 두 블록(OS 설정 · 테마 버튼)이 같음 · 뷰 모델 없이도 목록 · 검색 · 상세 머리글 동작 |
+| `tests/entities.test.js` | `entities.js` · `viewmodel.js` — 있음이면 근거가 이어지고(근거 id 가 엔티티에 있음) 있음이 아니면 근거가 없으며 모름은 사유가 있다 · 증거마다 출처 엔티티 · 유형 · 연결 방법 · 원 출처 날짜는 `cve-evidence.json` 에서만 · 제목/설명의 출처 · AI 글이 사실 엔티티에 없음 · 버전 범위 · KPI/행렬/상관 = 집계 · 출처 표는 외부 출처만 한 번씩(건수는 모르면 null) |
+| `tests/dashboard.test.js` | 화면 스크립트 전체를 가짜 DOM 에서 실행 — 변경 전 회귀 · KPI 6칸(숫자 = 검색어 목록 건수, 숫자 아래 변화) · 새 검색어(날짜 · 심각도 포함) · 최근 동향 카드 3장 · 대시보드 숫자(상관 · 행렬 · 줄/칸 전체 · 관련 검색어) = 목록 건수 · 사전 계산으로 먼저 그리기 · 목록(6칸 · 영향 버전 한 줄 표기)/상세(원문 · 원 출처 날짜 · 출처 간 차이 · 미확인 사유 · 룰 본문의 라이선스 표기와 링크만 싣는 YARA)/수명주기/출처 화면(출처 표 · 이용 조건 링크) · 화면 전환 URL · 나란히 보기 · 방문 기록 · 검색 미리보기 · 테마 · 내보내기 스키마 |
+| `tests/ui.test.js` | `cve.html` 뼈대 — 화면 5개와 사이드바 · 스크립트 의존 순서 · 목록 6칸 · 설명 버튼과 카드 · 접어 둔 칸의 패널 · 하단은 접지 않은 필수 고지만 · 약관 원문(CVE™ · ET Open BSD) · 이용 조건은 데이터 출처 화면 한 곳(§9-1) · 라이트 토큰 두 블록(OS 설정 · 테마 버튼)이 같음 · 뷰 모델 없이도 목록 · 검색 · 상세 머리글 동작 |
 | `tests/test_export_facts.py` | export 의 `cve-facts.json` — 원문 제목 · 설명 · CNA · 제품 출처 · 번역 출처(`o`) 판정 · 증분 병합 · 배포본 없음(전량 export) · 조회 오류(쓰지 않고 배포본 이월) |
+| `tests/test_rule_license.py` | `rule_license.py` — 출처별 라이선스(ET Open BSD · Snort Community GPLv2 · Sigma DRL · Splunk Apache) · YARA 원 저장소별 라이선스 · LICENSE 없는/모르는 저장소는 링크만 · 여러 번 적용해도 같음 · export 가 이월된 행까지 바로잡음 · 스냅샷이 링크만 둘 룰의 원문을 받지 않음 · 색인이 ET Open 의 BSD 범위 SID 만 실음 |
 
 `update-lifecycle.yml` 이 갱신 전에 같은 명령을 돌리고, 실패하면 데이터를 쓰지 않는다.
 네트워크도 `docs/data/` 도 쓰지 않는다 — 전부 `tests/fixtures/` 와 저장소의 `data/lifecycle_aliases.json` 이다.
@@ -939,7 +964,7 @@ Signal(context.js 판정) ─derived_from─▶ Evidence · Score · Cycle    Co
 | CVE 목록 | 검색줄(필드·값 자동완성) · 정렬 고르기 · 내보내기 메뉴 · 조건 칩(셋 + '조건 +N') · 표 6칸(CVE·알림 · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 지원 상태 · 탐지·수정) — 1000px 이하는 카드. 행은 키보드(Enter · Space · ↑ ↓)로도 연다. 1200px 이상은 오른쪽에 상세(나란히 보기) |
 | CVE 상세 | 머리글(ID · 심각도 · Argus 등급 · 제목 · 요약과 그 출처 표시 · 수치 칸: CVSS · EPSS · 공개일 · KEV 등재일/조치 기한 · 영향 제품 · 유형) → 확인된 위협 신호(있음만 한 줄씩 · 신호 조합 · 출처 간 차이 · 없음/미확인 칩 · 출처별로 보기) → 조치 · 영향 제품 → 접어 둔 칸: 수명주기 상세 · 출처별 근거 · 기술 정보(원문 · CNA · CWE · 벡터 · 참고 링크) · AI 분석. 위에 돌아가기 · 이전 · 다음 · 위치(범위 · n / 전체) |
 | 제품 수명주기 | 벤더 · 제품 고르기 · 상태별 릴리스 수 · EOL 임박 · 제품 카드 · 릴리스 표 · 릴리스별 관찰된 위협(`release:` 목록) |
-| 데이터 출처 | 출처 엔티티 21개(주는 정보 · Argus에서 쓰는 곳 · '있음'으로 기록한 CVE · 갱신 주기 · 파일과 생성 시각 · KEV 카탈로그 판) · 신호별 확인 현황(있음 · 없음 · 미확인) · 출처 간 차이 3종 · 데이터 범위와 점검. **이용 · 재배포 · 표기 조건은 되풀이하지 않고 하단 표로 보낸다**(§9-1) |
+| 데이터 출처 | 외부 출처 17곳을 4묶음(취약점 정보 · 악용 · 위험 신호 · 공개 탐지 룰 · 제품 수명주기)으로 한 표에: 출처 · 주는 정보 · 기록 있는 CVE · 갱신 주기 · 이용 조건(라이선스 이름 · 전문 링크 · 지킬 조건). NVD 는 CVE 레코드 행에 합친다. 표 아래 약관 원문(CVE Usage · ET Open BSD). **출처별 이용 조건은 이 화면 한 곳에만**(§9-1). 신호별 확인 현황 · 출처 간 차이 · 데이터 범위와 점검 · 파일 이름과 생성 시각은 싣지 않는다 — 미확인 사유와 출처 간 차이는 CVE 상세와 검색어(`unknown:<키>` · `conflict:<키>`)에 있고, 품질 점검은 CI 로그(`build_context.js`)와 테스트가 맡는다. 갱신은 Argus 가 원본을 다시 받는 주기다 — 출처마다 받은 시각이 기록된 곳은 KEV · Exploit-DB · Metasploit 뿐이라, 파일 생성 시각을 출처의 갱신 시각처럼 적지 않는다 |
 
 URL 은 `?view=cves|lifecycle|sources`(대시보드는 생략) · `?q=`(목록 맥락일 때만) · `?cve=`(상세) · `full=1`(넓은 화면에서 목록 맥락의
 상세를 한 화면으로). `view=cves` 에 `cve` 가 있으면 넓은 화면에서는 나란히 보기, 좁은 화면에서는 상세 한 화면으로 연다. `view` · `q` 는
@@ -954,7 +979,7 @@ CVE 레코드 링크를 준다. 대시보드 · 수명주기 · 출처에서 숫
 똑같이 두고 `tests/ui.test.js` 가 같은지 확인한다.
 
 **색** — 빨강은 **악용 근거에만** 쓴다(`--g-exploit`). 공개 exploit 은 보라(`--g-weapon`), 자동화는 녹색(`--g-auto`), 수명주기는
-§12 의 청록 램프, 신호별 확인 현황은 있음(파랑) · 없음(회색) · 미확인(**빗금** — 색이 아니라 무늬). 새로 만든 요약 요소(상관 목록 ·
+§12 의 청록 램프. 새로 만든 요약 요소(상관 목록 ·
 조건 칩 · KPI 레일)에서 심각도는 무채색으로 두고, 심각도 배지 · 목록의 심각도 레일에만 기존 관례 색을 남겼다. 위협 3색은 dataviz
 검증기(범주형, 모든 쌍)로 확인했다 — 다크 CVD ΔE 6.5 · 라이트 6.9 로 6–8 구간이라 **칩마다 문자 라벨이 필수**다(색만으로 구분하지 않는다).
 차트는 한 계열(범주형 1번 파랑 `--viz-1` — 다크 대비 4.98:1 · 라이트 4.42:1. 추이는 선 · 면, 신호 조합 · 분포는 막대)과 행렬의 순차 램프(`--seq-1…5`, 파랑 한 색조 · 명도 단조 ·

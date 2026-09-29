@@ -258,47 +258,34 @@
     });
   }
 
-  /* ---------- 데이터 출처 — 출처 엔티티별 범위 · 시각 (조건 · 라이선스는 하단 표 한 곳) ---------- */
+  /* ---------- 데이터 출처 — 출처별 주는 정보 · 기록이 있는 CVE 수 · 갱신 주기 · 이용 조건 ---------- */
 
-  // coverage: 이 출처가 '있음'이라고 한 CVE 수 (aggregate.sources / signals 에서)
-  function sources(EN, agg, files) {
+  // count: 추적 중인 CVE 가운데 이 출처에 기록이 있는 건수(aggregate 에서). 집계에 없는 출처(룰 저장소별)는
+  // 화면이 전체 목록에서 센 값을 extra 로 넘긴다. 모르면 null — 0 과 구분한다.
+  function sources(EN, agg, extra) {
     if (!EN) return [];
     const src = (agg && agg.sources) || {};
     const sig = (agg && agg.signals) || {};
-    const f = files || {};
-    const cov = {
-      'cve-record': agg ? { n: agg.total, text: `추적 CVE 전체 · CVSS 있음 ${fmt(src.cvss_scored)}` } : null,
-      'cisa-adp': agg ? { n: src.ssvc_assessed, text: `SSVC 판정 ${fmt(src.ssvc_assessed)} · 미확인 ${fmt(sig.AUTOMATABLE ? sig.AUTOMATABLE.unknown : 0)}` } : null,
-      'first-epss': agg ? { n: src.epss_scored, text: `채점 ${fmt(src.epss_scored)} · 미채점 ${fmt(agg.total - (src.epss_scored || 0))}` } : null,
-      'cisa-kev': agg ? { n: src.cisa_kev, text: `등재 ${fmt(src.cisa_kev)} · 랜섬웨어 사용 ${fmt(sig.RANSOMWARE ? sig.RANSOMWARE.yes : 0)}` } : null,
-      'vulncheck-kev': agg ? { n: src.vulncheck_kev, text: `등재 ${fmt(src.vulncheck_kev)}` } : null,
-      'exploit-db': agg ? { n: src.exploit_db, text: `항목 있음 ${fmt(src.exploit_db)}` } : null,
-      metasploit: agg ? { n: src.metasploit, text: `모듈 있음 ${fmt(src.metasploit)}` } : null,
-      'poc-in-github': agg ? { n: src.poc, text: `저장소 있음 ${fmt(src.poc)}` } : null,
-      nuclei: agg ? { n: src.nuclei, text: `템플릿 있음 ${fmt(src.nuclei)}` } : null,
-      'rule-index': agg ? { n: src.rules, text: `룰 있음 ${fmt(src.rules)} (nuclei 제외)` } : null,
-      osv: agg && sig.PATCH_AVAILABLE ? { n: sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no,
-                                          text: `기록 ${fmt(sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no)} · 수정 버전 ${fmt(sig.PATCH_AVAILABLE.yes)}` } : null,
-      endoflife: agg && agg.lifecycle ? { n: agg.lifecycle.mapped, text: `CVE 연결 ${fmt(agg.lifecycle.mapped)} (릴리스까지 ${fmt(agg.lifecycle.cycle_level)})` } : null,
-      'ai-discovery': agg ? { n: src.ai_discovered, text: `AI 발견 ${fmt(src.ai_discovered)}` } : null,
-    };
-    const fileTime = name => ({ 'cves.json': f.cves, 'cve-products.json': f.products, 'cve-facts.json': f.facts,
-                                'cve-evidence.json': f.evidence, 'cve-packages.json': f.packages, 'lifecycle.json': f.lifecycle,
-                                'cve-context.json': f.context })[name];
-    return EN.SOURCE_ORDER.map(id => {
-      const s = EN.SOURCES[id];
-      const types = (s.provides || []).map(k => ({ key: k, label: (EN.PROVIDES_LABEL || {})[k] || k }));
-      return { id, name: s.name, provider: s.provider, url: s.url, kind: s.kind, role: s.role, cadence: s.cadence,
-               files: (s.files || []).map(name => ({ name, at: fileTime(name) || null })), coverage: cov[id] || null, types };
-    });
+    const counts = agg ? {
+      'cve-record': agg.total, 'cisa-adp': src.ssvc_assessed, 'first-epss': src.epss_scored,
+      'cisa-kev': src.cisa_kev, 'vulncheck-kev': src.vulncheck_kev, 'exploit-db': src.exploit_db,
+      metasploit: src.metasploit, 'poc-in-github': src.poc, nuclei: src.nuclei, 'ai-discovery': src.ai_discovered,
+      osv: sig.PATCH_AVAILABLE ? sig.PATCH_AVAILABLE.yes + sig.PATCH_AVAILABLE.no : null,
+      endoflife: agg.lifecycle ? agg.lifecycle.mapped : null,
+    } : {};
+    Object.assign(counts, extra || {});
+    return (EN.SOURCE_GROUPS || []).map(g => ({
+      label: g.label,
+      rows: g.ids.map(id => {
+        const s = EN.SOURCES[id];
+        const n = Number(counts[id]);
+        return { id, name: s.name, provider: s.provider || '', url: s.url || '', role: s.role, cadence: s.cadence || '',
+                 count: counts[id] == null || !Number.isFinite(n) ? null : n,
+                 terms: (s.terms || []).map(t => ({ label: t.label, url: t.url || '', note: t.note || '' })) };
+      }),
+    }));
   }
 
-  function conflicts(agg) {
-    if (!CTX || !agg) return [];
-    return CTX.CONFLICTS.map(c => ({ code: c.code, key: c.key, subject: c.subject, label: c.label, rule: c.rule,
-                                    n: (agg.conflicts || {})[c.code] || 0, query: `conflict:${c.key}` }));
-  }
-
-  return { SEVERITIES, josa, epssPct, scores, shortVersions, listRow, kpis, correlations, matrix, overview, recent, sources, conflicts,
+  return { SEVERITIES, josa, epssPct, scores, shortVersions, listRow, kpis, correlations, matrix, overview, recent, sources,
            ENGINE_FAMILY };
 });

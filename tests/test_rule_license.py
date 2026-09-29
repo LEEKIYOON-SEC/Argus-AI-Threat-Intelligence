@@ -1,0 +1,185 @@
+import copy
+import os
+import sys
+import unittest
+from unittest import mock
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "src"))
+
+import build_rule_index as bri  # noqa: E402
+import export_dashboard_data as ex  # noqa: E402
+import rule_license as rl  # noqa: E402
+import rule_manager as rm  # noqa: E402
+
+SIG_BASE = "https://github.com/Neo23x0/signature-base/blob/94a1c48d/LICENSE"
+
+
+class TermsTests(unittest.TestCase):
+    """룰마다 적을 라이선스 — 화면(docs/js/context.js ruleTerms)과 같은 표기"""
+
+    def test_network_rules_follow_their_source(self):
+        # 옛 색인은 ET Open 을 MIT 로, Snort Community 를 'MIT / GPLv2' 로 적었다.
+        for source, engine in (("Snort 2.9 ET Open", "snort2"), ("Suricata 5 ET Open", "suricata5"),
+                               ("Suricata 7 ET Open", "suricata7")):
+            t = rl.terms({"engine": engine, "source": source, "license": "MIT"})
+            self.assertEqual(t["license"], "BSD", source)
+            self.assertEqual(t["license_url"], "https://rules.emergingthreats.net/open/suricata-7.0/LICENSE")
+            self.assertFalse(t["link_only"])
+        for source, engine in (("Snort 2.9 Community", "snort2"), ("Snort 3 Community", "snort3")):
+            t = rl.terms({"engine": engine, "source": source, "license": "MIT / GPLv2(레거시 SID 1–3464)"})
+            self.assertEqual(t["license"], "GPLv2", source)
+            self.assertEqual(t["license_url"], "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html")
+
+    def test_fixed_sources(self):
+        self.assertEqual(rl.terms({"engine": "sigma"})["license"], "DRL 1.1")
+        self.assertEqual(rl.terms({"engine": "sigma"})["license_url"], "https://github.com/SigmaHQ/Detection-Rule-License")
+        self.assertEqual(rl.terms({"engine": "splunk"})["license"], "Apache-2.0")
+        self.assertTrue(rl.terms({"engine": "nuclei"})["link_only"], "점검 템플릿은 링크만")
+
+    def test_yara_license_comes_from_the_origin_repository(self):
+        cases = {
+            SIG_BASE: "DRL 1.1",
+            "https://github.com/SEKOIA-IO/Community/blob/fa3a/LICENSE.md": "DRL 1.1",
+            "https://github.com/ditekshen/detection/blob/e76c/LICENSE.txt": "BSD-2-Clause",
+            "https://github.com/volexity/threat-intel/blob/a7ea/LICENSE.txt": "BSD-2-Clause",
+            "https://github.com/elceef/yara-rulz/blob/5683/LICENSE": "MIT",
+            "https://github.com/craiu/yararules/blob/23cf/LICENSE": "GPL-3.0",
+        }
+        for url, name in cases.items():
+            t = rl.terms({"engine": "yara", "license_url": url})
+            self.assertEqual((t["license"], t["link_only"]), (name, False), url)
+
+    def test_yara_without_a_known_license_is_link_only(self):
+        # 실측: fboldewin · StrangerealIntel · sbousseaden · SIFalcon 저장소에는 LICENSE 파일이 없다(license_url 'N/A').
+        for lic_url in ("N/A", "", None):
+            t = rl.terms({"engine": "yara", "license_url": lic_url})
+            self.assertEqual(t, {"license": "", "license_url": "", "link_only": True})
+        unknown = rl.terms({"engine": "yara", "license_url": "https://github.com/someone/rules/blob/x/LICENSE"})
+        self.assertEqual((unknown["license"], unknown["link_only"]), ("", True),
+                         "LICENSE 가 있어도 종류를 확인하지 않은 저장소는 본문을 싣지 않는다")
+
+    def test_repo_of_tolerates_double_slash(self):
+        self.assertEqual(rl.repo_of("https://github.com/fboldewin/YARA-rules//blob/54e9/x.yar"), "fboldewin/yara-rules")
+
+    def test_et_open_sid_ranges(self):
+        self.assertTrue(rl.et_open_sid_ok(2000000))
+        self.assertTrue(rl.et_open_sid_ok(2799999))
+        for sid in (None, 1, 3464, 2800000, 2900000, 100000000):
+            self.assertFalse(rl.et_open_sid_ok(sid), sid)
+
+
+class ApplyTests(unittest.TestCase):
+    def test_apply_is_idempotent_and_drops_body_when_link_only(self):
+        rule = {"engine": "yara", "source": "YARA Forge", "license": "룰별 상이", "note": "x",
+                "license_url": "N/A", "url": "https://github.com/fboldewin/YARA-rules//blob/54e9/x.yar",
+                "author": "Frank", "code": "rule leak {}"}
+        once = rl.apply(rule)
+        self.assertNotIn("code", once)
+        self.assertNotIn("note", once)
+        self.assertTrue(once["link_only"])
+        self.assertEqual(once["author"], "Frank")
+        self.assertEqual(rl.apply(once), once)
+        self.assertEqual(rule["code"], "rule leak {}", "원본은 바꾸지 않는다")
+
+    def test_apply_keeps_body_and_per_rule_license_url_only_for_yara(self):
+        yara = rl.apply({"engine": "yara", "license_url": SIG_BASE, "code": "rule ok {}"})
+        self.assertEqual((yara["license"], yara["license_url"], yara["code"]), ("DRL 1.1", SIG_BASE, "rule ok {}"))
+        self.assertNotIn("link_only", yara)
+        net = rl.apply({"engine": "snort2", "source": "Snort 2.9 ET Open", "license": "MIT", "license_url": "",
+                        "code": "alert"})
+        self.assertEqual(net["license"], "BSD")
+        self.assertNotIn("license_url", net, "출처가 정해진 룰의 링크는 화면이 안다")
+        self.assertEqual(net["code"], "alert")
+
+
+class ExportTests(unittest.TestCase):
+    """증분 export 는 이월된 행도 다시 쓴다 — 옛 표기와 싣지 말아야 할 본문이 남지 않는다"""
+
+    def rows(self):
+        return [
+            {"id": "CVE-2023-23397", "rules": {"yara": {
+                "engine": "yara", "source": "YARA Forge", "license": "룰별 상이", "license_url": "N/A",
+                "url": "https://github.com/fboldewin/YARA-rules//blob/54e9/x.yar", "code": "rule leak {}"}}},
+            {"id": "CVE-2019-0708", "rules": {"network": [
+                {"engine": "snort2", "source": "Snort 2.9 ET Open", "license": "MIT / GPLv2(레거시 SID 1–3464)",
+                 "note": "Emerging Threats Open / Snort Community", "license_url": "", "code": "alert a"},
+                {"engine": "snort2", "source": "Snort 2.9 Community", "license": "MIT / GPLv2(레거시 SID 1–3464)",
+                 "license_url": "", "code": "alert b"}],
+                "nuclei": {"engine": "nuclei", "source": "nuclei-templates", "license": "MIT", "url": "https://x"}}},
+            {"id": "CVE-2026-0001"},
+        ]
+
+    def test_normalize_rules_fixes_carried_rows(self):
+        rows = self.rows()
+        self.assertEqual(ex.normalize_rules(rows), 2)
+        yara = rows[0]["rules"]["yara"]
+        self.assertNotIn("code", yara)
+        self.assertTrue(yara["link_only"])
+        net = rows[1]["rules"]["network"]
+        self.assertEqual([r["license"] for r in net], ["BSD", "GPLv2"])
+        self.assertEqual([r["code"] for r in net], ["alert a", "alert b"])
+        self.assertTrue(all("note" not in r for r in net))
+        self.assertTrue(rows[1]["rules"]["nuclei"]["link_only"])
+        again = copy.deepcopy(rows)
+        self.assertEqual(ex.normalize_rules(again), 0, "두 번째 적용은 바꾸는 것이 없다")
+        self.assertEqual(again, rows)
+
+
+class RuleManagerTests(unittest.TestCase):
+    """스냅샷 — 본문을 실을 수 없는 룰은 원문을 받지 않고, 실을 수 있는 룰이 앞선다"""
+
+    def test_link_only_yara_is_not_fetched_and_licensed_one_wins(self):
+        index = {"CVE-2026-0002": [
+            {"engine": "yara", "source": "YARA Forge", "license_url": "N/A",
+             "url": "https://github.com/sbousseaden/YaraHunts//blob/71b2/a.yar", "author": "S"},
+            {"engine": "yara", "source": "YARA Forge", "license_url": SIG_BASE,
+             "url": "https://github.com/Neo23x0/signature-base/blob/94a1/b.yar", "author": "F"},
+        ]}
+        fetched = []
+
+        def fake_fetch(entry):
+            fetched.append(entry["url"])
+            return "rule ok {}"
+
+        with mock.patch.object(rm, "_index", return_value=index), mock.patch.object(rm, "_fetch_text", fake_fetch):
+            rules, complete = rm.RuleManager().search_public_only("CVE-2026-0002")
+        self.assertTrue(complete)
+        self.assertEqual(fetched, ["https://github.com/Neo23x0/signature-base/blob/94a1/b.yar"])
+        self.assertEqual((rules["yara"]["license"], rules["yara"]["code"]), ("DRL 1.1", "rule ok {}"))
+
+    def test_only_link_only_yara_is_kept_as_link(self):
+        index = {"CVE-2026-0003": [{"engine": "yara", "source": "YARA Forge", "license_url": "N/A",
+                                    "url": "https://github.com/SIFalcon/Detection/blob/2d7c/a.yar"}]}
+        with mock.patch.object(rm, "_index", return_value=index), \
+                mock.patch.object(rm, "_fetch_text", side_effect=AssertionError("받지 않는다")):
+            rules, complete = rm.RuleManager().search_public_only("CVE-2026-0003")
+        self.assertTrue(complete)
+        self.assertTrue(rules["yara"]["link_only"])
+        self.assertNotIn("code", rules["yara"])
+
+
+class RuleIndexTests(unittest.TestCase):
+    """색인 — ET Open 은 BSD 범위 SID 만, 라이선스는 출처대로"""
+
+    def test_et_open_keeps_only_bsd_range(self):
+        body = "\n".join([
+            '# alert tcp any any -> any any (msg:"commented CVE-2026-1111"; sid:2000001;)',
+            'alert tcp any any -> any any (msg:"bsd CVE-2026-1111"; sid:2034647; rev:1;)',
+            'alert tcp any any -> any any (msg:"gpl CVE-2026-2222"; sid:2466; rev:1;)',
+            'alert tcp any any -> any any (msg:"pro CVE-2026-3333"; sid:2850000; rev:1;)',
+        ])
+        resp = mock.Mock(status_code=200, text=body)
+        sources = [("Suricata 7 ET Open", "https://example/emerging-all.rules", None, "suricata7")]
+        index = {}
+        with mock.patch.object(bri, "_NETWORK_SOURCES", sources), mock.patch.object(bri.requests, "get", return_value=resp):
+            done = bri.collect_network(index)
+        self.assertEqual(done, {"suricata7"})
+        self.assertEqual(sorted(index), ["CVE-2026-1111"])
+        entry = index["CVE-2026-1111"][0]
+        self.assertEqual((entry["license"], entry["source"]), ("BSD", "Suricata 7 ET Open"))
+        self.assertIn("sid:2034647", entry["code"])
+
+
+if __name__ == "__main__":
+    unittest.main()

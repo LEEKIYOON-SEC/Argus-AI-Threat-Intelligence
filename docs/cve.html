@@ -374,90 +374,53 @@
       </section>
       <div class="help-card" id="src-help" hidden>
         <ul>
-          <li>출처마다 제공하는 정보, 추적 중인 CVE 가운데 '있음'으로 기록한 건수, 마지막으로 받은 시각을 보여 줍니다.</li>
-          <li>출처가 언급하지 않은 CVE는 '없음'이 아니라 '미확인'입니다.</li>
-          <li>출처별 이용 · 재배포 · 표기 조건은 <a href="#source-license" onclick="openLicense(event)">하단 '데이터 출처 및 라이선스'</a> 표에 한 번만 적습니다.</li>
+          <li>'기록 있는 CVE'는 추적 중인 CVE 가운데 그 출처에 기록이 있는 건수입니다. 출처에 기록이 없는 CVE는 '없음'이 아니라 '미확인'으로 봅니다.</li>
+          <li>'갱신'은 Argus가 출처에서 데이터를 다시 받는 주기입니다.</li>
+          <li>익스플로잇 원문(Exploit-DB · PoC)과 점검 템플릿(nuclei)은 싣지 않고 링크만 둡니다. 탐지 룰 본문은 룰마다 작성자와 라이선스를 함께 적습니다.</li>
         </ul>
       </div>
-      <section class="panel">
-        <div class="panel-head"><h2>출처</h2><span class="panel-note">범위는 추적 중인 CVE 가운데 그 출처가 '있음'으로 기록한 건수입니다.</span></div>
+      <section class="panel src-panel">
         <div class="table-scroll"><table class="src-reg" id="src-registry"></table></div>
       </section>
-      <section class="dash-row dash-row-2">
-        <div class="panel">
-          <div class="panel-head"><h2>신호별 확인 현황</h2><span class="panel-note">신호마다 있음 · 없음 · 미확인 건수입니다.</span></div>
-          <div id="dash-coverage"></div>
+      <section class="panel" id="src-terms">
+        <div class="panel-head"><h2>약관 원문</h2><span class="panel-note">사본에 함께 실어야 하는 문구입니다.</span></div>
+        <div class="terms-item" id="terms-cve">
+          <h3>CVE Program 이용약관 · <a href="https://www.cve.org/Legal/TermsOfUse" target="_blank" rel="noopener noreferrer">cve.org ↗</a></h3>
+          <p lang="en">Copyright © 1999-2026, The MITRE Corporation. CVE is a trademark and the CVE logo is a registered trademark of The MITRE Corporation.</p>
+          <blockquote lang="en">CVE Usage: MITRE hereby grants you a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy.</blockquote>
         </div>
-        <div class="panel">
-          <div class="panel-head"><h2>출처 간 차이</h2><span class="panel-note">출처끼리 값이 다른 경우입니다. 누르면 목록이 열립니다.</span></div>
-          <div id="src-conflicts"></div>
-        </div>
-      </section>
-      <section class="panel">
-        <div class="panel-head"><h2>데이터 범위와 점검</h2><span class="panel-note">파일별 생성 시각과 점검 결과입니다. 경고는 데이터끼리 맞지 않는 경우, 정보는 원래 비어 있는 값입니다.</span></div>
-        <div id="dash-quality"></div>
+        <details class="terms-item" id="terms-et">
+          <summary><h3>Emerging Threats Open 라이선스 (BSD)</h3><span class="terms-more"><span class="if-closed">전문 보기</span><span class="if-open">접기</span></span></summary>
+          <pre lang="en">Copyright (c) 2003-2026, Emerging Threats
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+* Neither the name of the nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</pre>
+          <p class="terms-src">원문: <a href="https://rules.emergingthreats.net/open/suricata-7.0/LICENSE" target="_blank" rel="noopener noreferrer">rules.emergingthreats.net ↗</a> (SID 2000000–2799999 룰에 적용. Argus가 싣는 ET Open 룰은 모두 이 범위입니다)</p>
+        </details>
       </section>
      </div>
     </main>
 
-    <footer class="site-footer">
-      <details class="source-note" id="source-license">
-        <summary>
-          <span class="src-title">데이터 출처 및 라이선스</span>
-          <span class="src-sum">CVE Program · NVD · OSV · CISA KEV · EPSS · VulnCheck · Metasploit · Exploit-DB · 탐지 룰 · endoflife.date. 출처마다 이용 · 재배포 · 출처 표기 조건이 다릅니다.</span>
-          <span class="src-caret">펼치기</span>
-        </summary>
-
-      <div class="src-notices">
-        <h3>필수 고지</h3>
-        <ul>
-          <li>This product uses the NVD API but is not endorsed or certified by the NVD.</li>
-          <li>This product uses <a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a>.</li>
-          <li>CVE™ 레코드 — Copyright © 1999-2026, The MITRE Corporation. <a href="https://www.cve.org/Legal/TermsOfUse" target="_blank" rel="noopener noreferrer">CVE Program Terms of Use</a>에 따라 이용합니다:
-            “MITRE hereby grants you a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy.”</li>
-          <li>제품 수명주기 — <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> · Copyright 2020 endoflife.date contributors · <a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a></li>
-        </ul>
-      </div>
-
-      <div class="src-table-wrap">
-        <table class="src-table">
-          <thead>
-            <tr><th>출처</th><th>Argus에서의 용도</th><th>재배포</th><th>출처 표기</th><th>라이선스·약관</th><th>비고</th></tr>
-          </thead>
-          <tbody>
-            <tr class="src-group"><th colspan="6">취약점 기본 정보</th></tr>
-            <tr><td><a href="https://www.cve.org/" target="_blank" rel="noopener noreferrer">CVE Program</a> (cvelistV5)</td><td>제목·설명·영향 제품·CVSS·CWE·참고 링크 수집, 한국어 번역·가공해 게시</td><td>허용 (이용약관 조건)</td><td>필요: MITRE 저작권 표기와 이용약관 문구 재현 (위 필수 고지)</td><td><a href="https://www.cve.org/Legal/TermsOfUse" target="_blank" rel="noopener noreferrer">CVE Program Terms of Use</a></td><td></td></tr>
-            <tr><td><a href="https://nvd.nist.gov/" target="_blank" rel="noopener noreferrer">NVD</a> (NIST)</td><td>CVSS·CPE(영향 제품) 보충 조회</td><td>허용 (미국 정부 저작물, API 약관 준수)</td><td>필요: 위 NVD 고지 문구</td><td><a href="https://nvd.nist.gov/developers/terms-of-use" target="_blank" rel="noopener noreferrer">NVD API Terms of Use</a></td><td>CPE에서 뽑은 제품명은 Argus가 가공한 값이며 NVD가 보증하지 않습니다</td></tr>
-            <tr><td><a href="https://osv.dev" target="_blank" rel="noopener noreferrer">OSV.dev</a></td><td>패키지명·수정 버전 (has:patch)</td><td>소스 DB 라이선스 조건에 따름</td><td>필요 (CC-BY 계열 소스)</td><td>소스 DB별로 다름: GitHub Advisory Database CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 · Rocky Linux BSD · AlmaLinux MIT 등 (<a href="https://google.github.io/osv.dev/data/" target="_blank" rel="noopener noreferrer">목록</a>)</td><td>패키지명·버전 문자열만 게시</td></tr>
-            <tr class="src-group"><th colspan="6">악용·위험 신호</th></tr>
-            <tr><td><a href="https://www.cisa.gov/known-exploited-vulnerabilities-catalog" target="_blank" rel="noopener noreferrer">CISA KEV</a></td><td>악용 여부·랜섬웨어 사용·조치 기한·제품명 보충</td><td>허용</td><td>의무 없음</td><td>CC0 1.0</td><td>CISA 로고·DHS 문장은 쓰지 않으며, CISA·DHS의 보증으로 해석하지 않습니다</td></tr>
-            <tr><td><a href="https://github.com/cisagov/vulnrichment" target="_blank" rel="noopener noreferrer">CISA vulnrichment</a> (SSVC)</td><td>SSVC 판정 (악용·자동화·기술적 영향)</td><td>허용</td><td>의무 없음</td><td>CC0 1.0</td><td>미국 공공저작물</td></tr>
-            <tr><td><a href="https://www.first.org/epss/" target="_blank" rel="noopener noreferrer">EPSS</a> (FIRST.org)</td><td>악용 확률·백분위</td><td>무료 공개 데이터 (재배포 조건 명시 없음)</td><td>요청됨 (제품·출판물에 쓸 때)</td><td>별도 라이선스 표기 없음</td><td></td></tr>
-            <tr><td><a href="https://vulncheck.com/" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a></td><td>악용 근거 보충 (등재 여부만 표시)</td><td>데이터셋은 재배포하지 않음</td><td>필수: “This product uses VulnCheck KEV”</td><td>VulnCheck 커뮤니티 이용 조건</td><td></td></tr>
-            <tr><td><a href="https://github.com/rapid7/metasploit-framework" target="_blank" rel="noopener noreferrer">Metasploit Framework</a> (Rapid7)</td><td>모듈 존재 여부·모듈 이름</td><td>허용 (BSD 조건)</td><td>필요: 저작권 고지 보존</td><td>BSD-3-Clause</td><td></td></tr>
-            <tr><td><a href="https://www.exploit-db.com/" target="_blank" rel="noopener noreferrer">Exploit-DB</a></td><td>공개 익스플로잇 존재 여부</td><td>원문은 재배포하지 않음</td><td>원문 링크</td><td>익스플로잇별 작성자 저작</td><td>원문은 싣지 않고 링크만</td></tr>
-            <tr><td><a href="https://github.com/nomi-sec/PoC-in-GitHub" target="_blank" rel="noopener noreferrer">PoC-in-GitHub</a> (nomi-sec)</td><td>PoC 저장소 링크</td><td>허용 (목록)</td><td>의무 없음</td><td>CC0 1.0</td><td>PoC 원문은 싣지 않고 링크만</td></tr>
-            <tr><td><a href="https://red.anthropic.com/" target="_blank" rel="noopener noreferrer">Anthropic CVD</a></td><td>AI가 발견한 취약점 식별 (ANT ID)</td><td>데이터셋은 재배포하지 않음</td><td>출처 링크</td><td>명시 없음</td><td>공개 원장의 사실만 인용</td></tr>
-            <tr class="src-group"><th colspan="6">공개 탐지 룰</th></tr>
-            <tr><td><a href="https://github.com/SigmaHQ/sigma" target="_blank" rel="noopener noreferrer">SigmaHQ</a></td><td>Sigma 룰 본문 게시</td><td>허용 (DRL 조건)</td><td>필수: 원 룰의 author 표기 보존</td><td>Detection Rule License 1.1</td><td></td></tr>
-            <tr><td><a href="https://github.com/projectdiscovery/nuclei-templates" target="_blank" rel="noopener noreferrer">nuclei-templates</a> (ProjectDiscovery)</td><td>템플릿 존재 여부·링크</td><td>본문은 다시 게시하지 않음</td><td>필요 (MIT 고지)</td><td>MIT</td><td>대상에 요청을 보내는 능동 점검용이라 <b>본문은 싣지 않고 링크만</b> 제공</td></tr>
-            <tr><td><a href="https://github.com/splunk/security_content" target="_blank" rel="noopener noreferrer">Splunk ESCU</a></td><td>탐지 룰 본문 게시</td><td>허용 (Apache-2.0 조건)</td><td>필요: NOTICE 보존</td><td>Apache-2.0</td><td></td></tr>
-            <tr><td><a href="https://github.com/YARAHQ/yara-forge" target="_blank" rel="noopener noreferrer">YARA Forge</a></td><td>YARA 룰 본문 게시</td><td>룰별 라이선스에 따름</td><td>필요: 각 룰 메타의 author·source_url·license_url 보존</td><td>룰별로 다름</td><td></td></tr>
-            <tr><td><a href="https://rules.emergingthreats.net/" target="_blank" rel="noopener noreferrer">Emerging Threats Open</a> · <a href="https://www.snort.org/downloads/#rule-downloads" target="_blank" rel="noopener noreferrer">Snort Community Rules</a></td><td>네트워크 룰 본문 게시</td><td>허용 (각 라이선스 조건)</td><td>필요</td><td>MIT (Snort 레거시 SID 1–3464는 GPLv2)</td><td></td></tr>
-            <tr class="src-group"><th colspan="6">제품 수명주기</th></tr>
-            <tr><td><a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> (API v1)</td><td>제품 릴리스의 출시·지원 종료·보안 지원·확장 지원·EOL·최신 버전을 정리해 게시, 원출처 정책 링크</td><td>허용 (MIT 조건)</td><td>필요: 저작권·허가 고지 보존 (Copyright 2020 endoflife.date contributors)</td><td><a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a></td><td>제품 설명(Wikipedia CC BY-SA 유래)과 로고는 싣지 않습니다. 날짜·단계명은 원문 그대로, 없는 값은 '-'</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p class="footer-note">
-        가공과 전달: 한국어 번역·심층 분석은 Google AI Studio (Gemini · Gemma) 무료 티어, 저장은 <a href="https://turso.tech/" target="_blank" rel="noopener noreferrer">Turso</a> (libSQL, MIT), 배포는 GitHub Pages, 알림은 Slack Incoming Webhook을 씁니다.<br>
-        탐지 룰마다 개별 라이선스와 원 저자 표기를 룰 본문 위에 함께 싣습니다. 대상에 실제 요청을 보내는 점검 템플릿(nuclei)과 익스플로잇 원문(Exploit-DB · PoC)은 링크만 싣습니다.
-        AI 번역·심층 분석과 알림 등급은 참고용이며 정확성을 보증하지 않습니다.
-        제품 수명주기(EOL)는 위험도가 아니라 제조사의 지원 여부이며, CVSS · EPSS와 합산하지 않습니다.
-        대응을 결정하기 전에 원 권고문을 꼭 확인하세요.
+    <footer class="site-footer" id="site-notice">
+      <p class="notice-line" lang="en">
+        <span>This product uses the NVD API but is not endorsed or certified by the NVD.</span>
+        <span>This product uses <a href="https://vulncheck.com/kev" target="_blank" rel="noopener noreferrer">VulnCheck KEV</a>.</span>
       </p>
-      </details>
+      <p class="notice-line">
+        <span>CVE 레코드: Copyright © 1999-2026, The MITRE Corporation.</span>
+        <span>제품 수명주기: Copyright 2020 endoflife.date contributors (<a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>)</span>
+        <span>EPSS: <a href="https://www.first.org/epss/" target="_blank" rel="noopener noreferrer">FIRST.org</a></span>
+      </p>
+      <p class="notice-line">
+        <span>출처 데이터를 모아 보여 주는 화면입니다. 대응하기 전에 제조사 권고문을 확인하세요.</span>
+        <span>출처별 이용 조건: <a href="?view=sources" onclick="openSources(event)">데이터 출처</a></span>
+      </p>
     </footer>
   </div>
  </div>

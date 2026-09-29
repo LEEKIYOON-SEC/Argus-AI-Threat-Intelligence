@@ -38,15 +38,24 @@ test('cve.html — 화면마다 view-* 와 사이드바 항목이 있고, 스크
   for (const [, id] of HTML.matchAll(/class="fold-btn"[^>]*aria-controls="([^"]+)"/g)) assert.match(HTML, new RegExp(`id="${id}" hidden`), id);
 });
 
-test('라이선스 · 이용 조건은 하단 표 한 곳에만 (INVARIANTS §9-1)', () => {
-  assert.equal((HTML.match(/class="src-table"/g) || []).length, 1);
-  assert.match(HTML, /<details class="source-note" id="source-license">/);
-  const sources = HTML.slice(HTML.indexOf('id="view-sources"'), HTML.indexOf('<footer'));
-  assert.match(sources, /href="#source-license"/, 'Data Sources 화면은 하단 표로 보낸다');
-  assert.doesNotMatch(sources, /CC0|CC-BY|MIT License|Apache-2|BSD-3|GPLv2|Detection Rule License/, '조건을 되풀이하지 않는다');
-  for (const notice of ['This product uses the NVD API but is not endorsed or certified by the NVD.', 'This product uses',
-                        'VulnCheck KEV', 'The MITRE Corporation', 'endoflife.date contributors']) {
-    assert.ok(HTML.includes(notice), notice);
+test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 출처 화면 한 곳에 (INVARIANTS §9-1)', () => {
+  const footer = HTML.slice(HTML.indexOf('<footer'), HTML.indexOf('</footer>'));
+  assert.ok(footer.length > 0);
+  assert.doesNotMatch(footer, /<details|<table/, '고지는 접지 않고, 조건 표는 하단에 두지 않는다');
+  for (const notice of ['This product uses the NVD API but is not endorsed or certified by the NVD.',
+                        'This product uses <a href="https://vulncheck.com/kev"', '>VulnCheck KEV</a>.',
+                        'Copyright © 1999-2026, The MITRE Corporation.', 'Copyright 2020 endoflife.date contributors', 'FIRST.org']) {
+    assert.ok(footer.includes(notice), notice);
+  }
+  assert.match(footer, /href="\?view=sources" onclick="openSources\(event\)"/, '조건은 데이터 출처 화면으로 보낸다');
+  assert.doesNotMatch(footer, /Gemini|Gemma|Google AI Studio|무료 티어|Turso|Slack/, 'AI 도구 · 요금제 · 운영 구성은 싣지 않는다');
+  const sources = HTML.slice(HTML.indexOf('id="view-sources"'), HTML.indexOf('</main>'));
+  // 약관 원문 — cve.org 이용약관 문구 그대로(CVE™). 사본에 저작권 표기와 이 문구를 함께 실어야 한다.
+  assert.ok(sources.includes("distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."));
+  assert.match(sources, /Copyright © 1999-2026, The MITRE Corporation\./);
+  assert.match(sources, /Copyright \(c\) 2003-2026, Emerging Threats/, 'ET Open BSD 라이선스 전문');
+  for (const gone of ['id="dash-coverage"', 'id="src-conflicts"', 'id="dash-quality"', 'source-license', 'openLicense', 'src-table']) {
+    assert.ok(!HTML.includes(gone), `없앤 칸: ${gone}`);
   }
 });
 
