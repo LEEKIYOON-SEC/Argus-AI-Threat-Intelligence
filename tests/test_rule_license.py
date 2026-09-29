@@ -38,23 +38,25 @@ class TermsTests(unittest.TestCase):
         self.assertTrue(rl.terms({"engine": "nuclei"})["link_only"], "점검 템플릿은 링크만")
 
     def test_yara_license_comes_from_the_origin_repository(self):
+        # 저작권 문구는 BSD · MIT 저장소의 LICENSE 에 적힌 그대로 (DRL 은 작성자 표기, craiu 는 문구 자체가 없음)
         cases = {
-            SIG_BASE: "DRL 1.1",
-            "https://github.com/SEKOIA-IO/Community/blob/fa3a/LICENSE.md": "DRL 1.1",
-            "https://github.com/ditekshen/detection/blob/e76c/LICENSE.txt": "BSD-2-Clause",
-            "https://github.com/volexity/threat-intel/blob/a7ea/LICENSE.txt": "BSD-2-Clause",
-            "https://github.com/elceef/yara-rulz/blob/5683/LICENSE": "MIT",
-            "https://github.com/craiu/yararules/blob/23cf/LICENSE": "GPL-3.0",
+            SIG_BASE: ("DRL 1.1", ""),
+            "https://github.com/SEKOIA-IO/Community/blob/fa3a/LICENSE.md": ("DRL 1.1", ""),
+            "https://github.com/ditekshen/detection/blob/e76c/LICENSE.txt":
+                ("BSD-2-Clause", "Copyright 2021 by ditekSHen (https://github.com/ditekshen/detection)."),
+            "https://github.com/volexity/threat-intel/blob/a7ea/LICENSE.txt": ("BSD-2-Clause", "Copyright 2022 by Volexity, Inc."),
+            "https://github.com/elceef/yara-rulz/blob/5683/LICENSE": ("MIT", "Copyright (c) 2022 Marcin Ulikowski"),
+            "https://github.com/craiu/yararules/blob/23cf/LICENSE": ("GPL-3.0", ""),
         }
-        for url, name in cases.items():
+        for url, (name, holder) in cases.items():
             t = rl.terms({"engine": "yara", "license_url": url})
-            self.assertEqual((t["license"], t["link_only"]), (name, False), url)
+            self.assertEqual((t["license"], t["holder"], t["link_only"]), (name, holder, False), url)
 
     def test_yara_without_a_known_license_is_link_only(self):
         # 실측: fboldewin · StrangerealIntel · sbousseaden · SIFalcon 저장소에는 LICENSE 파일이 없다(license_url 'N/A').
         for lic_url in ("N/A", "", None):
             t = rl.terms({"engine": "yara", "license_url": lic_url})
-            self.assertEqual(t, {"license": "", "license_url": "", "link_only": True})
+            self.assertEqual(t, {"license": "", "license_url": "", "holder": "", "link_only": True})
         unknown = rl.terms({"engine": "yara", "license_url": "https://github.com/someone/rules/blob/x/LICENSE"})
         self.assertEqual((unknown["license"], unknown["link_only"]), ("", True),
                          "LICENSE 가 있어도 종류를 확인하지 않은 저장소는 본문을 싣지 않는다")
@@ -86,6 +88,13 @@ class ApplyTests(unittest.TestCase):
         yara = rl.apply({"engine": "yara", "license_url": SIG_BASE, "code": "rule ok {}"})
         self.assertEqual((yara["license"], yara["license_url"], yara["code"]), ("DRL 1.1", SIG_BASE, "rule ok {}"))
         self.assertNotIn("link_only", yara)
+        self.assertNotIn("holder", yara, "DRL 저장소는 저작권 문구 대신 작성자 표기")
+        bsd = rl.apply({"engine": "yara", "license_url": "https://github.com/volexity/threat-intel/blob/a7ea/LICENSE.txt",
+                        "code": "rule v {}"})
+        self.assertEqual((bsd["license"], bsd["holder"]), ("BSD-2-Clause", "Copyright 2022 by Volexity, Inc."))
+        self.assertEqual(rl.apply(bsd), bsd, "여러 번 적용해도 같다")
+        gone = rl.apply(dict(bsd, license_url="N/A"))
+        self.assertNotIn("holder", gone, "본문을 못 싣게 되면 저작권 문구도 남기지 않는다")
         net = rl.apply({"engine": "snort2", "source": "Snort 2.9 ET Open", "license": "MIT", "license_url": "",
                         "code": "alert"})
         self.assertEqual(net["license"], "BSD")

@@ -284,7 +284,7 @@
                        suricata5: 'et-open', suricata7: 'et-open', nuclei: 'nuclei' };
 
   /* ---------- 탐지 룰 라이선스 ----------
-   * export(src/rule_license.py)가 룰마다 license · license_url · link_only 를 적는다. 화면은 그 값을 쓰되,
+   * export(src/rule_license.py)가 룰마다 license · link_only 를, YARA 는 license_url · holder(저작권 문구)까지 적는다. 화면은 그 값을 쓰되,
    * 출처가 정해진 룰은 아래 표로 표기한다 — 옛 색인이 남긴 표기(ET Open 'MIT', YARA '룰별 상이')를 바로잡기 위해서다.
    * body: 룰 본문을 실어도 되는가. nuclei 는 점검 템플릿이라 늘 링크만, YARA 는 원 저장소에 LICENSE 가 있을 때만. */
   const RULE_LICENSE = {
@@ -310,8 +310,9 @@
     const sid = ruleSource(r);
     const stored = String(r.license || '').trim();
     if (r.engine === 'yara') {
+      // 저작권 문구(holder)는 export 가 원 저장소 LICENSE 에서 옮겨 적은 것 — BSD · MIT 저장소만 있다.
       const licenseUrl = httpUrl(r.license_url);
-      return { sid, license: LEGACY_LICENSE.has(stored) ? '' : stored, licenseUrl, holder: '',
+      return { sid, license: LEGACY_LICENSE.has(stored) ? '' : stored, licenseUrl, holder: String(r.holder || '').trim(),
                body: !r.link_only && !!licenseUrl, ruleUrl: httpUrl(r.url) };
     }
     const base = RULE_LICENSE[sid] || {};

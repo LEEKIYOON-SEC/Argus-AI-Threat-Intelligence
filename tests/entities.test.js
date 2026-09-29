@@ -164,6 +164,12 @@ test('뷰 모델 — 출처 표는 외부 출처만 묶음별로 한 번씩, 주
   assert.equal(rowOf('metasploit').count, null, '집계에 없는 값은 모름');
   assert.deepEqual(rowOf('et-open').terms.map(t => t.label), ['BSD']);
   assert.deepEqual(rowOf('snort-community').terms.map(t => t.label), ['GPLv2']);
+  // 이용 조건 설명 — 이름과 링크만으로 알 수 없는 조건만 명사로 짧게 (표준 라이선스는 이름 · 링크로 충분)
+  const notes = VM.sources(EN, null, {}).flatMap(g => g.rows).flatMap(r => r.terms.filter(t => t.note).map(t => [r.id, t.note]));
+  assert.deepEqual(notes, [['cve-record', '저작권 표기 · 약관 문구 필요'], ['cve-record', 'NVD 고지 문구 필요'],
+                           ['osv', 'GitHub Advisory Database CC-BY 4.0 · Ubuntu CC-BY-SA 4.0 등'],
+                           ['vulncheck-kev', '출처 표기 필수'], ['first-epss', '출처 표기 요청']]);
+  assert.equal(rowOf('vulncheck-kev').terms[0].label, 'VulnCheck 이용 조건');
   // 예약 주기 = yml 예약 · 캐시 수명 (argus-fast */5 · KEV 캐시 1시간 · 6시간 · 24시간 · 주간 정비 · 매일 수명주기)
   const cadence = Object.fromEntries(VM.sources(EN, null, {}).flatMap(g => g.rows).map(r => [r.id, r.cadence]));
   assert.deepEqual(cadence, {

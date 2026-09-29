@@ -54,6 +54,8 @@ test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 �
   assert.ok(sources.includes("distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."));
   assert.match(sources, /Copyright © 1999-2026, The MITRE Corporation\./);
   assert.match(sources, /Copyright \(c\) 2003-2026, Emerging Threats/, 'ET Open BSD 라이선스 전문');
+  assert.match(sources, /rules\.emergingthreats\.net ↗<\/a> · SID 2000000–2799999 룰에 적용<\/p>/);
+  assert.ok(!sources.includes('사본에 함께 실어야') && !sources.includes('Argus가 싣는'), '약관 원문 칸의 설명 문장은 뺐다');
   // 예약 주기는 GitHub Actions 예약 기준 — 실제로는 늦어지거나 건너뛸 수 있다는 안내와 실제 반영 시각을 함께 둔다
   const foot = (sources.match(/<p class="src-foot">([\s\S]*?)<\/p>/) || [])[1] || '';
   assert.match(foot, /GitHub Actions/);

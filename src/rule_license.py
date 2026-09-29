@@ -24,14 +24,16 @@ SOURCES = {
     "snort-community": {"license": "GPLv2", "license_url": "https://www.gnu.org/licenses/old-licenses/gpl-2.0.html"},
 }
 
-# YARA 원 저장소(소문자 owner/repo) → 라이선스. 그 저장소의 LICENSE 파일을 직접 확인한 것만 적는다.
+# YARA 원 저장소(소문자 owner/repo) → (라이선스, 저작권 문구). 그 저장소의 LICENSE 파일을 직접 확인한 것만 적는다.
+# 저작권 문구는 LICENSE 에 적힌 그대로다(2026-09-29 확인) — BSD · MIT 는 사본에 이 문구를 유지하라고 적는다.
+# DRL 은 작성자 · 룰 링크 · 라이선스로 충분하고, craiu(GPL-3.0) 저장소에는 저작권 문구가 없어 작성자 표기로 대신한다.
 YARA_REPOS = {
-    "neo23x0/signature-base": "DRL 1.1",
-    "sekoia-io/community": "DRL 1.1",
-    "ditekshen/detection": "BSD-2-Clause",
-    "volexity/threat-intel": "BSD-2-Clause",
-    "elceef/yara-rulz": "MIT",
-    "craiu/yararules": "GPL-3.0",
+    "neo23x0/signature-base": ("DRL 1.1", ""),
+    "sekoia-io/community": ("DRL 1.1", ""),
+    "ditekshen/detection": ("BSD-2-Clause", "Copyright 2021 by ditekSHen (https://github.com/ditekshen/detection)."),
+    "volexity/threat-intel": ("BSD-2-Clause", "Copyright 2022 by Volexity, Inc."),
+    "elceef/yara-rulz": ("MIT", "Copyright (c) 2022 Marcin Ulikowski"),
+    "craiu/yararules": ("GPL-3.0", ""),
 }
 
 NETWORK_ENGINES = ("snort2", "snort3", "suricata5", "suricata7")
@@ -59,34 +61,40 @@ def et_open_sid_ok(sid: Optional[int]) -> bool:
 
 
 def terms(rule: Dict) -> Dict:
-    """룰 하나에 적을 라이선스 — {license, license_url, link_only}. link_only 면 본문을 싣지 않는다."""
+    """룰 하나에 적을 라이선스 — {license, license_url, holder, link_only}. link_only 면 본문을 싣지 않는다.
+    holder 는 YARA 원 저장소의 저작권 문구다(ET Open · Snort Community 의 저작권 줄은 화면이 출처로 안다)."""
     engine = rule.get("engine") or ""
     if engine == "yara":
         lic_url = str(rule.get("license_url") or "")
         if not lic_url.lower().startswith(("http://", "https://")):
-            return {"license": "", "license_url": "", "link_only": True}
-        name = YARA_REPOS.get(repo_of(lic_url), "")
-        return {"license": name, "license_url": lic_url, "link_only": not name}
+            return {"license": "", "license_url": "", "holder": "", "link_only": True}
+        name, holder = YARA_REPOS.get(repo_of(lic_url), ("", ""))
+        return {"license": name, "license_url": lic_url, "holder": holder, "link_only": not name}
     base = SOURCES.get(source_of(rule) or "")
     if base is None:
         return {"license": str(rule.get("license") or ""), "license_url": str(rule.get("license_url") or ""),
-                "link_only": engine in LINK_ONLY_ENGINES}
-    return {"license": base["license"], "license_url": base["license_url"],
+                "holder": "", "link_only": engine in LINK_ONLY_ENGINES}
+    return {"license": base["license"], "license_url": base["license_url"], "holder": "",
             "link_only": engine in LINK_ONLY_ENGINES}
 
 
 def apply(rule: Dict) -> Dict:
     """라이선스 표기를 바로잡은 사본. 본문을 실을 수 없는 룰은 code 를 뺀다. 여러 번 적용해도 결과가 같다.
 
-    license_url 은 룰마다 다른 YARA 에만 남긴다 — 출처가 정해진 룰의 링크는 화면이 출처로 안다.
+    license_url · holder(저작권 문구)는 룰마다 다른 YARA 에만 남긴다 — 출처가 정해진 룰은 화면이 출처로 안다.
     """
     out = {k: v for k, v in rule.items() if k != "note"}
     t = terms(rule)
     out["license"] = t["license"]
     if out.get("engine") == "yara":
         out["license_url"] = t["license_url"]
+        if t["holder"]:
+            out["holder"] = t["holder"]
+        else:
+            out.pop("holder", None)
     else:
         out.pop("license_url", None)
+        out.pop("holder", None)
     if t["link_only"]:
         out.pop("code", None)
         out["link_only"] = True

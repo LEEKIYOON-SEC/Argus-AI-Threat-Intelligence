@@ -234,6 +234,12 @@ test('탐지 룰 본문 — 라이선스 전문 · 룰 원문 링크를 붙이�
   assert.doesNotMatch(html, /rule leak/, '라이선스가 없는 저장소의 YARA 본문은 싣지 않는다');
   assert.match(html, /원 저장소에 라이선스 파일이 없어 본문은 싣지 않습니다/);
   assert.match(html, /href="https:\/\/github\.com\/fboldewin\/YARA-rules\/blob\/x\/r\.yar"[^>]*>원문 보기/);
+  // BSD · MIT 저장소의 YARA 룰은 저작권 문구를 룰 위에 함께 적는다 (문구는 export 가 원 저장소 LICENSE 에서 옮김)
+  const bsd = d.run(`renderRulesSection({ id: 'CVE-Y', rules: { yara: { engine: 'yara', source: 'YARA Forge', license: 'BSD-2-Clause',
+    holder: 'Copyright 2022 by Volexity, Inc.', license_url: 'https://github.com/volexity/threat-intel/blob/x/LICENSE.txt',
+    author: 'threatintel@volexity.com', url: 'https://github.com/volexity/threat-intel/blob/x/y.yar', code: 'rule v {}' } } })`);
+  assert.match(bsd, /라이선스 <a href="https:\/\/github\.com\/volexity\/threat-intel\/blob\/x\/LICENSE\.txt"[^>]*>BSD-2-Clause[^<]*<\/a> · Copyright 2022 by Volexity, Inc\. · 작성자 threatintel@volexity\.com/);
+  assert.match(bsd, /rule v \{\}/);
 });
 
 test('대시보드 — 전체 데이터 전에 CI 사전 계산으로 먼저 그리고, 숫자는 같다', () => {

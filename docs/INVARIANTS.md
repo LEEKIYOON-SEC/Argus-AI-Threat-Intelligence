@@ -323,7 +323,7 @@ p90.0 = 0.041  36,640건
 | 만든 리포트 URL 은 **알림 성공 여부와 무관하게** 기록하고, 이미 있으면 다시 만들지 않는다 | 위 수정만 하면 실패할 때마다 GitHub Issue 가 새로 생긴다(실측 3회차에 3개) |
 | **대상에 요청을 보내는 룰은 본문을 싣지 않는다** (`rule_license.LINK_ONLY_ENGINES`) | Sigma·YARA·Splunk·Snort·Suricata 는 로그·트래픽·파일에서 공격을 찾는 방어측 시그니처지만 nuclei 템플릿은 대상에 페이로드를 직접 보내는 능동 탐침이다. 실측 481건 중 145건이 즉시 실행 가능한 요청 경로를 담고 있었다. Exploit-DB 를 '원문 미게시·링크만'으로 정한 것과 같은 선이다. 저장 단계와 export 단계 양쪽에서 막는다 — 이미 저장된 본문이 남아 있어도 화면에는 안 나간다 |
 | **라이선스를 확인하지 못한 룰도 본문을 싣지 않는다** (`rule_license.terms` 의 `link_only`) | YARA Forge 에는 LICENSE 파일이 없는 저장소의 룰도 들어 있다(`license_url` 'N/A'). 라이선스가 없으면 재배포 허락이 없는 것이다. 색인 · 스냅샷은 원문을 받지 않고, export 는 이월된 행의 본문까지 뺀다 — 배포본 `cves.json` 은 누구나 받을 수 있어 화면에서만 숨기면 안 된다. 화면은 링크와 이유만 적는다 |
-| **재게시하는 룰에는 원 저자 · 라이선스를 함께 싣는다** | SigmaHQ DRL 1.1 은 author · 룰 링크 · 라이선스 이름과 링크를, BSD · MIT · Apache-2.0 · GPL 은 저작권 · 라이선스 고지 보존을 요구한다. 룰 본문 위에 라이선스(전문 링크) · 저작권자(ET Open · Snort Community) · 작성자 · 룰 원문 링크를 적는다. 색인에 author 가 없으면 룰 본문에서 뽑는다 |
+| **재게시하는 룰에는 원 저자 · 라이선스를 함께 싣는다** | SigmaHQ DRL 1.1 은 author · 룰 링크 · 라이선스 이름과 링크를, BSD · MIT · Apache-2.0 · GPL 은 저작권 · 라이선스 고지 보존을 요구한다. 룰 본문 위에 라이선스(전문 링크) · 저작권 문구(ET Open · Snort Community, YARA 의 BSD · MIT 저장소) · 작성자 · 룰 원문 링크를 적는다. 색인에 author 가 없으면 룰 본문에서 뽑는다 |
 | **탐지 룰 인덱스를 못 받은 회차는 `has_official_rules`·`rules_snapshot` 을 쓰지 않는다** (`rule_manager.index_ok()`) | 로더가 실패해도 `{}` 를 돌려주므로 '룰 없음'으로 DB 에 기록돼 이전에 확인해 둔 룰이 지워졌다. 룰 재확인도 이때는 건너뛴다 — 돌려봐야 7일 쿨다운만 태운다 |
 | **룰 인덱스 생성이 부분 실패하면 실패한 엔진만 직전 배포본에서 이월한다** (`build_rule_index.carry_missing`) | SigmaHQ 하나만 403 이어도 sigma 가 빠진 인덱스가 배포되고, 그걸 읽은 파이프라인이 해당 CVE 를 '룰 없음'으로 기록했다. 전부 실패하거나 이월할 직전본도 없으면 덮어쓰지 않고 종료 |
 | **지표를 못 받았으면 화면에 `unknown` 이라 쓴다 — 0% 나 No 가 아니다** | 리포트가 `EPSS 0.00%` · `KEV No` 로 적어 위험을 낮춰 불렀다. 실제로 관측된 0 은 그대로 0 이다 |
@@ -537,7 +537,7 @@ AI 모델은 Google AI Studio 하나, 역할마다 2단 + 정형 폴백:
 | EPSS (FIRST.org) | 라이선스 표기 없음 · 무료 | 제품 · 출판물에 쓰면 출처 표기 **요청**(EPSS FAQ) |
 | nuclei-templates | MIT (© 2025 ProjectDiscovery) | 표기. 본문은 싣지 않는다(§6) |
 | Splunk security_content | Apache-2.0 (develop 브랜치에 NOTICE 파일 없음) | 라이선스 링크 · 룰 링크 |
-| YARA Forge | **룰마다 원 저장소 라이선스** (YARA Forge 는 `license_url` 만 준다) | `src/rule_license.YARA_REPOS` 에 적은 저장소만 본문 게재: signature-base · SEKOIA Community = DRL 1.1, ditekshen · volexity = BSD-2-Clause, elceef = MIT, craiu = GPL-3.0. **LICENSE 파일이 없는 저장소**(fboldewin · StrangerealIntel · sbousseaden · SIFalcon — `license_url` 'N/A', 2026-09 실측 5건)와 표에 없는 저장소의 룰은 **본문 없이 링크만** |
+| YARA Forge | **룰마다 원 저장소 라이선스** (YARA Forge 는 `license_url` 만 준다) | `src/rule_license.YARA_REPOS` 에 적은 저장소만 본문 게재: signature-base · SEKOIA Community = DRL 1.1, ditekshen · volexity = BSD-2-Clause, elceef = MIT, craiu = GPL-3.0. BSD · MIT 저장소는 LICENSE 에 적힌 저작권 문구를 룰마다 `holder` 로 남겨 룰 위에 적는다(ditekshen `Copyright 2021 by ditekSHen (https://github.com/ditekshen/detection).` · volexity `Copyright 2022 by Volexity, Inc.` · elceef `Copyright (c) 2022 Marcin Ulikowski`, 2026-09 기준 8건) — 2026-09 실측으로 이 룰들의 본문에는 저작권 문구가 없었다. DRL 은 작성자 · 룰 링크 · 라이선스로 충분하고, craiu 저장소에는 저작권 문구가 없어 작성자 표기로 대신한다. **LICENSE 파일이 없는 저장소**(fboldewin · StrangerealIntel · sbousseaden · SIFalcon — `license_url` 'N/A', 2026-09 실측 5건)와 표에 없는 저장소의 룰은 **본문 없이 링크만** |
 | Metasploit | BSD-3-Clause (© 2006-2026 Rapid7) | 표기. 모듈 이름만 싣는다 |
 | SigmaHQ sigma | DRL 1.1 | 룰마다 author · 룰 링크 · 라이선스 이름과 링크 |
 | Emerging Threats Open | **BSD** — 배포 LICENSE 기준 SID 2000000–2799999 (`Copyright (c) 2003-2026, Emerging Threats`). 같은 파일의 SID 1–3464 · 100000000–100000908 은 GPLv2, 2800000–2900000 은 ET Pro | 저작권 표기 · 조건 · 면책 문구 보존 — 전문을 데이터 출처 화면 '약관 원문'에 싣는다. **색인은 BSD 범위 SID 만 싣는다**(`rule_license.et_open_sid_ok`). 2026-09 실측: snort-2.9.0 · suricata-5.0 · suricata-7.0 의 활성 룰은 모두 BSD 범위 |
@@ -575,7 +575,10 @@ export 는 증분이라 바뀐 행만 DB 에서 다시 읽는다. 그래서 `nor
 `EN.SOURCE_GROUPS` 순서). 표 아래 '약관 원문'에 CVE Usage 라이선스 문구(원문 그대로, `CVE™`)와
 ET Open BSD 전문을 싣는다. 모달 각주와 하단은 이 화면을 가리키기만 한다 — 조건을 두 곳에 두면
 갈라진다(예전에는 탭과 하단에 같은 출처를 두 번 적었다).
-룰 개별 라이선스 · 저작권자 · author · 룰 원문 링크는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
+룰 개별 라이선스 · 저작권 문구 · author · 룰 원문 링크는 룰 본문 바로 위에 `renderRuleBlock` 이 함께 찍는다.
+표의 설명(`terms[].note`)은 이름과 링크만으로 알 수 없는 조건만 명사로 짧게 적는다 — CVE(저작권 표기 · 약관 문구) · NVD(고지 문구) ·
+OSV(원 DB 라이선스) · VulnCheck(출처 표기 필수) · EPSS(출처 표기 요청). CC0 · BSD · MIT · Apache · GPL · DRL 은 이름과 링크로 충분하다.
+'Argus 가 이렇게 싣는다'는 설명은 두지 않는다 — 조건은 하단 · 약관 원문 · 룰 표기가 채우고, 링크만 두는 출처는 설명 카드가 말한다.
 
 하단에 **없어야 하는 것**: 조건 표 · 접는 칸(NVD 문구는 '눈에 띄게' 표기해야 한다), AI 도구 · 요금제
 (번역 · 분석은 사실을 주는 출처가 아니다. Google 약관은 파이프라인 계정에 적용되고 화면 표기 의무가 없다),

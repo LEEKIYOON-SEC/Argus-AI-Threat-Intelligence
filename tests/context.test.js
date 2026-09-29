@@ -95,6 +95,11 @@ test('탐지 룰 라이선스 — 출처로 표기하고 옛 표기를 바로잡
   const none = CTX.ruleTerms({ engine: 'yara', license: '룰별 상이', license_url: 'N/A', code: 'rule a {}' });
   assert.deepEqual([none.license, none.licenseUrl, none.body], ['', '', false], 'LICENSE 가 없는 저장소의 룰은 본문을 싣지 않는다');
   assert.equal(CTX.ruleTerms({ engine: 'yara', link_only: true, license_url: 'https://github.com/a/b/blob/x/LICENSE', code: 'x' }).body, false);
+  // BSD · MIT 저장소의 저작권 문구는 export 가 적은 그대로(옛 데이터에는 없다)
+  const bsd = CTX.ruleTerms({ engine: 'yara', license: 'BSD-2-Clause', holder: 'Copyright 2022 by Volexity, Inc.',
+                              license_url: 'https://github.com/volexity/threat-intel/blob/x/LICENSE.txt', code: 'rule v {}' });
+  assert.deepEqual([bsd.license, bsd.holder, bsd.body], ['BSD-2-Clause', 'Copyright 2022 by Volexity, Inc.', true]);
+  assert.equal(legacy.holder, '');
 });
 
 test('탐지 근거 행 — 같은 엔진이라도 룰이 온 곳이 다르면 행을 나누고, 라이선스는 출처 기준', () => {
