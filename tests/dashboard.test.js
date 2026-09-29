@@ -689,51 +689,137 @@ test('상세 — 미확인의 사유 (점수 없음 · 추적 밖 제품 · endo
   assert.match(detailSec(b3, 'd-remedy'), /OSV에 영향 패키지는 있지만 수정 버전 기록이 없습니다/);
 });
 
-test('Product Lifecycle — 제품 중심, 릴리스별 관찰된 위협, 필터·정렬', () => {
+// 제품 수명주기 화면 — endoflife.date 전체 목록(fixture: tests/fixtures/lifecycle_catalog_sample.json, 기준일 TODAY).
+function lifecyclePage(catalog = readJson('lifecycle_catalog_sample.json')) {
   const d = dashboard();
-  const view = code => { d.run(`Object.assign(LC_VIEW, { status: '', window: '', linked: false, search: '', sort: 'cves' }); ${code}; renderLifecycleView();`); };
-  const html = () => d.el('lc-products').innerHTML;
-  const rows = () => (html().match(/<tr class="lc-cat-row/g) || []).length;
-  view('');
-  assert.equal(rows(), 35);
-  const kpi = d.el('lc-kpis').innerHTML;
-  const tile = s => Number(kpi.match(new RegExp(`lc-kpi-${s}[\\s\\S]*?kpi-value">(\\d+)<`))[1]);
-  assert.deepEqual(['ACTIVE', 'SECURITY_SUPPORT', 'EXTENDED_SUPPORT', 'EOL', 'UNKNOWN'].map(tile), [14, 7, 5, 7, 2]);
-  assert.match(d.el('lc-meta').textContent, /CVE 수가 아닙니다/);
-  assert.match(html(), /data-query="release:windows\/7-sp1"[^>]*>CVE <b>1<\/b>/);
-  assert.match(html(), /data-query="release:windows\/7-sp1 has:cisa-kev"[^>]*>KEV <b>1<\/b>/);
-  // 릴리스마다 화면 숫자 = 누른 뒤 열리는 목록 건수
-  const perRelease = Object.entries(d.run('liveAggregate().releases'));
-  assert.ok(perRelease.length >= 5, `연결된 릴리스 ${perRelease.length}개`);
-  for (const [key, t] of perRelease) {
-    const q = `release:${key.replace('|', '/')}`;
-    assert.equal(search(d, q).length, t.cves, q);
-    assert.equal(search(d, `${q} has:cisa-kev`).length, t.kev, `${q} has:cisa-kev`);
-    assert.equal(search(d, `${q} has:exploit`).length, t.exploit, `${q} has:exploit`);
-    assert.equal(search(d, `${q} has:detection`).length, t.detection, `${q} has:detection`);
-  }
-  view("LC_VIEW.status = 'EOL'");
-  assert.equal(rows(), 7);
-  view("LC_VIEW.window = '30'");
-  assert.equal(rows(), 2);
-  view('LC_VIEW.linked = true');
-  assert.equal(rows(), 21);
-  view("LC_VIEW.search = 'windows'");
-  assert.equal(rows(), 9);
-  view("LC_VIEW.search = 'lifecycle:eol windows'");
-  assert.equal(rows(), 1);
-  view("LC_VIEW.search = 'eol:<180d'");
-  assert.equal(rows(), 5);
-  view("LC_VIEW.search = 'vendor:microsoft 2019'");
-  assert.equal(rows(), 1);
-  const firstProduct = () => (html().match(/<article class="lc-prod" data-slug="([^"]+)"/) || [])[1];
-  view("LC_VIEW.sort = 'cves'");
-  const prodStats = d.run('liveAggregate().products');
-  const best = Object.entries(prodStats).sort((a, b) => b[1].cves - a[1].cves || (a[0] < b[0] ? -1 : 1))[0][0];
-  assert.equal(firstProduct(), best, '연결 CVE 가 가장 많은 제품이 맨 위');
-  view("LC_VIEW.sort = 'product'");
-  assert.equal(firstProduct(), 'apache-http-server', '이름순');
-  assert.match(d.el('lc-unavailable').innerHTML, /OpenSSH/);
+  d.ctx.__cat = catalog;
+  d.run('setLifecycleCatalog(__cat);');
+  const view = code => {
+    d.run(`Object.assign(LC_PAGE, { q: '', soon: false, product: null, auto: null }); LC_PAGE.open.clear(); ${code || ''}; renderLifecycleView();`);
+    return d.el('lc-cats').innerHTML;
+  };
+  return { d, view };
+}
+const picks = html => [...html.matchAll(/class="lc-pick" data-slug="([^"]+)"/g)].map(m => m[1]);
+const catsOf = html => [...html.matchAll(/<section class="lc-cat" data-cat="([^"]+)"/g)].map(m => m[1]);
+const rowsOf = html => [...html.matchAll(/<tr( class="([^"]*)")?( hidden)?><td data-label="버전"><b>([^<]+)<\/b>/g)]
+  .map(m => ({ cycle: m[4], hidden: !!m[3], cls: m[2] || '' }));
+
+test('제품 수명주기 — 분류는 처음에 접혀 있고, 제품 수 · 90일 안에 EOL 제품 수만 보인다', () => {
+  const { d, view } = lifecyclePage();
+  const html = view();
+  assert.deepEqual(catsOf(html), ['os', 'server-app', 'database', 'framework'], '정한 순서 · 제품이 있는 분류만');
+  assert.doesNotMatch(html, /lc-grid/, '처음에는 모두 접힘');
+  assert.equal((html.match(/aria-expanded="false"/g) || []).length, 4);
+  assert.match(html, /data-cat="server-app"[\s\S]*?서버 애플리케이션[\s\S]*?제품 <b>2<\/b>[\s\S]*?90일 안에 EOL <b>1<\/b>/);
+  assert.doesNotMatch(html.slice(html.indexOf('data-cat="os"'), html.indexOf('data-cat="server-app"')), /90일 안에 EOL/, '없으면 적지 않는다');
+  // 90일 안에 EOL = 기준일 다음 날부터 90일 안(오늘 EOL 은 이미 EOL) — lifecycle.js 로 직접 센 값과 같다
+  const LCJ = require('../docs/js/lifecycle.js');
+  const cat = readJson('lifecycle_catalog_sample.json');
+  const soon = new Set(cat.releases.filter(r => LCJ.eolWithin(r, '<=', 90, TODAY)).map(r => r.product_slug));
+  assert.deepEqual([...soon], ['kubernetes']);
+  assert.equal(d.el('lc-soon-n').textContent, String(soon.size));
+  assert.match(d.el('lc-asof').innerHTML, /endoflife\.date 제품 <b>7<\/b>개 · 버전 <b>23<\/b>개의 지원 일정 · 상태 기준일 2026-09-27/);
+  assert.match(d.el('lc-meta').textContent, /매일 확인하고 바뀐 날만 새로 씁니다 · 마지막 변경 2026-09-27 12:00 UTC/);
+  assert.equal(d.el('lc-count').innerHTML, '', '거르지 않으면 건수 줄이 없다');
+  assert.doesNotMatch(html + d.el('lc-asof').innerHTML, /CVE|data-query|release:/, 'CVE 연결은 이 화면에 싣지 않는다');
+});
+
+test('제품 수명주기 — 분류를 펴면 이름 격자, 제품을 누르면 지원 중인 버전 먼저 · 지난 버전은 더 보기', () => {
+  const { view } = lifecyclePage();
+  let html = view("LC_PAGE.open.add('server-app')");
+  assert.deepEqual(picks(html), ['kubernetes', 'nginx'], '이름순(대소문자 무시)');
+  assert.match(html, /data-slug="kubernetes" title="Kubernetes — 90일 안에 EOL: 1\.34 2026-10-27 \(D-30\)"[^>]*>[\s\S]*?<span class="lc-dday">D-30<\/span>/);
+  assert.doesNotMatch(html, /lc-detail/, '제품을 누르기 전에는 표가 없다');
+  html = view("LC_PAGE.open.add('server-app'); LC_PAGE.product = 'kubernetes'");
+  assert.match(html, /data-slug="kubernetes"[^>]*aria-expanded="true" aria-controls="lc-d-kubernetes"/);
+  assert.deepEqual(rowsOf(html), [{ cycle: '1.37', hidden: false, cls: '' }, { cycle: '1.34', hidden: false, cls: 'is-soon' },
+                                  { cycle: '1.33', hidden: true, cls: 'lc-extra' }]);
+  assert.match(html, /data-kind="지난 버전">지난 버전 1개 더 보기</);
+  assert.match(html, /<td data-label="EOL" class="lc-eol">2026-10-27<span class="lc-dday" title="EOL까지 30일">D-30<\/span>/);
+  assert.match(html, /lc-UNKNOWN[\s\S]*?<span class="lc-phase">제조사 단계: Maintenance Support<\/span>/, 'UNKNOWN 은 제조사 단계 이름을 함께');
+  assert.match(html, /<th>버전<\/th><th>상태<\/th><th>출시<\/th><th title="제조사의 'Active Support' 단계가 끝나는 날">기본 지원 종료<\/th><th title="[^"]*">EOL<\/th><th>최신 버전<\/th>/,
+               '제품에 있는 단계만 칸으로(Kubernetes 는 확장 지원 없음)');
+  assert.doesNotMatch(html, /보안 지원 종료|릴리스/);
+  assert.match(html, /별칭 k8s/);
+  assert.match(html, /기본 지원 종료 = 'Active Support' 단계의 끝 · EOL = 'Maintenance Support' 단계의 끝<br>출처: <a href="https:\/\/endoflife\.date\/kubernetes"/);
+  // 단계가 셋인 제품 · 라벨의 겹치는 앞부분 · 확장 지원 중인 버전은 '지난 버전'이 아니다
+  html = view("LC_PAGE.open.add('os'); LC_PAGE.product = 'debian'");
+  assert.match(html, /<th title="[^"]*">기본 지원 종료<\/th><th title="[^"]*">EOL<\/th><th title="[^"]*">확장 지원 종료<\/th>/);
+  assert.match(html, /<b>13<\/b><span class="lc-cycle-label">\(Trixie\)<\/span>/);
+  assert.deepEqual(rowsOf(html).map(r => r.hidden), [false, false, false, false], 'EXTENDED 는 지원 중');
+  assert.doesNotMatch(html, /더 보기/);
+  // 지원 중인 버전이 없으면 가장 최근 버전 하나만
+  const cat = readJson('lifecycle_catalog_sample.json');
+  cat.releases = cat.releases.map(r => (r.product_slug === 'redis' ? Object.assign({}, r, { eol_date: '2020-01-01', eol_reached: true }) : r));
+  const old = lifecyclePage(cat);
+  html = old.view("LC_PAGE.open.add('database'); LC_PAGE.product = 'redis'");
+  assert.deepEqual(rowsOf(html).map(r => r.hidden), [false, true, true]);
+  assert.match(html, /data-slug="redis"[^>]*title="Redis — 모든 버전이 EOL"[\s\S]*?<span class="lc-gone">전체 EOL<\/span>/);
+});
+
+test('제품 수명주기 — 검색: 이름 · 별칭 · 제조사 태그(통째로) · 버전, 맞는 분류만 펼침', () => {
+  const { d, view } = lifecyclePage();
+  let html = view("LC_PAGE.q = 'k8s'");
+  assert.deepEqual(catsOf(html), ['server-app']);
+  assert.deepEqual(picks(html), ['kubernetes']);
+  assert.match(html, /<span class="lc-pick-sub">별칭 k8s<\/span>/);
+  assert.match(html, /class="lc-cat-head is-static"/, '거르는 동안 분류는 접을 수 없이 펼쳐 둔다');
+  assert.match(html, /id="lc-d-kubernetes"/, '결과가 하나면 표를 연다');
+  assert.equal(d.el('lc-count').innerHTML, '제품 <b>1</b>개 · 분류 <b>1</b>개');
+  html = view("LC_PAGE.q = 'SERVER'");
+  assert.deepEqual(picks(html), ['windows-server']);
+  assert.match(html, /Microsoft Windows <mark>Server<\/mark>/, '대소문자 무시 · 맞은 곳 표시');
+  html = view("LC_PAGE.q = 'oracle'");
+  assert.deepEqual(picks(html), ['mysql']);
+  assert.match(html, /<span class="lc-pick-sub">태그 oracle<\/span>/);
+  assert.match(view("LC_PAGE.q = 'orac'"), /찾는 제품이 없습니다/, '태그는 통째로 같을 때만');
+  html = view("LC_PAGE.q = 'debian 12'");
+  assert.match(html, /<span class="lc-pick-sub">버전 12<\/span>/);
+  assert.deepEqual(rowsOf(html).filter(r => /is-hit/.test(r.cls)).map(r => r.cycle), ['12']);
+  html = view("LC_PAGE.q = 'bookworm'");
+  assert.deepEqual(picks(html), ['debian'], '코드명');
+  html = view("LC_PAGE.q = '22'");
+  assert.deepEqual(picks(html), ['nodejs'], '숫자는 사이클 앞부분만 — 2022 같은 날짜에 걸리지 않는다');
+  html = view("LC_PAGE.q = '8'");
+  assert.deepEqual(picks(html).sort(), ['mysql', 'redis'], '8 → 8.4 · 8.0 · 8.10 · 8.8 (숫자는 k8s 같은 이름 · 별칭에 걸지 않는다)');
+  // 같은 검색어에서 닫은 표는 다시 열지 않는다(공백만 다른 검색어 포함)
+  d.run("Object.assign(LC_PAGE, { q: 'k8s', soon: false, product: null, auto: 'k8s' }); renderLifecycleView();");
+  assert.doesNotMatch(d.el('lc-cats').innerHTML, /id="lc-d-kubernetes"/);
+});
+
+test('제품 수명주기 — 90일 안에 EOL: 해당 제품만 남은 날 순으로, 칸마다 가장 가까운 버전', () => {
+  const { d, view } = lifecyclePage();
+  const html = view('LC_PAGE.soon = true');
+  assert.deepEqual(catsOf(html), ['server-app']);
+  assert.deepEqual(picks(html), ['kubernetes']);
+  assert.match(html, /<span class="lc-pick-sub">1\.34 · 2026-10-27<\/span>/);
+  assert.match(html, /90일 안에 EOL <b>1<\/b> \/ 2/);
+  assert.equal(d.el('lc-count').innerHTML, '제품 <b>1</b>개 · 버전 <b>1</b>개 · 기준일 2026-09-27');
+  // 기준일이 바뀌면 다시 센다 — 오늘 EOL 인 버전은 이미 EOL 이라 빠지고, 90일 안으로 들어온 버전이 생긴다
+  d.run("lcToday = '2026-10-26';");
+  assert.match(view('LC_PAGE.soon = true'), /data-slug="kubernetes"[\s\S]*?<span class="lc-dday">D-1<\/span>/);
+  d.run("lcToday = '2026-10-27';");
+  const later = view('LC_PAGE.soon = true');
+  assert.deepEqual(picks(later), ['windows-server']);
+  assert.match(later, /<span class="lc-pick-sub">Windows Server 2016 \(LTSC\) · 2027-01-12<\/span><\/span><span class="lc-dday">D-77<\/span>/);
+});
+
+test('제품 수명주기 — 목록을 못 받으면 안내와 다시 불러오기, 모르는 분류는 뒤에, 값은 이스케이프', () => {
+  const d = dashboard();
+  d.run('renderLifecycleView();');
+  assert.match(d.el('lc-cats').innerHTML, /불러오지 못했습니다[\s\S]*data-lc-retry/, '브라우저가 아니면(fetch 없음) 실패로');
+  const cat = readJson('lifecycle_catalog_sample.json');
+  cat.products.zzz = Object.assign({}, cat.products.nginx, { label: '<img src=x onerror=alert(1)>', category: 'robots' });
+  cat.releases.push({ product_slug: 'zzz', cycle: '1<b>', eol_reached: false });
+  const { view } = lifecyclePage(cat);
+  const html = view("LC_PAGE.open.add('robots'); LC_PAGE.product = 'zzz'");
+  assert.deepEqual(catsOf(html), ['os', 'server-app', 'database', 'framework', 'robots']);
+  assert.doesNotMatch(html, /<img|<b>1<b>/);
+  assert.match(html, /&lt;img src=x onerror=alert\(1\)&gt;/);
+  assert.match(html, /<b>1&lt;b&gt;<\/b>/);
+  const bad = lifecyclePage({ schema: 2, products: {}, releases: [] });
+  assert.match(bad.view(), /불러오지 못했습니다/, '모르는 스키마는 읽지 않는다');
 });
 
 test('내보내기 스키마는 그대로 — 파생 값을 CVE 행에 섞지 않는다', () => {

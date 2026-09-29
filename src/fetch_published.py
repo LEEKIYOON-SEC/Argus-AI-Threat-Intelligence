@@ -14,7 +14,7 @@ _DATA_DIR = pages.DATA_DIR
 _REPO_DATA = os.path.join(os.path.dirname(_THIS_DIR), "data")
 
 _REQUIRED = {"cves.json", "stats.json"}
-_SEEDED = {"lifecycle.json", "lifecycle_aliases.json"}
+_SEEDED = {"lifecycle.json", "lifecycle_aliases.json", "lifecycle_catalog.json"}
 
 
 def _base_url() -> str:
@@ -104,4 +104,5 @@ if __name__ == "__main__":
                                    "cve-packages.json",
                                    "detection-rules.json",
                                    "lifecycle.json", "lifecycle_aliases.json",
+                                   "lifecycle_catalog.json",
                                    "cve-facts.json", "cve-evidence.json"]))
