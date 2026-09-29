@@ -91,7 +91,7 @@
               role: '취약 여부 점검 템플릿', cadence: '매일',
               terms: [{ label: 'MIT', url: URL_LICENSE.nucleiMit }] },
     endoflife: { provides: ['lifecycle'], name: 'endoflife.date', provider: '', url: CTX.URL.endoflife, kind: 'source',
-                 role: '제품 릴리스의 지원 단계 · EOL', cadence: '매일',
+                 role: '제품 버전의 지원 단계 · EOL', cadence: '매일',
                  terms: [{ label: 'MIT', url: URL_LICENSE.endoflife }] },
     // 내부 엔티티 — 표에 싣지 않는다
     'rule-index': { provides: ['detection'], name: 'Argus 탐지 룰 색인', provider: 'Argus', url: '', kind: 'derived',

@@ -67,6 +67,26 @@ test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 �
   }
 });
 
+test('제품 수명주기 화면 — 검색 · 90일 버튼 · 분류 칸만, 예전 필터(상태 숫자 · 정렬 · CVE 연결)는 없다', () => {
+  const lc = HTML.slice(HTML.indexOf('id="view-lifecycle"'), HTML.indexOf('id="view-sources"'));
+  for (const id of ['lc-asof', 'lc-meta', 'lc-search', 'lc-soon', 'lc-soon-n', 'lc-count', 'lc-cats']) {
+    assert.match(lc, new RegExp(`id="${id}"`), id);
+  }
+  for (const gone of ['lc-kpis', 'lc-sort', 'lc-linked', 'lc-vendor', 'id="lc-product"', 'lc-status-seg', 'lc-window', 'lc-products',
+                      'lc-unavailable', 'CVE가 연결된 것만', '연결된 CVE 많은 순']) {
+    assert.ok(!lc.includes(gone), `없앤 것: ${gone}`);
+  }
+  assert.match(lc, /id="lc-soon" aria-pressed="false"/);
+  assert.match(lc, /CVE와 연결한 지원 상태는 CVE 상세에서 보여 줍니다/);
+  assert.match(lc, /오늘이 EOL인 버전은 이미 EOL로 봅니다/, '90일 기준을 설명에 적는다');
+  for (const sel of ['.lc-cat-head', '.lc-grid', '.lc-pick', '.lc-detail', 'table.lc-rel', '.lc-dday', '.lc-soon-btn', '.lc-msum']) {
+    assert.ok(CSS.includes(sel), `새 스타일 ${sel}`);
+  }
+  for (const gone of ['.lc-kpi', '.lc-soon-tile', 'lc-catalog', '.obs-kev', '.kpi-grid', '.lc-search-wrap', '.lc-prod-obs']) {
+    assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
+  }
+});
+
 function block(css, start) {
   const i = css.indexOf(start);
   assert.ok(i >= 0, start);

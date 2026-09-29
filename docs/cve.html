@@ -310,59 +310,32 @@
      <div id="view-lifecycle" class="view" hidden>
       <section class="page-head">
         <h1>제품 수명주기</h1>
-        <p class="page-meta">제품 버전별 지원 일정과 그 버전에 연결된 CVE</p>
+        <p class="page-meta" id="lc-asof">제품 버전별 지원 일정</p>
         <button type="button" class="help-btn" aria-expanded="false" aria-controls="lc-help">설명</button>
       </section>
       <div class="help-card" id="lc-help" hidden>
         <ul>
-          <li>지원 상태는 제품 버전의 상태이며 CVE의 위험도가 아닙니다. CVSS나 EPSS와 합산하지 않습니다.</li>
-          <li>날짜와 단계는 <a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a> 값을 그대로 옮깁니다. 값이 없으면 '-'로 두고 추정하지 않습니다.</li>
+          <li><a href="https://endoflife.date/" target="_blank" rel="noopener noreferrer">endoflife.date</a>가 다루는 제품 전체의 버전별 지원 일정입니다. 날짜와 단계 이름은 그대로 옮기고, 값이 없으면 '-'로 둡니다.</li>
+          <li>상태는 오늘 날짜로 계산합니다. ACTIVE 기본 지원 · SECURITY 보안 지원 · EXTENDED EOL 뒤 확장 지원(유료 포함) · EOL 지원 종료 · UNKNOWN 날짜가 없거나 제조사 단계 이름으로 정할 수 없음.</li>
+          <li>"90일 안에 EOL"은 EOL 날짜가 내일부터 90일 안에 오는 버전이 있는 제품입니다. 오늘이 EOL인 버전은 이미 EOL로 봅니다.</li>
+          <li>CVE와 연결한 지원 상태는 CVE 상세에서 보여 줍니다.</li>
         </ul>
         <p class="help-meta" id="lc-meta"></p>
       </div>
 
-      <section class="kpi-grid lc-kpis" id="lc-kpis" aria-label="상태별 릴리스 수"></section>
-      <section class="lc-soon" id="lc-soon" aria-label="EOL이 가까운 릴리스 수"></section>
-
-      <section class="filter-bar">
-        <div class="filter-row primary">
-          <div class="search-wrap lc-search-wrap">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" class="search-input" id="lc-search" aria-label="릴리스 검색"
-                   placeholder="버전 · 날짜 · 상태 · eol:&lt;90d">
-          </div>
-          <select class="filter-select" id="lc-vendor" title="벤더"><option value="">전체 벤더</option></select>
-          <select class="filter-select" id="lc-product" title="제품"><option value="">전체 제품</option></select>
-          <div class="seg" id="lc-status-seg" role="group" aria-label="상태">
-            <button type="button" class="seg-btn active" data-status="">전체</button>
-            <button type="button" class="seg-btn" data-status="ACTIVE"><span class="lc-dot lc-ACTIVE"></span>ACTIVE</button>
-            <button type="button" class="seg-btn" data-status="SECURITY_SUPPORT"><span class="lc-dot lc-SECURITY_SUPPORT"></span>SECURITY</button>
-            <button type="button" class="seg-btn" data-status="EXTENDED_SUPPORT"><span class="lc-dot lc-EXTENDED_SUPPORT"></span>EXTENDED</button>
-            <button type="button" class="seg-btn" data-status="EOL"><span class="lc-dot lc-EOL"></span>EOL</button>
-            <button type="button" class="seg-btn" data-status="UNKNOWN"><span class="lc-dot lc-UNKNOWN"></span>UNKNOWN</button>
-          </div>
-          <select class="filter-select" id="lc-window" title="EOL까지 남은 기간">
-            <option value="">EOL 일정 전체</option>
-            <option value="30">EOL까지 30일 미만</option>
-            <option value="90">EOL까지 90일 미만</option>
-            <option value="180">EOL까지 180일 미만</option>
-          </select>
-          <select class="filter-select" id="lc-sort" title="제품 정렬">
-            <option value="product">제품 이름순</option>
-            <option value="eol">EOL 가까운 순</option>
-            <option value="cves" selected>연결된 CVE 많은 순</option>
-            <option value="kev">CISA KEV 많은 순</option>
-            <option value="exploit">공개 익스플로잇 많은 순</option>
-          </select>
-          <label class="lc-check" title="CVE 목록의 영향 제품과 연결된 릴리스만">
-            <input type="checkbox" id="lc-linked"> CVE가 연결된 것만
-          </label>
+      <section class="lc-bar" aria-label="제품 찾기">
+        <div class="search-wrap lc-find">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" class="search-input" id="lc-search" autocomplete="off" spellcheck="false" aria-label="제품 검색"
+                 placeholder="제품 이름 · 별칭 · 버전 (예: k8s, 22.04)">
         </div>
+        <button type="button" class="lc-soon-btn" id="lc-soon" aria-pressed="false" title="EOL 날짜가 90일 안에 오는 버전이 있는 제품만">
+          <span class="lc-soon-box" aria-hidden="true"></span>90일 안에 EOL<b id="lc-soon-n">-</b>
+        </button>
+        <p class="lc-count" id="lc-count" aria-live="polite"></p>
       </section>
 
-      <div class="lc-products" id="lc-products"></div>
-      <p class="lc-count" id="lc-count"></p>
-      <div class="lc-unavailable" id="lc-unavailable" hidden></div>
+      <div class="lc-cats" id="lc-cats"></div>
      </div>
 
      <!-- ===================== 데이터 출처 ===================== -->

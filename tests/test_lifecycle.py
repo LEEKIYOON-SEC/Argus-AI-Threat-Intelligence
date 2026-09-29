@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.join(ROOT, "src"))
 import update_lifecycle as ul  # noqa: E402
 
 FIX = os.path.join(ROOT, "tests", "fixtures")
+AVAILABLE = ["debian", "kubernetes", "mysql", "nginx", "nodejs", "redis", "windows-server"]
 NOW = dt.datetime(2026, 9, 27, 12, 0, tzinfo=dt.timezone.utc)
 TODAY = "2026-09-27"
 FETCHED = "2026-09-27T12:00:00Z"
@@ -27,9 +28,18 @@ def raw(slug):
 
 
 def normalize(slug, vendor="V", **cfg):
-    payload = raw(slug)
-    return ul.normalize_product(dict(slug=slug, vendor=vendor, **cfg), payload["result"],
-                                payload.get("last_modified"), FETCHED, TODAY)
+    return ul.normalize_product(dict(slug=slug, vendor=vendor, **cfg), raw(slug)["result"], FETCHED, TODAY)
+
+
+def full_payload(slugs, edit=None):
+    """/products/full 응답 — 제품별 v1 응답(fixture)의 result 를 모은다. edit(slug, result) 로 한 제품만 망가뜨린다."""
+    items = []
+    for slug in slugs:
+        result = copy.deepcopy(raw(slug)["result"])
+        if edit:
+            edit(slug, result)
+        items.append(result)
+    return {"schema_version": "1.2.1", "generated_at": "2026-09-27T11:00:00+00:00", "total": len(items), "result": items}
 
 
 def by_cycle(recs):
@@ -65,36 +75,52 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(meta["identifiers"]["cpe"], ["cpe:2.3:a:f5:nginx"])
         self.assertIn("pkg:deb/debian/nginx", meta["identifiers"]["purl"])
         self.assertEqual(meta["labels"], {"eoas": None, "eol": "Security Support", "eoes": None})
-        self.assertEqual(meta["source_last_modified"], raw("nginx")["last_modified"])
         self.assertNotIn("icon", json.dumps(meta))
+        self.assertNotIn("source_last_modified", meta, "전체 응답에는 제품별 수정 시각이 없다 — 지어내지 않는다")
 
-    def test_catalog_includes_aliases(self):
-        payload = load("endoflife_v1/products.json")
-        session = FakeSession({"/products": payload})
-        catalog = ul.fetch_catalog(session)
-        self.assertEqual(catalog["nginx"], "nginx")
-        self.assertEqual(catalog["httpd"], "apache-http-server")
-        self.assertNotIn("openssh", catalog)
+    def test_one_request_for_everything(self):
+        session = FakeSession({"/products/full": full_payload(AVAILABLE)})
+        items = ul.fetch_full(session)
+        self.assertEqual(session.calls, 1)
+        self.assertEqual([i["name"] for i in items], AVAILABLE)
+
+    def test_names_include_aliases_but_names_win(self):
+        items = full_payload(AVAILABLE)["result"]
+        items[0]["aliases"] = ["kubernetes"]  # 다른 제품의 이름과 같은 별칭
+        names = ul.upstream_names(items)
+        self.assertEqual(names["k8s"], "kubernetes")
+        self.assertEqual(names["windowsserver"], "windows-server")
+        self.assertEqual(names["kubernetes"], "kubernetes")
+        self.assertNotIn("openssh", names)
 
     def test_unknown_api_major_is_rejected(self):
-        payload = copy.deepcopy(raw("nginx"))
+        payload = full_payload(AVAILABLE)
         payload["schema_version"] = "2.0.0"
-        session = FakeSession({"/products/nginx": payload})
         with self.assertRaises(ul.LifecycleError):
-            ul.fetch_product(session, "nginx")
+            ul.fetch_full(FakeSession({"/products/full": payload}))
+
+    def test_truncated_or_malformed_response_is_rejected(self):
+        payload = full_payload(AVAILABLE)
+        payload["total"] = len(AVAILABLE) + 5
+        with self.assertRaisesRegex(ul.LifecycleError, "잘린 응답"):
+            ul.fetch_full(FakeSession({"/products/full": payload}))
+        payload = full_payload(AVAILABLE)
+        del payload["result"][0]["name"]
+        with self.assertRaisesRegex(ul.LifecycleError, "이름 없는 제품"):
+            ul.fetch_full(FakeSession({"/products/full": payload}))
+        with self.assertRaises(ul.LifecycleError):
+            ul.fetch_full(FakeSession({"/products/full": dict(full_payload(AVAILABLE), result=[], total=0)}))
 
     @mock.patch("update_lifecycle.time.sleep")
     def test_transient_error_is_retried(self, _sleep):
-        session = FakeSession({"/products/nginx": raw("nginx")}, fail_first=2)
-        result, last_modified = ul.fetch_product(session, "nginx")
-        self.assertEqual(result["name"], "nginx")
+        session = FakeSession({"/products/full": full_payload(AVAILABLE)}, fail_first=2)
+        self.assertEqual(len(ul.fetch_full(session)), len(AVAILABLE))
         self.assertEqual(session.calls, 3)
 
     @mock.patch("update_lifecycle.time.sleep")
     def test_persistent_error_raises(self, _sleep):
-        session = FakeSession({}, fail_first=99)
         with self.assertRaises(ul.LifecycleError):
-            ul.fetch_product(session, "nginx")
+            ul.fetch_full(FakeSession({}, fail_first=99))
 
 
 class NullTests(unittest.TestCase):
@@ -131,7 +157,7 @@ class NullTests(unittest.TestCase):
         rel = payload["releases"][0]
         for key in ("latest", "codename", "releaseDate", "label"):
             rel.pop(key, None)
-        _, recs, problems = ul.normalize_product({"slug": "nginx", "vendor": "F5"}, payload, None, FETCHED, TODAY)
+        _, recs, problems = ul.normalize_product({"slug": "nginx", "vendor": "F5"}, payload, FETCHED, TODAY)
         self.assertEqual(problems, [])
         rec = recs[0]
         self.assertIsNone(rec["latest_version"])
@@ -143,14 +169,14 @@ class NullTests(unittest.TestCase):
     def test_missing_is_eol_is_a_problem_not_active(self):
         payload = copy.deepcopy(raw("nginx")["result"])
         del payload["releases"][0]["isEol"]
-        _, recs, problems = ul.normalize_product({"slug": "nginx"}, payload, None, FETCHED, TODAY)
+        _, recs, problems = ul.normalize_product({"slug": "nginx"}, payload, FETCHED, TODAY)
         self.assertTrue(any("isEol" in p for p in problems))
         self.assertEqual(recs[0]["lifecycle_status"], "UNKNOWN")
 
     def test_malformed_date_is_reported(self):
         payload = copy.deepcopy(raw("nginx")["result"])
         payload["releases"][2]["eolFrom"] = "2024/05/29"
-        _, _, problems = ul.normalize_product({"slug": "nginx"}, payload, None, FETCHED, TODAY)
+        _, _, problems = ul.normalize_product({"slug": "nginx"}, payload, FETCHED, TODAY)
         self.assertTrue(any("eolFrom" in p for p in problems))
 
 
@@ -244,16 +270,16 @@ class DateFieldTests(unittest.TestCase):
         self.assertEqual(rec["security_support_end"], "2026-10-27")
 
 
-def fake_fetchers(slugs, fail=()):
-    catalog = {s: s for s in slugs}
-    catalog["alias-of-nginx"] = "nginx"
+def broken(*slugs):
+    """이 제품들의 첫 릴리스에서 isEol 을 지운다 — 정규화 문제로 '읽기 실패'가 된다."""
+    def edit(slug, result):
+        if slug in slugs:
+            del result["releases"][0]["isEol"]
+    return edit
 
-    def product_fn(slug):
-        if slug in fail:
-            raise ul.LifecycleError(f"{slug}: 503")
-        payload = raw(slug)
-        return payload["result"], payload.get("last_modified")
-    return (lambda: catalog), product_fn
+
+def items_of(slugs=None, fail=()):
+    return full_payload(slugs or AVAILABLE, broken(*fail))["result"]
 
 
 CONFIG = [
@@ -264,13 +290,9 @@ CONFIG = [
     {"slug": "redis", "vendor": "Redis"},
     {"slug": "openssh", "vendor": "OpenBSD", "name": "OpenSSH", "match_cpe": ["cpe:2.3:a:openbsd:openssh"]},
 ]
-AVAILABLE = ["nginx", "windows-server", "debian", "mysql", "redis", "kubernetes", "nodejs"]
-
-
 class BuildTests(unittest.TestCase):
     def build(self, previous=None, fail=(), config=CONFIG, now=NOW):
-        catalog_fn, product_fn = fake_fetchers(AVAILABLE, fail)
-        return ul.build(config, previous, now, catalog_fn, product_fn)
+        return ul.build(config, previous, now, items_of(fail=fail))
 
     def test_unavailable_product_is_not_invented(self):
         dataset, _ = self.build()
@@ -327,17 +349,15 @@ class BuildTests(unittest.TestCase):
         self.assertTrue(any("windows-server" in line and "SECURITY_SUPPORT→EXTENDED_SUPPORT" in line for line in lines))
 
     def test_config_slug_that_is_an_upstream_alias_is_flagged(self):
-        config = [{"slug": "alias-of-nginx", "vendor": "F5"}]
-        catalog_fn, product_fn = fake_fetchers(AVAILABLE)
-        dataset, report = ul.build(config, None, NOW, catalog_fn, product_fn)
+        config = [{"slug": "k8s", "vendor": "CNCF"}]
+        dataset, report = ul.build(config, None, NOW, items_of())
         self.assertTrue(report["warnings"])
-        self.assertIn("alias-of-nginx", dataset["products"])
+        self.assertIn("k8s", dataset["products"])
 
 
 class ValidateTests(unittest.TestCase):
     def setUp(self):
-        catalog_fn, product_fn = fake_fetchers(AVAILABLE)
-        self.dataset, _ = ul.build(CONFIG, None, NOW, catalog_fn, product_fn)
+        self.dataset, _ = ul.build(CONFIG, None, NOW, items_of())
 
     def test_missing_field(self):
         bad = copy.deepcopy(self.dataset)
@@ -361,6 +381,167 @@ class ValidateTests(unittest.TestCase):
         bad = copy.deepcopy(self.dataset)
         bad["releases"][0]["source_url"] = None
         self.assertTrue(any("출처" in p for p in ul.validate(bad)))
+
+
+CATALOG_FIXTURE = os.path.join(FIX, "lifecycle_catalog_sample.json")
+
+
+def make_catalog_fixture():
+    """tests/fixtures/lifecycle_catalog_sample.json — 화면 테스트(JS)가 쓰는 전체 목록. 만드는 규칙이 바뀌면
+    python -c 'import tests.test_lifecycle as t; t.make_catalog_fixture()' 로 다시 만든다."""
+    catalog, _ = ul.build_catalog(CONFIG, None, NOW, items_of())
+    ul.write_atomic(CATALOG_FIXTURE, ul.dump(catalog))
+
+
+class CatalogTests(unittest.TestCase):
+    """전체 목록 data/lifecycle_catalog.json — 제품 수명주기 화면용. 같은 응답으로 만든다."""
+
+    def build(self, previous=None, fail=(), config=CONFIG, now=NOW, slugs=None):
+        return ul.build_catalog(config, previous, now, items_of(slugs, fail))
+
+    def test_every_upstream_product_with_compact_releases(self):
+        catalog, report = self.build()
+        self.assertEqual(sorted(catalog["products"]), sorted(AVAILABLE))
+        self.assertEqual(report["failed"], {})
+        self.assertEqual(ul.validate_catalog(catalog), [])
+        self.assertEqual(json.loads(ul.dump(catalog)), catalog)
+        self.assertEqual(catalog["license"], ul.LICENSE)
+        self.assertEqual(catalog["source_api"], "https://endoflife.date/api/v1/products/full")
+        self.assertNotIn("unavailable", catalog, "추적 제품이 아닌 목록에는 '없는 제품' 개념이 없다")
+        for rec in catalog["releases"]:
+            self.assertNotIn(None, rec.values(), "빈 값은 싣지 않는다")
+            for gone in ("security_support_end", "vendor", "fetched_at", "lifecycle_status", "source_url"):
+                self.assertNotIn(gone, rec)
+        rec = next(r for r in catalog["releases"] if r["product_slug"] == "nginx" and r["cycle"] == "1.25")
+        self.assertEqual(rec, {"product_slug": "nginx", "cycle": "1.25", "release_date": "2023-05-23",
+                               "eol_date": "2024-05-29", "eol_reached": True, "latest_version": "1.25.5",
+                               "latest_release_date": "2024-04-16"})
+        k8s = catalog["products"]["kubernetes"]
+        self.assertEqual((k8s["category"], k8s["aliases"]), ("server-app", ["k8s"]))
+        self.assertEqual(k8s["labels"], {"eoas": "Active Support", "eol": "Maintenance Support", "eoes": None})
+        self.assertEqual(k8s["source_url"], "https://endoflife.date/kubernetes")
+        self.assertNotIn("icon", json.dumps(catalog))
+
+    def test_same_dates_as_the_tracked_file(self):
+        catalog, _ = self.build()
+        dataset, _ = ul.build(CONFIG, None, NOW, items_of())
+        tracked = ul._group(dataset["releases"])
+        listed = ul._group(catalog["releases"])
+        self.assertTrue(tracked)
+        for slug, recs in tracked.items():
+            with self.subTest(slug):
+                self.assertEqual([r["cycle"] for r in listed[slug]], [r["cycle"] for r in recs])
+                for a, b in zip(recs, listed[slug]):
+                    for key in b:
+                        self.assertEqual(b[key], a[key], f"{slug} {a['cycle']} {key}")
+                    for key in ("eol_date", "eol_reached", "support_end", "extended_support_end", "release_date"):
+                        self.assertEqual(b.get(key), a[key], f"{slug} {a['cycle']} {key}")
+
+    def test_reviewed_phase_mapping_applies_to_the_list_too(self):
+        config = [{"slug": "kubernetes", "phase_status": {"eol": "SECURITY_SUPPORT", "basis": "https://example.org/k8s"}}]
+        catalog, _ = self.build(config=config)
+        self.assertEqual(catalog["products"]["kubernetes"]["phase_status"]["eol"], "SECURITY_SUPPORT")
+        self.assertNotIn("phase_status", catalog["products"]["nginx"])
+
+    def test_unchanged_product_keeps_its_fetch_time(self):
+        previous, _ = self.build()
+        later = NOW + dt.timedelta(days=1)
+        catalog, _ = self.build(previous=previous, now=later)
+        self.assertEqual(catalog["products"]["nginx"]["fetched_at"], FETCHED)
+        self.assertEqual(ul._comparable(catalog), ul._comparable(previous))
+
+    def test_broken_product_keeps_previous_entry_or_is_left_out(self):
+        previous, _ = self.build()
+        catalog, report = self.build(previous=previous, fail=("mysql",), now=NOW + dt.timedelta(days=1))
+        self.assertEqual(report["carried"], ["mysql"])
+        self.assertEqual(ul._group(catalog["releases"])["mysql"], ul._group(previous["releases"])["mysql"])
+        catalog, report = self.build(fail=("mysql",))
+        self.assertEqual(report["dropped"], ["mysql"])
+        self.assertNotIn("mysql", catalog["products"])
+        self.assertFalse(any(r["product_slug"] == "mysql" for r in catalog["releases"]))
+
+    def test_mass_failure_or_a_shrunken_list_is_not_written(self):
+        with self.assertRaisesRegex(ul.LifecycleError, "읽지 못함"):
+            self.build(fail=("mysql", "redis"))
+        previous, _ = self.build()
+        with self.assertRaisesRegex(ul.LifecycleError, "줄었다"):
+            self.build(previous=previous, slugs=AVAILABLE[:5])
+
+    def test_validate_catches_mistakes(self):
+        catalog, _ = self.build()
+        bad = copy.deepcopy(catalog)
+        bad["releases"].append(copy.deepcopy(bad["releases"][0]))
+        bad["releases"][1]["eol_date"] = "soon"
+        bad["releases"][2]["vendor"] = "x"
+        bad["products"]["nginx"]["source_url"] = None
+        problems = ul.validate_catalog(bad)
+        for word in ("중복", "eol_date", "모르는 필드", "출처"):
+            self.assertTrue(any(word in p for p in problems), word)
+
+    def test_screen_fixture_is_builder_output(self):
+        catalog, _ = self.build()
+        self.assertEqual(ul.load_json(CATALOG_FIXTURE), catalog,
+                         "tests/fixtures/lifecycle_catalog_sample.json 을 make_catalog_fixture() 로 다시 만든다")
+
+
+class RunTests(unittest.TestCase):
+    """_run 전체 — 요청 한 번으로 두 파일, 바뀐 날만 쓰기, 실패하면 둘 다 그대로"""
+
+    def setUp(self):
+        import tempfile
+        self.tmp = tempfile.mkdtemp()
+        self.paths = {k: os.path.join(self.tmp, n) for k, n in
+                      (("OUT_PATH", "lifecycle.json"), ("CATALOG_PATH", "lifecycle_catalog.json"),
+                       ("PRODUCTS_PATH", "lifecycle_products.json"))}
+        with open(self.paths["PRODUCTS_PATH"], "w", encoding="utf-8") as f:
+            json.dump({"products": CONFIG}, f)
+        self.patches = [mock.patch.object(ul, k, v) for k, v in self.paths.items()]
+        for p in self.patches:
+            p.start()
+
+    def tearDown(self):
+        for p in self.patches:
+            p.stop()
+        import shutil
+        shutil.rmtree(self.tmp)
+
+    def run_with(self, session, dry_run=False):
+        with mock.patch.object(ul.requests, "Session", lambda: session), \
+                mock.patch("update_lifecycle.time.sleep"), \
+                mock.patch.object(ul, "validate_aliases", lambda *a: ([], [])):
+            return ul._run(dry_run)
+
+    def read(self):
+        out = {}
+        for key in ("OUT_PATH", "CATALOG_PATH"):
+            path = self.paths[key]
+            out[key] = None
+            if os.path.exists(path):
+                with open(path, encoding="utf-8") as f:
+                    out[key] = f.read()
+        return out
+
+    def test_one_request_writes_both_files_and_only_when_changed(self):
+        session = FakeSession({"/products/full": full_payload(AVAILABLE)})
+        self.assertEqual(self.run_with(session, dry_run=True), (0, False))
+        self.assertEqual(self.read(), {"OUT_PATH": None, "CATALOG_PATH": None}, "dry-run 은 쓰지 않는다")
+        self.assertEqual(self.run_with(session), (0, True))
+        self.assertEqual(session.calls, 2, "실행마다 요청은 한 번")
+        first = self.read()
+        self.assertEqual(ul.validate(json.loads(first["OUT_PATH"])), [])
+        self.assertEqual(ul.validate_catalog(json.loads(first["CATALOG_PATH"])), [])
+        self.assertEqual(self.run_with(FakeSession({"/products/full": full_payload(AVAILABLE)})), (0, False))
+        self.assertEqual(self.read(), first, "바뀐 게 없으면 두 파일 모두 그대로")
+
+    def test_failed_request_leaves_both_files(self):
+        self.run_with(FakeSession({"/products/full": full_payload(AVAILABLE)}))
+        before = self.read()
+        self.assertEqual(self.run_with(FakeSession({}, fail_first=99)), (1, False))
+        self.assertEqual(self.read(), before)
+        truncated = full_payload(AVAILABLE)
+        truncated["total"] = 99
+        self.assertEqual(self.run_with(FakeSession({"/products/full": truncated})), (1, False))
+        self.assertEqual(self.read(), before)
 
 
 class CommittedFilesTests(unittest.TestCase):
@@ -413,6 +594,19 @@ class CommittedFilesTests(unittest.TestCase):
             self.assertEqual(ul.compute_status(rec, meta, as_of), rec["lifecycle_status"],
                              f"{rec['product_slug']} {rec['cycle']}")
         self.assertIn("openssh", [u["slug"] for u in data["unavailable"]])
+
+    def test_committed_catalog_is_valid_and_agrees_with_the_tracked_file(self):
+        catalog = ul.load_json(ul.CATALOG_PATH)
+        self.assertEqual(catalog["schema"], ul.CATALOG_SCHEMA)
+        self.assertEqual(ul.validate_catalog(catalog), [])
+        self.assertEqual(catalog["license"], ul.LICENSE)
+        self.assertGreater(len(catalog["products"]), 400)
+        tracked = ul.load_json(ul.OUT_PATH)
+        listed = ul._group(catalog["releases"])
+        for slug, recs in ul._group(tracked["releases"]).items():
+            with self.subTest(slug):
+                self.assertIn(slug, catalog["products"])
+                self.assertEqual([r["cycle"] for r in listed[slug]], [r["cycle"] for r in recs])
 
 
 class FakeResponse:
