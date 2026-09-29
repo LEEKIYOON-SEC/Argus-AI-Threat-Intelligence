@@ -19,10 +19,11 @@
    */
 
   /* ---------- Source — 출처 엔티티 ----------
-   * kind 'source' 는 외부 데이터 출처다. 데이터 출처 화면의 표(SOURCE_GROUPS 순서)에 이름 · 주는 정보 · 갱신 주기 ·
+   * kind 'source' 는 외부 데이터 출처다. 데이터 출처 화면의 표(SOURCE_GROUPS 순서)에 이름 · 주는 정보 · 예약 주기 ·
    * 이용 조건(terms)을 싣는다 — 출처별 이용 조건은 이 표 한 곳에만 둔다(INVARIANTS §9-1).
    * 'derived' · 'ai' 는 증거 · 글의 출처를 잇기 위한 내부 엔티티이며 표에 싣지 않는다.
-   * cadence 는 Argus 가 원본을 다시 받는 주기다(원본 쪽 갱신 주기가 아니다). */
+   * cadence 는 Argus 가 원본을 다시 받도록 GitHub Actions 에 걸어 둔 예약 주기다(yml cron · 캐시 수명).
+   * 원본 쪽 갱신 주기가 아니고, 실제 실행은 GitHub 부하로 늦어지거나 건너뛰어 이보다 길다(INVARIANTS §2-1). */
 
   const URL_LICENSE = {
     cc0Kev: 'https://github.com/cisagov/kev-data/blob/develop/LICENSE',
@@ -39,7 +40,7 @@
 
   const SOURCES = {
     'cve-record': { provides: ['severity', 'product', 'remediation', 'text'], name: 'CVE 레코드', provider: 'CVE Program · 빠진 CVSS · 영향 제품은 NVD에서 보충',
-                    url: 'https://www.cve.org/', kind: 'source', role: '제목 · 설명 · 영향 제품 · CVSS · CWE · 참고 링크', cadence: '매시',
+                    url: 'https://www.cve.org/', kind: 'source', role: '제목 · 설명 · 영향 제품 · CVSS · CWE · 참고 링크', cadence: '5분마다 (변경분)',
                     terms: [{ label: 'CVE 이용약관', url: 'https://www.cve.org/Legal/TermsOfUse', note: 'MITRE 저작권 표기와 약관 문구를 함께 싣습니다 (아래 약관 원문)' },
                             { label: 'NVD 이용약관', url: 'https://nvd.nist.gov/developers/terms-of-use', note: 'NVD가 보증하지 않는다는 고지를 하단에 싣습니다' }] },
     osv: { provides: ['remediation'], name: 'OSV.dev', provider: '', url: 'https://osv.dev', kind: 'source',
@@ -57,7 +58,7 @@
                        terms: [{ label: 'VulnCheck 표기 조건', url: 'https://docs.vulncheck.com/community/vulncheck-kev/attribution',
                                  note: "출처를 눈에 띄게 밝혀야 합니다. 화면에는 'VulnCheck KEV'로 적고 하단에 고지합니다" }] },
     'cisa-adp': { provides: ['exploitation', 'automation', 'severity'], name: 'CISA SSVC (vulnrichment)', provider: 'CISA', url: 'https://github.com/cisagov/vulnrichment', kind: 'source',
-                  role: 'SSVC 판정 (Exploitation · Automatable · Technical Impact) · 보충 CVSS', cadence: '매시',
+                  role: 'SSVC 판정 (Exploitation · Automatable · Technical Impact) · 보충 CVSS', cadence: '5분마다 (CVE 레코드와 함께)',
                   terms: [{ label: 'CC0 1.0', url: URL_LICENSE.cc0Vulnrichment, note: '조건 없음' }] },
     'first-epss': { provides: ['probability'], name: 'EPSS', provider: 'FIRST.org', url: 'https://www.first.org/epss/', kind: 'source',
                     role: '30일 안에 악용될 확률 예측', cadence: '6시간마다',

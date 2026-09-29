@@ -212,6 +212,12 @@ test('Data Sources — 외부 출처 한 표에 건수 · 갱신 · 이용 조�
   assert.match(reg, /id="src-splunk"[\s\S]*?href="https:\/\/github\.com\/splunk\/security_content\/blob\/develop\/LICENSE"[^>]*>Apache-2\.0/);
   assert.match(reg, /id="src-cve-record"[\s\S]*?Legal\/TermsOfUse"[^>]*>CVE 이용약관[\s\S]*?terms-of-use"[^>]*>NVD 이용약관/, 'NVD 는 CVE 레코드 행에 합친다');
   assert.match(d.el('src-meta').textContent, /기준 · 추적 중 CVE 16건/);
+  // 예약 주기 — yml 예약 · 캐시 수명 그대로. CVE 레코드는 5분 수집(변경분), SSVC 는 CVE 레코드 안에 함께 온다
+  assert.match(reg, /<th[^>]*>예약 주기<\/th>/);
+  assert.doesNotMatch(reg, /<th>갱신<\/th>/);
+  assert.match(reg, /id="src-cve-record"[\s\S]*?data-label="예약 주기">5분마다 \(변경분\)</);
+  assert.match(reg, /id="src-cisa-adp"[\s\S]*?data-label="예약 주기">5분마다 \(CVE 레코드와 함께\)</);
+  assert.match(reg, /id="src-cisa-kev"[\s\S]*?data-label="예약 주기">매시</);
 });
 
 test('탐지 룰 본문 — 라이선스 전문 · 룰 원문 링크를 붙이고, 라이선스가 없는 YARA 는 본문 없이 링크만', () => {

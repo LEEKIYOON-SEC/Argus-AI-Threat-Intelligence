@@ -1,4 +1,4 @@
-/* 데이터 출처 — 출처마다 주는 정보, 추적 중인 CVE 가운데 그 출처에 기록이 있는 건수, 갱신 주기, 이용 조건.
+/* 데이터 출처 — 출처마다 주는 정보, 추적 중인 CVE 가운데 그 출처에 기록이 있는 건수, 예약 주기, 이용 조건.
    출처별 이용 · 재배포 · 표기 조건은 이 화면 한 곳에만 둔다(INVARIANTS §9-1). 하단에는 늘 보여야 하는 고지만 둔다. */
 
 function renderSources() {
@@ -44,14 +44,14 @@ function renderRegistry(src) {
   const groups = VM.sources(EN, src ? src.stats : null, ruleSourceCounts());
   const named = (url, text) => (isSafeUrl(url) ? linkHtml(url, text) : escapeHtml(text));
   box.innerHTML = `<thead><tr><th>출처</th><th>주는 정보</th>
-      <th class="num" title="추적 중인 CVE 가운데 이 출처에 기록이 있는 건수">기록 있는 CVE</th><th>갱신</th><th>이용 조건</th></tr></thead>
+      <th class="num" title="추적 중인 CVE 가운데 이 출처에 기록이 있는 건수">기록 있는 CVE</th><th title="Argus가 출처에서 다시 받도록 걸어 둔 주기. 실제 실행은 GitHub 사정으로 늦어질 수 있습니다">예약 주기</th><th>이용 조건</th></tr></thead>
     ${groups.map(g => `<tbody>
       <tr class="src-group"><th colspan="5" scope="colgroup">${escapeHtml(g.label)}</th></tr>
       ${g.rows.map(r => `<tr id="src-${escapeHtml(r.id)}">
         <td class="src-name"><b>${named(r.url, r.name)}</b>${r.provider ? `<small>${escapeHtml(r.provider)}</small>` : ''}</td>
         <td data-label="주는 정보">${escapeHtml(r.role)}</td>
         <td class="num" data-label="기록 있는 CVE">${r.count == null ? '<span class="lc-na">-</span>' : `<b>${fmt(r.count)}</b>`}</td>
-        <td class="src-cad" data-label="갱신">${escapeHtml(r.cadence)}</td>
+        <td class="src-cad" data-label="예약 주기">${escapeHtml(r.cadence)}</td>
         <td class="src-terms" data-label="이용 조건">${r.terms.map(t => `<div><b>${named(t.url, t.label)}</b>${t.note ? `<small>${escapeHtml(t.note)}</small>` : ''}</div>`).join('')}</td>
       </tr>`).join('')}
     </tbody>`).join('')}`;

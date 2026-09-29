@@ -54,6 +54,12 @@ test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 �
   assert.ok(sources.includes("distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."));
   assert.match(sources, /Copyright © 1999-2026, The MITRE Corporation\./);
   assert.match(sources, /Copyright \(c\) 2003-2026, Emerging Threats/, 'ET Open BSD 라이선스 전문');
+  // 예약 주기는 GitHub Actions 예약 기준 — 실제로는 늦어지거나 건너뛸 수 있다는 안내와 실제 반영 시각을 함께 둔다
+  const foot = (sources.match(/<p class="src-foot">([\s\S]*?)<\/p>/) || [])[1] || '';
+  assert.match(foot, /GitHub Actions/);
+  assert.match(foot, /늦게 시작하거나 건너뛸 수 있어/);
+  assert.match(foot, /'기준' 시각/);
+  assert.match(sources, /매시 18분에 예약된 작업이 내보낼 때 바뀝니다/, '화면 데이터가 바뀌는 때');
   for (const gone of ['id="dash-coverage"', 'id="src-conflicts"', 'id="dash-quality"', 'source-license', 'openLicense', 'src-table']) {
     assert.ok(!HTML.includes(gone), `없앤 칸: ${gone}`);
   }
