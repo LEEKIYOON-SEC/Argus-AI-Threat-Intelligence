@@ -51,8 +51,13 @@
     'ai-discovery': { provides: ['discovery'], name: 'AI 발견 기록', provider: 'Anthropic CVD 공개 원장 · CVE 레코드의 발견자 표기', url: 'https://red.anthropic.com/',
                       kind: 'source', role: 'AI가 찾아 공개한 취약점인지와 발견한 곳', cadence: '6시간마다',
                       terms: [{ label: '라이선스 표기 없음', url: '' }] },
+    // CWE 번호는 CVE 레코드에 있다. 여기서는 번호의 공식 이름 · 추상화 수준만 — 예약 없이 새 판이 나오면
+    // src/update_cwe.py 로 docs/js/cwe-data.js 를 다시 만든다.
+    cwe: { provides: ['weakness'], name: 'CWE', provider: 'MITRE', url: 'https://cwe.mitre.org/', kind: 'source',
+           role: '취약점 유형(CWE 번호)의 공식 이름 · 추상화 수준', cadence: '수동 (새 판이 나올 때)',
+           terms: [{ label: 'CWE 이용약관', url: 'https://cwe.mitre.org/about/termsofuse.html', note: '저작권 표기 · 약관 문구 필요' }] },
     'cisa-kev': { provides: ['exploitation', 'ransomware', 'remediation', 'product'], name: 'CISA KEV', provider: 'CISA', url: CTX.URL.kev, kind: 'source',
-                  role: '악용 확인 · 랜섬웨어 사용 · 조치 기한 · 필요 조치', cadence: '매시',
+                  role: '악용 확인 · 랜섬웨어 사용 · 필요 조치 · 미 연방기관 기한', cadence: '매시',
                   terms: [{ label: 'CC0 1.0', url: URL_LICENSE.cc0Kev }] },
     'vulncheck-kev': { provides: ['exploitation'], name: 'VulnCheck KEV', provider: 'VulnCheck', url: CTX.URL.vulncheck, kind: 'source',
                        role: '악용 근거 (등재 여부)', cadence: '6시간마다',
@@ -103,7 +108,7 @@
   const SOURCE_ORDER = Object.keys(SOURCES);
   // 데이터 출처 표의 묶음과 순서 — 외부 출처(kind 'source')만, 빠짐없이 한 번씩.
   const SOURCE_GROUPS = [
-    { label: '취약점 정보', ids: ['cve-record', 'osv', 'ai-discovery'] },
+    { label: '취약점 정보', ids: ['cve-record', 'cwe', 'osv', 'ai-discovery'] },
     { label: '악용 · 위험 신호', ids: ['cisa-kev', 'vulncheck-kev', 'cisa-adp', 'first-epss', 'exploit-db', 'metasploit', 'poc-in-github'] },
     { label: '공개 탐지 룰', ids: ['sigma', 'et-open', 'snort-community', 'splunk', 'yara', 'nuclei'] },
     { label: '제품 수명주기', ids: ['endoflife'] },
@@ -111,6 +116,7 @@
   const PROVIDES_LABEL = { exploitation: '악용 근거', exploit: '공개 익스플로잇', automation: '자동화', ransomware: '랜섬웨어',
                            detection: '탐지', remediation: '조치', lifecycle: '수명주기', severity: '심각도(CVSS)',
                            probability: '악용 확률(EPSS)', product: '영향 제품', text: '제목 · 설명', discovery: 'AI 발견',
+                           weakness: '취약점 유형',
                            derived: 'Argus 계산' };
 
   /* ---------- Evidence Type (§6) — 출처와 섞지 않는다 ---------- */

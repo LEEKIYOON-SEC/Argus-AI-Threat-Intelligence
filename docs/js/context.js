@@ -459,8 +459,8 @@
         detail: 'OSV가 다루지 않는 제품이거나 아직 수집 전입니다. 패치가 없다는 뜻은 아닙니다' }));
     }
     if (cve.is_kev && cve.kev_due_date) {
-      rows.push(row('CISA KEV', 'info', `조치 기한 ${cve.kev_due_date}`, { kind: 'listing', url: URL.kev, basis: 'CVE ID',
-        detail: 'CISA가 미국 연방기관에 정한 패치·완화 기한' }));
+      rows.push(row('CISA KEV', 'info', `미 연방기관 기한 ${cve.kev_due_date}`, { kind: 'listing', url: URL.kev, basis: 'CVE ID',
+        detail: 'CISA가 미국 연방 민간기관에 정한 패치·완화 기한. 다른 기관 · 기업의 의무 기한은 아닙니다' }));
     }
     return rows;
   }

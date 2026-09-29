@@ -30,7 +30,6 @@
       <div class="side-group">
         <button type="button" class="view-tab side-link" role="tab" data-view="cves" title="CVE 목록">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span class="side-label">CVE 목록</span><span class="side-count" id="side-count"></span></button>
-        <button type="button" class="view-tab side-sub" data-view="detail" id="side-detail" disabled title="최근 본 CVE"><span class="side-label">최근 본 CVE</span> <span class="side-id" id="side-detail-id"></span></button>
       </div>
       <button type="button" class="view-tab side-link" role="tab" data-view="lifecycle" title="제품 수명주기">
         <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg><span class="side-label">제품 수명주기</span></button>
@@ -61,6 +60,7 @@
         <kbd class="kbd" aria-hidden="true">/</kbd>
         <button type="button" class="syntax-help" id="syntax-help" aria-label="검색 문법 보기" aria-expanded="false" title="검색 문법">?</button>
         <div class="search-pop" id="search-pop" hidden>
+          <div class="search-recent" id="search-recent" hidden></div>
           <ul class="search-suggest" id="search-suggest" role="listbox" aria-label="검색 문법 제안" hidden></ul>
           <div class="search-preview" id="search-preview" hidden></div>
         </div>
@@ -86,7 +86,7 @@
         <code>eol:&lt;90d</code><span>EOL까지 90일 미만 남은 버전 · <code>release:windows/10-22h2</code> 특정 릴리스</span>
         <code>recent:24h</code><span>최근 24시간(또는 <code>7d</code>) 안에 알림을 보냈거나 상태가 바뀐 CVE</span>
         <code>published:7d</code><span>최근 7일 안에 공개된 CVE</span>
-        <code>kev:7d</code><span>최근 7일 안에 CISA KEV에 등재된 CVE · <code>due:3d</code> CISA 조치 기한이 3일 안에 돌아오는 CVE</span>
+        <code>kev:7d</code><span>최근 7일 안에 CISA KEV에 등재된 CVE · <code>due:3d</code> KEV의 미 연방기관 기한(미국 연방 민간기관의 조치 기한)이 3일 안에 돌아오는 CVE</span>
         <code>tier:t0</code><span>알림 등급. t0 관측된 악용 · t1 무기화 임박 · t2 관찰 · t3 신호 없음. <code>has:msf</code>는 예전 묶음(Metasploit · Exploit-DB · nuclei)</span>
       </div>
       <p class="syntax-eg">예: <code>has:cisa-kev lifecycle:eol</code> CISA KEV에 있으면서 영향 버전이 EOL인 CVE · <code>has:exploit no:patch</code> 공개 익스플로잇이 있는데 수정 버전 기록이 없는 CVE</p>
@@ -192,7 +192,8 @@
       </section>
       <div class="help-card" id="list-help" hidden>
         <ul>
-          <li>기본 정렬은 알림 등급(관측된 악용 → 무기화 임박 → 관찰 → 신호 없음) 다음 알림 시각 순입니다.</li>
+          <li>기본 정렬은 알림 등급(관측된 악용 → 무기화 임박 → 관찰 → 신호 없음) 다음 알림 시각 순입니다. 등급이 바뀌는 곳에 구분 줄이 있습니다.</li>
+          <li>제목 아래 줄은 취약점 유형 · 영향 제품 · 요약 앞부분입니다. 유형에 마우스를 올리면 한 줄 풀이가 보입니다.</li>
           <li>빈칸은 정보가 없거나 미확인인 경우입니다. 출처별 상태는 상세에서 볼 수 있습니다.</li>
           <li>제목과 요약은 AI가 번역·요약한 글입니다. 원문은 상세의 기술 정보에 있습니다.</li>
           <li>넓은 화면에서는 행을 누르면 오른쪽에 상세가 열립니다. 행에서 ↑ ↓ 키로 다음 CVE로 넘어갈 수 있습니다.</li>
@@ -224,6 +225,11 @@
         <div class="active-chips" id="active-chips" hidden></div>
 
         <div class="filter-more" id="filter-more" hidden>
+          <!-- 나란히 보기에서는 조건 줄의 조건 칩 · CVSS · EPSS 를 여기로 옮긴다(조건 줄은 심각도 + 필터 한 줄) -->
+          <div class="filter-group" id="filter-split" hidden>
+            <span class="filter-legend">조건</span>
+            <div class="filter-row" id="filter-split-row"></div>
+          </div>
           <div class="filter-group">
             <span class="filter-legend">출처별</span>
             <div class="quick-chips" id="source-chips" role="group" aria-label="출처별 조건. 누르면 검색어에 들어갑니다"></div>
@@ -255,8 +261,7 @@
                 <th class="h-id"><button type="button" class="th-sort" data-sort="id">CVE</button><span class="th-sep">·</span><button type="button" class="th-sort" data-sort="date" title="알림 시각 순">알림</button></th>
                 <th class="h-sum">요약 · 영향 제품 <span class="th-note" title="제목과 요약은 AI가 번역·요약한 글입니다. 원문은 상세의 기술 정보에 있습니다">AI 번역</span></th>
                 <th class="h-score"><button type="button" class="th-sort" data-sort="cvss">CVSS</button><span class="th-sep">·</span><button type="button" class="th-sort" data-sort="epss">EPSS</button></th>
-                <th class="h-threat" title="악용 근거 · 공개 익스플로잇 · 자동화 가능. 출처에서 확인된 것만 표시합니다">위협 신호</th>
-                <th class="h-lc" title="영향 버전의 지원 상태 (endoflife.date). CVE가 아니라 제품 버전의 상태입니다">지원 상태</th>
+                <th class="h-threat" title="악용 근거 · 공개 익스플로잇 · 자동화 가능. 출처에서 확인된 것만 표시합니다. 영향 버전의 지원 상태(endoflife.date)를 알면 함께 적습니다">위협 신호</th>
                 <th class="h-def" title="공개 탐지 룰 · 점검 템플릿과 OSV 수정 버전">탐지 · 수정</th>
               </tr>
             </thead>
@@ -292,7 +297,7 @@
             <span class="m-id" id="modal-id">CVE</span>
             <span id="modal-sev-badge"></span>
           </div>
-          <h2 id="modal-title">-</h2>
+          <h2 class="m-title"><span id="modal-title">-</span><span class="h-type" id="modal-type" hidden></span></h2>
           <p class="hero-summary" id="modal-summary"></p>
           <div class="modal-scores" id="modal-scores"></div>
           <div class="sig-badges" id="modal-signals"></div>
@@ -363,6 +368,12 @@
           <p lang="en">Copyright © 1999-2026, The MITRE Corporation. CVE is a trademark and the CVE logo is a registered trademark of The MITRE Corporation.</p>
           <blockquote lang="en">CVE Usage: MITRE hereby grants you a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright license to reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy.</blockquote>
         </div>
+        <div class="terms-item" id="terms-cwe">
+          <h3>CWE 이용약관 · <a href="https://cwe.mitre.org/about/termsofuse.html" target="_blank" rel="noopener noreferrer">cwe.mitre.org ↗</a></h3>
+          <p lang="en">Copyright © 2006–2026, The MITRE Corporation. CWE, CWSS, CWRAF, and the CWE logo are trademarks of The MITRE Corporation.</p>
+          <blockquote lang="en">CWE™ is free to use by any organization or individual for any research, development, and/or commercial purposes, per these CWE Terms of Use. Accordingly, The MITRE Corporation hereby grants you a non-exclusive, royalty-free license to use CWE for research, development, and commercial purposes. Any copy you make for such purposes is authorized on the condition that you reproduce MITRE’s copyright designation and this license in any such copy. CWE is a trademark of The MITRE Corporation.</blockquote>
+          <p class="terms-src">취약점 유형의 공식 영문 이름 · 추상화 수준에 씁니다. 한국어 이름 · 한 줄 풀이는 MITRE 설명을 바탕으로 Argus가 쓴 글입니다.</p>
+        </div>
         <details class="terms-item" id="terms-et">
           <summary><h3>Emerging Threats Open 라이선스 (BSD)</h3><span class="terms-more"><span class="if-closed">전문 보기</span><span class="if-open">접기</span></span></summary>
           <pre lang="en">Copyright (c) 2003-2026, Emerging Threats
@@ -388,6 +399,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND AN
       </p>
       <p class="notice-line">
         <span>CVE 레코드: Copyright © 1999-2026, The MITRE Corporation.</span>
+        <span>취약점 유형(CWE): Copyright © 2006–2026, The MITRE Corporation.</span>
         <span>제품 수명주기: Copyright 2020 endoflife.date contributors (<a href="https://github.com/endoflife-date/endoflife.date/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT</a>)</span>
         <span>EPSS: <a href="https://www.first.org/epss/" target="_blank" rel="noopener noreferrer">FIRST.org</a></span>
       </p>
@@ -402,6 +414,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS AS IS AND AN
   <script src="js/lifecycle.js"></script>
   <script src="js/context.js"></script>
   <script src="js/entities.js"></script>
+  <script src="js/cwe-data.js"></script>
+  <script src="js/cwe.js"></script>
   <script src="js/viewmodel.js"></script>
   <script src="js/cve-dashboard.js"></script>
   <script src="js/cve-detail.js"></script>

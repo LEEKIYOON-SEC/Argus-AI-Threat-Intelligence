@@ -15,21 +15,29 @@ const CSS = fs.readFileSync(path.join(ROOT, 'docs', 'css', 'style.css'), 'utf8')
 test('cve.html — 화면마다 view-* 와 사이드바 항목이 있고, 스크립트는 의존 순서대로', () => {
   for (const v of ['dashboard', 'cves', 'detail', 'lifecycle', 'sources']) {
     assert.match(HTML, new RegExp(`id="view-${v}"`), `view-${v}`);
+  }
+  for (const v of ['dashboard', 'cves', 'lifecycle', 'sources']) {
     assert.match(HTML, new RegExp(`class="view-tab[^"]*"[^>]*data-view="${v}"`), `사이드바 ${v}`);
   }
+  // 최근 본 CVE 는 사이드바가 아니라 검색창에서(빈 검색창을 누르면)
+  assert.doesNotMatch(HTML, /data-view="detail"|id="side-detail/, '사이드바의 최근 본 CVE 한 건 칸은 없앴다');
   const scripts = [...HTML.matchAll(/<script src="js\/([^"]+)"><\/script>/g)].map(m => m[1]);
-  assert.deepEqual(scripts, ['lifecycle.js', 'context.js', 'entities.js', 'viewmodel.js', 'cve-dashboard.js', 'cve-detail.js',
-                             'dashboard-view.js', 'lifecycle-view.js', 'sources-view.js']);
+  assert.deepEqual(scripts, ['lifecycle.js', 'context.js', 'entities.js', 'cwe-data.js', 'cwe.js', 'viewmodel.js', 'cve-dashboard.js',
+                             'cve-detail.js', 'dashboard-view.js', 'lifecycle-view.js', 'sources-view.js']);
   for (const s of scripts) assert.ok(fs.existsSync(path.join(ROOT, 'docs', 'js', s)), s);
   assert.doesNotMatch(HTML, /chart\.js/, '예전 추이 차트 스크립트는 없앴다');
   // 기존 id — 회귀 도구 · 외부 링크가 쓰는 것
   for (const id of ['search-input', 'cve-table-body', 'page-info', 'prev-btn', 'next-btn', 'active-chips', 'filter-count', 'severity-dist',
                     'product-dist', 'modal-id', 'modal-title', 'modal-body', 'modal-scores', 'modal-signals', 'modal-sev-badge',
-                    'stat-total', 'stat-kev', 'stat-weapon', 'stat-poc', 'stat-ai', 'stat-24h-sub', 'updated-time']) {
+                    'stat-total', 'stat-kev', 'stat-weapon', 'stat-poc', 'stat-ai', 'stat-24h-sub', 'updated-time',
+                    'search-recent', 'modal-type', 'filter-split', 'filter-split-row']) {
     assert.match(HTML, new RegExp(`id="${id}"`), id);
   }
   const ths = HTML.slice(HTML.indexOf('<table class="cve-table">'), HTML.indexOf('</thead>', HTML.indexOf('<table class="cve-table">')));
-  assert.equal((ths.match(/<th[ >]/g) || []).length, 6, '목록 6칸 — CVE·알림 · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 지원 상태 · 탐지·수정');
+  assert.equal((ths.match(/<th[ >]/g) || []).length, 5, '목록 5칸 — CVE·알림 · 요약·영향 제품 · CVSS·EPSS · 위협 신호(지원 상태 포함) · 탐지·수정');
+  assert.doesNotMatch(ths, /h-lc/, '지원 상태 칸은 없앴다 — 값이 있을 때만 위협 신호 칸의 칩으로');
+  // 제목 옆 유형은 제목과 따로 — modal-title 에는 제목 글자만(회귀 도구 · aria-labelledby 가 쓴다)
+  assert.match(HTML, /<h2 class="m-title"><span id="modal-title">-<\/span><span class="h-type" id="modal-type" hidden><\/span><\/h2>/);
   // 화면마다 설명 카드는 '설명' 버튼으로 연다 — 버튼이 가리키는 카드가 있어야 한다
   const helps = [...HTML.matchAll(/class="help-btn"[^>]*aria-controls="([^"]+)"[^>]*>([^<]+)</g)];
   assert.deepEqual(helps.map(m => m[2]), ['설명', '설명', '설명', '설명']);
@@ -44,7 +52,8 @@ test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 �
   assert.doesNotMatch(footer, /<details|<table/, '고지는 접지 않고, 조건 표는 하단에 두지 않는다');
   for (const notice of ['This product uses the NVD API but is not endorsed or certified by the NVD.',
                         'This product uses <a href="https://vulncheck.com/kev"', '>VulnCheck KEV</a>.',
-                        'Copyright © 1999-2026, The MITRE Corporation.', 'Copyright 2020 endoflife.date contributors', 'FIRST.org']) {
+                        'Copyright © 1999-2026, The MITRE Corporation.', '취약점 유형(CWE): Copyright © 2006–2026, The MITRE Corporation.',
+                        'Copyright 2020 endoflife.date contributors', 'FIRST.org']) {
     assert.ok(footer.includes(notice), notice);
   }
   assert.match(footer, /href="\?view=sources" onclick="openSources\(event\)"/, '조건은 데이터 출처 화면으로 보낸다');
@@ -53,6 +62,14 @@ test('하단은 늘 보이는 고지만, 출처별 이용 조건은 데이터 �
   // 약관 원문 — cve.org 이용약관 문구 그대로(CVE™). 사본에 저작권 표기와 이 문구를 함께 실어야 한다.
   assert.ok(sources.includes("distribute Common Vulnerabilities and Exposures (CVE™). Any copy you make for such purposes is authorized provided that you reproduce MITRE's copyright designation and this license in any such copy."));
   assert.match(sources, /Copyright © 1999-2026, The MITRE Corporation\./);
+  // CWE 이용약관 — 사본마다 MITRE 저작권 표기와 약관 문구를 함께. 화면의 문구는 docs/js/cwe-data.js 머리(src/update_cwe.py)와 같다.
+  const cwe = sources.slice(sources.indexOf('id="terms-cwe"'), sources.indexOf('</div>', sources.indexOf('id="terms-cwe"')));
+  assert.match(cwe, /Copyright © 2006–2026, The MITRE Corporation\. CWE, CWSS, CWRAF, and the CWE logo are trademarks of The MITRE Corporation\./);
+  const tou = (cwe.match(/<blockquote lang="en">([^<]+)<\/blockquote>/) || [])[1];
+  assert.ok(tou && tou.includes('on the condition that you reproduce MITRE’s copyright designation and this license in any such copy'));
+  const dataHead = fs.readFileSync(path.join(ROOT, 'docs', 'js', 'cwe-data.js'), 'utf8').split('(function (root)')[0];
+  assert.ok(dataHead.includes(tou), '화면의 CWE 약관 문구 = 데이터 파일에 실은 문구');
+  assert.match(cwe, /href="https:\/\/cwe\.mitre\.org\/about\/termsofuse\.html"/);
   assert.match(sources, /Copyright \(c\) 2003-2026, Emerging Threats/, 'ET Open BSD 라이선스 전문');
   assert.match(sources, /rules\.emergingthreats\.net ↗<\/a> · SID 2000000–2799999 룰에 적용<\/p>/);
   assert.ok(!sources.includes('사본에 함께 실어야') && !sources.includes('Argus가 싣는'), '약관 원문 칸의 설명 문장은 뺐다');
@@ -85,6 +102,35 @@ test('제품 수명주기 화면 — 검색 · 90일 버튼 · 분류 칸만, �
   for (const gone of ['.lc-kpi', '.lc-soon-tile', 'lc-catalog', '.obs-kev', '.kpi-grid', '.lc-search-wrap', '.lc-prod-obs']) {
     assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
   }
+});
+
+// 화면 스크립트(classic script)는 전역 하나를 함께 쓴다 — 뒤에 읽는 파일의 같은 이름이 앞의 것을 조용히 덮는다
+// (예: 검색창의 최근 본 CVE 와 대시보드의 최근 CVE 칸이 같은 함수 이름을 쓰면 한쪽이 동작하지 않는다).
+test('화면 스크립트 — 같은 이름의 전역 함수 · 변수를 두 번 선언하지 않는다', () => {
+  const seen = new Map();
+  for (const f of ['cve-dashboard.js', 'cve-detail.js', 'dashboard-view.js', 'lifecycle-view.js', 'sources-view.js']) {
+    const src = fs.readFileSync(path.join(ROOT, 'docs', 'js', f), 'utf8');
+    for (const m of src.matchAll(/^(?:async\s+)?function\s+([\w$]+)|^(?:const|let|var)\s+([\w$]+)/gm)) {
+      const name = m[1] || m[2];
+      assert.ok(!seen.has(name), `${name}: ${seen.get(name)} · ${f}`);
+      seen.set(name, f);
+    }
+  }
+  assert.ok(seen.size > 300);
+});
+
+test('목록 · 상세 스타일 — 새 칸(유형 칩 · 등급 구분 줄 · 최근 본 CVE · 등급 근거)이 있고, 없앤 칸의 스타일은 없다', () => {
+  for (const sel of ['.c-type', '.c-snip', '.cve-id.is-seen', 'tr.grp-row', '.grp-dot', '.search-recent', '.sr-item', '.tier-menu', '.tier-pop',
+                     '.fact.is-type', '.h-type', '#d-product { container-type: inline-size; }']) {
+    assert.ok(CSS.includes(sel), `새 스타일 ${sel}`);
+  }
+  for (const gone of ['.h-lc', '.c-lc', '.side-sub', '.side-id', '.t-due', '.t-link.is-hot']) {
+    assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
+  }
+  // 나란히 보기 ID 칸은 넓은 목록과 같게(150px) — 'Medium 어제 23:59' 가 한 줄에 들어간다
+  assert.match(CSS, /\.content\.is-split \.cve-table \.h-id \{ width: 150px; \}/);
+  // ID 칸 둘째 줄은 넘치면 다음 줄로('AI 발견' 태그가 칸 밖으로 잘리지 않게)
+  assert.match(CSS, /\.c-meta \{ display: flex; flex-wrap: wrap;/);
 });
 
 function block(css, start) {

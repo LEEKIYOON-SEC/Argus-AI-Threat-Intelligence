@@ -11,8 +11,8 @@ const ALIASES = require('../data/lifecycle_aliases.json');
 // 화면 핵심(뷰 모델 · 목록 · 상세 · 대시보드) — 파생 모듈(lifecycle.js · context.js · entities.js)이 없어도 동작해야 한다.
 const CORE = [{ file: 'docs/js/viewmodel.js' }, { file: 'docs/js/cve-dashboard.js' }, { file: 'docs/js/cve-detail.js' },
               { file: 'docs/js/dashboard-view.js' }, { file: 'docs/js/sources-view.js' }];
-const FULL = [{ file: 'docs/js/lifecycle.js' }, { file: 'docs/js/context.js' }, { file: 'docs/js/entities.js' }, ...CORE,
-              { file: 'docs/js/lifecycle-view.js' }];
+const FULL = [{ file: 'docs/js/lifecycle.js' }, { file: 'docs/js/context.js' }, { file: 'docs/js/entities.js' },
+              { file: 'docs/js/cwe-data.js' }, { file: 'docs/js/cwe.js' }, ...CORE, { file: 'docs/js/lifecycle-view.js' }];
 
 function dashboard({ files = FULL, lifecycle = true } = {}) {
   const d = withFixture(loadDashboard(files));
@@ -280,13 +280,14 @@ test('사전 계산 매핑 — 지문이 맞으면 쓰고, 결과는 직접 매�
   assert.equal(pre.run('contextValid'), false, '영향 제품 파일이 바뀌면 사전 계산 매핑을 버린다');
 });
 
-test('목록 — 6칸, 출처가 확인한 것만 칩, 없음 · 미확인은 빈칸', () => {
+test('목록 — 5칸, 출처가 확인한 것만 칩, 없음 · 미확인은 빈칸', () => {
   const d = dashboard();
   filterIds(d, '');
   const html = d.el('cve-table-body').innerHTML;
   const row = id => html.split('<tr ').find(r => r.includes(`showDetail('${id}')`));
   assert.equal(rowIds(html).length, 16);
-  assert.equal((row(cve(1)).match(/<td /g) || []).length, 6, 'CVE · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 지원 상태 · 탐지·수정');
+  assert.equal((row(cve(1)).match(/<td /g) || []).length, 5, 'CVE · 요약·영향 제품 · CVSS·EPSS · 위협 신호 · 탐지·수정');
+  assert.doesNotMatch(html, /c-lc/, '지원 상태 칸은 없다');
   assert.match(row(cve(1)), /ev-chip ev-exploit[^>]*><i><\/i>KEV<\/span>/, '악용 근거는 출처 이름으로 짧게');
   assert.match(row(cve(1)), /ev-chip ev-exploit[^>]*><i><\/i>랜섬웨어<\/span>/, '랜섬웨어는 따로 한 칩');
   assert.match(row(cve(1)), /ev-chip ev-weapon[^>]*><i><\/i>MSF<\/span>/);
@@ -299,16 +300,56 @@ test('목록 — 6칸, 출처가 확인한 것만 칩, 없음 · 미확인은 �
   assert.match(row(cve(5)), /class="sc-sub"[^>]*>0\.04%</, '0.1% 미만은 0.0% 로 적지 않는다');
   assert.deepEqual(['epssPct(0.99999, 1)', 'epssPct(0.99999, 2)', 'epssPct(1, 1)', 'epssPct(0.1234, 2)'].map(x => d.run(x)),
                    ['99.9', '99.99', '100.0', '12.34'], '1 미만 확률을 100% 로 반올림하지 않는다');
-  assert.match(row(cve(8)), /class="df df-fix"[^>]*>수정</, 'OSV 수정 버전');
+  assert.match(row(cve(8)), /class="df df-fix"[^>]*>수정 버전</, 'OSV 수정 버전');
   assert.doesNotMatch(row(cve(3)), /df-fix/, '수정 기록 없음은 빈칸 (상세에 기록 없음으로)');
-  assert.match(row(cve(1)), /class="df df-det"[^>]*>탐지</);
-  assert.match(row(cve(14)), /lc-badge lc-ACTIVE[^>]*>ACTIVE<em>/, '지원 상태 + 릴리스 이름');
-  assert.match(row(cve(5)), /<td class="c-lc" data-label="지원 상태"><\/td>/, '지원 상태를 모르면 빈칸');
-  assert.match(row(cve(3)), /class="c-prod"[^>]*>PHP Group PHP<span class="c-ver"> · 8\.1\.\* 부터 8\.1\.29 이전 외 1<\/span>/, '영향 버전 한 줄 표기');
+  assert.match(row(cve(1)), /class="df df-det"[^>]*>탐지 룰</);
+  assert.match(row(cve(4)), /ev-chip ev-exploit[^>]*><i><\/i>VulnCheck<b>외 1<\/b><\/span>/, "출처가 여럿이면 '외 N'");
+  assert.match(row(cve(14)), /<td class="c-threat"[^>]*><span class="ev-chips">[^]*lc-badge lc-ACTIVE[^>]*>ACTIVE<em>/,
+               '지원 상태는 알 때만 위협 신호 칸의 칩으로 (+ 릴리스 이름)');
+  assert.doesNotMatch(row(cve(5)), /lc-badge/, '지원 상태를 모르면 칩 없음');
+  // 둘째 줄 — 취약점 유형(칩) · 영향 제품 · 영향 버전 · 요약 한 조각
+  assert.match(row(cve(3)), /class="c-prod"[^>]*><span class="c-type" title="XSS — 입력값이 웹 페이지에 그대로 실려 방문자 브라우저에서 스크립트가 실행되는 결함 \(CWE-79 Improper Neutralization of Input During Web Page Generation \('Cross-site Scripting'\)\)">XSS<\/span>PHP Group PHP<span class="c-ver"> · 8\.1\.\* 부터 8\.1\.29 이전 외 1<\/span><span class="c-snip"> · fixture description 3<\/span><\/div>/,
+               '유형 칩 · 영향 버전 한 줄 표기 · 요약 조각');
+  assert.match(row(cve(1)), /<span class="c-type"[^>]*>Out-of-bounds Write<\/span>/);
   assert.match(row(cve(6)), /Oracle Java SE<span class="c-ver"> · 8u112<\/span>/, '단일 버전');
+  assert.doesNotMatch(row(cve(6)), /c-type/, 'CWE 가 없으면 유형 칩 없음');
+  assert.match(row(cve(1)), /class="c-date" title="알림 시각 toLocaleString\(&quot;ko-KR&quot;,null\)@2026-09-20T03:00:00\.000Z \(알림을 보냈거나 상태가 바뀐 때\. CVE 공개일이 아님\)">/,
+               '칸에는 짧게, 마우스를 올리면 전체 시각');
   assert.doesNotMatch(html, /badge-kev|badge-msf/, '예전 위협 배지 스타일을 쓰지 않는다');
   filterIds(d, "activeFilters.search = 'nomatch';");
-  assert.match(d.el('cve-table-body').innerHTML, /colspan="6" class="empty-state"/, '6칸');
+  assert.match(d.el('cve-table-body').innerHTML, /colspan="5" class="empty-state"/, '5칸');
+});
+
+test('목록 — 알림 등급 정렬이면 등급이 바뀌는 곳과 쪽 맨 위에 구분 줄(이름 · 건수 · 기준)', () => {
+  const d = dashboard();
+  filterIds(d, '');
+  const html = d.el('cve-table-body').innerHTML;
+  const groups = [...html.matchAll(/<tr class="grp-row grp-(T\d)"><td colspan="5">[^]*?<b>([^<]+)<\/b><span class="grp-n">(\d+)건<\/span><span class="grp-desc">([^<]+)<\/span><\/td><\/tr>/g)]
+    .map(m => [m[1], m[2], Number(m[3]), m[4].endsWith(' · 알림 시각 최신순')]);
+  assert.deepEqual(groups, [['T0', '관측된 악용', 3, true], ['T1', '무기화 임박', 5, true], ['T2', '관찰', 6, true], ['T3', '신호 없음', 2, true]]);
+  // 구분 줄 바로 다음 행이 그 등급의 첫 행
+  for (const [tier] of groups) {
+    const after = html.slice(html.indexOf(`grp-${tier}`));
+    assert.match(after.slice(after.indexOf('</tr>')), new RegExp(`^</tr><tr data-severity="[^"]+" data-tier="${tier}"`), tier);
+  }
+  assert.equal(rowIds(html).length, 16, '구분 줄은 CVE 행으로 세지 않는다');
+  filterIds(d, "activeFilters.search = 'has:kev';");
+  assert.match(d.el('cve-table-body').innerHTML, /grp-T0[^]*?<span class="grp-n">3건<\/span>/, '건수는 지금 조건의 결과');
+  filterIds(d, "sortField = 'cvss';");
+  assert.doesNotMatch(d.el('cve-table-body').innerHTML, /grp-row/, '다른 정렬에서는 구분 줄 없음');
+  d.run("sortField = 'tier'; currentPage = 1; filteredCves = allCves.slice().sort(compareCves); renderTable();");
+  assert.equal(d.run('listColumns()'), 5, '표를 그리기 전(칸 너비를 모름)에는 전체 칸 수');
+});
+
+test('목록 — 알림 시각은 오늘 · 어제면 시각까지, 그 전은 날짜만 (보는 사람의 시간대)', () => {
+  const d = dashboard();
+  const at = (iso, now) => d.run(`alertTimeText(${JSON.stringify(iso)}, new Date(${JSON.stringify(now)}))`);
+  assert.equal(at('2026-09-28T09:55:00Z', '2026-09-28T23:10:00Z'), '오늘 09:55');
+  assert.equal(at('2026-09-27T23:59:00Z', '2026-09-28T00:10:00Z'), '어제 23:59');
+  assert.equal(at('2026-09-26T09:55:00Z', '2026-09-28T00:10:00Z'), '9. 26.');
+  assert.equal(at('2025-12-31T09:55:00Z', '2026-01-02T00:10:00Z'), '25. 12. 31.', '다른 해는 두 자리 연도');
+  assert.equal(at('', '2026-09-28T00:10:00Z'), '-');
+  assert.equal(at('not-a-date', '2026-09-28T00:10:00Z'), '-');
 });
 
 test('영향 버전 한 줄 표기 — 수집 단계 형식을 줄이고, 하한이 없으면 상한만', () => {
@@ -323,6 +364,9 @@ test('영향 버전 한 줄 표기 — 수집 단계 형식을 줄이고, 하한
   assert.equal(short('모든 버전'), '모든 버전');
   assert.equal(short('정보 없음'), '', '없으면 비운다');
   assert.equal(short('n/a (단일 버전)'), '');
+  // 경계가 같은 구간 — 'A 부터 A 이하' 는 그 버전 하나, 'A 부터 A 이전' 은 'A 이전'
+  assert.equal(short('9.7.0 부터 9.7.0 이하, 9.6.0 부터 9.6.3 이하'), '9.7.0 외 1');
+  assert.equal(short('152.0.7977.82 부터 152.0.7977.82 이전'), '152.0.7977.82 이전');
 });
 
 test('조건 칩 · 검색어 이동 · URL — 필터 상태는 검색줄 한 곳에만', () => {
@@ -403,7 +447,9 @@ test('상세 — 머리글 수치 → 확인된 위협 신호 → 조치 · 영�
   assert.match(sec('d-product'), /<summary>제품 1개 더 보기<\/summary>/, '셋이 넘으면 접는다');
   assert.match(sec('d-lifecycle'), /Microsoft Windows Server[\s\S]*<b>2019<\/b>/);
   assert.match(sec('d-lifecycle'), /사유: 수명주기를 추적하지 않는 제품/);
-  assert.match(sec('d-remedy'), /CISA KEV 필요 조치 · 기한 2026-10-10 \(13일 남음\)/);
+  assert.match(sec('d-remedy'), /<summary>CISA KEV 필요 조치 · 미 연방기관 기한 2026-10-10<\/summary>/, '누구의 기한인지 이름에 — 등재일 파일 전에는 등재 후 며칠을 모른다');
+  assert.match(sec('d-remedy'), /기한은 CISA가 연방기관 지침\(BOD 22-01, 2026-06-10부터 BOD 26-04\)에 따라 정한 미국 연방 민간기관의 조치 기한으로, 다른 기관 · 기업의 의무 기한은 아닙니다/);
+  assert.doesNotMatch(sec('d-remedy'), /남음|지남|위 문장은 CISA 원문/, "'N일 지남'은 없고, 원문이 없으면 원문이라고 하지 않는다");
   assert.match(sec('d-evidence'), /EXPLOITATION_CONFIRMED=yes/);
   assert.match(sec('d-evidence'), /RANSOMWARE=yes/);
   assert.match(sec('d-evidence'), /KEV_RANSOMWARE/);
@@ -415,12 +461,21 @@ test('상세 — 머리글 수치 → 확인된 위협 신호 → 조치 · 영�
   const beforeAi = body.slice(0, body.indexOf('id="d-ai"'));
   assert.doesNotMatch(beforeAi, /AI-ROOT-CAUSE-TEXT|AI-STEP/, 'AI 분석은 사실 · 판정 칸에 섞이지 않는다');
   assert.match(d.el('modal-sev-badge').innerHTML, /Argus · 관측된 악용/, '알림 등급은 Argus 판정으로 표기');
+  assert.match(d.el('modal-sev-badge').innerHTML,
+               /<details class="tier-menu"><summary class="badge badge-tier tier-T0"[^>]*>Argus · 관측된 악용<span class="tier-caret"[^]*<div class="tier-pop"><b>알림 등급 근거<\/b><ul><li>CISA KEV<\/li><\/ul><small>알림을 보낼지 정하는 기준이며 점수가 아닙니다<\/small><\/div><\/details>/,
+               '등급 배지를 누르면 근거');
+  assert.equal(d.el('modal-title').textContent, '테스트 취약점 1', '제목 칸에는 제목 글자만');
+  assert.equal(d.el('modal-type').hidden, false);
+  assert.equal(d.el('modal-type').textContent, 'Out-of-bounds Write', '제목 옆 유형');
+  assert.equal(d.el('modal-type').title, 'Out-of-bounds Write — 할당된 메모리 범위 밖에 데이터를 쓰는 결함 (CWE-787)');
   assert.match(d.el('modal-summary').innerHTML, /origin-tag[^>]*>제목 번역 · 요약 원문</,
                '원문 파일 전에는 글자로만 판단 — 한국어 제목은 번역, 영문 요약은 원문');
   const facts = d.el('modal-scores').innerHTML;
   assert.match(facts, /CVSS 3\.1<\/span><span class="vl">9\.8 <span class="band band-Critical">Critical/);
-  assert.match(facts, /CISA KEV 등재<\/span><span class="vl"><span class="vl-unknown">불러오는 중<\/span>/, '등재일 파일을 받기 전');
-  assert.match(facts, /조치 기한 2026-10-10 \(13일 남음\)/);
+  assert.match(facts, /<div class="fact is-kev" title="실제 악용이 확인돼 CISA KEV 목록에 오른 날"><span class="lbl">CISA KEV 등재<\/span><span class="vl"><span class="vl-unknown">불러오는 중<\/span><\/span><\/div>/, '등재일 파일을 받기 전');
+  assert.doesNotMatch(facts, /조치 기한|기한|남음|지남/, '미 연방기관 기한은 머리글에 두지 않는다(조치 칸에서 설명과 함께)');
+  assert.match(facts, /<div class="fact is-type" title="Out-of-bounds Write — 할당된 메모리 범위 밖에 데이터를 쓰는 결함 \(CWE-787\)"><span class="lbl">취약점 유형<\/span><span class="vl">Out-of-bounds Write<\/span><span class="sub ty-explain">할당된 메모리 범위 밖에 데이터를 쓰는 결함<\/span><span class="sub ty-ids"><a href="https:\/\/cwe\.mitre\.org\/data\/definitions\/787\.html" target="_blank" rel="noopener noreferrer"[^>]*>CWE-787 ↗<\/a><\/span><\/div>/,
+               '유형 칸 — 이름 · 한 줄 풀이 · 번호(MITRE 설명)');
   assert.equal(d.el('detail-origin').textContent, '대시보드', '돌아가기 = 들어오기 전 화면');
 });
 
@@ -439,7 +494,10 @@ test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으�
   d.run('detailFiles.facts = __files.facts; detailFiles.evidence = __files.evidence;');
   d.run("showDetail('CVE-2026-0001')");
   const body = d.el('modal-body').innerHTML;
-  assert.match(d.el('modal-scores').innerHTML, /CISA KEV 등재<\/span><span class="vl">2026-09-01/);
+  assert.match(d.el('modal-scores').innerHTML, /CISA KEV 등재<\/span><span class="vl">2026-09-01<\/span><span class="sub">26일 전<\/span>/, '등재 후 며칠 — 데이터 기준일(09-27) 기준');
+  assert.match(detailSec(body, 'd-remedy'), /<summary>CISA KEV 필요 조치 · 미 연방기관 기한 2026-10-10 <span class="d-muted">\(등재 후 39일\)<\/span><\/summary>/,
+               '등재 후 며칠을 줬는지 = CISA 가 본 급한 정도');
+  assert.match(detailSec(body, 'd-remedy'), /<p class="d-note">위 문장은 CISA 원문입니다\. 기한은/);
   assert.match(detailSec(body, 'd-threat'), /KEV 등재일 <b>2026-09-01<\/b>/);
   assert.match(detailSec(body, 'd-threat'), /필요 조치 \(CISA 원문\): Apply mitigations per vendor instructions\./);
   assert.match(detailSec(body, 'd-threat'), /exploit\/windows\/http\/example_rce<\/code> · 등급 excellent · check 지원 · 취약점 공개일 2026-08-30/);
@@ -490,8 +548,8 @@ test('화면 전환 — 좁은 화면: 상세는 한 화면, URL 의 cve, 닫으
   assert.match(d.run('history.last'), /cve=CVE-2026-0003/);
   assert.match(decodeURIComponent(d.run('history.last')), /view=cves&q=has:poc/, '목록 맥락은 URL 에 남긴다');
   assert.doesNotMatch(d.run('history.last'), /full=1/, 'full 은 넓은 화면에서만');
-  assert.equal(d.el('side-detail').disabled, false);
-  assert.equal(d.el('side-detail-id').textContent, 'CVE-2026-0003');
+  assert.deepEqual(JSON.parse(d.run("localStorage.getItem('argus-recent')")).map(x => x.id), ['CVE-2026-0003'],
+                   '연 상세는 이 브라우저의 최근 본 CVE 에 남는다');
   assert.equal(d.el('detail-origin').textContent, 'CVE 목록');
   d.run('closeModal()');
   assert.equal(d.run('currentView'), 'cves');
@@ -546,6 +604,90 @@ test('나란히 보기 — 넓은 화면의 목록에서 상세를 오른쪽에 
   assert.equal(d.run('document.documentElement.dataset.nav'), undefined, '닫으면 메뉴를 다시 편다');
   d.run("localStorage.setItem('argus-nav', 'open'); showDetail('CVE-2026-0003')");
   assert.equal(d.run('document.documentElement.dataset.nav'), undefined, '사용자가 고른 메뉴 상태가 먼저');
+});
+
+test('나란히 보기 — 조건 줄은 한 줄: 조건 칩 · CVSS · EPSS 를 필터 안으로 옮기고, 닫으면 되돌린다', () => {
+  const d = dashboard();
+  // 가짜 DOM 에 부모 · 순서만 흉내 낸다 — 요소를 옮기기만 해서 입력값 · 이벤트는 그대로다.
+  d.run(`(() => {
+    const home = byId('filter-home'), row = byId('filter-split-row'), toggle = byId('filter-toggle'), chips = byId('quick-chips');
+    const cvss = document.createElement('label'), epss = document.createElement('label');
+    cvss.id = 'num-cvss'; epss.id = 'num-epss';
+    const place = (box, el, ref) => {
+      if (el.parentNode) el.parentNode.children = el.parentNode.children.filter(c => c !== el);
+      el.parentNode = box;
+      const i = ref ? box.children.indexOf(ref) : -1;
+      box.children.splice(i < 0 ? box.children.length : i, 0, el);
+      return el;
+    };
+    home.insertBefore = (el, ref) => place(home, el, ref);
+    row.appendChild = el => place(row, el, null);
+    for (const el of [chips, cvss, epss, toggle]) place(home, el, null);
+    document.querySelectorAll = sel => (sel === '.filter-bar .num-filter' ? [cvss, epss] : []);
+  })()`);
+  const kids = id => d.run(`byId('${id}').children.map(c => c.id)`);
+  d.run("switchView('cves'); activeFilters.cvssMin = 7; showDetail('CVE-2026-0003')");
+  assert.equal(d.run('splitOpen'), true);
+  assert.deepEqual(kids('filter-home'), ['filter-toggle'], '조건 줄 = 심각도 + 필터 버튼');
+  assert.deepEqual(kids('filter-split-row'), ['quick-chips', 'num-cvss', 'num-epss']);
+  assert.equal(d.el('filter-split').hidden, false);
+  d.run('renderChips()');
+  assert.equal(d.el('filter-count').textContent, '1', 'CVSS 조건이 필터 안에 있으니 필터 숫자에 센다');
+  d.run('detailPushed = false; closeModal()');
+  assert.deepEqual(kids('filter-home'), ['quick-chips', 'num-cvss', 'num-epss', 'filter-toggle'], '닫으면 제자리로');
+  assert.equal(d.el('filter-split').hidden, true);
+  assert.equal(d.el('filter-count').hidden, true, '조건 줄에 보이는 CVSS 는 필터 숫자에 세지 않는다');
+});
+
+test('최근 본 CVE — 상세를 열면 이 브라우저에만 10건까지, 빈 검색창을 누르면 목록, 본 CVE 는 목록에서 흐리게', () => {
+  const d = dashboard();
+  const stored = () => JSON.parse(d.run("localStorage.getItem('argus-recent') || '[]'")).map(x => x.id);
+  for (const n of [3, 1, 2, 3]) d.run(`showDetail('${cve(n)}')`);
+  assert.deepEqual(stored(), [cve(3), cve(2), cve(1)], '최근 것이 먼저, 같은 CVE 는 한 번');
+  d.run(`rememberViewed('x"><img src=x>'); rememberViewed('')`);
+  assert.deepEqual(stored(), [cve(3), cve(2), cve(1)], 'CVE ID 가 아니면 남기지 않는다');
+  // 빈 검색창을 누르면 — ID · 심각도 · 본 지 얼마 · 제목 · 유형
+  d.run("byId('search-input').value = ''; renderViewed();");
+  const box = d.el('search-recent');
+  assert.equal(box.hidden, false);
+  assert.equal(d.el('search-pop').hidden, false);
+  assert.match(box.innerHTML, /<b>최근 본 CVE<\/b><button type="button" class="sr-clear">지우기<\/button>/);
+  assert.deepEqual([...box.innerHTML.matchAll(/<span class="cve-id">([^<]+)<\/span>/g)].map(m => m[1]), [cve(3), cve(2), cve(1)]);
+  assert.match(box.innerHTML, /CVE-2026-0001<\/span><span class="badge badge-sev sev-Critical">Critical<\/span><span class="sr-ago">방금<\/span>/);
+  assert.match(box.innerHTML, /<span class="sr-l2">테스트 취약점 1 · Out-of-bounds Write<\/span>/, '제목 · 유형');
+  assert.match(box.innerHTML, /이 브라우저에만 저장합니다 · 최대 10건/);
+  d.run("byId('search-input').value = 'has'; renderViewed();");
+  assert.equal(d.el('search-recent').hidden, true, '글자가 있으면 검색 제안 · 미리보기');
+  // 누르면 상세 — 이전 · 다음은 그 목록 안에서
+  d.run("byId('search-input').value = ''; renderViewed(); openViewedItem(1);");
+  assert.equal(d.run('currentView'), 'detail');
+  assert.equal(d.el('modal-id').textContent, cve(2));
+  assert.equal(d.el('detail-pos').textContent, '최근 본 CVE · 2 / 3');
+  // 목록에서는 ID 를 흐리게
+  d.run("switchView('cves')");
+  filterIds(d, '');
+  const html = d.el('cve-table-body').innerHTML;
+  assert.match(html, /<span class="cve-id is-seen" title="최근에 본 CVE">CVE-2026-0002<\/span>/);
+  assert.match(html, /<span class="cve-id">CVE-2026-0004<\/span>/, '보지 않은 CVE 는 그대로');
+  // 10건까지 · 추적 목록에서 빠진 CVE 는 목록에 싣지 않는다
+  for (let n = 4; n <= 16; n++) d.run(`rememberViewed('${cve(n)}')`);
+  assert.equal(stored().length, 10);
+  assert.equal(stored()[0], cve(16));
+  d.run(`localStorage.setItem('argus-recent', JSON.stringify([{ id: 'CVE-1999-0001', at: Date.now() }, { id: '${cve(5)}', at: Date.now() - 3 * 36e5 }, { id: 'bad', at: 1 }]))`);
+  d.run("byId('search-input').value = ''; renderViewed();");
+  assert.deepEqual([...d.el('search-recent').innerHTML.matchAll(/<span class="cve-id">([^<]+)<\/span>/g)].map(m => m[1]), [cve(5)]);
+  assert.match(d.el('search-recent').innerHTML, /<span class="sr-ago">3시간 전<\/span>/);
+  // 지우기
+  d.run('clearViewed(); renderViewed();');
+  assert.equal(d.run("localStorage.getItem('argus-recent')"), null);
+  assert.match(d.el('search-recent').innerHTML, /최근 본 CVE가 없습니다\. 상세를 열면 여기에 10건까지 남습니다\./);
+  // 저장이 막혀도 상세 · 목록은 그대로
+  d.run("localStorage.getItem = () => { throw new Error('blocked'); }; localStorage.setItem = () => { throw new Error('blocked'); };");
+  d.run(`showDetail('${cve(1)}')`);
+  assert.equal(d.el('modal-id').textContent, cve(1));
+  assert.equal(d.run('viewedList().length'), 0, '읽지 못하면 빈 목록');
+  assert.deepEqual(['30000', '300000', '10800000', '172800000'].map(ms => d.run(`agoText(Date.now() - ${ms}, Date.now())`)),
+                   ['방금', '5분 전', '3시간 전', '2일 전']);
 });
 
 test('방문 기록 — 대시보드 숫자 · 제품 순위 · 화면 이동은 기록을 남기고, 뒤로 가기는 주소대로 화면을 되돌린다', () => {
@@ -635,8 +777,9 @@ test('대시보드 최근 동향 — 카드 숫자 = 그 검색어로 연 목록
   assert.deepEqual(cards.map(c => c.n), [2, 1, 1]);
   const card = key => today.slice(today.indexOf(`data-card="${key}"`), today.indexOf('</article>', today.indexOf(`data-card="${key}"`)));
   assert.deepEqual([...card('kev').matchAll(/data-cve="([^"]+)"/g)].map(m => m[1]), [cve(10), cve(1)], '등재일 최신순');
-  assert.match(card('kev'), /data-query="due:3d"[^>]*>조치 기한 3일 안 1건</);
-  assert.match(card('kev'), /등재 09-26 ·<\/span><span class="t-key"><em class="t-due">기한 오늘<\/em>/, '조치 기한은 줄여도 남는 칸에');
+  assert.match(card('kev'), /class="t-link" data-query="due:3d"[^>]*>미 연방기관 기한 3일 안 1건</, '누구의 기한인지 이름에, 빨간 강조 없이');
+  assert.match(card('kev'), /<span class="t-right"><span class="t-key">등재 09-26<\/span><\/span>/, '줄마다 등재일만');
+  assert.doesNotMatch(card('kev'), /is-hot|t-due|기한 오늘|기한 지남/);
   assert.match(card('kev'), />2건 모두 보기 →</);
   assert.match(card('crit'), /알림·갱신 5건 중/);
   assert.match(card('exp'), /최근 7일 공개 3건 중/);

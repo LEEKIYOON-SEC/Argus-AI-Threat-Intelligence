@@ -2,16 +2,18 @@
   'use strict';
   const node = typeof module !== 'undefined' && module.exports;
   const api = factory(node ? require('./context.js') : root.ArgusContext,
-                      node ? require('./lifecycle.js') : root.ArgusLifecycle);
+                      node ? require('./lifecycle.js') : root.ArgusLifecycle,
+                      node ? require('./cwe.js') : root.ArgusCWE);
   root.ArgusViewModel = api;
   if (node) module.exports = api;
-})(typeof window !== 'undefined' ? window : globalThis, function (CTX, LC) {
+})(typeof window !== 'undefined' ? window : globalThis, function (CTX, LC, CWE) {
   'use strict';
 
   /*
    * View Model — 화면은 여기서 만든 값만 그린다. 원본 필드 이름(is_kev · has_metasploit_module …)은 이 파일과
    * 엔티티 계층(entities.js)만 안다. HTML 은 만들지 않는다(문자열 조립은 화면 파일의 일).
    * 파생 모듈(context.js)이 없으면 신호 칸을 비워 둔다 — 목록 · 검색 · 내보내기는 그래도 동작한다.
+   * 취약점 유형 모듈(cwe.js)이 없으면 유형 칩만 빠진다.
    */
 
   const SEVERITIES = ['Critical', 'High', 'Medium', 'Low', 'None'];
@@ -59,6 +61,7 @@
 
   // 수집 단계(collector.parse_affected)가 만드는 형식: 'A 부터 B 이전' · 'B 이전' · 'A 부터 B 이하' · 'A (단일 버전)' ·
   // '모든 버전', 여러 개는 ', ' 로 잇고 없으면 '정보 없음'. 목록 한 줄에는 첫 구간만 적고 나머지는 '외 N'.
+  // 경계가 같은 구간: 'A 부터 A 이하' 는 그 버전 하나라 'A', 'A 부터 A 이전' 은 글자 그대로면 빈 구간이라 'A 이전'.
   const VERSION_JUNK = ['', 'unknown', 'n/a', '-', 'n/a (단일 버전)', '정보 없음'];
   const isJunk = v => VERSION_JUNK.includes(String(v || '').trim().toLowerCase());
   const shortHash = v => (/^[0-9a-f]{12,40}$/i.test(v) ? `커밋 ${v.slice(0, 7)}` : v);
@@ -70,6 +73,7 @@
     m = /^(.+?) 부터 (.+) (이전|이하)$/.exec(p);
     if (m) {
       const lo = m[1].trim(), hi = m[2].trim();
+      if (lo === hi && m[3] === '이하') return shortHash(hi);
       return !lo || NO_LOWER.test(lo) || lo === hi ? `${shortHash(hi)} ${m[3]}` : `${shortHash(lo)} 부터 ${shortHash(hi)} ${m[3]}`;
     }
     m = /^(.+) (이전|이하)$/.exec(p);
@@ -94,6 +98,20 @@
   const clean = v => { const s = String(v || '').trim(); return ['', 'unknown', 'n/a', '-'].includes(s.toLowerCase()) ? '' : s; };
   const EXPLOIT_SHORT = { 'CISA KEV': 'KEV', 'VulnCheck KEV': 'VulnCheck', 'SSVC active': 'SSVC' };
 
+  // 요약 한 조각 — 목록 둘째 줄 끝에 이어 읽을 설명 앞부분. 제목과 같거나 없으면 ''. 설명이 제품 이름으로
+  // 시작하면(바로 앞에 적혀 있다) 그 이름과 뒤따르는 '의 · 에서 · , · :' 를 뺀다 — 단어 중간에서는 자르지 않는다.
+  const SNIPPET_MAX = 160;
+  function snippetOf(cve, names) {
+    let s = String(cve.description || '').replace(/\s+/g, ' ').trim();
+    if (!s || ['n/a', '정보 없음'].includes(s.toLowerCase()) || s === String(cve.title || '').replace(/\s+/g, ' ').trim()) return '';
+    for (const n of [...new Set(names.filter(Boolean))].sort((a, b) => b.length - a.length)) {
+      if (!s.toLowerCase().startsWith(n.toLowerCase())) continue;
+      const m = /^(?:의|에서|[,:])?\s+/.exec(s.slice(n.length));
+      if (m) { s = s.slice(n.length + m[0].length); break; }
+    }
+    return s.length > SNIPPET_MAX ? `${s.slice(0, SNIPPET_MAX)}…` : s;
+  }
+
   // env: { ctx (cveContext), lc (cveLifecycle 요약 · 없으면 null), lcProducts, today, affected, shown, packages }
   function listRow(cve, env) {
     const e = env || {};
@@ -103,7 +121,7 @@
     if (s.EXPLOITATION_CONFIRMED === 'yes') {
       const src = [cve.is_kev && 'CISA KEV', cve.is_vulncheck_kev && 'VulnCheck KEV',
                    cve.ssvc_exploitation === 'active' && 'SSVC active'].filter(Boolean);
-      threat.push({ kind: 'exploit', label: EXPLOIT_SHORT[src[0]] || src[0], extra: src.length > 1 ? `+${src.length - 1}` : '',
+      threat.push({ kind: 'exploit', label: EXPLOIT_SHORT[src[0]] || src[0], extra: src.length > 1 ? `외 ${src.length - 1}` : '',
                     title: `악용 근거: ${src.join(' · ')}` });
     }
     if (s.RANSOMWARE === 'yes') {
@@ -136,12 +154,16 @@
       }
     }
     const engines = CTX ? CTX.detectionEngines(cve) : (cve.rule_engines || []);
+    const name = product ? (vendor && !product.toLowerCase().startsWith(vendor.toLowerCase()) ? `${vendor} ${product}` : product) : (vendor || '');
+    const names = [name, ...aff.flatMap(a => [`${clean(a.vendor)} ${clean(a.product)}`.trim(), clean(a.product)])];
     return {
       id: cve.id, severity: cve.severity || 'None', tier: cve.tier || '', title: cve.title || 'N/A',
       ai: cve.ai_discovered ? { program: cve.ai_program || '' } : null,
       cvss: sc.cvss, epss: sc.epss, threat,
-      product: { name: product ? (vendor && !product.toLowerCase().startsWith(vendor.toLowerCase()) ? `${vendor} ${product}` : product) : (vendor || ''),
-                 more: aff.length > 1 ? aff.length - 1 : 0, versions: clean(shown.versions), short: shortVersions(shown.versions),
+      // 취약점 유형 — CWE 가 여러 개면 더 구체적인 것 하나(cwe.js). 없거나 모듈이 없으면 null.
+      type: CWE ? CWE.typeOf(cve.cwe) : null,
+      snippet: snippetOf(cve, names),
+      product: { name, more: aff.length > 1 ? aff.length - 1 : 0, versions: clean(shown.versions), short: shortVersions(shown.versions),
                  packages: e.packages || [] },
       lifecycle,
       detection: s.PUBLIC_DETECTION === 'yes'
