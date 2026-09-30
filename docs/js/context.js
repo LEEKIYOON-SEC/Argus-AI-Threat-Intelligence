@@ -320,6 +320,69 @@
              body: !r.link_only && r.engine !== 'nuclei', ruleUrl: httpUrl(r.url) };
   }
 
+  /* ---------- 탐지 룰 원문 링크 ----------
+   * Sigma · Splunk · YARA · nuclei 는 원 저장소에 룰마다 파일이 있어 색인이 준 url 을 쓴다.
+   * ET Open · Snort Community 는 룰을 묶음 파일로만 배포해 룰마다 된 주소가 없다 — 색인은 url 을 비워 두고, 화면이 룰 본문으로 만든다.
+   *   Snort Community: snort.org 룰 문서 /rule-docs/<gid>-<sid>. 2026-09-30 실측으로 데이터의 SID 22개 중 20개에 문서가 있고,
+   *     나머지는 snort.org 의 '문서 없음' 화면이 열린다.
+   *   ET Open: 룰이 든 공식 분류 파일 + SID 위치(텍스트 조각 '#:~:text=sid:N;'). 크롬 계열에서 그 줄로 옮겨 가는 것을 확인했고,
+   *     다른 브라우저는 확인하지 않았다(지원하지 않으면 파일 처음이 열린다). 분류는 msg 앞머리('ET WEB_SPECIFIC_APPS …')다 —
+   *     2026-09-30 배포본에서 데이터의 ET 룰 2,972개가 모두 이 규칙으로 찾은 파일에 들어 있었다. 표에 없는 분류는 링크를 달지 않는다
+   *     (없는 파일로 보내지 않게). 크기(MB)는 그날 배포본(emerging.rules.tar.gz)을 잰 값이라 대략이다. IP 평판 파일(botcc · ciarmy ·
+   *     compromised · drop · dshield · tor)은 CVE 참조가 없어(실측 0건) 뺐다. */
+  const ET_DIR = { snort2: 'snort-2.9.0', suricata5: 'suricata-5.0', suricata7: 'suricata-7.0' };
+  const ET_SURICATA = {
+    activex: 0.4, adware_pup: 0.7, attack_response: 0.7, chat: 0.0, coinminer: 0.0, current_events: 0.1, deleted: 1.8,
+    dns: 0.0, dos: 0.1, exploit: 1.5, exploit_kit: 3.8, ftp: 0.1, games: 0.0, hunting: 0.9, icmp: 0.0, icmp_info: 0.0,
+    imap: 0.0, inappropriate: 0.0, info: 6.5, ja3: 0.1, malware: 17.7, misc: 0.0, mobile_malware: 0.8, netbios: 0.4,
+    p2p: 0.1, phishing: 2.2, policy: 0.6, pop3: 0.0, retired: 0.4, rpc: 0.1, scada: 0.1, scan: 0.2, shellcode: 0.1,
+    smtp: 0.0, snmp: 0.0, sql: 0.2, telnet: 0.0, tftp: 0.0, user_agents: 0.2, voip: 0.0, web_client: 0.5, web_server: 0.5,
+    web_specific_apps: 5.7, worm: 0.0,
+  };
+  const ET_FILES = {
+    'snort-2.9.0': {
+      activex: 0.4, attack_response: 0.7, chat: 0.0, current_events: 7.0, deleted: 1.6, dns: 0.0, dos: 0.1, exploit: 1.4,
+      ftp: 0.1, games: 0.0, icmp: 0.0, icmp_info: 0.0, imap: 0.0, inappropriate: 0.0, info: 8.2, malware: 0.6, misc: 0.0,
+      mobile_malware: 0.9, netbios: 0.4, p2p: 0.1, policy: 0.6, pop3: 0.0, retired: 0.4, rpc: 0.1, scada: 0.1, scan: 0.2,
+      shellcode: 0.1, smtp: 0.0, snmp: 0.0, sql: 0.2, telnet: 0.0, tftp: 0.0, trojan: 19.1, user_agents: 0.2, voip: 0.0,
+      web_client: 0.5, web_server: 0.5, web_specific_apps: 5.8, worm: 0.0,
+    },
+    'suricata-5.0': ET_SURICATA,
+    'suricata-7.0': ET_SURICATA,
+  };
+
+  // 룰 본문의 SID — Snort 는 gid:sid 로 문서를 찾는다(gid 를 적지 않은 룰은 1).
+  function ruleSid(rule) {
+    const code = String((rule || {}).code || '');
+    const sid = (/\bsid\s*:\s*(\d+)/.exec(code) || [])[1];
+    return sid ? { sid, gid: (/\bgid\s*:\s*(\d+)/.exec(code) || [])[1] || '1' } : null;
+  }
+
+  // 룰 한 개의 원문 링크 — { url, text, size(MB · ET 분류 파일만), title } 또는 null.
+  function ruleLink(rule, cve) {
+    const r = rule || {};
+    const own = httpUrl(r.url);
+    if (r.engine === 'nuclei') {
+      const u = httpUrl((cve || {})._nuclei_url) || own;
+      return u ? { url: u, text: '원문', size: null, title: 'nuclei-templates의 템플릿 원문' } : null;
+    }
+    if (own || !NETWORK.has(r.engine)) return own ? { url: own, text: '원문', size: null, title: '원 저장소의 룰 원문' } : null;
+    const id = ruleSid(r);
+    if (ruleSource(r) === 'snort-community') {
+      return id ? { url: `https://www.snort.org/rule-docs/${id.gid}-${id.sid}`, text: '룰 설명', size: null,
+                    title: "snort.org 룰 문서(설명 · 관련 CVE · 대응). 문서가 아직 없는 룰은 snort.org의 '문서 없음' 화면이 열립니다" } : null;
+    }
+    const dir = ET_DIR[r.engine];
+    const files = dir ? ET_FILES[dir] : null;
+    const cat = ((/msg\s*:\s*"ET ([A-Z0-9_]+)/.exec(String(r.code || '')) || [])[1] || '').toLowerCase();
+    if (!files || !cat || !Object.prototype.hasOwnProperty.call(files, cat)) return null;
+    const file = `emerging-${cat}.rules`, size = files[cat];
+    return { url: `https://rules.emergingthreats.net/open/${dir}/rules/${file}${id ? `#:~:text=sid:${id.sid};` : ''}`,
+             text: '원문 파일', size, file,
+             title: `ET Open 공식 분류 파일 ${file}(${size < 1 ? '1MB 미만' : `약 ${size}MB`}, 2026-09-30 기준)${
+               id ? `. 크롬 계열 브라우저에서는 SID ${id.sid} 줄로 바로 옮겨 갑니다` : ''}` };
+  }
+
   const row = (source, status, value, extra) => {
     const r = Object.assign({ source, status, value }, extra || {});
     r.sid = r.sid || SID[source] || (r.engine && ENGINE_SID[r.engine]) || null;
@@ -416,7 +479,9 @@
       for (const [sid, found] of bySource) {
         const first = found[0] || {};
         const terms = ruleTerms(Object.assign({ engine }, first));
-        const url = engine === 'nuclei' ? (cve._nuclei_url || first.url || '') : (first.url || '');
+        // 링크는 첫 룰의 원문 — ET Open · Snort Community 는 색인에 주소가 없어 룰 본문으로 만든다(ruleLink).
+        const link = ruleLink(Object.assign({ engine }, first), cve);
+        const url = link ? link.url : '';
         rows.push(row(info.label, 'hit', info.kind === 'check' ? '점검 템플릿' : found.length > 1 ? `룰 ${found.length}개` : '룰',
                       { kind: info.kind, engine, url, basis: 'CVE ID', sid: sid || undefined, source_name: first.source || info.source,
                         license: terms.license, author: first.author || '', count: found.length || 1,
@@ -786,6 +851,7 @@
 
   return {
     EPSS_P_HIGH, EPSS_SCORE_HIGH, CVSS_CRITICAL, URL, ENGINES, ENGINE_ORDER, engineInfo, RULE_LICENSE, ruleSource, ruleTerms,
+    ET_FILES, ruleSid, ruleLink,
     SIGNALS, SIGNAL, SIGNAL_BY_KEY, CORRELATIONS, CORRELATION, REASON, SID, ENGINE_SID,
     scoreFacts, epssHigh, patchState, hasFix, fixedVersions, detectionEngines, lifecycleFacts,
     signals, correlationsOf, reasonsOf, derive,

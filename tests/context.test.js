@@ -111,6 +111,42 @@ test('탐지 근거 행 — 같은 엔진이라도 룰이 온 곳이 다르면 �
   assert.deepEqual(rows.map(r => [r.sid, r.license, r.count]), [['et-open', 'BSD', 2], ['snort-community', 'GPLv2', 1]]);
 });
 
+test('룰 원문 링크 — 색인 url, ET Open 은 분류 파일 + SID 위치, Snort Community 는 snort.org 룰 문서, 모르는 분류는 링크 없음', () => {
+  const et = 'alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Acme RCE (CVE-2026-0001)"; sid:2069042; rev:2;)';
+  const link = r => CTX.ruleLink(r, { _nuclei_url: 'https://github.com/pd/t.yaml' });
+  assert.deepEqual(CTX.ruleSid({ code: et }), { sid: '2069042', gid: '1' });
+  assert.deepEqual(CTX.ruleSid({ code: 'alert tcp (gid:3; sid:21375;)' }), { sid: '21375', gid: '3' });
+  assert.equal(CTX.ruleSid({ code: 'alert x' }), null);
+  const s7 = link({ engine: 'suricata7', source: 'Suricata 7 ET Open', code: et, url: '' });
+  assert.equal(s7.url, 'https://rules.emergingthreats.net/open/suricata-7.0/rules/emerging-exploit.rules#:~:text=sid:2069042;');
+  assert.deepEqual([s7.text, s7.size, s7.file], ['원문 파일', 1.5, 'emerging-exploit.rules']);
+  assert.equal(link({ engine: 'snort2', source: 'Snort 2.9 ET Open', code: et }).url,
+               'https://rules.emergingthreats.net/open/snort-2.9.0/rules/emerging-exploit.rules#:~:text=sid:2069042;', 'Snort 2.9 판 디렉터리');
+  assert.equal(link({ engine: 'suricata5', source: 'Suricata 5 ET Open', code: et.replace('ET EXPLOIT', 'ET TROJAN') }), null,
+               'TROJAN 분류 파일은 Snort 2.9 판에만 있다 — 없는 파일로 보내지 않는다');
+  assert.equal(link({ engine: 'suricata7', source: 'Suricata 7 ET Open', code: et.replace('ET EXPLOIT', 'ET CONSTRUCTOR') }), null);
+  assert.equal(link({ engine: 'suricata7', source: 'Suricata 7 ET Open', code: 'alert x' }), null, 'msg 에 분류가 없으면 링크 없음');
+  const snort = link({ engine: 'snort3', source: 'Snort 3 Community', code: 'alert http (msg:"SERVER-WEBAPP x"; sid:300052; rev:1;)' });
+  assert.deepEqual([snort.url, snort.text, snort.size], ['https://www.snort.org/rule-docs/1-300052', '룰 설명', null]);
+  assert.equal(link({ engine: 'snort2', source: 'Snort 2.9 Community', code: 'alert x' }), null, 'SID 가 없으면 문서를 찾을 수 없다');
+  assert.equal(link({ engine: 'snort2', source: 'Snort 2.9 ET Open', code: et, url: 'https://example.org/r' }).url, 'https://example.org/r', '색인이 url 을 주면 그것을 쓴다');
+  assert.equal(link({ engine: 'sigma', url: 'https://github.com/SigmaHQ/x.yml' }).url, 'https://github.com/SigmaHQ/x.yml');
+  assert.equal(link({ engine: 'sigma', url: 'javascript:alert(1)' }), null, 'http(s) 가 아니면 링크 없음');
+  assert.equal(link({ engine: 'nuclei', url: '' }).url, 'https://github.com/pd/t.yaml', 'nuclei 는 CVE 의 템플릿 주소');
+  // 근거 행(출처별 근거 표의 링크)도 같은 링크 — 예전에는 네트워크 룰 행에 링크가 없었다
+  const cve = row({ id: 'CVE-2026-0001', rule_engines: ['suricata7', 'snort2'], rules: { network: [
+    { engine: 'suricata7', source: 'Suricata 7 ET Open', code: et, url: '' },
+    { engine: 'snort2', source: 'Snort 2.9 Community', code: 'alert tcp (msg:"SERVER-WEBAPP y"; sid:59927; rev:2;)', url: '' }] } });
+  const rows = CTX.derive(cve, { today: TODAY }).detection.rows;
+  assert.deepEqual(rows.map(r => [r.engine, r.url]), [['suricata7', s7.url], ['snort2', 'https://www.snort.org/rule-docs/1-59927']]);
+  // 분류 표 — 데이터에 나온 분류가 판마다 있는지(2026-09-30 배포본 실측)
+  for (const [dir, cats] of Object.entries({ 'snort-2.9.0': ['web_specific_apps', 'exploit', 'web_server', 'trojan', 'info', 'current_events'],
+                                             'suricata-7.0': ['web_specific_apps', 'exploit', 'malware', 'hunting', 'coinminer', 'exploit_kit'] })) {
+    for (const c of cats) assert.ok(c in CTX.ET_FILES[dir], `${dir} ${c}`);
+  }
+  assert.equal(CTX.ET_FILES['suricata-5.0'], CTX.ET_FILES['suricata-7.0'], 'Suricata 5 · 7 판은 분류 파일이 같다');
+});
+
 test('EOL 영향 — 하나라도 EOL 이면 yes, 모든 제품이 확인돼야 no, 나머지는 unknown(사유 포함)', () => {
   const m = LC.createMatcher(LCDATA, ALIASES);
   const eol = { vendor: 'Microsoft', product: 'Windows 7 Service Pack 1', versions: '6.1.0 이전' };
