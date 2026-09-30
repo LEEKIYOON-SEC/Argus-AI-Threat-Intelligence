@@ -572,6 +572,42 @@ test("상세 — 출처 표 칸은 한 번에 하나만 열리고, 같은 버튼
   assert.equal(d.run('PANEL_TYPES.length'), PANELS.length);
 });
 
+// 나란히 보기의 오른쪽 칸 — 가짜 DOM 에는 배치가 없어 칸 · 대상의 위치를 정해 준다(칸 위 68 · 고정 막대 아래 118 · 칸 높이 800).
+function fakePane(d, target, rect) {
+  d.run(`(() => {
+    const pane = byId('view-detail');
+    pane.classList = { contains: c => c === 'is-pane' };
+    pane.scrollTop = 100; pane.clientHeight = 800; pane.scrolled = null;
+    pane.getBoundingClientRect = () => ({ top: 68, bottom: 868 });
+    pane.contains = () => true;
+    pane.querySelector = s => (s === '.detail-bar' ? { getBoundingClientRect: () => ({ bottom: 118 }) } : null);
+    pane.scrollTo = o => { pane.scrolled = o; };
+    const el = byId(${JSON.stringify(target)});
+    el.getBoundingClientRect = () => (${JSON.stringify(rect)});
+    el.intoView = false; el.scrollIntoView = () => { el.intoView = true; };
+  })()`);
+}
+test('나란히 보기 — 상세 안에서 옮겨 가기(EOL · 수정 버전 · 출처 간 차이)는 오른쪽 칸만 스크롤하고 창(목록)은 그대로', () => {
+  const d = dashboard();
+  d.run("showDetail('CVE-2026-0001')");
+  fakePane(d, 'd-remedy', { top: 668, bottom: 900 });
+  d.run("openEvidence('remediation')");
+  // 대상 위(668 - 68 = 600)를 고정 막대 아래(118 - 68 + 8 = 58)로 — 100 + 542
+  assert.equal(d.run("JSON.stringify(byId('view-detail').scrolled)"), JSON.stringify({ top: 642, behavior: 'smooth' }));
+  assert.equal(d.run("byId('d-remedy').intoView"), false, 'scrollIntoView 는 칸을 담은 창까지 움직여 쓰지 않는다');
+  // 이미 보이는 칸은 옮기지 않는다(nearest) · 칸 아래로 넘치면 보일 만큼만
+  fakePane(d, 'd-panel-exploitation', { top: 300, bottom: 600 });
+  d.run("byId('d-panel-exploitation').hidden = true; openEvidence('exploitation')");
+  assert.equal(d.run("byId('view-detail').scrolled"), null);
+  fakePane(d, 'd-panel-exploitation', { top: 700, bottom: 1000 });
+  d.run("openEvidence('exploitation')");
+  assert.equal(d.run("byId('view-detail').scrolled.top"), 100 + (1000 - 68 - 800));
+  // 한 화면 상세는 창이 곧 스크롤 — 예전처럼 scrollIntoView
+  d.run("byId('view-detail').classList = { contains: () => false }");
+  d.run("openEvidence('remediation')");
+  assert.equal(d.run("byId('d-remedy').intoView"), true);
+});
+
 test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으면 출처와 함께 보인다', () => {
   const d = dashboard();
   d.ctx.__files = {
