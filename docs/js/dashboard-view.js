@@ -110,17 +110,6 @@ function shortDay(iso) {
   return d.slice(0, 4) === refDay().slice(0, 4) ? d.slice(5) : d;
 }
 
-// CISA 조치 기한 — due:3d 와 같은 기준(데이터 기준일 포함 3일 안)이면 강조한다.
-function dueShort(due) {
-  const d = String(due || '').slice(0, 10);
-  const ref = refDay();
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || !ref) return '';
-  const n = dayDiff(d, ref);
-  if (n < 0) return '<em class="t-due">기한 지남</em>';
-  if (n === 0) return '<em class="t-due">기한 오늘</em>';
-  return n < 3 ? `<em class="t-due">기한 ${escapeHtml(shortDay(d))}</em>` : `기한 ${escapeHtml(shortDay(d))}`;
-}
-
 const byCvssDesc = (a, b) => (Number(b.cvss) || 0) - (Number(a.cvss) || 0)
   || (Date.parse(b.date || '') || 0) - (Date.parse(a.date || '') || 0);
 
@@ -135,13 +124,10 @@ function todayCards() {
         : detailFiles.evidence === null ? 'KEV 등재일 정보(cve-evidence.json)를 받지 못해 셀 수 없습니다.' : '',
       fallback: { query: 'has:cisa-kev', text: 'CISA KEV 전체 보기' },
       sort: (a, b) => kevAddedOf(b).localeCompare(kevAddedOf(a)) || byCvssDesc(a, b),
-      basis: () => {
-        const due = dashQuery('due:3d').length;
-        return `CISA 등재일 기준 · <button type="button" class="t-link${due ? ' is-hot' : ''}" data-query="due:3d"
-          title="CISA 조치 기한이 데이터 기준일부터 3일 안에 돌아오는 CVE">조치 기한 3일 안 ${fmt(due)}건</button>`;
-      },
-      right: c => `<span class="t-opt">등재 ${escapeHtml(shortDay(kevAddedOf(c)))}${c.kev_due_date ? ' ·' : ''}</span>${
-        c.kev_due_date ? `<span class="t-key">${dueShort(c.kev_due_date)}</span>` : ''}`,
+      // KEV 조치 기한은 미국 연방 민간기관의 기한이라 줄마다 적지 않는다(등재일만). 머리 링크는 누구의 기한인지 이름에 적는다.
+      basis: () => `CISA 등재일 기준 · <button type="button" class="t-link" data-query="due:3d"
+          title="미국 연방 민간기관의 KEV 조치 기한이 데이터 기준일부터 3일 안인 CVE. 다른 기관 · 기업의 의무 기한은 아닙니다">미 연방기관 기한 3일 안 ${fmt(dashQuery('due:3d').length)}건</button>`,
+      right: c => `<span class="t-key">등재 ${escapeHtml(shortDay(kevAddedOf(c)))}</span>`,
       empty: '최근 7일 안에 새로 등재된 CVE가 없습니다.',
     },
     {

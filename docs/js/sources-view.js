@@ -37,11 +37,19 @@ function ruleSourceCounts() {
   return out;
 }
 
+// CWE — CWE 번호가 MITRE 목록(약점 · 분류)에 있는 CVE. 번호 자체는 CVE 레코드에 있어, 전체 목록을 받은 뒤 센다.
+function cweSourceCount() {
+  if (!dataReady || !CWE) return {};
+  let n = 0;
+  for (const c of allCves) if (CWE.listOf(c.cwe).some(id => CWE.officialName(id))) n += 1;
+  return { cwe: n };
+}
+
 function renderRegistry(src) {
   const box = document.getElementById('src-registry');
   if (!box) return;
   if (!EN || !VM) { box.innerHTML = '<tbody><tr><td class="dash-wait">출처 정보 모듈(entities.js)을 불러오지 못했습니다.</td></tr></tbody>'; return; }
-  const groups = VM.sources(EN, src ? src.stats : null, ruleSourceCounts());
+  const groups = VM.sources(EN, src ? src.stats : null, Object.assign(ruleSourceCounts(), cweSourceCount()));
   const named = (url, text) => (isSafeUrl(url) ? linkHtml(url, text) : escapeHtml(text));
   box.innerHTML = `<thead><tr><th>출처</th><th>주는 정보</th>
       <th class="num" title="추적 중인 CVE 가운데 이 출처에 기록이 있는 건수">기록 있는 CVE</th><th title="Argus가 출처에서 다시 받도록 걸어 둔 주기. 실제 실행은 GitHub 사정으로 늦어질 수 있습니다">예약 주기</th><th>이용 조건</th></tr></thead>
