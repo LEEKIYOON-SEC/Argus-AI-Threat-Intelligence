@@ -30,12 +30,23 @@ test('cve.html — 화면마다 view-* 와 사이드바 항목이 있고, 스크
   for (const id of ['search-input', 'cve-table-body', 'page-info', 'prev-btn', 'next-btn', 'active-chips', 'filter-count', 'severity-dist',
                     'product-dist', 'modal-id', 'modal-title', 'modal-body', 'modal-scores', 'modal-signals', 'modal-sev-badge',
                     'stat-total', 'stat-kev', 'stat-weapon', 'stat-poc', 'stat-ai', 'stat-24h-sub', 'updated-time',
-                    'search-recent', 'modal-type', 'filter-split', 'filter-split-row']) {
+                    'search-recent', 'modal-type']) {
     assert.match(HTML, new RegExp(`id="${id}"`), id);
   }
   const ths = HTML.slice(HTML.indexOf('<table class="cve-table">'), HTML.indexOf('</thead>', HTML.indexOf('<table class="cve-table">')));
   assert.equal((ths.match(/<th[ >]/g) || []).length, 5, '목록 5칸 — CVE·알림 · 요약·영향 제품 · CVSS·EPSS · 위협 신호(지원 상태 포함) · 탐지·수정');
   assert.doesNotMatch(ths, /h-lc/, '지원 상태 칸은 없앴다 — 값이 있을 때만 위협 신호 칸의 칩으로');
+  // 조건 줄 세 줄 — 심각도 / 조건 칩 / 점수 · 필터. 나란히 보기도 같다(조건을 필터 안으로 옮기지 않는다)
+  const bar = HTML.slice(HTML.indexOf('<section class="filter-bar">'), HTML.indexOf('<div class="active-chips"'));
+  assert.deepEqual([...bar.matchAll(/<div class="filter-row ([^"]+)">/g)].map(m => m[1]), ['primary', 'chip-row', 'score-row']);
+  const at = id => bar.indexOf(`id="${id}"`);
+  assert.ok(at('severity-seg') < at('quick-chips') && at('quick-chips') < at('cvss-min') && at('cvss-min') < at('epss-min')
+            && at('epss-min') < at('filter-toggle'), '심각도 → 조건 칩 → CVSS · EPSS · 필터');
+  assert.doesNotMatch(HTML, /filter-split/);
+  // 대시보드 — 주요 지표 → 최근 동향 → 신호 조합(2/3) · 30일 공개(1/3)
+  const dash = HTML.slice(HTML.indexOf('id="view-dashboard"'), HTML.indexOf('id="view-cves"'));
+  assert.ok(dash.indexOf('id="dash-kpis"') < dash.indexOf('id="dash-today"') && dash.indexOf('id="dash-today"') < dash.indexOf('class="dash-main"'),
+            '주요 지표가 맨 위, 최근 동향이 가운데');
   // 제목 옆 유형은 제목과 따로 — modal-title 에는 제목 글자만(회귀 도구 · aria-labelledby 가 쓴다)
   assert.match(HTML, /<h2 class="m-title"><span id="modal-title">-<\/span><span class="h-type" id="modal-type" hidden><\/span><\/h2>/);
   // 화면마다 설명 카드는 '설명' 버튼으로 연다 — 버튼이 가리키는 카드가 있어야 한다
@@ -124,9 +135,14 @@ test('목록 · 상세 스타일 — 새 칸(유형 칩 · 등급 구분 줄 · 
                      '.fact.is-type', '.h-type', '#d-product { container-type: inline-size; }']) {
     assert.ok(CSS.includes(sel), `새 스타일 ${sel}`);
   }
-  for (const gone of ['.h-lc', '.c-lc', '.side-sub', '.side-id', '.t-due', '.t-link.is-hot']) {
+  for (const gone of ['.h-lc', '.c-lc', '.side-sub', '.side-id', '.t-due', '.t-link.is-hot', '.q-more', 'is-extra', '.q-chip b']) {
     assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
   }
+  // 대시보드 — 3칸 격자에 신호 조합 2칸, 주요 지표 칸 사이 16px(지표 2칸 · 4칸 경계가 1/3 · 2/3 선과 맞음), 30일 표는 높이 고정 + 스크롤
+  assert.match(CSS, /\.dash-main \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 16px;/);
+  assert.match(CSS, /\.dash-main > \.corr-panel \{ grid-column: span 2; \}/);
+  assert.match(CSS, /\.kpi-strip \{ display: grid; grid-template-columns: repeat\(6, minmax\(0, 1fr\)\); gap: 16px;/);
+  assert.match(CSS, /\.ov-table \.table-scroll \{ max-height: 400px;/);
   // 나란히 보기 ID 칸은 넓은 목록과 같게(150px) — 'Medium 어제 23:59' 가 한 줄에 들어간다
   assert.match(CSS, /\.content\.is-split \.cve-table \.h-id \{ width: 150px; \}/);
   // ID 칸 둘째 줄은 넘치면 다음 줄로('AI 발견' 태그가 칸 밖으로 잘리지 않게)

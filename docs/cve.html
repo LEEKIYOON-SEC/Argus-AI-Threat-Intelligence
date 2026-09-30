@@ -110,8 +110,6 @@
         <p class="help-meta" id="dash-meta"></p>
       </div>
 
-      <section class="today" id="dash-today" aria-label="최근 동향"></section>
-
       <section class="kpi-strip" id="dash-kpis" aria-label="주요 지표">
         <div class="kpi"><span class="kpi-label">추적 중 CVE</span><span class="kpi-value" id="stat-total">-</span></div>
         <div class="kpi"><span class="kpi-label">24시간 알림·갱신</span><span class="kpi-value" id="stat-24h">-</span><span class="kpi-sub" id="stat-24h-sub">-</span></div>
@@ -120,6 +118,8 @@
         <div class="kpi"><span class="kpi-label">공개 PoC</span><span class="kpi-value" id="stat-poc">-</span></div>
         <div class="kpi"><span class="kpi-label">AI 발견</span><span class="kpi-value" id="stat-ai">-</span></div>
       </section>
+
+      <section class="today" id="dash-today" aria-label="최근 동향"></section>
 
       <section class="dash-main">
         <div class="panel corr-panel">
@@ -200,6 +200,7 @@
         </ul>
       </div>
 
+      <!-- 조건 줄 세 줄 — 심각도 / 조건 칩(늘 모두 펼침) / 점수 · 필터. 넓은 목록과 나란히 보기가 같다 -->
       <section class="filter-bar">
         <div class="filter-row primary">
           <div class="seg" id="severity-seg" role="group" aria-label="심각도">
@@ -209,7 +210,11 @@
             <button class="seg-btn active sev-c-medium" data-severity="Medium"><span class="dot" style="background:var(--sev-medium)"></span>Medium</button>
             <button class="seg-btn active sev-c-low" data-severity="Low"><span class="dot" style="background:var(--sev-low)"></span>Low</button>
           </div>
+        </div>
+        <div class="filter-row chip-row">
           <div class="quick-chips" id="quick-chips" role="group" aria-label="조건. 누르면 검색어에 들어갑니다"></div>
+        </div>
+        <div class="filter-row score-row">
           <label class="num-filter" title="이 값 이상만 (빈칸이면 전체)">CVSS ≥
             <input type="number" id="cvss-min" min="0" max="10" step="0.1" placeholder="—">
           </label>
@@ -225,11 +230,6 @@
         <div class="active-chips" id="active-chips" hidden></div>
 
         <div class="filter-more" id="filter-more" hidden>
-          <!-- 나란히 보기에서는 조건 줄의 조건 칩 · CVSS · EPSS 를 여기로 옮긴다(조건 줄은 심각도 + 필터 한 줄) -->
-          <div class="filter-group" id="filter-split" hidden>
-            <span class="filter-legend">조건</span>
-            <div class="filter-row" id="filter-split-row"></div>
-          </div>
           <div class="filter-group">
             <span class="filter-legend">출처별</span>
             <div class="quick-chips" id="source-chips" role="group" aria-label="출처별 조건. 누르면 검색어에 들어갑니다"></div>
