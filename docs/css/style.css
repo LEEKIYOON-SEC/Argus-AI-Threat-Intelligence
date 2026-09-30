@@ -403,7 +403,8 @@ small { font-size: 12px; }
 .t-all:hover { text-decoration: underline; }
 .t-wait { padding: 14px 0; font-size: 14px; color: var(--text-muted); }
 
-.kpi-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+/* 주요 지표 6칸 — 칸 사이를 16px 로 두어 지표 2칸 · 4칸 경계가 아래 1/3 · 2/3 선(최근 동향 카드 · 신호 조합)과 맞는다 */
+.kpi-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-bottom: 16px; }
 .kpi { position: relative; overflow: hidden; min-width: 0; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius); box-shadow: var(--shadow); color: inherit; text-align: left; }
 button.kpi { width: 100%; cursor: pointer; transition: border-color .15s ease; }
@@ -414,7 +415,9 @@ button.kpi:hover { border-color: var(--accent); }
 .kpi-sub { display: block; min-height: 18px; margin-top: 2px; font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kpi-up { color: var(--text); font-weight: 700; }
 
-.dash-main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; margin-bottom: 16px; }
+/* 신호 조합 2/3 · 30일 공개와 접어 둔 칸 1/3 — 오른쪽 칸 시작이 최근 동향 3번째 카드와 같다 */
+.dash-main { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: start; margin-bottom: 16px; }
+.dash-main > .corr-panel { grid-column: span 2; }
 .dash-side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 
 /* 신호 조합 — 한 줄에 조합 · 막대 · 건수 · 비율 */
@@ -451,7 +454,17 @@ button.kpi:hover { border-color: var(--accent); }
 .ov-note { margin-top: 4px; font-size: 12px; color: var(--text-muted); }
 .ov-table { margin-top: 8px; font-size: 12px; color: var(--text-muted); }
 .ov-table summary { cursor: pointer; color: var(--accent); font-weight: 600; }
-.ov-table .table-scroll { max-height: 240px; margin-top: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+/* 표는 높이를 고정(약 11일)하고 안에서 스크롤 — 1/3 칸에서도 7칸(합계 · 심각도별 · 점수 없음)이 옆으로 잘리지 않게 칸 여백을 줄이고,
+   스크롤해도 머리글이 보이게 둔다 */
+.ov-table .table-scroll { max-height: 400px; margin-top: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.ov-table .d-table th, .ov-table .d-table td { padding: 6px; }
+.ov-table .d-table thead th { position: sticky; top: 0; z-index: 1; }
+/* 1/3 칸이 좁은 화면(1440 이하)에서는 칸 여백을 더 줄이고 머리글도 줄을 바꾼다('점수 없음' → 두 줄). 날짜는 줄이 바뀌어도 된다 */
+.trend-panel { container-type: inline-size; }
+@container (max-width: 420px) {
+  .ov-table .d-table th, .ov-table .d-table td { padding: 6px 3px; }
+  .ov-table .d-table thead th { white-space: normal; }
+}
 .viz-tip { position: fixed; z-index: 120; pointer-events: none; min-width: 150px; padding: 8px 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
   background: var(--surface-3); box-shadow: var(--shadow-lg); font-size: 12px; color: var(--text-muted); }
 .viz-tip b { color: var(--text); }
@@ -559,15 +572,9 @@ details.menu[open] > summary { border-color: var(--accent); }
 .quick-chips, .active-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .q-chip { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--border); border-radius: 999px;
   background: var(--surface); color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.q-chip b { font-weight: 600; color: var(--text); }
 .q-chip:hover { color: var(--text); border-color: var(--border-strong); }
 .q-chip.active { color: var(--text); border-color: var(--g-c, var(--accent)); background: color-mix(in srgb, var(--g-c, var(--accent)) 14%, var(--surface)); }
 .q-chip.is-source i { border-radius: 2px; }
-.quick-chips > .q-chip.is-extra { display: none; }
-.quick-chips.is-open > .q-chip.is-extra, .quick-chips > .q-chip.is-extra.active { display: inline-flex; }
-.q-more { height: 28px; padding: 0 10px; border: 1px dashed var(--border-strong); border-radius: 999px; background: none; color: var(--accent);
-  font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
-.q-more:hover { border-color: var(--accent); }
 .num-filter { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--text-muted); white-space: nowrap; }
 .num-filter input { width: 48px; padding: 0; border: none; background: transparent; color: var(--text); font-size: 14px; font-weight: 700; text-align: right; }
@@ -1127,7 +1134,6 @@ details.terms-item[open] .if-closed, details.terms-item:not([open]) .if-open { d
   .content.is-split { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
 }
 @media (max-width: 1440px) {
-  .dash-main { grid-template-columns: minmax(0, 1fr) 340px; }
   .corr-card { grid-template-columns: minmax(150px, 220px) minmax(30px, 1fr) 56px 120px; gap: 10px; }
 }
 @media (max-width: 1279px) {
@@ -1142,6 +1148,7 @@ details.terms-item[open] .if-closed, details.terms-item:not([open]) .if-open { d
 }
 @media (max-width: 1100px) {
   .dash-main { grid-template-columns: minmax(0, 1fr); }
+  .dash-main > .corr-panel { grid-column: auto; }
 }
 @media (max-width: 1000px) {
   /* 목록 — 표 대신 카드: 1줄 ID · 점수, 2줄 제목 · 유형 · 제품, 3줄 신호(지원 상태 포함) · 탐지·수정 */
@@ -1201,10 +1208,11 @@ details.terms-item[open] .if-closed, details.terms-item:not([open]) .if-open { d
   .recent-list { grid-template-columns: minmax(0, 1fr); }
   .dist-name { width: 120px; }
   .mx-hint { display: block; }
-  /* 목록 — 조건 줄은 옆으로 밀어서 */
-  #view-cves .filter-row.primary { flex-wrap: nowrap; overflow-x: auto; margin-right: calc(-1 * var(--gutter)); padding-right: var(--gutter); scrollbar-width: none; }
-  #view-cves .filter-row.primary::-webkit-scrollbar { display: none; }
-  #view-cves .filter-row.primary > *, #view-cves .quick-chips { flex: none; }
+  /* 목록 — 심각도 · 조건 칩 줄은 한 줄로 두고 옆으로 밀어서(조건 칩을 줄바꿈하면 다섯 줄이 된다) */
+  #view-cves .filter-row.primary, #view-cves .filter-row.chip-row { flex-wrap: nowrap; overflow-x: auto; margin-right: calc(-1 * var(--gutter));
+    padding-right: var(--gutter); scrollbar-width: none; }
+  #view-cves .filter-row.primary::-webkit-scrollbar, #view-cves .filter-row.chip-row::-webkit-scrollbar { display: none; }
+  #view-cves .filter-row.primary > *, #view-cves .filter-row.chip-row > *, #view-cves .quick-chips { flex: none; }
   #view-cves .quick-chips { flex-wrap: nowrap; }
   /* 목록 머리 두 줄 — 제목 · 건수 · 설명(아이콘만) / 정렬 · 내보내기 */
   .list-head h1 { order: 0; }

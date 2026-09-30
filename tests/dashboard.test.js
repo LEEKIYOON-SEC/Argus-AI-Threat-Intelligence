@@ -606,37 +606,23 @@ test('나란히 보기 — 넓은 화면의 목록에서 상세를 오른쪽에 
   assert.equal(d.run('document.documentElement.dataset.nav'), undefined, '사용자가 고른 메뉴 상태가 먼저');
 });
 
-test('나란히 보기 — 조건 줄은 한 줄: 조건 칩 · CVSS · EPSS 를 필터 안으로 옮기고, 닫으면 되돌린다', () => {
+test('조건 줄 — 조건 칩은 늘 모두 보이고(접지 않음) 칩에는 이름만, 전체 건수는 설명에', () => {
   const d = dashboard();
-  // 가짜 DOM 에 부모 · 순서만 흉내 낸다 — 요소를 옮기기만 해서 입력값 · 이벤트는 그대로다.
-  d.run(`(() => {
-    const home = byId('filter-home'), row = byId('filter-split-row'), toggle = byId('filter-toggle'), chips = byId('quick-chips');
-    const cvss = document.createElement('label'), epss = document.createElement('label');
-    cvss.id = 'num-cvss'; epss.id = 'num-epss';
-    const place = (box, el, ref) => {
-      if (el.parentNode) el.parentNode.children = el.parentNode.children.filter(c => c !== el);
-      el.parentNode = box;
-      const i = ref ? box.children.indexOf(ref) : -1;
-      box.children.splice(i < 0 ? box.children.length : i, 0, el);
-      return el;
-    };
-    home.insertBefore = (el, ref) => place(home, el, ref);
-    row.appendChild = el => place(row, el, null);
-    for (const el of [chips, cvss, epss, toggle]) place(home, el, null);
-    document.querySelectorAll = sel => (sel === '.filter-bar .num-filter' ? [cvss, epss] : []);
-  })()`);
-  const kids = id => d.run(`byId('${id}').children.map(c => c.id)`);
-  d.run("switchView('cves'); activeFilters.cvssMin = 7; showDetail('CVE-2026-0003')");
+  d.run('renderQuickChips()');
+  const quick = d.el('quick-chips').innerHTML;
+  assert.equal((quick.match(/class="q-chip /g) || []).length, 10, '조건 칩 10개 모두');
+  assert.doesNotMatch(quick, /q-more|is-extra|접기|조건 \+/, "'조건 +N' 으로 접지 않는다");
+  assert.doesNotMatch(quick, /<b>/, '칩에는 숫자를 적지 않는다');
+  assert.match(quick, /data-term="has:kev"[^>]*title="[^"]*\(검색어 has:kev, 전체 3건\)">\s*<i><\/i>악용 근거<\/button>/, '전체 건수는 마우스를 올리면 보이는 설명에');
+  const src = d.el('source-chips').innerHTML;
+  assert.doesNotMatch(src, /<b>/, '필터 안 출처별 칩도 이름만');
+  assert.match(src, /data-term="has:vulncheck-kev"[^>]*전체 \d+건\)">/);
+  // '필터' 숫자 = 필터 안에 들어 있는 조건만 — 검색어와 조건 줄에 늘 보이는 CVSS · EPSS 는 세지 않는다(나란히 보기도 같다)
+  d.run("activeFilters.cvssMin = 7; activeFilters.vendor = 'Microsoft'; renderChips();");
+  assert.equal(d.el('filter-count').textContent, '1');
+  d.run("switchView('cves'); showDetail('CVE-2026-0003'); renderChips();");
   assert.equal(d.run('splitOpen'), true);
-  assert.deepEqual(kids('filter-home'), ['filter-toggle'], '조건 줄 = 심각도 + 필터 버튼');
-  assert.deepEqual(kids('filter-split-row'), ['quick-chips', 'num-cvss', 'num-epss']);
-  assert.equal(d.el('filter-split').hidden, false);
-  d.run('renderChips()');
-  assert.equal(d.el('filter-count').textContent, '1', 'CVSS 조건이 필터 안에 있으니 필터 숫자에 센다');
-  d.run('detailPushed = false; closeModal()');
-  assert.deepEqual(kids('filter-home'), ['quick-chips', 'num-cvss', 'num-epss', 'filter-toggle'], '닫으면 제자리로');
-  assert.equal(d.el('filter-split').hidden, true);
-  assert.equal(d.el('filter-count').hidden, true, '조건 줄에 보이는 CVSS 는 필터 숫자에 세지 않는다');
+  assert.equal(d.el('filter-count').textContent, '1', '나란히 보기에서도 조건 줄은 같다');
 });
 
 test('최근 본 CVE — 상세를 열면 이 브라우저에만 10건까지, 빈 검색창을 누르면 목록, 본 CVE 는 목록에서 흐리게', () => {
