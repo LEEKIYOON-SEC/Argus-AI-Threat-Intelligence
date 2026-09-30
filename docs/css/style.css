@@ -778,16 +778,23 @@ tr.is-empty td { text-align: center; }
   line-height: 1.8; color: var(--text-muted); white-space: nowrap; }
 .st-chip b { font-weight: 600; color: var(--text); }
 .st-chip.st-unknown { border-style: dashed; cursor: help; }
-details.d-more { margin-top: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
-details.d-more > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 8px 12px; cursor: pointer; list-style: none; font-size: 12px; color: var(--text-muted); }
-details.d-more > summary::-webkit-details-marker { display: none; }
-details.d-more > summary::before { content: '▸'; color: var(--text-muted); }
-details.d-more[open] > summary::before { content: '▾'; color: var(--accent); }
-.d-more-k { font-weight: 700; color: var(--text); }
-.d-more-go { margin-left: auto; font-weight: 600; color: var(--accent); }
-.d-more-body { padding: 0 12px 12px; }
+/* 없음 · 미확인 칩 줄 — 칩을 누르면 그 신호의 출처 표(아래 .st-panels), EOL · 수정 버전은 그 칸으로(↓) */
+.st-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text-muted); }
+.st-line-k { font-weight: 700; color: var(--text); }
+button.st-chip { background: none; font-family: inherit; }
+.st-chip[data-panel], .st-chip[data-open] { cursor: pointer; }
+.st-chip[data-panel]:hover, .st-chip[data-open]:hover, .st-chip[aria-expanded="true"] { border-color: var(--accent); color: var(--text); }
+/* 신호 줄 바로 아래 출처 표 칸 — 한 번에 하나만 열린다. 점 칸만큼 들여 써 어느 줄의 칸인지 보이게 */
+.ev-panel { margin: 0 0 10px 22px; }
+.ev-panel[hidden] { display: none; }
+.ev-panel .ev-group { margin-top: 0; }
+.st-panels .ev-panel { margin: 8px 0 0; }
+[data-panel]::after { content: '▾'; margin-left: 3px; font-size: 11px; }
+[data-panel][aria-expanded="true"]::after { content: '▴'; }
+.is-jump::after, .st-chip[data-open]::after { content: '↓'; margin-left: 3px; font-size: 11px; }
+.yes-row:has(> [aria-expanded="true"]) .y-label { color: var(--accent); }
 .none-card { padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface-2); }
-.none-card details.d-more { background: var(--surface); }
 .none-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 8px; }
 .none-head h3 { font-size: 16px; font-weight: 700; }
 .ans-exploitation, .ans-ransomware { --g-c: var(--g-exploit); }
@@ -824,22 +831,35 @@ table.ev-table { min-width: 0; }
 .ev-extra { margin-top: 3px; font-size: 12px; line-height: 1.6; color: var(--text-muted); overflow-wrap: anywhere; }
 .ev-extra code { font-size: 12px; }
 .ev-link { width: 64px; text-align: right; white-space: nowrap; font-size: 12px; }
-.rules-details { margin-top: 10px; }
-.rules-details > summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--accent); }
-.rules-section { margin-top: 10px; }
-.rule-block { margin-bottom: 10px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.rule-header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface-3); border-bottom: 1px solid var(--border); }
-.rule-title { font-size: 14px; font-weight: 700; }
-.trust-badge { padding: 1px 7px; border-radius: 5px; font-size: 12px; font-weight: 700; }
-.trust-official { background: color-mix(in srgb, var(--sev-low) 18%, transparent); color: var(--text); }
-.rule-source { font-size: 12px; color: var(--text-muted); }
-.rule-open { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none; }
+/* 탐지 룰 목록 — 룰마다 한 줄(엔진 · 출처 · SID · 라이선스 표기 · 본문 · 원문 · 복사), 본문은 눌러서 펼침 */
+.rule-item { border-top: 1px solid var(--border); }
+.rule-row { display: grid; grid-template-columns: 104px minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline; padding: 8px 12px; font-size: 14px; }
+.rule-eng { font-weight: 700; }
+.rule-eng small { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); }
+.rule-src { min-width: 0; }
+.rule-src b { font-weight: 600; }
+.rule-src code { margin-left: 6px; font-size: 12px; color: var(--text-muted); }
+.rule-license { display: block; margin-top: 2px; font-size: 12px; color: var(--text-muted); overflow-wrap: anywhere; }
+.rule-act { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 6px 12px; font-size: 12px; white-space: nowrap; }
+.rule-open { font-weight: 600; color: var(--accent); text-decoration: none; }
 .rule-open:hover { text-decoration: underline; }
-.rule-note { margin: 0 8px 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--surface); font-size: 12px; line-height: 1.55; color: var(--text-muted); }
-.copy-btn { margin-left: auto; padding: 3px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+.rule-open small { font-weight: 400; color: var(--text-muted); }
+.rule-body-btn { padding: 0; border: 0; background: none; color: var(--accent); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+.rule-body-btn::after { content: '▾'; margin-left: 3px; font-size: 11px; }
+.rule-body-btn[aria-expanded="true"]::after { content: '▴'; }
+.rule-note { grid-column: 2 / -1; font-size: 12px; line-height: 1.55; color: var(--text-muted); }
+.copy-btn { padding: 3px 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--text-muted); font-size: 12px; cursor: pointer; }
 .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
-.rule-license { padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
-.rule-preview { max-height: 420px; padding: 12px; overflow-x: auto; font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--text-muted); white-space: pre; }
+/* 한 줄짜리 Snort · Suricata 룰도 끝까지 보이게 줄을 바꾸고, 긴 룰은 칸 안에서 스크롤한다 */
+.rule-preview { max-height: 260px; margin: 0 12px 10px; padding: 10px 12px; overflow: auto; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-family: var(--mono); font-size: 12px; line-height: 1.6; color: var(--text-muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+.rule-preview[hidden] { display: none; }
+@container (max-width: 640px) {
+  .ev-panel { margin-left: 0; }
+  .rule-row { grid-template-columns: minmax(0, 1fr); }
+  .rule-act { justify-content: flex-start; }
+  .rule-note { grid-column: 1; }
+}
 
 /* 조치 · 영향 제품 — 두 칸 카드 */
 .d-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }

@@ -220,26 +220,62 @@ test('Data Sources — 외부 출처 한 표에 건수 · 갱신 · 이용 조�
   assert.match(reg, /id="src-cisa-kev"[\s\S]*?data-label="예약 주기">매시</);
 });
 
-test('탐지 룰 본문 — 라이선스 전문 · 룰 원문 링크를 붙이고, 라이선스가 없는 YARA 는 본문 없이 링크만', () => {
+test('탐지 룰 목록 — 룰마다 한 줄에 라이선스 전문 · 저작권 · 작성자 · 원문 링크, 라이선스가 없는 YARA 는 본문 없이 링크만', () => {
   const d = dashboard();
-  const html = d.run(`renderRulesSection({ id: 'CVE-X', rules: {
+  const html = d.run(`renderRuleList({ id: 'CVE-X', rules: {
     sigma: { code: 'title: s', source: 'SigmaHQ', license: 'DRL 1.1', author: 'A', url: 'https://github.com/SigmaHQ/sigma/blob/master/r.yml' },
     network: [{ engine: 'suricata7', source: 'Suricata 7 ET Open', license: 'MIT', code: 'alert x' }],
     yara: { engine: 'yara', source: 'YARA Forge', license: '룰별 상이', license_url: 'N/A', author: 'B',
             url: 'https://github.com/fboldewin/YARA-rules/blob/x/r.yar', code: 'rule leak {}' } } })`);
-  assert.match(html, /라이선스 <a href="https:\/\/github\.com\/SigmaHQ\/Detection-Rule-License"[^>]*>DRL 1\.1/);
-  assert.match(html, /작성자 A · <a href="https:\/\/github\.com\/SigmaHQ\/sigma\/blob\/master\/r\.yml"[^>]*>룰 원문/);
-  assert.match(html, /라이선스 <a href="https:\/\/rules\.emergingthreats\.net\/open\/suricata-7\.0\/LICENSE"[^>]*>BSD[^<]*<\/a> · © 2003-2026 Emerging Threats/);
+  const items = html.split('<div class="rule-item">').slice(1);
+  assert.deepEqual(items.map(x => /class="rule-eng">([^<]+)/.exec(x)[1]), ['Sigma', 'Suricata 7', 'YARA'], '근거 표와 같은 엔진 순서');
+  assert.match(items[0], /라이선스 <a href="https:\/\/github\.com\/SigmaHQ\/Detection-Rule-License"[^>]*>DRL 1\.1 ↗<\/a> · 작성자 A</);
+  assert.match(items[0], /class="rule-open" href="https:\/\/github\.com\/SigmaHQ\/sigma\/blob\/master\/r\.yml"[^>]*>원문 ↗/, 'DRL 1.1 은 룰 링크를 요구한다');
+  assert.match(items[1], /<b>ET Open<\/b>[\s\S]*?라이선스 <a href="https:\/\/rules\.emergingthreats\.net\/open\/suricata-7\.0\/LICENSE"[^>]*>BSD ↗<\/a> · © 2003-2026 Emerging Threats/);
   assert.doesNotMatch(html, /License: |MIT/, '옛 표기(ET Open MIT)를 그대로 싣지 않는다');
+  assert.doesNotMatch(items[1], /class="rule-open"/, 'msg 에 분류가 없는 ET 룰은 원문 파일을 알 수 없어 링크를 달지 않는다');
   assert.doesNotMatch(html, /rule leak/, '라이선스가 없는 저장소의 YARA 본문은 싣지 않는다');
-  assert.match(html, /원 저장소에 라이선스 파일이 없어 본문은 싣지 않습니다/);
-  assert.match(html, /href="https:\/\/github\.com\/fboldewin\/YARA-rules\/blob\/x\/r\.yar"[^>]*>원문 보기/);
-  // BSD · MIT 저장소의 YARA 룰은 저작권 문구를 룰 위에 함께 적는다 (문구는 export 가 원 저장소 LICENSE 에서 옮김)
-  const bsd = d.run(`renderRulesSection({ id: 'CVE-Y', rules: { yara: { engine: 'yara', source: 'YARA Forge', license: 'BSD-2-Clause',
+  assert.match(items[2], /원 저장소에 라이선스 파일이 없어 본문은 싣지 않습니다/);
+  assert.match(items[2], /href="https:\/\/github\.com\/fboldewin\/YARA-rules\/blob\/x\/r\.yar"[^>]*>원문 ↗/);
+  assert.doesNotMatch(items[2], /rule-body-btn|copy-btn/, '본문이 없으면 본문 · 복사 버튼도 없다');
+  // 본문은 처음에 닫혀 있고 '본문'으로 펼친다. 한 줄짜리 룰도 줄을 바꿔 끝까지 보이게(CSS).
+  assert.match(items[0], /<button type="button" class="rule-body-btn" onclick="toggleRuleBody\(this\)" aria-expanded="false" aria-controls="d-rule-0">본문<\/button>/);
+  assert.match(items[0], /<pre class="rule-preview" id="d-rule-0" hidden>title: s<\/pre>/);
+  // BSD · MIT 저장소의 YARA 룰은 저작권 문구를 함께 적는다 (문구는 export 가 원 저장소 LICENSE 에서 옮김)
+  const bsd = d.run(`renderRuleList({ id: 'CVE-Y', rules: { yara: { engine: 'yara', source: 'YARA Forge', license: 'BSD-2-Clause',
     holder: 'Copyright 2022 by Volexity, Inc.', license_url: 'https://github.com/volexity/threat-intel/blob/x/LICENSE.txt',
     author: 'threatintel@volexity.com', url: 'https://github.com/volexity/threat-intel/blob/x/y.yar', code: 'rule v {}' } } })`);
   assert.match(bsd, /라이선스 <a href="https:\/\/github\.com\/volexity\/threat-intel\/blob\/x\/LICENSE\.txt"[^>]*>BSD-2-Clause[^<]*<\/a> · Copyright 2022 by Volexity, Inc\. · 작성자 threatintel@volexity\.com/);
   assert.match(bsd, /rule v \{\}/);
+  assert.equal(d.run("renderRuleList({ id: 'CVE-Z', rules: {} })"), '', '룰이 없으면 목록도 없다');
+});
+
+test('탐지 룰 목록 — ET Open 은 분류 파일 + SID 위치, Snort Community 는 snort.org 룰 설명, nuclei 는 템플릿 원문', () => {
+  const d = dashboard();
+  const et = 'alert http any any -> $HOME_NET any (msg:"ET WEB_SPECIFIC_APPS Acme RCE (CVE-2026-0001)"; sid:2071774; rev:1;)';
+  const html = d.run(`renderRuleList({ id: 'CVE-X', _nuclei_url: 'https://github.com/projectdiscovery/nuclei-templates/blob/main/http/cves/x.yaml', rules: {
+    nuclei: { source: 'nuclei-templates', author: 'pd', url: '' },
+    network: [
+      { engine: 'suricata7', source: 'Suricata 7 ET Open', code: ${JSON.stringify(et)}, url: '' },
+      { engine: 'snort2', source: 'Snort 2.9 ET Open', code: ${JSON.stringify(et.replace('ET WEB_SPECIFIC_APPS', 'ET TROJAN'))}, url: '' },
+      { engine: 'snort3', source: 'Snort 3 Community', code: 'alert http (msg:"SERVER-WEBAPP x"; sid:62506; rev:1;)', url: '' },
+      { engine: 'suricata5', source: 'Suricata 5 ET Open', code: ${JSON.stringify(et.replace('ET WEB_SPECIFIC_APPS', 'ET NEWCAT'))}, url: '' }] } })`);
+  const items = html.split('<div class="rule-item">').slice(1);
+  assert.deepEqual(items.map(x => /class="rule-eng">([^<]+)/.exec(x)[1]), ['Suricata 7', 'Suricata 5', 'Snort 3', 'Snort 2', 'nuclei']);
+  assert.match(items[0], /<b>ET Open<\/b><code>SID 2071774<\/code>/);
+  assert.match(items[0], /href="https:\/\/rules\.emergingthreats\.net\/open\/suricata-7\.0\/rules\/emerging-web_specific_apps\.rules#:~:text=sid:2071774;"[^>]*>원문 파일 ↗ <small>5\.7MB<\/small>/);
+  assert.doesNotMatch(items[1], /class="rule-open"/, '분류 표에 없는 분류(새 분류)는 없는 파일로 보내지 않는다');
+  assert.match(items[2], /<b>Snort Community<\/b><code>SID 1:62506<\/code>[\s\S]*?href="https:\/\/www\.snort\.org\/rule-docs\/1-62506"[^>]*>룰 설명 ↗/);
+  assert.match(items[2], /라이선스 <a href="https:\/\/www\.gnu\.org\/licenses\/old-licenses\/gpl-2\.0\.html"[^>]*>GPLv2 ↗<\/a> · © 2001-2026 Sourcefire, Inc\. 및 각 작성자/);
+  assert.match(items[3], /href="https:\/\/rules\.emergingthreats\.net\/open\/snort-2\.9\.0\/rules\/emerging-trojan\.rules#:~:text=sid:2071774;"[^>]*>원문 파일 ↗ <small>19\.1MB<\/small>/, 'Snort 2.9 판에만 있는 분류');
+  assert.match(items[4], /class="rule-eng">nuclei<small>점검 템플릿<\/small>/);
+  assert.match(items[4], /href="https:\/\/github\.com\/projectdiscovery\/nuclei-templates\/blob\/main\/http\/cves\/x\.yaml"[^>]*>원문 ↗/);
+  assert.match(items[4], /공격 탐지 룰이 아니며 공격에도 쓰일 수 있어 본문은 싣지 않습니다/, 'nuclei 는 공격 탐지 룰이 아님을 적는다(§13)');
+  assert.doesNotMatch(items[4], /rule-body-btn|<pre/, '점검 템플릿은 본문을 싣지 않는다');
+  // rule_engines 에만 있고 룰 본문이 없는 네트워크 엔진 — 룰이 온 곳(ET Open · Snort Community)을 몰라 라이선스를 짐작해 적지 않는다
+  const bare = d.run(`renderRuleList({ id: 'CVE-B', rule_engines: ['snort2'], rules: {} })`);
+  assert.match(bare, /class="rule-eng">Snort 2<\/span>[\s\S]*?<b>ET Open · Snort Community<\/b><\/span>/);
+  assert.doesNotMatch(bare, /라이선스|class="rule-open"|rule-body-btn/);
 });
 
 test('대시보드 — 전체 데이터 전에 CI 사전 계산으로 먼저 그리고, 숫자는 같다', () => {
@@ -479,6 +515,63 @@ test('상세 — 머리글 수치 → 확인된 위협 신호 → 조치 · 영�
   assert.equal(d.el('detail-origin').textContent, '대시보드', '돌아가기 = 들어오기 전 화면');
 });
 
+// 신호마다 '자세히'로 여는 출처 표 칸 — 그 신호 줄 바로 아래(없음 · 미확인이면 칩 줄 아래), 처음에는 닫혀 있다(§6 '화면 개편 5차').
+const PANELS = ['exploitation', 'exploit', 'automation', 'ransomware', 'detection'];
+test("상세 — '자세히'는 그 신호의 출처 표만 그 줄 바로 아래에, 칩도 같은 칸을 열고, EOL · 수정 버전은 그 칸으로 옮겨 간다", () => {
+  const d = dashboard();
+  d.run("showDetail('CVE-2026-0002')");
+  const threat = detailSec(d.el('modal-body').innerHTML, 'd-threat');
+  assert.doesNotMatch(threat, /d-threat-more|출처별로 보기|rules-details/, "표를 한꺼번에 여는 '출처별로 보기' 묶음은 없다");
+  for (const p of PANELS) {
+    assert.equal((threat.match(new RegExp(`id="d-panel-${p}"`, 'g')) || []).length, 1, `${p} 칸은 하나`);
+    assert.match(threat, new RegExp(`<div class="ev-panel" id="d-panel-${p}" hidden>`), `${p} 칸은 처음에 닫혀 있다`);
+  }
+  // 확인된 신호 — '자세히' 바로 뒤에 그 신호 칸
+  assert.match(threat, /yes-row ans-weaponization">[\s\S]*?<button type="button" class="link-btn ev-toggle" data-panel="exploit" aria-expanded="false" aria-controls="d-panel-exploit">자세히<\/button><\/div><div class="ev-panel" id="d-panel-exploit" hidden><div class="ev-group[^"]*" id="d-ev-exploit">/);
+  assert.match(threat, /yes-row ans-detection">[\s\S]*?data-panel="detection"[^>]*>자세히<\/button><\/div><div class="ev-panel" id="d-panel-detection" hidden>[\s\S]*?class="rule-list"/,
+               '탐지 룰 칸에는 룰마다 한 줄인 목록');
+  assert.match(threat, /id="d-panel-detection"[\s\S]*?class="rule-eng">nuclei<small>점검 템플릿<\/small>[\s\S]*?href="https:\/\/github\.com\/projectdiscovery\/nuclei-templates\/blob\/main\/x\.yaml"[^>]*>원문 ↗/,
+               'rules 가 비어 있어도 신호 줄이 보여 주는 엔진(nuclei 템플릿)은 목록에 싣는다');
+  assert.match(threat, /yes-row ans-lifecycle">[\s\S]*?<button type="button" class="link-btn is-jump" data-open="lifecycle">수명주기 상세<\/button><\/div>(?!<div class="ev-panel")/);
+  // 없음 · 미확인 — 칩을 누르면 칩 줄 아래에서 그 신호 칸
+  const line = threat.slice(threat.indexOf('class="st-line"'), threat.indexOf('class="st-panels"'));
+  assert.match(line, /없음 1 · 미확인 3/);
+  assert.match(line, /<button type="button" data-panel="exploitation" aria-expanded="false" aria-controls="d-panel-exploitation" class="st-chip st-no">실제 악용 <b>보고 없음<\/b><\/button>/);
+  assert.match(line, /<button type="button" data-open="remediation" class="st-chip st-unknown" title="[^"]+">수정 버전 <b>미확인<\/b><\/button>/);
+  const rest = threat.slice(threat.indexOf('class="st-panels"'));
+  assert.deepEqual([...rest.matchAll(/id="d-panel-(\w+)"/g)].map(m => m[1]), ['exploitation', 'automation', 'ransomware']);
+  d.run("showDetail('CVE-2026-0008')");
+  assert.match(detailSec(d.el('modal-body').innerHTML, 'd-threat'), /yes-row ans-remediation">[\s\S]*?<button type="button" class="link-btn is-jump" data-open="remediation">조치 칸<\/button>/);
+  // 엔진을 모르는 '공식 룰 있음'만 있으면 목록 대신 출처 표
+  d.run("showDetail('CVE-2026-0009')");
+  const official = detailSec(d.el('modal-body').innerHTML, 'd-threat');
+  assert.match(official, /id="d-panel-detection" hidden>[\s\S]*?<table class="ev-table">[\s\S]*?공개 룰 색인[\s\S]*?공식 룰 있음/);
+  assert.doesNotMatch(official, /class="rule-list"/);
+  // 확인된 신호가 없을 때도 칩으로 연다
+  d.run("showDetail('CVE-2026-0005')");
+  const none = detailSec(d.el('modal-body').innerHTML, 'd-threat');
+  assert.match(none, /class="none-card"[\s\S]*?class="st-chips"><button type="button" data-panel="exploitation"[\s\S]*?class="st-panels"><div class="ev-panel" id="d-panel-exploitation" hidden>/);
+});
+
+test("상세 — 출처 표 칸은 한 번에 하나만 열리고, 같은 버튼을 다시 누르면 닫힌다", () => {
+  const d = dashboard();
+  d.run("showDetail('CVE-2026-0001')");
+  // 가짜 DOM 은 HTML 을 읽지 않는다 — 그려진 대로 모두 닫힌 상태에서 시작한다.
+  d.run(`for (const t of PANEL_TYPES) byId('d-panel-' + t).hidden = true;`);
+  const open = () => PANELS.filter(p => !d.el(`d-panel-${p}`).hidden);
+  d.run("togglePanel('exploit', null)");
+  assert.deepEqual(open(), ['exploit']);
+  d.run("togglePanel('detection', null)");
+  assert.deepEqual(open(), ['detection'], '다른 칸을 열면 앞의 칸은 닫힌다');
+  d.run("togglePanel('detection', null)");
+  assert.deepEqual(open(), [], '같은 칸을 다시 누르면 닫힌다');
+  d.run("openEvidence('ransomware'); openEvidence('ransomware')");
+  assert.deepEqual(open(), ['ransomware'], '이름으로 열 때는 닫지 않는다');
+  d.run("openEvidence('lifecycle')");
+  assert.equal(d.el('d-lifecycle').open, true, 'EOL 은 수명주기 상세를 펼친다');
+  assert.equal(d.run('PANEL_TYPES.length'), PANELS.length);
+});
+
 test('상세 — 원문(cve-facts) · 원 출처 날짜(cve-evidence)가 있으면 출처와 함께 보인다', () => {
   const d = dashboard();
   d.ctx.__files = {
@@ -529,12 +622,21 @@ test('출처 간 차이 — 어느 쪽도 지우지 않고 목록 · 상세 · �
   filterIds(d, "activeFilters.search = 'conflict:any';");
   assert.match(d.el('cve-table-body').innerHTML, /class="sc-flag"/, '목록 CVSS 칸에 등급 차이 표시');
   d.run("showDetail('CVE-2026-0010')");
-  const threat = detailSec(d.el('modal-body').innerHTML, 'd-threat');
-  assert.match(threat, /class="d-flag"><b>출처 간 차이<\/b> KEV에는 있는데 CISA SSVC 판정은 Exploitation: active가 아님/, '악용 근거 차이는 접지 않고 보인다');
-  assert.match(threat, /출처 간 차이: 악용 근거[\s\S]*?CISA KEV 등재[\s\S]*?CISA SSVC Exploitation: none/);
-  assert.match(threat, /출처 간 차이: CVSS[\s\S]*?CVSS 4\.0 6\.9 \(Medium\)[\s\S]*?CVSS 3\.1 9\.9 \(Critical\)/);
-  assert.match(threat, /data-query="conflict:exploitation"/);
+  const body = d.el('modal-body').innerHTML;
+  const threat = detailSec(body, 'd-threat');
+  assert.match(threat, /class="d-flag"><b>출처 간 차이<\/b> KEV에는 있는데 CISA SSVC 판정은 Exploitation: active가 아님 <button type="button" class="link-btn" data-panel="exploitation"/,
+               "악용 근거 차이는 접지 않고 보이고, '자세히'는 실제 악용 칸을 연다");
+  // 차이의 두 쪽은 관련 신호 칸(실제 악용) 안에 — 칸 밖의 다른 신호 칸에는 넣지 않는다
+  const panel = threat.slice(threat.indexOf('id="d-panel-exploitation"'), threat.indexOf('</div><div class="yes-row', threat.indexOf('id="d-panel-exploitation"')));
+  assert.match(panel, /출처 간 차이: 악용 근거[\s\S]*?CISA KEV 등재[\s\S]*?CISA SSVC Exploitation: none/);
+  assert.match(panel, /data-query="conflict:exploitation"/);
+  assert.equal((threat.match(/출처 간 차이: 악용 근거/g) || []).length, 1);
+  assert.doesNotMatch(threat, /출처 간 차이: CVSS/, 'CVSS 버전 차이는 위협 신호 칸에 두지 않는다');
+  // CVSS 버전 차이 — 머리글 수치 칸과 기술 정보(버전별 점수 · 같은 경우 목록)
   assert.match(d.el('modal-scores').innerHTML, /class="warn"[^>]*>v4\.0은 6\.9 Medium</, '버전별 등급 차이는 머리글 수치에');
+  const tech = detailSec(body, 'd-tech');
+  assert.match(tech, /CVSS 버전별[\s\S]*?v3\.1 9\.9 · Critical[\s\S]*?v4\.0 6\.9 · Medium|CVSS 버전별[\s\S]*?v4\.0 6\.9 · Medium[\s\S]*?v3\.1 9\.9 · Critical/, '어느 쪽도 지우지 않는다');
+  assert.match(tech, /data-query="conflict:cvss"[^>]*>같은 경우 보기 <code>conflict:cvss<\/code>/);
 });
 
 test('화면 전환 — 좁은 화면: 상세는 한 화면, URL 의 cve, 닫으면 들어오기 전 화면으로', () => {

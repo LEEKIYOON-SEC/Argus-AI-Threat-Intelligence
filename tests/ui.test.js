@@ -138,6 +138,16 @@ test('목록 · 상세 스타일 — 새 칸(유형 칩 · 등급 구분 줄 · 
   for (const gone of ['.h-lc', '.c-lc', '.side-sub', '.side-id', '.t-due', '.t-link.is-hot', '.q-more', 'is-extra', '.q-chip b']) {
     assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
   }
+  // 상세 위협 신호 — 신호마다 그 줄 아래 출처 표 칸 · 칩 줄, 탐지 룰은 룰마다 한 줄(§6 '화면 개편 5차'). '출처별로 보기' · 룰 상자는 없앴다.
+  for (const sel of ['.ev-panel[hidden]', '.st-line', '.st-panels .ev-panel', '[data-panel][aria-expanded="true"]::after', '.is-jump::after',
+                     '.rule-item', '.rule-row', '.rule-act', '.rule-body-btn', '.rule-preview[hidden]']) {
+    assert.ok(CSS.includes(sel), `새 스타일 ${sel}`);
+  }
+  for (const gone of ['details.d-more', '.d-more-body', '.d-more-go', '.rules-details', '.rules-section', '.rule-block', '.rule-header', '.trust-badge']) {
+    assert.ok(!CSS.includes(gone), `옛 스타일 ${gone}`);
+  }
+  // 한 줄짜리 Snort · Suricata 룰도 끝까지 보이게 줄을 바꾼다(예전 white-space: pre 는 칸 폭의 약 16%만 보였다)
+  assert.match(CSS, /\.rule-preview \{[^}]*white-space: pre-wrap; overflow-wrap: anywhere;/);
   // 대시보드 — 3칸 격자에 신호 조합 2칸, 주요 지표 칸 사이 16px(지표 2칸 · 4칸 경계가 1/3 · 2/3 선과 맞음), 30일 표는 높이 고정 + 스크롤
   assert.match(CSS, /\.dash-main \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\); gap: 16px;/);
   assert.match(CSS, /\.dash-main > \.corr-panel \{ grid-column: span 2; \}/);
